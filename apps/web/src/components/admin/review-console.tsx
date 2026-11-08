@@ -44,15 +44,51 @@ export interface ContentItem {
 }
 
 interface ReviewConsoleProps {
-  contentList: ContentItem[];
+  contentList?: ContentItem[];
   onStatusUpdated?: (itemId: string, newStatus: ContentStatus) => void;
 }
 
+const DEFAULT_REVIEW_ITEMS: ContentItem[] = [
+  {
+    id: 'rev_sample_1',
+    topicId: 'top_ssc_physics_motion',
+    type: 'QUESTION',
+    titleBangla: 'সুষম ত্বরণে চলা বস্তুর ৩য় সেকেন্ডে অতিক্রান্ত দূরত্ব',
+    contentSnippet: 'স্থির অবস্থান থেকে 2 m/s² সুষম ত্বরণে চলা একটি কণার ৩য় সেকেন্ডে অতিক্রান্ত দূরত্ব কত?',
+    status: ContentStatus.REVIEW,
+    version: 1,
+    authorName: 'ফয়সাল আহমেদ (কনটেন্ট এডিটর)',
+    payload: {
+      options: [
+        { id: 'opt_1', text: '4 m', isCorrect: false },
+        { id: 'opt_2', text: '5 m', isCorrect: true },
+        { id: 'opt_3', text: '6 m', isCorrect: false },
+        { id: 'opt_4', text: '9 m', isCorrect: false },
+      ],
+      explanation: {
+        directAnswer: 'সঠিক উত্তর (খ) 5 m।',
+        coreConcept: 'তম সেকেন্ডে অতিক্রান্ত দূরত্বের সূত্র: $s_t = u + \\frac{1}{2}a(2t - 1)$',
+      },
+    },
+  },
+  {
+    id: 'rev_sample_2',
+    topicId: 'top_ssc_physics_motion',
+    type: 'LESSON',
+    titleBangla: 'নিউটনের ৩য় গতিসূত্র ও রকেটের উড্ডয়ন',
+    contentSnippet: 'প্রত্যেক ক্রিয়ারই একটি সমান ও বিপরীত প্রতিক্রিয়া আছে...',
+    status: ContentStatus.REVIEW,
+    version: 2,
+    authorName: 'ডা. সুস্মিতা রায়',
+  },
+];
+
 export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsoleProps) {
+  const activeContentList = contentList && contentList.length > 0 ? contentList : DEFAULT_REVIEW_ITEMS;
   const [activeTab, setActiveTab] = useState<ContentStatus | 'ALL'>('ALL');
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'LESSON' | 'QUESTION'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedItem, setSelectedItem] = useState<ContentItem | null>(contentList[0] || null);
+  const [selectedItem, setSelectedItem] = useState<ContentItem | null>(activeContentList[0] || null);
 
   // Reviewer Form State
   const [decision, setDecision] = useState<'APPROVE' | 'REQUEST_CHANGES' | 'REJECT'>('APPROVE');
@@ -66,7 +102,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
 
   // Sync selectedItem if contentList updates
   useEffect(() => {
-    if (contentList.length > 0 && !selectedItem) {
+    if (contentList && contentList.length > 0 && !selectedItem) {
       setSelectedItem(contentList[0]);
     }
   }, [contentList, selectedItem]);
@@ -150,7 +186,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
     }
   };
 
-  const filteredContent = contentList.filter((item) => {
+  const filteredContent = activeContentList.filter((item) => {
     if (activeTab !== 'ALL' && item.status !== activeTab) return false;
     if (typeFilter !== 'ALL' && item.type !== typeFilter) return false;
     if (searchQuery.trim()) {
