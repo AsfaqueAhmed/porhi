@@ -15,6 +15,7 @@ import {
 import { MathToolbar } from '@/components/admin/math-toolbar';
 import { LatexRenderer } from '@/components/math/latex-renderer';
 import { apiClient } from '@/lib/api-client';
+import { StudentSimulatorFrame } from './student-simulator-frame';
 
 interface AuthoringStudioProps {
   onContentCreated?: () => void;
@@ -313,9 +314,12 @@ export function AuthoringStudio({
         </div>
       </div>
 
-      {/* MCQ Studio Form */}
+      {/* MCQ Studio Form with Real-Time Split Simulator */}
       {contentType === 'MCQ' && (
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Left 7 Columns: Question Input and 6 Layers */}
+            <div className="lg:col-span-7 space-y-6">
           {/* Question Stem & Math Toolbar */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
             <div className="flex items-center justify-between">
@@ -554,16 +558,33 @@ export function AuthoringStudio({
             </div>
           </div>
 
-          {/* Submit Action */}
-          <div className="flex justify-end gap-3">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-6 py-3 rounded-xl shadow transition-all flex items-center gap-2 disabled:opacity-50"
-            >
-              <Send className="w-4 h-4" />
-              <span>{isSubmitting ? 'সংরক্ষণ হচ্ছে...' : '৬-স্তরের ব্যাখ্যাসহ প্রশ্ন জমা দাও'}</span>
-            </button>
+              {/* Submit Action */}
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-6 py-3 rounded-xl shadow transition-all flex items-center gap-2 disabled:opacity-50"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>{isSubmitting ? 'সংরক্ষণ হচ্ছে...' : '৬-স্তরের ব্যাখ্যাসহ প্রশ্ন জমা দাও'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Right 5 Columns: Real-Time Interactive Student Mobile Simulator */}
+            <div className="lg:col-span-5 lg:sticky lg:top-24 space-y-4">
+              <StudentSimulatorFrame
+                stem={mcqStem}
+                options={mcqOptions.map((o) => ({ id: o.id, text: o.text, isCorrect: o.isCorrect }))}
+                coreConcept={coreConcept}
+                distractors={{ a: distractorA, b: distractorB, c: distractorC, d: distractorD }}
+                formulaSteps={stepDerivation}
+                citationBook={citationBook}
+                citationChapter={citationChapter}
+                citationPage={citationPage}
+                proTip={proTip}
+              />
+            </div>
           </div>
         </form>
       )}
