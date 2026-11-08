@@ -66,23 +66,23 @@ graph TD
 - `AdminTopbar`: Props `{ breadcrumbs: Array<{ label: string, href?: string }>, apiStatus: 'online' | 'offline' }`
 - `AdminDrawer`: Props `{ isOpen: boolean, onClose: () => void, title: string, subtitle?: string, children: React.ReactNode, footer?: React.ReactNode }`
 
-- [ ] **Step 1: Write unit tests for AdminSidebar, AdminTopbar, and AdminDrawer**
+- [x] **Step 1: Write unit tests for AdminSidebar, AdminTopbar, and AdminDrawer**
   - Verify sidebar renders brand logo, navigation links, and student app button.
   - Verify topbar renders breadcrumbs and backend API status badge.
   - Verify drawer slides in when `isOpen={true}` and triggers `onClose` on escape key or backdrop click.
-- [ ] **Step 2: Implement AdminSidebar**
+- [x] **Step 2: Implement AdminSidebar**
   - Support collapsible navigation state (`w-64` vs `w-20`).
   - Render links to `/admin`, `/admin/curriculum`, `/admin/questions`, `/admin/model-tests`, `/admin/reviews` with active path styling.
-- [ ] **Step 3: Implement AdminTopbar**
+- [x] **Step 3: Implement AdminTopbar**
   - Compute active breadcrumbs dynamically using `usePathname()`.
   - Add backend ping status check against `http://localhost:3001/curriculum/subjects`.
-- [ ] **Step 4: Implement AdminDrawer**
+- [x] **Step 4: Implement AdminDrawer**
   - Slide-over sheet with backdrop overlay, transition animations, sticky header, scrollable body, and sticky action buttons.
-- [ ] **Step 5: Implement `apps/web/src/app/admin/layout.tsx`**
+- [x] **Step 5: Implement `apps/web/src/app/admin/layout.tsx`**
   - Wrap child routes with `AdminSidebar`, `AdminTopbar`, and flex layout container.
-- [ ] **Step 6: Run tests and verify**
+- [x] **Step 6: Run tests and verify**
   - Run `pnpm --filter @pori/web test` and ensure all layout tests pass.
-- [ ] **Step 7: Commit changes**
+- [x] **Step 7: Commit changes**
   - `git commit -am "feat(admin): implement enterprise layout, sidebar, topbar, and slide-over drawer"`
 
 ---
@@ -97,16 +97,16 @@ graph TD
 - Consumes: `GET /curriculum/subjects`, `GET /admin/content/reviews`
 - Produces: KPI cards, Subject Completion Gauges, Quick Action Jump Buttons
 
-- [ ] **Step 1: Write unit test for `/admin` Overview page**
+- [x] **Step 1: Write unit test for `/admin` Overview page**
   - Test metrics card rendering (Total Subjects, Chapters, Topics, Questions).
   - Test quick navigation links to `/admin/curriculum` and `/admin/questions`.
-- [ ] **Step 2: Implement Overview Dashboard**
+- [x] **Step 2: Implement Overview Dashboard**
   - Fetch summary data from backend (`/curriculum/subjects` and review items).
   - Display syllabus readiness cards with toggle shortcuts.
   - Display quick action banner ("নতুন প্রশ্ন যোগ", "নতুন বিষয় যোগ", "মডেল টেস্ট তৈরি").
-- [ ] **Step 3: Run tests and verify**
+- [x] **Step 3: Run tests and verify**
   - Run `pnpm --filter @pori/web test apps/web/tests/admin-overview.test.tsx`.
-- [ ] **Step 4: Commit changes**
+- [x] **Step 4: Commit changes**
   - `git commit -am "feat(admin): implement modular overview dashboard route"`
 
 ---
@@ -122,19 +122,19 @@ graph TD
 - Consumes: `POST /admin/content/subjects`, `POST /admin/content/chapters`, `POST /admin/content/topics`, `POST /admin/content/subjects/:id/toggle-ready`
 - Uses: `AdminDrawer` for Subject, Chapter, and Topic creation forms.
 
-- [ ] **Step 1: Write unit tests for Curriculum Explorer with Drawers**
+- [x] **Step 1: Write unit tests for Curriculum Explorer with Drawers**
   - Verify clicking "+ নতুন বিষয়" opens Subject Drawer.
   - Verify clicking "+ নতুন অধ্যায়" opens Chapter Drawer with subject pre-selected.
   - Verify clicking "+ টপিক যোগ" opens Topic Drawer with chapter pre-selected.
-- [ ] **Step 2: Implement Curriculum Page with Slide-Over Drawers**
+- [x] **Step 2: Implement Curriculum Page with Slide-Over Drawers**
   - Replace centered modal popups with right-anchored `AdminDrawer` components.
   - Maintain URL query param `?subjectId=...` for persistence.
   - Provide direct jump buttons:
     - "+ প্রশ্ন যোগ" $\rightarrow$ `/admin/questions?topicId={id}&subjectId={subId}`
     - "+ অধ্যায় মডেল টেস্ট" $\rightarrow$ `/admin/model-tests?subjectId={subId}&chapterId={chId}`
-- [ ] **Step 3: Run tests and verify**
+- [x] **Step 3: Run tests and verify**
   - Run `pnpm --filter @pori/web test apps/web/tests/admin-curriculum-drawer.test.tsx`.
-- [ ] **Step 4: Commit changes**
+- [x] **Step 4: Commit changes**
   - `git commit -am "feat(admin): implement curriculum tree explorer with slide-over drawers"`
 
 ---
@@ -151,19 +151,19 @@ graph TD
 - Consumes: `useSearchParams()` for `topicId`, `subjectId`, `type` (`mcq` vs `lesson`)
 - Produces: Live KaTeX-rendered interactive mobile simulator card side-by-side with authoring form.
 
-- [ ] **Step 1: Write unit test for Split-Screen Authoring Studio**
+- [x] **Step 1: Write unit test for Split-Screen Authoring Studio**
   - Test real-time reflection of question stem and option text in the student preview frame.
   - Test 6-layer explanation rendering in the simulator preview.
-- [ ] **Step 2: Implement Student Simulator Frame**
+- [x] **Step 2: Implement Student Simulator Frame**
   - Build styled mobile phone card preview (`w-full max-w-sm rounded-3xl border-4 border-slate-800 shadow-2xl p-4 bg-slate-50`).
   - Interactive radio option selection showing correct answer highlight and explanation trigger.
-- [ ] **Step 3: Implement Questions Studio Page**
+- [x] **Step 3: Implement Questions Studio Page**
   - Desktop 60/40 split-screen layout with sticky preview.
   - KaTeX math toolbar integration.
   - 6-Layer Multi-Layer Explanation accordion inputs with validation.
-- [ ] **Step 4: Run tests and verify**
+- [x] **Step 4: Run tests and verify**
   - Run `pnpm --filter @pori/web test apps/web/tests/admin-questions-studio.test.tsx`.
-- [ ] **Step 5: Commit changes**
+- [x] **Step 5: Commit changes**
   - `git commit -am "feat(admin): implement split-screen question authoring studio with live student simulator"`
 
 ---
@@ -179,18 +179,18 @@ graph TD
 - `/admin/model-tests`: Chapter-wise timed test configurator, question count, negative penalty, launch live exam.
 - `/admin/reviews`: Editorial queue, revision comparison, student simulator test, approval stamps.
 
-- [ ] **Step 1: Write unit tests for Model Tests & Reviews pages**
+- [x] **Step 1: Write unit tests for Model Tests & Reviews pages**
   - Test test blueprint creation and slider interactions.
   - Test review item rejection/approval workflow actions.
-- [ ] **Step 2: Implement `/admin/model-tests/page.tsx`**
+- [x] **Step 2: Implement `/admin/model-tests/page.tsx`**
   - Dedicated page hosting `ModelTestManager` with breadcrumb context and quick exam launching.
-- [ ] **Step 3: Implement `/admin/reviews/page.tsx`**
+- [x] **Step 3: Implement `/admin/reviews/page.tsx`**
   - Dedicated page hosting `ReviewConsole` with student simulator and audit trail.
-- [ ] **Step 4: Deprecate or redirect old `/admin/content`**
+- [x] **Step 4: Deprecate or redirect old `/admin/content`**
   - Set up redirect or link forwarding from legacy `/admin/content` to `/admin/curriculum`.
-- [ ] **Step 5: Run tests and verify**
+- [x] **Step 5: Run tests and verify**
   - Run `pnpm test` and `pnpm -r build`.
-- [ ] **Step 6: Commit changes**
+- [x] **Step 6: Commit changes**
   - `git commit -am "feat(admin): implement model test and review console routes and redirect legacy path"`
 
 ---
@@ -200,14 +200,14 @@ graph TD
 **Files:**
 - Verify all routes and components across `apps/web` and `apps/api`.
 
-- [ ] **Step 1: Run full TypeScript checks and linting**
+- [x] **Step 1: Run full TypeScript checks and linting**
   - `pnpm --filter @pori/web lint`
   - `pnpm --filter @pori/api lint`
-- [ ] **Step 2: Run all unit and e2e tests in monorepo**
+- [x] **Step 2: Run all unit and e2e tests in monorepo**
   - `pnpm test` (all packages must pass 100%)
-- [ ] **Step 3: Run full monorepo build**
+- [x] **Step 3: Run full monorepo build**
   - `pnpm -r build` (zero errors across packages/shared, apps/api, apps/web)
-- [ ] **Step 4: Verify live dev servers**
+- [x] **Step 4: Verify live dev servers**
   - Test `GET http://localhost:3000/admin`, `http://localhost:3000/admin/curriculum`, `http://localhost:3000/admin/questions`, `http://localhost:3000/admin/model-tests`, `http://localhost:3000/admin/reviews`.
-- [ ] **Step 5: Commit and merge**
+- [x] **Step 5: Commit and merge**
   - `git commit -am "chore(admin): verify full enterprise UI suite and clean production build"`
