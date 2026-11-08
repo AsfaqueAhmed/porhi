@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { Test } from '@nestjs/testing';
 import { PrismaService } from '../src/database/prisma.service';
+import { PrismaModule } from '../src/database/prisma.module';
 import { AppModule } from '../src/app.module';
 
 describe('PrismaService', () => {
@@ -8,7 +9,7 @@ describe('PrismaService', () => {
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
-      providers: [PrismaService],
+      imports: [PrismaModule],
     }).compile();
 
     service = module.get<PrismaService>(PrismaService);
@@ -42,12 +43,13 @@ describe('PrismaService', () => {
     expect(disconnectSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('should be provided and exportable through AppModule', async () => {
+  it('should be provided globally via PrismaModule and accessible through AppModule', async () => {
     const module = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     const appPrismaService = module.get<PrismaService>(PrismaService);
     expect(appPrismaService).toBeDefined();
+    expect(appPrismaService.user).toBeDefined();
   });
 });
