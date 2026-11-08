@@ -187,6 +187,17 @@ describe('ExamService', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
+    it('should throw BadRequestException if chapter does not belong to specified subject', async () => {
+      prisma.chapter.findUnique.mockResolvedValue({ id: 'chap1', subjectId: 'different-subject' });
+
+      await expect(
+        examService.startExam(
+          { testType: 'CHAPTER_TEST', subjectId: 'sub1', chapterId: 'chap1' },
+          'user-1',
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
     it('should throw NotFoundException if no published questions found', async () => {
       prisma.chapter.findUnique.mockResolvedValue({ id: 'chap1', subjectId: 'sub1' });
       prisma.question.findMany.mockResolvedValue([]);
@@ -231,6 +242,40 @@ describe('ExamService', () => {
       expect(result.success).toBe(true);
     });
 
+    it('should ignore uninvited questions submitted via heartbeat', async () => {
+      prisma.examSession.findUnique.mockResolvedValue({
+        id: 'session-1',
+        userId: 'user-1',
+        status: 'IN_PROGRESS',
+        answers: [{ questionId: 'q1', selectedOptionId: null, timeSpent: 0 }],
+      });
+
+      prisma.examSession.update.mockResolvedValue({
+        id: 'session-1',
+        status: 'IN_PROGRESS',
+      });
+
+      const result = await examService.heartbeat(
+        'session-1',
+        {
+          answers: [
+            { questionId: 'q1', selectedOptionId: 'opt_1a', timeSpent: 10 },
+            { questionId: 'foreign-q-999', selectedOptionId: 'easy-opt', timeSpent: 5 },
+          ],
+        },
+        'user-1',
+      );
+
+      expect(prisma.examSession.update).toHaveBeenCalledWith({
+        where: { id: 'session-1' },
+        data: {
+          answers: [{ questionId: 'q1', selectedOptionId: 'opt_1a', timeSpent: 10 }],
+        },
+      });
+      expect(result.answers).toHaveLength(1);
+      expect(result.answers[0].questionId).toBe('q1');
+    });
+
     it('should throw NotFoundException if session does not exist', async () => {
       prisma.examSession.findUnique.mockResolvedValue(null);
 
@@ -265,13 +310,14 @@ describe('ExamService', () => {
   });
 
   describe('submitExam', () => {
-    it('should calculate final score with negative penalty (0.25)', async () => {
+    it('should calculate final score with negative penalty (0.25) and include topicId', async () => {
       prisma.examSession.findUnique.mockResolvedValue({
         id: 'session-1',
         userId: 'user-1',
         negativeRatio: 0.25,
         totalQuestions: 2,
         durationSeconds: 120,
+        startedAt: new Date(),
         status: 'IN_PROGRESS',
         answers: [
           { questionId: 'q1', selectedOptionId: null, timeSpent: 0 },
@@ -282,10 +328,14 @@ describe('ExamService', () => {
       prisma.question.findMany.mockResolvedValue([sampleQuestion1, sampleQuestion2]);
       prisma.examSession.update.mockResolvedValue({ id: 'session-1', status: 'COMPLETED' });
 
-      const result = await examService.submitExam('session-1', [
-        { questionId: 'q1', selectedOptionId: 'opt_1a', timeSpent: 15 }, // correct (1.0)
-        { questionId: 'q2', selectedOptionId: 'opt_2b', timeSpent: 20 }, // wrong (-0.25)
-      ]);
+      const result = await examService.submitExam(
+        'session-1',
+        [
+          { questionId: 'q1', selectedOptionId: 'opt_1a', timeSpent: 15 }, // correct (1.0)
+          { questionId: 'q2', selectedOptionId: 'opt_2b', timeSpent: 20 }, // wrong (-0.25)
+        ],
+        'user-1',
+      );
 
       // 1 correct (1.0) - 1 wrong (0.25) = 0.75
       expect(result.score).toBe(0.75);
@@ -329,10 +379,11 @@ describe('ExamService', () => {
         }),
       });
 
-      // Verify answersWithExplanation contains full feedback
+      // Verify answersWithExplanation contains full feedback and topicId
       expect(result.answersWithExplanation).toHaveLength(2);
       expect(result.answersWithExplanation[0]).toMatchObject({
         questionId: 'q1',
+        topicId: 'top1',
         isCorrect: true,
         selectedOptionId: 'opt_1a',
         correctOptionId: 'opt_1a',
@@ -340,6 +391,7 @@ describe('ExamService', () => {
       });
       expect(result.answersWithExplanation[1]).toMatchObject({
         questionId: 'q2',
+        topicId: 'top1',
         isCorrect: false,
         selectedOptionId: 'opt_2b',
         correctOptionId: 'opt_2a',
@@ -354,6 +406,7 @@ describe('ExamService', () => {
         negativeRatio: 0.25,
         totalQuestions: 2,
         durationSeconds: 120,
+        startedAt: new Date(),
         status: 'IN_PROGRESS',
         answers: [
           { questionId: 'q1', selectedOptionId: null, timeSpent: 0 },
@@ -393,6 +446,7 @@ describe('ExamService', () => {
         negativeRatio: 0.5,
         totalQuestions: 2,
         durationSeconds: 120,
+        startedAt: new Date(),
         status: 'IN_PROGRESS',
         answers: [
           { questionId: 'q1', selectedOptionId: null, timeSpent: 0 },
@@ -404,10 +458,14 @@ describe('ExamService', () => {
       prisma.examSession.update.mockResolvedValue({ id: 'session-3', status: 'COMPLETED' });
 
       // 0 correct, 2 wrong -> raw score: 0 - (2 * 0.5) = -1.0, clamped to 0
-      const result = await examService.submitExam('session-3', [
-        { questionId: 'q1', selectedOptionId: 'opt_1b', timeSpent: 10 },
-        { questionId: 'q2', selectedOptionId: 'opt_2b', timeSpent: 10 },
-      ]);
+      const result = await examService.submitExam(
+        'session-3',
+        [
+          { questionId: 'q1', selectedOptionId: 'opt_1b', timeSpent: 10 },
+          { questionId: 'q2', selectedOptionId: 'opt_2b', timeSpent: 10 },
+        ],
+        'user-1',
+      );
 
       expect(result.score).toBe(0);
       expect(result.correctCount).toBe(0);
@@ -415,14 +473,31 @@ describe('ExamService', () => {
       expect(result.negativeDeduction).toBe(1.0);
     });
 
+    it('should throw BadRequestException when exam duration plus grace period has expired', async () => {
+      const expiredStartedAt = new Date(Date.now() - (600 + 150) * 1000); // 750s ago for 600s test (grace 120s)
+      prisma.examSession.findUnique.mockResolvedValue({
+        id: 'session-expired',
+        userId: 'user-1',
+        status: 'IN_PROGRESS',
+        durationSeconds: 600,
+        startedAt: expiredStartedAt,
+        answers: [],
+      });
+
+      await expect(
+        examService.submitExam('session-expired', [], 'user-1'),
+      ).rejects.toThrow(BadRequestException);
+    });
+
     it('should throw BadRequestException if exam is already submitted', async () => {
       prisma.examSession.findUnique.mockResolvedValue({
         id: 'session-1',
         userId: 'user-1',
         status: 'COMPLETED',
+        startedAt: new Date(),
       });
 
-      await expect(examService.submitExam('session-1', [])).rejects.toThrow(
+      await expect(examService.submitExam('session-1', [], 'user-1')).rejects.toThrow(
         BadRequestException,
       );
     });
@@ -432,6 +507,7 @@ describe('ExamService', () => {
         id: 'session-1',
         userId: 'other-user',
         status: 'IN_PROGRESS',
+        startedAt: new Date(),
       });
 
       await expect(
@@ -473,6 +549,7 @@ describe('ExamService', () => {
       const completedAnswers = [
         {
           questionId: 'q1',
+          topicId: 'top1',
           stem: sampleQuestion1.stem,
           selectedOptionId: 'opt_1a',
           correctOptionId: 'opt_1a',
@@ -482,6 +559,7 @@ describe('ExamService', () => {
         },
         {
           questionId: 'q2',
+          topicId: 'top1',
           stem: sampleQuestion2.stem,
           selectedOptionId: 'opt_2b',
           correctOptionId: 'opt_2a',

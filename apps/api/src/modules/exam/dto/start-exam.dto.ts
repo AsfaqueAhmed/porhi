@@ -1,9 +1,10 @@
 import { Type } from 'class-transformer';
-import { IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
 
 export class StartExamDto {
   @IsNotEmpty()
   @IsString()
+  @IsIn(['CHAPTER_TEST', 'TOPIC_TEST'])
   testType!: string;
 
   @IsNotEmpty()
@@ -22,11 +23,13 @@ export class StartExamDto {
   @IsNumber()
   @Type(() => Number)
   @Min(0)
+  @Max(1.0)
   negativeRatio?: number = 0.25;
 
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  @Min(1)
+  @Min(60)
+  @Max(7200)
   durationSeconds?: number;
 }

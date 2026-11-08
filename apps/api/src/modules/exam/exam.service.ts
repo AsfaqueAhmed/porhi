@@ -12,6 +12,8 @@ import { StartExamDto } from './dto/start-exam.dto';
 import { HeartbeatAnswerDto, HeartbeatExamDto } from './dto/heartbeat-exam.dto';
 import { ExamAnswerDto, SubmitExamDto } from './dto/submit-exam.dto';
 
+const GRACE_PERIOD_SECONDS = 120;
+
 function shuffle<T>(array: T[]): T[] {
   const result = [...array];
   for (let i = result.length - 1; i > 0; i--) {
@@ -28,6 +30,26 @@ export class ExamService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async startExam(dto: StartExamDto, userId: string) {
+    if (!dto?.testType || !['CHAPTER_TEST', 'TOPIC_TEST'].includes(dto.testType)) {
+      throw new BadRequestException('testType must be CHAPTER_TEST or TOPIC_TEST');
+    }
+
+    if (!dto?.subjectId || typeof dto.subjectId !== 'string') {
+      throw new BadRequestException('subjectId is required');
+    }
+
+    if (!dto?.chapterId || typeof dto.chapterId !== 'string') {
+      throw new BadRequestException('chapterId is required');
+    }
+
+    if (dto.negativeRatio !== undefined && (dto.negativeRatio < 0 || dto.negativeRatio > 1.0)) {
+      throw new BadRequestException('negativeRatio must be between 0 and 1.0');
+    }
+
+    if (dto.durationSeconds !== undefined && (dto.durationSeconds < 60 || dto.durationSeconds > 7200)) {
+      throw new BadRequestException('durationSeconds must be between 60 and 7200');
+    }
+
     if (dto.chapterId) {
       const chapter = await this.prisma.chapter.findUnique({
         where: { id: dto.chapterId },
@@ -35,6 +57,10 @@ export class ExamService {
 
       if (!chapter) {
         throw new NotFoundException(`Chapter not found with id: ${dto.chapterId}`);
+      }
+
+      if (dto.subjectId && chapter.subjectId !== dto.subjectId) {
+        throw new BadRequestException('Chapter does not belong to specified subject');
       }
     }
 
@@ -112,7 +138,7 @@ export class ExamService {
   async heartbeat(
     sessionId: string,
     dtoOrAnswers: HeartbeatExamDto | HeartbeatAnswerDto[],
-    userId?: string,
+    userId: string,
   ) {
     const session = await this.prisma.examSession.findUnique({
       where: { id: sessionId },
@@ -122,7 +148,7 @@ export class ExamService {
       throw new NotFoundException(`Exam session not found with id: ${sessionId}`);
     }
 
-    if (userId && session.userId !== userId) {
+    if (session.userId !== userId) {
       throw new ForbiddenException('You do not have access to this exam session');
     }
 
@@ -142,10 +168,11 @@ export class ExamService {
           answerMap.set(ans.questionId, ans);
         }
       }
+      // Only update questions that belong to the active exam session
       for (const ans of incomingAnswers) {
-        if (ans && ans.questionId) {
+        if (ans && ans.questionId && answerMap.has(ans.questionId)) {
           answerMap.set(ans.questionId, {
-            ...(answerMap.get(ans.questionId) || {}),
+            ...answerMap.get(ans.questionId),
             ...ans,
           });
         }
@@ -170,7 +197,7 @@ export class ExamService {
   async submitExam(
     sessionId: string,
     dtoOrAnswers: SubmitExamDto | ExamAnswerDto[],
-    userId?: string,
+    userId: string,
   ) {
     const session = await this.prisma.examSession.findUnique({
       where: { id: sessionId },
@@ -180,12 +207,22 @@ export class ExamService {
       throw new NotFoundException(`Exam session not found with id: ${sessionId}`);
     }
 
-    if (userId && session.userId !== userId) {
+    if (session.userId !== userId) {
       throw new ForbiddenException('You do not have access to this exam session');
     }
 
     if (session.status !== 'IN_PROGRESS') {
       throw new BadRequestException('Exam already submitted');
+    }
+
+    // Enforce exam duration / expiration check with grace period
+    const elapsedSeconds =
+      (Date.now() - new Date(session.startedAt).getTime()) / 1000;
+    if (
+      session.durationSeconds &&
+      elapsedSeconds > session.durationSeconds + GRACE_PERIOD_SECONDS
+    ) {
+      throw new BadRequestException('Exam time limit has expired');
     }
 
     const incomingAnswers = Array.isArray(dtoOrAnswers)
@@ -228,6 +265,7 @@ export class ExamService {
     let wrongCount = 0;
     let skippedCount = 0;
     const answersWithExplanation: any[] = [];
+    const mistakePromises: Promise<any>[] = [];
 
     const orderedQuestionIds =
       sessionQuestionIds.length > 0 ? sessionQuestionIds : allQuestionIds;
@@ -260,29 +298,32 @@ export class ExamService {
           wrongCount++;
           isCorrect = false;
 
-          await this.prisma.revisionMistake.upsert({
-            where: {
-              userId_questionId: {
+          mistakePromises.push(
+            this.prisma.revisionMistake.upsert({
+              where: {
+                userId_questionId: {
+                  userId: session.userId,
+                  questionId: qId,
+                },
+              },
+              create: {
                 userId: session.userId,
                 questionId: qId,
+                resolved: false,
+                attemptCount: 1,
               },
-            },
-            create: {
-              userId: session.userId,
-              questionId: qId,
-              resolved: false,
-              attemptCount: 1,
-            },
-            update: {
-              resolved: false,
-              attemptCount: { increment: 1 },
-            },
-          });
+              update: {
+                resolved: false,
+                attemptCount: { increment: 1 },
+              },
+            }),
+          );
         }
       }
 
       answersWithExplanation.push({
         questionId: qId,
+        topicId: q.topicId,
         stem: q.stem,
         selectedOptionId,
         correctOptionId,
@@ -290,6 +331,10 @@ export class ExamService {
         explanation: q.explanation,
         timeSpent,
       });
+    }
+
+    if (mistakePromises.length > 0) {
+      await Promise.all(mistakePromises);
     }
 
     const negativeRatio = session.negativeRatio || 0.0;

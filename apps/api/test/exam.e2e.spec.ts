@@ -356,12 +356,14 @@ describe('ExamModule (e2e)', () => {
 
       const ans1 = submitRes.body.answersWithExplanation.find((a: any) => a.questionId === 'q-force-1');
       expect(ans1.isCorrect).toBe(true);
+      expect(ans1.topicId).toBe('top-force-laws');
       expect(ans1.selectedOptionId).toBe('opt_1a');
       expect(ans1.correctOptionId).toBe('opt_1a');
       expect(ans1.explanation).toEqual(sampleExplanation);
 
       const ans2 = submitRes.body.answersWithExplanation.find((a: any) => a.questionId === 'q-force-2');
       expect(ans2.isCorrect).toBe(false);
+      expect(ans2.topicId).toBe('top-force-laws');
       expect(ans2.selectedOptionId).toBe('opt_2a');
       expect(ans2.correctOptionId).toBe('opt_2b');
       expect(ans2.explanation).toEqual(sampleExplanation2);
@@ -487,5 +489,60 @@ describe('ExamModule (e2e)', () => {
         .send({ answers: [] })
         .expect(403);
     });
+
+    it('should reject invalid StartExamDto parameters and subject-chapter mismatch', async () => {
+      const guestRes = await request(app.getHttpServer())
+        .post('/auth/guest')
+        .send({ guestId: 'validation-user' })
+        .expect(201);
+      const token = guestRes.body.accessToken;
+
+      // Invalid testType
+      await request(app.getHttpServer())
+        .post('/exam/start')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          testType: 'INVALID_TYPE',
+          subjectId: 'sub-ssc-physics',
+          chapterId: 'chap-physics-force',
+        })
+        .expect(400);
+
+      // Negative ratio > 1.0
+      await request(app.getHttpServer())
+        .post('/exam/start')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          testType: 'CHAPTER_TEST',
+          subjectId: 'sub-ssc-physics',
+          chapterId: 'chap-physics-force',
+          negativeRatio: 1.5,
+        })
+        .expect(400);
+
+      // Duration < 60s
+      await request(app.getHttpServer())
+        .post('/exam/start')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          testType: 'CHAPTER_TEST',
+          subjectId: 'sub-ssc-physics',
+          chapterId: 'chap-physics-force',
+          durationSeconds: 30,
+        })
+        .expect(400);
+
+      // Subject-chapter mismatch
+      await request(app.getHttpServer())
+        .post('/exam/start')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          testType: 'CHAPTER_TEST',
+          subjectId: 'different-subject',
+          chapterId: 'chap-physics-force',
+        })
+        .expect(400);
+    });
   });
 });
+
