@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { PersistentNav } from '@/components/navigation/persistent-nav';
+import { AppShell } from '@/components/navigation/app-shell';
 
 export const metadata: Metadata = {
   title: 'পড়ি (poRi) - SSC ও HSC সেলফ-স্টাডি লার্নিং প্ল্যাটফর্ম',
@@ -15,9 +15,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="bn">
-      <body className="min-h-screen bg-slate-50 flex flex-col antialiased text-slate-900 pb-16 md:pb-0">
-        <PersistentNav />
-        <main className="flex-1 max-w-5xl w-full mx-auto p-4 md:p-6">{children}</main>
+      <body className="min-h-screen bg-slate-50 antialiased text-slate-900 selection:bg-indigo-500 selection:text-white">
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

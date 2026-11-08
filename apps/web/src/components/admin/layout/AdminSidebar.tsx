@@ -19,9 +19,16 @@ import {
 export interface AdminSidebarProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
-export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSidebarProps) {
+export function AdminSidebar({
+  isCollapsed = false,
+  onToggleCollapse,
+  isMobileOpen = false,
+  onCloseMobile,
+}: AdminSidebarProps) {
   const pathname = usePathname();
 
   const navItems = [
@@ -66,9 +73,9 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
 
   return (
     <aside
-      className={`fixed top-0 left-0 bottom-0 z-40 bg-slate-900 text-slate-200 border-r border-slate-800 transition-all duration-300 flex flex-col justify-between select-none ${
-        isCollapsed ? 'w-20' : 'w-64'
-      }`}
+      className={`fixed top-0 left-0 bottom-0 z-50 bg-slate-900 text-slate-200 border-r border-slate-800 transition-all duration-300 flex flex-col justify-between select-none ${
+        isMobileOpen ? 'translate-x-0 w-72 shadow-2xl' : '-translate-x-full md:translate-x-0'
+      } ${isCollapsed ? 'md:w-20' : 'md:w-64'}`}
     >
       {/* Top Brand Header */}
       <div>
@@ -77,7 +84,7 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-amber-400 flex items-center justify-center shrink-0 shadow-md group-hover:scale-105 transition-transform">
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
-            {!isCollapsed && (
+            {(!isCollapsed || isMobileOpen) && (
               <div className="flex flex-col min-w-0">
                 <span className="font-extrabold text-sm tracking-wide text-white truncate flex items-center gap-1.5">
                   poRi Admin
@@ -92,6 +99,17 @@ export function AdminSidebar({ isCollapsed = false, onToggleCollapse }: AdminSid
               </div>
             )}
           </Link>
+
+          {onCloseMobile && (
+            <button
+              type="button"
+              onClick={onCloseMobile}
+              className="p-1 rounded-lg text-slate-400 hover:text-white md:hidden"
+              aria-label="সাইডবার বন্ধ করুন"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+          )}
         </div>
 
         {/* Navigation Section */}

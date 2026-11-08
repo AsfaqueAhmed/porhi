@@ -353,8 +353,8 @@ export function CurriculumManager({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md uppercase">
-                ধাপ ১: বিষয় নির্বাচন ও ব্যবস্থাপনা
+              <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                কারিকুলাম কনফিগারেশন
               </span>
             </div>
             <h2 className="text-base font-bold text-slate-900 mt-1 flex items-center gap-2">
@@ -413,25 +413,30 @@ export function CurriculumManager({
 
         {/* Active Subject Control Bar */}
         {activeSubject && (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-50 rounded-xl p-3 border border-slate-200 text-xs gap-3">
-            <div className="flex items-center gap-3">
-              <span className="font-bold text-slate-800 text-sm">{activeSubject.nameBangla}</span>
-              <span className="bg-indigo-100 text-indigo-800 font-semibold px-2 py-0.5 rounded-full text-[11px]">
-                {activeSubject.classLevel} (২০২৬ শিক্ষাক্রম)
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-50/80 rounded-2xl p-4 border border-slate-200/90 text-xs gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="font-extrabold text-slate-900 text-sm">{activeSubject.nameBangla}</span>
+              <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 font-semibold px-2.5 py-0.5 rounded-full text-[11px]">
+                {activeSubject.classLevel === 'CLASS_9_10'
+                  ? 'SSC (৯ম-১০ম)'
+                  : activeSubject.classLevel === 'HSC' || activeSubject.classLevel === 'CLASS_11_12'
+                  ? 'HSC (১১দশ-১২শ)'
+                  : 'ভর্তি পরীক্ষা'}{' '}
+                • {activeSubject.syllabusYear} শিক্ষাবর্ষ
               </span>
-              <span className="text-slate-500">কোড: <strong className="font-mono">{activeSubject.code}</strong></span>
-              <span className="text-slate-500">মোট অধ্যায়: {chapters.length}টি</span>
+              <span className="text-slate-500 text-[11px]">কোড: <strong className="font-mono text-slate-700">{activeSubject.code}</strong></span>
+              <span className="text-slate-500 text-[11px]">মোট অধ্যায়: <strong className="text-slate-700">{chapters.length}টি</strong></span>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="text-slate-600 font-medium">শিক্ষার্থী দৃশ্যমানতা:</span>
+              <span className="text-slate-600 font-medium text-xs">শিক্ষার্থী দৃশ্যমানতা:</span>
               <button
                 type="button"
                 onClick={() => handleToggleReady(activeSubject.id)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full font-bold transition-colors ${
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold transition-colors text-xs border ${
                   activeSubject.isReady
-                    ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200'
-                    : 'bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-200'
+                    ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                    : 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
                 }`}
               >
                 {activeSubject.isReady ? (
@@ -452,11 +457,11 @@ export function CurriculumManager({
       </div>
 
       {/* Section 2 & 3: Subject-wise Chapters & Chapter-wise Topics/Sections */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
+      <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
           <div>
-            <div className="text-[10px] font-bold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-md uppercase inline-block">
-              ধাপ ২: বিষয়ভিত্তিক অধ্যায় ও টপিক সেকশন
+            <div className="text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider inline-block">
+              অধ্যায় ও পাঠ্যক্রম কাঠামো
             </div>
             <h3 className="font-bold text-slate-900 text-sm mt-1 flex items-center gap-2">
               <Layers className="w-4 h-4 text-indigo-600" />

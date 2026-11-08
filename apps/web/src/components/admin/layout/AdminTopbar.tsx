@@ -15,9 +15,14 @@ import {
 export interface AdminTopbarProps {
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
+  onOpenMobile?: () => void;
 }
 
-export function AdminTopbar({ isCollapsed = false, onToggleCollapse }: AdminTopbarProps) {
+export function AdminTopbar({
+  isCollapsed = false,
+  onToggleCollapse,
+  onOpenMobile,
+}: AdminTopbarProps) {
   const pathname = usePathname();
   const [apiOnline, setApiOnline] = useState<boolean>(true);
 
@@ -68,16 +73,16 @@ export function AdminTopbar({ isCollapsed = false, onToggleCollapse }: AdminTopb
 
   return (
     <header
-      className={`fixed top-0 right-0 z-30 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-6 transition-all duration-300 ${
-        isCollapsed ? 'left-20' : 'left-64'
+      className={`fixed top-0 right-0 z-30 h-16 bg-white/95 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 transition-all duration-300 left-0 ${
+        isCollapsed ? 'md:left-20' : 'md:left-64'
       }`}
     >
       {/* Left: Mobile Toggle & Breadcrumbs */}
       <div className="flex items-center gap-3">
-        {onToggleCollapse && (
+        {(onOpenMobile || onToggleCollapse) && (
           <button
             type="button"
-            onClick={onToggleCollapse}
+            onClick={onOpenMobile || onToggleCollapse}
             aria-label="মেনু টগল"
             className="p-2 -ml-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors md:hidden"
           >
