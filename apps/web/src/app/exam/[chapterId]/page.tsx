@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { LatexRenderer } from '@/components/math/latex-renderer';
 import { apiClient } from '@/lib/api-client';
+import { useUserStore } from '@/store/user-store';
 import { QuestionDTO, QuestionType, ContentStatus } from '@pori/shared';
 import { toBanglaDigits } from '@/lib/formatters';
 
@@ -81,6 +82,7 @@ const EXAM_QUESTIONS: QuestionDTO[] = [
 export default function ExamRunnerPage() {
   const params = useParams();
   const chapterId = (params?.chapterId as string) || 'ch-motion';
+  const activeSubject = useUserStore((s) => s.activeSubject);
 
   const [questions, setQuestions] = useState<QuestionDTO[]>(EXAM_QUESTIONS);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -96,8 +98,11 @@ export default function ExamRunnerPage() {
     async function startSession() {
       try {
         const res = await apiClient.post<{ sessionId: string; questions?: QuestionDTO[] }>('/exam/start', {
+          testType: 'CHAPTER_TEST',
+          subjectId: activeSubject?.id || 'sub_ssc_physics',
           chapterId,
-          durationMinutes: 15,
+          durationSeconds: 15 * 60,
+          negativeRatio: 0.25,
         });
         if (res.sessionId) {
           setSessionId(res.sessionId);
@@ -111,13 +116,18 @@ export default function ExamRunnerPage() {
       }
     }
     startSession();
-  }, [chapterId]);
+  }, [chapterId, activeSubject?.id]);
 
   const handleSubmitExam = useCallback(async () => {
     setIsSubmitted(true);
-    if (sessionId) {
+    if (sessionId && !sessionId.startsWith('local_sess_')) {
       try {
-        await apiClient.post(`/exam/submit/${sessionId}`, { answers });
+        const formattedAnswers = Object.entries(answers).map(([questionId, selectedOptionId]) => ({
+          questionId,
+          selectedOptionId,
+          timeSpent: 0,
+        }));
+        await apiClient.post(`/exam/submit/${sessionId}`, { answers: formattedAnswers });
       } catch {
         // Offline submission
       }
@@ -149,7 +159,14 @@ export default function ExamRunnerPage() {
     const heartbeat = setInterval(async () => {
       setIsSaving(true);
       try {
-        await apiClient.put(`/exam/heartbeat/${sessionId}`, { answers });
+        if (!sessionId.startsWith('local_sess_')) {
+          const formattedAnswers = Object.entries(answers).map(([questionId, selectedOptionId]) => ({
+            questionId,
+            selectedOptionId,
+            timeSpent: 0,
+          }));
+          await apiClient.put(`/exam/heartbeat/${sessionId}`, { answers: formattedAnswers });
+        }
       } catch {
         // Offline heartbeat fallback
       } finally {

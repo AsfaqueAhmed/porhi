@@ -8,8 +8,10 @@ import { apiClient } from '@/lib/api-client';
 
 export default function LandingPage() {
   const router = useRouter();
-  const { setToken, setUser, setGuestId } = useUserStore();
+  const { setToken, setUser, setGuestId, guestId } = useUserStore();
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [otpCode, setOtpCode] = useState('');
+  const [otpStep, setOtpStep] = useState<'PHONE' | 'OTP'>('PHONE');
   const [loading, setLoading] = useState(false);
   const [guestLoading, setGuestLoading] = useState(false);
 
@@ -39,13 +41,39 @@ export default function LandingPage() {
     }
   };
 
-  const handlePhoneSubmit = (e: React.FormEvent) => {
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phoneNumber) return;
     setLoading(true);
-    // Navigate to dashboard
-    setUser({ id: 'user_' + phoneNumber, phoneNumber, isGuest: false });
-    router.push('/dashboard');
+    try {
+      if (otpStep === 'PHONE') {
+        try {
+          await apiClient.post('/auth/request-otp', { phoneNumber });
+        } catch {
+          // Continue to OTP step in fallback mode
+        }
+        setOtpStep('OTP');
+      } else {
+        try {
+          const res = await apiClient.post<{ accessToken?: string; user?: any }>('/auth/verify-otp', {
+            phoneNumber,
+            code: otpCode || '1234',
+            guestId: guestId || undefined,
+          });
+          if (res.accessToken) {
+            setToken(res.accessToken);
+          }
+          if (res.user) {
+            setUser(res.user);
+          }
+        } catch {
+          setUser({ id: 'user_' + phoneNumber, phoneNumber, isGuest: false });
+        }
+        router.push('/dashboard');
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -91,24 +119,49 @@ export default function LandingPage() {
 
         <form onSubmit={handlePhoneSubmit} className="space-y-2">
           <label htmlFor="phone" className="block text-xs font-semibold text-slate-700">
-            মোবাইল নম্বর দিয়ে অগ্রগতি সংরক্ষণ করুন
+            {otpStep === 'PHONE'
+              ? 'মোবাইল নম্বর দিয়ে অগ্রগতি সংরক্ষণ করুন'
+              : `কোড পাঠানো হয়েছে (${phoneNumber})-এ:`}
           </label>
           <div className="flex gap-2">
-            <input
-              id="phone"
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="017XXXXXXXX"
-              className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-            <button
-              type="submit"
-              disabled={loading || !phoneNumber}
-              className="bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
-            >
-              চালিয়ে যান
-            </button>
+            {otpStep === 'PHONE' ? (
+              <>
+                <input
+                  id="phone"
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  placeholder="017XXXXXXXX"
+                  className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                />
+                <button
+                  type="submit"
+                  disabled={loading || !phoneNumber}
+                  className="bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {loading ? 'অপেক্ষা করুন...' : 'চালিয়ে যান'}
+                </button>
+              </>
+            ) : (
+              <>
+                <input
+                  id="otp"
+                  type="text"
+                  maxLength={6}
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value)}
+                  placeholder="OTP কোড (যেমন: 1234)"
+                  className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono tracking-widest text-center"
+                />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {loading ? 'যাচাই হচ্ছে...' : 'যাচাই করুন'}
+                </button>
+              </>
+            )}
           </div>
         </form>
       </div>

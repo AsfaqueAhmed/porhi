@@ -76,9 +76,38 @@ export default function AdminContentPage() {
   useEffect(() => {
     async function fetchPending() {
       try {
-        const res = await apiClient.get<ContentItem[]>('/admin/content/pending');
-        if (res && Array.isArray(res) && res.length > 0) {
-          setContentList(res);
+        const res = await apiClient.get<any>('/admin/content/pending');
+        let items: ContentItem[] = [];
+        if (Array.isArray(res)) {
+          items = res;
+        } else if (res && (res.lessons || res.questions)) {
+          const mappedLessons = (res.lessons || []).map((l: any) => ({
+            id: l.id,
+            type: 'LESSON' as const,
+            titleBangla: l.titleBangla,
+            topicId: l.topicId,
+            status: l.status as ContentStatus,
+            version: l.version || 1,
+            author: 'Editor',
+            updatedAt: l.updatedAt ? new Date(l.updatedAt).toISOString().split('T')[0] : 'Today',
+            payload: l,
+          }));
+          const mappedQuestions = (res.questions || []).map((q: any) => ({
+            id: q.id,
+            type: 'QUESTION' as const,
+            titleBangla: q.stem?.slice(0, 40) + '...',
+            topicId: q.topicId,
+            status: q.status as ContentStatus,
+            version: q.version || 1,
+            author: 'Editor',
+            updatedAt: q.updatedAt ? new Date(q.updatedAt).toISOString().split('T')[0] : 'Today',
+            payload: q,
+          }));
+          items = [...mappedLessons, ...mappedQuestions];
+        }
+        if (items.length > 0) {
+          setContentList(items);
+          setSelectedItem(items[0]);
         }
       } catch {
         // Keep sample items
@@ -92,11 +121,18 @@ export default function AdminContentPage() {
     if (!selectedItem) return;
     setIsSubmitting(true);
     try {
+      const action =
+        reviewDecision === 'APPROVED'
+          ? 'APPROVE'
+          : reviewDecision === 'REJECTED'
+          ? 'REJECT'
+          : 'REQUEST_CHANGES';
+
       await apiClient.post('/admin/content/review', {
         contentId: selectedItem.id,
         contentType: selectedItem.type,
-        decision: reviewDecision,
-        comments: reviewComments,
+        action,
+        comment: reviewComments || undefined,
       });
 
       // Update state locally

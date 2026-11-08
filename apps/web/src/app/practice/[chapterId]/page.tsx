@@ -132,9 +132,39 @@ export default function PracticeRunnerPage() {
   const selectedOptionId = selectedAnswers[currentQ?.id];
   const isAnswered = Boolean(selectedOptionId);
 
-  const handleSelectOption = (optId: string) => {
+  const handleSelectOption = async (optId: string) => {
     if (isAnswered) return; // Prevent re-selection
     setSelectedAnswers((prev) => ({ ...prev, [currentQ.id]: optId }));
+
+    try {
+      const res = await apiClient.post<{
+        isCorrect: boolean;
+        correctOptionId: string;
+        explanation: any;
+      }>('/practice/submit', {
+        questionId: currentQ.id,
+        selectedOptionId: optId,
+      });
+
+      if (res?.explanation) {
+        setQuestions((prev) =>
+          prev.map((q) =>
+            q.id === currentQ.id
+              ? {
+                  ...q,
+                  explanation: res.explanation,
+                  options: q.options?.map((o) => ({
+                    ...o,
+                    isCorrect: o.id === res.correctOptionId,
+                  })),
+                }
+              : q
+          )
+        );
+      }
+    } catch {
+      // Offline fallback: keep local questions
+    }
   };
 
   const toggleLayer = (layer: string) => {

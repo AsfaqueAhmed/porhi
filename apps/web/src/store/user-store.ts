@@ -38,8 +38,8 @@ export const useUserStore = create<UserState>()(
       token: null,
       user: null,
       activeSubject: {
-        id: 'sub-ssc-phy',
-        code: 'PHY101',
+        id: 'sub_ssc_physics',
+        code: 'ssc_physics',
         nameBangla: 'পদার্থবিজ্ঞান',
         syllabusYear: 2026,
         program: 'SSC',
