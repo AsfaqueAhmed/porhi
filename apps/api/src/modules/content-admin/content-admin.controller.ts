@@ -1,0 +1,60 @@
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Post,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { Role } from '@prisma/client';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from './guards/roles.guard';
+import { Roles } from './decorators/roles.decorator';
+import { ContentAdminService } from './content-admin.service';
+import { CreateLessonAdminDto } from './dto/create-lesson-admin.dto';
+import { CreateQuestionAdminDto } from './dto/create-question-admin.dto';
+import { ReviewContentDto } from './dto/review-content.dto';
+
+@Controller('admin/content')
+@UseGuards(JwtAuthGuard, RolesGuard)
+export class ContentAdminController {
+  constructor(
+    @Inject(ContentAdminService)
+    private readonly contentAdminService: ContentAdminService,
+  ) {}
+
+  @Post('lessons')
+  @Roles(Role.EDITOR, Role.ADMIN)
+  async createLesson(@Body() dto: CreateLessonAdminDto) {
+    return this.contentAdminService.createLesson(dto);
+  }
+
+  @Post('questions')
+  @Roles(Role.EDITOR, Role.ADMIN)
+  async createQuestion(@Body() dto: CreateQuestionAdminDto) {
+    return this.contentAdminService.createQuestion(dto);
+  }
+
+  @Post('review')
+  @Roles(Role.REVIEWER, Role.ADMIN)
+  async reviewContent(
+    @Req() req: { user: { id: string } },
+    @Body() dto: ReviewContentDto,
+  ) {
+    return this.contentAdminService.reviewContent(req.user.id, dto);
+  }
+
+  @Get('pending')
+  @Roles(Role.EDITOR, Role.REVIEWER, Role.ADMIN)
+  async getPendingContent() {
+    return this.contentAdminService.getPendingContent();
+  }
+
+  @Get('reviews/:contentId')
+  @Roles(Role.EDITOR, Role.REVIEWER, Role.ADMIN)
+  async getContentReviews(@Param('contentId') contentId: string) {
+    return this.contentAdminService.getContentReviews(contentId);
+  }
+}

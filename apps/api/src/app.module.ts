@@ -5,6 +5,7 @@ import { CurriculumModule } from './modules/curriculum/curriculum.module';
 import { LessonModule } from './modules/lesson/lesson.module';
 import { PracticeModule } from './modules/practice/practice.module';
 import { ExamModule } from './modules/exam/exam.module';
+import { ContentAdminModule } from './modules/content-admin/content-admin.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { ExamModule } from './modules/exam/exam.module';
     LessonModule,
     PracticeModule,
     ExamModule,
+    ContentAdminModule,
   ],
   controllers: [],
   providers: [],
