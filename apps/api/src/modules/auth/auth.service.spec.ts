@@ -168,15 +168,41 @@ describe('AuthService', () => {
       await expect(authService.verifyOtp('01712345678', '999999')).rejects.toThrow(UnauthorizedException);
     });
 
-    it('should reject expired OTP', async () => {
+    it('should reject an expired OTP and accept it before expiration', async () => {
       vi.useFakeTimers();
-      await authService.requestOtp('01712345678');
+      const phone = '01712345678';
 
-      // Fast-forward time past 5 minutes (e.g. 6 minutes)
+      // Request OTP and extract actually issued code
+      await authService.requestOtp(phone);
+      const issuedCode = authService['otpStore'].get(authService['normalizePhone'](phone))?.code;
+      expect(issuedCode).toBeDefined();
+      expect(issuedCode).toMatch(/^\d{6}$/);
+
+      // Before expiration, verifying with that exact code succeeds
+      prisma.user.findUnique.mockResolvedValueOnce(null);
+      prisma.user.create.mockResolvedValueOnce({
+        id: 'u-valid-otp',
+        guestId: null,
+        phoneNumber: '01712345678',
+        role: 'STUDENT',
+        selectedClass: 'SSC',
+      });
+
+      const validResult = await authService.verifyOtp(phone, issuedCode!);
+      expect(validResult.user.phoneNumber).toBe('01712345678');
+
+      // Request new OTP to test expiration
+      await authService.requestOtp(phone);
+      const newIssuedCode = authService['otpStore'].get(authService['normalizePhone'](phone))?.code;
+      expect(newIssuedCode).toBeDefined();
+
+      // Advance clock past the 5-minute TTL (6 minutes)
       vi.advanceTimersByTime(6 * 60 * 1000);
 
-      // Even in non-production, non-master expired OTP must be rejected
-      await expect(authService.verifyOtp('01712345678', '888888')).rejects.toThrow(UnauthorizedException);
+      // Verify that verifying with the issued code rejects after expiration
+      await expect(authService.verifyOtp(phone, newIssuedCode!)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
 
     it('should limit invalid attempts to 5 and invalidate OTP', async () => {

@@ -66,6 +66,10 @@ export class AuthService {
     return trimmed;
   }
 
+  normalizePhone(phone: string): string {
+    return this.normalizePhoneNumber(phone);
+  }
+
   async createGuestSession(guestId: string): Promise<GuestAuthResult> {
     if (!guestId || typeof guestId !== 'string') {
       throw new BadRequestException('guestId is required');
@@ -106,8 +110,7 @@ export class AuthService {
     this.cleanupExpiredOtps();
     const normalizedPhone = this.normalizePhoneNumber(phoneNumber);
 
-    const isTestOtpMode = process.env.NODE_ENV === 'test' || process.env.ENABLE_TEST_OTP === 'true';
-    const generatedCode = isTestOtpMode ? '1234' : randomInt(100000, 999999).toString();
+    const generatedCode = randomInt(100000, 1000000).toString();
     const ttlMs = 5 * 60 * 1000; // 5 minutes
 
     this.otpStore.set(normalizedPhone, {
