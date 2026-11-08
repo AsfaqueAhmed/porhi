@@ -7,6 +7,7 @@ import {
   type ExplanationObject,
   type QuestionDTO,
   type LessonDTO,
+  type SubjectDTO,
 } from '../src';
 
 describe('Shared Constants and Enums', () => {
@@ -69,9 +70,25 @@ describe('Shared Type Structures', () => {
       },
       difficulty: 'MEDIUM',
       status: ContentStatus.PUBLISHED,
+      version: 1,
+      createdAt: '2026-11-08T00:00:00Z',
+      updatedAt: '2026-11-08T00:00:00Z',
     };
     expect(question.type).toBe(QuestionType.MCQ);
     expect(question.options?.length).toBe(2);
+    expect(question.version).toBe(1);
+  });
+
+  it('should construct valid SubjectDTO with strict EducationLevel', () => {
+    const subject: SubjectDTO = {
+      id: 'sub_1',
+      code: 'ssc_physics',
+      nameBangla: 'পদার্থবিজ্ঞান',
+      classLevel: EducationLevel.CLASS_9_10,
+      syllabusYear: 2026,
+      isReady: true,
+    };
+    expect(subject.classLevel).toBe(EducationLevel.CLASS_9_10);
   });
 
   it('should construct valid LessonDTO', () => {

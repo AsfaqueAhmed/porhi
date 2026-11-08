@@ -8,12 +8,15 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
+      "require": "./dist/index.js",
       "default": "./dist/index.js"
     }
   },
   "scripts": {
+    "prebuild": "rm -rf dist",
     "build": "tsc",
     "test": "vitest run",
+    "lint": "tsc --noEmit",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

@@ -27,7 +27,7 @@ export interface SubjectDTO {
   id: string;
   code: string;
   nameBangla: string;
-  classLevel: EducationLevel | string;
+  classLevel: EducationLevel;
   syllabusYear: number;
   isReady: boolean;
   chapters?: ChapterDTO[];

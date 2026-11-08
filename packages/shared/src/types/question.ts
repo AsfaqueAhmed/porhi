@@ -55,6 +55,7 @@ export interface QuestionDTO {
   difficulty: QuestionDifficulty;
   source?: QuestionSource;
   status: ContentStatus;
-  version?: number;
+  version: number;
   createdAt?: Date | string;
+  updatedAt?: Date | string;
 }
