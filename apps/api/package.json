@@ -7,7 +7,7 @@
     "start": "node dist/src/main.js",
     "start:dev": "nest start --watch",
     "test": "vitest run",
-    "test:e2e": "vitest run test/e2e",
+    "test:e2e": "vitest run test",
     "lint": "tsc --noEmit",
     "prisma": "prisma",
     "prisma:seed": "prisma db seed",

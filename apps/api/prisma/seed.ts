@@ -360,10 +360,15 @@ async function main() {
     await seed(prisma);
     console.log('✅ NCTB 2026 SSC Physics pilot content seeded successfully.');
   } catch (error: any) {
+    const isOfflineAllowed =
+      process.env.ALLOW_OFFLINE_SEED === 'true' ||
+      (!process.env.CI && process.env.NODE_ENV !== 'production');
+
     if (
-      error?.code === 'P1001' ||
-      error?.message?.includes("Can't reach database server") ||
-      error?.message?.includes('ECONNREFUSED')
+      isOfflineAllowed &&
+      (error?.code === 'P1001' ||
+        error?.message?.includes("Can't reach database server") ||
+        error?.message?.includes('ECONNREFUSED'))
     ) {
       console.warn(
         `[Prisma Seed] Notice: PostgreSQL server not reachable at ${process.env.DATABASE_URL}. Seed definitions validated successfully.`,
