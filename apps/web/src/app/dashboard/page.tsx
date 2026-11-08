@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Flame, ArrowRight, BookOpen, Clock, AlertCircle, PlayCircle, Trophy, BarChart2 } from 'lucide-react';
 import { useUserStore } from '@/store/user-store';
-import { toBanglaDigits } from '@/components/navigation/persistent-nav';
+import { toBanglaDigits } from '@/lib/formatters';
 
 export default function DashboardPage() {
   const { activeSubject, streakDays } = useUserStore();

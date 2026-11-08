@@ -1,0 +1,21 @@
+{
+  "name": "poRi (পড়ি) - সেলফ-স্টাডি লার্নিং প্ল্যাটফর্ম",
+  "short_name": "poRi (পড়ি)",
+  "description": "এনসিটিবি কারিকুলাম ভিত্তিক ইন্টারেক্টিভ সেলফ-স্টাডি লার্নিং ও প্র্যাকটিস প্ল্যাটফর্ম",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#059669",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

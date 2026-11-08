@@ -15,8 +15,8 @@ interface Segment {
 
 export function parseLatexContent(content: string): Segment[] {
   const segments: Segment[] = [];
-  // Match $$block$$ or $inline$
-  const regex = /\$\$([\s\S]+?)\$\$|\$([^$]+?)\$/g;
+  // Match $$block$$ or $inline$ (single line)
+  const regex = /\$\$([\s\S]+?)\$\$|\$([^$\n]+?)\$/g;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
 
@@ -76,6 +76,8 @@ export const LatexRenderer: React.FC<LatexRendererProps> = ({ content, className
           const html = katex.renderToString(seg.math || '', {
             displayMode: isBlock,
             throwOnError: false,
+            trust: false,
+            strict: 'warn',
           });
 
           if (isBlock) {

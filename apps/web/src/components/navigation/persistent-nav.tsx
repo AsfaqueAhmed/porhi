@@ -5,40 +5,17 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, BookOpen, BarChart3, ChevronRight } from 'lucide-react';
 import { useUserStore } from '@/store/user-store';
+import { toBanglaDigits } from '@/lib/formatters';
 
-export function toBanglaDigits(val: number | string): string {
-  const banglaDigits: Record<string, string> = {
-    '0': '০',
-    '1': '১',
-    '2': '২',
-    '3': '৩',
-    '4': '৪',
-    '5': '৫',
-    '6': '৬',
-    '7': '৭',
-    '8': '৮',
-    '9': '৯',
-  };
-  return String(val).replace(/[0-9]/g, (d) => banglaDigits[d] || d);
-}
+export { toBanglaDigits };
 
 interface PersistentNavProps {
   currentPath?: string;
 }
 
 export const PersistentNav: React.FC<PersistentNavProps> = ({ currentPath: propPath }) => {
-  let navPath = propPath;
-  try {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const hookPath = usePathname();
-    if (!navPath) {
-      navPath = hookPath;
-    }
-  } catch {
-    // Outside router context (e.g. some tests)
-  }
-
-  const activePath = navPath || '/dashboard';
+  const pathname = usePathname();
+  const activePath = propPath || pathname || '/dashboard';
   const activeSubject = useUserStore((s) => s.activeSubject);
 
   const destinations = [

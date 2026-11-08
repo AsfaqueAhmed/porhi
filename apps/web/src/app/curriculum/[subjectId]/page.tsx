@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { BookOpen, ChevronRight, Play, Trophy } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
-import { toBanglaDigits } from '@/components/navigation/persistent-nav';
+import { toBanglaDigits } from '@/lib/formatters';
 
 interface TopicItem {
   id: string;

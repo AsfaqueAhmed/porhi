@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { CheckCircle2, Clock, BookMarked, ArrowRight } from 'lucide-react';
 import { useUserStore, ActiveSubject } from '@/store/user-store';
 import { apiClient } from '@/lib/api-client';
-import { toBanglaDigits } from '@/components/navigation/persistent-nav';
+import { toBanglaDigits } from '@/lib/formatters';
 
 interface SubjectItem {
   id: string;

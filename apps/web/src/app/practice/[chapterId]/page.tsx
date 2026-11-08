@@ -16,7 +16,8 @@ import {
 import { LatexRenderer } from '@/components/math/latex-renderer';
 import { apiClient } from '@/lib/api-client';
 import { QuestionDTO, QuestionType, ContentStatus } from '@pori/shared';
-import { toBanglaDigits } from '@/components/navigation/persistent-nav';
+import { toBanglaDigits } from '@/lib/formatters';
+import { useUserStore } from '@/store/user-store';
 
 const SAMPLE_QUESTIONS: QuestionDTO[] = [
   {
@@ -99,6 +100,7 @@ $$\\frac{h_2}{h} = \\left(\\frac{6}{3}\\right)^2 = (2)^2 = 4 \\implies h_2 = 4h$
 export default function PracticeRunnerPage() {
   const params = useParams();
   const chapterId = (params?.chapterId as string) || 'ch-motion';
+  const activeSubject = useUserStore((s) => s.activeSubject);
 
   const [questions, setQuestions] = useState<QuestionDTO[]>(SAMPLE_QUESTIONS);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -369,7 +371,7 @@ export default function PracticeRunnerPage() {
           </button>
         ) : (
           <Link
-            href={`/curriculum/${chapterId}`}
+            href={`/curriculum/${activeSubject?.id || 'sub-ssc-phy'}`}
             className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors shadow"
           >
             <span>অনুশীলন সম্পন্ন</span>

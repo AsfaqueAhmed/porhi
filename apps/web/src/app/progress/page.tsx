@@ -9,7 +9,7 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { useUserStore } from '@/store/user-store';
-import { toBanglaDigits } from '@/components/navigation/persistent-nav';
+import { toBanglaDigits } from '@/lib/formatters';
 import { LatexRenderer } from '@/components/math/latex-renderer';
 
 export default function ProgressPage() {

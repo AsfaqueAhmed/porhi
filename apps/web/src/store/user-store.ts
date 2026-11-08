@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 export interface ActiveSubject {
   id: string;
@@ -30,37 +31,51 @@ interface UserState {
   logout: () => void;
 }
 
-export const useUserStore = create<UserState>((set) => ({
-  guestId: null,
-  token: null,
-  user: null,
-  activeSubject: {
-    id: 'sub-ssc-phy',
-    code: 'PHY101',
-    nameBangla: 'পদার্থবিজ্ঞান',
-    syllabusYear: 2026,
-    program: 'SSC',
-  },
-  streakDays: 3,
+export const useUserStore = create<UserState>()(
+  persist(
+    (set) => ({
+      guestId: null,
+      token: null,
+      user: null,
+      activeSubject: {
+        id: 'sub-ssc-phy',
+        code: 'PHY101',
+        nameBangla: 'পদার্থবিজ্ঞান',
+        syllabusYear: 2026,
+        program: 'SSC',
+      },
+      streakDays: 3,
 
-  setGuestId: (id) => set({ guestId: id }),
-  setToken: (token) => {
-    if (typeof window !== 'undefined') {
-      if (token) {
-        localStorage.setItem('pori_auth_token', token);
-      } else {
-        localStorage.removeItem('pori_auth_token');
-      }
+      setGuestId: (id) => set({ guestId: id }),
+      setToken: (token) => {
+        if (typeof window !== 'undefined') {
+          if (token) {
+            localStorage.setItem('pori_auth_token', token);
+          } else {
+            localStorage.removeItem('pori_auth_token');
+          }
+        }
+        set({ token });
+      },
+      setUser: (user) => set({ user }),
+      setActiveSubject: (subject) => set({ activeSubject: subject }),
+      setStreakDays: (streakDays) => set({ streakDays }),
+      logout: () => {
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('pori_auth_token');
+        }
+        set({ token: null, user: null });
+      },
+    }),
+    {
+      name: 'pori-user-storage',
+      partialize: (state) => ({
+        guestId: state.guestId,
+        token: state.token,
+        user: state.user,
+        activeSubject: state.activeSubject,
+        streakDays: state.streakDays,
+      }),
     }
-    set({ token });
-  },
-  setUser: (user) => set({ user }),
-  setActiveSubject: (subject) => set({ activeSubject: subject }),
-  setStreakDays: (streakDays) => set({ streakDays }),
-  logout: () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('pori_auth_token');
-    }
-    set({ token: null, user: null });
-  },
-}));
+  )
+);

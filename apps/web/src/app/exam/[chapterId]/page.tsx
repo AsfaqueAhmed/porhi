@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
@@ -16,7 +16,7 @@ import {
 import { LatexRenderer } from '@/components/math/latex-renderer';
 import { apiClient } from '@/lib/api-client';
 import { QuestionDTO, QuestionType, ContentStatus } from '@pori/shared';
-import { toBanglaDigits } from '@/components/navigation/persistent-nav';
+import { toBanglaDigits } from '@/lib/formatters';
 
 const EXAM_QUESTIONS: QuestionDTO[] = [
   {
@@ -113,23 +113,34 @@ export default function ExamRunnerPage() {
     startSession();
   }, [chapterId]);
 
-  // Countdown Timer
+  const handleSubmitExam = useCallback(async () => {
+    setIsSubmitted(true);
+    if (sessionId) {
+      try {
+        await apiClient.post(`/exam/submit/${sessionId}`, { answers });
+      } catch {
+        // Offline submission
+      }
+    }
+  }, [sessionId, answers]);
+
+  // Countdown Timer: pure decrements
   useEffect(() => {
     if (isSubmitted || timeLeft <= 0) return;
 
     const timer = setInterval(() => {
-      setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          handleSubmitExam();
-          return 0;
-        }
-        return prev - 1;
-      });
+      setTimeLeft((prev) => Math.max(0, prev - 1));
     }, 1000);
 
     return () => clearInterval(timer);
   }, [isSubmitted, timeLeft]);
+
+  // Auto-submit when countdown finishes
+  useEffect(() => {
+    if (timeLeft === 0 && !isSubmitted) {
+      handleSubmitExam();
+    }
+  }, [timeLeft, isSubmitted, handleSubmitExam]);
 
   // Autosave Heartbeat every 10 seconds
   useEffect(() => {
@@ -156,17 +167,6 @@ export default function ExamRunnerPage() {
 
   const toggleFlag = (qId: string) => {
     setFlagged((prev) => ({ ...prev, [qId]: !prev[qId] }));
-  };
-
-  const handleSubmitExam = async () => {
-    setIsSubmitted(true);
-    if (sessionId) {
-      try {
-        await apiClient.post(`/exam/submit/${sessionId}`, { answers });
-      } catch {
-        // Offline submission
-      }
-    }
   };
 
   // Format time mm:ss
