@@ -71,6 +71,7 @@ describe('PracticeModule (e2e)', () => {
       findMany: async ({ where }: any) => {
         return questions.filter((q) => {
           if (where.type && q.type !== where.type) return false;
+          if (where.status && q.status !== where.status) return false;
           if (where.topic?.chapterId && q.topic?.chapterId !== where.topic.chapterId) return false;
           return true;
         });
@@ -248,6 +249,27 @@ describe('PracticeModule (e2e)', () => {
       expect(optionIds).toContain('opt_3');
       expect(optionIds).toContain('opt_4');
     });
+
+    it('should support route alias /practice/:chapterId/questions and filter out DRAFT questions', async () => {
+      // Add a draft question to the chapter
+      questions.push({
+        id: 'q-draft-301',
+        topicId: 'top-force-1',
+        topic: { id: 'top-force-1', chapterId: 'chap-force-101' },
+        type: 'MCQ',
+        stem: 'খসড়া প্রশ্ন',
+        options: [{ id: 'opt_draft', text: 'উত্তর', isCorrect: true }],
+        explanation: sampleExplanation,
+        status: 'DRAFT',
+      });
+
+      const response = await request(app.getHttpServer())
+        .get('/practice/chap-force-101/questions')
+        .expect(200);
+
+      expect(response.body).toHaveLength(1);
+      expect(response.body[0].id).toBe('q-force-201');
+    });
   });
 
   describe('POST /practice/submit', () => {
@@ -260,6 +282,16 @@ describe('PracticeModule (e2e)', () => {
       await request(app.getHttpServer())
         .post('/practice/submit')
         .send({ questionId: 'q-force-201' })
+        .expect(400);
+    });
+
+    it('should reject option that does not belong to question with 400', async () => {
+      await request(app.getHttpServer())
+        .post('/practice/submit')
+        .send({
+          questionId: 'q-force-201',
+          selectedOptionId: 'non-existent-option',
+        })
         .expect(400);
     });
 

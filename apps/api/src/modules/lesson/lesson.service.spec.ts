@@ -154,5 +154,15 @@ describe('LessonService', () => {
 
       expect(result.id).toBe('les_draft_fallback');
     });
+
+    it('should not fail lesson retrieval if eventLog.create fails', async () => {
+      prisma.lesson.findFirst.mockResolvedValue(mockLesson);
+      prisma.eventLog.create.mockRejectedValue(new Error('EventLog write failed'));
+
+      const user = { id: 'usr_123', role: Role.STUDENT };
+      const result = await lessonService.getLessonByTopic('top_1', user);
+
+      expect(result).toEqual(mockLesson);
+    });
   });
 });

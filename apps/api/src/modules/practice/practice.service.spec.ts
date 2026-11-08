@@ -3,6 +3,7 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { PracticeService } from './practice.service';
 import { PrismaService } from '../../database/prisma.service';
 import { ExplanationObject } from '@pori/shared';
+import { ContentStatus } from '@prisma/client';
 
 describe('PracticeService', () => {
   let practiceService: PracticeService;
@@ -93,6 +94,7 @@ describe('PracticeService', () => {
         where: {
           topic: { chapterId: 'chap_1' },
           type: 'MCQ',
+          status: ContentStatus.PUBLISHED,
         },
       });
 
@@ -226,6 +228,28 @@ describe('PracticeService', () => {
       await expect(
         practiceService.submitPractice({ questionId: 'q_1', selectedOptionId: '' }),
       ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException if selectedOptionId does not belong to the question', async () => {
+      prisma.question.findUnique.mockResolvedValue(sampleQuestion);
+
+      await expect(
+        practiceService.submitPractice({ questionId: 'q_1', selectedOptionId: 'invalid_opt' }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should not fail submission if eventLog.create fails', async () => {
+      prisma.question.findUnique.mockResolvedValue(sampleQuestion);
+      prisma.eventLog.create.mockRejectedValue(new Error('EventLog connection error'));
+
+      const result = await practiceService.submitPractice(
+        { questionId: 'q_1', selectedOptionId: 'opt_a' },
+        'usr_101',
+      );
+
+      expect(result.isCorrect).toBe(true);
+      expect(result.correctOptionId).toBe('opt_a');
+      expect(result.explanation).toEqual(sampleExplanation);
     });
 
     it('should validate answer without error when user is unauthenticated', async () => {

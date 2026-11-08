@@ -7,7 +7,7 @@ import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 export class PracticeController {
   constructor(@Inject(PracticeService) private readonly practiceService: PracticeService) {}
 
-  @Get('chapter/:chapterId/questions')
+  @Get(['chapter/:chapterId/questions', ':chapterId/questions'])
   async getChapterQuestions(@Param('chapterId') chapterId: string) {
     return this.practiceService.getChapterQuestions(chapterId);
   }
@@ -18,6 +18,7 @@ export class PracticeController {
     @Body() dto: SubmitPracticeDto,
     @Req() req: { user?: any },
   ) {
-    return this.practiceService.submitPractice(dto, req.user?.id);
+    const userId = req.user?.id;
+    return this.practiceService.submitPractice(dto, userId);
   }
 }

@@ -1,4 +1,4 @@
-import { ForbiddenException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { ContentStatus, Role } from '@prisma/client';
 
@@ -9,6 +9,8 @@ export interface LessonAuthUser {
 
 @Injectable()
 export class LessonService {
+  private readonly logger = new Logger(LessonService.name);
+
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async getLessonByTopic(
@@ -56,16 +58,20 @@ export class LessonService {
 
     // Log LESSON_OPEN event if authenticated user is present
     if (user?.id) {
-      await this.prisma.eventLog.create({
-        data: {
-          userId: user.id,
-          eventType: 'LESSON_OPEN',
-          payload: {
-            topicId,
-            lessonId: lesson.id,
+      await this.prisma.eventLog
+        .create({
+          data: {
+            userId: user.id,
+            eventType: 'LESSON_OPEN',
+            payload: {
+              topicId,
+              lessonId: lesson.id,
+            },
           },
-        },
-      });
+        })
+        .catch((err) => {
+          this.logger.warn(`Failed to log LESSON_OPEN event: ${err?.message ?? err}`);
+        });
     }
 
     return lesson;

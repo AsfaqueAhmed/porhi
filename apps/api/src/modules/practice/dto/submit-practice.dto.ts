@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class SubmitPracticeDto {
   @IsNotEmpty()
@@ -8,8 +8,5 @@ export class SubmitPracticeDto {
   @IsNotEmpty()
   @IsString()
   selectedOptionId!: string;
-
-  @IsOptional()
-  @IsString()
-  userId?: string;
 }
+

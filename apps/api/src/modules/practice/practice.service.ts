@@ -1,6 +1,7 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { SubmitPracticeDto } from './dto/submit-practice.dto';
+import { ContentStatus } from '@prisma/client';
 
 function shuffle<T>(array: T[]): T[] {
   const result = [...array];
@@ -13,6 +14,8 @@ function shuffle<T>(array: T[]): T[] {
 
 @Injectable()
 export class PracticeService {
+  private readonly logger = new Logger(PracticeService.name);
+
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async getChapterQuestions(chapterId: string) {
@@ -28,13 +31,16 @@ export class PracticeService {
       where: {
         topic: { chapterId },
         type: 'MCQ',
+        status: ContentStatus.PUBLISHED,
       },
     });
 
-    return questions.map((q) => {
+    const shuffledQuestions = shuffle(questions);
+
+    return shuffledQuestions.map((q) => {
       const options = Array.isArray(q.options) ? q.options : [];
-      const shuffled = shuffle(options);
-      const sanitizedOptions = shuffled.map((opt: any) => {
+      const shuffledOptions = shuffle(options);
+      const sanitizedOptions = shuffledOptions.map((opt: any) => {
         const { isCorrect, ...rest } = opt;
         return rest;
       });
@@ -53,7 +59,7 @@ export class PracticeService {
     });
   }
 
-  async submitPractice(dto: SubmitPracticeDto, explicitUserId?: string) {
+  async submitPractice(dto: SubmitPracticeDto, userId?: string) {
     if (!dto?.questionId || typeof dto.questionId !== 'string' || !dto.questionId.trim()) {
       throw new BadRequestException('questionId is required and must be a non-empty string');
     }
@@ -61,8 +67,6 @@ export class PracticeService {
     if (!dto?.selectedOptionId || typeof dto.selectedOptionId !== 'string' || !dto.selectedOptionId.trim()) {
       throw new BadRequestException('selectedOptionId is required and must be a non-empty string');
     }
-
-    const userId = explicitUserId || dto.userId;
 
     const question = await this.prisma.question.findUnique({
       where: { id: dto.questionId },
@@ -73,6 +77,14 @@ export class PracticeService {
     }
 
     const options = Array.isArray(question.options) ? (question.options as any[]) : [];
+    const selectedOption = options.find((opt: any) => opt.id === dto.selectedOptionId);
+
+    if (!selectedOption) {
+      throw new BadRequestException(
+        `Option '${dto.selectedOptionId}' does not belong to question '${dto.questionId}'`,
+      );
+    }
+
     const correctOption = options.find((opt: any) => opt.isCorrect === true);
     const correctOptionId = correctOption?.id;
     const isCorrect = Boolean(correctOptionId && dto.selectedOptionId === correctOptionId);
@@ -99,17 +111,21 @@ export class PracticeService {
         });
       }
 
-      await this.prisma.eventLog.create({
-        data: {
-          userId,
-          eventType: 'PRACTICE_ATTEMPT',
-          payload: {
-            questionId: dto.questionId,
-            selectedOptionId: dto.selectedOptionId,
-            isCorrect,
+      await this.prisma.eventLog
+        .create({
+          data: {
+            userId,
+            eventType: 'PRACTICE_ATTEMPT',
+            payload: {
+              questionId: dto.questionId,
+              selectedOptionId: dto.selectedOptionId,
+              isCorrect,
+            },
           },
-        },
-      });
+        })
+        .catch((err) => {
+          this.logger.warn(`Failed to log PRACTICE_ATTEMPT event: ${err?.message ?? err}`);
+        });
     }
 
     return {

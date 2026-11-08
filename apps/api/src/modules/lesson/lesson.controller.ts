@@ -7,7 +7,7 @@ export class LessonController {
   constructor(@Inject(LessonService) private readonly lessonService: LessonService) {}
 
   @UseGuards(OptionalJwtAuthGuard)
-  @Get('topic/:topicId')
+  @Get(['topic/:topicId', ':topicId'])
   async getLessonByTopic(
     @Param('topicId') topicId: string,
     @Req() req: { user?: any },
