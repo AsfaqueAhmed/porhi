@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../../database/prisma.service';
 import { JwtService } from '@nestjs/jwt';
+import { getJwtSecret } from './strategies/jwt.strategy';
 
 describe('AuthService', () => {
   let authService: AuthService;
@@ -19,6 +20,7 @@ describe('AuthService', () => {
     revisionMistake: {
       findMany: ReturnType<typeof vi.fn>;
       create: ReturnType<typeof vi.fn>;
+      createMany: ReturnType<typeof vi.fn>;
       deleteMany: ReturnType<typeof vi.fn>;
     };
     eventLog: {
@@ -30,7 +32,12 @@ describe('AuthService', () => {
     sign: ReturnType<typeof vi.fn>;
   };
 
+  const originalEnv = { ...process.env };
+
   beforeEach(() => {
+    process.env = { ...originalEnv };
+    vi.useRealTimers();
+
     prisma = {
       user: {
         findUnique: vi.fn(),
@@ -44,6 +51,7 @@ describe('AuthService', () => {
       revisionMistake: {
         findMany: vi.fn(),
         create: vi.fn(),
+        createMany: vi.fn().mockResolvedValue({ count: 1 }),
         deleteMany: vi.fn(),
       },
       eventLog: {
@@ -62,6 +70,11 @@ describe('AuthService', () => {
     };
 
     authService = new AuthService(prisma as unknown as PrismaService, jwtService as unknown as JwtService);
+  });
+
+  afterEach(() => {
+    process.env = { ...originalEnv };
+    vi.useRealTimers();
   });
 
   describe('createGuestSession', () => {
@@ -155,7 +168,49 @@ describe('AuthService', () => {
       await expect(authService.verifyOtp('01712345678', '999999')).rejects.toThrow(UnauthorizedException);
     });
 
-    it('should accept standard master test OTP 1234 for new phone user without guestId', async () => {
+    it('should reject expired OTP', async () => {
+      vi.useFakeTimers();
+      await authService.requestOtp('01712345678');
+
+      // Fast-forward time past 5 minutes (e.g. 6 minutes)
+      vi.advanceTimersByTime(6 * 60 * 1000);
+
+      // Even in non-production, non-master expired OTP must be rejected
+      await expect(authService.verifyOtp('01712345678', '888888')).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should limit invalid attempts to 5 and invalidate OTP', async () => {
+      await authService.requestOtp('01712345678');
+
+      // 4 invalid attempts should throw Invalid or expired OTP
+      for (let i = 0; i < 4; i++) {
+        await expect(authService.verifyOtp('01712345678', '999999')).rejects.toThrow(
+          'Invalid or expired OTP',
+        );
+      }
+
+      // 5th invalid attempt should trigger rate limiting lockout
+      await expect(authService.verifyOtp('01712345678', '999999')).rejects.toThrow(
+        'Too many invalid attempts. Please request a new OTP.',
+      );
+
+      // 6th attempt should find no entry
+      await expect(authService.verifyOtp('01712345678', '999999')).rejects.toThrow(
+        'Invalid or expired OTP',
+      );
+    });
+
+    it('should disallow static master OTPs in production mode', async () => {
+      process.env.NODE_ENV = 'production';
+      delete process.env.ENABLE_TEST_OTP;
+
+      await authService.requestOtp('01712345678');
+
+      // In production mode without stored matching code, 1234 / 0000 should be rejected
+      await expect(authService.verifyOtp('01712345678', '1234')).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('should accept standard master test OTP 1234 for new phone user without guestId in dev/test mode', async () => {
       prisma.user.findUnique.mockResolvedValue(null);
       prisma.user.create.mockResolvedValue({
         id: 'u-new-phone',
@@ -211,7 +266,6 @@ describe('AuthService', () => {
     });
 
     it('should migrate guest user to permanent user when guestId provided and phone is new', async () => {
-      // findUnique for phone returns null, findUnique for guestId returns guest user
       prisma.user.findUnique
         .mockResolvedValueOnce(null) // phone check
         .mockResolvedValueOnce({    // guest check
@@ -245,7 +299,7 @@ describe('AuthService', () => {
       expect(result.user.guestId).toBeNull();
     });
 
-    it('should merge progress and remove guest user when phone already exists', async () => {
+    it('should merge progress and batch insert only non-duplicate mistakes via createMany', async () => {
       const existingUser = {
         id: 'u-existing-phone',
         guestId: null,
@@ -265,9 +319,15 @@ describe('AuthService', () => {
         .mockResolvedValueOnce(existingUser) // phone check
         .mockResolvedValueOnce(guestUser);   // guest check
 
+      // Guest has mistakes for q-1 (already owned) and q-2 (new)
       prisma.revisionMistake.findMany
-        .mockResolvedValueOnce([{ id: 'm-1', questionId: 'q-1' }]) // guest mistakes
-        .mockResolvedValueOnce([]); // existing user mistakes
+        .mockResolvedValueOnce([
+          { id: 'm-1', questionId: 'q-1', attemptCount: 1, resolved: false },
+          { id: 'm-2', questionId: 'q-2', attemptCount: 2, resolved: true },
+        ])
+        .mockResolvedValueOnce([
+          { id: 'm-existing-1', questionId: 'q-1', attemptCount: 3, resolved: false },
+        ]);
 
       const result = await authService.verifyOtp('01712345678', '1234', 'guest-abc-456');
 
@@ -279,11 +339,47 @@ describe('AuthService', () => {
         where: { userId: 'u-guest-merge' },
         data: { userId: 'u-existing-phone' },
       });
+
+      // Crucial: createMany must be called with ONLY q-2 (not q-1)
+      expect(prisma.revisionMistake.createMany).toHaveBeenCalledWith({
+        data: [
+          {
+            userId: 'u-existing-phone',
+            questionId: 'q-2',
+            attemptCount: 2,
+            resolved: true,
+          },
+        ],
+      });
+
+      expect(prisma.revisionMistake.deleteMany).toHaveBeenCalledWith({
+        where: { userId: 'u-guest-merge' },
+      });
       expect(prisma.user.delete).toHaveBeenCalledWith({
         where: { id: 'u-guest-merge' },
       });
       expect(result.progressMigrated).toBe(true);
       expect(result.user.id).toBe('u-existing-phone');
+    });
+  });
+
+  describe('JWT Production Secret Guard', () => {
+    it('should return dev secret when not in production and JWT_SECRET is unset', () => {
+      delete process.env.JWT_SECRET;
+      process.env.NODE_ENV = 'development';
+      expect(getJwtSecret()).toBe('pori_jwt_secret_dev');
+    });
+
+    it('should throw an Error in production when JWT_SECRET is unset', () => {
+      delete process.env.JWT_SECRET;
+      process.env.NODE_ENV = 'production';
+      expect(() => getJwtSecret()).toThrow('JWT_SECRET environment variable is required in production');
+    });
+
+    it('should return JWT_SECRET when set in production', () => {
+      process.env.JWT_SECRET = 'super-secret-prod-key';
+      process.env.NODE_ENV = 'production';
+      expect(getJwtSecret()).toBe('super-secret-prod-key');
     });
   });
 });

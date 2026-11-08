@@ -85,6 +85,13 @@ describe('AuthModule (e2e)', () => {
         revisionMistakes.push(newMistake);
         return newMistake;
       },
+      createMany: async ({ data }: any) => {
+        const items = Array.isArray(data) ? data : [data];
+        for (const item of items) {
+          revisionMistakes.push({ id: `m_${Date.now()}_${Math.random()}`, ...item });
+        }
+        return { count: items.length };
+      },
       deleteMany: async ({ where }: any) => {
         let count = 0;
         revisionMistakes = revisionMistakes.filter((m) => {

@@ -1,12 +1,14 @@
 import { Injectable, Inject, BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Role, User } from '@prisma/client';
+import { randomInt } from 'crypto';
 import { PrismaService } from '../../database/prisma.service';
 import { PHONE_REGEX } from './dto/request-otp.dto';
 
 interface OtpEntry {
   code: string;
   expiresAt: number;
+  attempts: number;
 }
 
 export interface AuthResponseUser {
@@ -41,6 +43,15 @@ export class AuthService {
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(JwtService) private readonly jwtService: JwtService,
   ) {}
+
+  private cleanupExpiredOtps(): void {
+    const now = Date.now();
+    for (const [phone, entry] of this.otpStore.entries()) {
+      if (entry.expiresAt <= now) {
+        this.otpStore.delete(phone);
+      }
+    }
+  }
 
   normalizePhoneNumber(phone: string): string {
     const trimmed = phone.trim();
@@ -92,15 +103,17 @@ export class AuthService {
   }
 
   async requestOtp(phoneNumber: string): Promise<{ success: true; message: string }> {
+    this.cleanupExpiredOtps();
     const normalizedPhone = this.normalizePhoneNumber(phoneNumber);
 
-    // Standard 4-digit OTP or test OTP
-    const generatedCode = '1234';
+    const isTestOtpMode = process.env.NODE_ENV === 'test' || process.env.ENABLE_TEST_OTP === 'true';
+    const generatedCode = isTestOtpMode ? '1234' : randomInt(100000, 999999).toString();
     const ttlMs = 5 * 60 * 1000; // 5 minutes
 
     this.otpStore.set(normalizedPhone, {
       code: generatedCode,
       expiresAt: Date.now() + ttlMs,
+      attempts: 0,
     });
 
     return {
@@ -110,13 +123,24 @@ export class AuthService {
   }
 
   async verifyOtp(phoneNumber: string, code: string, guestId?: string): Promise<VerifyOtpResult> {
+    this.cleanupExpiredOtps();
     const normalizedPhone = this.normalizePhoneNumber(phoneNumber);
 
     const storedEntry = this.otpStore.get(normalizedPhone);
-    const isMasterOtp = code === '1234' || code === '0000';
-    const isStoredValid = storedEntry && storedEntry.code === code && storedEntry.expiresAt > Date.now();
+    const now = Date.now();
+
+    const isTestOtpAllowed = process.env.NODE_ENV !== 'production' || process.env.ENABLE_TEST_OTP === 'true';
+    const isMasterOtp = isTestOtpAllowed && (code === '1234' || code === '0000');
+    const isStoredValid = Boolean(storedEntry && storedEntry.code === code && storedEntry.expiresAt > now);
 
     if (!isMasterOtp && !isStoredValid) {
+      if (storedEntry) {
+        storedEntry.attempts += 1;
+        if (storedEntry.attempts >= 5) {
+          this.otpStore.delete(normalizedPhone);
+          throw new UnauthorizedException('Too many invalid attempts. Please request a new OTP.');
+        }
+      }
       throw new UnauthorizedException('Invalid or expired OTP');
     }
 
@@ -171,17 +195,19 @@ export class AuthService {
             });
             const existingQuestionIds = new Set(existingMistakes.map((m: { questionId: string }) => m.questionId));
 
-            for (const mistake of guestMistakes) {
-              if (!existingQuestionIds.has(mistake.questionId)) {
-                await tx.revisionMistake.create({
-                  data: {
-                    userId: existingUserWithPhone.id,
-                    questionId: mistake.questionId,
-                    attemptCount: mistake.attemptCount,
-                    resolved: mistake.resolved,
-                  },
-                });
-              }
+            const newMistakes = guestMistakes
+              .filter((m: { questionId: string }) => !existingQuestionIds.has(m.questionId))
+              .map((m: { questionId: string; attemptCount: number; resolved: boolean }) => ({
+                userId: existingUserWithPhone.id,
+                questionId: m.questionId,
+                attemptCount: m.attemptCount,
+                resolved: m.resolved,
+              }));
+
+            if (newMistakes.length > 0) {
+              await tx.revisionMistake.createMany({
+                data: newMistakes,
+              });
             }
 
             await tx.revisionMistake.deleteMany({
