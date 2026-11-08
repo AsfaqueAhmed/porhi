@@ -145,10 +145,22 @@ describe('ContentAdminModule (e2e)', () => {
         contentReviews.push(review);
         return review;
       },
-      findMany: async ({ where }: any) => {
+      findMany: async ({ where, include }: any) => {
         return contentReviews
           .filter((r) => r.contentId === where.contentId)
-          .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+          .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime())
+          .map((r) => {
+            if (include?.reviewer) {
+              const rev = users.find((u) => u.id === r.reviewerId);
+              return {
+                ...r,
+                reviewer: rev
+                  ? { id: rev.id, fullName: rev.fullName, role: rev.role }
+                  : null,
+              };
+            }
+            return r;
+          });
       },
     },
   };
@@ -266,7 +278,7 @@ describe('ContentAdminModule (e2e)', () => {
           titleBangla: 'বল',
           learningGoal: 'গোল',
           explanation: 'ব্যাখ্যা',
-          importantTerms: [],
+          importantTerms: [{ termBangla: 'জড়তা' }],
         })
         .expect(403);
 
@@ -277,7 +289,11 @@ describe('ContentAdminModule (e2e)', () => {
           topicId: 'topic_force',
           type: 'MCQ',
           stem: 'স্টেম',
-          explanation: { directAnswer: 'উত্তর' },
+          options: [
+            { id: 'opt_1', text: 'অপশন ১', isCorrect: true },
+            { id: 'opt_2', text: 'অপশন ২', isCorrect: false },
+          ],
+          explanation: { directAnswer: 'উত্তর', coreConcept: 'কনসেপ্ট' },
           difficulty: 'MEDIUM',
         })
         .expect(403);
@@ -312,7 +328,7 @@ describe('ContentAdminModule (e2e)', () => {
           titleBangla: 'বল',
           learningGoal: 'গোল',
           explanation: 'ব্যাখ্যা',
-          importantTerms: [],
+          importantTerms: [{ termBangla: 'জড়তা' }],
         })
         .expect(403);
 
@@ -323,7 +339,11 @@ describe('ContentAdminModule (e2e)', () => {
           topicId: 'topic_force',
           type: 'MCQ',
           stem: 'স্টেম',
-          explanation: { directAnswer: 'উত্তর' },
+          options: [
+            { id: 'opt_1', text: 'অপশন ১', isCorrect: true },
+            { id: 'opt_2', text: 'অপশন ২', isCorrect: false },
+          ],
+          explanation: { directAnswer: 'উত্তর', coreConcept: 'কনসেপ্ট' },
           difficulty: 'MEDIUM',
         })
         .expect(403);
@@ -481,7 +501,7 @@ describe('ContentAdminModule (e2e)', () => {
       expect(approveQuestionRes.body.status).toBe(ContentStatus.PUBLISHED);
       expect(approveQuestionRes.body.version).toBe(2);
 
-      // 8. Editor views audit history for Question
+      // 8. Editor views audit history for Question (including reviewer details)
       const questionReviewsRes = await request(app.getHttpServer())
         .get(`/admin/content/reviews/${createdQuestion.id}`)
         .set('Authorization', `Bearer ${editorToken}`)
@@ -490,10 +510,13 @@ describe('ContentAdminModule (e2e)', () => {
       expect(questionReviewsRes.body).toHaveLength(2);
       expect(questionReviewsRes.body[0].action).toBe('REQUEST_CHANGES');
       expect(questionReviewsRes.body[0].comment).toContain('Please add 4 full MCQ options');
+      expect(questionReviewsRes.body[0].reviewer).toBeDefined();
+      expect(questionReviewsRes.body[0].reviewer.role).toBe('REVIEWER');
       expect(questionReviewsRes.body[1].action).toBe('APPROVE');
       expect(questionReviewsRes.body[1].version).toBe(2);
+      expect(questionReviewsRes.body[1].reviewer).toBeDefined();
 
-      // 9. Admin views audit history for Lesson
+      // 9. Admin views audit history for Lesson (including reviewer details)
       const lessonReviewsRes = await request(app.getHttpServer())
         .get(`/admin/content/reviews/${createdLesson.id}`)
         .set('Authorization', `Bearer ${adminToken}`)
@@ -502,6 +525,7 @@ describe('ContentAdminModule (e2e)', () => {
       expect(lessonReviewsRes.body).toHaveLength(1);
       expect(lessonReviewsRes.body[0].action).toBe('APPROVE');
       expect(lessonReviewsRes.body[0].version).toBe(2);
+      expect(lessonReviewsRes.body[0].reviewer).toBeDefined();
     });
 
     it('should allow ADMIN to perform both drafting and review actions', async () => {
@@ -514,7 +538,7 @@ describe('ContentAdminModule (e2e)', () => {
           titleBangla: 'মহাকর্ষ সূত্র',
           learningGoal: 'মহাকর্ষ ব্যাখ্যা',
           explanation: '$F = G\\frac{m_1 m_2}{r^2}$',
-          importantTerms: [],
+          importantTerms: [{ termBangla: 'মহাকর্ষ' }],
         })
         .expect(201);
 
@@ -548,6 +572,19 @@ describe('ContentAdminModule (e2e)', () => {
           // missing titleBangla, learningGoal, explanation, importantTerms
         })
         .expect(400);
+
+      // importantTerms missing termBangla
+      await request(app.getHttpServer())
+        .post('/admin/content/lessons')
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({
+          topicId: 'topic_force',
+          titleBangla: 'বল',
+          learningGoal: 'গোল',
+          explanation: 'ব্যাখ্যা',
+          importantTerms: [{ termEnglish: 'Force' }],
+        })
+        .expect(400);
     });
 
     it('should reject invalid CreateQuestionAdminDto with 400 Bad Request', async () => {
@@ -558,6 +595,54 @@ describe('ContentAdminModule (e2e)', () => {
         .send({
           topicId: 'topic_force',
           type: 'INVALID_QUESTION_TYPE',
+          difficulty: 'MEDIUM',
+        })
+        .expect(400);
+
+      // MCQ with less than 2 options
+      await request(app.getHttpServer())
+        .post('/admin/content/questions')
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({
+          topicId: 'topic_force',
+          type: 'MCQ',
+          stem: 'স্টেম',
+          options: [{ id: 'opt_1', text: 'অপশন ১', isCorrect: true }],
+          explanation: { directAnswer: 'উত্তর', coreConcept: 'কনসেপ্ট' },
+          difficulty: 'MEDIUM',
+        })
+        .expect(400);
+
+      // MCQ without correct option
+      await request(app.getHttpServer())
+        .post('/admin/content/questions')
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({
+          topicId: 'topic_force',
+          type: 'MCQ',
+          stem: 'স্টেম',
+          options: [
+            { id: 'opt_1', text: 'অপশন ১', isCorrect: false },
+            { id: 'opt_2', text: 'অপশন ২', isCorrect: false },
+          ],
+          explanation: { directAnswer: 'উত্তর', coreConcept: 'কনসেপ্ট' },
+          difficulty: 'MEDIUM',
+        })
+        .expect(400);
+
+      // Explanation missing directAnswer or coreConcept
+      await request(app.getHttpServer())
+        .post('/admin/content/questions')
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({
+          topicId: 'topic_force',
+          type: 'MCQ',
+          stem: 'স্টেম',
+          options: [
+            { id: 'opt_1', text: 'অপশন ১', isCorrect: true },
+            { id: 'opt_2', text: 'অপশন ২', isCorrect: false },
+          ],
+          explanation: { directAnswer: 'উত্তর' },
           difficulty: 'MEDIUM',
         })
         .expect(400);
@@ -585,6 +670,18 @@ describe('ContentAdminModule (e2e)', () => {
           action: 'APPROVE',
         })
         .expect(400);
+
+      // Missing comment when requesting changes or rejecting
+      await request(app.getHttpServer())
+        .post('/admin/content/review')
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .send({
+          contentType: 'LESSON',
+          contentId: 'some_id',
+          action: 'REQUEST_CHANGES',
+          // missing comment
+        })
+        .expect(400);
     });
 
     it('should return 404 when topic does not exist for lesson creation', async () => {
@@ -596,7 +693,7 @@ describe('ContentAdminModule (e2e)', () => {
           titleBangla: 'শিরোনাম',
           learningGoal: 'গোল',
           explanation: 'ব্যাখ্যা',
-          importantTerms: [],
+          importantTerms: [{ termBangla: 'জড়তা' }],
         })
         .expect(404);
     });

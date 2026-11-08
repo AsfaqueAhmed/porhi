@@ -30,8 +30,13 @@ export class ContentAdminService {
     if (!dto?.explanation || typeof dto.explanation !== 'string' || !dto.explanation.trim()) {
       throw new BadRequestException('explanation is required');
     }
-    if (dto?.importantTerms === undefined || dto?.importantTerms === null) {
-      throw new BadRequestException('importantTerms is required');
+    if (!Array.isArray(dto?.importantTerms)) {
+      throw new BadRequestException('importantTerms must be an array of objects');
+    }
+    for (const term of dto.importantTerms) {
+      if (!term || typeof term !== 'object' || typeof term.termBangla !== 'string' || !term.termBangla.trim()) {
+        throw new BadRequestException('Each importantTerm must be an object containing at least termBangla');
+      }
     }
 
     const topic = await this.prisma.topic.findUnique({
@@ -67,11 +72,47 @@ export class ContentAdminService {
     if (!dto?.stem || typeof dto.stem !== 'string' || !dto.stem.trim()) {
       throw new BadRequestException('stem is required');
     }
-    if (dto?.explanation === undefined || dto?.explanation === null) {
-      throw new BadRequestException('explanation is required');
+    if (!dto?.explanation || typeof dto.explanation !== 'object') {
+      throw new BadRequestException('explanation must be a valid object');
+    }
+    if (
+      typeof dto.explanation.directAnswer !== 'string' ||
+      !dto.explanation.directAnswer.trim() ||
+      typeof dto.explanation.coreConcept !== 'string' ||
+      !dto.explanation.coreConcept.trim()
+    ) {
+      throw new BadRequestException(
+        'explanation must include non-empty directAnswer and coreConcept',
+      );
     }
     if (!dto?.difficulty || !['EASY', 'MEDIUM', 'HARD'].includes(dto.difficulty)) {
       throw new BadRequestException('difficulty must be EASY, MEDIUM, or HARD');
+    }
+
+    if (dto.type === 'MCQ') {
+      if (!Array.isArray(dto.options) || dto.options.length < 2) {
+        throw new BadRequestException('MCQ questions must include at least 2 options');
+      }
+      let correctCount = 0;
+      for (const opt of dto.options) {
+        if (
+          !opt ||
+          typeof opt !== 'object' ||
+          !opt.id ||
+          typeof opt.id !== 'string' ||
+          !opt.text ||
+          typeof opt.text !== 'string' ||
+          typeof opt.isCorrect !== 'boolean'
+        ) {
+          throw new BadRequestException('Each option must contain id, text, and isCorrect boolean');
+        }
+        if (opt.isCorrect) {
+          correctCount++;
+        }
+      }
+      if (correctCount !== 1) {
+        throw new BadRequestException('MCQ questions must have exactly one correct option');
+      }
     }
 
     const topic = await this.prisma.topic.findUnique({
@@ -131,6 +172,11 @@ export class ContentAdminService {
     }
     if (!action || !['APPROVE', 'REJECT', 'REQUEST_CHANGES'].includes(action)) {
       throw new BadRequestException('action must be APPROVE, REJECT, or REQUEST_CHANGES');
+    }
+    if (action !== 'APPROVE' && (!comment || !comment.trim())) {
+      throw new BadRequestException(
+        'A comment explaining required corrections is mandatory when rejecting or requesting changes',
+      );
     }
 
     const runTransaction = async (tx: any) => {
@@ -200,13 +246,17 @@ export class ContentAdminService {
     const [lessons, questions] = await Promise.all([
       this.prisma.lesson.findMany({
         where: {
-          status: { in: [ContentStatus.DRAFT, ContentStatus.CORRECTION] },
+          status: {
+            in: [ContentStatus.DRAFT, ContentStatus.REVIEW, ContentStatus.CORRECTION],
+          },
         },
         orderBy: { updatedAt: 'desc' },
       }),
       this.prisma.question.findMany({
         where: {
-          status: { in: [ContentStatus.DRAFT, ContentStatus.CORRECTION] },
+          status: {
+            in: [ContentStatus.DRAFT, ContentStatus.REVIEW, ContentStatus.CORRECTION],
+          },
         },
         orderBy: { updatedAt: 'desc' },
       }),
@@ -221,6 +271,15 @@ export class ContentAdminService {
   async getContentReviews(contentId: string) {
     return this.prisma.contentReview.findMany({
       where: { contentId },
+      include: {
+        reviewer: {
+          select: {
+            id: true,
+            fullName: true,
+            role: true,
+          },
+        },
+      },
       orderBy: { createdAt: 'asc' },
     });
   }

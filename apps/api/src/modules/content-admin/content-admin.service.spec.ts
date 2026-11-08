@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ContentAdminService } from './content-admin.service';
 import { PrismaService } from '../../database/prisma.service';
 import { ContentStatus } from '@prisma/client';
@@ -87,6 +87,22 @@ describe('ContentAdminService', () => {
       );
       expect(mockPrisma.lesson.create).not.toHaveBeenCalled();
     });
+
+    it('should throw BadRequestException if importantTerms is not an array or missing termBangla', async () => {
+      await expect(
+        service.createLesson({
+          ...createLessonDto,
+          importantTerms: 'not-an-array' as any,
+        }),
+      ).rejects.toThrow(BadRequestException);
+
+      await expect(
+        service.createLesson({
+          ...createLessonDto,
+          importantTerms: [{ termEnglish: 'Inertia' } as any],
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
   });
 
   describe('createQuestion', () => {
@@ -143,6 +159,65 @@ describe('ContentAdminService', () => {
         NotFoundException,
       );
       expect(mockPrisma.question.create).not.toHaveBeenCalled();
+    });
+
+    it('should validate MCQ options and throw BadRequestException if invalid', async () => {
+      // Less than 2 options
+      await expect(
+        service.createQuestion({
+          ...createQuestionDto,
+          options: [{ id: 'opt_1', text: 'ক', isCorrect: true }],
+        }),
+      ).rejects.toThrow(BadRequestException);
+
+      // No correct option
+      await expect(
+        service.createQuestion({
+          ...createQuestionDto,
+          options: [
+            { id: 'opt_1', text: 'ক', isCorrect: false },
+            { id: 'opt_2', text: 'খ', isCorrect: false },
+          ],
+        }),
+      ).rejects.toThrow(BadRequestException);
+
+      // Multiple correct options
+      await expect(
+        service.createQuestion({
+          ...createQuestionDto,
+          options: [
+            { id: 'opt_1', text: 'ক', isCorrect: true },
+            { id: 'opt_2', text: 'খ', isCorrect: true },
+          ],
+        }),
+      ).rejects.toThrow(BadRequestException);
+
+      // Option missing isCorrect boolean
+      await expect(
+        service.createQuestion({
+          ...createQuestionDto,
+          options: [
+            { id: 'opt_1', text: 'ক' } as any,
+            { id: 'opt_2', text: 'খ', isCorrect: true },
+          ],
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should validate explanation structure and throw BadRequestException if missing directAnswer or coreConcept', async () => {
+      await expect(
+        service.createQuestion({
+          ...createQuestionDto,
+          explanation: { directAnswer: 'উত্তর আছে' } as any,
+        }),
+      ).rejects.toThrow(BadRequestException);
+
+      await expect(
+        service.createQuestion({
+          ...createQuestionDto,
+          explanation: { coreConcept: 'কনসেপ্ট আছে' } as any,
+        }),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -319,6 +394,26 @@ describe('ContentAdminService', () => {
       expect(result.status).toBe(ContentStatus.CORRECTION);
     });
 
+    it('should throw BadRequestException if rejecting or requesting changes without a comment', async () => {
+      await expect(
+        service.reviewContent('reviewer_1', {
+          contentType: 'LESSON',
+          contentId: 'lesson_1',
+          action: 'REQUEST_CHANGES',
+          // missing comment
+        }),
+      ).rejects.toThrow(BadRequestException);
+
+      await expect(
+        service.reviewContent('reviewer_1', {
+          contentType: 'LESSON',
+          contentId: 'lesson_1',
+          action: 'REJECT',
+          comment: '   ',
+        }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
     it('should throw NotFoundException if content item does not exist', async () => {
       mockPrisma.lesson.findUnique.mockResolvedValue(null);
 
@@ -336,7 +431,7 @@ describe('ContentAdminService', () => {
   });
 
   describe('getPendingContent', () => {
-    it('should return pending draft and correction lessons and questions', async () => {
+    it('should return pending draft, review, and correction lessons and questions', async () => {
       const pendingLessons = [
         { id: 'l_draft', status: ContentStatus.DRAFT, titleBangla: 'বল' },
         { id: 'l_corr', status: ContentStatus.CORRECTION, titleBangla: 'গতি' },
@@ -351,11 +446,19 @@ describe('ContentAdminService', () => {
       const result = await service.getPendingContent();
 
       expect(mockPrisma.lesson.findMany).toHaveBeenCalledWith({
-        where: { status: { in: [ContentStatus.DRAFT, ContentStatus.CORRECTION] } },
+        where: {
+          status: {
+            in: [ContentStatus.DRAFT, ContentStatus.REVIEW, ContentStatus.CORRECTION],
+          },
+        },
         orderBy: { updatedAt: 'desc' },
       });
       expect(mockPrisma.question.findMany).toHaveBeenCalledWith({
-        where: { status: { in: [ContentStatus.DRAFT, ContentStatus.CORRECTION] } },
+        where: {
+          status: {
+            in: [ContentStatus.DRAFT, ContentStatus.REVIEW, ContentStatus.CORRECTION],
+          },
+        },
         orderBy: { updatedAt: 'desc' },
       });
       expect(result).toEqual({
@@ -366,7 +469,7 @@ describe('ContentAdminService', () => {
   });
 
   describe('getContentReviews', () => {
-    it('should return chronological audit history for content item', async () => {
+    it('should return chronological audit history with reviewer details', async () => {
       const reviewAuditHistory = [
         {
           id: 'rev_1',
@@ -377,6 +480,7 @@ describe('ContentAdminService', () => {
           comment: 'Clarify 2nd formula',
           version: 1,
           createdAt: new Date('2026-11-01T10:00:00Z'),
+          reviewer: { id: 'rev_usr_1', fullName: 'Reviewer One', role: 'REVIEWER' },
         },
         {
           id: 'rev_2',
@@ -387,6 +491,7 @@ describe('ContentAdminService', () => {
           comment: 'Looks great now',
           version: 2,
           createdAt: new Date('2026-11-02T12:00:00Z'),
+          reviewer: { id: 'rev_usr_2', fullName: 'Reviewer Two', role: 'REVIEWER' },
         },
       ];
 
@@ -396,6 +501,15 @@ describe('ContentAdminService', () => {
 
       expect(mockPrisma.contentReview.findMany).toHaveBeenCalledWith({
         where: { contentId: 'les_1' },
+        include: {
+          reviewer: {
+            select: {
+              id: true,
+              fullName: true,
+              role: true,
+            },
+          },
+        },
         orderBy: { createdAt: 'asc' },
       });
       expect(result).toEqual(reviewAuditHistory);

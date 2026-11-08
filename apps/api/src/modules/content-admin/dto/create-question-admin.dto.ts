@@ -3,6 +3,7 @@ import {
   IsDefined,
   IsIn,
   IsNotEmpty,
+  IsObject,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -26,6 +27,7 @@ export class CreateQuestionAdminDto {
   options?: any[];
 
   @IsDefined()
+  @IsObject()
   explanation!: any;
 
   @IsOptional()

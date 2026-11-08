@@ -1,4 +1,4 @@
-import { IsDefined, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateLessonAdminDto {
   @IsNotEmpty()
@@ -17,8 +17,8 @@ export class CreateLessonAdminDto {
   @IsString()
   explanation!: string;
 
-  @IsDefined()
-  importantTerms!: any;
+  @IsArray()
+  importantTerms!: any[];
 
   @IsOptional()
   workedExample?: any;
