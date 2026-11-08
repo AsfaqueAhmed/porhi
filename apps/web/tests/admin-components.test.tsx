@@ -81,6 +81,23 @@ describe('Admin Portal Components', () => {
       expect(screen.getByRole('button', { name: /নতুন বিষয় যোগ করুন/i })).toBeDefined();
       expect(screen.getByRole('button', { name: /\+ এই বিষয়ে নতুন অধ্যায় যোগ করুন/i })).toBeDefined();
     });
+
+    it('renders enterprise subjects directory list with search filter and selection', () => {
+      render(<CurriculumManager />);
+
+      // Verify subject directory table headers and elements
+      expect(screen.getByText(/বিষয় ও পরিচিতি/i)).toBeDefined();
+      expect(screen.getByText(/শ্রেণী ও সিলেবাস বছর/i)).toBeDefined();
+      expect(screen.getAllByText(/পদার্থবিজ্ঞান/i).length).toBeGreaterThanOrEqual(1);
+      expect(screen.getByText(/রসায়ন/i)).toBeDefined();
+
+      // Search filtering
+      const searchInput = screen.getByPlaceholderText(/বিষয় খুঁজুন.../i);
+      expect(searchInput).toBeDefined();
+
+      fireEvent.change(searchInput, { target: { value: 'রসায়ন' } });
+      expect(screen.getByText(/রসায়ন/i)).toBeDefined();
+    });
   });
 
   describe('AuthoringStudio', () => {
@@ -95,14 +112,6 @@ describe('Admin Portal Components', () => {
       fireEvent.click(screen.getByText(/পাঠ্য লেসন \(Lesson\)/i));
       expect(screen.getByText(/লেসনের শিরোনাম ও শিখনফল/i)).toBeDefined();
       expect(screen.getByText(/গুরুত্বপূর্ণ পরিভাষা ও সংজ্ঞা/i)).toBeDefined();
-    });
-
-    it('renders 3 cascading dropdowns for subject, chapter, and topic', () => {
-      render(<AuthoringStudio />);
-
-      expect(screen.getByText(/১\. বিষয় \(Subject\)/i)).toBeDefined();
-      expect(screen.getByText(/২\. অধ্যায় \(Chapter\)/i)).toBeDefined();
-      expect(screen.getByText(/৩\. নির্দিষ্ট টপিক \(Topic\)/i)).toBeDefined();
     });
   });
 

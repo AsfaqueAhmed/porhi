@@ -14,6 +14,8 @@ import {
   HelpCircle,
   Trophy,
   CheckCircle,
+  Search,
+  CheckCircle2,
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { AdminDrawer } from './layout/AdminDrawer';
@@ -45,6 +47,27 @@ interface SubjectItem {
   chapterCount?: number;
 }
 
+const DEFAULT_SUBJECTS: SubjectItem[] = [
+  {
+    id: 'sub_ssc_physics',
+    code: 'ssc_physics',
+    nameBangla: 'পদার্থবিজ্ঞান',
+    classLevel: 'CLASS_9_10',
+    syllabusYear: 2026,
+    isReady: true,
+    chapterCount: 2,
+  },
+  {
+    id: 'sub_ssc_chemistry',
+    code: 'ssc_chemistry',
+    nameBangla: 'রসায়ন',
+    classLevel: 'CLASS_9_10',
+    syllabusYear: 2026,
+    isReady: false,
+    chapterCount: 0,
+  },
+];
+
 interface CurriculumManagerProps {
   initialSubjectId?: string;
   onNavigateToAuthoring?: (topicId: string, subjectId: string, type: 'MCQ' | 'LESSON') => void;
@@ -56,7 +79,7 @@ export function CurriculumManager({
   onNavigateToAuthoring,
   onNavigateToModelTest,
 }: CurriculumManagerProps) {
-  const [subjects, setSubjects] = useState<SubjectItem[]>([]);
+  const [subjects, setSubjects] = useState<SubjectItem[]>(DEFAULT_SUBJECTS);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>(initialSubjectId || 'sub_ssc_physics');
   const [chapters, setChapters] = useState<ChapterItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -80,6 +103,7 @@ export function CurriculumManager({
   const [newTopicTitle, setNewTopicTitle] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
+  const [subjectSearchQuery, setSubjectSearchQuery] = useState('');
 
   useEffect(() => {
     let isMounted = true;
@@ -93,26 +117,7 @@ export function CurriculumManager({
         }
       } catch {
         if (isMounted) {
-          setSubjects([
-            {
-              id: 'sub_ssc_physics',
-              code: 'ssc_physics',
-              nameBangla: 'পদার্থবিজ্ঞান',
-              classLevel: 'CLASS_9_10',
-              syllabusYear: 2026,
-              isReady: true,
-              chapterCount: 2,
-            },
-            {
-              id: 'sub_ssc_chemistry',
-              code: 'ssc_chemistry',
-              nameBangla: 'রসায়ন',
-              classLevel: 'CLASS_9_10',
-              syllabusYear: 2026,
-              isReady: false,
-              chapterCount: 0,
-            },
-          ]);
+          setSubjects(DEFAULT_SUBJECTS);
         }
       }
     }
@@ -336,7 +341,17 @@ export function CurriculumManager({
     }
   };
 
-  const activeSubject = subjects.find((s) => s.id === selectedSubjectId);
+  const activeSubject = subjects.find((s) => s.id === selectedSubjectId) || subjects[0];
+
+  const filteredSubjects = subjects.filter((s) => {
+    const query = subjectSearchQuery.toLowerCase().trim();
+    if (!query) return true;
+    return (
+      s.nameBangla.toLowerCase().includes(query) ||
+      s.code.toLowerCase().includes(query) ||
+      s.classLevel.toLowerCase().includes(query)
+    );
+  });
 
   return (
     <div className="space-y-6">
@@ -348,128 +363,185 @@ export function CurriculumManager({
         </div>
       )}
 
-      {/* Subject Management: Unified Modern Header & Segmented Switcher */}
+      {/* Section 1: Subject Directory & Enterprise Management Table */}
       <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs space-y-4">
-        {/* Top Header Row */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0 text-indigo-600 mt-0.5 shadow-2xs">
-              <FolderTree className="w-5 h-5" />
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                কারিকুলাম কনফিগারেশন
+              </span>
+              <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full">
+                {subjects.length}টি বিষয় নথিভুক্ত
+              </span>
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-slate-900 tracking-tight">
-                  কারিকুলাম বিষয় ও অধ্যায় কন্ট্রোল প্যানেল
-                </h2>
-                <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                  ম্যানেজমেন্ট
-                </span>
-              </div>
-              <p className="text-xs text-slate-500 mt-0.5">
-                যেকোনো বিষয়ের অধীনে অধ্যায়, অধ্যায়ের অধীনে টপিক/সেকশন এবং টপিকভিত্তিক প্রশ্ন ও লেসন পরিচালনা করুন।
-              </p>
-            </div>
+            <h2 className="text-base font-bold text-slate-900 mt-1 flex items-center gap-2">
+              <FolderTree className="w-5 h-5 text-indigo-600" />
+              <span>কারিকুলাম বিষয় ও অধ্যায় কন্ট্রোল প্যানেল</span>
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              সকল বিষয়ের তালিকা, সিলেবাসের বছর, অধ্যায় সংখ্যা এবং শিক্ষার্থী দৃশ্যমানতা পরিচালনা করুন।
+            </p>
           </div>
 
-          {/* Action Button: Single Clean Plus Icon */}
-          <button
-            type="button"
-            onClick={() => setShowAddSubject(true)}
-            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition-all shrink-0 self-start sm:self-auto hover:shadow-sm"
-          >
-            <Plus className="w-4 h-4" />
-            <span>নতুন বিষয় যোগ করুন</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-auto">
+            {/* Search Input Filter */}
+            <div className="relative">
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                value={subjectSearchQuery}
+                onChange={(e) => setSubjectSearchQuery(e.target.value)}
+                placeholder="বিষয় খুঁজুন..."
+                className="pl-8.5 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 w-44 sm:w-56 transition-all"
+              />
+            </div>
+
+            {/* "+ Add New Subject" Action Button */}
+            <button
+              type="button"
+              onClick={() => setShowAddSubject(true)}
+              className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-colors shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>নতুন বিষয় যোগ করুন</span>
+            </button>
+          </div>
         </div>
 
-        {/* Unified Subject Tabs Bar with Integrated Metadata */}
-        <div className="space-y-3">
-          {/* Subjects Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
-            {subjects.map((sub) => {
-              const isSelected = sub.id === selectedSubjectId;
-              return (
-                <button
-                  key={sub.id}
-                  type="button"
-                  onClick={() => setSelectedSubjectId(sub.id)}
-                  className={`group flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 border ${
-                    isSelected
-                      ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
-                      : 'bg-slate-50/80 text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
-                  }`}
-                >
-                  <span
-                    className={`w-2 h-2 rounded-full shrink-0 ${
-                      sub.isReady ? 'bg-emerald-400' : 'bg-amber-400'
-                    }`}
-                  />
-                  <span>{sub.nameBangla}</span>
-                  <span
-                    className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono font-medium ${
-                      isSelected
-                        ? 'bg-slate-800 text-slate-300'
-                        : 'bg-white text-slate-500 border border-slate-200'
-                    }`}
-                  >
-                    {sub.chapterCount || 0} অধ্যায়
-                  </span>
-                </button>
-              );
-            })}
+        {/* Subjects List / Data Table */}
+        <div className="border border-slate-200/90 rounded-2xl overflow-hidden bg-white">
+          {/* Table Header (Visible on Desktop) */}
+          <div className="hidden md:grid md:grid-cols-12 gap-3 px-4 py-2.5 bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <div className="col-span-4">বিষয় ও পরিচিতি</div>
+            <div className="col-span-3">শ্রেণী ও সিলেবাস বছর</div>
+            <div className="col-span-2">অধ্যায় সংখ্যা</div>
+            <div className="col-span-3 text-right">দৃশ্যমানতা ও নিয়ন্ত্রণ</div>
           </div>
 
-          {/* Active Subject Context Strip */}
-          {activeSubject && (
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs">
-              <div className="flex flex-wrap items-center gap-2.5 text-slate-600">
-                <span className="font-semibold text-slate-800 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                  নির্বাচিত বিষয়: <strong className="text-slate-900">{activeSubject.nameBangla}</strong>
-                </span>
-                <span className="text-slate-300">•</span>
-                <span className="bg-indigo-50 text-indigo-700 border border-indigo-200/80 font-semibold px-2 py-0.5 rounded-lg text-[11px]">
-                  {activeSubject.classLevel === 'CLASS_9_10'
-                    ? 'SSC (৯ম-১০ম)'
-                    : activeSubject.classLevel === 'HSC' || activeSubject.classLevel === 'CLASS_11_12'
-                    ? 'HSC (১১দশ-১২শ)'
-                    : 'ভর্তি পরীক্ষা'}
-                </span>
-                <span className="text-slate-300">•</span>
-                <span className="text-[11px] font-mono text-slate-500">
-                  কোড: <strong className="text-slate-700">{activeSubject.code}</strong>
-                </span>
-                <span className="text-slate-300">•</span>
-                <span className="text-[11px] text-slate-500">
-                  শিক্ষাবর্ষ: <strong className="text-slate-700">{activeSubject.syllabusYear}</strong>
-                </span>
-              </div>
+          {/* Subjects Rows */}
+          {filteredSubjects.length === 0 ? (
+            <div className="p-8 text-center text-xs text-slate-400">
+              কোনো বিষয় পাওয়া যায়নি।
+            </div>
+          ) : (
+            <div className="divide-y divide-slate-100">
+              {filteredSubjects.map((sub) => {
+                const isSelected = sub.id === selectedSubjectId;
+                const chapterCountDisplay =
+                  sub.id === selectedSubjectId
+                    ? chapters.length
+                    : (sub.chapterCount ?? 0);
 
-              {/* Status Toggle Switch */}
-              <div className="flex items-center gap-2 shrink-0">
-                <span className="text-slate-500 text-[11px] font-medium">শিক্ষার্থী দৃশ্যমানতা:</span>
-                <button
-                  type="button"
-                  onClick={() => handleToggleReady(activeSubject.id)}
-                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all border ${
-                    activeSubject.isReady
-                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
-                      : 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
-                  }`}
-                >
-                  {activeSubject.isReady ? (
-                    <>
-                      <ToggleRight className="w-4 h-4 text-emerald-600" />
-                      <span>সচল (Live)</span>
-                    </>
-                  ) : (
-                    <>
-                      <ToggleLeft className="w-4 h-4 text-amber-600" />
-                      <span>খসড়া (Draft)</span>
-                    </>
-                  )}
-                </button>
-              </div>
+                return (
+                  <div
+                    key={sub.id}
+                    onClick={() => setSelectedSubjectId(sub.id)}
+                    className={`p-4 transition-all flex flex-col md:grid md:grid-cols-12 gap-3 md:items-center cursor-pointer ${
+                      isSelected
+                        ? 'bg-indigo-50/50 border-l-4 border-l-indigo-600 shadow-2xs'
+                        : 'bg-white hover:bg-slate-50/70 border-l-4 border-l-transparent'
+                    }`}
+                  >
+                    {/* Subject Avatar & Bengali Name + Code */}
+                    <div className="col-span-4 flex items-center gap-3 min-w-0">
+                      <div
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm shrink-0 transition-colors ${
+                          isSelected
+                            ? 'bg-indigo-600 text-white shadow-xs'
+                            : 'bg-slate-100 text-slate-700'
+                        }`}
+                      >
+                        {sub.nameBangla.slice(0, 1)}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-extrabold text-sm text-slate-900 truncate">
+                            {sub.nameBangla}
+                          </span>
+                          {isSelected && (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full shrink-0">
+                              <CheckCircle2 className="w-3 h-3 text-indigo-600" />
+                              <span>সক্রিয় বিষয়</span>
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-[11px] font-mono text-slate-400 block mt-0.5 truncate">
+                          id: {sub.id} • কোড: {sub.code}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Class Level & Syllabus Year */}
+                    <div className="col-span-3 flex flex-wrap items-center gap-1.5 text-xs">
+                      <span className="bg-slate-100 text-slate-700 font-semibold px-2.5 py-0.5 rounded-lg text-[11px]">
+                        {sub.classLevel === 'CLASS_9_10'
+                          ? 'SSC (৯ম-১০ম)'
+                          : sub.classLevel === 'HSC' || sub.classLevel === 'CLASS_11_12'
+                          ? 'HSC (১১দশ-১২শ)'
+                          : 'ভর্তি পরীক্ষা'}
+                      </span>
+                      <span className="text-slate-500 text-[11px]">
+                        • {sub.syllabusYear} শিক্ষাবর্ষ
+                      </span>
+                    </div>
+
+                    {/* Chapter Count */}
+                    <div className="col-span-2 flex items-center gap-1.5 text-xs text-slate-600">
+                      <BookOpen className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span className="font-bold text-slate-800">{chapterCountDisplay}টি</span>
+                      <span className="text-slate-500 text-[11px]">অধ্যায়</span>
+                    </div>
+
+                    {/* Visibility Switch & Select/View Chapters Button */}
+                    <div className="col-span-3 flex items-center justify-between md:justify-end gap-2.5 pt-2 md:pt-0 border-t md:border-t-0 border-slate-100">
+                      {/* Live / Draft Toggle Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleReady(sub.id);
+                        }}
+                        title={sub.isReady ? 'শিক্ষার্থীদের জন্য সচল' : 'খসড়া অবস্থায় সংরক্ষিত'}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-colors border ${
+                          sub.isReady
+                            ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                            : 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
+                        }`}
+                      >
+                        {sub.isReady ? (
+                          <>
+                            <ToggleRight className="w-4 h-4 text-emerald-600 shrink-0" />
+                            <span>সচল (Live)</span>
+                          </>
+                        ) : (
+                          <>
+                            <ToggleLeft className="w-4 h-4 text-amber-600 shrink-0" />
+                            <span>খসড়া (Draft)</span>
+                          </>
+                        )}
+                      </button>
+
+                      {/* Select / View Chapters Action Button */}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedSubjectId(sub.id);
+                        }}
+                        className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-xl transition-all shadow-2xs shrink-0 ${
+                          isSelected
+                            ? 'bg-indigo-600 text-white shadow-xs'
+                            : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
+                        }`}
+                      >
+                        <span>{isSelected ? 'অধ্যায় সক্রিয় ✓' : 'অধ্যায় দেখুন'}</span>
+                        <ChevronRight className={`w-3.5 h-3.5 ${isSelected ? 'text-indigo-200' : 'text-slate-400'}`} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
