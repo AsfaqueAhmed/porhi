@@ -16,6 +16,9 @@ import { ContentAdminService } from './content-admin.service';
 import { CreateLessonAdminDto } from './dto/create-lesson-admin.dto';
 import { CreateQuestionAdminDto } from './dto/create-question-admin.dto';
 import { ReviewContentDto } from './dto/review-content.dto';
+import { CreateChapterAdminDto } from './dto/create-chapter-admin.dto';
+import { CreateTopicAdminDto } from './dto/create-topic-admin.dto';
+import { CreateSubjectAdminDto } from './dto/create-subject-admin.dto';
 
 @Controller('admin/content')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -56,5 +59,35 @@ export class ContentAdminController {
   @Roles(Role.EDITOR, Role.REVIEWER, Role.ADMIN)
   async getContentReviews(@Param('contentId') contentId: string) {
     return this.contentAdminService.getContentReviews(contentId);
+  }
+
+  @Post('chapters')
+  @Roles(Role.EDITOR, Role.ADMIN)
+  async createChapter(@Body() dto: CreateChapterAdminDto) {
+    return this.contentAdminService.createChapter(dto);
+  }
+
+  @Post('topics')
+  @Roles(Role.EDITOR, Role.ADMIN)
+  async createTopic(@Body() dto: CreateTopicAdminDto) {
+    return this.contentAdminService.createTopic(dto);
+  }
+
+  @Post('subjects/:subjectId/toggle-ready')
+  @Roles(Role.ADMIN)
+  async toggleSubjectReady(@Param('subjectId') subjectId: string) {
+    return this.contentAdminService.toggleSubjectReady(subjectId);
+  }
+
+  @Post('subjects')
+  @Roles(Role.ADMIN)
+  async createSubject(@Body() dto: CreateSubjectAdminDto) {
+    return this.contentAdminService.createSubject(dto);
+  }
+
+  @Get('topics/:topicId/content')
+  @Roles(Role.EDITOR, Role.REVIEWER, Role.ADMIN)
+  async getTopicContent(@Param('topicId') topicId: string) {
+    return this.contentAdminService.getTopicContent(topicId);
   }
 }

@@ -13,6 +13,8 @@ describe('ContentAdminService', () => {
       $transaction: vi.fn(async (cb) => cb(mockPrisma)),
       topic: {
         findUnique: vi.fn(),
+        create: vi.fn(),
+        aggregate: vi.fn(),
       },
       lesson: {
         findUnique: vi.fn(),
@@ -29,6 +31,16 @@ describe('ContentAdminService', () => {
       contentReview: {
         create: vi.fn(),
         findMany: vi.fn(),
+      },
+      subject: {
+        findUnique: vi.fn(),
+        update: vi.fn(),
+        create: vi.fn(),
+      },
+      chapter: {
+        findUnique: vi.fn(),
+        create: vi.fn(),
+        aggregate: vi.fn(),
       },
     };
 
@@ -513,6 +525,142 @@ describe('ContentAdminService', () => {
         orderBy: { createdAt: 'asc' },
       });
       expect(result).toEqual(reviewAuditHistory);
+    });
+  });
+
+  describe('createChapter', () => {
+    it('should create a chapter with calculated orderIndex when subject exists', async () => {
+      mockPrisma.subject.findUnique.mockResolvedValue({ id: 'sub_1', nameBangla: 'পদার্থবিজ্ঞান' });
+      mockPrisma.chapter.aggregate.mockResolvedValue({ _max: { orderIndex: 2 } });
+      mockPrisma.chapter.create.mockResolvedValue({
+        id: 'chap_new',
+        subjectId: 'sub_1',
+        orderIndex: 3,
+        titleBangla: 'তৃতীয় অধ্যায়: বল',
+      });
+
+      const res = await service.createChapter({
+        subjectId: 'sub_1',
+        titleBangla: 'তৃতীয় অধ্যায়: বল',
+      });
+
+      expect(res.id).toBe('chap_new');
+      expect(mockPrisma.chapter.create).toHaveBeenCalledWith({
+        data: {
+          subjectId: 'sub_1',
+          orderIndex: 3,
+          titleBangla: 'তৃতীয় অধ্যায়: বল',
+        },
+      });
+    });
+
+    it('should throw NotFoundException if subject does not exist', async () => {
+      mockPrisma.subject.findUnique.mockResolvedValue(null);
+
+      await expect(
+        service.createChapter({
+          subjectId: 'sub_unknown',
+          titleBangla: 'অধ্যায়',
+        }),
+      ).rejects.toThrow('Subject not found');
+    });
+  });
+
+  describe('createTopic', () => {
+    it('should create a topic when chapter exists', async () => {
+      mockPrisma.chapter.findUnique.mockResolvedValue({ id: 'chap_1', titleBangla: 'গতি' });
+      mockPrisma.topic.aggregate.mockResolvedValue({ _max: { orderIndex: 1 } });
+      mockPrisma.topic.create.mockResolvedValue({
+        id: 'top_new',
+        chapterId: 'chap_1',
+        orderIndex: 2,
+        titleBangla: 'বেগ ও দ্রুতি',
+      });
+
+      const res = await service.createTopic({
+        chapterId: 'chap_1',
+        titleBangla: 'বেগ ও দ্রুতি',
+      });
+
+      expect(res.id).toBe('top_new');
+      expect(mockPrisma.topic.create).toHaveBeenCalledWith({
+        data: {
+          chapterId: 'chap_1',
+          orderIndex: 2,
+          titleBangla: 'বেগ ও দ্রুতি',
+        },
+      });
+    });
+  });
+
+  describe('toggleSubjectReady', () => {
+    it('should toggle readiness flag of subject', async () => {
+      mockPrisma.subject.findUnique.mockResolvedValue({ id: 'sub_1', isReady: false });
+      mockPrisma.subject.update.mockResolvedValue({ id: 'sub_1', isReady: true });
+
+      const res = await service.toggleSubjectReady('sub_1');
+      expect(res.isReady).toBe(true);
+      expect(mockPrisma.subject.update).toHaveBeenCalledWith({
+        where: { id: 'sub_1' },
+        data: { isReady: true },
+      });
+    });
+  });
+
+  describe('createSubject', () => {
+    it('should create a subject when code is unique', async () => {
+      mockPrisma.subject.findUnique.mockResolvedValue(null);
+      mockPrisma.subject.create.mockResolvedValue({
+        id: 'sub_bio',
+        code: 'ssc_biology',
+        nameBangla: 'জীববিজ্ঞান',
+        classLevel: 'CLASS_9_10',
+        syllabusYear: 2026,
+        isReady: false,
+      });
+
+      const res = await service.createSubject({
+        code: 'ssc_biology',
+        nameBangla: 'জীববিজ্ঞান',
+        classLevel: 'CLASS_9_10',
+      });
+
+      expect(res.id).toBe('sub_bio');
+      expect(mockPrisma.subject.create).toHaveBeenCalledWith({
+        data: {
+          code: 'ssc_biology',
+          nameBangla: 'জীববিজ্ঞান',
+          classLevel: 'CLASS_9_10',
+          syllabusYear: 2026,
+          isReady: false,
+        },
+      });
+    });
+
+    it('should throw BadRequestException if subject code already exists', async () => {
+      mockPrisma.subject.findUnique.mockResolvedValue({ id: 'sub_exist', code: 'ssc_physics' });
+
+      await expect(
+        service.createSubject({
+          code: 'ssc_physics',
+          nameBangla: 'পদার্থবিজ্ঞান',
+          classLevel: 'CLASS_9_10',
+        }),
+      ).rejects.toThrow('already exists');
+    });
+  });
+
+  describe('getTopicContent', () => {
+    it('should return topic with its lessons and questions', async () => {
+      mockPrisma.topic.findUnique.mockResolvedValue({ id: 'top_1', titleBangla: 'গতি' });
+      mockPrisma.lesson.findMany.mockResolvedValue([{ id: 'les_1', titleBangla: 'গতির সমীকরণ' }]);
+      mockPrisma.question.findMany.mockResolvedValue([{ id: 'q_1', stem: 'v = u + at' }]);
+
+      const res = await service.getTopicContent('top_1');
+
+      expect(res.topic.id).toBe('top_1');
+      expect(res.lessons.length).toBe(1);
+      expect(res.questions.length).toBe(1);
     });
   });
 });

@@ -9,6 +9,9 @@ import { PrismaService } from '../../database/prisma.service';
 import { CreateLessonAdminDto } from './dto/create-lesson-admin.dto';
 import { CreateQuestionAdminDto } from './dto/create-question-admin.dto';
 import { ReviewContentDto } from './dto/review-content.dto';
+import { CreateChapterAdminDto } from './dto/create-chapter-admin.dto';
+import { CreateTopicAdminDto } from './dto/create-topic-admin.dto';
+import { CreateSubjectAdminDto } from './dto/create-subject-admin.dto';
 
 @Injectable()
 export class ContentAdminService {
@@ -282,5 +285,119 @@ export class ContentAdminService {
       },
       orderBy: { createdAt: 'asc' },
     });
+  }
+
+  async createChapter(dto: CreateChapterAdminDto) {
+    if (!dto.subjectId || !dto.titleBangla) {
+      throw new BadRequestException('subjectId and titleBangla are required');
+    }
+    const subject = await this.prisma.subject.findUnique({
+      where: { id: dto.subjectId },
+    });
+    if (!subject) {
+      throw new NotFoundException(`Subject not found with id: ${dto.subjectId}`);
+    }
+
+    const maxOrder = await this.prisma.chapter.aggregate({
+      where: { subjectId: dto.subjectId },
+      _max: { orderIndex: true },
+    });
+    const orderIndex = dto.orderIndex ?? ((maxOrder._max.orderIndex ?? 0) + 1);
+
+    return this.prisma.chapter.create({
+      data: {
+        subjectId: dto.subjectId,
+        orderIndex,
+        titleBangla: dto.titleBangla,
+      },
+    });
+  }
+
+  async createTopic(dto: CreateTopicAdminDto) {
+    if (!dto.chapterId || !dto.titleBangla) {
+      throw new BadRequestException('chapterId and titleBangla are required');
+    }
+    const chapter = await this.prisma.chapter.findUnique({
+      where: { id: dto.chapterId },
+    });
+    if (!chapter) {
+      throw new NotFoundException(`Chapter not found with id: ${dto.chapterId}`);
+    }
+
+    const maxOrder = await this.prisma.topic.aggregate({
+      where: { chapterId: dto.chapterId },
+      _max: { orderIndex: true },
+    });
+    const orderIndex = dto.orderIndex ?? ((maxOrder._max.orderIndex ?? 0) + 1);
+
+    return this.prisma.topic.create({
+      data: {
+        chapterId: dto.chapterId,
+        orderIndex,
+        titleBangla: dto.titleBangla,
+      },
+    });
+  }
+
+  async toggleSubjectReady(subjectId: string, isReady?: boolean) {
+    const subject = await this.prisma.subject.findUnique({
+      where: { id: subjectId },
+    });
+    if (!subject) {
+      throw new NotFoundException(`Subject not found with id: ${subjectId}`);
+    }
+    const nextStatus = isReady !== undefined ? isReady : !subject.isReady;
+    return this.prisma.subject.update({
+      where: { id: subjectId },
+      data: { isReady: nextStatus },
+    });
+  }
+
+  async createSubject(dto: CreateSubjectAdminDto) {
+    if (!dto.code || !dto.nameBangla || !dto.classLevel) {
+      throw new BadRequestException('code, nameBangla, and classLevel are required');
+    }
+    const existing = await this.prisma.subject.findUnique({
+      where: { code: dto.code },
+    });
+    if (existing) {
+      throw new BadRequestException(`Subject with code ${dto.code} already exists`);
+    }
+
+    return this.prisma.subject.create({
+      data: {
+        code: dto.code,
+        nameBangla: dto.nameBangla,
+        classLevel: dto.classLevel,
+        syllabusYear: dto.syllabusYear ?? 2026,
+        isReady: dto.isReady ?? false,
+      },
+    });
+  }
+
+  async getTopicContent(topicId: string) {
+    const topic = await this.prisma.topic.findUnique({
+      where: { id: topicId },
+    });
+    if (!topic) {
+      throw new NotFoundException(`Topic not found with id: ${topicId}`);
+    }
+
+    const [lessons, questions] = await Promise.all([
+      this.prisma.lesson.findMany({
+        where: { topicId },
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.question.findMany({
+        where: { topicId },
+        orderBy: { createdAt: 'desc' },
+      }),
+    ]);
+
+    return {
+      topic,
+      lessons,
+      questions,
+    };
   }
 }

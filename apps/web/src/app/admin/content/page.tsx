@@ -1,467 +1,431 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
+  ShieldCheck,
   CheckCircle,
-  Send,
-  Eye,
-  Plus,
+  Clock,
+  AlertTriangle,
+  FolderTree,
+  PenTool,
+  BarChart3,
+  Sparkles,
+  FileText,
+  UserCheck,
+  Trophy,
 } from 'lucide-react';
-import { LatexRenderer } from '@/components/math/latex-renderer';
 import { apiClient } from '@/lib/api-client';
 import { ContentStatus } from '@pori/shared';
-import { useUserStore } from '@/store/user-store';
+import { ReviewConsole, ContentItem } from '@/components/admin/review-console';
+import { AuthoringStudio } from '@/components/admin/authoring-studio';
+import { CurriculumManager } from '@/components/admin/curriculum-manager';
+import { ModelTestManager } from '@/components/admin/model-test-manager';
 
-interface ContentItem {
-  id: string;
-  topicId: string;
-  type: 'LESSON' | 'QUESTION';
-  titleBangla: string;
-  contentSnippet: string;
-  status: ContentStatus;
-  version: number;
-  authorName?: string;
-}
-
-const SAMPLE_PENDING_CONTENT: ContentItem[] = [
+const INITIAL_FALLBACK_CONTENT: ContentItem[] = [
   {
     id: 'lesson-draft-1',
-    topicId: 'topic-motion-4',
+    topicId: 'top_ssc_physics_motion_eq',
     type: 'LESSON',
     titleBangla: 'পরন্ত বস্তুর সূত্রাবলী ও গ্যালিলিওর পরীক্ষা',
-    contentSnippet: 'স্থির অবস্থান ও একই উচ্চতা হতে বিনা বাধায় পড়ন্ত সকল বস্তু সমান সময়ে সমান পথ অতিক্রম করে...',
+    contentSnippet: 'স্থির অবস্থান ও একই উচ্চতা হতে বিনা বাধায় পড়ন্ত সকল বস্তু সমান সময়ে সমান পথ অতিক্রম করে: $$h = \\frac{1}{2}gt^2$$',
     status: ContentStatus.REVIEW,
     version: 1,
     authorName: 'কনটেন্ট টিম ১',
   },
   {
     id: 'q-draft-2',
-    topicId: 'topic-motion-3',
+    topicId: 'top_ssc_physics_motion_eq',
     type: 'QUESTION',
     titleBangla: 'গতির ৩য় সমীকরণের গাণিতিক প্রয়োগ',
-    contentSnippet: '$v^2 = u^2 + 2as$ সমীকরণ ব্যবহার করে সর্বোচ্চ উচ্চতায় উঠার সময়...',
+    contentSnippet: 'একটি বস্তু $10\\text{ ms}^{-1}$ আদিবেগে যাত্রা শুরু করে $2\\text{ ms}^{-2}$ সুষম ত্বরণে চললে $50\\text{ m}$ অতিক্রম করার পর এর শেষ বেগ কত হবে?',
     status: ContentStatus.DRAFT,
     version: 1,
     authorName: 'সম্পাদক ২',
+    payload: {
+      options: [
+        { id: 'opt_1', text: '10 ms⁻¹', isCorrect: false },
+        { id: 'opt_2', text: '17.32 ms⁻¹', isCorrect: true },
+        { id: 'opt_3', text: '25 ms⁻¹', isCorrect: false },
+        { id: 'opt_4', text: '30 ms⁻¹', isCorrect: false },
+      ],
+      explanation: {
+        directAnswer: '17.32 ms⁻¹ (সঠিক উত্তর খ)',
+        coreConcept: 'গতির ৩য় সমীকরণ: $v^2 = u^2 + 2as$',
+        stepDerivation: '$v^2 = 10^2 + 2(2)(50) = 100 + 200 = 300 \\implies v = \\sqrt{300} \\approx 17.32\\text{ ms}^{-1}$',
+      },
+    },
   },
   {
     id: 'lesson-draft-3',
-    topicId: 'topic-force-2',
+    topicId: 'top_ssc_physics_motion_eq',
     type: 'LESSON',
     titleBangla: 'ভরবেগের নিত্যতা সূত্র ও বন্দুকের পশ্চাৎবেগ',
-    contentSnippet: 'কোনো ব্যবস্থার উপর বাহ্যিক কোনো বল প্রযুক্ত না হলে ব্যবস্থাটির মোট ভরবেগ সংরক্ষিত থাকে...',
+    contentSnippet: 'কোনো ব্যবস্থার ওপর বাহ্যিক বল প্রযুক্ত না হলে মোট ভরবেগ অপরিবর্তিত থাকে: $$m_1 u_1 + m_2 u_2 = m_1 v_1 + m_2 v_2$$',
     status: ContentStatus.CORRECTION,
     version: 2,
     authorName: 'কনটেন্ট টিম ২',
   },
 ];
 
-export default function AdminContentPage() {
-  const { user } = useUserStore();
-  const [activeTab, setActiveTab] = useState<ContentStatus | 'ALL'>('ALL');
-  const [contentList, setContentList] = useState<ContentItem[]>(SAMPLE_PENDING_CONTENT);
-  const [selectedItem, setSelectedItem] = useState<ContentItem | null>(SAMPLE_PENDING_CONTENT[0]);
-  
-  // Reviewer form state
-  const [reviewDecision, setReviewDecision] = useState<'APPROVED' | 'REQUEST_CHANGES' | 'REJECTED'>('APPROVED');
-  const [reviewComments, setReviewComments] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+type AdminTab =
+  | 'CURRICULUM_TREE'
+  | 'AUTHORING_STUDIO'
+  | 'MODEL_TEST_MANAGER'
+  | 'REVIEW_QUEUE'
+  | 'OVERVIEW_STATS';
 
-  // New Content Draft Form
-  const [showNewModal, setShowNewModal] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-  const [newFormulaText, setNewFormulaText] = useState('বল $F = ma$ এবং ত্বরণ $a = \\frac{v - u}{t}$');
-  const [newType, setNewType] = useState<'LESSON' | 'QUESTION'>('LESSON');
+export default function AdminPortalPage() {
+  const [activeTab, setActiveTab] = useState<AdminTab>('CURRICULUM_TREE');
+  const [simulatedRole, setSimulatedRole] = useState<'ADMIN' | 'EDITOR' | 'REVIEWER'>('ADMIN');
+  const [contentList, setContentList] = useState<ContentItem[]>(INITIAL_FALLBACK_CONTENT);
+  const [, setLoading] = useState(false);
 
-  useEffect(() => {
-    async function fetchPending() {
-      try {
-        const res = await apiClient.get<any>('/admin/content/pending');
-        let items: ContentItem[] = [];
-        if (Array.isArray(res)) {
-          items = res;
-        } else if (res && (res.lessons || res.questions)) {
-          const mappedLessons = (res.lessons || []).map((l: any) => ({
-            id: l.id,
-            type: 'LESSON' as const,
-            titleBangla: l.titleBangla,
-            topicId: l.topicId,
-            status: l.status as ContentStatus,
-            version: l.version || 1,
-            author: 'Editor',
-            updatedAt: l.updatedAt ? new Date(l.updatedAt).toISOString().split('T')[0] : 'Today',
-            payload: l,
-          }));
-          const mappedQuestions = (res.questions || []).map((q: any) => ({
-            id: q.id,
-            type: 'QUESTION' as const,
-            titleBangla: q.stem?.slice(0, 40) + '...',
-            topicId: q.topicId,
-            status: q.status as ContentStatus,
-            version: q.version || 1,
-            author: 'Editor',
-            updatedAt: q.updatedAt ? new Date(q.updatedAt).toISOString().split('T')[0] : 'Today',
-            payload: q,
-          }));
-          items = [...mappedLessons, ...mappedQuestions];
-        }
-        if (items.length > 0) {
-          setContentList(items);
-          setSelectedItem(items[0]);
-        }
-      } catch {
-        // Keep sample items
+  // Authoring studio pre-fill state
+  const [targetTopicId, setTargetTopicId] = useState<string | undefined>();
+  const [targetSubjectId, setTargetSubjectId] = useState<string | undefined>();
+  const [authoringType, setAuthoringType] = useState<'MCQ' | 'LESSON' | 'CQ'>('MCQ');
+
+  const fetchPendingContent = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await apiClient.get<any>('/admin/content/pending');
+      let items: ContentItem[] = [];
+      if (Array.isArray(res)) {
+        items = res;
+      } else if (res && (res.lessons || res.questions)) {
+        const mappedLessons = (res.lessons || []).map((l: any) => ({
+          id: l.id,
+          type: 'LESSON' as const,
+          titleBangla: l.titleBangla,
+          contentSnippet: l.explanation?.slice(0, 120) + '...',
+          topicId: l.topicId,
+          status: l.status as ContentStatus,
+          version: l.version || 1,
+          authorName: 'সম্পাদকীয় গবেষক',
+          payload: l,
+        }));
+        const mappedQuestions = (res.questions || []).map((q: any) => ({
+          id: q.id,
+          type: 'QUESTION' as const,
+          titleBangla: q.stem?.slice(0, 50) + '...',
+          contentSnippet: q.stem,
+          topicId: q.topicId,
+          status: q.status as ContentStatus,
+          version: q.version || 1,
+          authorName: 'প্রশ্ন লেখক',
+          payload: q,
+        }));
+        items = [...mappedLessons, ...mappedQuestions];
       }
+      if (items.length > 0) {
+        setContentList(items);
+      }
+    } catch {
+      // Retain fallback items
+    } finally {
+      setLoading(false);
     }
-    fetchPending();
   }, []);
 
-  const handleReviewSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedItem) return;
-    setIsSubmitting(true);
-    try {
-      const action =
-        reviewDecision === 'APPROVED'
-          ? 'APPROVE'
-          : reviewDecision === 'REJECTED'
-          ? 'REJECT'
-          : 'REQUEST_CHANGES';
+  useEffect(() => {
+    fetchPendingContent();
+  }, [fetchPendingContent]);
 
-      await apiClient.post('/admin/content/review', {
-        contentId: selectedItem.id,
-        contentType: selectedItem.type,
-        action,
-        comment: reviewComments || undefined,
-      });
-
-      // Update state locally
-      const updatedStatus =
-        reviewDecision === 'APPROVED'
-          ? ContentStatus.PUBLISHED
-          : reviewDecision === 'REQUEST_CHANGES'
-          ? ContentStatus.CORRECTION
-          : ContentStatus.DRAFT;
-
-      setContentList((prev) =>
-        prev.map((item) =>
-          item.id === selectedItem.id ? { ...item, status: updatedStatus } : item
-        )
-      );
-      if (selectedItem) {
-        setSelectedItem({ ...selectedItem, status: updatedStatus });
-      }
-      setReviewComments('');
-    } catch {
-      // Local fallback for offline mode
-      const updatedStatus =
-        reviewDecision === 'APPROVED'
-          ? ContentStatus.PUBLISHED
-          : ContentStatus.CORRECTION;
-      setContentList((prev) =>
-        prev.map((item) =>
-          item.id === selectedItem.id ? { ...item, status: updatedStatus } : item
-        )
-      );
-      if (selectedItem) {
-        setSelectedItem({ ...selectedItem, status: updatedStatus });
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleStatusUpdated = (itemId: string, newStatus: ContentStatus) => {
+    setContentList((prev) =>
+      prev.map((item) => (item.id === itemId ? { ...item, status: newStatus } : item))
+    );
   };
 
-  const handleCreateDraft = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTitle) return;
+  // Model Test pre-fill state
+  const [targetChapterForModelTest, setTargetChapterForModelTest] = useState<string | undefined>();
+  const [targetSubjectForModelTest, setTargetSubjectForModelTest] = useState<string | undefined>();
 
-    const newItem: ContentItem = {
-      id: 'draft_' + Date.now(),
-      topicId: 'topic-custom',
-      type: newType,
-      titleBangla: newTitle,
-      contentSnippet: newFormulaText,
-      status: ContentStatus.DRAFT,
-      version: 1,
-      authorName: user?.phoneNumber || 'বর্তমান সম্পাদক',
-    };
-
-    setContentList([newItem, ...contentList]);
-    setSelectedItem(newItem);
-    setShowNewModal(false);
-    setNewTitle('');
+  const handleNavigateToAuthoring = (topicId: string, subjectId: string, type: 'MCQ' | 'LESSON') => {
+    setTargetTopicId(topicId);
+    setTargetSubjectId(subjectId);
+    setAuthoringType(type);
+    setActiveTab('AUTHORING_STUDIO');
   };
 
-  const filteredContent = contentList.filter((item) => {
-    if (activeTab === 'ALL') return true;
-    return item.status === activeTab;
-  });
+  const handleNavigateToModelTest = (chapterId: string, subjectId: string) => {
+    setTargetChapterForModelTest(chapterId);
+    setTargetSubjectForModelTest(subjectId);
+    setActiveTab('MODEL_TEST_MANAGER');
+  };
+
+  // KPI Calculations
+  const draftCount = contentList.filter((c) => c.status === ContentStatus.DRAFT).length;
+  const reviewCount = contentList.filter((c) => c.status === ContentStatus.REVIEW).length;
+  const correctionCount = contentList.filter((c) => c.status === ContentStatus.CORRECTION).length;
+  const publishedCount = contentList.filter((c) => c.status === ContentStatus.PUBLISHED).length;
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto pb-12">
-      {/* Top Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="space-y-6 max-w-6xl mx-auto pb-16">
+      {/* Top Header & Role Simulator */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-              এডমিনিস্ট্রেটিভ ওয়ার্কস্পেস
+            <span className="text-xs font-black bg-indigo-600 text-white px-2.5 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1 shadow-xs">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>poRi Content Hub</span>
             </span>
+            <span className="text-xs text-slate-400">NCTB 2026 কমপ্লিট কন্ট্রোল সিস্টেম</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 mt-1">
-            কন্টেন্ট রিভিউ ও প্রকাশনা ওয়ার্কফ্লো
+          <h1 className="text-2xl md:text-3xl font-black text-slate-900 mt-1.5">
+            কারিকুলাম, প্রশ্ন ও মডেল টেস্ট কন্ট্রোল সেন্টার
           </h1>
-          <p className="text-sm text-slate-600">
-            খসড়া থেকে সম্পাদকীয় যাচাই (Draft → Review → Publish) জীবনচক্র পরিচালনা করুন।
+          <p className="text-xs md:text-sm text-slate-600">
+            বিষয় ব্যবস্থাপনা, অধ্যায়ভিত্তিক সেকশন, টপিকভিত্তিক ৬-স্তরের প্রশ্ন ও অধ্যায় মডেল টেস্ট পরিচালনা করুন।
           </p>
         </div>
 
-        <button
-          onClick={() => setShowNewModal(true)}
-          className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm px-4 py-2.5 rounded-xl shadow transition-colors self-start md:self-auto"
-        >
-          <Plus className="w-4 h-4" />
-          <span>নতুন কন্টেন্ট খসড়া করো</span>
-        </button>
+        {/* Role Simulator Switcher */}
+        <div className="flex items-center gap-3 bg-white border border-slate-200 rounded-2xl p-2.5 shadow-xs">
+          <div className="flex items-center gap-1.5 text-xs text-slate-600 font-semibold pl-1">
+            <UserCheck className="w-4 h-4 text-indigo-600" />
+            <span className="hidden sm:inline">সক্রিয় ভূমিকা:</span>
+          </div>
+          <div className="flex bg-slate-100 p-1 rounded-xl">
+            {(['ADMIN', 'REVIEWER', 'EDITOR'] as const).map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setSimulatedRole(r)}
+                className={`text-[11px] font-bold px-2.5 py-1 rounded-lg transition-all ${
+                  simulatedRole === r
+                    ? 'bg-indigo-600 text-white shadow-2xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {r}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
-      {/* Status Filter Tabs */}
-      <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
-        {[
-          { label: 'সবগুলো', value: 'ALL' },
-          { label: 'খসড়া (Draft)', value: ContentStatus.DRAFT },
-          { label: 'রিভিউ অপেক্ষায় (Review)', value: ContentStatus.REVIEW },
-          { label: 'সংশোধন প্রয়োজন (Correction)', value: ContentStatus.CORRECTION },
-          { label: 'প্রকাশিত (Published)', value: ContentStatus.PUBLISHED },
-        ].map((tab) => (
-          <button
-            key={tab.value}
-            onClick={() => setActiveTab(tab.value as any)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
-              activeTab === tab.value
-                ? 'bg-slate-900 text-white shadow-sm'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Left Side: Pending Content List */}
-        <div className="space-y-3">
-          <h2 className="text-sm font-bold text-slate-700 flex items-center justify-between">
-            <span>কন্টেন্ট তালিকা</span>
-            <span className="text-xs text-slate-400">({filteredContent.length}টি)</span>
-          </h2>
-
-          <div className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
-            {filteredContent.map((item) => {
-              const isSelected = selectedItem?.id === item.id;
-              let badgeColor = 'bg-slate-100 text-slate-700';
-              if (item.status === ContentStatus.REVIEW) badgeColor = 'bg-amber-100 text-amber-800 border-amber-300';
-              if (item.status === ContentStatus.PUBLISHED) badgeColor = 'bg-emerald-100 text-emerald-800 border-emerald-300';
-              if (item.status === ContentStatus.CORRECTION) badgeColor = 'bg-rose-100 text-rose-800 border-rose-300';
-
-              return (
-                <div
-                  key={item.id}
-                  onClick={() => setSelectedItem(item)}
-                  className={`p-4 rounded-xl border text-left cursor-pointer transition-all ${
-                    isSelected
-                      ? 'border-indigo-600 bg-indigo-50/50 shadow-sm ring-1 ring-indigo-600'
-                      : 'border-slate-200 bg-white hover:border-slate-300'
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-1 mb-1">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                      {item.type} • v{item.version}
-                    </span>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${badgeColor}`}>
-                      {item.status}
-                    </span>
-                  </div>
-                  <h3 className="font-bold text-slate-900 text-sm line-clamp-1">{item.titleBangla}</h3>
-                  <p className="text-xs text-slate-500 line-clamp-2 mt-1">{item.contentSnippet}</p>
-                </div>
-              );
-            })}
+      {/* KPI Cards Strip */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold">
+            <FileText className="w-5 h-5 text-slate-600" />
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-slate-500">মোট খসড়া</div>
+            <div className="text-xl font-black text-slate-900">{draftCount}টি</div>
           </div>
         </div>
 
-        {/* Right Side: Selected Content Preview & Review Action */}
-        <div className="md:col-span-2 space-y-4">
-          {selectedItem ? (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
-              {/* Header */}
-              <div className="flex items-start justify-between border-b border-slate-100 pb-4">
-                <div>
-                  <span className="text-xs font-semibold text-slate-400 uppercase">
-                    আইডি: {selectedItem.id}
-                  </span>
-                  <h2 className="text-xl font-bold text-slate-900 mt-1">{selectedItem.titleBangla}</h2>
-                  <div className="text-xs text-slate-500 mt-0.5">
-                    রচয়িতা: {selectedItem.authorName || 'অজানা'}
-                  </div>
-                </div>
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
+            <Clock className="w-5 h-5 text-amber-600" />
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-slate-500">রিভিউ অপেক্ষমাণ</div>
+            <div className="text-xl font-black text-amber-600">{reviewCount}টি</div>
+          </div>
+        </div>
 
-                <span className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                  বর্তমান স্ট্যাটাস: {selectedItem.status}
-                </span>
-              </div>
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-700 flex items-center justify-center font-bold">
+            <AlertTriangle className="w-5 h-5 text-rose-600" />
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-slate-500">সংশোধন আবশ্যক</div>
+            <div className="text-xl font-black text-rose-600">{correctionCount}টি</div>
+          </div>
+        </div>
 
-              {/* KaTeX Live Preview */}
-              <div className="space-y-2">
-                <span className="text-xs font-bold text-slate-600 flex items-center gap-1">
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>কন্টেন্ট ও LaTeX সমীকরণ লাইভ প্রিভিউ:</span>
-                </span>
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm text-slate-900">
-                  <LatexRenderer content={selectedItem.contentSnippet} />
-                </div>
-              </div>
-
-              {/* Review Decision Form */}
-              <form onSubmit={handleReviewSubmit} className="space-y-4 border-t border-slate-100 pt-4">
-                <h3 className="font-bold text-sm text-slate-900 flex items-center gap-1.5">
-                  <CheckCircle className="w-4 h-4 text-emerald-600" />
-                  <span>সম্পাদকীয় সিদ্ধান্ত গ্রহণ ও যাচাই</span>
-                </h3>
-
-                <div className="grid grid-cols-3 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setReviewDecision('APPROVED')}
-                    className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
-                      reviewDecision === 'APPROVED'
-                        ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                    }`}
-                  >
-                    অনুমোদন (Publish)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setReviewDecision('REQUEST_CHANGES')}
-                    className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
-                      reviewDecision === 'REQUEST_CHANGES'
-                        ? 'bg-amber-500 text-white border-amber-500 shadow-sm'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                    }`}
-                  >
-                    সংশোধন অনুরোধ
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setReviewDecision('REJECTED')}
-                    className={`py-2 px-3 rounded-xl border text-xs font-bold transition-all ${
-                      reviewDecision === 'REJECTED'
-                        ? 'bg-rose-600 text-white border-rose-600 shadow-sm'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                    }`}
-                  >
-                    বাতিল (Reject)
-                  </button>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    রিভিউয়ার মন্তব্য / কারণ (ঐচ্ছিক)
-                  </label>
-                  <textarea
-                    rows={3}
-                    value={reviewComments}
-                    onChange={(e) => setReviewComments(e.target.value)}
-                    placeholder="পাঠ্যবই রেফারেন্স ও গাণিতিক নির্ভুলতা সংক্রান্ত মন্তব্য..."
-                    className="w-full text-xs p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                  />
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 rounded-xl shadow transition-colors flex items-center justify-center gap-2"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>সিদ্ধান্ত সংরক্ষণ ও স্ট্যাটাস আপডেট করো</span>
-                </button>
-              </form>
-            </div>
-          ) : (
-            <div className="bg-slate-50 border border-dashed border-slate-300 rounded-2xl p-12 text-center text-slate-500 text-sm">
-              বামদিকের তালিকা থেকে যেকোনো কন্টেন্ট নির্বাচন করুন।
-            </div>
-          )}
+        <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+            <CheckCircle className="w-5 h-5 text-emerald-600" />
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-slate-500">অনুমোদিত ও সচল</div>
+            <div className="text-xl font-black text-emerald-600">{publishedCount}টি</div>
+          </div>
         </div>
       </div>
 
-      {/* Modal: New Content Draft */}
-      {showNewModal && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl border border-slate-200">
-            <h3 className="font-bold text-lg text-slate-900">নতুন কন্টেন্ট খসড়া তৈরি করুন</h3>
+      {/* Main Tab Navigation */}
+      <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-2">
+        <button
+          type="button"
+          onClick={() => setActiveTab('CURRICULUM_TREE')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === 'CURRICULUM_TREE'
+              ? 'bg-slate-900 text-white shadow-sm'
+              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+          }`}
+        >
+          <FolderTree className="w-4 h-4 text-amber-400" />
+          <span>বিষয়, অধ্যায় ও টপিক সেকশন</span>
+        </button>
 
-            <form onSubmit={handleCreateDraft} className="space-y-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">ধরন</label>
-                <select
-                  value={newType}
-                  onChange={(e) => setNewType(e.target.value as any)}
-                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl"
-                >
-                  <option value="LESSON">লেসন (Lesson)</option>
-                  <option value="QUESTION">MCQ প্রশ্ন (Question)</option>
-                </select>
-              </div>
+        <button
+          type="button"
+          onClick={() => setActiveTab('AUTHORING_STUDIO')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === 'AUTHORING_STUDIO'
+              ? 'bg-slate-900 text-white shadow-sm'
+              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+          }`}
+        >
+          <PenTool className="w-4 h-4 text-emerald-400" />
+          <span>টপিকভিত্তিক প্রশ্ন ও লেসন লেখক</span>
+        </button>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">শিরোনাম</label>
-                <input
-                  type="text"
-                  required
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="যেমন: নিউটনের ৩য় গতিসূত্র"
-                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
+        <button
+          type="button"
+          onClick={() => setActiveTab('MODEL_TEST_MANAGER')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === 'MODEL_TEST_MANAGER'
+              ? 'bg-slate-900 text-white shadow-sm'
+              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+          }`}
+        >
+          <Trophy className="w-4 h-4 text-orange-400" />
+          <span>অধ্যায়ভিত্তিক মডেল টেস্ট সেকশন</span>
+        </button>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  মূল টেক্সট ও LaTeX সমীকরণ ($...$ অথবা $$...$$)
-                </label>
-                <textarea
-                  rows={4}
-                  required
-                  value={newFormulaText}
-                  onChange={(e) => setNewFormulaText(e.target.value)}
-                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl font-mono focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
+        <button
+          type="button"
+          onClick={() => setActiveTab('REVIEW_QUEUE')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === 'REVIEW_QUEUE'
+              ? 'bg-slate-900 text-white shadow-sm'
+              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+          }`}
+        >
+          <CheckCircle className="w-4 h-4 text-indigo-400" />
+          <span>সম্পাদকীয় রিভিউ কিউ ({contentList.length})</span>
+        </button>
 
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
-                <span className="text-[11px] font-bold text-slate-500">তাৎক্ষণিক প্রিভিউ:</span>
-                <div className="text-xs text-slate-800 mt-1">
-                  <LatexRenderer content={newFormulaText} />
+        <button
+          type="button"
+          onClick={() => setActiveTab('OVERVIEW_STATS')}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+            activeTab === 'OVERVIEW_STATS'
+              ? 'bg-slate-900 text-white shadow-sm'
+              : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
+          }`}
+        >
+          <BarChart3 className="w-4 h-4 text-cyan-400" />
+          <span>সিলেবাস কভারেজ ও মেট্রিক্স</span>
+        </button>
+      </div>
+
+      {/* Tab Panels */}
+      {activeTab === 'CURRICULUM_TREE' && (
+        <CurriculumManager
+          onNavigateToAuthoring={handleNavigateToAuthoring}
+          onNavigateToModelTest={handleNavigateToModelTest}
+        />
+      )}
+
+      {activeTab === 'AUTHORING_STUDIO' && (
+        <AuthoringStudio
+          initialTopicId={targetTopicId}
+          initialSubjectId={targetSubjectId}
+          initialContentType={authoringType}
+          onContentCreated={() => {
+            fetchPendingContent();
+            setActiveTab('REVIEW_QUEUE');
+          }}
+        />
+      )}
+
+      {activeTab === 'MODEL_TEST_MANAGER' && (
+        <ModelTestManager
+          initialSubjectId={targetSubjectForModelTest}
+          initialChapterId={targetChapterForModelTest}
+        />
+      )}
+
+      {activeTab === 'REVIEW_QUEUE' && (
+        <ReviewConsole
+          contentList={contentList}
+          onStatusUpdated={handleStatusUpdated}
+        />
+      )}
+
+      {activeTab === 'OVERVIEW_STATS' && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+            <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <BarChart3 className="w-5 h-5 text-indigo-600" />
+              <span>NCTB 2026 পাইলট সিলেবাস কভারেজ অ্যানালিটিক্স</span>
+            </h2>
+
+            <div className="space-y-4">
+              {/* SSC Physics Motion Chapter */}
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-bold">
+                  <span className="text-slate-800">
+                    SSC পদার্থবিজ্ঞান ➔ ২য় অধ্যায়: গতি (Motion)
+                  </span>
+                  <span className="text-indigo-600 font-bold">১০০% সম্পন্ন</span>
+                </div>
+                <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-emerald-500 rounded-full w-full" />
+                </div>
+                <div className="text-[11px] text-slate-400 flex items-center justify-between">
+                  <span>লেসন: ৪টি সমীকরণ, গুরুত্বপূর্ণ পরিভাষা ও উদাহরণ</span>
+                  <span>MCQ: ৬-স্তরের পূর্ণ ব্যাখ্যাসহ প্রস্তুত</span>
                 </div>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowNewModal(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
-                >
-                  বাতিল
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow"
-                >
-                  খসড়া সংরক্ষণ করো
-                </button>
+              {/* SSC Physics Measurement Chapter */}
+              <div className="space-y-1.5 pt-3 border-t border-slate-100">
+                <div className="flex items-center justify-between text-xs font-bold">
+                  <span className="text-slate-800">
+                    SSC পদার্থবিজ্ঞান ➔ ১ম অধ্যায়: ভৌত রাশি ও পরিমাপ
+                  </span>
+                  <span className="text-amber-600 font-bold">৬০% খসড়া তৈরি</span>
+                </div>
+                <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-amber-500 rounded-full w-3/5" />
+                </div>
+                <div className="text-[11px] text-slate-400 flex items-center justify-between">
+                  <span>পরিমাপের একক ও ত্রুটি</span>
+                  <span>রিভিউ অপেক্ষমাণ</span>
+                </div>
               </div>
-            </form>
+
+              {/* SSC Chemistry Placeholder */}
+              <div className="space-y-1.5 pt-3 border-t border-slate-100">
+                <div className="flex items-center justify-between text-xs font-bold">
+                  <span className="text-slate-800">SSC রসায়ন (Chemistry)</span>
+                  <span className="text-slate-400 font-bold">০% (শীঘ্রই আসছে)</span>
+                </div>
+                <div className="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                  <div className="h-full bg-slate-300 rounded-full w-0" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-indigo-600" />
+                <span>৬-স্তরের গুণগত মান নিশ্চিতকরণ</span>
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                প্রতিটি অনুমোদিত প্রশ্নে অবশ্যই সরাসরি উত্তর, মূল ধারণা, গাণিতিক প্রতিপাদন, অপশনভিত্তিক বিশ্লেষণ, পাঠ্যবই রেফারেন্স এবং সময় বাঁচানোর শর্টকাট কৌশল থাকতে হবে।
+              </p>
+            </div>
+
+            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
+              <h3 className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <span>সম্পাদকীয় সততা ও অডিট ট্রেইল</span>
+              </h3>
+              <p className="text-xs text-slate-600 leading-relaxed">
+                প্রতিটি প্রকাশনা ও সংশোধন সিদ্ধান্ত ডাটাবেজে স্থায়ীভাবে সংরক্ষণ করা হয়। কোনো প্রশ্ন বা লেসন পর্যালোচনার আগে কোনো তথ্য প্রকাশ করা যায় না।
+              </p>
+            </div>
           </div>
         </div>
       )}
