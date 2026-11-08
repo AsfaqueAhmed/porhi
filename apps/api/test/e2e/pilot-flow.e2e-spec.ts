@@ -69,6 +69,12 @@ describe('Pilot Content Seeding & End-to-End Student Journey Flow (e2e)', () => 
         users[idx] = updated;
         return updated;
       },
+      delete: async ({ where }: any) => {
+        const idx = users.findIndex((u) => u.id === where.id);
+        if (idx === -1) throw new Error('User not found');
+        const [removed] = users.splice(idx, 1);
+        return removed;
+      },
     },
     subject: {
       findMany: async ({ where, include, orderBy }: any) => {
@@ -205,6 +211,17 @@ describe('Pilot Content Seeding & End-to-End Student Journey Flow (e2e)', () => 
         examSessions[idx] = updated;
         return updated;
       },
+      updateMany: async ({ where, data }: any) => {
+        let count = 0;
+        examSessions = examSessions.map((s) => {
+          if (s.userId === where.userId) {
+            count++;
+            return { ...s, ...data };
+          }
+          return s;
+        });
+        return { count };
+      },
     },
     revisionMistake: {
       findMany: async ({ where }: any) => {
@@ -213,6 +230,29 @@ describe('Pilot Content Seeding & End-to-End Student Journey Flow (e2e)', () => 
           if (where?.questionId && m.questionId !== where.questionId) return false;
           return true;
         });
+      },
+      createMany: async ({ data }: any) => {
+        const items = Array.isArray(data) ? data : [data];
+        for (const item of items) {
+          revisionMistakes.push({
+            id: `rm_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+            ...item,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          });
+        }
+        return { count: items.length };
+      },
+      deleteMany: async ({ where }: any) => {
+        let count = 0;
+        revisionMistakes = revisionMistakes.filter((m) => {
+          if (where?.userId && m.userId === where.userId) {
+            count++;
+            return false;
+          }
+          return true;
+        });
+        return { count };
       },
       upsert: async ({ where, create, update }: any) => {
         const userId = where.userId_questionId?.userId || where.userId;
@@ -266,6 +306,17 @@ describe('Pilot Content Seeding & End-to-End Student Journey Flow (e2e)', () => 
           if (where?.eventType && e.eventType !== where.eventType) return false;
           return true;
         });
+      },
+      updateMany: async ({ where, data }: any) => {
+        let count = 0;
+        eventLogs = eventLogs.map((e) => {
+          if (e.userId === where.userId) {
+            count++;
+            return { ...e, ...data };
+          }
+          return e;
+        });
+        return { count };
       },
     },
   };
@@ -381,7 +432,7 @@ describe('Pilot Content Seeding & End-to-End Student Journey Flow (e2e)', () => 
     expect(cqQuestion1.cqRubric.gha).toMatchObject({ mark: 4 });
   });
 
-  it('should execute the complete 12-step end-to-end student journey with pilot content', async () => {
+  it('should execute the complete end-to-end student journey with pilot content including Phone OTP verification & progress migration', async () => {
     // =========================================================================
     // Step 1: Create guest session via POST /auth/guest
     // =========================================================================
@@ -723,5 +774,140 @@ describe('Pilot Content Seeding & End-to-End Student Journey Flow (e2e)', () => 
     expect(completedSessionRes.body.skippedCount).toBe(0);
     expect(completedSessionRes.body.negativeDeduction).toBe(0.25);
     expect(completedSessionRes.body.answersWithExplanation).toHaveLength(2);
+
+    // =========================================================================
+    // Step 13: Phone OTP Verification & Progress Migration
+    // Guest student transitions to verified phone account, preserving progress
+    // =========================================================================
+    // 13.1 Request OTP for the guest student's phone number (+8801712345678)
+    const requestOtpRes = await request(app.getHttpServer())
+      .post('/auth/request-otp')
+      .send({ phoneNumber: '+8801712345678' })
+      .expect(201);
+
+    expect(requestOtpRes.body).toEqual({
+      success: true,
+      message: 'OTP sent successfully',
+    });
+
+    // 13.2 Verify OTP with test code '1234' and guestId to trigger progress migration
+    const verifyOtpRes = await request(app.getHttpServer())
+      .post('/auth/verify-otp')
+      .send({
+        phoneNumber: '+8801712345678',
+        code: '1234',
+        guestId: 'guest-pilot-e2e-student',
+      })
+      .expect(201);
+
+    expect(verifyOtpRes.body).toHaveProperty('accessToken');
+    expect(verifyOtpRes.body.progressMigrated).toBe(true);
+    expect(verifyOtpRes.body.user).toMatchObject({
+      id: studentUserId,
+      phoneNumber: '01712345678',
+      role: 'STUDENT',
+      selectedClass: 'SSC',
+    });
+    expect(verifyOtpRes.body.user.guestId).toBeNull();
+
+    const permanentToken = verifyOtpRes.body.accessToken;
+
+    // 13.3 Verify /auth/me returns permanent user identity
+    const meRes = await request(app.getHttpServer())
+      .get('/auth/me')
+      .set('Authorization', `Bearer ${permanentToken}`)
+      .expect(200);
+
+    expect(meRes.body.id).toBe(studentUserId);
+    expect(meRes.body.phoneNumber).toBe('01712345678');
+    expect(meRes.body.guestId).toBeNull();
+    expect(meRes.body.isGuest).toBe(false);
+
+    // 13.4 Verify that previous exam session(s) are preserved and accessible under permanent account
+    const migratedSessionRes = await request(app.getHttpServer())
+      .get(`/exam/session/${sessionId}`)
+      .set('Authorization', `Bearer ${permanentToken}`)
+      .expect(200);
+
+    expect(migratedSessionRes.body.sessionId).toBe(sessionId);
+    expect(migratedSessionRes.body.status).toBe('COMPLETED');
+    expect(migratedSessionRes.body.score).toBe(0.75);
+    expect(migratedSessionRes.body.answersWithExplanation).toHaveLength(2);
+
+    // 13.5 Verify that previous revision mistakes are preserved under permanent account
+    const studentMistakes = revisionMistakes.filter((m) => m.userId === studentUserId);
+    expect(studentMistakes).toHaveLength(2); // mcqQuestion1 from step 6, mcqQuestion2 from step 11
+    const mistakeQuestionIds = studentMistakes.map((m) => m.questionId);
+    expect(mistakeQuestionIds).toContain(mcqQuestion1.id);
+    expect(mistakeQuestionIds).toContain(mcqQuestion2.id);
+
+    // 13.6 Verify that exam session user ownership matches permanent user
+    const studentSessions = examSessions.filter((s) => s.userId === studentUserId);
+    expect(studentSessions).toHaveLength(1);
+    expect(studentSessions[0].id).toBe(sessionId);
+    expect(studentSessions[0].status).toBe('COMPLETED');
+  });
+
+  it('should support merging guest progress into an existing phone user via transaction', async () => {
+    // 1. Existing verified phone user
+    const existingPhoneUser = {
+      id: 'usr_existing_phone_user',
+      guestId: null,
+      phoneNumber: '01899990000',
+      fullName: 'Existing Student',
+      role: 'STUDENT',
+      selectedClass: 'SSC',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    users.push(existingPhoneUser);
+
+    // 2. New guest explores and practices
+    const guestRes = await request(app.getHttpServer())
+      .post('/auth/guest')
+      .send({ guestId: 'guest-merging-student' })
+      .expect(201);
+
+    const guestToken = guestRes.body.accessToken;
+    const guestUserId = guestRes.body.user.id;
+
+    // Guest makes a practice mistake
+    await request(app.getHttpServer())
+      .post('/practice/submit')
+      .set('Authorization', `Bearer ${guestToken}`)
+      .send({
+        questionId: mcqQuestion1.id,
+        selectedOptionId: 'opt_q1_c',
+      })
+      .expect(201);
+
+    expect(revisionMistakes.filter((m) => m.userId === guestUserId)).toHaveLength(1);
+
+    // 3. Request OTP for existing phone number
+    await request(app.getHttpServer())
+      .post('/auth/request-otp')
+      .send({ phoneNumber: '01899990000' })
+      .expect(201);
+
+    // 4. Verify OTP with guestId -> merges progress into existing user and deletes guest user
+    const mergeRes = await request(app.getHttpServer())
+      .post('/auth/verify-otp')
+      .send({
+        phoneNumber: '01899990000',
+        code: '1234',
+        guestId: 'guest-merging-student',
+      })
+      .expect(201);
+
+    expect(mergeRes.body.progressMigrated).toBe(true);
+    expect(mergeRes.body.user.id).toBe(existingPhoneUser.id);
+
+    // Verify guest user deleted
+    expect(users.find((u) => u.id === guestUserId)).toBeUndefined();
+
+    // Verify mistakes merged into existing user
+    const mergedMistakes = revisionMistakes.filter((m) => m.userId === existingPhoneUser.id);
+    expect(mergedMistakes).toHaveLength(1);
+    expect(mergedMistakes[0].questionId).toBe(mcqQuestion1.id);
   });
 });
