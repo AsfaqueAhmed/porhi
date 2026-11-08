@@ -1,0 +1,153 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  STUDENT
+  EDITOR
+  REVIEWER
+  ADMIN
+}
+
+enum ContentStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  CORRECTION
+}
+
+model User {
+  id            String            @id @default(uuid())
+  guestId       String?           @unique
+  phoneNumber   String?           @unique
+  fullName      String?
+  role          Role              @default(STUDENT)
+  selectedClass String            @default("SSC")
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  sessions      ExamSession[]
+  mistakes      RevisionMistake[]
+  reviews       ContentReview[]
+  events        EventLog[]
+}
+
+model Subject {
+  id           String    @id @default(uuid())
+  code         String    @unique // e.g. "ssc_physics"
+  nameBangla   String    // "পদার্থবিজ্ঞান"
+  classLevel   String    // "CLASS_9_10"
+  syllabusYear Int       @default(2026)
+  isReady      Boolean   @default(false)
+  chapters     Chapter[]
+}
+
+model Chapter {
+  id          String   @id @default(uuid())
+  subjectId   String
+  subject     Subject  @relation(fields: [subjectId], references: [id])
+  orderIndex  Int
+  titleBangla String   // e.g. "বল (Force)"
+  topics      Topic[]
+}
+
+model Topic {
+  id          String     @id @default(uuid())
+  chapterId   String
+  chapter     Chapter    @relation(fields: [chapterId], references: [id])
+  orderIndex  Int
+  titleBangla String     // e.g. "নিউটনের গতির সূত্র"
+  lessons     Lesson[]
+  questions   Question[]
+}
+
+model Lesson {
+  id             String        @id @default(uuid())
+  topicId        String
+  topic          Topic         @relation(fields: [topicId], references: [id])
+  titleBangla    String
+  learningGoal   String
+  explanation    String        // Markdown with KaTeX formulas
+  importantTerms Json          // Array of { termBangla, termEnglish, definition }
+  workedExample  Json?         // { problem, stepByStepSolution }
+  memoryAid      String?       // Mnemonics or high-yield summary
+  status         ContentStatus @default(DRAFT)
+  version        Int           @default(1)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Question {
+  id          String            @id @default(uuid())
+  topicId     String
+  topic       Topic             @relation(fields: [topicId], references: [id])
+  type        String            @default("MCQ") // MCQ | CQ_CREATIVE
+  stem        String            // Bengali stem with KaTeX LaTeX
+  options     Json?             // Array of { id, text, isCorrect }
+  explanation Json              // ExplanationObject with 6 layers
+  cqRubric    Json?             // Rubric for ক, খ, গ, ঘ
+  difficulty  String            @default("MEDIUM")
+  boardSource String?           // e.g. "Dhaka Board 2024"
+  isVerified  Boolean           @default(false)
+  status      ContentStatus     @default(DRAFT)
+  version     Int               @default(1)
+  mistakes    RevisionMistake[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+model ExamSession {
+  id              String    @id @default(uuid())
+  userId          String
+  user            User      @relation(fields: [userId], references: [id])
+  testType        String    // "CHAPTER_TEST" | "TOPIC_TEST"
+  subjectId       String
+  chapterId       String?
+  totalQuestions  Int
+  durationSeconds Int
+  negativeRatio   Float     @default(0.0)
+  score           Float     @default(0.0)
+  answers         Json      // Array of { questionId, selectedOption, isCorrect, timeSpent }
+  status          String    @default("IN_PROGRESS") // IN_PROGRESS | COMPLETED | ABANDONED
+  startedAt       DateTime  @default(now())
+  completedAt     DateTime?
+}
+
+model RevisionMistake {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  questionId   String
+  question     Question @relation(fields: [questionId], references: [id])
+  attemptCount Int      @default(1)
+  resolved     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([userId, questionId])
+}
+
+model ContentReview {
+  id          String   @id @default(uuid())
+  contentType String   // "LESSON" | "QUESTION"
+  contentId   String
+  reviewerId  String
+  reviewer    User     @relation(fields: [reviewerId], references: [id])
+  action      String   // "APPROVE" | "REJECT" | "REQUEST_CHANGES"
+  comment     String?
+  version     Int
+  createdAt   DateTime @default(now())
+}
+
+model EventLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  eventType String   // "LESSON_OPEN" | "PRACTICE_ATTEMPT" | "TEST_SUBMIT"
+  payload   Json
+  timestamp DateTime @default(now())
+}
