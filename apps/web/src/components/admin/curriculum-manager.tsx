@@ -16,6 +16,7 @@ import {
   CheckCircle,
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
+import { AdminDrawer } from './layout/AdminDrawer';
 
 interface TopicItem {
   id: string;
@@ -45,16 +46,18 @@ interface SubjectItem {
 }
 
 interface CurriculumManagerProps {
+  initialSubjectId?: string;
   onNavigateToAuthoring?: (topicId: string, subjectId: string, type: 'MCQ' | 'LESSON') => void;
   onNavigateToModelTest?: (chapterId: string, subjectId: string) => void;
 }
 
 export function CurriculumManager({
+  initialSubjectId,
   onNavigateToAuthoring,
   onNavigateToModelTest,
 }: CurriculumManagerProps) {
   const [subjects, setSubjects] = useState<SubjectItem[]>([]);
-  const [selectedSubjectId, setSelectedSubjectId] = useState<string>('sub_ssc_physics');
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string>(initialSubjectId || 'sub_ssc_physics');
   const [chapters, setChapters] = useState<ChapterItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [expandedChapters, setExpandedChapters] = useState<Record<string, boolean>>({});
@@ -370,7 +373,7 @@ export function CurriculumManager({
             className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition-colors self-start sm:self-auto shrink-0"
           >
             <Plus className="w-4 h-4" />
-            <span>নতুন বিষয় যোগ করুন (Add Subject)</span>
+            <span>+ নতুন বিষয় যোগ করুন</span>
           </button>
         </div>
 
@@ -629,189 +632,191 @@ export function CurriculumManager({
         )}
       </div>
 
-      {/* Modal: Add New Subject */}
-      {showAddSubject && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl border border-slate-200">
-            <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
-              <FolderTree className="w-5 h-5 text-indigo-600" />
-              <span>নতুন বিষয় যোগ করুন (Add Subject)</span>
-            </h3>
-
-            <form onSubmit={handleCreateSubject} className="space-y-3.5">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  বিষয়ের নাম (বাংলায়)
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={newSubNameBangla}
-                  onChange={(e) => setNewSubNameBangla(e.target.value)}
-                  placeholder="যেমন: জীববিজ্ঞান, উচ্চতর গণিত"
-                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  ইউনিক কোড (English Slugs)
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={newSubCode}
-                  onChange={(e) => setNewSubCode(e.target.value)}
-                  placeholder="যেমন: ssc_biology, ssc_higher_math"
-                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl font-mono focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">শ্রেণি স্তর</label>
-                  <select
-                    value={newSubClassLevel}
-                    onChange={(e) => setNewSubClassLevel(e.target.value)}
-                    className="w-full text-xs p-2 bg-slate-50 border border-slate-300 rounded-xl"
-                  >
-                    <option value="CLASS_9_10">SSC (Class 9-10)</option>
-                    <option value="HSC">HSC (Class 11-12)</option>
-                    <option value="ADMISSION">Admission Test</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">সিলেবাস বছর</label>
-                  <input
-                    type="number"
-                    value={newSubSyllabusYear}
-                    onChange={(e) => setNewSubSyllabusYear(parseInt(e.target.value) || 2026)}
-                    className="w-full text-xs p-2 border border-slate-300 rounded-xl text-center"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
-                  <input
-                    type="checkbox"
-                    checked={newSubIsReady}
-                    onChange={(e) => setNewSubIsReady(e.target.checked)}
-                    className="rounded text-indigo-600 focus:ring-indigo-500"
-                  />
-                  <span>শিক্ষার্থীদের জন্য এখনই সচল করুন (Live Ready)</span>
-                </label>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => setShowAddSubject(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
-                >
-                  বাতিল
-                </button>
-                <button
-                  type="submit"
-                  disabled={actionLoading}
-                  className="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs"
-                >
-                  {actionLoading ? 'সংরক্ষণ হচ্ছে...' : 'বিষয় সংরক্ষণ করো'}
-                </button>
-              </div>
-            </form>
+      {/* Drawer: Add New Subject */}
+      <AdminDrawer
+        isOpen={showAddSubject}
+        onClose={() => setShowAddSubject(false)}
+        title="নতুন বিষয় যোগ করুন"
+        subtitle="সিলেবাসে নতুন বিষয় কোড ও শ্রেণি নির্ধারণ করুন"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setShowAddSubject(false)}
+              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
+            >
+              বাতিল
+            </button>
+            <button
+              type="button"
+              onClick={(e) => handleCreateSubject(e as any)}
+              disabled={actionLoading}
+              className="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs"
+            >
+              {actionLoading ? 'সংরক্ষণ হচ্ছে...' : 'বিষয় সংরক্ষণ করো'}
+            </button>
+          </>
+        }
+      >
+        <form onSubmit={handleCreateSubject} className="space-y-4">
+          <div>
+            <label htmlFor="newSubNameBangla" className="block text-xs font-bold text-slate-700 mb-1">
+              বিষয়ের বাংলা নাম
+            </label>
+            <input
+              id="newSubNameBangla"
+              type="text"
+              required
+              value={newSubNameBangla}
+              onChange={(e) => setNewSubNameBangla(e.target.value)}
+              placeholder="যেমন: জীববিজ্ঞান, উচ্চতর গণিত"
+              className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500"
+            />
           </div>
-        </div>
-      )}
 
-      {/* Modal: Add Chapter */}
-      {showAddChapter && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-5 space-y-4 shadow-xl border border-slate-200">
-            <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-indigo-600" />
-              <span>{activeSubject?.nameBangla} বিষয়ে নতুন অধ্যায় যোগ করুন</span>
-            </h3>
-
-            <form onSubmit={handleCreateChapter} className="space-y-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  অধ্যায়ের নাম ও নম্বর (বাংলায়)
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={newChapterTitle}
-                  onChange={(e) => setNewChapterTitle(e.target.value)}
-                  placeholder="যেমন: ৩য় অধ্যায়: বল (Force)"
-                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowAddChapter(false)}
-                  className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg"
-                >
-                  বাতিল
-                </button>
-                <button
-                  type="submit"
-                  disabled={actionLoading}
-                  className="px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow"
-                >
-                  {actionLoading ? 'যোগ হচ্ছে...' : 'অধ্যায় সংরক্ষণ করো'}
-                </button>
-              </div>
-            </form>
+          <div>
+            <label htmlFor="newSubCode" className="block text-xs font-bold text-slate-700 mb-1">
+              ইউনিক কোড (English Slugs)
+            </label>
+            <input
+              id="newSubCode"
+              type="text"
+              required
+              value={newSubCode}
+              onChange={(e) => setNewSubCode(e.target.value)}
+              placeholder="যেমন: ssc_biology, ssc_higher_math"
+              className="w-full text-xs p-2.5 border border-slate-300 rounded-xl font-mono focus:ring-2 focus:ring-indigo-500"
+            />
           </div>
-        </div>
-      )}
 
-      {/* Modal: Add Topic */}
-      {showAddTopic && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-5 space-y-4 shadow-xl border border-slate-200">
-            <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
-              <FileText className="w-5 h-5 text-indigo-600" />
-              <span>নতুন টপিক বা সেকশন যোগ করুন</span>
-            </h3>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label htmlFor="newSubClassLevel" className="block text-xs font-bold text-slate-700 mb-1">শ্রেণি স্তর</label>
+              <select
+                id="newSubClassLevel"
+                value={newSubClassLevel}
+                onChange={(e) => setNewSubClassLevel(e.target.value)}
+                className="w-full text-xs p-2 bg-slate-50 border border-slate-300 rounded-xl"
+              >
+                <option value="CLASS_9_10">SSC (Class 9-10)</option>
+                <option value="HSC">HSC (Class 11-12)</option>
+                <option value="ADMISSION">Admission Test</option>
+              </select>
+            </div>
 
-            <form onSubmit={handleCreateTopic} className="space-y-3">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  টপিক/সেকশনের নাম (বাংলায়)
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={newTopicTitle}
-                  onChange={(e) => setNewTopicTitle(e.target.value)}
-                  placeholder="যেমন: নিউটনের ১ম গতিসূত্র ও জড়তা"
-                  className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500"
-                />
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowAddTopic(false)}
-                  className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg"
-                >
-                  বাতিল
-                </button>
-                <button
-                  type="submit"
-                  disabled={actionLoading}
-                  className="px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow"
-                >
-                  {actionLoading ? 'যোগ হচ্ছে...' : 'টপিক সংরক্ষণ করো'}
-                </button>
-              </div>
-            </form>
+            <div>
+              <label htmlFor="newSubSyllabusYear" className="block text-xs font-bold text-slate-700 mb-1">সিলেবাস বছর</label>
+              <input
+                id="newSubSyllabusYear"
+                type="number"
+                value={newSubSyllabusYear}
+                onChange={(e) => setNewSubSyllabusYear(parseInt(e.target.value) || 2026)}
+                className="w-full text-xs p-2 border border-slate-300 rounded-xl text-center"
+              />
+            </div>
           </div>
-        </div>
-      )}
+
+          <div>
+            <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+              <input
+                type="checkbox"
+                checked={newSubIsReady}
+                onChange={(e) => setNewSubIsReady(e.target.checked)}
+                className="rounded text-indigo-600 focus:ring-indigo-500"
+              />
+              <span>শিক্ষার্থীদের জন্য এখনই সচল করুন (Live Ready)</span>
+            </label>
+          </div>
+        </form>
+      </AdminDrawer>
+
+      {/* Drawer: Add Chapter */}
+      <AdminDrawer
+        isOpen={showAddChapter}
+        onClose={() => setShowAddChapter(false)}
+        title="নতুন অধ্যায় যোগ করুন"
+        subtitle={`"${activeSubject?.nameBangla}" বিষয়ের অধীনে নতুন অধ্যায় তৈরি করুন`}
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setShowAddChapter(false)}
+              className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg"
+            >
+              বাতিল
+            </button>
+            <button
+              type="button"
+              onClick={(e) => handleCreateChapter(e as any)}
+              disabled={actionLoading}
+              className="px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow"
+            >
+              {actionLoading ? 'যোগ হচ্ছে...' : 'অধ্যায় সংরক্ষণ করো'}
+            </button>
+          </>
+        }
+      >
+        <form onSubmit={handleCreateChapter} className="space-y-4">
+          <div>
+            <label htmlFor="newChapterTitle" className="block text-xs font-bold text-slate-700 mb-1">
+              অধ্যায়ের নাম ও নম্বর (বাংলায়)
+            </label>
+            <input
+              id="newChapterTitle"
+              type="text"
+              required
+              value={newChapterTitle}
+              onChange={(e) => setNewChapterTitle(e.target.value)}
+              placeholder="যেমন: ৩য় অধ্যায়: বল (Force)"
+              className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+        </form>
+      </AdminDrawer>
+
+      {/* Drawer: Add Topic */}
+      <AdminDrawer
+        isOpen={showAddTopic}
+        onClose={() => setShowAddTopic(false)}
+        title="নতুন টপিক বা সেকশন যোগ করুন"
+        subtitle="অধ্যায়ের অধীনে নতুন পাঠ্য টপিক যুক্ত করুন"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setShowAddTopic(false)}
+              className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg"
+            >
+              বাতিল
+            </button>
+            <button
+              type="button"
+              onClick={(e) => handleCreateTopic(e as any)}
+              disabled={actionLoading}
+              className="px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow"
+            >
+              {actionLoading ? 'যোগ হচ্ছে...' : 'টপিক সংরক্ষণ করো'}
+            </button>
+          </>
+        }
+      >
+        <form onSubmit={handleCreateTopic} className="space-y-4">
+          <div>
+            <label htmlFor="newTopicTitle" className="block text-xs font-bold text-slate-700 mb-1">
+              টপিক/সেকশনের নাম (বাংলায়)
+            </label>
+            <input
+              id="newTopicTitle"
+              type="text"
+              required
+              value={newTopicTitle}
+              onChange={(e) => setNewTopicTitle(e.target.value)}
+              placeholder="যেমন: নিউটনের ১ম গতিসূত্র ও জড়তা"
+              className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+        </form>
+      </AdminDrawer>
     </div>
   );
 }
