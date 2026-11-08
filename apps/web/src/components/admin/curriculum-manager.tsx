@@ -348,112 +348,131 @@ export function CurriculumManager({
         </div>
       )}
 
-      {/* Section 1: Subject Management (Add New Subject & Switcher) */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-xs space-y-4">
+      {/* Subject Management: Unified Modern Header & Segmented Switcher */}
+      <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs space-y-4">
+        {/* Top Header Row */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                কারিকুলাম কনফিগারেশন
-              </span>
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0 text-indigo-600 mt-0.5 shadow-2xs">
+              <FolderTree className="w-5 h-5" />
             </div>
-            <h2 className="text-base font-bold text-slate-900 mt-1 flex items-center gap-2">
-              <FolderTree className="w-5 h-5 text-indigo-600" />
-              <span>কারিকুলাম বিষয় ও অধ্যায় কন্ট্রোল প্যানেল</span>
-            </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              যেকোনো বিষয়ের অধীনে অধ্যায়, অধ্যায়ের অধীনে টপিক/সেকশন এবং টপিকভিত্তিক প্রশ্ন ও লেসন পরিচালনা করুন।
-            </p>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-bold text-slate-900 tracking-tight">
+                  কারিকুলাম বিষয় ও অধ্যায় কন্ট্রোল প্যানেল
+                </h2>
+                <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/80 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                  ম্যানেজমেন্ট
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 mt-0.5">
+                যেকোনো বিষয়ের অধীনে অধ্যায়, অধ্যায়ের অধীনে টপিক/সেকশন এবং টপিকভিত্তিক প্রশ্ন ও লেসন পরিচালনা করুন।
+              </p>
+            </div>
           </div>
 
-          {/* "+ Add New Subject" Action Button */}
+          {/* Action Button: Single Clean Plus Icon */}
           <button
             type="button"
             onClick={() => setShowAddSubject(true)}
-            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition-colors self-start sm:self-auto shrink-0"
+            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition-all shrink-0 self-start sm:self-auto hover:shadow-sm"
           >
             <Plus className="w-4 h-4" />
-            <span>+ নতুন বিষয় যোগ করুন</span>
+            <span>নতুন বিষয় যোগ করুন</span>
           </button>
         </div>
 
-        {/* Subjects Tab Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2">
-          {subjects.map((sub) => {
-            const isSelected = sub.id === selectedSubjectId;
-            return (
-              <button
-                key={sub.id}
-                type="button"
-                onClick={() => setSelectedSubjectId(sub.id)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 ${
-                  isSelected
-                    ? 'bg-slate-900 text-white shadow-xs'
-                    : 'bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100'
-                }`}
-              >
-                <span>{sub.nameBangla}</span>
-                <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded font-normal ${
-                    sub.isReady
-                      ? isSelected
-                        ? 'bg-emerald-500 text-white'
-                        : 'bg-emerald-100 text-emerald-800'
-                      : isSelected
-                      ? 'bg-slate-700 text-slate-300'
-                      : 'bg-slate-200 text-slate-600'
+        {/* Unified Subject Tabs Bar with Integrated Metadata */}
+        <div className="space-y-3">
+          {/* Subjects Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            {subjects.map((sub) => {
+              const isSelected = sub.id === selectedSubjectId;
+              return (
+                <button
+                  key={sub.id}
+                  type="button"
+                  onClick={() => setSelectedSubjectId(sub.id)}
+                  className={`group flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all shrink-0 border ${
+                    isSelected
+                      ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
+                      : 'bg-slate-50/80 text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
                   }`}
                 >
-                  {sub.isReady ? 'সচল' : 'খসড়া'}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Active Subject Control Bar */}
-        {activeSubject && (
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-50/80 rounded-2xl p-4 border border-slate-200/90 text-xs gap-3">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="font-extrabold text-slate-900 text-sm">{activeSubject.nameBangla}</span>
-              <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 font-semibold px-2.5 py-0.5 rounded-full text-[11px]">
-                {activeSubject.classLevel === 'CLASS_9_10'
-                  ? 'SSC (৯ম-১০ম)'
-                  : activeSubject.classLevel === 'HSC' || activeSubject.classLevel === 'CLASS_11_12'
-                  ? 'HSC (১১দশ-১২শ)'
-                  : 'ভর্তি পরীক্ষা'}{' '}
-                • {activeSubject.syllabusYear} শিক্ষাবর্ষ
-              </span>
-              <span className="text-slate-500 text-[11px]">কোড: <strong className="font-mono text-slate-700">{activeSubject.code}</strong></span>
-              <span className="text-slate-500 text-[11px]">মোট অধ্যায়: <strong className="text-slate-700">{chapters.length}টি</strong></span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-slate-600 font-medium text-xs">শিক্ষার্থী দৃশ্যমানতা:</span>
-              <button
-                type="button"
-                onClick={() => handleToggleReady(activeSubject.id)}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold transition-colors text-xs border ${
-                  activeSubject.isReady
-                    ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
-                    : 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
-                }`}
-              >
-                {activeSubject.isReady ? (
-                  <>
-                    <ToggleRight className="w-4 h-4 text-emerald-600" />
-                    <span>সচল (Live)</span>
-                  </>
-                ) : (
-                  <>
-                    <ToggleLeft className="w-4 h-4 text-amber-600" />
-                    <span>খসড়া (Draft)</span>
-                  </>
-                )}
-              </button>
-            </div>
+                  <span
+                    className={`w-2 h-2 rounded-full shrink-0 ${
+                      sub.isReady ? 'bg-emerald-400' : 'bg-amber-400'
+                    }`}
+                  />
+                  <span>{sub.nameBangla}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono font-medium ${
+                      isSelected
+                        ? 'bg-slate-800 text-slate-300'
+                        : 'bg-white text-slate-500 border border-slate-200'
+                    }`}
+                  >
+                    {sub.chapterCount || 0} অধ্যায়
+                  </span>
+                </button>
+              );
+            })}
           </div>
-        )}
+
+          {/* Active Subject Context Strip */}
+          {activeSubject && (
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs">
+              <div className="flex flex-wrap items-center gap-2.5 text-slate-600">
+                <span className="font-semibold text-slate-800 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+                  নির্বাচিত বিষয়: <strong className="text-slate-900">{activeSubject.nameBangla}</strong>
+                </span>
+                <span className="text-slate-300">•</span>
+                <span className="bg-indigo-50 text-indigo-700 border border-indigo-200/80 font-semibold px-2 py-0.5 rounded-lg text-[11px]">
+                  {activeSubject.classLevel === 'CLASS_9_10'
+                    ? 'SSC (৯ম-১০ম)'
+                    : activeSubject.classLevel === 'HSC' || activeSubject.classLevel === 'CLASS_11_12'
+                    ? 'HSC (১১দশ-১২শ)'
+                    : 'ভর্তি পরীক্ষা'}
+                </span>
+                <span className="text-slate-300">•</span>
+                <span className="text-[11px] font-mono text-slate-500">
+                  কোড: <strong className="text-slate-700">{activeSubject.code}</strong>
+                </span>
+                <span className="text-slate-300">•</span>
+                <span className="text-[11px] text-slate-500">
+                  শিক্ষাবর্ষ: <strong className="text-slate-700">{activeSubject.syllabusYear}</strong>
+                </span>
+              </div>
+
+              {/* Status Toggle Switch */}
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-slate-500 text-[11px] font-medium">শিক্ষার্থী দৃশ্যমানতা:</span>
+                <button
+                  type="button"
+                  onClick={() => handleToggleReady(activeSubject.id)}
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold transition-all border ${
+                    activeSubject.isReady
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
+                      : 'bg-amber-50 text-amber-800 border-amber-300 hover:bg-amber-100'
+                  }`}
+                >
+                  {activeSubject.isReady ? (
+                    <>
+                      <ToggleRight className="w-4 h-4 text-emerald-600" />
+                      <span>সচল (Live)</span>
+                    </>
+                  ) : (
+                    <>
+                      <ToggleLeft className="w-4 h-4 text-amber-600" />
+                      <span>খসড়া (Draft)</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Section 2 & 3: Subject-wise Chapters & Chapter-wise Topics/Sections */}

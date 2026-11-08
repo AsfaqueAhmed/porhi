@@ -24,11 +24,68 @@ interface AuthoringStudioProps {
   initialContentType?: 'MCQ' | 'LESSON' | 'CQ';
 }
 
+interface SubjectOption {
+  id: string;
+  code: string;
+  nameBangla: string;
+  classLevel?: string;
+  syllabusYear?: number;
+}
+
 interface ChapterOption {
   id: string;
   titleBangla: string;
   topics: { id: string; titleBangla: string }[];
 }
+
+const DEFAULT_SUBJECTS: SubjectOption[] = [
+  {
+    id: 'sub_ssc_physics',
+    code: 'ssc_physics',
+    nameBangla: 'পদার্থবিজ্ঞান',
+    classLevel: 'CLASS_9_10',
+    syllabusYear: 2026,
+  },
+  {
+    id: 'sub_ssc_chemistry',
+    code: 'ssc_chemistry',
+    nameBangla: 'রসায়ন',
+    classLevel: 'CLASS_9_10',
+    syllabusYear: 2026,
+  },
+];
+
+const DEFAULT_CHAPTERS_MAP: Record<string, ChapterOption[]> = {
+  sub_ssc_physics: [
+    {
+      id: 'chap_ssc_physics_ch1',
+      titleBangla: 'প্রথম অধ্যায়: ভৌত রাশি ও পরিমাপ',
+      topics: [],
+    },
+    {
+      id: 'chap_ssc_physics_ch2',
+      titleBangla: 'দ্বিতীয় অধ্যায়: গতি (Motion)',
+      topics: [
+        {
+          id: 'top_ssc_physics_motion_eq',
+          titleBangla: 'গতির সমীকরণ ও সমাধান',
+        },
+      ],
+    },
+  ],
+  sub_ssc_chemistry: [
+    {
+      id: 'chap_ssc_chem_ch1',
+      titleBangla: 'প্রথম অধ্যায়: রসায়নের ধারণা',
+      topics: [
+        {
+          id: 'top_ssc_chem_ch1_scope',
+          titleBangla: 'রসায়নের পরিধি ও গুরুত্ব',
+        },
+      ],
+    },
+  ],
+};
 
 export function AuthoringStudio({
   onContentCreated,
@@ -39,11 +96,17 @@ export function AuthoringStudio({
   const [contentType, setContentType] = useState<'MCQ' | 'LESSON' | 'CQ'>(
     initialContentType || 'MCQ'
   );
+  const [subjects, setSubjects] = useState<SubjectOption[]>(DEFAULT_SUBJECTS);
   const [activeSubjectId, setActiveSubjectId] = useState(
     initialSubjectId || 'sub_ssc_physics'
   );
-  const [chapters, setChapters] = useState<ChapterOption[]>([]);
-  const [selectedTopicId, setSelectedTopicId] = useState(initialTopicId || '');
+  const [chapters, setChapters] = useState<ChapterOption[]>(
+    DEFAULT_CHAPTERS_MAP['sub_ssc_physics'] || []
+  );
+  const [selectedChapterId, setSelectedChapterId] = useState<string>('chap_ssc_physics_ch2');
+  const [selectedTopicId, setSelectedTopicId] = useState(
+    initialTopicId || 'top_ssc_physics_motion_eq'
+  );
 
   useEffect(() => {
     if (initialTopicId) setSelectedTopicId(initialTopicId);
@@ -97,21 +160,85 @@ export function AuthoringStudio({
   const [workedExampleSolution, setWorkedExampleSolution] = useState('ভরবেগের সংরক্ষণ সূত্র ব্যবহার করে: $m_R v_R = m_g v_g$');
   const [memoryAid, setMemoryAid] = useState('মনে রাখার ছন্দ: "বল দিলে বল পাবে, উল্টো দিকে সমান যাবে!"');
 
-  // Load chapters & topics
+  // 1. Fetch available subjects
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchSubjects() {
+      try {
+        const res = await apiClient.get<SubjectOption[]>('/curriculum/subjects');
+        if (isMounted && Array.isArray(res) && res.length > 0) {
+          setSubjects(res);
+          if (!initialSubjectId) {
+            const hasCurrent = res.some((s) => s.id === activeSubjectId);
+            if (!hasCurrent) {
+              const defaultSub = res.find((s) => s.code === 'ssc_physics') || res[0];
+              setActiveSubjectId(defaultSub.id);
+            }
+          }
+        }
+      } catch {
+        // Fallback default
+      }
+    }
+    fetchSubjects();
+    return () => {
+      isMounted = false;
+    };
+  }, [initialSubjectId, activeSubjectId]);
+
+  // 2. Fetch chapters & topics for activeSubjectId
   useEffect(() => {
     let isMounted = true;
     async function fetchHierarchy() {
       try {
-        const res = await apiClient.get<any[]>(`/curriculum/subjects/${activeSubjectId}/chapters`);
-        if (isMounted && Array.isArray(res) && res.length > 0) {
+        const res = await apiClient.get<ChapterOption[]>(
+          `/curriculum/subjects/${activeSubjectId}/chapters`
+        );
+        if (isMounted && Array.isArray(res)) {
           setChapters(res);
-          const firstTopic = res[0]?.topics?.[0]?.id;
-          if (firstTopic) setSelectedTopicId(firstTopic);
+
+          if (res.length > 0) {
+            let matchedChap: ChapterOption | undefined;
+            let matchedTopicId = '';
+
+            if (initialTopicId) {
+              matchedChap = res.find((c) =>
+                (c.topics || []).some((t) => t.id === initialTopicId)
+              );
+              if (matchedChap) {
+                matchedTopicId = initialTopicId;
+              }
+            }
+
+            if (!matchedChap) {
+              matchedChap = res.find((c) => (c.topics || []).length > 0) || res[0];
+              matchedTopicId = matchedChap?.topics?.[0]?.id || '';
+            }
+
+            setSelectedChapterId(matchedChap.id);
+            setSelectedTopicId(matchedTopicId);
+            if (matchedChap.titleBangla) {
+              setCitationChapter(matchedChap.titleBangla);
+            }
+          } else {
+            setSelectedChapterId('');
+            setSelectedTopicId('');
+          }
         }
       } catch {
-        // Fallback default
+        // Fallback to static mock hierarchy if API fails
         if (isMounted) {
-          setSelectedTopicId('top_ssc_physics_motion_eq');
+          const fallback = DEFAULT_CHAPTERS_MAP[activeSubjectId] || [];
+          setChapters(fallback);
+          if (fallback.length > 0) {
+            const target = fallback.find((c) => (c.topics || []).length > 0) || fallback[0];
+            setSelectedChapterId(target.id);
+            setSelectedTopicId(target.topics?.[0]?.id || '');
+            setCitationChapter(target.titleBangla);
+          } else {
+            setSelectedChapterId('');
+            setSelectedTopicId('');
+          }
         }
       }
     }
@@ -119,7 +246,37 @@ export function AuthoringStudio({
     return () => {
       isMounted = false;
     };
-  }, [activeSubjectId]);
+  }, [activeSubjectId, initialTopicId]);
+
+  const handleSubjectChange = (subjectId: string) => {
+    setActiveSubjectId(subjectId);
+    const sub = subjects.find((s) => s.id === subjectId);
+    if (sub) {
+      const classStr =
+        sub.classLevel === 'CLASS_9_10'
+          ? '৯ম-১০ম শ্রেণি'
+          : sub.classLevel === 'HSC' || sub.classLevel === 'CLASS_11_12'
+          ? 'একাদশ-দ্বাদশ শ্রেণি'
+          : '';
+      setCitationBook(`${sub.nameBangla}${classStr ? ` (${classStr})` : ''}`);
+    }
+  };
+
+  const handleChapterChange = (chapterId: string) => {
+    setSelectedChapterId(chapterId);
+    const chap = chapters.find((c) => c.id === chapterId);
+    if (chap) {
+      setCitationChapter(chap.titleBangla);
+      const firstTopicId = chap.topics?.[0]?.id || '';
+      setSelectedTopicId(firstTopicId);
+    } else {
+      setSelectedTopicId('');
+    }
+  };
+
+  const handleTopicChange = (topicId: string) => {
+    setSelectedTopicId(topicId);
+  };
 
   const handleInsertFormulaIntoMcq = (formula: string) => {
     setMcqStem((prev) => `${prev} $${formula}$ `);
@@ -158,6 +315,12 @@ export function AuthoringStudio({
     setIsSubmitting(true);
     setSuccessMessage(null);
     setErrorMessage(null);
+
+    if (!selectedTopicId) {
+      setErrorMessage('একটি নির্দিষ্ট টপিক নির্বাচন করুন। টপিক ছাড়া প্রশ্ন বা লেসন তৈরি করা যাবে না।');
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       if (contentType === 'MCQ') {
@@ -220,10 +383,13 @@ export function AuthoringStudio({
     }
   };
 
+  const activeChapter = chapters.find((c) => c.id === selectedChapterId) || chapters[0];
+  const availableTopics = activeChapter?.topics || [];
+
   return (
     <div className="space-y-6">
       {/* Type Switcher */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <div>
           <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
             <PenTool className="w-5 h-5 text-indigo-600" />
@@ -240,7 +406,7 @@ export function AuthoringStudio({
             onClick={() => setContentType('MCQ')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
               contentType === 'MCQ'
-                ? 'bg-white text-indigo-700 shadow-sm'
+                ? 'bg-white text-indigo-700 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -251,7 +417,7 @@ export function AuthoringStudio({
             onClick={() => setContentType('LESSON')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
               contentType === 'LESSON'
-                ? 'bg-white text-indigo-700 shadow-sm'
+                ? 'bg-white text-indigo-700 shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
@@ -273,45 +439,121 @@ export function AuthoringStudio({
         </div>
       )}
 
-      {/* Target Topic Selection */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
-        <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-          <BookOpen className="w-4 h-4 text-indigo-600" />
-          <span>কারিকুলাম টপিক নির্বাচন</span>
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {/* Target Topic Selection: 3-Tier Cascading Dropdowns */}
+      <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-2xs">
+              <BookOpen className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
+                কারিকুলাম টপিক নির্বাচন
+              </h3>
+              <p className="text-[11px] text-slate-500">
+                বিষয়, অধ্যায় ও নির্দিষ্ট টপিক নির্বাচন করে কন্টেন্ট ট্যাগিং নিশ্চিত করুন।
+              </p>
+            </div>
+          </div>
+
+          {selectedTopicId && (
+            <div className="text-[11px] text-slate-600 bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-lg font-mono self-start sm:self-auto">
+              টপিক আইডি: <span className="font-bold text-indigo-700">{selectedTopicId}</span>
+            </div>
+          )}
+        </div>
+
+        {/* 3 Dropdowns Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Dropdown 1: বিষয় (Subject) */}
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">বিষয় ও অধ্যায়</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+              <span>১. বিষয় (Subject)</span>
+            </label>
             <select
               value={activeSubjectId}
-              onChange={(e) => setActiveSubjectId(e.target.value)}
-              className="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-xl"
+              onChange={(e) => handleSubjectChange(e.target.value)}
+              className="w-full text-xs font-medium p-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl transition-all outline-none"
             >
-              <option value="sub_ssc_physics">SSC পদার্থবিজ্ঞান (Physics - NCTB 2026)</option>
-              <option value="sub_ssc_chemistry">SSC রসায়ন (Chemistry - NCTB 2026)</option>
+              {subjects.map((sub) => {
+                const classLabel =
+                  sub.classLevel === 'CLASS_9_10'
+                    ? 'SSC ৯ম-১০ম'
+                    : sub.classLevel === 'HSC' || sub.classLevel === 'CLASS_11_12'
+                    ? 'HSC'
+                    : sub.classLevel || '';
+                return (
+                  <option key={sub.id} value={sub.id}>
+                    {sub.nameBangla} {classLabel ? `(${classLabel})` : ''} • {sub.syllabusYear || 2026}
+                  </option>
+                );
+              })}
             </select>
           </div>
 
+          {/* Dropdown 2: অধ্যায় (Chapter) */}
           <div>
-            <label className="block text-xs font-semibold text-slate-600 mb-1">নির্দিষ্ট টপিক</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+              <span>২. অধ্যায় (Chapter)</span>
+            </label>
             <select
-              value={selectedTopicId}
-              onChange={(e) => setSelectedTopicId(e.target.value)}
-              className="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-xl"
+              value={selectedChapterId}
+              onChange={(e) => handleChapterChange(e.target.value)}
+              className="w-full text-xs font-medium p-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl transition-all outline-none"
             >
-              {chapters.flatMap((c) =>
-                (c.topics || []).map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {c.titleBangla} ➔ {t.titleBangla}
+              {chapters.length === 0 ? (
+                <option value="">অধ্যায় পাওয়া যায়নি...</option>
+              ) : (
+                chapters.map((chap) => (
+                  <option key={chap.id} value={chap.id}>
+                    {chap.titleBangla} ({chap.topics?.length || 0}টি টপিক)
                   </option>
                 ))
               )}
-              {chapters.length === 0 && (
-                <option value="top_ssc_physics_motion_eq">দ্বিতীয় অধ্যায়: গতি ➔ গতির সমীকরণ ও সমাধান</option>
+            </select>
+          </div>
+
+          {/* Dropdown 3: নির্দিষ্ট টপিক (Topic) */}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+              <span>৩. নির্দিষ্ট টপিক (Topic)</span>
+            </label>
+            <select
+              value={selectedTopicId}
+              onChange={(e) => handleTopicChange(e.target.value)}
+              className="w-full text-xs font-medium p-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl transition-all outline-none"
+            >
+              {availableTopics.length === 0 ? (
+                <option value="">(এই অধ্যায়ে কোনো টপিক নেই)</option>
+              ) : (
+                availableTopics.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.titleBangla}
+                  </option>
+                ))
               )}
             </select>
           </div>
         </div>
+
+        {/* Helpful alert if the selected chapter has no topics */}
+        {selectedChapterId && availableTopics.length === 0 && (
+          <div className="p-3 bg-amber-50 border border-amber-200/90 rounded-xl text-xs text-amber-800 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="font-bold">সতর্কতা:</span>
+              <span>নির্বাচিত অধ্যায়ের অধীনে কোনো টপিক পাওয়া যায়নি। প্রশ্ন বা লেসন সেভ করার পূর্বে টপিক তৈরি করে নিন।</span>
+            </div>
+            <a
+              href="/admin/curriculum"
+              className="text-[11px] font-bold text-indigo-700 hover:text-indigo-900 underline shrink-0"
+            >
+              কারিকুলামে যান ➔
+            </a>
+          </div>
+        )}
       </div>
 
       {/* MCQ Studio Form with Real-Time Split Simulator */}

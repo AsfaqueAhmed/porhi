@@ -12,10 +12,10 @@ vi.mock('next/navigation', () => ({
 }));
 
 describe('CurriculumManager with AdminDrawer', () => {
-  it('opens AdminDrawer when "+ নতুন বিষয় যোগ করুন" is clicked', () => {
+  it('opens AdminDrawer when "নতুন বিষয় যোগ করুন" is clicked', () => {
     render(<CurriculumManager />);
 
-    const addSubjectBtn = screen.getByRole('button', { name: /\+ নতুন বিষয় যোগ করুন/i });
+    const addSubjectBtn = screen.getByRole('button', { name: /নতুন বিষয় যোগ করুন/i });
     fireEvent.click(addSubjectBtn);
 
     // Should render the drawer heading and input

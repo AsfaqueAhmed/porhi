@@ -96,6 +96,14 @@ describe('Admin Portal Components', () => {
       expect(screen.getByText(/লেসনের শিরোনাম ও শিখনফল/i)).toBeDefined();
       expect(screen.getByText(/গুরুত্বপূর্ণ পরিভাষা ও সংজ্ঞা/i)).toBeDefined();
     });
+
+    it('renders 3 cascading dropdowns for subject, chapter, and topic', () => {
+      render(<AuthoringStudio />);
+
+      expect(screen.getByText(/১\. বিষয় \(Subject\)/i)).toBeDefined();
+      expect(screen.getByText(/২\. অধ্যায় \(Chapter\)/i)).toBeDefined();
+      expect(screen.getByText(/৩\. নির্দিষ্ট টপিক \(Topic\)/i)).toBeDefined();
+    });
   });
 
   describe('ModelTestManager', () => {

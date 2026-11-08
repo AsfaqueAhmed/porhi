@@ -13,7 +13,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   };
 
   return (
-    <div className="min-h-screen bg-slate-100/70 text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-slate-50 text-slate-800 antialiased selection:bg-indigo-500 selection:text-white">
       {/* Mobile Drawer Backdrop */}
       {isMobileOpen && (
         <div

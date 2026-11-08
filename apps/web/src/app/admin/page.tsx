@@ -56,17 +56,17 @@ export default function AdminOverviewPage() {
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Top Welcome Banner */}
-      <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-6 md:p-8 text-white shadow-xl border border-slate-800">
+      <div className="relative overflow-hidden bg-gradient-to-br from-indigo-50/90 via-white to-purple-50/70 rounded-3xl p-6 md:p-8 text-slate-900 shadow-xs border border-indigo-100/80">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 text-xs font-semibold border border-indigo-400/30">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold border border-indigo-200">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
               <span>এডটেক কন্ট্রোল ওভারভিউ ও সিলেবাস কন্ট্রোল</span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
+            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-slate-900">
               স্বাগতম, poRi কনটেন্ট অপারেশনস প্যানেলে
             </h1>
-            <p className="text-sm text-slate-300 leading-relaxed">
+            <p className="text-sm text-slate-600 leading-relaxed">
               SSC ও HSC সিলেবাসের বিষয়, অধ্যায়, টপিক এবং ৬-লেয়ার ব্যাখ্যাসমৃদ্ধ প্রশ্ন ব্যাংক পরিচালনা করুন এক জায়গায়।
             </p>
           </div>
@@ -74,23 +74,23 @@ export default function AdminOverviewPage() {
           <div className="flex flex-wrap items-center gap-3 shrink-0">
             <Link
               href="/admin/curriculum"
-              className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-md shadow-indigo-600/30 transition-all hover:scale-102"
+              className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition-all hover:scale-102"
             >
               <GitFork className="w-4 h-4" />
               <span>কারিকুলাম এক্সপ্লোরার</span>
             </Link>
             <Link
               href="/admin/questions"
-              className="inline-flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-700 shadow-sm transition-all"
+              className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 shadow-xs transition-all"
             >
-              <FileQuestion className="w-4 h-4" />
+              <FileQuestion className="w-4 h-4 text-indigo-600" />
               <span>প্রশ্ন স্টুডিও</span>
             </Link>
           </div>
         </div>
 
-        {/* Ambient background blur */}
-        <div className="absolute -right-16 -top-16 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
+        {/* Ambient background accent */}
+        <div className="absolute -right-16 -top-16 w-64 h-64 bg-indigo-200/30 rounded-full blur-3xl pointer-events-none" />
       </div>
 
       {/* KPI Metrics Cards */}
