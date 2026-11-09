@@ -6,6 +6,9 @@ import { resolveSafeAdminRedirect } from '../src/lib/admin-auth';
 import AdminLayout from '../src/app/admin/layout';
 import { useAdminAuthStore } from '../src/store/admin-auth-store';
 import { apiClient, ApiError } from '../src/lib/api-client';
+import { CurriculumManager } from '../src/components/admin/curriculum-manager';
+import { ReviewConsole } from '../src/components/admin/review-console';
+import AdminOverviewPage from '../src/app/admin/page';
 
 const mockPush = vi.fn();
 const mockReplace = vi.fn();
@@ -290,5 +293,160 @@ describe('Admin Authorization UI & Layout Guard', () => {
       expect(mockReplace).toHaveBeenCalledWith('/admin/login?next=%2Fadmin%2Freviews');
     });
     expect(screen.queryByTestId('protected-admin-page')).toBeNull();
+  });
+
+  it('surfaces authorization error banner instead of faking success when CurriculumManager gets 403', async () => {
+    vi.spyOn(apiClient, 'get').mockResolvedValue([]);
+    vi.spyOn(apiClient, 'post').mockRejectedValueOnce(
+      new ApiError(403, 'Forbidden', { message: 'Forbidden resource' }),
+    );
+
+    render(<CurriculumManager />);
+
+    fireEvent.click(screen.getByRole('button', { name: /নতুন বিষয় যোগ করুন/i }));
+    fireEvent.change(screen.getByLabelText(/বিষয়ের বাংলা নাম/i), {
+      target: { value: 'উচ্চতর গণিত' },
+    });
+    const codeInput = screen.getByLabelText(/ইউনিক কোড/i);
+    fireEvent.change(codeInput, { target: { value: 'ssc_higher_math' } });
+    fireEvent.click(screen.getByRole('button', { name: /বিষয় সংরক্ষণ করো/i }));
+
+    expect(await screen.findByRole('alert')).toBeDefined();
+    expect(screen.getByText(/অনুমতি নেই|লগইন|ব্যর্থ হয়েছে/i)).toBeDefined();
+    expect(screen.queryByText(/উচ্চতর গণিত/i)).toBeNull();
+  });
+
+  it('surfaces authorization error banner instead of faking status update when ReviewConsole gets 401', async () => {
+    vi.spyOn(apiClient, 'get').mockResolvedValue([]);
+    vi.spyOn(apiClient, 'post').mockRejectedValueOnce(
+      new ApiError(401, 'Unauthorized', { message: 'Unauthorized' }),
+    );
+
+    render(<ReviewConsole />);
+
+    fireEvent.click(screen.getByRole('button', { name: /সিদ্ধান্ত রেকর্ড ও স্ট্যাটাস আপডেট করো/i }));
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toBeDefined();
+    expect(alert.textContent).toMatch(/সেশনের মেয়াদ শেষ|পুনরায় লগইন|অনুমতি নেই/i);
+    expect(screen.queryByText(/^PUBLISHED$/)).toBeNull();
+  });
+
+  it('preserves form inputs and surfaces conflict error on CurriculumManager 409, and blocks toggle-ready on 401', async () => {
+    vi.spyOn(apiClient, 'get').mockResolvedValue([]);
+    vi.spyOn(apiClient, 'post')
+      .mockRejectedValueOnce(new ApiError(409, 'Conflict', { message: 'Duplicate code' }))
+      .mockRejectedValueOnce(new ApiError(401, 'Unauthorized', { message: 'Expired' }));
+
+    render(<CurriculumManager />);
+
+    fireEvent.click(screen.getByRole('button', { name: /নতুন বিষয় যোগ করুন/i }));
+    fireEvent.change(screen.getByLabelText(/বিষয়ের বাংলা নাম/i), {
+      target: { value: 'উচ্চতর গণিত' },
+    });
+    fireEvent.change(screen.getByLabelText(/ইউনিক কোড/i), {
+      target: { value: 'ssc_higher_math' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /বিষয় সংরক্ষণ করো/i }));
+
+    const conflictAlert = await screen.findByRole('alert');
+    expect(conflictAlert.textContent).toMatch(/ইতোমধ্যে সংরক্ষিত/i);
+    expect(screen.queryByText(/উচ্চতর গণিত/i)).toBeNull();
+
+    // Reopening the drawer should keep user inputs intact
+    fireEvent.click(screen.getByRole('button', { name: /নতুন বিষয় যোগ করুন/i }));
+    expect((screen.getByLabelText(/বিষয়ের বাংলা নাম/i) as HTMLInputElement).value).toBe('উচ্চতর গণিত');
+    expect((screen.getByLabelText(/ইউনিক কোড/i) as HTMLInputElement).value).toBe('ssc_higher_math');
+    fireEvent.click(screen.getByRole('button', { name: /বাতিল/i }));
+
+    // Toggle ready should NOT flip Live/Draft badge when API returns 401
+    const toggleBtn = screen.getByRole('button', { name: /সচল \(Live\)/i });
+    fireEvent.click(toggleBtn);
+
+    const authAlert = await screen.findByRole('alert');
+    expect(authAlert.textContent).toMatch(/সেশনের মেয়াদ শেষ/i);
+    expect(screen.getByRole('button', { name: /সচল \(Live\)/i })).toBeDefined();
+  });
+
+  it('surfaces 403 error and skips onStatusUpdated callback on ReviewConsole', async () => {
+    const onStatusUpdated = vi.fn();
+    vi.spyOn(apiClient, 'get').mockResolvedValue([]);
+    vi.spyOn(apiClient, 'post').mockRejectedValueOnce(
+      new ApiError(403, 'Forbidden', { message: 'Forbidden' }),
+    );
+
+    render(<ReviewConsole onStatusUpdated={onStatusUpdated} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /সিদ্ধান্ত রেকর্ড ও স্ট্যাটাস আপডেট করো/i }));
+
+    const alert = await screen.findByRole('alert');
+    expect(alert.textContent).toMatch(/অনুমতি নেই/i);
+    expect(onStatusUpdated).not.toHaveBeenCalled();
+    expect(screen.queryByText(/^PUBLISHED$/)).toBeNull();
+  });
+
+  it('loads admin overview subjects via apiClient with admin scope', async () => {
+    const getSpy = vi.spyOn(apiClient, 'get').mockResolvedValueOnce([
+      {
+        id: 'sub_1',
+        code: 'ssc_physics',
+        nameBangla: 'পদার্থবিজ্ঞান',
+        classLevel: 'CLASS_9_10',
+        syllabusYear: 2026,
+        isReady: true,
+        chapterCount: 5,
+      },
+    ]);
+
+    render(<AdminOverviewPage />);
+
+    expect(await screen.findByText('পদার্থবিজ্ঞান')).toBeDefined();
+    expect(getSpy).toHaveBeenCalledWith('/curriculum/subjects', { scope: 'admin' });
+  });
+
+  it('surfaces authorization error banner and preserves inputs on chapter and topic creation ApiError', async () => {
+    vi.spyOn(apiClient, 'get').mockImplementation(async (url: string) => {
+      if (url.includes('/chapters')) {
+        return [
+          {
+            id: 'chap_1',
+            subjectId: 'sub_ssc_physics',
+            orderIndex: 1,
+            titleBangla: '১ম অধ্যায়: ভৌত রাশি',
+            topics: [],
+          },
+        ];
+      }
+      return [];
+    });
+    vi.spyOn(apiClient, 'post')
+      .mockRejectedValueOnce(new ApiError(403, 'Forbidden', { message: 'Forbidden' }))
+      .mockRejectedValueOnce(new ApiError(401, 'Unauthorized', { message: 'Expired' }));
+
+    render(<CurriculumManager />);
+
+    expect(await screen.findByText(/১ম অধ্যায়: ভৌত রাশি/i)).toBeDefined();
+
+    // Test chapter creation 403
+    fireEvent.click(screen.getByRole('button', { name: /\+ এই বিষয়ে নতুন অধ্যায় যোগ করুন/i }));
+    fireEvent.change(screen.getByLabelText(/অধ্যায়ের নাম ও নম্বর/i), {
+      target: { value: '২য় অধ্যায়: গতি' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /অধ্যায় সংরক্ষণ করো/i }));
+
+    const chapterAlert = await screen.findByRole('alert');
+    expect(chapterAlert.textContent).toMatch(/অনুমতি নেই/i);
+    expect(screen.queryByText(/২য় অধ্যায়: গতি/i)).toBeNull();
+
+    // Test topic creation 401
+    fireEvent.click(screen.getByRole('button', { name: /\+ টপিক\/সেকশন যোগ/i }));
+    fireEvent.change(screen.getByLabelText(/টপিক\/সেকশনের নাম/i), {
+      target: { value: 'পরিমাপের ত্রুটি' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: /টপিক সংরক্ষণ করো/i }));
+
+    const topicAlert = await screen.findByRole('alert');
+    expect(topicAlert.textContent).toMatch(/সেশনের মেয়াদ শেষ/i);
+    expect(screen.queryByText(/পরিমাপের ত্রুটি/i)).toBeNull();
   });
 });

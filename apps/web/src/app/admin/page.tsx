@@ -15,6 +15,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { SubjectDTO } from '@pori/shared';
+import { apiClient } from '@/lib/api-client';
 
 interface SubjectWithCount extends SubjectDTO {
   chapterCount?: number;
@@ -28,12 +29,11 @@ export default function AdminOverviewPage() {
     let isMounted = true;
     const fetchSummary = async () => {
       try {
-        const res = await fetch('http://localhost:3001/curriculum/subjects');
-        if (res.ok) {
-          const data = await res.json();
-          if (isMounted) {
-            setSubjects(data);
-          }
+        const data = await apiClient.get<SubjectWithCount[]>('/curriculum/subjects', {
+          scope: 'admin',
+        });
+        if (isMounted && Array.isArray(data)) {
+          setSubjects(data);
         }
       } catch {
         // Fallback or empty state

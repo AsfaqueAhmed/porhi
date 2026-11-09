@@ -16,9 +16,23 @@ import {
   CheckCircle,
   Search,
   CheckCircle2,
+  AlertTriangle,
 } from 'lucide-react';
-import { apiClient } from '@/lib/api-client';
+import { apiClient, ApiError } from '@/lib/api-client';
 import { AdminDrawer } from './layout/AdminDrawer';
+
+function formatApiErrorMessage(err: ApiError): string {
+  if (err.status === 401) {
+    return 'সেশনের মেয়াদ শেষ হয়েছে। অনুগ্রহ করে পুনরায় লগইন করুন।';
+  }
+  if (err.status === 403) {
+    return 'এই কাজটি করার অনুমতি নেই (Admin অধিকার প্রয়োজন)।';
+  }
+  if (err.status === 409) {
+    return 'এই কোড বা তথ্য ইতোমধ্যে সংরক্ষিত আছে।';
+  }
+  return 'সার্ভারে সংরক্ষণ ব্যর্থ হয়েছে। অনুগ্রহ করে তথ্য যাচাই করুন।';
+}
 
 interface TopicItem {
   id: string;
@@ -103,6 +117,7 @@ export function CurriculumManager({
   const [newTopicTitle, setNewTopicTitle] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const [bannerMessage, setBannerMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [subjectSearchQuery, setSubjectSearchQuery] = useState('');
 
   useEffect(() => {
@@ -187,12 +202,18 @@ export function CurriculumManager({
   };
 
   const handleToggleReady = async (sId: string) => {
+    setErrorMessage(null);
+    setBannerMessage(null);
     try {
       await apiClient.post(`/admin/content/subjects/${sId}/toggle-ready`, {});
       setSubjects((prev) =>
         prev.map((s) => (s.id === sId ? { ...s, isReady: !s.isReady } : s))
       );
-    } catch {
+    } catch (err: unknown) {
+      if (err instanceof ApiError) {
+        setErrorMessage(formatApiErrorMessage(err));
+        return;
+      }
       setSubjects((prev) =>
         prev.map((s) => (s.id === sId ? { ...s, isReady: !s.isReady } : s))
       );
@@ -201,6 +222,8 @@ export function CurriculumManager({
 
   const handleCreateSubject = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
+    setBannerMessage(null);
     if (!newSubCode.trim() || !newSubNameBangla.trim()) return;
     setActionLoading(true);
 
@@ -231,7 +254,12 @@ export function CurriculumManager({
       setNewSubNameBangla('');
       setBannerMessage(`✅ "${created.nameBangla}" নতুন বিষয় সফলভাবে ডাটাবেজে যুক্ত হয়েছে!`);
       setTimeout(() => setBannerMessage(null), 4000);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      if (err instanceof ApiError) {
+        setErrorMessage(formatApiErrorMessage(err));
+        setShowAddSubject(false);
+        return;
+      }
       // Local fallback
       const created: SubjectItem = {
         id: 'sub_' + Date.now(),
@@ -257,6 +285,8 @@ export function CurriculumManager({
 
   const handleCreateChapter = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
+    setBannerMessage(null);
     if (!newChapterTitle.trim()) return;
     setActionLoading(true);
     try {
@@ -278,7 +308,12 @@ export function CurriculumManager({
       setShowAddChapter(false);
       setBannerMessage(`✅ নতুন অধ্যায় "${created.titleBangla}" যুক্ত করা হয়েছে!`);
       setTimeout(() => setBannerMessage(null), 4000);
-    } catch {
+    } catch (err: unknown) {
+      if (err instanceof ApiError) {
+        setErrorMessage(formatApiErrorMessage(err));
+        setShowAddChapter(false);
+        return;
+      }
       const created: ChapterItem = {
         id: 'chap_' + Date.now(),
         subjectId: selectedSubjectId,
@@ -296,6 +331,8 @@ export function CurriculumManager({
 
   const handleCreateTopic = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage(null);
+    setBannerMessage(null);
     if (!newTopicTitle.trim() || !targetChapterId) return;
     setActionLoading(true);
     try {
@@ -320,7 +357,12 @@ export function CurriculumManager({
       setShowAddTopic(false);
       setBannerMessage(`✅ নতুন টপিক/সেকশন "${created.titleBangla}" যুক্ত হয়েছে!`);
       setTimeout(() => setBannerMessage(null), 4000);
-    } catch {
+    } catch (err: unknown) {
+      if (err instanceof ApiError) {
+        setErrorMessage(formatApiErrorMessage(err));
+        setShowAddTopic(false);
+        return;
+      }
       const created: TopicItem = {
         id: 'top_' + Date.now(),
         chapterId: targetChapterId,
@@ -355,6 +397,17 @@ export function CurriculumManager({
 
   return (
     <div className="space-y-6">
+      {/* Error Notification Banner */}
+      {errorMessage && (
+        <div
+          role="alert"
+          className="bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold p-3.5 rounded-xl flex items-center gap-2 shadow-xs"
+        >
+          <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
+
       {/* Success Notification Banner */}
       {bannerMessage && (
         <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold p-3.5 rounded-xl flex items-center gap-2 shadow-xs">

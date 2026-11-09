@@ -14,7 +14,7 @@ import {
   Search,
 } from 'lucide-react';
 import { LatexRenderer } from '@/components/math/latex-renderer';
-import { apiClient } from '@/lib/api-client';
+import { apiClient, ApiError } from '@/lib/api-client';
 import { ContentStatus } from '@pori/shared';
 
 interface ReviewAuditItem {
@@ -94,6 +94,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
   const [decision, setDecision] = useState<'APPROVE' | 'REQUEST_CHANGES' | 'REJECT'>('APPROVE');
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'RAW' | 'STUDENT_SIMULATOR'>('STUDENT_SIMULATOR');
 
   // Audit History State
@@ -152,6 +153,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedItem) return;
+    setErrorMessage(null);
     setIsSubmitting(true);
     try {
       await apiClient.post('/admin/content/review', {
@@ -173,7 +175,18 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
       }
       setSelectedItem({ ...selectedItem, status: updatedStatus });
       setComment('');
-    } catch {
+    } catch (err: unknown) {
+      if (err instanceof ApiError) {
+        if (err.status === 401) {
+          setErrorMessage('সেশনের মেয়াদ শেষ হয়েছে। অনুগ্রহ করে পুনরায় লগইন করুন।');
+        } else if (err.status === 403) {
+          setErrorMessage('রিভিউ সিদ্ধান্ত সংরক্ষণের অনুমতি নেই।');
+        } else {
+          setErrorMessage('রিভিউ সংরক্ষণ ব্যর্থ হয়েছে।');
+        }
+        return;
+      }
+
       // Local fallback
       const updatedStatus =
         decision === 'APPROVE' ? ContentStatus.PUBLISHED : ContentStatus.CORRECTION;
@@ -202,6 +215,16 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
 
   return (
     <div className="space-y-6">
+      {errorMessage && (
+        <div
+          role="alert"
+          className="bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold p-3.5 rounded-xl flex items-center gap-2 shadow-sm"
+        >
+          <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+          <span>{errorMessage}</span>
+        </div>
+      )}
+
       {/* Search and Filters Bar */}
       <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm flex flex-col md:flex-row items-center justify-between gap-3">
         <div className="relative w-full md:w-72">
