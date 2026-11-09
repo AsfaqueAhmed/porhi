@@ -341,4 +341,32 @@ describe('useAdminAuthStore & scoped apiClient', () => {
     ).rejects.toBeInstanceOf(ApiError);
     expect(useAdminAuthStore.getState().token).toBe('valid_admin_jwt');
   });
+
+  it('supports PATCH requests via apiClient.patch with admin scope and JSON payload', async () => {
+    useAdminAuthStore.getState().setSession('admin_patch_jwt', {
+      id: 'adm_1',
+      phoneNumber: '01737740010',
+      role: 'ADMIN',
+    });
+
+    fetchMock.mockResolvedValueOnce(
+      new Response(JSON.stringify({ id: 'q_1', version: 2 }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      }),
+    );
+
+    const res = await apiClient.patch<{ id: string; version: number }>(
+      '/admin/content/questions/q_1',
+      { stem: 'সংশোধিত প্রশ্ন' },
+      { scope: 'admin' },
+    );
+
+    expect(res).toEqual({ id: 'q_1', version: 2 });
+    const [calledUrl, init] = fetchMock.mock.calls[0];
+    expect(calledUrl).toBe('http://localhost:3001/admin/content/questions/q_1');
+    expect(init.method).toBe('PATCH');
+    expect((init.headers as Headers).get('Authorization')).toBe('Bearer admin_patch_jwt');
+    expect(init.body).toBe(JSON.stringify({ stem: 'সংশোধিত প্রশ্ন' }));
+  });
 });
