@@ -3,12 +3,18 @@
 import React from 'react';
 import Link from 'next/link';
 import { AlertTriangle } from 'lucide-react';
-import type { AdminQuestionItem } from '@pori/shared';
+import type { AdminLessonItem, AdminQuestionItem } from '@pori/shared';
+
+type ContentEditorialStatus = AdminQuestionItem['status'] | AdminLessonItem['status'];
 
 export interface EditorialStatusBannersProps {
   isEditMode: boolean;
   isArchived: boolean;
+  status?: ContentEditorialStatus;
   questionStatus?: AdminQuestionItem['status'];
+  itemTypeLabel?: string;
+  backHref?: string;
+  backLabel?: string;
   adminRole?: string;
   preservePublished: boolean;
   submitForReview: boolean;
@@ -19,7 +25,11 @@ export interface EditorialStatusBannersProps {
 export function EditorialStatusBanners({
   isEditMode,
   isArchived,
+  status,
   questionStatus,
+  itemTypeLabel = 'প্রশ্নটি',
+  backHref = '/admin/questions',
+  backLabel = 'প্রশ্ন তালিকায় ফিরুন',
   adminRole,
   preservePublished,
   submitForReview,
@@ -29,6 +39,8 @@ export function EditorialStatusBanners({
   if (!isEditMode) {
     return null;
   }
+
+  const resolvedStatus = status ?? questionStatus;
 
   return (
     <>
@@ -40,24 +52,24 @@ export function EditorialStatusBanners({
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
             <span>
-              এই প্রশ্নটি আর্কাইভ (ARCHIVED) অবস্থায় আছে — সরাসরি সম্পাদনা করা যাবে না।
+              এই {itemTypeLabel} আর্কাইভ (ARCHIVED) অবস্থায় আছে — সরাসরি সম্পাদনা করা যাবে না।
             </span>
           </div>
           <Link
-            href="/admin/questions"
+            href={backHref}
             className="underline text-rose-900 hover:text-rose-700 shrink-0"
           >
-            প্রশ্ন তালিকায় ফিরুন
+            {backLabel}
           </Link>
         </div>
       )}
 
-      {questionStatus === 'PUBLISHED' && (
+      {resolvedStatus === 'PUBLISHED' && (
         <div className="bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl p-4 text-xs space-y-2">
           <div className="flex items-start gap-2 font-bold">
             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <span>
-              এই প্রশ্নটি বর্তমানে প্রকাশিত (PUBLISHED) অবস্থায় আছে। সংরক্ষণ করলে এটি স্বয়ংক্রিয়ভাবে REVIEW অবস্থায় যাবে।
+              এই {itemTypeLabel} বর্তমানে প্রকাশিত (PUBLISHED) অবস্থায় আছে। সংরক্ষণ করলে এটি স্বয়ংক্রিয়ভাবে REVIEW অবস্থায় যাবে।
             </span>
           </div>
           {adminRole === 'ADMIN' && (
@@ -74,7 +86,7 @@ export function EditorialStatusBanners({
         </div>
       )}
 
-      {(questionStatus === 'DRAFT' || questionStatus === 'CORRECTION') && (
+      {(resolvedStatus === 'DRAFT' || resolvedStatus === 'CORRECTION') && (
         <div className="bg-indigo-50/70 border border-indigo-200 text-indigo-950 rounded-2xl p-4 text-xs">
           <label className="flex items-center gap-2 cursor-pointer font-bold">
             <input

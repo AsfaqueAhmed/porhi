@@ -8,6 +8,8 @@ import type { LessonFormState, LessonTermDraft } from './authoring-helpers';
 
 export interface LessonAuthoringFormProps {
   lessonForm: LessonFormState;
+  mode?: 'create' | 'edit';
+  isArchived?: boolean;
   isSubmitting: boolean;
   onLessonFormChange: React.Dispatch<React.SetStateAction<LessonFormState>>;
   onSubmit: (e: React.FormEvent) => void;
@@ -15,6 +17,8 @@ export interface LessonAuthoringFormProps {
 
 export function LessonAuthoringForm({
   lessonForm,
+  mode = 'create',
+  isArchived = false,
   isSubmitting,
   onLessonFormChange,
   onSubmit,
@@ -45,10 +49,14 @@ export function LessonAuthoringForm({
         <h3 className="text-sm font-bold text-slate-900">লেসনের শিরোনাম ও শিখনফল</h3>
 
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label
+            htmlFor="lesson-title"
+            className="block text-xs font-bold text-slate-700 mb-1"
+          >
             পাঠের শিরোনাম (বাংলায়)
           </label>
           <input
+            id="lesson-title"
             type="text"
             required
             value={lessonForm.lessonTitle}
@@ -58,10 +66,14 @@ export function LessonAuthoringForm({
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label
+            htmlFor="lesson-learning-goal"
+            className="block text-xs font-bold text-slate-700 mb-1"
+          >
             শিখনফল (Learning Goal)
           </label>
           <input
+            id="lesson-learning-goal"
             type="text"
             required
             value={lessonForm.learningGoal}
@@ -71,7 +83,10 @@ export function LessonAuthoringForm({
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label
+            htmlFor="lesson-explanation"
+            className="block text-xs font-bold text-slate-700 mb-1"
+          >
             মূল ব্যাখ্যা (LaTeX সমীকরণসহ)
           </label>
           <MathToolbar
@@ -84,6 +99,7 @@ export function LessonAuthoringForm({
             className="mb-2"
           />
           <textarea
+            id="lesson-explanation"
             rows={4}
             required
             value={lessonForm.lessonExplanation}
@@ -129,6 +145,7 @@ export function LessonAuthoringForm({
               <input
                 type="text"
                 required
+                aria-label={`পরিভাষা ${idx + 1} বাংলা শব্দ`}
                 placeholder="বাংলা শব্দ"
                 value={t.termBangla}
                 onChange={(e) => handleTermChange(idx, 'termBangla', e.target.value)}
@@ -136,6 +153,7 @@ export function LessonAuthoringForm({
               />
               <input
                 type="text"
+                aria-label={`পরিভাষা ${idx + 1} English Term`}
                 placeholder="English Term"
                 value={t.termEnglish}
                 onChange={(e) => handleTermChange(idx, 'termEnglish', e.target.value)}
@@ -143,7 +161,7 @@ export function LessonAuthoringForm({
               />
               <input
                 type="text"
-                required
+                aria-label={`পরিভাষা ${idx + 1} সংজ্ঞা`}
                 placeholder="সংজ্ঞা বা সংক্ষিপ্ত ব্যাখ্যা"
                 value={t.definition}
                 onChange={(e) => handleTermChange(idx, 'definition', e.target.value)}
@@ -152,6 +170,7 @@ export function LessonAuthoringForm({
               {lessonForm.terms.length > 1 && (
                 <button
                   type="button"
+                  aria-label={`পরিভাষা ${idx + 1} মুছুন`}
                   onClick={() =>
                     onLessonFormChange((prev) => ({
                       ...prev,
@@ -175,10 +194,14 @@ export function LessonAuthoringForm({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label
+              htmlFor="lesson-worked-problem"
+              className="block text-xs font-semibold text-slate-700 mb-1"
+            >
               গাণিতিক সমস্যা (Problem)
             </label>
             <textarea
+              id="lesson-worked-problem"
               rows={2}
               value={lessonForm.workedExampleProblem}
               onChange={(e) => updateField('workedExampleProblem', e.target.value)}
@@ -186,10 +209,14 @@ export function LessonAuthoringForm({
             />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label
+              htmlFor="lesson-worked-solution"
+              className="block text-xs font-semibold text-slate-700 mb-1"
+            >
               ধাপওয়ারী সমাধান (Solution)
             </label>
             <textarea
+              id="lesson-worked-solution"
               rows={2}
               value={lessonForm.workedExampleSolution}
               onChange={(e) => updateField('workedExampleSolution', e.target.value)}
@@ -199,10 +226,14 @@ export function LessonAuthoringForm({
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+          <label
+            htmlFor="lesson-memory-aid"
+            className="block text-xs font-bold text-slate-700 mb-1"
+          >
             মনে রাখার টেকনিক / ছন্দ (Mnemonic)
           </label>
           <input
+            id="lesson-memory-aid"
             type="text"
             value={lessonForm.memoryAid}
             onChange={(e) => updateField('memoryAid', e.target.value)}
@@ -214,11 +245,17 @@ export function LessonAuthoringForm({
       <div className="flex justify-end gap-3">
         <button
           type="submit"
-          disabled={isSubmitting}
+          disabled={isSubmitting || isArchived}
           className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-6 py-3 rounded-xl shadow transition-all flex items-center gap-2 disabled:opacity-50"
         >
           <Send className="w-4 h-4" />
-          <span>{isSubmitting ? 'সংরক্ষণ হচ্ছে...' : 'সম্পূর্ণ লেসন খসড়া জমা দাও'}</span>
+          <span>
+            {isSubmitting
+              ? 'সংরক্ষণ হচ্ছে...'
+              : mode === 'edit'
+                ? 'পরিবর্তন সংরক্ষণ করুন'
+                : 'সম্পূর্ণ লেসন খসড়া জমা দাও'}
+          </span>
         </button>
       </div>
     </form>
