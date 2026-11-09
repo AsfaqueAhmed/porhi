@@ -1,21 +1,29 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { act, cleanup, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
-import type { AdminQuestionItem } from '@pori/shared';
+import type { AdminLessonItem, AdminQuestionItem } from '@pori/shared';
 import { StudentSimulatorFrame } from '../src/components/admin/student-simulator-frame';
 import { AuthoringStudio } from '../src/components/admin/authoring-studio';
+import {
+  buildLessonEditEditorialFields,
+  buildLessonEditPayload,
+  buildLessonPayload,
+  createInitialLessonFormState,
+  ensureChapterTopicInList,
+} from '../src/components/admin/authoring/authoring-helpers';
 import AdminNewQuestionPage from '../src/app/admin/questions/new/page';
 import AdminEditQuestionPage from '../src/app/admin/questions/[id]/edit/page';
 import { apiClient, ApiError } from '../src/lib/api-client';
 import { useAdminAuthStore } from '../src/store/admin-auth-store';
 
+const mockReplace = vi.fn();
 let mockPathname = '/admin/questions/new';
 let mockSearchParams = new URLSearchParams();
 let mockParams: Record<string, string> = { id: 'q_motion_mcq_1' };
 
 vi.mock('next/navigation', () => ({
   usePathname: () => mockPathname,
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn(), prefetch: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), replace: mockReplace, prefetch: vi.fn() }),
   useSearchParams: () => mockSearchParams,
   useParams: () => mockParams,
 }));
@@ -240,6 +248,7 @@ describe('Admin Question Authoring & Edit Pages', () => {
     mockedApi.get.mockReset();
     mockedApi.post.mockReset();
     mockedApi.patch.mockReset();
+    mockReplace.mockReset();
     mockPathname = '/admin/questions/new';
     mockSearchParams = new URLSearchParams();
     mockParams = { id: 'q_motion_mcq_1' };
@@ -331,25 +340,40 @@ describe('Admin Question Authoring & Edit Pages', () => {
     expect(listBackLink?.getAttribute('href')).toBe('/admin/questions');
   });
 
-  it('AdminNewQuestionPage respects ?type=lesson&subjectId=...&topicId=... query params', async () => {
-    mockCurriculumApi();
+  it('AdminNewQuestionPage redirects ?type=lesson cleanly to /admin/curriculum/lessons/new preserving subjectId and topicId', async () => {
     mockSearchParams = new URLSearchParams(
       'type=lesson&subjectId=sub_ssc_chemistry&topicId=top_chem_1',
     );
 
     render(<AdminNewQuestionPage />);
 
-    expect(await screen.findByText(/লেসনের শিরোনাম ও শিখনফল/i)).toBeDefined();
     await waitFor(() => {
-      expect(mockedApi.get).toHaveBeenCalledWith(
-        '/curriculum/subjects/sub_ssc_chemistry/chapters',
-        { scope: 'admin' },
+      expect(mockReplace).toHaveBeenCalledWith(
+        '/admin/curriculum/lessons/new?topicId=top_chem_1&subjectId=sub_ssc_chemistry',
       );
     });
-    const topicOption = (await screen.findByRole('option', {
-      name: /রসায়নের পরিধি/i,
-    })) as HTMLOptionElement;
-    expect(topicOption.selected).toBe(true);
+    expect(screen.queryByPlaceholderText(/প্রশ্নের মূল বিবরণ লিখুন/i)).toBeNull();
+  });
+
+  it('AdminNewQuestionPage removes Lesson tab and targets filtered list on ?type=mcq and ?type=cq back links', async () => {
+    mockCurriculumApi();
+    mockSearchParams = new URLSearchParams('type=cq&subjectId=sub_ssc_physics&topicId=top_motion_1');
+
+    const cqView = render(<AdminNewQuestionPage />);
+    expect(await screen.findByText(/সৃজনশীল \(CQ\)/i, { selector: 'button' })).toBeDefined();
+    expect(screen.queryByText(/পাঠ্য লেসন \(Lesson\)/i)).toBeNull();
+    expect(screen.getByText(/← প্রশ্ন তালিকায় ফিরুন/i).closest('a')?.getAttribute('href')).toBe(
+      '/admin/questions/cq',
+    );
+    cqView.unmount();
+
+    mockSearchParams = new URLSearchParams('type=mcq&subjectId=sub_ssc_physics&topicId=top_motion_1');
+    render(<AdminNewQuestionPage />);
+    expect(await screen.findByText(/৬-স্তরের MCQ/i, { selector: 'button' })).toBeDefined();
+    expect(screen.queryByText(/পাঠ্য লেসন \(Lesson\)/i)).toBeNull();
+    expect(screen.getByText(/← প্রশ্ন তালিকায় ফিরুন/i).closest('a')?.getAttribute('href')).toBe(
+      '/admin/questions/mcq',
+    );
   });
 
   it('AdminEditQuestionPage hydrates PUBLISHED MCQ for ADMIN, sends PATCH with preservePublished and dynamic distractors', async () => {
@@ -952,6 +976,86 @@ describe('Admin Question Authoring & Edit Pages', () => {
     expect((screen.getByLabelText(/৩\. নির্দিষ্ট টপিক/i) as HTMLSelectElement).value).toBe(
       'top_second_missing',
     );
+  });
+});
+
+describe('Lesson authoring helpers', () => {
+  const SAMPLE_ADMIN_LESSON: AdminLessonItem = {
+    id: 'les_1',
+    topicId: 'top_motion_1',
+    titleBangla: 'গতির সমীকরণ পাঠ',
+    learningGoal: 'সমীকরণ প্রয়োগ করা',
+    explanation: '$v = u + at$',
+    importantTerms: [{ termBangla: 'বেগ', termEnglish: 'Velocity', definition: 'সরণের হার' }],
+    workedExample: { problem: 'সমস্যা ১', stepByStepSolution: 'সমাধান ১' },
+    memoryAid: 'v=u+at',
+    status: 'PUBLISHED',
+    version: 2,
+    createdAt: '2026-11-08T00:00:00Z',
+    updatedAt: '2026-11-09T00:00:00Z',
+    topic: {
+      id: 'top_motion_1',
+      titleBangla: 'গতির সমীকরণ',
+      chapter: {
+        id: 'chap_motion',
+        titleBangla: 'দ্বিতীয় অধ্যায়: গতি',
+        subject: { id: 'sub_ssc_physics', code: 'ssc_physics', nameBangla: 'পদার্থবিজ্ঞান' },
+      },
+    },
+  };
+
+  it('hydrates LessonFormState, preserves workedExample when solution-only, and builds edit payloads & editorial fields', () => {
+    const hydrated = createInitialLessonFormState(SAMPLE_ADMIN_LESSON);
+    expect(hydrated.lessonTitle).toBe('গতির সমীকরণ পাঠ');
+    expect(hydrated.terms).toEqual([
+      { termBangla: 'বেগ', termEnglish: 'Velocity', definition: 'সরণের হার' },
+    ]);
+    expect(hydrated.workedExampleProblem).toBe('সমস্যা ১');
+    expect(hydrated.workedExampleSolution).toBe('সমাধান ১');
+    expect(hydrated.memoryAid).toBe('v=u+at');
+
+    const solutionOnlyCreate = buildLessonPayload({
+      topicId: 'top_motion_1',
+      lessonTitle: '  শিরোনাম  ',
+      learningGoal: '  লক্ষ্য  ',
+      lessonExplanation: '  ব্যাখ্যা  ',
+      terms: [{ termBangla: ' বল ', termEnglish: ' Force ', definition: ' ধাক্কা ' }],
+      workedExampleProblem: '   ',
+      workedExampleSolution: '  শুধু সমাধান  ',
+      memoryAid: '   ',
+    });
+    expect(solutionOnlyCreate.workedExample).toEqual({
+      problem: '',
+      stepByStepSolution: 'শুধু সমাধান',
+    });
+    expect(solutionOnlyCreate.memoryAid).toBeUndefined();
+
+    const clearedEdit = buildLessonEditPayload({
+      topicId: 'top_motion_1',
+      lessonTitle: 'শিরোনাম',
+      learningGoal: 'লক্ষ্য',
+      lessonExplanation: 'ব্যাখ্যা',
+      terms: [{ termBangla: 'বল', termEnglish: '', definition: '' }],
+      workedExampleProblem: ' ',
+      workedExampleSolution: ' ',
+      memoryAid: ' ',
+    });
+    expect(clearedEdit.workedExample).toBeNull();
+    expect(clearedEdit.memoryAid).toBeNull();
+
+    expect(buildLessonEditEditorialFields(SAMPLE_ADMIN_LESSON, 'ADMIN', true, false)).toEqual({
+      preservePublished: true,
+    });
+    expect(buildLessonEditEditorialFields(SAMPLE_ADMIN_LESSON, 'EDITOR', true, false)).toEqual({
+      preservePublished: false,
+    });
+    expect(
+      buildLessonEditEditorialFields({ ...SAMPLE_ADMIN_LESSON, status: 'DRAFT' }, 'EDITOR', false, true),
+    ).toEqual({ submitForReview: true });
+
+    const widenedChapters = ensureChapterTopicInList([], SAMPLE_ADMIN_LESSON.topic);
+    expect(widenedChapters).toHaveLength(1);
+    expect(widenedChapters[0].topics[0].id).toBe('top_motion_1');
   });
 });
 

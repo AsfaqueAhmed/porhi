@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useId } from 'react';
 import { X } from 'lucide-react';
 
 export interface AdminDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  closeOnEscape?: boolean;
   title: string;
   subtitle?: string;
   children: React.ReactNode;
@@ -16,15 +17,18 @@ export interface AdminDrawerProps {
 export function AdminDrawer({
   isOpen,
   onClose,
+  closeOnEscape = true,
   title,
   subtitle,
   children,
   footer,
   widthClass = 'max-w-md',
 }: AdminDrawerProps) {
+  const headingId = useId();
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape' && isOpen && closeOnEscape) {
         onClose();
       }
     };
@@ -40,14 +44,19 @@ export function AdminDrawer({
       document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, closeOnEscape, onClose]);
 
   if (!isOpen) {
     return null;
   }
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden" role="dialog" aria-modal="true">
+    <div
+      className="fixed inset-0 z-50 overflow-hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={headingId}
+    >
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity duration-300 animate-in fade-in"
@@ -62,7 +71,9 @@ export function AdminDrawer({
           {/* Header */}
           <div className="px-6 py-5 border-b border-slate-200 flex items-start justify-between bg-slate-50/50">
             <div>
-              <h2 className="text-base font-bold text-slate-900">{title}</h2>
+              <h2 id={headingId} className="text-base font-bold text-slate-900">
+                {title}
+              </h2>
               {subtitle && <p className="text-xs text-slate-500 mt-1">{subtitle}</p>}
             </div>
             <button

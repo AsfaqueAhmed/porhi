@@ -101,17 +101,18 @@ describe('Admin Portal Components', () => {
   });
 
   describe('AuthoringStudio', () => {
-    it('renders 6-layer MCQ inputs and allows switching to lesson authoring', () => {
+    it('renders Question-only MCQ and CQ modes without Lesson tab', () => {
       render(<AuthoringStudio />);
 
       expect(screen.getByText(/অথরিং স্টুডিও/i)).toBeDefined();
       expect(screen.getByText(/৬-স্তরের ব্যাখ্যাসহ প্রশ্ন জমা দাও/i)).toBeDefined();
       expect(screen.getByText(/স্তরের বিশ্লেষণ ও ডিপ এক্সপ্ল্যানেশন সিস্টেম/i)).toBeDefined();
+      expect(screen.queryByText(/পাঠ্য লেসন \(Lesson\)/i)).toBeNull();
 
-      // Switch to Lesson authoring
-      fireEvent.click(screen.getByText(/পাঠ্য লেসন \(Lesson\)/i));
-      expect(screen.getByText(/লেসনের শিরোনাম ও শিখনফল/i)).toBeDefined();
-      expect(screen.getByText(/গুরুত্বপূর্ণ পরিভাষা ও সংজ্ঞা/i)).toBeDefined();
+      // Switch to CQ authoring
+      fireEvent.click(screen.getByText(/সৃজনশীল \(CQ\)/i));
+      expect(screen.getByText(/সৃজনশীল উদ্দীপক/i)).toBeDefined();
+      expect(screen.getByText(/সৃজনশীল \(CQ\) ৪ অংশের প্রশ্ন ও মূল্যায়ন রুব্রিক/i)).toBeDefined();
     });
   });
 
