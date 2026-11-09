@@ -19,6 +19,7 @@ enum ContentStatus {
   REVIEW
   PUBLISHED
   CORRECTION
+  ARCHIVED
 }
 
 model User {

@@ -59,3 +59,53 @@ export interface QuestionDTO {
   createdAt?: Date | string;
   updatedAt?: Date | string;
 }
+
+export interface QuestionTopicHierarchy {
+  id: string;
+  titleBangla: string;
+  chapter: {
+    id: string;
+    titleBangla: string;
+    subject: {
+      id: string;
+      code: string;
+      nameBangla: string;
+    };
+  };
+}
+
+export interface AdminQuestionItem {
+  id: string;
+  topicId: string;
+  type: 'MCQ' | 'CQ_CREATIVE' | string;
+  stem: string;
+  options?: QuestionOption[] | null;
+  explanation: ExplanationObject;
+  cqRubric?: Partial<CQRubric> | null;
+  difficulty: QuestionDifficulty | string;
+  boardSource?: string | null;
+  isVerified: boolean;
+  status: ContentStatus | 'DRAFT' | 'REVIEW' | 'CORRECTION' | 'PUBLISHED' | 'ARCHIVED';
+  version: number;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  topic: QuestionTopicHierarchy;
+}
+
+export interface QuestionStatusCounts {
+  ALL: number;
+  DRAFT: number;
+  REVIEW: number;
+  CORRECTION: number;
+  PUBLISHED: number;
+  ARCHIVED: number;
+}
+
+export interface ListQuestionsResponse {
+  items: AdminQuestionItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  statusCounts: QuestionStatusCounts;
+}

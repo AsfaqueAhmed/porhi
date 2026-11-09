@@ -16,6 +16,7 @@ describe('Shared Constants and Enums', () => {
     expect(ContentStatus.REVIEW).toBe('REVIEW');
     expect(ContentStatus.PUBLISHED).toBe('PUBLISHED');
     expect(ContentStatus.CORRECTION).toBe('CORRECTION');
+    expect(ContentStatus.ARCHIVED).toBe('ARCHIVED');
   });
 
   it('should support MCQ and CQ QuestionTypes', () => {

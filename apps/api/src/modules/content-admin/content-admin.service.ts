@@ -4,7 +4,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ContentStatus } from '@prisma/client';
+import { ContentStatus, Prisma } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import { CreateLessonAdminDto } from './dto/create-lesson-admin.dto';
 import { CreateQuestionAdminDto } from './dto/create-question-admin.dto';
@@ -12,6 +12,29 @@ import { ReviewContentDto } from './dto/review-content.dto';
 import { CreateChapterAdminDto } from './dto/create-chapter-admin.dto';
 import { CreateTopicAdminDto } from './dto/create-topic-admin.dto';
 import { CreateSubjectAdminDto } from './dto/create-subject-admin.dto';
+import { ListQuestionsQueryDto } from './dto/list-questions-query.dto';
+
+export const QUESTION_HIERARCHY_INCLUDE = {
+  topic: {
+    select: {
+      id: true,
+      titleBangla: true,
+      chapter: {
+        select: {
+          id: true,
+          titleBangla: true,
+          subject: {
+            select: {
+              id: true,
+              code: true,
+              nameBangla: true,
+            },
+          },
+        },
+      },
+    },
+  },
+} as const;
 
 @Injectable()
 export class ContentAdminService {
@@ -399,5 +422,127 @@ export class ContentAdminService {
       lessons,
       questions,
     };
+  }
+
+  async listQuestions(query: ListQuestionsQueryDto = {}) {
+    if (query.type && !['MCQ', 'CQ_CREATIVE'].includes(query.type)) {
+      throw new BadRequestException('type must be MCQ or CQ_CREATIVE');
+    }
+    if (
+      query.status &&
+      !['DRAFT', 'REVIEW', 'CORRECTION', 'PUBLISHED', 'ARCHIVED'].includes(query.status)
+    ) {
+      throw new BadRequestException('Invalid question status filter');
+    }
+
+    const baseWhere: Prisma.QuestionWhereInput = {};
+    if (query.topicId?.trim()) {
+      baseWhere.topicId = query.topicId.trim();
+    }
+
+    const topicFilter: Prisma.TopicWhereInput = {};
+    if (query.chapterId?.trim()) {
+      topicFilter.chapterId = query.chapterId.trim();
+    }
+    if (query.subjectId?.trim()) {
+      topicFilter.chapter = { subjectId: query.subjectId.trim() };
+    }
+    if (Object.keys(topicFilter).length > 0) {
+      baseWhere.topic = topicFilter;
+    }
+
+    if (query.type) {
+      baseWhere.type = query.type;
+    }
+
+    const trimmedSearch = query.search?.trim();
+    if (trimmedSearch) {
+      baseWhere.OR = [
+        { stem: { contains: trimmedSearch, mode: 'insensitive' } },
+        { boardSource: { contains: trimmedSearch, mode: 'insensitive' } },
+      ];
+    }
+
+    const where: Prisma.QuestionWhereInput = { ...baseWhere };
+    if (query.status) {
+      where.status = query.status;
+    } else if (query.includeArchived !== 'true') {
+      where.status = { not: ContentStatus.ARCHIVED };
+    }
+
+    const parsedPage = Number.parseInt(query.page ?? '1', 10);
+    const parsedLimit = Number.parseInt(query.limit ?? '20', 10);
+    const page = Number.isFinite(parsedPage) && parsedPage >= 1 ? parsedPage : 1;
+    const limit =
+      Number.isFinite(parsedLimit) && parsedLimit >= 1
+        ? Math.min(100, parsedLimit)
+        : 20;
+    const skip = (page - 1) * limit;
+
+    const [items, total, groupedCounts] = await Promise.all([
+      this.prisma.question.findMany({
+        where,
+        include: QUESTION_HIERARCHY_INCLUDE,
+        orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
+        skip,
+        take: limit,
+      }),
+      this.prisma.question.count({ where }),
+      this.prisma.question.groupBy({
+        by: ['status'],
+        where: baseWhere,
+        _count: { _all: true },
+      }),
+    ]);
+
+    const statusCounts = {
+      ALL: 0,
+      DRAFT: 0,
+      REVIEW: 0,
+      CORRECTION: 0,
+      PUBLISHED: 0,
+      ARCHIVED: 0,
+    };
+
+    for (const row of groupedCounts) {
+      const count = row._count._all;
+      if (row.status === ContentStatus.DRAFT) {
+        statusCounts.DRAFT += count;
+        statusCounts.ALL += count;
+      } else if (row.status === ContentStatus.REVIEW) {
+        statusCounts.REVIEW += count;
+        statusCounts.ALL += count;
+      } else if (row.status === ContentStatus.CORRECTION) {
+        statusCounts.CORRECTION += count;
+        statusCounts.ALL += count;
+      } else if (row.status === ContentStatus.PUBLISHED) {
+        statusCounts.PUBLISHED += count;
+        statusCounts.ALL += count;
+      } else if (row.status === ContentStatus.ARCHIVED) {
+        statusCounts.ARCHIVED += count;
+      }
+    }
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.max(1, Math.ceil(total / limit)),
+      statusCounts,
+    };
+  }
+
+  async getQuestionById(id: string) {
+    const question = await this.prisma.question.findUnique({
+      where: { id },
+      include: QUESTION_HIERARCHY_INCLUDE,
+    });
+
+    if (!question) {
+      throw new NotFoundException(`Question with id ${id} not found`);
+    }
+
+    return question;
   }
 }

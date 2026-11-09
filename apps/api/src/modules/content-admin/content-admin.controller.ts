@@ -5,6 +5,7 @@ import {
   Inject,
   Param,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -19,6 +20,7 @@ import { ReviewContentDto } from './dto/review-content.dto';
 import { CreateChapterAdminDto } from './dto/create-chapter-admin.dto';
 import { CreateTopicAdminDto } from './dto/create-topic-admin.dto';
 import { CreateSubjectAdminDto } from './dto/create-subject-admin.dto';
+import { ListQuestionsQueryDto } from './dto/list-questions-query.dto';
 
 @Controller('admin/content')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -38,6 +40,18 @@ export class ContentAdminController {
   @Roles(Role.EDITOR, Role.ADMIN)
   async createQuestion(@Body() dto: CreateQuestionAdminDto) {
     return this.contentAdminService.createQuestion(dto);
+  }
+
+  @Get('questions')
+  @Roles(Role.EDITOR, Role.REVIEWER, Role.ADMIN)
+  async listQuestions(@Query() query: ListQuestionsQueryDto) {
+    return this.contentAdminService.listQuestions(query);
+  }
+
+  @Get('questions/:id')
+  @Roles(Role.EDITOR, Role.REVIEWER, Role.ADMIN)
+  async getQuestionById(@Param('id') id: string) {
+    return this.contentAdminService.getQuestionById(id);
   }
 
   @Post('review')

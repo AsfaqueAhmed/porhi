@@ -27,6 +27,8 @@ describe('ContentAdminService', () => {
         create: vi.fn(),
         update: vi.fn(),
         findMany: vi.fn(),
+        count: vi.fn(),
+        groupBy: vi.fn(),
       },
       contentReview: {
         create: vi.fn(),
@@ -661,6 +663,196 @@ describe('ContentAdminService', () => {
       expect(res.topic.id).toBe('top_1');
       expect(res.lessons.length).toBe(1);
       expect(res.questions.length).toBe(1);
+    });
+  });
+
+  describe('listQuestions', () => {
+    const sampleQuestion = {
+      id: 'q_motion_mcq_1',
+      topicId: 'top_ssc_physics_motion_eq',
+      type: 'MCQ',
+      stem: 'স্থির অবস্থান থেকে $4\\text{ s}$ পর বেগ কত?',
+      options: [
+        { id: 'opt_q1_a', text: '$4\\text{ m/s}^2$', isCorrect: true },
+        { id: 'opt_q1_b', text: '$64\\text{ m/s}^2$', isCorrect: false },
+      ],
+      explanation: {
+        directAnswer: '৪',
+        coreConcept: 'a = v/t',
+      },
+      cqRubric: null,
+      difficulty: 'MEDIUM',
+      boardSource: 'Dhaka Board 2022',
+      isVerified: true,
+      status: ContentStatus.PUBLISHED,
+      version: 1,
+      createdAt: new Date('2026-11-08T00:00:00Z'),
+      updatedAt: new Date('2026-11-09T00:00:00Z'),
+      topic: {
+        id: 'top_ssc_physics_motion_eq',
+        titleBangla: 'গতির সমীকরণ ও সমাধান',
+        chapter: {
+          id: 'chap_2',
+          titleBangla: 'দ্বিতীয় অধ্যায়: গতি',
+          subject: {
+            id: 'sub_phy',
+            code: 'ssc_physics',
+            nameBangla: 'পদার্থবিজ্ঞান',
+          },
+        },
+      },
+    };
+
+    it('excludes ARCHIVED questions by default and computes statusCounts + pagination', async () => {
+      mockPrisma.question.findMany.mockResolvedValue([sampleQuestion]);
+      mockPrisma.question.count.mockResolvedValue(25);
+      mockPrisma.question.groupBy.mockResolvedValue([
+        { status: ContentStatus.PUBLISHED, _count: { _all: 20 } },
+        { status: ContentStatus.DRAFT, _count: { _all: 3 } },
+        { status: ContentStatus.REVIEW, _count: { _all: 2 } },
+        { status: ContentStatus.ARCHIVED, _count: { _all: 4 } },
+      ]);
+
+      const res = await service.listQuestions({
+        subjectId: 'sub_phy',
+        chapterId: 'chap_2',
+        topicId: 'top_ssc_physics_motion_eq',
+        type: 'MCQ',
+        search: 'Dhaka',
+        page: '2',
+        limit: '10',
+      });
+
+      const expectedBaseWhere = {
+        topicId: 'top_ssc_physics_motion_eq',
+        topic: {
+          chapterId: 'chap_2',
+          chapter: { subjectId: 'sub_phy' },
+        },
+        type: 'MCQ',
+        OR: [
+          { stem: { contains: 'Dhaka', mode: 'insensitive' } },
+          { boardSource: { contains: 'Dhaka', mode: 'insensitive' } },
+        ],
+      };
+
+      expect(mockPrisma.question.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            ...expectedBaseWhere,
+            status: { not: 'ARCHIVED' },
+          },
+          orderBy: [{ updatedAt: 'desc' }, { createdAt: 'desc' }],
+          skip: 10,
+          take: 10,
+        }),
+      );
+      expect(mockPrisma.question.count).toHaveBeenCalledWith({
+        where: {
+          ...expectedBaseWhere,
+          status: { not: 'ARCHIVED' },
+        },
+      });
+      expect(mockPrisma.question.groupBy).toHaveBeenCalledWith({
+        by: ['status'],
+        where: expectedBaseWhere,
+        _count: { _all: true },
+      });
+      expect(res).toEqual({
+        items: [sampleQuestion],
+        total: 25,
+        page: 2,
+        limit: 10,
+        totalPages: 3,
+        statusCounts: {
+          ALL: 25,
+          DRAFT: 3,
+          REVIEW: 2,
+          CORRECTION: 0,
+          PUBLISHED: 20,
+          ARCHIVED: 4,
+        },
+      });
+    });
+
+    it('includes archived rows when status=ARCHIVED or includeArchived=true and clamps page/limit', async () => {
+      mockPrisma.question.findMany.mockResolvedValue([]);
+      mockPrisma.question.count.mockResolvedValue(0);
+      mockPrisma.question.groupBy.mockResolvedValue([]);
+
+      const archivedRes = await service.listQuestions({
+        status: 'ARCHIVED' as ContentStatus,
+        page: '0',
+        limit: '250',
+      });
+
+      expect(mockPrisma.question.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { status: 'ARCHIVED' },
+          skip: 0,
+          take: 100,
+        }),
+      );
+      expect(archivedRes.page).toBe(1);
+      expect(archivedRes.limit).toBe(100);
+      expect(archivedRes.totalPages).toBe(1);
+
+      await service.listQuestions({ includeArchived: 'true' });
+      expect(mockPrisma.question.findMany).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          where: {},
+        }),
+      );
+    });
+  });
+
+  describe('getQuestionById', () => {
+    it('returns question with full subject -> chapter -> topic hierarchy', async () => {
+      const fullQuestion = {
+        id: 'q_1',
+        topicId: 'top_1',
+        stem: 'প্রশ্ন',
+        topic: {
+          id: 'top_1',
+          titleBangla: 'টপিক',
+          chapter: {
+            id: 'chap_1',
+            titleBangla: 'অধ্যায়',
+            subject: { id: 'sub_1', code: 'ssc_physics', nameBangla: 'পদার্থবিজ্ঞান' },
+          },
+        },
+      };
+      mockPrisma.question.findUnique.mockResolvedValue(fullQuestion);
+
+      const res = await service.getQuestionById('q_1');
+
+      expect(mockPrisma.question.findUnique).toHaveBeenCalledWith({
+        where: { id: 'q_1' },
+        include: {
+          topic: {
+            select: {
+              id: true,
+              titleBangla: true,
+              chapter: {
+                select: {
+                  id: true,
+                  titleBangla: true,
+                  subject: {
+                    select: { id: true, code: true, nameBangla: true },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+      expect(res).toEqual(fullQuestion);
+    });
+
+    it('throws NotFoundException when question does not exist', async () => {
+      mockPrisma.question.findUnique.mockResolvedValue(null);
+
+      await expect(service.getQuestionById('missing_q')).rejects.toThrow(NotFoundException);
     });
   });
 });

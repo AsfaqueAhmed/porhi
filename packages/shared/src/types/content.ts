@@ -3,6 +3,7 @@ export enum ContentStatus {
   REVIEW = 'REVIEW',
   PUBLISHED = 'PUBLISHED',
   CORRECTION = 'CORRECTION',
+  ARCHIVED = 'ARCHIVED',
 }
 
 export type ContentType = 'LESSON' | 'QUESTION';
