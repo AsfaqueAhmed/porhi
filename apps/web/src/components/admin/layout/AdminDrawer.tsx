@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useId } from 'react';
+import React, { useEffect, useId, useRef } from 'react';
 import { X } from 'lucide-react';
 
 export interface AdminDrawerProps {
@@ -25,11 +25,13 @@ export function AdminDrawer({
   widthClass = 'max-w-md',
 }: AdminDrawerProps) {
   const headingId = useId();
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen && closeOnEscape) {
-        onClose();
+        onCloseRef.current();
       }
     };
 
@@ -44,7 +46,7 @@ export function AdminDrawer({
       document.body.style.overflow = '';
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, closeOnEscape, onClose]);
+  }, [isOpen, closeOnEscape]);
 
   if (!isOpen) {
     return null;

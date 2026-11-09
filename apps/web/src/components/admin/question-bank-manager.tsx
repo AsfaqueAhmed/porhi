@@ -286,6 +286,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
       if (!isMountedRef.current) return;
       setErrorMessage(formatQuestionBankError(err));
       setConfirmArchiveItem(null);
+      setDetailItem((curr) => (curr?.id === archivedId ? null : curr));
     } finally {
       if (isMountedRef.current) {
         setIsArchiving(false);
@@ -553,7 +554,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
                           type="button"
                           onClick={() => setDetailItem(q)}
                           aria-label={truncateStem(q.stem, 80)}
-                          className="text-left font-semibold text-slate-900 hover:text-indigo-700 leading-relaxed transition-colors cursor-pointer"
+                          className="block text-left font-semibold text-slate-900 hover:text-indigo-700 leading-relaxed transition-colors cursor-pointer"
                         >
                           <LatexRenderer content={truncateStem(q.stem)} />
                         </button>

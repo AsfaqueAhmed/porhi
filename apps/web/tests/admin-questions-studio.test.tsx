@@ -345,7 +345,7 @@ describe('Admin Question Authoring & Edit Pages', () => {
       'type=lesson&subjectId=sub_ssc_chemistry&topicId=top_chem_1',
     );
 
-    render(<AdminNewQuestionPage />);
+    const view1 = render(<AdminNewQuestionPage />);
 
     await waitFor(() => {
       expect(mockReplace).toHaveBeenCalledWith(
@@ -353,6 +353,26 @@ describe('Admin Question Authoring & Edit Pages', () => {
       );
     });
     expect(screen.queryByPlaceholderText(/প্রশ্নের মূল বিবরণ লিখুন/i)).toBeNull();
+    view1.unmount();
+
+    // Bare ?type=lesson without subjectId/topicId omits trailing '?'
+    mockReplace.mockReset();
+    mockSearchParams = new URLSearchParams('type=lesson');
+    const view2 = render(<AdminNewQuestionPage />);
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith('/admin/curriculum/lessons/new');
+    });
+    view2.unmount();
+
+    // Case-insensitive ?type=LESSON
+    mockReplace.mockReset();
+    mockSearchParams = new URLSearchParams('type=LESSON&subjectId=sub_ssc_physics');
+    render(<AdminNewQuestionPage />);
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith(
+        '/admin/curriculum/lessons/new?subjectId=sub_ssc_physics',
+      );
+    });
   });
 
   it('AdminNewQuestionPage removes Lesson tab and targets filtered list on ?type=mcq and ?type=cq back links', async () => {

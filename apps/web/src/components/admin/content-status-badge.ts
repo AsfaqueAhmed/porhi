@@ -32,7 +32,7 @@ export function getContentStatusBadge(status: string): {
 }
 
 export function formatAdminDateTime(value?: Date | string | null): string {
-  if (!value) {
+  if (!value || (typeof value === 'string' && !value.trim())) {
     return '—';
   }
   const date = value instanceof Date ? value : new Date(value);

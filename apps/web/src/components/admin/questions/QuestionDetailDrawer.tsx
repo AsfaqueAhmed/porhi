@@ -54,6 +54,22 @@ export function QuestionDetailDrawer({
   const rawNotes = (question.explanation as ExplanationObject & { distractorNotes?: unknown })
     ?.distractorNotes;
   const distractorNotes = typeof rawNotes === 'string' && rawNotes.trim() ? rawNotes.trim() : null;
+  const stepDerivation =
+    typeof question.explanation?.stepDerivation === 'string'
+      ? question.explanation.stepDerivation.trim()
+      : '';
+  const citationBookTitle =
+    typeof question.explanation?.textbookCitation?.bookTitle === 'string'
+      ? question.explanation.textbookCitation.bookTitle.trim()
+      : '';
+  const citationChapterName =
+    typeof question.explanation?.textbookCitation?.chapterName === 'string'
+      ? question.explanation.textbookCitation.chapterName.trim()
+      : '';
+  const proTipShortcut =
+    typeof question.explanation?.proTipShortcut === 'string'
+      ? question.explanation.proTipShortcut.trim()
+      : '';
 
   const cqParts = CQ_DETAIL_PARTS.filter(({ key }) =>
     Boolean(question.cqRubric?.[key]?.criteria?.trim()),
@@ -174,7 +190,8 @@ export function QuestionDetailDrawer({
           <ol className="space-y-2">
             {options.map((opt, idx) => {
               const label = ['ক', 'খ', 'গ', 'ঘ'][idx] || String(idx + 1);
-              const note = distractorAnalysis[opt.id]?.trim();
+              const rawNote = distractorAnalysis[opt.id];
+              const note = typeof rawNote === 'string' ? rawNote.trim() : '';
               return (
                 <li
                   key={opt.id}
@@ -265,11 +282,11 @@ export function QuestionDetailDrawer({
           </div>
         </div>
 
-        {question.explanation?.stepDerivation && (
+        {stepDerivation && (
           <div className="bg-purple-50/60 border border-purple-200 rounded-xl p-3 space-y-1">
             <div className="text-[11px] font-bold text-purple-900">ধাপওয়ারী সমাধান</div>
             <div className="text-slate-800 leading-relaxed">
-              <LatexRenderer content={question.explanation.stepDerivation} />
+              <LatexRenderer content={stepDerivation} />
             </div>
           </div>
         )}
@@ -293,18 +310,16 @@ export function QuestionDetailDrawer({
           </div>
         )}
 
-        {question.explanation?.textbookCitation?.bookTitle && (
+        {citationBookTitle && (
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-start gap-2 text-slate-700">
             <BookOpen className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
             <div>
               <span className="font-bold text-slate-800">NCTB পাঠ্যবই রেফারেন্স: </span>
               <span>
-                {question.explanation.textbookCitation.bookTitle}
-                {question.explanation.textbookCitation.chapterName
-                  ? ` • ${question.explanation.textbookCitation.chapterName}`
-                  : ''}
-                {question.explanation.textbookCitation.pageNumber !== undefined &&
-                question.explanation.textbookCitation.pageNumber !== null
+                {citationBookTitle}
+                {citationChapterName ? ` • ${citationChapterName}` : ''}
+                {question.explanation?.textbookCitation?.pageNumber !== undefined &&
+                question.explanation?.textbookCitation?.pageNumber !== null
                   ? ` • পৃষ্ঠা: ${question.explanation.textbookCitation.pageNumber}`
                   : ''}
               </span>
@@ -312,12 +327,12 @@ export function QuestionDetailDrawer({
           </div>
         )}
 
-        {question.explanation?.proTipShortcut && (
+        {proTipShortcut && (
           <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-start gap-2 text-emerald-900">
             <Sparkles className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
             <div>
               <span className="font-bold">প্রো-টিপ / শর্টকাট: </span>
-              <LatexRenderer content={question.explanation.proTipShortcut} />
+              <LatexRenderer content={proTipShortcut} />
             </div>
           </div>
         )}
