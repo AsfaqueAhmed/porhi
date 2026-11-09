@@ -306,7 +306,7 @@ describe('Admin Lesson Authoring & Edit Pages', () => {
     expect(screen.getByText(/বর্তমান ভার্সন v3/i)).toBeDefined();
   });
 
-  it('LessonAuthoringStudio supports DRAFT/CORRECTION submitForReview and blocks ARCHIVED lesson edits', async () => {
+  it('LessonAuthoringStudio supports DRAFT/CORRECTION submitForReview', async () => {
     mockCurriculumApi();
     const onLessonUpdated = vi.fn();
     mockedApi.patch.mockResolvedValueOnce({
@@ -315,7 +315,7 @@ describe('Admin Lesson Authoring & Edit Pages', () => {
       version: 2,
     });
 
-    const draftView = render(
+    render(
       <LessonAuthoringStudio
         mode="edit"
         initialLesson={SEEDED_DRAFT_LESSON}
@@ -351,9 +351,10 @@ describe('Admin Lesson Authoring & Edit Pages', () => {
         expect.objectContaining({ id: 'les_draft_2', status: 'REVIEW', version: 2 }),
       );
     });
-    draftView.unmount();
+  });
 
-    // ARCHIVED lesson guard
+  it('LessonAuthoringStudio disables save and blocks PATCH when initialLesson is ARCHIVED', async () => {
+    mockCurriculumApi();
     const archivedLesson: AdminLessonItem = {
       ...SEEDED_PUBLISHED_LESSON,
       id: 'les_archived_1',
@@ -380,7 +381,7 @@ describe('Admin Lesson Authoring & Edit Pages', () => {
     expect(saveBtn.disabled).toBe(true);
 
     fireEvent.submit(saveBtn.closest('form') as HTMLFormElement);
-    expect(mockedApi.patch).toHaveBeenCalledTimes(1);
+    expect(mockedApi.patch).not.toHaveBeenCalled();
   });
 
   it('AdminEditLessonPage renders 404 state and 403/401 role="alert" error states with /admin/curriculum/lessons back link', async () => {
@@ -556,6 +557,230 @@ describe('Admin Lesson Authoring & Edit Pages', () => {
           workedExample: undefined,
           memoryAid: undefined,
         },
+        { scope: 'admin' },
+      );
+    });
+  });
+
+  it('LessonAuthoringStudio re-hydrates when initialLesson.id changes in edit mode', async () => {
+    mockCurriculumApi();
+    const secondLesson: AdminLessonItem = {
+      ...SEEDED_DRAFT_LESSON,
+      id: 'les_chem_edit',
+      topicId: 'top_chem_1',
+      titleBangla: 'রাসায়নিক বিক্রিয়া',
+      learningGoal: 'রাসায়নিক পরিবর্তন বোঝা',
+      explanation: '$2H_2 + O_2 \\rightarrow 2H_2O$',
+      importantTerms: [{ termBangla: 'বিক্রিয়া', termEnglish: 'Reaction' }],
+      status: 'DRAFT',
+      version: 1,
+      topic: {
+        id: 'top_chem_1',
+        titleBangla: 'রসায়নের পরিধি',
+        chapter: {
+          id: 'chap_chem_1',
+          titleBangla: 'প্রথম অধ্যায়: রসায়নের ধারণা',
+          subject: {
+            id: 'sub_ssc_chemistry',
+            code: 'ssc_chemistry',
+            nameBangla: 'রসায়ন',
+          },
+        },
+      },
+    };
+    mockedApi.patch.mockResolvedValueOnce({ ...secondLesson, version: 2 });
+
+    const { rerender } = render(
+      <LessonAuthoringStudio mode="edit" initialLesson={SEEDED_PUBLISHED_LESSON} />,
+    );
+
+    const titleInput = (await screen.findByLabelText(/পাঠের শিরোনাম/i)) as HTMLInputElement;
+    expect(titleInput.value).toBe('নিউটনের গতির সূত্রাবলী');
+    const keepPublishedCheckbox = screen.getByLabelText(
+      /সরাসরি প্রকাশিত রাখুন \(Keep Published\)/i,
+    ) as HTMLInputElement;
+    fireEvent.click(keepPublishedCheckbox);
+    expect(keepPublishedCheckbox.checked).toBe(true);
+
+    // Switch initialLesson prop to a different lesson ID -> form, hierarchy, and editorial flags re-hydrate
+    rerender(<LessonAuthoringStudio mode="edit" initialLesson={secondLesson} />);
+
+    await waitFor(() => {
+      expect(mockedApi.get).toHaveBeenCalledWith(
+        '/curriculum/subjects/sub_ssc_chemistry/chapters',
+        { scope: 'admin' },
+      );
+    });
+
+    expect((screen.getByLabelText(/পাঠের শিরোনাম/i) as HTMLInputElement).value).toBe(
+      'রাসায়নিক বিক্রিয়া',
+    );
+    expect((screen.getByLabelText(/১\. বিষয়/i) as HTMLSelectElement).value).toBe(
+      'sub_ssc_chemistry',
+    );
+    expect((screen.getByLabelText(/২\. অধ্যায়/i) as HTMLSelectElement).value).toBe(
+      'chap_chem_1',
+    );
+    expect((screen.getByLabelText(/৩\. নির্দিষ্ট টপিক/i) as HTMLSelectElement).value).toBe(
+      'top_chem_1',
+    );
+    expect(screen.queryByLabelText(/সরাসরি প্রকাশিত রাখুন/i)).toBeNull();
+    expect(
+      (screen.getByLabelText(/রিভিউয়ের জন্য পাঠান/i) as HTMLInputElement).checked,
+    ).toBe(false);
+
+    fireEvent.click(screen.getByText(/পরিবর্তন সংরক্ষণ করুন/i).closest('button')!);
+    await waitFor(() => {
+      expect(mockedApi.patch).toHaveBeenCalledWith(
+        '/admin/content/lessons/les_chem_edit',
+        expect.objectContaining({
+          topicId: 'top_chem_1',
+          titleBangla: 'রাসায়নিক বিক্রিয়া',
+          submitForReview: false,
+        }),
+        { scope: 'admin' },
+      );
+    });
+  });
+
+  it('LessonAuthoringStudio syncs same-subject initialTopicId in create mode and does not leak Physics defaults for unmapped initialSubjectId', async () => {
+    mockedApi.get.mockImplementation(async (endpoint: string) => {
+      if (endpoint === '/curriculum/subjects') {
+        return [
+          { id: 'sub_ssc_physics', code: 'ssc_physics', nameBangla: 'পদার্থবিজ্ঞান' },
+          { id: 'sub_custom', code: 'ssc_bio', nameBangla: 'জীববিজ্ঞান' },
+        ];
+      }
+      if (endpoint === '/curriculum/subjects/sub_ssc_physics/chapters') {
+        return [
+          {
+            id: 'chap_motion',
+            titleBangla: 'দ্বিতীয় অধ্যায়: গতি',
+            topics: [{ id: 'top_motion_1', titleBangla: 'গতির সমীকরণ' }],
+          },
+          {
+            id: 'chap_force',
+            titleBangla: 'তৃতীয় অধ্যায়: বল',
+            topics: [{ id: 'top_force_1', titleBangla: 'নিউটনের সূত্র' }],
+          },
+        ];
+      }
+      return [];
+    });
+
+    const { rerender, unmount } = render(
+      <LessonAuthoringStudio
+        mode="create"
+        initialSubjectId="sub_ssc_physics"
+        initialTopicId="top_motion_1"
+      />,
+    );
+
+    const chapterSelect = screen.getByLabelText(/২\. অধ্যায়/i) as HTMLSelectElement;
+    const topicSelect = screen.getByLabelText(/৩\. নির্দিষ্ট টপিক/i) as HTMLSelectElement;
+
+    await waitFor(() => {
+      expect(chapterSelect.value).toBe('chap_motion');
+      expect(topicSelect.value).toBe('top_motion_1');
+    });
+
+    rerender(
+      <LessonAuthoringStudio
+        mode="create"
+        initialSubjectId="sub_ssc_physics"
+        initialTopicId="top_force_1"
+      />,
+    );
+
+    await waitFor(() => {
+      expect(chapterSelect.value).toBe('chap_force');
+      expect(topicSelect.value).toBe('top_force_1');
+    });
+    unmount();
+
+    // Unmapped initialSubjectId with empty chapters must NOT retain hardcoded chap_ssc_physics_ch2/top_ssc_physics_motion_eq
+    render(<LessonAuthoringStudio mode="create" initialSubjectId="sub_custom" />);
+    await waitFor(() => {
+      expect(mockedApi.get).toHaveBeenCalledWith(
+        '/curriculum/subjects/sub_custom/chapters',
+        { scope: 'admin' },
+      );
+    });
+    expect((screen.getByLabelText(/২\. অধ্যায়/i) as HTMLSelectElement).value).toBe('');
+    expect((screen.getByLabelText(/৩\. নির্দিষ্ট টপিক/i) as HTMLSelectElement).value).toBe('');
+  });
+
+  it('LessonAuthoringStudio supports dynamic term add/delete, MathToolbar insertion, and workedExample + memoryAid submission', async () => {
+    mockCurriculumApi();
+    mockedApi.post.mockResolvedValueOnce({ ...SEEDED_PUBLISHED_LESSON, id: 'les_full_ui' });
+
+    render(<LessonAuthoringStudio mode="create" />);
+    await screen.findByRole('option', { name: /গতির সমীকরণ/i });
+
+    fireEvent.change(screen.getByLabelText(/পাঠের শিরোনাম/i), {
+      target: { value: 'বলের সমীকরণ' },
+    });
+    fireEvent.change(screen.getByLabelText(/শিখনফল/i), {
+      target: { value: 'ভগ্নাংশসহ বল নির্ণয়' },
+    });
+
+    const explanationInput = screen.getByLabelText(/মূল ব্যাখ্যা/i) as HTMLTextAreaElement;
+    fireEvent.change(explanationInput, { target: { value: 'অনুপাত:' } });
+    fireEvent.click(screen.getByText('ভগ্নাংশ').closest('button')!);
+    expect(explanationInput.value).toContain('$\\frac{a}{b}$');
+
+    // Add 2nd and 3rd terms, then delete term 2
+    fireEvent.click(screen.getByText(/নতুন শব্দ যোগ করো/i));
+    fireEvent.click(screen.getByText(/নতুন শব্দ যোগ করো/i));
+
+    fireEvent.change(screen.getByLabelText(/পরিভাষা 1 বাংলা শব্দ/i), {
+      target: { value: 'ত্বরণ' },
+    });
+    fireEvent.change(screen.getByLabelText(/পরিভাষা 1 English Term/i), {
+      target: { value: 'Acceleration' },
+    });
+    fireEvent.change(screen.getByLabelText(/পরিভাষা 2 বাংলা শব্দ/i), {
+      target: { value: 'মুছে ফেলা শব্দ' },
+    });
+    fireEvent.change(screen.getByLabelText(/পরিভাষা 3 বাংলা শব্দ/i), {
+      target: { value: 'বল' },
+    });
+
+    fireEvent.click(screen.getByLabelText('পরিভাষা 2 মুছুন'));
+    expect(screen.queryByDisplayValue('মুছে ফেলা শব্দ')).toBeNull();
+    expect((screen.getByLabelText(/পরিভাষা 2 বাংলা শব্দ/i) as HTMLInputElement).value).toBe('বল');
+
+    fireEvent.change(screen.getByLabelText(/গাণিতিক সমস্যা \(Problem\)/i), {
+      target: { value: '  $m=2, a=3$ হলে $F=?$  ' },
+    });
+    fireEvent.change(screen.getByLabelText(/ধাপওয়ারী সমাধান \(Solution\)/i), {
+      target: { value: '  $F = 2 \\times 3 = 6$  ' },
+    });
+    fireEvent.change(screen.getByLabelText(/মনে রাখার টেকনিক \/ ছন্দ/i), {
+      target: { value: '  F মানেই ma  ' },
+    });
+
+    fireEvent.click(
+      screen.getByText(/সম্পূর্ণ লেসন খসড়া জমা দাও/i).closest('button')!,
+    );
+
+    await waitFor(() => {
+      expect(mockedApi.post).toHaveBeenCalledWith(
+        '/admin/content/lessons',
+        expect.objectContaining({
+          topicId: 'top_motion_1',
+          titleBangla: 'বলের সমীকরণ',
+          explanation: expect.stringContaining('$\\frac{a}{b}$'),
+          importantTerms: [
+            { termBangla: 'ত্বরণ', termEnglish: 'Acceleration', definition: '' },
+            { termBangla: 'বল', termEnglish: '', definition: '' },
+          ],
+          workedExample: {
+            problem: '$m=2, a=3$ হলে $F=?$',
+            stepByStepSolution: '$F = 2 \\times 3 = 6$',
+          },
+          memoryAid: 'F মানেই ma',
+        }),
         { scope: 'admin' },
       );
     });

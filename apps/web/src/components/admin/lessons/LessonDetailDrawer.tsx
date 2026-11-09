@@ -80,7 +80,7 @@ export function LessonDetailDrawer({
         <div className="w-full flex flex-wrap items-center justify-end gap-2.5">
           {showEdit && (
             <Link
-              href={`/admin/curriculum/lessons/${lesson.id}/edit`}
+              href={`/admin/curriculum/lessons/${encodeURIComponent(lesson.id)}/edit`}
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors"
             >
               <Pencil className="w-3.5 h-3.5" />

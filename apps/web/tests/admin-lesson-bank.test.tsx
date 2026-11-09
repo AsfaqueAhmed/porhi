@@ -4,6 +4,7 @@ import React from 'react';
 import type { AdminLessonItem, ListLessonsResponse } from '@pori/shared';
 import AdminLessonsPage from '../src/app/admin/curriculum/lessons/page';
 import { LessonBankManager } from '../src/components/admin/lessons/LessonBankManager';
+import { LessonDetailDrawer } from '../src/components/admin/lessons/LessonDetailDrawer';
 import { apiClient, ApiError } from '../src/lib/api-client';
 import { useAdminAuthStore } from '../src/store/admin-auth-store';
 
@@ -547,5 +548,261 @@ describe('LessonBankManager & AdminLessonsPage', () => {
     const alert502 = await screen.findByRole('alert');
     expect(alert502.textContent).toContain('সার্ভার ত্রুটি ঘটেছে');
     expect(alert502.textContent).not.toContain('<html>');
+  });
+
+  it('enforces EDITOR and REVIEWER RBAC directly inside LessonDetailDrawer and encodes lesson ID in Edit href', () => {
+    const encodedIdLesson: AdminLessonItem = {
+      ...MOCK_LESSONS[0],
+      id: 'les/special?id=1',
+    };
+    const onClose = vi.fn();
+    const onRequestArchive = vi.fn();
+
+    // EDITOR on PUBLISHED: Edit visible (URL-encoded), Archive hidden, Close visible
+    const { rerender } = render(
+      <LessonDetailDrawer
+        lesson={encodedIdLesson}
+        isOpen
+        onClose={onClose}
+        canEdit
+        isAdmin={false}
+        onRequestArchive={onRequestArchive}
+      />,
+    );
+    const editLink = screen.getByText(/সম্পাদনা করুন/i).closest('a');
+    expect(editLink?.getAttribute('href')).toBe(
+      `/admin/curriculum/lessons/${encodeURIComponent('les/special?id=1')}/edit`,
+    );
+    expect(screen.queryByRole('button', { name: /আর্কাইভ করুন/i })).toBeNull();
+    expect(screen.getByText('বন্ধ করুন')).toBeDefined();
+
+    // EDITOR on DRAFT: Edit AND Archive visible, clicking Archive invokes callback
+    rerender(
+      <LessonDetailDrawer
+        lesson={MOCK_LESSONS[1]}
+        isOpen
+        onClose={onClose}
+        canEdit
+        isAdmin={false}
+        onRequestArchive={onRequestArchive}
+      />,
+    );
+    expect(screen.getByText(/সম্পাদনা করুন/i)).toBeDefined();
+    const archiveBtn = screen.getByRole('button', { name: /আর্কাইভ করুন/i });
+    fireEvent.click(archiveBtn);
+    expect(onRequestArchive).toHaveBeenCalledWith(MOCK_LESSONS[1]);
+
+    // REVIEWER on DRAFT & PUBLISHED: BOTH Edit and Archive hidden, Close visible
+    rerender(
+      <LessonDetailDrawer
+        lesson={MOCK_LESSONS[0]}
+        isOpen
+        onClose={onClose}
+        canEdit={false}
+        isAdmin={false}
+        onRequestArchive={onRequestArchive}
+      />,
+    );
+    expect(screen.queryByText(/সম্পাদনা করুন/i)).toBeNull();
+    expect(screen.queryByRole('button', { name: /আর্কাইভ করুন/i })).toBeNull();
+    expect(screen.getByText('বন্ধ করুন')).toBeDefined();
+
+    rerender(
+      <LessonDetailDrawer
+        lesson={MOCK_LESSONS[1]}
+        isOpen
+        onClose={onClose}
+        canEdit={false}
+        isAdmin={false}
+        onRequestArchive={onRequestArchive}
+      />,
+    );
+    expect(screen.queryByText(/সম্পাদনা করুন/i)).toBeNull();
+    expect(screen.queryByRole('button', { name: /আর্কাইভ করুন/i })).toBeNull();
+    fireEvent.click(screen.getByText('বন্ধ করুন'));
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it('syncs same-subject initialTopicId updates cleanly and matches table term count & hierarchy display without dangling separators', async () => {
+    const lessonMissingChapter: AdminLessonItem = {
+      ...MOCK_LESSONS[0],
+      importantTerms: [
+        { termBangla: 'জড়তা', termEnglish: 'Inertia', definition: 'অবস্থা পরিবর্তনে বাধা' },
+        { termBangla: '   ', termEnglish: 'Ignored' },
+      ],
+      topic: {
+        id: 'top_force_1',
+        titleBangla: 'নিউটনের সূত্র',
+        chapter: {
+          id: 'chap_force',
+          titleBangla: '',
+          subject: { id: 'sub_phy', code: 'ssc_physics', nameBangla: 'পদার্থবিজ্ঞান' },
+        },
+      },
+    };
+
+    mockedApi.get.mockImplementation(async (endpoint: string) => {
+      if (endpoint === '/curriculum/subjects') {
+        return [{ id: 'sub_phy', code: 'ssc_physics', nameBangla: 'পদার্থবিজ্ঞান' }];
+      }
+      if (endpoint === '/curriculum/subjects/sub_phy/chapters') {
+        return [
+          {
+            id: 'chap_motion',
+            titleBangla: 'দ্বিতীয় অধ্যায়: গতি',
+            topics: [{ id: 'top_motion_1', titleBangla: 'গতির সমীকরণ' }],
+          },
+          {
+            id: 'chap_force',
+            titleBangla: 'তৃতীয় অধ্যায়: বল',
+            topics: [{ id: 'top_force_1', titleBangla: 'নিউটনের সূত্র' }],
+          },
+        ];
+      }
+      if (endpoint.startsWith('/admin/content/lessons')) {
+        return {
+          items: [lessonMissingChapter],
+          total: 1,
+          page: 1,
+          limit: 20,
+          totalPages: 1,
+          statusCounts: { ALL: 1, DRAFT: 0, REVIEW: 0, CORRECTION: 0, PUBLISHED: 1, ARCHIVED: 0 },
+        } satisfies ListLessonsResponse;
+      }
+      return [];
+    });
+
+    const { rerender } = render(
+      <LessonBankManager initialSubjectId="sub_phy" initialTopicId="top_motion_1" />,
+    );
+
+    await waitForInitialLessonsLoad();
+    await screen.findByRole('option', { name: 'তৃতীয় অধ্যায়: বল' });
+
+    const chapterSelect = screen.getByLabelText(/অধ্যায় ফিল্টার/i) as HTMLSelectElement;
+    const topicSelect = screen.getByLabelText(/টপিক ফিল্টার/i) as HTMLSelectElement;
+
+    await waitFor(() => {
+      expect(chapterSelect.value).toBe('chap_motion');
+      expect(topicSelect.disabled).toBe(false);
+      expect(topicSelect.value).toBe('top_motion_1');
+    });
+
+    // Table row counts only valid terms and omits dangling '>' when chapter title is empty
+    expect(screen.getByText(/1টি পরিভাষা/i)).toBeDefined();
+    expect(screen.queryByText(/>\s*নিউটনের সূত্র/i)).toBeNull();
+
+    // Update initialTopicId within the SAME subject -> chapter matches top_force_1 and topic dropdown stays enabled
+    rerender(<LessonBankManager initialSubjectId="sub_phy" initialTopicId="top_force_1" />);
+
+    await waitFor(() => {
+      expect(chapterSelect.value).toBe('chap_force');
+      expect(topicSelect.disabled).toBe(false);
+      expect(topicSelect.value).toBe('top_force_1');
+      expect(
+        screen.getByText(/\+ নতুন লেসন যোগ/i).closest('a')?.getAttribute('href'),
+      ).toBe('/admin/curriculum/lessons/new?subjectId=sub_phy&topicId=top_force_1');
+    });
+  });
+
+  it('clears stale chapters during in-flight subject switches and keeps modal/drawer open on Escape while archiving is in flight', async () => {
+    let resolvePhyChapters!: (val: unknown) => void;
+    let resolveChemChapters!: (val: unknown) => void;
+    let resolveArchive!: (val: unknown) => void;
+
+    mockedApi.get.mockImplementation((endpoint: string) => {
+      if (endpoint === '/curriculum/subjects') {
+        return Promise.resolve([
+          { id: 'sub_phy', code: 'ssc_physics', nameBangla: 'পদার্থবিজ্ঞান' },
+          { id: 'sub_chem', code: 'ssc_chemistry', nameBangla: 'রসায়ন' },
+        ]);
+      }
+      if (endpoint === '/curriculum/subjects/sub_phy/chapters') {
+        return new Promise((resolve) => {
+          resolvePhyChapters = resolve;
+        });
+      }
+      if (endpoint === '/curriculum/subjects/sub_chem/chapters') {
+        return new Promise((resolve) => {
+          resolveChemChapters = resolve;
+        });
+      }
+      if (endpoint.startsWith('/admin/content/lessons')) {
+        return Promise.resolve({
+          items: MOCK_LESSONS,
+          total: MOCK_LESSONS.length,
+          page: 1,
+          limit: 20,
+          totalPages: 1,
+          statusCounts: { ALL: 2, DRAFT: 1, REVIEW: 0, CORRECTION: 0, PUBLISHED: 1, ARCHIVED: 0 },
+        } satisfies ListLessonsResponse);
+      }
+      return Promise.resolve([]);
+    });
+
+    mockedApi.post.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveArchive = resolve;
+        }),
+    );
+
+    render(<LessonBankManager />);
+    await waitForInitialLessonsLoad();
+    await screen.findByRole('option', { name: 'পদার্থবিজ্ঞান' });
+
+    const subjectSelect = screen.getByLabelText(/বিষয় ফিল্টার/i) as HTMLSelectElement;
+    const chapterSelect = screen.getByLabelText(/অধ্যায় ফিল্টার/i) as HTMLSelectElement;
+
+    // Select Physics and wait for Physics chapter to populate
+    fireEvent.change(subjectSelect, { target: { value: 'sub_phy' } });
+    await act(async () => {
+      resolvePhyChapters([
+        {
+          id: 'chap_motion',
+          titleBangla: 'দ্বিতীয় অধ্যায়: গতি',
+          topics: [{ id: 'top_motion_1', titleBangla: 'গতির সমীকরণ' }],
+        },
+      ]);
+    });
+    expect(await screen.findByRole('option', { name: 'দ্বিতীয় অধ্যায়: গতি' })).toBeDefined();
+    fireEvent.change(chapterSelect, { target: { value: 'chap_motion' } });
+    expect(chapterSelect.value).toBe('chap_motion');
+
+    // Switch to Chemistry while Chemistry /chapters is still in-flight -> stale Physics chapters must clear immediately
+    fireEvent.change(subjectSelect, { target: { value: 'sub_chem' } });
+    expect(chapterSelect.value).toBe('');
+    expect(screen.queryByRole('option', { name: 'দ্বিতীয় অধ্যায়: গতি' })).toBeNull();
+
+    // Now resolve Chemistry chapters cleanly
+    await act(async () => {
+      resolveChemChapters([
+        {
+          id: 'chap_chem_1',
+          titleBangla: 'প্রথম অধ্যায়: রসায়ন',
+          topics: [{ id: 'top_chem_1', titleBangla: 'রসায়নের ধারণা' }],
+        },
+      ]);
+    });
+    expect(await screen.findByRole('option', { name: 'প্রথম অধ্যায়: রসায়ন' })).toBeDefined();
+
+    // Open drawer and start archiving -> Escape MUST NOT close confirmation modal or drawer while request is pending
+    fireEvent.click(screen.getAllByRole('button', { name: /বিস্তারিত দেখুন/i })[1]);
+    fireEvent.click(screen.getByRole('button', { name: /আর্কাইভ করুন/i }));
+    fireEvent.click(screen.getByText(/আর্কাইভ নিশ্চিত করুন/i));
+
+    expect(screen.getByText(/আর্কাইভ হচ্ছে.../i)).toBeDefined();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.getByRole('dialog', { name: /লেসন আর্কাইভ নিশ্চিতকরণ/i })).toBeDefined();
+    expect(screen.getByRole('dialog', { name: /লেসনের বিস্তারিত/i })).toBeDefined();
+
+    await act(async () => {
+      resolveArchive({ ...MOCK_LESSONS[1], status: 'ARCHIVED' });
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(screen.getByText(/লেসনটি সফলভাবে আর্কাইভ করা হয়েছে/i)).toBeDefined();
+    });
   });
 });

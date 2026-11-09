@@ -101,8 +101,6 @@ export function LessonBankManager({
 
   const isMountedRef = useRef(true);
   const requestSeqRef = useRef(0);
-  const topicIdRef = useRef(topicId);
-  topicIdRef.current = topicId;
   const prevInitialSubjectRef = useRef(initialSubjectId);
   const prevInitialTopicRef = useRef(initialTopicId);
 
@@ -121,11 +119,18 @@ export function LessonBankManager({
     ) {
       return;
     }
+    const nextSubjectId = initialSubjectId || '';
+    const nextTopicId = initialTopicId || '';
+    const subjectChanged =
+      (prevInitialSubjectRef.current || '') !== nextSubjectId;
     prevInitialSubjectRef.current = initialSubjectId;
     prevInitialTopicRef.current = initialTopicId;
-    setSubjectId(initialSubjectId || '');
+    if (subjectChanged) {
+      setChapters((prev) => (prev.length === 0 ? prev : []));
+    }
+    setSubjectId(nextSubjectId);
     setChapterId('');
-    setTopicId(initialTopicId || '');
+    setTopicId(nextTopicId);
     setPage(1);
   }, [initialSubjectId, initialTopicId]);
 
@@ -163,7 +168,7 @@ export function LessonBankManager({
     };
   }, []);
 
-  // Load chapters when subject filter changes and auto-select chapter matching active topicId
+  // Load chapters when subject filter changes
   useEffect(() => {
     let isMounted = true;
     setChapters((prev) => (prev.length === 0 ? prev : []));
@@ -180,15 +185,6 @@ export function LessonBankManager({
           return;
         }
         setChapters(res);
-        const currentTopic = topicIdRef.current;
-        if (currentTopic) {
-          const matchingChapter = res.find((ch) =>
-            (ch.topics || []).some((t) => t.id === currentTopic),
-          );
-          if (matchingChapter) {
-            setChapterId(matchingChapter.id);
-          }
-        }
       } catch {
         if (isMounted) setChapters([]);
       }
@@ -198,6 +194,19 @@ export function LessonBankManager({
       isMounted = false;
     };
   }, [subjectId]);
+
+  // Keep chapterId aligned whenever topicId updates (including same-subject URL prop sync) or chapters finish loading
+  useEffect(() => {
+    if (!topicId || chapters.length === 0) {
+      return;
+    }
+    const matchingChapter = chapters.find((ch) =>
+      (ch.topics || []).some((t) => t.id === topicId),
+    );
+    if (matchingChapter) {
+      setChapterId((curr) => (curr === matchingChapter.id ? curr : matchingChapter.id));
+    }
+  }, [chapters, topicId]);
 
   const availableTopics = useMemo(() => {
     if (!chapterId) return [];
@@ -291,7 +300,7 @@ export function LessonBankManager({
   };
 
   const handleConfirmArchive = async () => {
-    if (!confirmArchiveItem) return;
+    if (!confirmArchiveItem || isArchiving) return;
     const archivedId = confirmArchiveItem.id;
     setIsArchiving(true);
     setErrorMessage(null);
@@ -409,6 +418,7 @@ export function LessonBankManager({
             value={subjectId}
             onChange={(e) => {
               setSuccessMessage(null);
+              setChapters([]);
               setSubjectId(e.target.value);
               setChapterId('');
               setTopicId('');
@@ -542,8 +552,19 @@ export function LessonBankManager({
                     lesson.status !== 'ARCHIVED' &&
                     (lesson.status !== 'PUBLISHED' || isAdmin);
                   const termCount = Array.isArray(lesson.importantTerms)
-                    ? lesson.importantTerms.length
+                    ? lesson.importantTerms.filter(
+                        (term) =>
+                          Boolean(term) &&
+                          typeof term.termBangla === 'string' &&
+                          term.termBangla.trim().length > 0,
+                      ).length
                     : 0;
+                  const locationTrail = [
+                    lesson.topic?.chapter?.titleBangla,
+                    lesson.topic?.titleBangla,
+                  ]
+                    .filter(Boolean)
+                    .join(' > ');
 
                   return (
                     <tr key={lesson.id} className="hover:bg-slate-50/70 transition-colors">
@@ -565,10 +586,9 @@ export function LessonBankManager({
                         <div className="font-semibold text-slate-800">
                           {lesson.topic?.chapter?.subject?.nameBangla || 'অজানা বিষয়'}
                         </div>
-                        <div className="text-slate-500">
-                          {lesson.topic?.chapter?.titleBangla || ''} &gt;{' '}
-                          {lesson.topic?.titleBangla || ''}
-                        </div>
+                        {locationTrail && (
+                          <div className="text-slate-500">{locationTrail}</div>
+                        )}
                       </td>
 
                       <td className="px-4 py-3.5">
@@ -603,7 +623,7 @@ export function LessonBankManager({
                           </button>
                           {showEdit && (
                             <Link
-                              href={`/admin/curriculum/lessons/${lesson.id}/edit`}
+                              href={`/admin/curriculum/lessons/${encodeURIComponent(lesson.id)}/edit`}
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors"
                             >
                               <Pencil className="w-3 h-3" />

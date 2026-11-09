@@ -47,6 +47,14 @@ export function LessonAuthoringStudio({
   const isArchived = isEditMode && initialLesson?.status === 'ARCHIVED';
   const adminRole = useAdminAuthStore((s) => s.adminUser?.role);
 
+  const initialDefaultChapters =
+    !isEditMode
+      ? DEFAULT_CHAPTERS_MAP[initialSubjectId || 'sub_ssc_physics'] || []
+      : [];
+  const initialDefaultChapter =
+    initialDefaultChapters.find((c) => (c.topics || []).length > 0) ||
+    initialDefaultChapters[0];
+
   const [subjects, setSubjects] = useState<SubjectOption[]>(() =>
     ensureSubjectInList(DEFAULT_SUBJECTS, initialLesson?.topic?.chapter?.subject),
   );
@@ -60,19 +68,22 @@ export function LessonAuthoringStudio({
     if (isEditMode && initialLesson?.topic?.chapter) {
       return ensureChapterTopicInList([], initialLesson.topic);
     }
-    return DEFAULT_CHAPTERS_MAP[initialSubjectId || 'sub_ssc_physics'] || [];
+    return initialDefaultChapters;
   });
   const [selectedChapterId, setSelectedChapterId] = useState<string>(() => {
     if (isEditMode && initialLesson?.topic?.chapter?.id) {
       return initialLesson.topic.chapter.id;
     }
-    return isEditMode ? '' : 'chap_ssc_physics_ch2';
+    return initialDefaultChapter?.id || '';
   });
   const [selectedTopicId, setSelectedTopicId] = useState<string>(() => {
     if (isEditMode && initialLesson?.topicId) {
       return initialLesson.topicId;
     }
-    return initialTopicId || 'top_ssc_physics_motion_eq';
+    if (initialTopicId) {
+      return initialTopicId;
+    }
+    return initialDefaultChapter?.topics?.[0]?.id || '';
   });
 
   const preferredTopicRef = useRef<string | undefined>(
@@ -83,6 +94,9 @@ export function LessonAuthoringStudio({
   );
   const activeSubjectIdRef = useRef(activeSubjectId);
   activeSubjectIdRef.current = activeSubjectId;
+  const prevInitialSubjectIdRef = useRef(initialSubjectId);
+  const prevInitialTopicIdRef = useRef(initialTopicId);
+  const isMountedRef = useRef(true);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -95,17 +109,54 @@ export function LessonAuthoringStudio({
   );
 
   useEffect(() => {
-    if (!isEditMode && initialTopicId) {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (
+      !isEditMode &&
+      initialTopicId &&
+      prevInitialTopicIdRef.current !== initialTopicId
+    ) {
+      prevInitialTopicIdRef.current = initialTopicId;
       preferredTopicRef.current = initialTopicId;
       setSelectedTopicId(initialTopicId);
     }
   }, [isEditMode, initialTopicId]);
 
   useEffect(() => {
-    if (!isEditMode && initialSubjectId) {
+    if (
+      !isEditMode &&
+      initialSubjectId &&
+      prevInitialSubjectIdRef.current !== initialSubjectId
+    ) {
+      prevInitialSubjectIdRef.current = initialSubjectId;
+      setChapters([]);
+      setSelectedChapterId('');
+      if (!initialTopicId) {
+        setSelectedTopicId('');
+      }
       setActiveSubjectId(initialSubjectId);
     }
-  }, [isEditMode, initialSubjectId]);
+  }, [isEditMode, initialSubjectId, initialTopicId]);
+
+  // Keep selectedChapterId aligned when initialTopicId updates within the same subject
+  useEffect(() => {
+    if (isEditMode || !selectedTopicId || chapters.length === 0) {
+      return;
+    }
+    const matchingChap = chapters.find((c) =>
+      (c.topics || []).some((t) => t.id === selectedTopicId),
+    );
+    if (matchingChap) {
+      setSelectedChapterId((curr) =>
+        curr === matchingChap.id ? curr : matchingChap.id,
+      );
+    }
+  }, [isEditMode, chapters, selectedTopicId]);
 
   // Re-hydrate only when switching to a different lesson ID in edit mode
   useEffect(() => {
@@ -272,11 +323,9 @@ export function LessonAuthoringStudio({
     setActiveSubjectId(subjectId);
     setErrorMessage(null);
     setSuccessMessage(null);
-    if (isEditMode) {
-      setChapters([]);
-      setSelectedChapterId('');
-      setSelectedTopicId('');
-    }
+    setChapters([]);
+    setSelectedChapterId('');
+    setSelectedTopicId('');
   };
 
   const handleChapterChange = (chapterId: string) => {
@@ -302,7 +351,7 @@ export function LessonAuthoringStudio({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isArchived) {
+    if (isArchived || isSubmitting) {
       return;
     }
 
@@ -357,7 +406,7 @@ export function LessonAuthoringStudio({
 
       if (isEditMode && initialLesson) {
         const updated = await apiClient.patch<AdminLessonItem>(
-          `/admin/content/lessons/${initialLesson.id}`,
+          `/admin/content/lessons/${encodeURIComponent(initialLesson.id)}`,
           {
             ...buildLessonEditPayload(formParams),
             ...buildLessonEditEditorialFields(
@@ -369,6 +418,7 @@ export function LessonAuthoringStudio({
           },
           { scope: 'admin' },
         );
+        if (!isMountedRef.current) return;
         setSuccessMessage('✅ লেসনটি সফলভাবে আপডেট করা হয়েছে!');
         setPreservePublished(false);
         setSubmitForReview(false);
@@ -379,15 +429,19 @@ export function LessonAuthoringStudio({
           buildLessonPayload(formParams),
           { scope: 'admin' },
         );
+        if (!isMountedRef.current) return;
         setSuccessMessage(
           '✅ পাঠ্য লেসন সফলভাবে তৈরি হয়েছে এবং রিভিউ কিউতে যুক্ত করা হয়েছে!',
         );
         onLessonCreated?.(created);
       }
     } catch (err: unknown) {
+      if (!isMountedRef.current) return;
       setErrorMessage(formatAuthoringApiError(err));
     } finally {
-      setIsSubmitting(false);
+      if (isMountedRef.current) {
+        setIsSubmitting(false);
+      }
     }
   };
 
