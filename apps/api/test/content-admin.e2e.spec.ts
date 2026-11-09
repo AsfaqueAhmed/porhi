@@ -1059,5 +1059,133 @@ describe('ContentAdminModule (e2e)', () => {
       expect(updatedRes.body.status).toBe(ContentStatus.REVIEW);
       expect(updatedRes.body.version).toBe(2);
     });
+
+    it('rejects POST /admin/content/review on an ARCHIVED question with 400 and preserves ARCHIVED status for REVIEWER and ADMIN', async () => {
+      const created = await request(app.getHttpServer())
+        .post('/admin/content/questions')
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({
+          topicId: 'topic_force',
+          type: 'MCQ',
+          stem: 'আর্কাইভ রিভিউ গার্ড পরীক্ষা',
+          options: [
+            { id: 'opt_1', text: 'সঠিক', isCorrect: true },
+            { id: 'opt_2', text: 'ভুল', isCorrect: false },
+          ],
+          explanation: { directAnswer: 'সঠিক', coreConcept: 'গতি' },
+          difficulty: 'EASY',
+        })
+        .expect(201);
+
+      await request(app.getHttpServer())
+        .post(`/admin/content/questions/${created.body.id}/archive`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200);
+
+      await request(app.getHttpServer())
+        .post('/admin/content/review')
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .send({
+          contentType: 'QUESTION',
+          contentId: created.body.id,
+          action: 'APPROVE',
+        })
+        .expect(400);
+
+      await request(app.getHttpServer())
+        .post('/admin/content/review')
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .send({
+          contentType: 'QUESTION',
+          contentId: created.body.id,
+          action: 'REQUEST_CHANGES',
+          comment: 'Should not transition archived question',
+        })
+        .expect(400);
+
+      await request(app.getHttpServer())
+        .post('/admin/content/review')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          contentType: 'QUESTION',
+          contentId: created.body.id,
+          action: 'APPROVE',
+        })
+        .expect(400);
+
+      await request(app.getHttpServer())
+        .post('/admin/content/review')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          contentType: 'QUESTION',
+          contentId: created.body.id,
+          action: 'REJECT',
+          comment: 'Admin also blocked from reviewing archived question',
+        })
+        .expect(400);
+
+      const detailRes = await request(app.getHttpServer())
+        .get(`/admin/content/questions/${created.body.id}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200);
+
+      expect(detailRes.body.status).toBe(ContentStatus.ARCHIVED);
+
+      const reviewsRes = await request(app.getHttpServer())
+        .get(`/admin/content/reviews/${created.body.id}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200);
+
+      expect(reviewsRes.body).toHaveLength(0);
+    });
+
+    it('clears options to null and persists cqRubric when switching MCQ -> CQ_CREATIVE via PATCH', async () => {
+      const created = await request(app.getHttpServer())
+        .post('/admin/content/questions')
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({
+          topicId: 'topic_force',
+          type: 'MCQ',
+          stem: 'এমসিকিউ থেকে সৃজনশীল রূপান্তর পরীক্ষা',
+          options: [
+            { id: 'opt_1', text: 'নিউটন', isCorrect: true },
+            { id: 'opt_2', text: 'জুল', isCorrect: false },
+          ],
+          explanation: { directAnswer: 'নিউটন', coreConcept: 'বলের একক' },
+          difficulty: 'MEDIUM',
+        })
+        .expect(201);
+
+      expect(created.body.options).toHaveLength(2);
+      expect(created.body.cqRubric).toBeNull();
+
+      const cqRubric = {
+        ka: { mark: 1, criteria: 'বলের সংজ্ঞা দাও' },
+        kha: { mark: 2, criteria: 'জড়তা ব্যাখ্যা করো' },
+      };
+
+      const patchedRes = await request(app.getHttpServer())
+        .patch(`/admin/content/questions/${created.body.id}`)
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({
+          type: 'CQ_CREATIVE',
+          cqRubric,
+        })
+        .expect(200);
+
+      expect(patchedRes.body.type).toBe('CQ_CREATIVE');
+      expect(patchedRes.body.options).toBeNull();
+      expect(patchedRes.body.cqRubric).toEqual(cqRubric);
+      expect(patchedRes.body.version).toBe(2);
+
+      const persistedRes = await request(app.getHttpServer())
+        .get(`/admin/content/questions/${created.body.id}`)
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .expect(200);
+
+      expect(persistedRes.body.type).toBe('CQ_CREATIVE');
+      expect(persistedRes.body.options).toBeNull();
+      expect(persistedRes.body.cqRubric).toEqual(cqRubric);
+    });
   });
 });

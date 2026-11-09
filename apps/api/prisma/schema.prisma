@@ -108,6 +108,7 @@ model Question {
   updatedAt   DateTime          @updatedAt
 
   @@index([topicId, status])
+  @@index([status, updatedAt])
 }
 
 model ExamSession {

@@ -229,7 +229,7 @@ export class ContentAdminService {
               ? dto.cqRubric
               : Prisma.DbNull,
         difficulty: dto.difficulty,
-        boardSource: dto.boardSource ?? null,
+        boardSource: dto.boardSource?.trim() || null,
         status: ContentStatus.DRAFT,
         version: 1,
         isVerified: false,
@@ -291,6 +291,10 @@ export class ContentAdminService {
 
       if (!existing) {
         throw new NotFoundException(`${contentType} with id ${contentId} not found`);
+      }
+
+      if (existing.status === ContentStatus.ARCHIVED) {
+        throw new BadRequestException('Archived content cannot be reviewed directly');
       }
 
       const isApprove = action === 'APPROVE';

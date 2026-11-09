@@ -241,6 +241,38 @@ describe('ContentAdminService', () => {
         }),
       ).rejects.toThrow(BadRequestException);
     });
+
+    it('should trim boardSource and store whitespace-only boardSource as null', async () => {
+      mockPrisma.topic.findUnique.mockResolvedValue({ id: 'topic_force_1' });
+      mockPrisma.question.create.mockImplementation(async ({ data }: any) => ({
+        id: 'question_trimmed',
+        ...data,
+      }));
+
+      const trimmedRes = await service.createQuestion({
+        ...createQuestionDto,
+        boardSource: '  Dhaka Board 2024  ',
+      });
+
+      expect(mockPrisma.question.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          boardSource: 'Dhaka Board 2024',
+        }),
+      });
+      expect(trimmedRes.boardSource).toBe('Dhaka Board 2024');
+
+      const emptyRes = await service.createQuestion({
+        ...createQuestionDto,
+        boardSource: '   ',
+      });
+
+      expect(mockPrisma.question.create).toHaveBeenLastCalledWith({
+        data: expect.objectContaining({
+          boardSource: null,
+        }),
+      });
+      expect(emptyRes.boardSource).toBeNull();
+    });
   });
 
   describe('reviewContent', () => {
@@ -446,6 +478,57 @@ describe('ContentAdminService', () => {
           action: 'APPROVE',
         }),
       ).rejects.toThrow(NotFoundException);
+
+      expect(mockPrisma.lesson.update).not.toHaveBeenCalled();
+      expect(mockPrisma.contentReview.create).not.toHaveBeenCalled();
+    });
+
+    it('should throw BadRequestException when reviewing ARCHIVED question or lesson without updating or creating review record', async () => {
+      mockPrisma.question.findUnique.mockResolvedValue({
+        id: 'q_archived',
+        status: ContentStatus.ARCHIVED,
+        version: 2,
+      });
+
+      const archivedQuestionApprove = service.reviewContent('reviewer_1', {
+        contentType: 'QUESTION',
+        contentId: 'q_archived',
+        action: 'APPROVE',
+      });
+      await expect(archivedQuestionApprove).rejects.toThrow(BadRequestException);
+      await expect(archivedQuestionApprove).rejects.toThrow(
+        'Archived content cannot be reviewed directly',
+      );
+
+      const archivedQuestionReject = service.reviewContent('admin_1', {
+        contentType: 'QUESTION',
+        contentId: 'q_archived',
+        action: 'REQUEST_CHANGES',
+        comment: 'Attempt to reopen archived question',
+      });
+      await expect(archivedQuestionReject).rejects.toThrow(BadRequestException);
+      await expect(archivedQuestionReject).rejects.toThrow(
+        'Archived content cannot be reviewed directly',
+      );
+
+      expect(mockPrisma.question.update).not.toHaveBeenCalled();
+      expect(mockPrisma.contentReview.create).not.toHaveBeenCalled();
+
+      mockPrisma.lesson.findUnique.mockResolvedValue({
+        id: 'lesson_archived',
+        status: ContentStatus.ARCHIVED,
+        version: 1,
+      });
+
+      const archivedLessonApprove = service.reviewContent('admin_1', {
+        contentType: 'LESSON',
+        contentId: 'lesson_archived',
+        action: 'APPROVE',
+      });
+      await expect(archivedLessonApprove).rejects.toThrow(BadRequestException);
+      await expect(archivedLessonApprove).rejects.toThrow(
+        'Archived content cannot be reviewed directly',
+      );
 
       expect(mockPrisma.lesson.update).not.toHaveBeenCalled();
       expect(mockPrisma.contentReview.create).not.toHaveBeenCalled();
@@ -1202,6 +1285,80 @@ describe('ContentAdminService', () => {
           }),
         }),
       );
+    });
+
+    it('handles CORRECTION and REVIEW starting status transitions with and without submitForReview', async () => {
+      const correctionQuestion = {
+        ...existingDraftMcq,
+        id: 'q_corr_1',
+        status: ContentStatus.CORRECTION,
+        isVerified: false,
+        version: 2,
+      };
+      mockPrisma.topic.findUnique.mockResolvedValue({ id: 'topic_force_1' });
+      mockPrisma.question.update.mockImplementation(async ({ data }: any) => ({
+        ...correctionQuestion,
+        ...data,
+        version: correctionQuestion.version + 1,
+      }));
+
+      mockPrisma.question.findUnique.mockResolvedValueOnce(correctionQuestion);
+      const submittedFromCorrection = await service.updateQuestion(
+        'q_corr_1',
+        { stem: 'সংশোধিত স্টেম', submitForReview: true },
+        Role.EDITOR,
+      );
+      expect(mockPrisma.question.update).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status: ContentStatus.REVIEW,
+            isVerified: false,
+            version: { increment: 1 },
+          }),
+        }),
+      );
+      expect(submittedFromCorrection.status).toBe(ContentStatus.REVIEW);
+
+      mockPrisma.question.findUnique.mockResolvedValueOnce(correctionQuestion);
+      const keptCorrection = await service.updateQuestion(
+        'q_corr_1',
+        { stem: 'আংশিক সংশোধন' },
+        Role.EDITOR,
+      );
+      expect(mockPrisma.question.update).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status: ContentStatus.CORRECTION,
+            isVerified: false,
+            version: { increment: 1 },
+          }),
+        }),
+      );
+      expect(keptCorrection.status).toBe(ContentStatus.CORRECTION);
+
+      const reviewQuestion = {
+        ...existingDraftMcq,
+        id: 'q_rev_1',
+        status: ContentStatus.REVIEW,
+        isVerified: false,
+        version: 3,
+      };
+      mockPrisma.question.findUnique.mockResolvedValueOnce(reviewQuestion);
+      const keptReview = await service.updateQuestion(
+        'q_rev_1',
+        { stem: 'রিভিউ স্টেট অপরিবর্তিত' },
+        Role.EDITOR,
+      );
+      expect(mockPrisma.question.update).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status: ContentStatus.REVIEW,
+            isVerified: false,
+            version: { increment: 1 },
+          }),
+        }),
+      );
+      expect(keptReview.status).toBe(ContentStatus.REVIEW);
     });
   });
 
