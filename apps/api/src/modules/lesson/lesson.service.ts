@@ -44,9 +44,12 @@ export class LessonService {
       });
 
       if (!lesson && isEditor) {
-        // Fallback to draft or latest version for editor
+        // Fallback to non-archived latest version for editor
         lesson = await this.prisma.lesson.findFirst({
-          where: { topicId },
+          where: {
+            topicId,
+            status: { not: ContentStatus.ARCHIVED },
+          },
           orderBy: { version: 'desc' },
         });
       }

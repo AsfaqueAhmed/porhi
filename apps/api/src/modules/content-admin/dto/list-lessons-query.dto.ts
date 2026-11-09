@@ -1,0 +1,36 @@
+import { IsEnum, IsIn, IsNumberString, IsOptional, IsString } from 'class-validator';
+import { ContentStatus } from '@prisma/client';
+
+export class ListLessonsQueryDto {
+  @IsOptional()
+  @IsString()
+  subjectId?: string;
+
+  @IsOptional()
+  @IsString()
+  chapterId?: string;
+
+  @IsOptional()
+  @IsString()
+  topicId?: string;
+
+  @IsOptional()
+  @IsEnum(ContentStatus)
+  status?: ContentStatus;
+
+  @IsOptional()
+  @IsString()
+  search?: string;
+
+  @IsOptional()
+  @IsIn(['true', 'false'])
+  includeArchived?: string;
+
+  @IsOptional()
+  @IsNumberString({ no_symbols: true })
+  page?: string;
+
+  @IsOptional()
+  @IsNumberString({ no_symbols: true })
+  limit?: string;
+}

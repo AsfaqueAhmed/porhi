@@ -751,6 +751,14 @@ describe('ContentAdminService', () => {
 
       const res = await service.getTopicContent('top_1');
 
+      expect(mockPrisma.lesson.findMany).toHaveBeenCalledWith({
+        where: { topicId: 'top_1', status: { not: ContentStatus.ARCHIVED } },
+        orderBy: { createdAt: 'desc' },
+      });
+      expect(mockPrisma.question.findMany).toHaveBeenCalledWith({
+        where: { topicId: 'top_1', status: { not: ContentStatus.ARCHIVED } },
+        orderBy: { createdAt: 'desc' },
+      });
       expect(res.topic.id).toBe('top_1');
       expect(res.lessons.length).toBe(1);
       expect(res.questions.length).toBe(1);

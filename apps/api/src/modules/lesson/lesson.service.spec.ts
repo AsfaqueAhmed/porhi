@@ -155,6 +155,25 @@ describe('LessonService', () => {
       expect(result.id).toBe('les_draft_fallback');
     });
 
+    it('should exclude ARCHIVED lessons when falling back for editor', async () => {
+      prisma.lesson.findFirst
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce(null);
+
+      const editor = { id: 'usr_editor', role: Role.EDITOR };
+      await expect(lessonService.getLessonByTopic('top_1', editor, false)).rejects.toThrow(
+        NotFoundException,
+      );
+
+      expect(prisma.lesson.findFirst).toHaveBeenNthCalledWith(2, {
+        where: {
+          topicId: 'top_1',
+          status: { not: ContentStatus.ARCHIVED },
+        },
+        orderBy: { version: 'desc' },
+      });
+    });
+
     it('should not fail lesson retrieval if eventLog.create fails', async () => {
       prisma.lesson.findFirst.mockResolvedValue(mockLesson);
       prisma.eventLog.create.mockRejectedValue(new Error('EventLog write failed'));

@@ -29,6 +29,30 @@ describe('ContentAdminModule (e2e)', () => {
   let reviewerUser: any;
   let adminUser: any;
 
+  const attachTopicHierarchy = (item: any) => {
+    const t = topics.find((itemTopic) => itemTopic.id === item.topicId);
+    const ch = t ? chapters.find((c) => c.id === t.chapterId) : null;
+    const sub = ch ? subjects.find((s) => s.id === ch.subjectId) : null;
+    return {
+      ...item,
+      topic: t
+        ? {
+            id: t.id,
+            titleBangla: t.titleBangla,
+            chapter: ch
+              ? {
+                  id: ch.id,
+                  titleBangla: ch.titleBangla,
+                  subject: sub
+                    ? { id: sub.id, code: sub.code, nameBangla: sub.nameBangla }
+                    : null,
+                }
+              : null,
+          }
+        : null,
+    };
+  };
+
   const mockPrismaService = {
     $transaction: async (cb: any) => cb(mockPrismaService),
     user: {
@@ -45,15 +69,59 @@ describe('ContentAdminModule (e2e)', () => {
       },
     },
     lesson: {
-      findUnique: async ({ where }: any) => {
-        return lessons.find((l) => l.id === where.id) || null;
+      findUnique: async ({ where, include }: any) => {
+        const found = lessons.find((l) => l.id === where.id) || null;
+        if (!found) return null;
+        return include?.topic ? attachTopicHierarchy(found) : found;
       },
-      findMany: async ({ where }: any) => {
-        let res = lessons.filter((l) => {
-          if (where?.status?.in && !where.status.in.includes(l.status)) return false;
+      findMany: async ({ where, include, skip = 0, take }: any) => {
+        const matchWhere = (l: any) => {
+          if (where?.topicId && l.topicId !== where.topicId) return false;
+          if (where?.status) {
+            if (typeof where.status === 'string' && l.status !== where.status) return false;
+            if (where.status.in && !where.status.in.includes(l.status)) return false;
+            if (where.status.not && l.status === where.status.not) return false;
+          }
+          if (where?.topic) {
+            const t = topics.find((item) => item.id === l.topicId);
+            if (!t) return false;
+            if (where.topic.chapterId && t.chapterId !== where.topic.chapterId) return false;
+            if (where.topic.chapter?.subjectId) {
+              const ch = chapters.find((c) => c.id === t.chapterId);
+              if (!ch || ch.subjectId !== where.topic.chapter.subjectId) return false;
+            }
+          }
+          if (where?.OR) {
+            const needle = (where.OR[0]?.titleBangla?.contains || '').toLowerCase();
+            const titleMatch = (l.titleBangla || '').toLowerCase().includes(needle);
+            const goalMatch = (l.learningGoal || '').toLowerCase().includes(needle);
+            if (!titleMatch && !goalMatch) return false;
+          }
           return true;
-        });
-        return res;
+        };
+
+        let res = lessons
+          .filter(matchWhere)
+          .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+        if (typeof take === 'number') {
+          res = res.slice(skip, skip + take);
+        }
+        return include?.topic ? res.map(attachTopicHierarchy) : res;
+      },
+      count: async ({ where }: any) => {
+        const list = await mockPrismaService.lesson.findMany({ where });
+        return list.length;
+      },
+      groupBy: async ({ where }: any) => {
+        const matched = await mockPrismaService.lesson.findMany({ where });
+        const counts = new Map<string, number>();
+        for (const l of matched) {
+          counts.set(l.status, (counts.get(l.status) || 0) + 1);
+        }
+        return Array.from(counts.entries()).map(([status, _all]) => ({
+          status,
+          _count: { _all },
+        }));
       },
       create: async ({ data }: any) => {
         const newLesson = {
@@ -63,7 +131,8 @@ describe('ContentAdminModule (e2e)', () => {
           learningGoal: data.learningGoal,
           explanation: data.explanation,
           importantTerms: data.importantTerms,
-          workedExample: data.workedExample ?? null,
+          workedExample:
+            data.workedExample === Prisma.DbNull ? null : (data.workedExample ?? null),
           memoryAid: data.memoryAid ?? null,
           status: data.status ?? ContentStatus.DRAFT,
           version: data.version ?? 1,
@@ -73,18 +142,20 @@ describe('ContentAdminModule (e2e)', () => {
         lessons.push(newLesson);
         return newLesson;
       },
-      update: async ({ where, data }: any) => {
+      update: async ({ where, data, include }: any) => {
         const idx = lessons.findIndex((l) => l.id === where.id);
         if (idx === -1) throw new Error('Lesson not found');
         const curr = lessons[idx];
+        const normalized: Record<string, any> = { ...data };
+        if (normalized.workedExample === Prisma.DbNull) normalized.workedExample = null;
         const updated = {
           ...curr,
-          ...data,
+          ...normalized,
           version: data.version?.increment ? curr.version + data.version.increment : curr.version,
           updatedAt: new Date(),
         };
         lessons[idx] = updated;
-        return updated;
+        return include?.topic ? attachTopicHierarchy(updated) : updated;
       },
     },
     question: {
@@ -1186,6 +1257,188 @@ describe('ContentAdminModule (e2e)', () => {
       expect(persistedRes.body.type).toBe('CQ_CREATIVE');
       expect(persistedRes.body.options).toBeNull();
       expect(persistedRes.body.cqRubric).toEqual(cqRubric);
+    });
+  });
+
+  describe('Lesson Management (List, Detail, Update, Archive) & RBAC', () => {
+    it('supports list, detail, search/hierarchy filtering, 401/403/400/404 guards, REVIEWER read-only, and ARCHIVED exclusion', async () => {
+      const createRes = await request(app.getHttpServer())
+        .post('/admin/content/lessons')
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({
+          topicId: 'topic_force',
+          titleBangla: 'নিউটনের গতিসূত্র ও বল',
+          learningGoal: 'বলের ধারণা ব্যাখ্যা করা',
+          explanation: '$F = ma$',
+          importantTerms: [{ termBangla: 'বল', termEnglish: 'Force', definition: 'ধাক্কা বা টান' }],
+          workedExample: { problem: '$2\\times 3$', stepByStepSolution: '$6$' },
+          memoryAid: 'F=ma',
+        })
+        .expect(201);
+
+      const lessonId = createRes.body.id;
+
+      // Unauthenticated 401 guards
+      await request(app.getHttpServer()).get('/admin/content/lessons').expect(401);
+      await request(app.getHttpServer()).get(`/admin/content/lessons/${lessonId}`).expect(401);
+      await request(app.getHttpServer())
+        .patch(`/admin/content/lessons/${lessonId}`)
+        .send({ titleBangla: 'অননুমোদিত' })
+        .expect(401);
+      await request(app.getHttpServer())
+        .post(`/admin/content/lessons/${lessonId}/archive`)
+        .expect(401);
+
+      // STUDENT 403 guards
+      await request(app.getHttpServer())
+        .get('/admin/content/lessons')
+        .set('Authorization', `Bearer ${studentToken}`)
+        .expect(403);
+      await request(app.getHttpServer())
+        .get(`/admin/content/lessons/${lessonId}`)
+        .set('Authorization', `Bearer ${studentToken}`)
+        .expect(403);
+      await request(app.getHttpServer())
+        .patch(`/admin/content/lessons/${lessonId}`)
+        .set('Authorization', `Bearer ${studentToken}`)
+        .send({ titleBangla: 'চেষ্টা' })
+        .expect(403);
+      await request(app.getHttpServer())
+        .post(`/admin/content/lessons/${lessonId}/archive`)
+        .set('Authorization', `Bearer ${studentToken}`)
+        .expect(403);
+
+      // Invalid query params rejected with 400 via ValidationPipe
+      await request(app.getHttpServer())
+        .get('/admin/content/lessons?page=-1')
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .expect(400);
+      await request(app.getHttpServer())
+        .get('/admin/content/lessons?status=INVALID')
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .expect(400);
+
+      const reviewerList = await request(app.getHttpServer())
+        .get('/admin/content/lessons?subjectId=sub_phy&search=বল')
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .expect(200);
+
+      expect(reviewerList.body.items).toHaveLength(1);
+      expect(reviewerList.body.items[0].topic.chapter.subject.code).toBe('ssc_physics');
+      expect(reviewerList.body.statusCounts.DRAFT).toBe(1);
+
+      const detailRes = await request(app.getHttpServer())
+        .get(`/admin/content/lessons/${lessonId}`)
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .expect(200);
+      expect(detailRes.body.id).toBe(lessonId);
+
+      await request(app.getHttpServer())
+        .get('/admin/content/lessons/missing_lesson_id')
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .expect(404);
+
+      // REVIEWER cannot edit or archive
+      await request(app.getHttpServer())
+        .patch(`/admin/content/lessons/${lessonId}`)
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .send({ titleBangla: 'চেষ্টা' })
+        .expect(403);
+      await request(app.getHttpServer())
+        .post(`/admin/content/lessons/${lessonId}/archive`)
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .expect(403);
+    });
+
+    it('enforces PUBLISHED -> REVIEW demotion, ADMIN preservePublished, ARCHIVED edit/review 400 guards, and nullable clearing', async () => {
+      const created = await request(app.getHttpServer())
+        .post('/admin/content/lessons')
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({
+          topicId: 'topic_force',
+          titleBangla: 'ভরবেগ ও সংরক্ষণ',
+          learningGoal: 'ভরবেগ বোঝা',
+          explanation: '$p = mv$',
+          importantTerms: [{ termBangla: 'ভরবেগ' }],
+          workedExample: { problem: 'উদাহরণ', stepByStepSolution: 'সমাধান' },
+          memoryAid: 'p=mv',
+        })
+        .expect(201);
+
+      const lessonId = created.body.id;
+
+      // Publish via review
+      await request(app.getHttpServer())
+        .post('/admin/content/review')
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .send({ contentType: 'LESSON', contentId: lessonId, action: 'APPROVE' })
+        .expect(201);
+
+      // EDITOR cannot preservePublished or archive PUBLISHED
+      await request(app.getHttpServer())
+        .patch(`/admin/content/lessons/${lessonId}`)
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({ preservePublished: true })
+        .expect(403);
+      await request(app.getHttpServer())
+        .post(`/admin/content/lessons/${lessonId}/archive`)
+        .set('Authorization', `Bearer ${editorToken}`)
+        .expect(403);
+
+      // ADMIN keeps PUBLISHED and clears nullable fields
+      const adminPatch = await request(app.getHttpServer())
+        .patch(`/admin/content/lessons/${lessonId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          preservePublished: true,
+          workedExample: null,
+          memoryAid: null,
+        })
+        .expect(200);
+      expect(adminPatch.body.status).toBe(ContentStatus.PUBLISHED);
+      expect(adminPatch.body.workedExample).toBeNull();
+      expect(adminPatch.body.memoryAid).toBeNull();
+      expect(adminPatch.body.version).toBe(3);
+
+      // EDITOR edit demotes PUBLISHED -> REVIEW
+      const editorPatch = await request(app.getHttpServer())
+        .patch(`/admin/content/lessons/${lessonId}`)
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({ titleBangla: 'সংশোধিত ভরবেগ' })
+        .expect(200);
+      expect(editorPatch.body.status).toBe(ContentStatus.REVIEW);
+      expect(editorPatch.body.version).toBe(4);
+
+      // ARCHIVE & verify guards
+      await request(app.getHttpServer())
+        .post(`/admin/content/lessons/${lessonId}/archive`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200);
+
+      await request(app.getHttpServer())
+        .patch(`/admin/content/lessons/${lessonId}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ titleBangla: 'আর্কাইভে এডিট' })
+        .expect(400);
+
+      await request(app.getHttpServer())
+        .post('/admin/content/review')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ contentType: 'LESSON', contentId: lessonId, action: 'APPROVE' })
+        .expect(400);
+
+      const defaultList = await request(app.getHttpServer())
+        .get('/admin/content/lessons')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200);
+      expect(defaultList.body.items).toHaveLength(0);
+      expect(defaultList.body.statusCounts.ARCHIVED).toBe(1);
+
+      const archivedList = await request(app.getHttpServer())
+        .get('/admin/content/lessons?includeArchived=true')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200);
+      expect(archivedList.body.items).toHaveLength(1);
     });
   });
 });

@@ -12,6 +12,11 @@ import {
   type AdminQuestionItem,
   type QuestionStatusCounts,
   type ListQuestionsResponse,
+  type LessonTermItem,
+  type LessonWorkedExample,
+  type AdminLessonItem,
+  type LessonStatusCounts,
+  type ListLessonsResponse,
 } from '../src';
 
 describe('Shared Constants and Enums', () => {
@@ -179,5 +184,70 @@ describe('Shared Type Structures', () => {
     expect(response.items[0].status).toBe(ContentStatus.ARCHIVED);
     expect(response.statusCounts.CORRECTION).toBe(1);
     expect(response.statusCounts.ARCHIVED).toBe(3);
+  });
+
+  it('should construct valid AdminLessonItem, LessonStatusCounts, and ListLessonsResponse', () => {
+    const hierarchy: QuestionTopicHierarchy = {
+      id: 'top_1',
+      titleBangla: 'গতির সমীকরণ',
+      chapter: {
+        id: 'chap_2',
+        titleBangla: 'দ্বিতীয় অধ্যায়: গতি',
+        subject: {
+          id: 'sub_phy',
+          code: 'ssc_physics',
+          nameBangla: 'পদার্থবিজ্ঞান',
+        },
+      },
+    };
+
+    const term: LessonTermItem = {
+      termBangla: 'জড়তা',
+      termEnglish: 'Inertia',
+      definition: 'অবস্থা পরিবর্তনের অনীহা',
+    };
+    const example: LessonWorkedExample = {
+      problem: '$F = ma$ বের কর',
+      stepByStepSolution: '$F = 2 \\times 5 = 10\\text{ N}$',
+    };
+
+    const lesson: AdminLessonItem = {
+      id: 'les_1',
+      topicId: hierarchy.id,
+      titleBangla: 'নিউটনের গতিসূত্র',
+      learningGoal: 'বল ও ত্বরণের সম্পর্ক বোঝা',
+      explanation: 'সুষম ত্বরণের ব্যাখ্যা $F=ma$',
+      importantTerms: [term],
+      workedExample: example,
+      memoryAid: 'F সমান m গুণ a',
+      status: ContentStatus.DRAFT,
+      version: 1,
+      createdAt: '2026-11-09T00:00:00Z',
+      updatedAt: '2026-11-09T01:00:00Z',
+      topic: hierarchy,
+    };
+
+    const statusCounts: LessonStatusCounts = {
+      ALL: 5,
+      DRAFT: 2,
+      REVIEW: 1,
+      CORRECTION: 0,
+      PUBLISHED: 2,
+      ARCHIVED: 1,
+    };
+
+    const list: ListLessonsResponse = {
+      items: [lesson],
+      total: 5,
+      page: 1,
+      limit: 20,
+      totalPages: 1,
+      statusCounts,
+    };
+
+    expect(list.items[0].importantTerms[0].termBangla).toBe('জড়তা');
+    expect(list.items[0].topic?.chapter.subject.code).toBe('ssc_physics');
+    expect(list.statusCounts.PUBLISHED).toBe(2);
+    expect(list.statusCounts.ARCHIVED).toBe(1);
   });
 });

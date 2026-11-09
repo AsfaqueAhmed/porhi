@@ -15,28 +15,10 @@ import { CreateTopicAdminDto } from './dto/create-topic-admin.dto';
 import { CreateSubjectAdminDto } from './dto/create-subject-admin.dto';
 import { ListQuestionsQueryDto } from './dto/list-questions-query.dto';
 import { UpdateQuestionAdminDto } from './dto/update-question-admin.dto';
+import { CONTENT_HIERARCHY_INCLUDE } from './admin-content-query.util';
+import { createLessonRecord } from './content-admin-lessons.helpers';
 
-export const QUESTION_HIERARCHY_INCLUDE = {
-  topic: {
-    select: {
-      id: true,
-      titleBangla: true,
-      chapter: {
-        select: {
-          id: true,
-          titleBangla: true,
-          subject: {
-            select: {
-              id: true,
-              code: true,
-              nameBangla: true,
-            },
-          },
-        },
-      },
-    },
-  },
-} as const;
+export const QUESTION_HIERARCHY_INCLUDE = CONTENT_HIERARCHY_INCLUDE;
 
 @Injectable()
 export class ContentAdminService {
@@ -46,48 +28,7 @@ export class ContentAdminService {
   ) {}
 
   async createLesson(dto: CreateLessonAdminDto) {
-    if (!dto?.topicId || typeof dto.topicId !== 'string' || !dto.topicId.trim()) {
-      throw new BadRequestException('topicId is required');
-    }
-    if (!dto?.titleBangla || typeof dto.titleBangla !== 'string' || !dto.titleBangla.trim()) {
-      throw new BadRequestException('titleBangla is required');
-    }
-    if (!dto?.learningGoal || typeof dto.learningGoal !== 'string' || !dto.learningGoal.trim()) {
-      throw new BadRequestException('learningGoal is required');
-    }
-    if (!dto?.explanation || typeof dto.explanation !== 'string' || !dto.explanation.trim()) {
-      throw new BadRequestException('explanation is required');
-    }
-    if (!Array.isArray(dto?.importantTerms)) {
-      throw new BadRequestException('importantTerms must be an array of objects');
-    }
-    for (const term of dto.importantTerms) {
-      if (!term || typeof term !== 'object' || typeof term.termBangla !== 'string' || !term.termBangla.trim()) {
-        throw new BadRequestException('Each importantTerm must be an object containing at least termBangla');
-      }
-    }
-
-    const topic = await this.prisma.topic.findUnique({
-      where: { id: dto.topicId },
-    });
-
-    if (!topic) {
-      throw new NotFoundException(`Topic with id ${dto.topicId} not found`);
-    }
-
-    return this.prisma.lesson.create({
-      data: {
-        topicId: dto.topicId,
-        titleBangla: dto.titleBangla,
-        learningGoal: dto.learningGoal,
-        explanation: dto.explanation,
-        importantTerms: dto.importantTerms,
-        workedExample: dto.workedExample !== undefined ? dto.workedExample : undefined,
-        memoryAid: dto.memoryAid ?? null,
-        status: ContentStatus.DRAFT,
-        version: 1,
-      },
-    });
+    return createLessonRecord(this.prisma, dto);
   }
 
   private validateQuestionPayload(payload: {
@@ -483,11 +424,11 @@ export class ContentAdminService {
 
     const [lessons, questions] = await Promise.all([
       this.prisma.lesson.findMany({
-        where: { topicId },
+        where: { topicId, status: { not: ContentStatus.ARCHIVED } },
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.question.findMany({
-        where: { topicId },
+        where: { topicId, status: { not: ContentStatus.ARCHIVED } },
         orderBy: { createdAt: 'desc' },
       }),
     ]);

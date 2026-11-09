@@ -17,6 +17,7 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
 import { ContentAdminService } from './content-admin.service';
+import { ContentAdminLessonsService } from './content-admin-lessons.service';
 import { CreateLessonAdminDto } from './dto/create-lesson-admin.dto';
 import { CreateQuestionAdminDto } from './dto/create-question-admin.dto';
 import { ReviewContentDto } from './dto/review-content.dto';
@@ -25,6 +26,8 @@ import { CreateTopicAdminDto } from './dto/create-topic-admin.dto';
 import { CreateSubjectAdminDto } from './dto/create-subject-admin.dto';
 import { ListQuestionsQueryDto } from './dto/list-questions-query.dto';
 import { UpdateQuestionAdminDto } from './dto/update-question-admin.dto';
+import { ListLessonsQueryDto } from './dto/list-lessons-query.dto';
+import { UpdateLessonAdminDto } from './dto/update-lesson-admin.dto';
 
 @Controller('admin/content')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -32,12 +35,46 @@ export class ContentAdminController {
   constructor(
     @Inject(ContentAdminService)
     private readonly contentAdminService: ContentAdminService,
+    @Inject(ContentAdminLessonsService)
+    private readonly contentAdminLessonsService: ContentAdminLessonsService,
   ) {}
 
   @Post('lessons')
   @Roles(Role.EDITOR, Role.ADMIN)
   async createLesson(@Body() dto: CreateLessonAdminDto) {
-    return this.contentAdminService.createLesson(dto);
+    return this.contentAdminLessonsService.createLesson(dto);
+  }
+
+  @Get('lessons')
+  @Roles(Role.EDITOR, Role.REVIEWER, Role.ADMIN)
+  async listLessons(@Query() query: ListLessonsQueryDto) {
+    return this.contentAdminLessonsService.listLessons(query);
+  }
+
+  @Get('lessons/:id')
+  @Roles(Role.EDITOR, Role.REVIEWER, Role.ADMIN)
+  async getLessonById(@Param('id') id: string) {
+    return this.contentAdminLessonsService.getLessonById(id);
+  }
+
+  @Patch('lessons/:id')
+  @Roles(Role.EDITOR, Role.ADMIN)
+  async updateLesson(
+    @Param('id') id: string,
+    @Body() dto: UpdateLessonAdminDto,
+    @Req() req: { user: { id: string; role: Role } },
+  ) {
+    return this.contentAdminLessonsService.updateLesson(id, dto, req.user.role);
+  }
+
+  @Post('lessons/:id/archive')
+  @HttpCode(HttpStatus.OK)
+  @Roles(Role.EDITOR, Role.ADMIN)
+  async archiveLesson(
+    @Param('id') id: string,
+    @Req() req: { user: { id: string; role: Role } },
+  ) {
+    return this.contentAdminLessonsService.archiveLesson(id, req.user.role);
   }
 
   @Post('questions')
