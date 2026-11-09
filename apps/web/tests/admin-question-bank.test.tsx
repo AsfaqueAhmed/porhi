@@ -2,6 +2,8 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { act, cleanup, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import { QuestionBankManager } from '../src/components/admin/question-bank-manager';
+import AdminMcqQuestionsPage from '../src/app/admin/questions/mcq/page';
+import AdminCqQuestionsPage from '../src/app/admin/questions/cq/page';
 import { useAdminAuthStore } from '../src/store/admin-auth-store';
 import { apiClient, ApiError } from '../src/lib/api-client';
 import type { AdminQuestionItem, ListQuestionsResponse } from '@pori/shared';
@@ -37,6 +39,17 @@ const MOCK_QUESTIONS: AdminQuestionItem[] = [
     explanation: {
       directAnswer: '4 m/s',
       coreConcept: 'v = u + at',
+      stepDerivation: '$v = 0 + 2 \\times 2 = 4\\text{ m/s}$',
+      distractorAnalysis: {
+        opt_q1_a: 'সঠিক সূত্র $v = u + at$',
+        opt_q1_b: 'সময়ের মান বসানো ভুল হয়েছে',
+      },
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (৯ম-১০ম শ্রেণি)',
+        chapterName: 'দ্বিতীয় অধ্যায়: গতি',
+        pageNumber: 45,
+      },
+      proTipShortcut: '$u=0$ হলে সরাসরি গুণ করুন',
     },
     cqRubric: null,
     difficulty: 'MEDIUM',
@@ -66,7 +79,10 @@ const MOCK_QUESTIONS: AdminQuestionItem[] = [
       directAnswer: 'ক-ঘ সমাধান',
       coreConcept: 'গতির সূত্র',
     },
-    cqRubric: { ka: { mark: 1, criteria: 'ত্বরণ কী?' } },
+    cqRubric: {
+      ka: { mark: 1, criteria: 'ত্বরণ কী?' },
+      kha: { mark: 2, criteria: 'সমবেগ ব্যাখ্যা কর।' },
+    },
     difficulty: 'HARD',
     boardSource: 'Rajshahi 2024',
     isVerified: false,
@@ -184,8 +200,7 @@ describe('QuestionBankManager', () => {
     const addQuestionLink = screen.getByText(/\+ নতুন প্রশ্ন যোগ করুন/i).closest('a');
     expect(addQuestionLink?.getAttribute('href')).toBe('/admin/questions/new');
 
-    const addLessonLink = screen.getByText(/\+ নতুন লেসন যোগ/i).closest('a');
-    expect(addLessonLink?.getAttribute('href')).toBe('/admin/questions/new?type=lesson');
+    expect(screen.queryByText(/\+ নতুন লেসন যোগ/i)).toBeNull();
 
     const editLinks = screen.getAllByText(/সম্পাদনা/i);
     expect(editLinks[0].closest('a')?.getAttribute('href')).toBe(
@@ -451,8 +466,7 @@ describe('QuestionBankManager', () => {
     const addQuestionHref = screen.getByText(/\+ নতুন প্রশ্ন যোগ করুন/i).closest('a')?.getAttribute('href');
     expect(addQuestionHref).toBe('/admin/questions/new?subjectId=sub_phy&topicId=top_motion_1');
 
-    const addLessonHref = screen.getByText(/\+ নতুন লেসন যোগ/i).closest('a')?.getAttribute('href');
-    expect(addLessonHref).toBe('/admin/questions/new?type=lesson&subjectId=sub_phy&topicId=top_motion_1');
+    expect(screen.queryByText(/\+ নতুন লেসন যোগ/i)).toBeNull();
 
     fireEvent.click(screen.getByText(/ফিল্টার রিসেট/i));
 
@@ -708,5 +722,126 @@ describe('QuestionBankManager', () => {
     const alert = await screen.findByRole('alert');
     expect(alert.textContent).toContain('অনুমতি নেই');
     expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('opens QuestionDetailDrawer via "বিস্তারিত দেখুন" for MCQ & CQ, enforces RBAC footer, and coordinates archive Escape/close', async () => {
+    mockDefaultApi();
+    mockedApi.post.mockResolvedValue({ ...MOCK_QUESTIONS[1], status: 'ARCHIVED' });
+    const { rerender } = render(<QuestionBankManager />);
+
+    await waitForInitialLoad();
+    await screen.findByRole('option', { name: 'পদার্থবিজ্ঞান' });
+
+    const detailButtons = screen.getAllByRole('button', { name: /বিস্তারিত দেখুন/i });
+    expect(detailButtons).toHaveLength(2);
+
+    // 1. Open MCQ details as ADMIN
+    fireEvent.click(detailButtons[0]);
+    const mcqDrawer = screen.getByRole('dialog', { name: /প্রশ্নের বিস্তারিত/i });
+    expect(mcqDrawer).toBeDefined();
+    expect(screen.getByText(/সঠিক সূত্র/i)).toBeDefined();
+    expect(screen.getByText(/সময়ের মান বসানো ভুল হয়েছে/i)).toBeDefined();
+    expect(screen.getByText(/পৃষ্ঠা: 45/i)).toBeDefined();
+    expect(screen.getByText(/সরাসরি গুণ করুন/i)).toBeDefined();
+    expect(screen.getByText(/সম্পাদনা করুন/i).closest('a')?.getAttribute('href')).toBe(
+      '/admin/questions/q_motion_mcq_1/edit',
+    );
+    expect(screen.getByRole('button', { name: /আর্কাইভ করুন/i })).toBeDefined();
+
+    // Verify RBAC inside open drawer: EDITOR hides Archive on PUBLISHED while keeping Edit
+    act(() => {
+      useAdminAuthStore.getState().setSession('ed_jwt', {
+        id: 'ed_1',
+        phoneNumber: '01811111111',
+        role: 'EDITOR',
+      });
+    });
+    rerender(<QuestionBankManager />);
+    expect(screen.getByText(/সম্পাদনা করুন/i)).toBeDefined();
+    expect(screen.queryByRole('button', { name: /আর্কাইভ করুন/i })).toBeNull();
+
+    // Verify RBAC inside open drawer: REVIEWER hides both Edit and Archive
+    act(() => {
+      useAdminAuthStore.getState().setSession('rev_jwt', {
+        id: 'rev_1',
+        phoneNumber: '01911111111',
+        role: 'REVIEWER',
+      });
+    });
+    rerender(<QuestionBankManager />);
+    expect(screen.queryByText(/সম্পাদনা করুন/i)).toBeNull();
+    expect(screen.queryByRole('button', { name: /আর্কাইভ করুন/i })).toBeNull();
+
+    // Restore ADMIN for archive test
+    act(() => {
+      useAdminAuthStore.getState().setSession('adm_jwt', {
+        id: 'adm_1',
+        phoneNumber: '01737740010',
+        fullName: 'Asfaque',
+        role: 'ADMIN',
+      });
+    });
+    rerender(<QuestionBankManager />);
+
+    // Press Escape to close drawer when no confirmation modal is open
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('dialog', { name: /প্রশ্নের বিস্তারিত/i })).toBeNull();
+
+    // 2. Open CQ details and verify rubric parts + archive stacking + Escape coordination
+    fireEvent.click(screen.getAllByRole('button', { name: /বিস্তারিত দেখুন/i })[1]);
+    expect(screen.getByRole('dialog', { name: /প্রশ্নের বিস্তারিত/i })).toBeDefined();
+    expect(screen.getByText(/ক — জ্ঞানমূলক/i)).toBeDefined();
+    expect(screen.getByText(/ত্বরণ কী\?/i)).toBeDefined();
+
+    // Click Archive inside Drawer -> Archive modal opens ON TOP of Drawer
+    fireEvent.click(screen.getByRole('button', { name: /আর্কাইভ করুন/i }));
+    expect(screen.getByRole('dialog', { name: /প্রশ্ন আর্কাইভ নিশ্চিতকরণ/i })).toBeDefined();
+    expect(screen.getByRole('dialog', { name: /প্রশ্নের বিস্তারিত/i })).toBeDefined();
+
+    // Escape closes ONLY the Archive modal, keeping the detail drawer open
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByRole('dialog', { name: /প্রশ্ন আর্কাইভ নিশ্চিতকরণ/i })).toBeNull();
+    expect(screen.getByRole('dialog', { name: /প্রশ্নের বিস্তারিত/i })).toBeDefined();
+
+    // Re-open Archive modal and confirm -> closes both modal and drawer after list refresh
+    fireEvent.click(screen.getByRole('button', { name: /আর্কাইভ করুন/i }));
+    fireEvent.click(screen.getByText(/আর্কাইভ নিশ্চিত করুন/i));
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).toBeNull();
+      expect(screen.getByText(/প্রশ্নটি সফলভাবে আর্কাইভ করা হয়েছে/i)).toBeDefined();
+    });
+  });
+
+  it('supports fixedType="MCQ" and fixedType="CQ_CREATIVE" sub-pages locking type filter and pre-seeding add CTA', async () => {
+    mockDefaultApi([MOCK_QUESTIONS[0]]);
+    const mcqView = render(<AdminMcqQuestionsPage />);
+    await waitForInitialLoad();
+
+    expect(screen.getByText(/MCQ প্রশ্ন ব্যাংক/i)).toBeDefined();
+    expect(screen.getByText(/শুধুমাত্র MCQ প্রশ্ন/i)).toBeDefined();
+    expect(screen.queryByLabelText(/প্রশ্নের ধরন ফিল্টার/i)).toBeNull();
+    expect(mockedApi.get).toHaveBeenCalledWith(
+      expect.stringContaining('type=MCQ'),
+      { scope: 'admin' },
+    );
+    expect(screen.getByText(/\+ নতুন প্রশ্ন যোগ করুন/i).closest('a')?.getAttribute('href')).toBe(
+      '/admin/questions/new?type=mcq',
+    );
+    mcqView.unmount();
+
+    mockDefaultApi([MOCK_QUESTIONS[1]]);
+    render(<AdminCqQuestionsPage />);
+    await waitForInitialLoad(/একটি গাড়ি/i);
+
+    expect(screen.getByText(/সৃজনশীল \(CQ\) প্রশ্ন ব্যাংক/i)).toBeDefined();
+    expect(screen.getByText(/শুধুমাত্র সৃজনশীল \(CQ\) প্রশ্ন/i)).toBeDefined();
+    expect(screen.queryByLabelText(/প্রশ্নের ধরন ফিল্টার/i)).toBeNull();
+    expect(mockedApi.get).toHaveBeenCalledWith(
+      expect.stringContaining('type=CQ_CREATIVE'),
+      { scope: 'admin' },
+    );
+    expect(screen.getByText(/\+ নতুন প্রশ্ন যোগ করুন/i).closest('a')?.getAttribute('href')).toBe(
+      '/admin/questions/new?type=cq',
+    );
   });
 });

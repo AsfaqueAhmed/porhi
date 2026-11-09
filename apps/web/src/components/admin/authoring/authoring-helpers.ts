@@ -1,7 +1,12 @@
-import type { AdminQuestionItem, CQRubric } from '@pori/shared';
+import type {
+  AdminLessonItem,
+  AdminQuestionItem,
+  CQRubric,
+  QuestionTopicHierarchy,
+} from '@pori/shared';
 import { formatAdminApiError } from '@/lib/admin-api-errors';
 
-export type AuthoringContentType = 'MCQ' | 'LESSON' | 'CQ';
+export type AuthoringContentType = 'MCQ' | 'CQ';
 
 export interface SubjectOption {
   id: string;
@@ -272,6 +277,32 @@ export function createEmptyLessonFormState(): LessonFormState {
   };
 }
 
+export function createInitialLessonFormState(
+  lesson?: AdminLessonItem | null,
+): LessonFormState {
+  if (!lesson) {
+    return createEmptyLessonFormState();
+  }
+  const normalizedTerms: LessonTermDraft[] =
+    Array.isArray(lesson.importantTerms) && lesson.importantTerms.length > 0
+      ? lesson.importantTerms.map((t) => ({
+          termBangla: t.termBangla ?? '',
+          termEnglish: t.termEnglish ?? '',
+          definition: t.definition ?? '',
+        }))
+      : [{ termBangla: '', termEnglish: '', definition: '' }];
+
+  return {
+    lessonTitle: lesson.titleBangla || '',
+    learningGoal: lesson.learningGoal || '',
+    lessonExplanation: lesson.explanation || '',
+    terms: normalizedTerms,
+    workedExampleProblem: lesson.workedExample?.problem ?? '',
+    workedExampleSolution: lesson.workedExample?.stepByStepSolution ?? '',
+    memoryAid: lesson.memoryAid ?? '',
+  };
+}
+
 export function formatAuthoringApiError(err: unknown): string {
   return formatAdminApiError(err, {
     unauthorized: 'সেশনের মেয়াদ শেষ হয়েছে। অনুগ্রহ করে পুনরায় লগইন করুন।',
@@ -462,6 +493,10 @@ export function buildLessonPayload(params: {
   workedExampleSolution: string;
   memoryAid: string;
 }) {
+  const hasWorkedExample =
+    Boolean(params.workedExampleProblem.trim()) ||
+    Boolean(params.workedExampleSolution.trim());
+
   return {
     topicId: params.topicId,
     titleBangla: params.lessonTitle.trim(),
@@ -474,13 +509,47 @@ export function buildLessonPayload(params: {
         termEnglish: t.termEnglish.trim(),
         definition: t.definition.trim(),
       })),
-    workedExample: params.workedExampleProblem.trim()
+    workedExample: hasWorkedExample
       ? {
           problem: params.workedExampleProblem.trim(),
           stepByStepSolution: params.workedExampleSolution.trim(),
         }
       : undefined,
     memoryAid: params.memoryAid.trim() || undefined,
+  };
+}
+
+export function buildLessonEditPayload(params: {
+  topicId: string;
+  lessonTitle: string;
+  learningGoal: string;
+  lessonExplanation: string;
+  terms: LessonTermDraft[];
+  workedExampleProblem: string;
+  workedExampleSolution: string;
+  memoryAid: string;
+}) {
+  const createShape = buildLessonPayload(params);
+  return {
+    ...createShape,
+    workedExample: createShape.workedExample ?? null,
+    memoryAid: params.memoryAid.trim() || null,
+  };
+}
+
+export function buildLessonEditEditorialFields(
+  lesson: AdminLessonItem,
+  adminRole: string | undefined,
+  preservePublished: boolean,
+  submitForReview: boolean,
+) {
+  return {
+    ...(lesson.status === 'PUBLISHED'
+      ? { preservePublished: adminRole === 'ADMIN' ? preservePublished : false }
+      : {}),
+    ...(lesson.status === 'DRAFT' || lesson.status === 'CORRECTION'
+      ? { submitForReview }
+      : {}),
   };
 }
 
@@ -513,7 +582,7 @@ export function ensureSubjectInList(
 
 export function ensureChapterTopicInList(
   chapters: ChapterOption[],
-  topic?: AdminQuestionItem['topic'] | null,
+  topic?: QuestionTopicHierarchy | AdminQuestionItem['topic'] | AdminLessonItem['topic'] | null,
 ): ChapterOption[] {
   if (!topic?.chapter) {
     return chapters;

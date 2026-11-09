@@ -7,7 +7,6 @@ import type { AdminQuestionItem } from '@pori/shared';
 import { apiClient } from '@/lib/api-client';
 import { useAdminAuthStore } from '@/store/admin-auth-store';
 import { TopicHierarchySelector } from './authoring/TopicHierarchySelector';
-import { LessonAuthoringForm } from './authoring/LessonAuthoringForm';
 import { EditorialStatusBanners } from './authoring/EditorialStatusBanners';
 import { QuestionAuthoringForm } from './authoring/QuestionAuthoringForm';
 import {
@@ -15,10 +14,8 @@ import {
   ChapterOption,
   DEFAULT_CHAPTERS_MAP,
   DEFAULT_SUBJECTS,
-  LessonFormState,
   QuestionFormState,
   SAMPLE_CQ_TEMPLATE,
-  SAMPLE_LESSON_TEMPLATE,
   SAMPLE_MCQ_TEMPLATE,
   SubjectOption,
   buildCqCreatePayload,
@@ -26,10 +23,8 @@ import {
   buildDistractorPayload,
   buildEditEditorialFields,
   buildExplanationPayload,
-  buildLessonPayload,
   buildMcqPayload,
   buildSubjectBookTitle,
-  createEmptyLessonFormState,
   createInitialQuestionFormState,
   ensureChapterTopicInList,
   ensureSubjectInList,
@@ -46,7 +41,7 @@ export interface AuthoringStudioProps {
   onQuestionUpdated?: (updated: AdminQuestionItem) => void;
   initialTopicId?: string;
   initialSubjectId?: string;
-  initialContentType?: 'MCQ' | 'LESSON' | 'CQ';
+  initialContentType?: 'MCQ' | 'CQ';
 }
 
 export function AuthoringStudio({
@@ -114,9 +109,6 @@ export function AuthoringStudio({
 
   const [questionForm, setQuestionForm] = useState<QuestionFormState>(() =>
     createInitialQuestionFormState(isEditMode ? initialQuestion : undefined),
-  );
-  const [lessonForm, setLessonForm] = useState<LessonFormState>(
-    createEmptyLessonFormState,
   );
 
   useEffect(() => {
@@ -345,17 +337,12 @@ export function AuthoringStudio({
         options: SAMPLE_MCQ_TEMPLATE.options!.map((opt) => ({ ...opt })),
         distractorMap: { ...SAMPLE_MCQ_TEMPLATE.distractorMap },
       }));
-    } else if (contentType === 'CQ') {
+    } else {
       setQuestionForm((prev) => ({
         ...prev,
         ...SAMPLE_CQ_TEMPLATE,
         cqRubric: normalizeRubric(SAMPLE_CQ_TEMPLATE.cqRubric),
       }));
-    } else {
-      setLessonForm({
-        ...SAMPLE_LESSON_TEMPLATE,
-        terms: SAMPLE_LESSON_TEMPLATE.terms.map((t) => ({ ...t })),
-      });
     }
   };
 
@@ -371,7 +358,7 @@ export function AuthoringStudio({
 
     if (!selectedTopicId) {
       setErrorMessage(
-        'একটি নির্দিষ্ট টপিক নির্বাচন করুন। টপিক ছাড়া প্রশ্ন বা লেসন তৈরি করা যাবে না।',
+        'একটি নির্দিষ্ট টপিক নির্বাচন করুন। টপিক ছাড়া প্রশ্ন তৈরি করা যাবে না।',
       );
       setIsSubmitting(false);
       return;
@@ -424,7 +411,7 @@ export function AuthoringStudio({
             '✅ ৬-স্তরের ব্যাখ্যাসহ সৃজনশীল (CQ) প্রশ্ন সফলভাবে তৈরি হয়েছে!',
           );
         }
-      } else if (contentType === 'MCQ') {
+      } else {
         const distractorAnalysis = buildDistractorPayload(
           questionForm.options,
           questionForm.distractorMap,
@@ -467,15 +454,6 @@ export function AuthoringStudio({
             '✅ ৬-স্তরের ব্যাখ্যাসহ MCQ প্রশ্ন সফলভাবে তৈরি হয়েছে এবং রিভিউ কিউতে যুক্ত করা হয়েছে!',
           );
         }
-      } else if (contentType === 'LESSON') {
-        const payload = buildLessonPayload({
-          topicId: selectedTopicId,
-          ...lessonForm,
-        });
-        await apiClient.post('/admin/content/lessons', payload, { scope: 'admin' });
-        setSuccessMessage(
-          '✅ NCTB লেসন খসড়া সফলভাবে সংরক্ষিত হয়েছে এবং সম্পাদকীয় পর্যালোচনায় পাঠানো হয়েছে!',
-        );
       }
 
       if (!isEditMode && onContentCreated) {
@@ -508,7 +486,7 @@ export function AuthoringStudio({
           <p className="text-xs text-slate-500 mt-0.5">
             {isEditMode && initialQuestion
               ? `প্রশ্ন আইডি: ${initialQuestion.id} • বর্তমান ভার্সন v${initialQuestion.version} (${initialQuestion.status})`
-              : 'কাঠামোগত ইনপুট, LaTeX সমীকরণ ও ৬-স্তরের ব্যাখ্যার সাথে নতুন কন্টেন্ট তৈরি করুন।'}
+              : 'কাঠামোগত ইনপুট, LaTeX সমীকরণ ও ৬-স্তরের ব্যাখ্যার সাথে নতুন প্রশ্ন তৈরি করুন।'}
           </p>
         </div>
 
@@ -533,7 +511,6 @@ export function AuthoringStudio({
                 [
                   { type: 'MCQ', label: '৬-স্তরের MCQ' },
                   { type: 'CQ', label: 'সৃজনশীল (CQ)' },
-                  { type: 'LESSON', label: 'পাঠ্য লেসন (Lesson)' },
                 ] as const
               ).map((tab) => (
                 <button
@@ -600,26 +577,15 @@ export function AuthoringStudio({
         onTopicChange={handleTopicChange}
       />
 
-      {(contentType === 'MCQ' || contentType === 'CQ') && (
-        <QuestionAuthoringForm
-          contentType={contentType}
-          questionForm={questionForm}
-          isEditMode={isEditMode}
-          isSubmitting={isSubmitting}
-          isArchived={isArchived}
-          onQuestionFormChange={setQuestionForm}
-          onSubmit={handleSubmit}
-        />
-      )}
-
-      {contentType === 'LESSON' && !isEditMode && (
-        <LessonAuthoringForm
-          lessonForm={lessonForm}
-          isSubmitting={isSubmitting}
-          onLessonFormChange={setLessonForm}
-          onSubmit={handleSubmit}
-        />
-      )}
+      <QuestionAuthoringForm
+        contentType={contentType}
+        questionForm={questionForm}
+        isEditMode={isEditMode}
+        isSubmitting={isSubmitting}
+        isArchived={isArchived}
+        onQuestionFormChange={setQuestionForm}
+        onSubmit={handleSubmit}
+      />
     </div>
   );
 }
