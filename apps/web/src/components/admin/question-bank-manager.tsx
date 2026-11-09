@@ -18,7 +18,8 @@ import type {
   ListQuestionsResponse,
   QuestionStatusCounts,
 } from '@pori/shared';
-import { apiClient, ApiError } from '@/lib/api-client';
+import { apiClient } from '@/lib/api-client';
+import { formatAdminApiError } from '@/lib/admin-api-errors';
 import { useAdminAuthStore, type AdminPortalRole } from '@/store/admin-auth-store';
 import { LatexRenderer } from '@/components/math/latex-renderer';
 
@@ -47,47 +48,13 @@ const EMPTY_COUNTS: QuestionStatusCounts = {
   ARCHIVED: 0,
 };
 
-function isHtmlPayload(value: string): boolean {
-  return /^\s*</.test(value);
-}
-
 function formatQuestionBankError(err: unknown): string {
-  if (err instanceof ApiError) {
-    if (err.status === 401) {
-      return 'সেশনের মেয়াদ শেষ হয়েছে। অনুগ্রহ করে পুনরায় লগইন করুন।';
-    }
-    if (err.status === 403) {
-      return 'এই প্রশ্ন তালিকা বা কার্যক্রম পরিচালনার অনুমতি নেই।';
-    }
-    if (err.data && typeof err.data === 'object' && 'message' in err.data) {
-      const msg = (err.data as { message?: unknown }).message;
-      if (typeof msg === 'string' && msg.trim() && !isHtmlPayload(msg)) {
-        return msg.trim();
-      }
-      if (Array.isArray(msg) && msg.length > 0) {
-        const joined = msg
-          .filter(
-            (m): m is string =>
-              typeof m === 'string' && m.trim().length > 0 && !isHtmlPayload(m),
-          )
-          .join(', ');
-        if (joined) {
-          return joined;
-        }
-      }
-    } else if (
-      typeof err.data === 'string' &&
-      err.data.trim() &&
-      !isHtmlPayload(err.data)
-    ) {
-      return err.data.trim();
-    }
-    return 'প্রশ্ন তালিকা লোড বা আপডেট করতে সার্ভার ত্রুটি ঘটেছে।';
-  }
-  if (err instanceof Error && err.message.trim()) {
-    return err.message;
-  }
-  return 'অজানা নেটওয়ার্ক ত্রুটি ঘটেছে।';
+  return formatAdminApiError(err, {
+    unauthorized: 'সেশনের মেয়াদ শেষ হয়েছে। অনুগ্রহ করে পুনরায় লগইন করুন।',
+    forbidden: 'এই প্রশ্ন তালিকা বা কার্যক্রম পরিচালনার অনুমতি নেই।',
+    serverError: 'প্রশ্ন তালিকা লোড বা আপডেট করতে সার্ভার ত্রুটি ঘটেছে।',
+    unknown: 'অজানা নেটওয়ার্ক ত্রুটি ঘটেছে।',
+  });
 }
 
 function truncateStem(stem: string, maxLength = 120): string {

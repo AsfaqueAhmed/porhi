@@ -51,6 +51,28 @@ describe('Admin Layout Components', () => {
       fireEvent.click(toggleBtn);
       expect(handleToggle).toHaveBeenCalledTimes(1);
     });
+
+    it('highlights প্রশ্ন ব্যাংক ও স্টুডিও across /admin/questions/new and /admin/questions/[id]/edit', () => {
+      mockPathname = '/admin/questions/new';
+      const first = render(<AdminSidebar isCollapsed={false} onToggleCollapse={vi.fn()} />);
+
+      const questionsLinkNew = screen.getByText(/প্রশ্ন ব্যাংক ও স্টুডিও/i).closest('a');
+      const overviewLinkNew = screen.getByText(/ড্যাশবোর্ড ওভারভিউ/i).closest('a');
+      expect(questionsLinkNew?.getAttribute('href')).toBe('/admin/questions');
+      expect(questionsLinkNew?.className).toContain('bg-indigo-50');
+      expect(questionsLinkNew?.className).toContain('text-indigo-700');
+      expect(overviewLinkNew?.className).not.toContain('bg-indigo-50');
+      first.unmount();
+
+      mockPathname = '/admin/questions/q_motion_mcq_1/edit';
+      render(<AdminSidebar isCollapsed={false} onToggleCollapse={vi.fn()} />);
+
+      const questionsLinkEdit = screen.getByText(/প্রশ্ন ব্যাংক ও স্টুডিও/i).closest('a');
+      const curriculumLinkEdit = screen.getByText(/কারিকুলাম ট্রাফি/i).closest('a');
+      expect(questionsLinkEdit?.className).toContain('bg-indigo-50');
+      expect(questionsLinkEdit?.className).toContain('text-indigo-700');
+      expect(curriculumLinkEdit?.className).not.toContain('bg-indigo-50');
+    });
   });
 
   describe('AdminTopbar', () => {

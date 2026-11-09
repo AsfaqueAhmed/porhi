@@ -6,44 +6,15 @@ import { useParams } from 'next/navigation';
 import type { AdminQuestionItem } from '@pori/shared';
 import { AuthoringStudio } from '../../../../../components/admin/authoring-studio';
 import { apiClient, ApiError } from '@/lib/api-client';
-
-function isHtmlPayload(value: string): boolean {
-  return /^\s*</.test(value);
-}
+import { formatAdminApiError } from '@/lib/admin-api-errors';
 
 function formatQuestionLoadError(err: unknown): string {
-  if (err instanceof ApiError) {
-    if (err.status === 401) {
-      return 'সেশনের মেয়াদ শেষ হয়েছে। অনুগ্রহ করে পুনরায় লগইন করুন।';
-    }
-    if (err.status === 403) {
-      return 'এই প্রশ্নটি দেখার বা সম্পাদনা করার অনুমতি নেই।';
-    }
-    if (err.data && typeof err.data === 'object' && 'message' in err.data) {
-      const msg = (err.data as { message?: unknown }).message;
-      if (typeof msg === 'string' && msg.trim() && !isHtmlPayload(msg)) {
-        return msg.trim();
-      }
-      if (Array.isArray(msg)) {
-        const joined = msg
-          .filter(
-            (m): m is string =>
-              typeof m === 'string' && m.trim().length > 0 && !isHtmlPayload(m),
-          )
-          .join(', ');
-        if (joined) {
-          return joined;
-        }
-      }
-    } else if (typeof err.data === 'string' && err.data.trim() && !isHtmlPayload(err.data)) {
-      return err.data.trim();
-    }
-    return 'প্রশ্নটি লোড করতে সার্ভার ত্রুটি ঘটেছে।';
-  }
-  if (err instanceof Error && err.message.trim()) {
-    return err.message;
-  }
-  return 'প্রশ্নটি লোড করতে ব্যর্থ হয়েছে।';
+  return formatAdminApiError(err, {
+    unauthorized: 'সেশনের মেয়াদ শেষ হয়েছে। অনুগ্রহ করে পুনরায় লগইন করুন।',
+    forbidden: 'এই প্রশ্নটি দেখার বা সম্পাদনা করার অনুমতি নেই।',
+    serverError: 'প্রশ্নটি লোড করতে সার্ভার ত্রুটি ঘটেছে।',
+    unknown: 'প্রশ্নটি লোড করতে ব্যর্থ হয়েছে।',
+  });
 }
 
 export default function AdminEditQuestionPage() {

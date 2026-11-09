@@ -631,8 +631,327 @@ describe('Admin Question Authoring & Edit Pages', () => {
       new ApiError(403, 'Forbidden', { message: 'Forbidden' }),
     );
 
-    render(<AdminEditQuestionPage />);
+    const forbiddenView = render(<AdminEditQuestionPage />);
     const alert403 = await screen.findByRole('alert');
     expect(alert403.textContent).toMatch(/অনুমতি নেই/i);
+    forbiddenView.unmount();
+
+    mockedApi.get.mockRejectedValueOnce(
+      new ApiError(401, 'Unauthorized', { message: 'Unauthorized' }),
+    );
+
+    render(<AdminEditQuestionPage />);
+    const alert401 = await screen.findByRole('alert');
+    expect(alert401.textContent).toMatch(/সেশনের মেয়াদ শেষ/i);
+  });
+
+  it('AdminEditQuestionPage loads CQ_CREATIVE end-to-end via GET and submits PATCH with options: null and updated cqRubric', async () => {
+    mockPathname = '/admin/questions/q_motion_cq_1/edit';
+    mockParams = { id: 'q_motion_cq_1' };
+
+    mockedApi.get.mockImplementation(async (endpoint: string) => {
+      if (endpoint === '/admin/content/questions/q_motion_cq_1') {
+        return SEEDED_DRAFT_CQ;
+      }
+      if (endpoint === '/curriculum/subjects') {
+        return [
+          {
+            id: 'sub_ssc_physics',
+            code: 'ssc_physics',
+            nameBangla: 'পদার্থবিজ্ঞান',
+            classLevel: 'CLASS_9_10',
+            syllabusYear: 2026,
+          },
+        ];
+      }
+      if (endpoint === '/curriculum/subjects/sub_ssc_physics/chapters') {
+        return [
+          {
+            id: 'chap_motion',
+            titleBangla: 'দ্বিতীয় অধ্যায়: গতি',
+            topics: [{ id: 'top_motion_1', titleBangla: 'গতির সমীকরণ' }],
+          },
+        ];
+      }
+      return [];
+    });
+
+    mockedApi.patch.mockResolvedValueOnce({
+      ...SEEDED_DRAFT_CQ,
+      cqRubric: {
+        ...SEEDED_DRAFT_CQ.cqRubric,
+        ka: { mark: 1, criteria: 'সংশোধিত জ্ঞানমূলক প্রশ্ন' },
+      },
+      version: 2,
+    });
+
+    render(<AdminEditQuestionPage />);
+
+    const kaInput = (await screen.findByLabelText(/ক — জ্ঞানমূলক মানদণ্ড/i)) as HTMLTextAreaElement;
+    await waitFor(() => {
+      expect(mockedApi.get).toHaveBeenCalledWith(
+        '/curriculum/subjects/sub_ssc_physics/chapters',
+        { scope: 'admin' },
+      );
+    });
+    expect(kaInput.value).toBe('ত্বরণ কাকে বলে?');
+
+    fireEvent.change(kaInput, { target: { value: 'সংশোধিত জ্ঞানমূলক প্রশ্ন' } });
+    fireEvent.click(screen.getByText(/পরিবর্তন সংরক্ষণ করুন/i).closest('button')!);
+
+    await waitFor(() => {
+      expect(mockedApi.patch).toHaveBeenCalledWith(
+        '/admin/content/questions/q_motion_cq_1',
+        expect.objectContaining({
+          type: 'CQ_CREATIVE',
+          options: null,
+          cqRubric: expect.objectContaining({
+            ka: { mark: 1, criteria: 'সংশোধিত জ্ঞানমূলক প্রশ্ন' },
+          }),
+        }),
+        { scope: 'admin' },
+      );
+    });
+    expect(await screen.findByText(/সৃজনশীল \(CQ\) প্রশ্নটি সফলভাবে আপডেট করা হয়েছে/i)).toBeDefined();
+    expect(screen.getByText(/বর্তমান ভার্সন v2/i)).toBeDefined();
+  });
+
+  it('AuthoringStudio blocks empty CQ rubric submission in Bengali without calling API', async () => {
+    mockCurriculumApi();
+    render(<AuthoringStudio initialContentType="CQ" />);
+
+    await screen.findByRole('option', { name: /গতির সমীকরণ/i });
+
+    fireEvent.change(screen.getByPlaceholderText(/প্রশ্নের মূল বিবরণ লিখুন/i), {
+      target: { value: 'উদ্দীপক: একটি বস্তু সরলপথে চলছে।' },
+    });
+    fireEvent.change(screen.getByLabelText(/সরাসরি উত্তর ইনপুট/i), {
+      target: { value: 'উত্তর' },
+    });
+    fireEvent.change(screen.getByLabelText(/মূল ধারণা ইনপুট/i), {
+      target: { value: 'গতি' },
+    });
+
+    fireEvent.click(
+      screen.getByText(/৬-স্তরের ব্যাখ্যাসহ সৃজনশীল প্রশ্ন জমা দাও/i).closest('button')!,
+    );
+
+    const alertBanner = await screen.findByRole('alert');
+    expect(alertBanner.textContent).toContain(
+      'সৃজনশীল (CQ) প্রশ্নের জন্য অন্তত একটি অংশের (ক/খ/গ/ঘ) মানদণ্ড লিখুন।',
+    );
+    expect(mockedApi.post).not.toHaveBeenCalled();
+  });
+
+  it('AuthoringStudio shows ARCHIVED read-only banner with return link and disables save', async () => {
+    mockCurriculumApi();
+    const archivedQuestion: AdminQuestionItem = {
+      ...SEEDED_PUBLISHED_MCQ,
+      id: 'q_archived_guard_1',
+      status: 'ARCHIVED',
+    };
+
+    render(<AuthoringStudio mode="edit" initialQuestion={archivedQuestion} />);
+
+    await waitFor(() => {
+      expect(mockedApi.get).toHaveBeenCalledWith(
+        '/curriculum/subjects/sub_ssc_physics/chapters',
+        { scope: 'admin' },
+      );
+    });
+
+    expect(
+      screen.getByText(/এই প্রশ্নটি আর্কাইভ \(ARCHIVED\) অবস্থায় আছে — সরাসরি সম্পাদনা করা যাবে না।/i),
+    ).toBeDefined();
+    const backLink = screen.getByText('প্রশ্ন তালিকায় ফিরুন').closest('a');
+    expect(backLink?.getAttribute('href')).toBe('/admin/questions');
+
+    const saveBtn = screen
+      .getByText(/পরিবর্তন সংরক্ষণ করুন/i)
+      .closest('button') as HTMLButtonElement;
+    expect(saveBtn.disabled).toBe(true);
+
+    const form = saveBtn.closest('form') as HTMLFormElement;
+    fireEvent.submit(form);
+    expect(mockedApi.patch).not.toHaveBeenCalled();
+  });
+
+  it('AuthoringStudio edit clears stale chapter/topic on subject switch to empty or failing /chapters', async () => {
+    mockedApi.get.mockImplementation(async (endpoint: string) => {
+      if (endpoint === '/curriculum/subjects') {
+        return [
+          {
+            id: 'sub_ssc_physics',
+            code: 'ssc_physics',
+            nameBangla: 'পদার্থবিজ্ঞান',
+            classLevel: 'CLASS_9_10',
+            syllabusYear: 2026,
+          },
+          {
+            id: 'sub_empty',
+            code: 'ssc_empty',
+            nameBangla: 'খালি বিষয়',
+            classLevel: 'CLASS_9_10',
+            syllabusYear: 2026,
+          },
+          {
+            id: 'sub_fail',
+            code: 'ssc_fail',
+            nameBangla: 'ত্রুটিপূর্ণ বিষয়',
+            classLevel: 'CLASS_9_10',
+            syllabusYear: 2026,
+          },
+        ];
+      }
+      if (endpoint === '/curriculum/subjects/sub_ssc_physics/chapters') {
+        return [
+          {
+            id: 'chap_motion',
+            titleBangla: 'দ্বিতীয় অধ্যায়: গতি',
+            topics: [{ id: 'top_motion_1', titleBangla: 'গতির সমীকরণ' }],
+          },
+        ];
+      }
+      if (endpoint === '/curriculum/subjects/sub_empty/chapters') {
+        return [];
+      }
+      if (endpoint === '/curriculum/subjects/sub_fail/chapters') {
+        throw new ApiError(500, 'Internal Server Error', {});
+      }
+      return [];
+    });
+
+    render(<AuthoringStudio mode="edit" initialQuestion={SEEDED_PUBLISHED_MCQ} />);
+
+    await screen.findByRole('option', { name: /খালি বিষয়/i });
+    const subjectSelect = screen.getByLabelText(/১\. বিষয়/i) as HTMLSelectElement;
+    const chapterSelect = screen.getByLabelText(/২\. অধ্যায়/i) as HTMLSelectElement;
+    const topicSelect = screen.getByLabelText(/৩\. নির্দিষ্ট টপিক/i) as HTMLSelectElement;
+
+    // 1. Switch to subject with 0 chapters -> clears chapter & topic instead of keeping top_motion_1
+    fireEvent.change(subjectSelect, { target: { value: 'sub_empty' } });
+    await waitFor(() => {
+      expect(mockedApi.get).toHaveBeenCalledWith(
+        '/curriculum/subjects/sub_empty/chapters',
+        { scope: 'admin' },
+      );
+      expect(chapterSelect.value).toBe('');
+      expect(topicSelect.value).toBe('');
+    });
+
+    // Submitting must block with topic-required error rather than patching top_motion_1
+    fireEvent.click(screen.getByText(/পরিবর্তন সংরক্ষণ করুন/i).closest('button')!);
+    const emptyTopicAlert = await screen.findByRole('alert');
+    expect(emptyTopicAlert.textContent).toContain('একটি নির্দিষ্ট টপিক নির্বাচন করুন');
+    expect(mockedApi.patch).not.toHaveBeenCalled();
+
+    // 2. Switch to subject whose /chapters rejects -> clears chapter & topic and shows error banner
+    fireEvent.change(subjectSelect, { target: { value: 'sub_fail' } });
+    const failAlert = await screen.findByRole('alert');
+    expect(failAlert.textContent).not.toContain('একটি নির্দিষ্ট টপিক নির্বাচন করুন');
+    expect(chapterSelect.value).toBe('');
+    expect(topicSelect.value).toBe('');
+    expect(mockedApi.patch).not.toHaveBeenCalled();
+  });
+
+  it('AuthoringStudio create omits textbookCitation when citationBook is blank and trims stem/options on submit', async () => {
+    mockCurriculumApi();
+    mockedApi.post.mockResolvedValueOnce({ id: 'q_trimmed_1' });
+
+    render(<AuthoringStudio />);
+    await screen.findByRole('option', { name: /গতির সমীকরণ/i });
+
+    const stemInput = screen.getByPlaceholderText(/প্রশ্নের মূল বিবরণ লিখুন/i) as HTMLTextAreaElement;
+    fireEvent.change(stemInput, { target: { value: '  ত্বরণ কী?  ' } });
+
+    fireEvent.change(screen.getByPlaceholderText('বিকল্প ক এর টেক্সট'), {
+      target: { value: '  বেগ পরিবর্তনের হার  ' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('বিকল্প খ এর টেক্সট'), {
+      target: { value: '  সরণের হার  ' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('বিকল্প গ এর টেক্সট'), {
+      target: { value: '  বল  ' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('বিকল্প ঘ এর টেক্সট'), {
+      target: { value: '  কাজ  ' },
+    });
+    fireEvent.change(screen.getByLabelText(/সরাসরি উত্তর ইনপুট/i), {
+      target: { value: '  বেগ পরিবর্তনের হার  ' },
+    });
+    fireEvent.change(screen.getByLabelText(/মূল ধারণা ইনপুট/i), {
+      target: { value: '  a = dv/dt  ' },
+    });
+
+    fireEvent.click(screen.getByText(/৬-স্তরের ব্যাখ্যাসহ প্রশ্ন জমা দাও/i).closest('button')!);
+
+    await waitFor(() => {
+      expect(mockedApi.post).toHaveBeenCalledTimes(1);
+    });
+
+    const [, payload] = mockedApi.post.mock.calls[0] as [string, Record<string, unknown>];
+    expect(payload.stem).toBe('ত্বরণ কী?');
+    expect(payload.options).toEqual([
+      { id: 'opt_1', text: 'বেগ পরিবর্তনের হার', isCorrect: true },
+      { id: 'opt_2', text: 'সরণের হার', isCorrect: false },
+      { id: 'opt_3', text: 'বল', isCorrect: false },
+      { id: 'opt_4', text: 'কাজ', isCorrect: false },
+    ]);
+    expect(payload.explanation).toEqual({
+      directAnswer: 'বেগ পরিবর্তনের হার',
+      coreConcept: 'a = dv/dt',
+    });
+    expect(payload.explanation).not.toHaveProperty('textbookCitation');
+  });
+
+  it('AuthoringStudio resets stale messages and preserves fallback chapter when initialQuestion.id changes', async () => {
+    mockCurriculumApi();
+    mockedApi.patch.mockResolvedValueOnce({
+      ...SEEDED_PUBLISHED_MCQ,
+      version: 3,
+    });
+
+    const { rerender } = render(
+      <AuthoringStudio mode="edit" initialQuestion={SEEDED_PUBLISHED_MCQ} />,
+    );
+    await waitFor(() => {
+      expect(mockedApi.get).toHaveBeenCalledWith(
+        '/curriculum/subjects/sub_ssc_physics/chapters',
+        { scope: 'admin' },
+      );
+    });
+
+    fireEvent.click(screen.getByText(/পরিবর্তন সংরক্ষণ করুন/i).closest('button')!);
+    expect(await screen.findByText(/সফলভাবে আপডেট করা হয়েছে/i)).toBeDefined();
+
+    const secondQuestion: AdminQuestionItem = {
+      ...SEEDED_DRAFT_CQ,
+      id: 'q_second_2',
+      topicId: 'top_second_missing',
+      topic: {
+        id: 'top_second_missing',
+        titleBangla: 'নিউটনের সূত্র',
+        chapter: {
+          id: 'chap_force',
+          titleBangla: 'তৃতীয় অধ্যায়: বল',
+          subject: {
+            id: 'sub_ssc_physics',
+            code: 'ssc_physics',
+            nameBangla: 'পদার্থবিজ্ঞান',
+          },
+        },
+      },
+    };
+
+    rerender(<AuthoringStudio mode="edit" initialQuestion={secondQuestion} />);
+
+    await waitFor(() => {
+      expect(screen.queryByText(/সফলভাবে আপডেট করা হয়েছে/i)).toBeNull();
+    });
+    expect((screen.getByLabelText(/২\. অধ্যায়/i) as HTMLSelectElement).value).toBe('chap_force');
+    expect((screen.getByLabelText(/৩\. নির্দিষ্ট টপিক/i) as HTMLSelectElement).value).toBe(
+      'top_second_missing',
+    );
   });
 });
+
