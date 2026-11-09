@@ -1337,6 +1337,15 @@ describe('ContentAdminModule (e2e)', () => {
         .get('/admin/content/lessons/missing_lesson_id')
         .set('Authorization', `Bearer ${reviewerToken}`)
         .expect(404);
+      await request(app.getHttpServer())
+        .patch('/admin/content/lessons/missing_lesson_id')
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({ titleBangla: 'নেই' })
+        .expect(404);
+      await request(app.getHttpServer())
+        .post('/admin/content/lessons/missing_lesson_id/archive')
+        .set('Authorization', `Bearer ${editorToken}`)
+        .expect(404);
 
       // REVIEWER cannot edit or archive
       await request(app.getHttpServer())
