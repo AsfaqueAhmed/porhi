@@ -10,6 +10,7 @@ interface MockUser {
   guestId: string | null;
   phoneNumber: string | null;
   fullName: string | null;
+  passwordHash?: string | null;
   role: 'STUDENT' | 'EDITOR' | 'REVIEWER' | 'ADMIN';
   selectedClass: string;
   createdAt: Date;
@@ -19,6 +20,7 @@ interface MockUser {
 describe('AuthModule (e2e)', () => {
   let app: INestApplication;
   let users: MockUser[] = [];
+  let subjects: any[] = [];
   let examSessions: any[] = [];
   let revisionMistakes: any[] = [];
   let eventLogs: any[] = [];
@@ -37,6 +39,7 @@ describe('AuthModule (e2e)', () => {
           guestId: data.guestId ?? null,
           phoneNumber: data.phoneNumber ?? null,
           fullName: data.fullName ?? null,
+          passwordHash: data.passwordHash ?? null,
           role: data.role ?? 'STUDENT',
           selectedClass: data.selectedClass ?? 'SSC',
           createdAt: new Date(),
@@ -117,6 +120,25 @@ describe('AuthModule (e2e)', () => {
         return { count };
       },
     },
+    subject: {
+      findUnique: async ({ where }: { where: { id?: string; code?: string } }) => {
+        if (where.id) return subjects.find((s) => s.id === where.id) || null;
+        if (where.code) return subjects.find((s) => s.code === where.code) || null;
+        return null;
+      },
+      create: async ({ data }: { data: any }) => {
+        const newSubject = {
+          id: `sub_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+          code: data.code,
+          nameBangla: data.nameBangla,
+          classLevel: data.classLevel,
+          syllabusYear: data.syllabusYear ?? 2026,
+          isReady: data.isReady ?? false,
+        };
+        subjects.push(newSubject);
+        return newSubject;
+      },
+    },
     $transaction: async (fn: any) => {
       if (typeof fn === 'function') {
         return fn(mockPrismaService);
@@ -151,6 +173,7 @@ describe('AuthModule (e2e)', () => {
 
   beforeEach(() => {
     users = [];
+    subjects = [];
     examSessions = [];
     revisionMistakes = [];
     eventLogs = [];
@@ -315,6 +338,139 @@ describe('AuthModule (e2e)', () => {
       expect(permanentProfile.body.phoneNumber).toBe('01799998888');
       expect(permanentProfile.body.guestId).toBeNull();
       expect(permanentProfile.body.isGuest).toBe(false);
+    });
+  });
+
+  describe('POST /auth/admin/login & Admin RBAC', () => {
+    it('logs in seeded ADMIN with password, accesses /auth/me & /admin/content/subjects, rejects bad password and blocks OTP bypass', async () => {
+      const { hashPassword } = await import('../src/modules/auth/password.util');
+      const passwordHash = await hashPassword('Asfaque@321');
+      users.push({
+        id: 'usr_admin_1',
+        guestId: null,
+        phoneNumber: '01737740010',
+        fullName: 'Asfaque (System Admin)',
+        passwordHash,
+        role: 'ADMIN',
+        selectedClass: 'SSC',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      // 1. Rejects invalid password with 401
+      await request(app.getHttpServer())
+        .post('/auth/admin/login')
+        .send({ phoneNumber: '01737740010', password: 'WrongPassword' })
+        .expect(401);
+
+      // 2. Rejects malformed login payload with 400
+      await request(app.getHttpServer())
+        .post('/auth/admin/login')
+        .send({ phoneNumber: '01737740010', password: '123' })
+        .expect(400);
+
+      // 3. Blocks OTP takeover even with dev master OTP 1234
+      await request(app.getHttpServer())
+        .post('/auth/request-otp')
+        .send({ phoneNumber: '01737740010' })
+        .expect(403);
+
+      await request(app.getHttpServer())
+        .post('/auth/verify-otp')
+        .send({ phoneNumber: '01737740010', code: '1234' })
+        .expect(403);
+
+      await request(app.getHttpServer())
+        .post('/auth/verify-otp')
+        .send({ phoneNumber: '+8801737740010', code: '1234' })
+        .expect(403);
+
+      // 4. Valid password login returns JWT and sanitized admin user
+      const loginRes = await request(app.getHttpServer())
+        .post('/auth/admin/login')
+        .send({ phoneNumber: '01737740010', password: 'Asfaque@321' })
+        .expect(201);
+
+      expect(loginRes.body.accessToken).toBeDefined();
+      expect(loginRes.body.user).toMatchObject({
+        id: 'usr_admin_1',
+        phoneNumber: '01737740010',
+        fullName: 'Asfaque (System Admin)',
+        role: 'ADMIN',
+        selectedClass: 'SSC',
+      });
+      expect(loginRes.body.user.passwordHash).toBeUndefined();
+
+      const adminToken = loginRes.body.accessToken;
+
+      // 5. Token validates on /auth/me without exposing passwordHash
+      const meRes = await request(app.getHttpServer())
+        .get('/auth/me')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200);
+
+      expect(meRes.body.role).toBe('ADMIN');
+      expect(meRes.body.passwordHash).toBeUndefined();
+
+      // 6. Admin token grants access to protected /admin/content/subjects
+      const subjectRes = await request(app.getHttpServer())
+        .post('/admin/content/subjects')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({
+          code: 'ssc_biology',
+          nameBangla: 'জীববিজ্ঞান',
+          classLevel: 'CLASS_9_10',
+        })
+        .expect(201);
+
+      expect(subjectRes.body.code).toBe('ssc_biology');
+
+      // 7. Student OTP token is rejected with 403 on /admin/content/subjects
+      const studentVerifyRes = await request(app.getHttpServer())
+        .post('/auth/verify-otp')
+        .send({ phoneNumber: '01755556666', code: '1234' })
+        .expect(201);
+
+      await request(app.getHttpServer())
+        .post('/admin/content/subjects')
+        .set('Authorization', `Bearer ${studentVerifyRes.body.accessToken}`)
+        .send({
+          code: 'ssc_math',
+          nameBangla: 'গণিত',
+          classLevel: 'CLASS_9_10',
+        })
+        .expect(403);
+    });
+
+    it('rejects STUDENT with passwordHash on /auth/admin/login and blocks OTP login', async () => {
+      const { hashPassword } = await import('../src/modules/auth/password.util');
+      const passwordHash = await hashPassword('StudentPass123');
+      users.push({
+        id: 'usr_student_pw',
+        guestId: null,
+        phoneNumber: '01788887777',
+        fullName: 'Student With Pw',
+        passwordHash,
+        role: 'STUDENT',
+        selectedClass: 'SSC',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+
+      await request(app.getHttpServer())
+        .post('/auth/admin/login')
+        .send({ phoneNumber: '01788887777', password: 'StudentPass123' })
+        .expect(403);
+
+      await request(app.getHttpServer())
+        .post('/auth/request-otp')
+        .send({ phoneNumber: '01788887777' })
+        .expect(403);
+
+      await request(app.getHttpServer())
+        .post('/auth/verify-otp')
+        .send({ phoneNumber: '01788887777', code: '1234' })
+        .expect(403);
     });
   });
 });

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../../database/prisma.service';
 import { JwtService } from '@nestjs/jwt';
@@ -406,6 +406,185 @@ describe('AuthService', () => {
       process.env.JWT_SECRET = 'super-secret-prod-key';
       process.env.NODE_ENV = 'production';
       expect(getJwtSecret()).toBe('super-secret-prod-key');
+    });
+  });
+
+  describe('adminLogin', () => {
+    it('authenticates ADMIN/EDITOR/REVIEWER user with valid password and omits passwordHash', async () => {
+      const { hashPassword } = await import('./password.util');
+      const passwordHash = await hashPassword('Asfaque@321');
+
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'u-admin-1',
+        guestId: null,
+        phoneNumber: '01737740010',
+        fullName: 'Asfaque (System Admin)',
+        passwordHash,
+        role: 'ADMIN',
+        selectedClass: 'SSC',
+      });
+
+      const result = await authService.adminLogin('+8801737740010', 'Asfaque@321');
+
+      expect(jwtService.sign).toHaveBeenCalledWith({
+        sub: 'u-admin-1',
+        role: 'ADMIN',
+        isGuest: false,
+      });
+      expect(result).toEqual({
+        accessToken: 'mock_jwt_token',
+        user: {
+          id: 'u-admin-1',
+          phoneNumber: '01737740010',
+          fullName: 'Asfaque (System Admin)',
+          role: 'ADMIN',
+          selectedClass: 'SSC',
+        },
+      });
+      expect((result.user as unknown as Record<string, unknown>).passwordHash).toBeUndefined();
+    });
+
+    it('authenticates EDITOR and REVIEWER users with valid password', async () => {
+      const { hashPassword } = await import('./password.util');
+      const editorHash = await hashPassword('EditorPass@1');
+      const reviewerHash = await hashPassword('ReviewerPass@1');
+
+      prisma.user.findUnique.mockResolvedValueOnce({
+        id: 'u-editor-1',
+        guestId: null,
+        phoneNumber: '01711112222',
+        fullName: 'Editor One',
+        passwordHash: editorHash,
+        role: 'EDITOR',
+        selectedClass: 'SSC',
+      });
+
+      const editorResult = await authService.adminLogin('01711112222', 'EditorPass@1');
+      expect(editorResult.user.role).toBe('EDITOR');
+      expect(jwtService.sign).toHaveBeenCalledWith({
+        sub: 'u-editor-1',
+        role: 'EDITOR',
+        isGuest: false,
+      });
+
+      prisma.user.findUnique.mockResolvedValueOnce({
+        id: 'u-reviewer-1',
+        guestId: null,
+        phoneNumber: '01711113333',
+        fullName: 'Reviewer One',
+        passwordHash: reviewerHash,
+        role: 'REVIEWER',
+        selectedClass: 'SSC',
+      });
+
+      const reviewerResult = await authService.adminLogin('01711113333', 'ReviewerPass@1');
+      expect(reviewerResult.user.role).toBe('REVIEWER');
+      expect(jwtService.sign).toHaveBeenCalledWith({
+        sub: 'u-reviewer-1',
+        role: 'REVIEWER',
+        isGuest: false,
+      });
+    });
+
+    it('throws UnauthorizedException for wrong password, missing user, or user without passwordHash', async () => {
+      const { hashPassword } = await import('./password.util');
+      const passwordHash = await hashPassword('Asfaque@321');
+
+      prisma.user.findUnique.mockResolvedValueOnce(null);
+      await expect(authService.adminLogin('01737740010', 'Asfaque@321')).rejects.toThrow(
+        UnauthorizedException,
+      );
+
+      prisma.user.findUnique.mockResolvedValueOnce({
+        id: 'u-admin-no-pw',
+        phoneNumber: '01737740010',
+        passwordHash: null,
+        role: 'ADMIN',
+      });
+      await expect(authService.adminLogin('01737740010', 'Asfaque@321')).rejects.toThrow(
+        UnauthorizedException,
+      );
+
+      prisma.user.findUnique.mockResolvedValueOnce({
+        id: 'u-admin-1',
+        phoneNumber: '01737740010',
+        passwordHash,
+        role: 'ADMIN',
+      });
+      await expect(authService.adminLogin('01737740010', 'WrongPassword')).rejects.toThrow(
+        UnauthorizedException,
+      );
+    });
+
+    it('throws ForbiddenException when a STUDENT with passwordHash attempts adminLogin', async () => {
+      const { hashPassword } = await import('./password.util');
+      const passwordHash = await hashPassword('StudentPass123');
+
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'u-student-1',
+        phoneNumber: '01712345678',
+        passwordHash,
+        role: 'STUDENT',
+        selectedClass: 'SSC',
+      });
+
+      await expect(authService.adminLogin('01712345678', 'StudentPass123')).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it('throws BadRequestException for invalid phone format or password shorter than 6 characters', async () => {
+      await expect(authService.adminLogin('invalid', 'Asfaque@321')).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(authService.adminLogin('01737740010', '123')).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(authService.adminLogin('01737740010', '')).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+  });
+
+  describe('OTP Hardening for Admin/Staff Accounts', () => {
+    it('blocks requestOtp and verifyOtp (even master OTP 1234) for ADMIN or password-enabled accounts', async () => {
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'u-admin-1',
+        phoneNumber: '01737740010',
+        passwordHash: 'salt:hash',
+        role: 'ADMIN',
+      });
+
+      await expect(authService.requestOtp('01737740010')).rejects.toThrow(ForbiddenException);
+      await expect(authService.verifyOtp('01737740010', '1234')).rejects.toThrow(
+        ForbiddenException,
+      );
+    });
+
+    it('blocks requestOtp and verifyOtp for non-STUDENT staff without passwordHash and password-enabled STUDENT', async () => {
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'u-editor-no-pw',
+        phoneNumber: '01722223333',
+        passwordHash: null,
+        role: 'EDITOR',
+      });
+
+      await expect(authService.requestOtp('01722223333')).rejects.toThrow(ForbiddenException);
+      await expect(authService.verifyOtp('01722223333', '1234')).rejects.toThrow(
+        ForbiddenException,
+      );
+
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'u-student-with-pw',
+        phoneNumber: '01733334444',
+        passwordHash: 'salt:hash',
+        role: 'STUDENT',
+      });
+
+      await expect(authService.requestOtp('01733334444')).rejects.toThrow(ForbiddenException);
+      await expect(authService.verifyOtp('01733334444', '1234')).rejects.toThrow(
+        ForbiddenException,
+      );
     });
   });
 });

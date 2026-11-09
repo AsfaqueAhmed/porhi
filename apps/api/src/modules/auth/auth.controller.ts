@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Inject, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { AdminLoginDto } from './dto/admin-login.dto';
 import { GuestLoginDto } from './dto/guest-login.dto';
 import { RequestOtpDto } from './dto/request-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
@@ -22,6 +23,11 @@ export class AuthController {
   @Post('verify-otp')
   async verifyOtp(@Body() dto: VerifyOtpDto) {
     return this.authService.verifyOtp(dto.phoneNumber, dto.code, dto.guestId);
+  }
+
+  @Post('admin/login')
+  async adminLogin(@Body() dto: AdminLoginDto) {
+    return this.authService.adminLogin(dto.phoneNumber, dto.password);
   }
 
   @UseGuards(JwtAuthGuard)

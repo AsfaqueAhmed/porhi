@@ -1,9 +1,16 @@
-import { Injectable, Inject, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  BadRequestException,
+  ForbiddenException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Role, User } from '@prisma/client';
 import { randomInt } from 'crypto';
 import { PrismaService } from '../../database/prisma.service';
 import { PHONE_REGEX } from './dto/request-otp.dto';
+import { verifyPassword } from './password.util';
 
 interface OtpEntry {
   code: string;
@@ -11,12 +18,25 @@ interface OtpEntry {
   attempts: number;
 }
 
+const ALLOWED_ADMIN_PORTAL_ROLES: Role[] = [Role.ADMIN, Role.EDITOR, Role.REVIEWER];
+
 export interface AuthResponseUser {
   id: string;
   guestId?: string | null;
   phoneNumber?: string | null;
   role: Role;
   selectedClass: string;
+}
+
+export interface AdminAuthResult {
+  accessToken: string;
+  user: {
+    id: string;
+    phoneNumber: string | null;
+    fullName: string | null;
+    role: Role;
+    selectedClass: string;
+  };
 }
 
 export interface GuestAuthResult {
@@ -54,6 +74,9 @@ export class AuthService {
   }
 
   normalizePhoneNumber(phone: string): string {
+    if (!phone || typeof phone !== 'string') {
+      throw new BadRequestException('Invalid phone number format');
+    }
     const trimmed = phone.trim();
     if (!PHONE_REGEX.test(trimmed)) {
       throw new BadRequestException('Invalid phone number format');
@@ -110,6 +133,13 @@ export class AuthService {
     this.cleanupExpiredOtps();
     const normalizedPhone = this.normalizePhoneNumber(phoneNumber);
 
+    const existingUser = await this.prisma.user.findUnique({
+      where: { phoneNumber: normalizedPhone },
+    });
+    if (existingUser && (existingUser.role !== Role.STUDENT || Boolean(existingUser.passwordHash))) {
+      throw new ForbiddenException('OTP login is not permitted for admin or staff accounts');
+    }
+
     const generatedCode = randomInt(100000, 1000000).toString();
     const ttlMs = 5 * 60 * 1000; // 5 minutes
 
@@ -128,6 +158,16 @@ export class AuthService {
   async verifyOtp(phoneNumber: string, code: string, guestId?: string): Promise<VerifyOtpResult> {
     this.cleanupExpiredOtps();
     const normalizedPhone = this.normalizePhoneNumber(phoneNumber);
+
+    const existingUserWithPhone = await this.prisma.user.findUnique({
+      where: { phoneNumber: normalizedPhone },
+    });
+    if (
+      existingUserWithPhone &&
+      (existingUserWithPhone.role !== Role.STUDENT || Boolean(existingUserWithPhone.passwordHash))
+    ) {
+      throw new ForbiddenException('OTP login is not permitted for admin or staff accounts');
+    }
 
     const storedEntry = this.otpStore.get(normalizedPhone);
     const now = Date.now();
@@ -150,10 +190,6 @@ export class AuthService {
     if (storedEntry) {
       this.otpStore.delete(normalizedPhone);
     }
-
-    const existingUserWithPhone = await this.prisma.user.findUnique({
-      where: { phoneNumber: normalizedPhone },
-    });
 
     let progressMigrated = false;
     let user: User;
@@ -270,6 +306,46 @@ export class AuthService {
         selectedClass: user.selectedClass,
       },
       progressMigrated,
+    };
+  }
+
+  async adminLogin(phoneNumber: string, password: string): Promise<AdminAuthResult> {
+    const normalizedPhone = this.normalizePhoneNumber(phoneNumber);
+    if (!password || typeof password !== 'string' || password.length < 6) {
+      throw new BadRequestException('Password must be at least 6 characters');
+    }
+    const user = await this.prisma.user.findUnique({
+      where: { phoneNumber: normalizedPhone },
+    });
+
+    if (!user || !user.passwordHash) {
+      throw new UnauthorizedException('Invalid phone number or password');
+    }
+
+    const isPasswordValid = await verifyPassword(password, user.passwordHash);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid phone number or password');
+    }
+
+    if (!ALLOWED_ADMIN_PORTAL_ROLES.includes(user.role)) {
+      throw new ForbiddenException('Admin or staff access required');
+    }
+
+    const accessToken = this.jwtService.sign({
+      sub: user.id,
+      role: user.role,
+      isGuest: false,
+    });
+
+    return {
+      accessToken,
+      user: {
+        id: user.id,
+        phoneNumber: user.phoneNumber,
+        fullName: user.fullName,
+        role: user.role,
+        selectedClass: user.selectedClass,
+      },
     };
   }
 
