@@ -1400,6 +1400,19 @@ describe('ContentAdminModule (e2e)', () => {
       expect(adminPatch.body.memoryAid).toBeNull();
       expect(adminPatch.body.version).toBe(3);
 
+      // Reject empty importantTerms on create with 400
+      await request(app.getHttpServer())
+        .post('/admin/content/lessons')
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({
+          topicId: 'topic_force',
+          titleBangla: 'শূন্য টার্মস',
+          learningGoal: 'লক্ষ্য',
+          explanation: 'ব্যাখ্যা',
+          importantTerms: [],
+        })
+        .expect(400);
+
       // EDITOR edit demotes PUBLISHED -> REVIEW
       const editorPatch = await request(app.getHttpServer())
         .patch(`/admin/content/lessons/${lessonId}`)
@@ -1409,11 +1422,20 @@ describe('ContentAdminModule (e2e)', () => {
       expect(editorPatch.body.status).toBe(ContentStatus.REVIEW);
       expect(editorPatch.body.version).toBe(4);
 
+      // Re-approve to PUBLISHED so ADMIN archives a genuinely PUBLISHED lesson
+      const reapproveRes = await request(app.getHttpServer())
+        .post('/admin/content/review')
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .send({ contentType: 'LESSON', contentId: lessonId, action: 'APPROVE' })
+        .expect(201);
+      expect(reapproveRes.body.status).toBe(ContentStatus.PUBLISHED);
+
       // ARCHIVE & verify guards
-      await request(app.getHttpServer())
+      const adminArchiveRes = await request(app.getHttpServer())
         .post(`/admin/content/lessons/${lessonId}/archive`)
         .set('Authorization', `Bearer ${adminToken}`)
         .expect(200);
+      expect(adminArchiveRes.body.status).toBe(ContentStatus.ARCHIVED);
 
       await request(app.getHttpServer())
         .patch(`/admin/content/lessons/${lessonId}`)

@@ -159,7 +159,9 @@ export async function createLessonRecord(
     learningGoal: dto?.learningGoal,
     explanation: dto?.explanation,
   });
-  const importantTerms = normalizeImportantTerms(dto?.importantTerms);
+  const importantTerms = normalizeImportantTerms(dto?.importantTerms, {
+    requireAtLeastOne: true,
+  });
   const workedExample = normalizeWorkedExample(dto?.workedExample);
   const memoryAid = normalizeMemoryAid(dto?.memoryAid);
 

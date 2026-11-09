@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { ArrayMinSize, IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class CreateLessonAdminDto {
   @IsNotEmpty()
@@ -18,6 +18,7 @@ export class CreateLessonAdminDto {
   explanation!: string;
 
   @IsArray()
+  @ArrayMinSize(1)
   importantTerms!: any[];
 
   @IsOptional()

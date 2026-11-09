@@ -9,6 +9,7 @@ import {
 import { ContentStatus, Prisma, Role } from '@prisma/client';
 import { ContentAdminLessonsService } from './content-admin-lessons.service';
 import { PrismaService } from '../../database/prisma.service';
+import { CreateLessonAdminDto } from './dto/create-lesson-admin.dto';
 import { ListLessonsQueryDto } from './dto/list-lessons-query.dto';
 import { UpdateLessonAdminDto } from './dto/update-lesson-admin.dto';
 
@@ -118,6 +119,30 @@ describe('ContentAdminLessonsService', () => {
           importantTerms: [{ termBangla: '   ' }],
         }),
       ).rejects.toThrow(BadRequestException);
+
+      await expect(
+        service.createLesson({
+          topicId: 'top_motion_1',
+          titleBangla: 'শিরোনাম',
+          learningGoal: 'লক্ষ্য',
+          explanation: 'ব্যাখ্যা',
+          importantTerms: [],
+        }),
+      ).rejects.toThrow(BadRequestException);
+
+      const pipe = new ValidationPipe({ whitelist: true, transform: true });
+      await expect(
+        pipe.transform(
+          {
+            topicId: 'top_motion_1',
+            titleBangla: 'শিরোনাম',
+            learningGoal: 'লক্ষ্য',
+            explanation: 'ব্যাখ্যা',
+            importantTerms: [],
+          },
+          { type: 'body', metatype: CreateLessonAdminDto },
+        ),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 
@@ -168,6 +193,35 @@ describe('ContentAdminLessonsService', () => {
       });
     });
 
+    it('supports explicit status=ARCHIVED combined with topicId filter', async () => {
+      mockPrisma.lesson.findMany.mockResolvedValue([]);
+      mockPrisma.lesson.count.mockResolvedValue(0);
+      mockPrisma.lesson.groupBy.mockResolvedValue([
+        { status: ContentStatus.ARCHIVED, _count: { _all: 2 } },
+      ]);
+
+      const res = await service.listLessons({
+        topicId: 'top_motion_1',
+        status: ContentStatus.ARCHIVED,
+      });
+
+      expect(mockPrisma.lesson.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            topicId: 'top_motion_1',
+            status: ContentStatus.ARCHIVED,
+          },
+        }),
+      );
+      expect(mockPrisma.lesson.groupBy).toHaveBeenCalledWith({
+        by: ['status'],
+        where: { topicId: 'top_motion_1' },
+        _count: { _all: true },
+      });
+      expect(res.statusCounts.ARCHIVED).toBe(2);
+      expect(res.statusCounts.ALL).toBe(0);
+    });
+
     it('throws BadRequestException for invalid query inputs', async () => {
       await expect(service.listLessons({ status: 'UNKNOWN' as any })).rejects.toThrow(
         BadRequestException,
@@ -191,6 +245,13 @@ describe('ContentAdminLessonsService', () => {
   });
 
   describe('updateLesson', () => {
+    it('throws NotFoundException when lesson id does not exist', async () => {
+      mockPrisma.lesson.findUnique.mockResolvedValueOnce(null);
+      await expect(
+        service.updateLesson('missing_lesson_id', { titleBangla: 'নতুন' }, Role.ADMIN),
+      ).rejects.toThrow(NotFoundException);
+    });
+
     it('blocks editing ARCHIVED lessons (400) and blocks EDITOR preservePublished (403)', async () => {
       mockPrisma.lesson.findUnique.mockResolvedValueOnce({
         ...sampleLesson,
@@ -306,6 +367,21 @@ describe('ContentAdminLessonsService', () => {
       await expect(
         service.updateLesson('les_motion_1', { preservePublished: 'true' as any }, Role.ADMIN),
       ).rejects.toThrow(BadRequestException);
+      await expect(
+        service.updateLesson('les_motion_1', { titleBangla: null as any }, Role.ADMIN),
+      ).rejects.toThrow(BadRequestException);
+
+      mockPrisma.lesson.findUnique.mockResolvedValue(sampleLesson);
+      await expect(
+        service.updateLesson('les_motion_1', { workedExample: [] as any }, Role.ADMIN),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        service.updateLesson(
+          'les_motion_1',
+          { workedExample: { problem: 123 as any } },
+          Role.ADMIN,
+        ),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('rejects empty importantTerms on updateLesson and missing topicId (404)', async () => {
@@ -341,7 +417,7 @@ describe('ContentAdminLessonsService', () => {
   });
 
   describe('archiveLesson', () => {
-    it('prevents EDITOR from archiving PUBLISHED lesson and sets ARCHIVED status for valid actors', async () => {
+    it('prevents EDITOR from archiving PUBLISHED lesson, allows ADMIN on PUBLISHED, and sets ARCHIVED status for valid actors', async () => {
       mockPrisma.lesson.findUnique.mockResolvedValueOnce({
         ...sampleLesson,
         status: ContentStatus.PUBLISHED,
@@ -349,6 +425,17 @@ describe('ContentAdminLessonsService', () => {
       await expect(service.archiveLesson('les_motion_1', Role.EDITOR)).rejects.toThrow(
         ForbiddenException,
       );
+
+      mockPrisma.lesson.findUnique.mockResolvedValueOnce({
+        ...sampleLesson,
+        status: ContentStatus.PUBLISHED,
+      });
+      mockPrisma.lesson.update.mockResolvedValueOnce({
+        ...sampleLesson,
+        status: ContentStatus.ARCHIVED,
+      });
+      const adminArchived = await service.archiveLesson('les_motion_1', Role.ADMIN);
+      expect(adminArchived.status).toBe(ContentStatus.ARCHIVED);
 
       mockPrisma.lesson.findUnique.mockResolvedValueOnce(sampleLesson);
       mockPrisma.lesson.update.mockResolvedValueOnce({
