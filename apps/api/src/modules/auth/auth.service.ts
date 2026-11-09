@@ -9,7 +9,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Role, User } from '@prisma/client';
 import { randomInt } from 'crypto';
 import { PrismaService } from '../../database/prisma.service';
-import { PHONE_REGEX } from './dto/request-otp.dto';
+import { normalizeBangladeshPhone } from './phone.util';
 import { verifyPassword } from './password.util';
 
 interface OtpEntry {
@@ -73,20 +73,22 @@ export class AuthService {
     }
   }
 
-  normalizePhoneNumber(phone: string): string {
-    if (!phone || typeof phone !== 'string') {
-      throw new BadRequestException('Invalid phone number format');
+  private assertOtpAllowed(
+    user: { role: Role; passwordHash?: string | null } | null,
+  ): void {
+    if (user && (user.role !== Role.STUDENT || Boolean(user.passwordHash))) {
+      throw new ForbiddenException(
+        'Staff accounts must log in via the admin portal with a password',
+      );
     }
-    const trimmed = phone.trim();
-    if (!PHONE_REGEX.test(trimmed)) {
-      throw new BadRequestException('Invalid phone number format');
-    }
+  }
 
-    const bdMatch = trimmed.match(/^(?:\+88|88)?(01[3-9]\d{8})$/);
-    if (bdMatch) {
-      return bdMatch[1];
+  normalizePhoneNumber(phone: string): string {
+    try {
+      return normalizeBangladeshPhone(phone);
+    } catch {
+      throw new BadRequestException('Invalid phone number format');
     }
-    return trimmed;
   }
 
   normalizePhone(phone: string): string {
@@ -136,9 +138,7 @@ export class AuthService {
     const existingUser = await this.prisma.user.findUnique({
       where: { phoneNumber: normalizedPhone },
     });
-    if (existingUser && (existingUser.role !== Role.STUDENT || Boolean(existingUser.passwordHash))) {
-      throw new ForbiddenException('OTP login is not permitted for admin or staff accounts');
-    }
+    this.assertOtpAllowed(existingUser);
 
     const generatedCode = randomInt(100000, 1000000).toString();
     const ttlMs = 5 * 60 * 1000; // 5 minutes
@@ -162,12 +162,7 @@ export class AuthService {
     const existingUserWithPhone = await this.prisma.user.findUnique({
       where: { phoneNumber: normalizedPhone },
     });
-    if (
-      existingUserWithPhone &&
-      (existingUserWithPhone.role !== Role.STUDENT || Boolean(existingUserWithPhone.passwordHash))
-    ) {
-      throw new ForbiddenException('OTP login is not permitted for admin or staff accounts');
-    }
+    this.assertOtpAllowed(existingUserWithPhone);
 
     const storedEntry = this.otpStore.get(normalizedPhone);
     const now = Date.now();
@@ -198,6 +193,7 @@ export class AuthService {
       const guestUser = await this.prisma.user.findUnique({
         where: { guestId },
       });
+      this.assertOtpAllowed(guestUser);
 
       if (guestUser && !existingUserWithPhone) {
         // Upgrade guest user to permanent user

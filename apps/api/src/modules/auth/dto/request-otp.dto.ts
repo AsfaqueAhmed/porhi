@@ -1,6 +1,7 @@
 import { IsNotEmpty, IsString, Matches } from 'class-validator';
+import { PHONE_REGEX } from '../phone.util';
 
-export const PHONE_REGEX = /^(?:\+8801|8801|01)[3-9]\d{8}$|^\+[1-9]\d{7,14}$/;
+export { PHONE_REGEX };
 
 export class RequestOtpDto {
   @IsString()

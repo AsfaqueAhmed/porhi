@@ -32,7 +32,7 @@ describe('seedAdminUser', () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
-    process.env = { ...originalEnv };
+    process.env = { ...originalEnv, NODE_ENV: 'test' };
     delete process.env.ADMIN_SEED_PHONE;
     delete process.env.ADMIN_SEED_PASSWORD;
   });
@@ -78,6 +78,20 @@ describe('seedAdminUser', () => {
     expect(await verifyPassword('CustomAdminPass#99', callArg.create.passwordHash)).toBe(true);
   });
 
+  it('normalizes ADMIN_SEED_PHONE (+8801737740010 -> 01737740010) before upserting', async () => {
+    process.env.ADMIN_SEED_PHONE = ' +8801737740010 ';
+
+    const upsertMock = vi.fn().mockResolvedValue({ id: 'usr_admin_norm' });
+    const mockPrisma = { user: { upsert: upsertMock } } as unknown as PrismaClient;
+
+    await seedAdminUser(mockPrisma);
+
+    expect(upsertMock).toHaveBeenCalledTimes(1);
+    const callArg = upsertMock.mock.calls[0][0];
+    expect(callArg.where).toEqual({ phoneNumber: '01737740010' });
+    expect(callArg.create.phoneNumber).toBe('01737740010');
+  });
+
   it('skips seeding and logs a warning in production when ADMIN_SEED_PASSWORD is omitted', async () => {
     process.env.NODE_ENV = 'production';
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
@@ -88,5 +102,21 @@ describe('seedAdminUser', () => {
 
     expect(upsertMock).not.toHaveBeenCalled();
     expect(warnSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('seeds admin user in production when ADMIN_SEED_PASSWORD is set', async () => {
+    process.env.NODE_ENV = 'production';
+    process.env.ADMIN_SEED_PASSWORD = 'ProdSecretPassword!1';
+
+    const upsertMock = vi.fn().mockResolvedValue({ id: 'usr_admin_prod' });
+    const mockPrisma = { user: { upsert: upsertMock } } as unknown as PrismaClient;
+
+    await seedAdminUser(mockPrisma);
+
+    expect(upsertMock).toHaveBeenCalledTimes(1);
+    const callArg = upsertMock.mock.calls[0][0];
+    expect(callArg.where).toEqual({ phoneNumber: '01737740010' });
+    expect(callArg.create.role).toBe('ADMIN');
+    expect(await verifyPassword('ProdSecretPassword!1', callArg.create.passwordHash)).toBe(true);
   });
 });

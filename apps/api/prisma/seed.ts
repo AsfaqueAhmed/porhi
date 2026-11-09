@@ -1,5 +1,6 @@
 import { PrismaClient, ContentStatus, Role } from '@prisma/client';
 import { hashPassword } from '../src/modules/auth/password.util';
+import { normalizeBangladeshPhone } from '../src/modules/auth/phone.util';
 
 export const sscPhysicsSubject = {
   id: 'sub_ssc_physics',
@@ -283,7 +284,9 @@ export const pilotData = {
 };
 
 export async function seedAdminUser(prisma: PrismaClient): Promise<void> {
-  const adminPhone = process.env.ADMIN_SEED_PHONE || '01737740010';
+  const adminPhone = normalizeBangladeshPhone(
+    process.env.ADMIN_SEED_PHONE?.trim() || '01737740010',
+  );
   const adminPassword =
     process.env.ADMIN_SEED_PASSWORD ||
     (process.env.NODE_ENV === 'production' ? '' : 'Asfaque@321');

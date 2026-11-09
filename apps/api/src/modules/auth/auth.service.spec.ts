@@ -426,6 +426,9 @@ describe('AuthService', () => {
 
       const result = await authService.adminLogin('+8801737740010', 'Asfaque@321');
 
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+        where: { phoneNumber: '01737740010' },
+      });
       expect(jwtService.sign).toHaveBeenCalledWith({
         sub: 'u-admin-1',
         role: 'ADMIN',
@@ -585,6 +588,51 @@ describe('AuthService', () => {
       await expect(authService.verifyOtp('01733334444', '1234')).rejects.toThrow(
         ForbiddenException,
       );
+    });
+
+    it('rejects verifyOtp with ForbiddenException when guestUser has ADMIN role or passwordHash without $transaction or tokens', async () => {
+      prisma.user.findUnique
+        .mockResolvedValueOnce({
+          id: 'u-existing-student',
+          guestId: null,
+          phoneNumber: '01712345678',
+          role: 'STUDENT',
+          passwordHash: null,
+          selectedClass: 'SSC',
+        })
+        .mockResolvedValueOnce({
+          id: 'u-guest-admin',
+          guestId: 'guest-admin-id',
+          phoneNumber: null,
+          role: 'ADMIN',
+          passwordHash: null,
+          selectedClass: 'SSC',
+        });
+
+      await expect(
+        authService.verifyOtp('01712345678', '1234', 'guest-admin-id'),
+      ).rejects.toThrow(ForbiddenException);
+      expect(prisma.user.update).not.toHaveBeenCalled();
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+      expect(jwtService.sign).not.toHaveBeenCalled();
+
+      prisma.user.findUnique
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({
+          id: 'u-guest-pw',
+          guestId: 'guest-pw-id',
+          phoneNumber: null,
+          role: 'STUDENT',
+          passwordHash: 'salt:hash',
+          selectedClass: 'SSC',
+        });
+
+      await expect(
+        authService.verifyOtp('01712345678', '1234', 'guest-pw-id'),
+      ).rejects.toThrow(ForbiddenException);
+      expect(prisma.user.update).not.toHaveBeenCalled();
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+      expect(jwtService.sign).not.toHaveBeenCalled();
     });
   });
 });
