@@ -26,6 +26,7 @@ model User {
   guestId       String?           @unique
   phoneNumber   String?           @unique
   fullName      String?
+  passwordHash  String?
   role          Role              @default(STUDENT)
   selectedClass String            @default("SSC")
   createdAt     DateTime          @default(now())

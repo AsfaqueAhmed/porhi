@@ -1,4 +1,5 @@
-import { PrismaClient, ContentStatus } from '@prisma/client';
+import { PrismaClient, ContentStatus, Role } from '@prisma/client';
+import { hashPassword } from '../src/modules/auth/password.util';
 
 export const sscPhysicsSubject = {
   id: 'sub_ssc_physics',
@@ -281,7 +282,40 @@ export const pilotData = {
   questions: [mcqQuestion1, mcqQuestion2, cqQuestion1],
 };
 
+export async function seedAdminUser(prisma: PrismaClient): Promise<void> {
+  const adminPhone = process.env.ADMIN_SEED_PHONE || '01737740010';
+  const adminPassword =
+    process.env.ADMIN_SEED_PASSWORD ||
+    (process.env.NODE_ENV === 'production' ? '' : 'Asfaque@321');
+
+  if (!adminPassword) {
+    console.warn('[Prisma Seed] ADMIN_SEED_PASSWORD not set in production; skipping admin user seed.');
+    return;
+  }
+
+  const passwordHash = await hashPassword(adminPassword);
+
+  await prisma.user.upsert({
+    where: { phoneNumber: adminPhone },
+    update: {
+      fullName: 'Asfaque (System Admin)',
+      role: Role.ADMIN,
+      passwordHash,
+    },
+    create: {
+      phoneNumber: adminPhone,
+      fullName: 'Asfaque (System Admin)',
+      role: Role.ADMIN,
+      selectedClass: 'SSC',
+      passwordHash,
+    },
+  });
+}
+
 export async function seed(prisma: PrismaClient) {
+  // 0. Seed System Admin User
+  await seedAdminUser(prisma);
+
   // 1. Seed Subjects
   await prisma.subject.upsert({
     where: { code: sscPhysicsSubject.code },
