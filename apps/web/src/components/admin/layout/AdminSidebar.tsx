@@ -205,8 +205,8 @@ export function AdminSidebar({
               type="button"
               onClick={handleLogout}
               aria-label="লগআউট"
-              title={isCollapsed ? 'লগআউট' : undefined}
-              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-700 bg-rose-50/90 border border-rose-200/80 hover:bg-rose-100 transition-colors"
+              title="লগআউট"
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-700 bg-rose-50/90 border border-rose-200/80 hover:bg-rose-100 transition-colors cursor-pointer"
             >
               <LogOut className="w-4 h-4 shrink-0" />
               {(!isCollapsed || isMobileOpen) && <span>লগআউট</span>}

@@ -21,12 +21,19 @@ import {
 import { apiClient, ApiError } from '@/lib/api-client';
 import { AdminDrawer } from './layout/AdminDrawer';
 
-function formatApiErrorMessage(err: ApiError): string {
+type MutationPermissionScope = 'ADMIN_ONLY' | 'EDITOR_OR_ADMIN';
+
+function formatApiErrorMessage(
+  err: ApiError,
+  requiredScope: MutationPermissionScope = 'ADMIN_ONLY',
+): string {
   if (err.status === 401) {
     return 'সেশনের মেয়াদ শেষ হয়েছে। অনুগ্রহ করে পুনরায় লগইন করুন।';
   }
   if (err.status === 403) {
-    return 'এই কাজটি করার অনুমতি নেই (Admin অধিকার প্রয়োজন)।';
+    return requiredScope === 'EDITOR_OR_ADMIN'
+      ? 'এই কাজটি করার অনুমতি নেই (Editor বা Admin অধিকার প্রয়োজন)।'
+      : 'এই কাজটি করার অনুমতি নেই (Admin অধিকার প্রয়োজন)।';
   }
   if (err.status === 409) {
     return 'এই কোড বা তথ্য ইতোমধ্যে সংরক্ষিত আছে।';
@@ -124,7 +131,9 @@ export function CurriculumManager({
     let isMounted = true;
     async function loadSubjects() {
       try {
-        const res = await apiClient.get<SubjectItem[]>('/curriculum/subjects');
+        const res = await apiClient.get<SubjectItem[]>('/curriculum/subjects', {
+          scope: 'admin',
+        });
         if (isMounted && Array.isArray(res) && res.length > 0) {
           setSubjects(res);
           const physics = res.find((s) => s.code === 'ssc_physics') || res[0];
@@ -148,7 +157,10 @@ export function CurriculumManager({
     async function loadChapters() {
       if (isMounted) setLoading(true);
       try {
-        const res = await apiClient.get<ChapterItem[]>(`/curriculum/subjects/${selectedSubjectId}/chapters`);
+        const res = await apiClient.get<ChapterItem[]>(
+          `/curriculum/subjects/${selectedSubjectId}/chapters`,
+          { scope: 'admin' },
+        );
         if (isMounted && Array.isArray(res)) {
           setChapters(res);
           const expandMap: Record<string, boolean> = {};
@@ -211,7 +223,7 @@ export function CurriculumManager({
       );
     } catch (err: unknown) {
       if (err instanceof ApiError) {
-        setErrorMessage(formatApiErrorMessage(err));
+        setErrorMessage(formatApiErrorMessage(err, 'ADMIN_ONLY'));
         return;
       }
       setSubjects((prev) =>
@@ -256,7 +268,7 @@ export function CurriculumManager({
       setTimeout(() => setBannerMessage(null), 4000);
     } catch (err: unknown) {
       if (err instanceof ApiError) {
-        setErrorMessage(formatApiErrorMessage(err));
+        setErrorMessage(formatApiErrorMessage(err, 'ADMIN_ONLY'));
         setShowAddSubject(false);
         return;
       }
@@ -310,7 +322,7 @@ export function CurriculumManager({
       setTimeout(() => setBannerMessage(null), 4000);
     } catch (err: unknown) {
       if (err instanceof ApiError) {
-        setErrorMessage(formatApiErrorMessage(err));
+        setErrorMessage(formatApiErrorMessage(err, 'EDITOR_OR_ADMIN'));
         setShowAddChapter(false);
         return;
       }
@@ -359,7 +371,7 @@ export function CurriculumManager({
       setTimeout(() => setBannerMessage(null), 4000);
     } catch (err: unknown) {
       if (err instanceof ApiError) {
-        setErrorMessage(formatApiErrorMessage(err));
+        setErrorMessage(formatApiErrorMessage(err, 'EDITOR_OR_ADMIN'));
         setShowAddTopic(false);
         return;
       }

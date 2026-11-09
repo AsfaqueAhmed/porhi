@@ -14,8 +14,39 @@ import {
 } from 'lucide-react';
 import { MathToolbar } from '@/components/admin/math-toolbar';
 import { LatexRenderer } from '@/components/math/latex-renderer';
-import { apiClient } from '@/lib/api-client';
+import { apiClient, ApiError } from '@/lib/api-client';
 import { StudentSimulatorFrame } from './student-simulator-frame';
+
+function formatAuthoringApiError(err: ApiError): string {
+  if (err.status === 401) {
+    return 'সেশনের মেয়াদ শেষ হয়েছে। অনুগ্রহ করে পুনরায় লগইন করুন।';
+  }
+  if (err.status === 403) {
+    return 'এই কাজটি করার অনুমতি নেই (Editor বা Admin অধিকার প্রয়োজন)।';
+  }
+
+  if (err.data && typeof err.data === 'object' && 'message' in err.data) {
+    const rawMessage = (err.data as { message?: unknown }).message;
+    if (Array.isArray(rawMessage)) {
+      const joined = rawMessage
+        .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+        .join(', ');
+      if (joined) {
+        return joined;
+      }
+    } else if (typeof rawMessage === 'string' && rawMessage.trim()) {
+      return rawMessage.trim();
+    }
+  } else if (typeof err.data === 'string' && err.data.trim()) {
+    return err.data.trim();
+  }
+
+  if (err.status === 400) {
+    return 'কন্টেন্টের তথ্য সঠিক নয়। অনুগ্রহ করে ইনপুট যাচাই করুন।';
+  }
+
+  return 'কন্টেন্ট সংরক্ষণ ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।';
+}
 
 interface AuthoringStudioProps {
   onContentCreated?: () => void;
@@ -165,7 +196,9 @@ export function AuthoringStudio({
     let isMounted = true;
     async function fetchSubjects() {
       try {
-        const res = await apiClient.get<SubjectOption[]>('/curriculum/subjects');
+        const res = await apiClient.get<SubjectOption[]>('/curriculum/subjects', {
+          scope: 'admin',
+        });
         if (isMounted && Array.isArray(res) && res.length > 0) {
           setSubjects(res);
           if (!initialSubjectId) {
@@ -192,7 +225,8 @@ export function AuthoringStudio({
     async function fetchHierarchy() {
       try {
         const res = await apiClient.get<ChapterOption[]>(
-          `/curriculum/subjects/${activeSubjectId}/chapters`
+          `/curriculum/subjects/${activeSubjectId}/chapters`,
+          { scope: 'admin' },
         );
         if (isMounted && Array.isArray(res)) {
           setChapters(res);
@@ -376,8 +410,14 @@ export function AuthoringStudio({
       if (onContentCreated) {
         onContentCreated();
       }
-    } catch (err: any) {
-      setErrorMessage(err?.data?.message || err?.message || 'কন্টেন্ট সংরক্ষণ ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।');
+    } catch (err: unknown) {
+      if (err instanceof ApiError) {
+        setErrorMessage(formatAuthoringApiError(err));
+      } else if (err instanceof Error && err.message.trim()) {
+        setErrorMessage(err.message);
+      } else {
+        setErrorMessage('কন্টেন্ট সংরক্ষণ ব্যর্থ হয়েছে। অনুগ্রহ করে আবার চেষ্টা করুন।');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -434,7 +474,10 @@ export function AuthoringStudio({
         </div>
       )}
       {errorMessage && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold p-3.5 rounded-xl flex items-center gap-2">
+        <div
+          role="alert"
+          className="bg-rose-50 border border-rose-200 text-rose-800 text-xs font-bold p-3.5 rounded-xl flex items-center gap-2"
+        >
           <span>{errorMessage}</span>
         </div>
       )}
@@ -572,7 +615,9 @@ export function AuthoringStudio({
               <div className="flex items-center gap-2">
                 <select
                   value={mcqDifficulty}
-                  onChange={(e) => setMcqDifficulty(e.target.value as any)}
+                  onChange={(e) =>
+                    setMcqDifficulty(e.target.value as 'EASY' | 'MEDIUM' | 'HARD')
+                  }
                   className="text-xs font-bold p-1.5 bg-slate-50 border border-slate-300 rounded-lg"
                 >
                   <option value="EASY">সহজ (EASY)</option>

@@ -55,6 +55,23 @@ describe('useAdminAuthStore & scoped apiClient', () => {
     expect(localStorage.getItem('pori_auth_token')).toBe('student_jwt_token');
   });
 
+  it('omits isVerified from persisted pori-admin-auth-storage JSON', () => {
+    useAdminAuthStore.getState().setSession('admin_jwt_token', {
+      id: 'adm_1',
+      phoneNumber: '01737740010',
+      fullName: 'Asfaque (System Admin)',
+      role: 'ADMIN',
+      selectedClass: 'SSC',
+    });
+
+    const raw = localStorage.getItem('pori-admin-auth-storage');
+    expect(raw).not.toBeNull();
+    const persisted = JSON.parse(raw!) as { state: Record<string, unknown> };
+    expect(persisted.state.token).toBe('admin_jwt_token');
+    expect(persisted.state.adminUser).toBeDefined();
+    expect(persisted.state).not.toHaveProperty('isVerified');
+  });
+
   it('never stores passwordHash in admin client state', () => {
     useAdminAuthStore.getState().setSession('admin_jwt_token', {
       id: 'adm_1',
@@ -244,6 +261,84 @@ describe('useAdminAuthStore & scoped apiClient', () => {
     expect(useAdminAuthStore.getState().token).toBe('valid_admin_jwt');
 
     await expect(apiClient.get('/admin/content/publish')).rejects.toBeInstanceOf(ApiError);
+    expect(useAdminAuthStore.getState().token).toBe('valid_admin_jwt');
+  });
+
+  it('reads error response body once and throws ApiError(502) on non-JSON text/html 502 Bad Gateway', async () => {
+    fetchMock
+      .mockResolvedValueOnce(
+        new Response('<html><body>502 Bad Gateway</body></html>', {
+          status: 502,
+          statusText: 'Bad Gateway',
+          headers: { 'content-type': 'text/html' },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response('', {
+          status: 500,
+          statusText: 'Internal Server Error',
+        }),
+      );
+
+    await expect(apiClient.get('/admin/content/pending')).rejects.toMatchObject({
+      name: 'ApiError',
+      status: 502,
+      statusText: 'Bad Gateway',
+      data: '<html><body>502 Bad Gateway</body></html>',
+    });
+
+    await expect(apiClient.get('/admin/content/pending')).rejects.toMatchObject({
+      name: 'ApiError',
+      status: 500,
+      statusText: 'Internal Server Error',
+      data: '',
+    });
+  });
+
+  it('normalizes URL protocols, relative paths starting with http, and trailing slashes on /auth/admin/login/', async () => {
+    useAdminAuthStore.getState().setSession('valid_admin_jwt', {
+      id: 'adm_1',
+      phoneNumber: '01737740010',
+      role: 'ADMIN',
+    });
+
+    fetchMock
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ ok: true }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ ok: true }), {
+          status: 200,
+          headers: { 'content-type': 'application/json' },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ message: 'Invalid credentials' }), {
+          status: 401,
+          statusText: 'Unauthorized',
+          headers: { 'content-type': 'application/json' },
+        }),
+      );
+
+    await apiClient.get('/http-status');
+    expect(fetchMock.mock.calls[0][0]).toBe('http://localhost:3001/http-status');
+
+    await apiClient.get('HTTPS://api.example.com/admin/users');
+    expect(fetchMock.mock.calls[1][0]).toBe('HTTPS://api.example.com/admin/users');
+    expect((fetchMock.mock.calls[1][1].headers as Headers).get('Authorization')).toBe(
+      'Bearer valid_admin_jwt',
+    );
+
+    await expect(
+      apiClient.post(
+        '/auth/admin/login/',
+        { phoneNumber: '017', password: 'bad' },
+        { scope: 'admin' },
+      ),
+    ).rejects.toBeInstanceOf(ApiError);
     expect(useAdminAuthStore.getState().token).toBe('valid_admin_jwt');
   });
 });

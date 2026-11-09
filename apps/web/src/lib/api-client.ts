@@ -20,7 +20,7 @@ export interface RequestOptions extends RequestInit {
 }
 
 function getPathname(endpoint: string): string {
-  if (endpoint.startsWith('http://') || endpoint.startsWith('https://')) {
+  if (/^https?:\/\//i.test(endpoint)) {
     try {
       return new URL(endpoint).pathname;
     } catch {
@@ -37,7 +37,7 @@ function isAdminEndpoint(endpoint: string): boolean {
 }
 
 async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
+  const url = /^https?:\/\//i.test(endpoint) ? endpoint : `${API_BASE_URL}${endpoint}`;
   const { scope, token: explicitToken, ...fetchOptions } = options;
   const pathname = getPathname(endpoint);
   const isAdminScope = scope === 'admin' || (!scope && isAdminEndpoint(endpoint));
@@ -80,7 +80,11 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   });
 
   if (!response.ok) {
-    if (response.status === 401 && isAdminScope && pathname !== '/auth/admin/login') {
+    if (
+      response.status === 401 &&
+      isAdminScope &&
+      (pathname.replace(/\/+$/, '') || '/') !== '/auth/admin/login'
+    ) {
       try {
         useAdminAuthStore.getState().logout();
       } catch {
@@ -88,11 +92,12 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
       }
     }
 
+    const rawText = await response.text();
     let errorData: unknown;
     try {
-      errorData = await response.json();
+      errorData = rawText ? JSON.parse(rawText) : '';
     } catch {
-      errorData = await response.text();
+      errorData = rawText;
     }
     throw new ApiError(response.status, response.statusText, errorData);
   }

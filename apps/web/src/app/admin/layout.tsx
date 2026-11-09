@@ -26,10 +26,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const setSession = useAdminAuthStore((s) => s.setSession);
   const logout = useAdminAuthStore((s) => s.logout);
 
-  const isLoginRoute = pathname === '/admin/login';
+  const isLoginRoute = pathname === '/admin/login' || pathname === '/admin/login/';
 
   const handleLogout = useCallback(() => {
     isManualLogoutRef.current = true;
+    setIsMobileOpen(false);
     logout();
     router.replace('/admin/login');
   }, [logout, router]);

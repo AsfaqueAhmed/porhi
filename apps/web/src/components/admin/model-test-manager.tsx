@@ -108,7 +108,9 @@ export function ModelTestManager({
     let isMounted = true;
     async function loadSubjects() {
       try {
-        const res = await apiClient.get<SubjectItem[]>('/curriculum/subjects');
+        const res = await apiClient.get<SubjectItem[]>('/curriculum/subjects', {
+          scope: 'admin',
+        });
         if (isMounted && Array.isArray(res) && res.length > 0) {
           setSubjects(res);
           const defaultSub = res.find((s) => s.code === 'ssc_physics') || res[0];
@@ -134,7 +136,10 @@ export function ModelTestManager({
     if (!selectedSubjectId) return;
     async function loadChapters() {
       try {
-        const res = await apiClient.get<ChapterItem[]>(`/curriculum/subjects/${selectedSubjectId}/chapters`);
+        const res = await apiClient.get<ChapterItem[]>(
+          `/curriculum/subjects/${selectedSubjectId}/chapters`,
+          { scope: 'admin' },
+        );
         if (isMounted && Array.isArray(res)) {
           setChapters(res);
           if (res.length > 0) {

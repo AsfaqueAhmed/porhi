@@ -63,7 +63,11 @@ function AdminLoginForm() {
       router.replace(safeNext);
     } catch (error) {
       if (error instanceof ApiError) {
-        if (error.status === 401) {
+        if (error.status === 400) {
+          setErrorMessage(
+            'সঠিক ১১ সংখ্যার মোবাইল নম্বর (01XXXXXXXXX) এবং কমপক্ষে ৬ অক্ষরের পাসওয়ার্ড দিন।',
+          );
+        } else if (error.status === 401) {
           setErrorMessage('ভুল মোবাইল নম্বর অথবা পাসওয়ার্ড। অনুগ্রহ করে আবার চেষ্টা করুন।');
         } else if (error.status === 403) {
           setErrorMessage('এই অ্যাকাউন্টটির অ্যাডমিন প্যানেলে প্রবেশের অনুমতি নেই।');
