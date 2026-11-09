@@ -69,21 +69,42 @@ export function AdminTopbar({
 
   // Compute breadcrumb segments from pathname
   const getBreadcrumbs = () => {
+    const normalizedPath = pathname.replace(/\/+$/, '') || '/';
     const segments = [{ label: 'অ্যাডমিন', href: '/admin' }];
 
-    if (pathname.includes('/curriculum')) {
-      segments.push({ label: 'কারিকুলাম ট্রাফি', href: '/admin/curriculum' });
-    } else if (pathname.includes('/questions')) {
-      const normalizedPath = pathname.replace(/\/+$/, '');
+    if (
+      normalizedPath === '/admin/curriculum' ||
+      normalizedPath.startsWith('/admin/curriculum/')
+    ) {
+      segments.push({ label: 'কারিকুলাম', href: '/admin/curriculum' });
+      if (
+        normalizedPath === '/admin/curriculum/lessons' ||
+        normalizedPath.startsWith('/admin/curriculum/lessons/')
+      ) {
+        segments.push({ label: 'পাঠ্য লেসন', href: '/admin/curriculum/lessons' });
+        if (normalizedPath === '/admin/curriculum/lessons/new') {
+          segments.push({ label: 'নতুন যোগ', href: '/admin/curriculum/lessons/new' });
+        } else if (normalizedPath.endsWith('/edit')) {
+          segments.push({ label: 'লেসন সম্পাদনা', href: pathname });
+        }
+      }
+    } else if (
+      normalizedPath === '/admin/questions' ||
+      normalizedPath.startsWith('/admin/questions/')
+    ) {
       segments.push({ label: 'প্রশ্ন ব্যাংক', href: '/admin/questions' });
-      if (normalizedPath.endsWith('/questions/new')) {
+      if (normalizedPath === '/admin/questions/mcq') {
+        segments.push({ label: 'MCQ', href: '/admin/questions/mcq' });
+      } else if (normalizedPath === '/admin/questions/cq') {
+        segments.push({ label: 'সৃজনশীল (CQ)', href: '/admin/questions/cq' });
+      } else if (normalizedPath === '/admin/questions/new') {
         segments.push({ label: 'নতুন যোগ', href: '/admin/questions/new' });
       } else if (normalizedPath.endsWith('/edit')) {
         segments.push({ label: 'প্রশ্ন সম্পাদনা', href: pathname });
       }
-    } else if (pathname.includes('/model-tests')) {
+    } else if (normalizedPath.includes('/model-tests')) {
       segments.push({ label: 'মডেল টেস্ট ম্যানেজার', href: '/admin/model-tests' });
-    } else if (pathname.includes('/reviews')) {
+    } else if (normalizedPath.includes('/reviews')) {
       segments.push({ label: 'রিভিউ ও অডিট কনসোল', href: '/admin/reviews' });
     }
 

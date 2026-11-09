@@ -31,16 +31,45 @@ describe('Admin Layout Components', () => {
   });
 
   describe('AdminSidebar', () => {
-    it('renders brand, navigation items, and student app switch', () => {
+    it('renders brand, collapsible Curriculum & Questions submenus, and hides submenus when collapsed', () => {
       const handleToggle = vi.fn();
-      render(<AdminSidebar isCollapsed={false} onToggleCollapse={handleToggle} />);
+      const first = render(<AdminSidebar isCollapsed={false} onToggleCollapse={handleToggle} />);
 
       expect(screen.getByText(/poRi Admin/i)).toBeDefined();
-      expect(screen.getByText(/কারিকুলাম ট্রাফি/i)).toBeDefined();
-      expect(screen.getByText(/প্রশ্ন ব্যাংক ও স্টুডিও/i)).toBeDefined();
+      expect(screen.getByText(/কারিকুলাম ও পাঠ/i)).toBeDefined();
+      expect(screen.getByText(/বিষয়, অধ্যায় ও টপিক/i).closest('a')?.getAttribute('href')).toBe(
+        '/admin/curriculum',
+      );
+      expect(screen.getByText(/পাঠ্য লেসন/i).closest('a')?.getAttribute('href')).toBe(
+        '/admin/curriculum/lessons',
+      );
+      expect(screen.getByText(/প্রশ্ন ব্যাংক ও স্টুডিও/i).closest('a')?.getAttribute('href')).toBe(
+        '/admin/questions',
+      );
+      expect(screen.getByText(/MCQ প্রশ্ন/i).closest('a')?.getAttribute('href')).toBe(
+        '/admin/questions/mcq',
+      );
+      expect(screen.getByText(/সৃজনশীল \(CQ\)/i).closest('a')?.getAttribute('href')).toBe(
+        '/admin/questions/cq',
+      );
       expect(screen.getByText(/মডেল টেস্ট/i)).toBeDefined();
       expect(screen.getByText(/রিভিউ ও অডিট কনসোল/i)).toBeDefined();
       expect(screen.getByText(/শিক্ষার্থী অ্যাপে যান/i)).toBeDefined();
+
+      // Submenu chevron toggle collapses & re-expands child links
+      const toggleQuestionsBtn = screen.getByRole('button', {
+        name: /প্রশ্ন ব্যাংক ও স্টুডিও সাবমেনু টগল/i,
+      });
+      fireEvent.click(toggleQuestionsBtn);
+      expect(screen.queryByText(/MCQ প্রশ্ন/i)).toBeNull();
+      fireEvent.click(toggleQuestionsBtn);
+      expect(screen.getByText(/MCQ প্রশ্ন/i)).toBeDefined();
+
+      // Collapsed icon rail hides expanded child submenus
+      first.unmount();
+      render(<AdminSidebar isCollapsed={true} onToggleCollapse={handleToggle} />);
+      expect(screen.queryByText(/বিষয়, অধ্যায় ও টপিক/i)).toBeNull();
+      expect(screen.queryByText(/MCQ প্রশ্ন/i)).toBeNull();
     });
 
     it('toggles collapse state when toggle button is clicked', () => {
@@ -52,26 +81,84 @@ describe('Admin Layout Components', () => {
       expect(handleToggle).toHaveBeenCalledTimes(1);
     });
 
-    it('highlights প্রশ্ন ব্যাংক ও স্টুডিও across /admin/questions/new and /admin/questions/[id]/edit', () => {
+    it('highlights active Question and Curriculum submenus accurately across nested routes', () => {
+      mockPathname = '/admin/questions/mcq';
+      const mcqRender = render(<AdminSidebar isCollapsed={false} onToggleCollapse={vi.fn()} />);
+      expect(screen.getByText(/প্রশ্ন ব্যাংক ও স্টুডিও/i).closest('a')?.className).toContain(
+        'bg-indigo-50',
+      );
+      expect(screen.getByText(/MCQ প্রশ্ন/i).closest('a')?.className).toContain('bg-indigo-50');
+      expect(screen.getByText(/সৃজনশীল \(CQ\)/i).closest('a')?.className).not.toContain(
+        'bg-indigo-50',
+      );
+      mcqRender.unmount();
+
+      mockPathname = '/admin/questions/cq';
+      const cqRender = render(<AdminSidebar isCollapsed={false} onToggleCollapse={vi.fn()} />);
+      expect(screen.getByText(/প্রশ্ন ব্যাংক ও স্টুডিও/i).closest('a')?.className).toContain(
+        'bg-indigo-50',
+      );
+      expect(screen.getByText(/সৃজনশীল \(CQ\)/i).closest('a')?.className).toContain(
+        'bg-indigo-50',
+      );
+      expect(screen.getByText(/MCQ প্রশ্ন/i).closest('a')?.className).not.toContain(
+        'bg-indigo-50',
+      );
+      cqRender.unmount();
+
+      mockPathname = '/admin/curriculum';
+      const curriculumRender = render(
+        <AdminSidebar isCollapsed={false} onToggleCollapse={vi.fn()} />,
+      );
+      expect(screen.getByText(/কারিকুলাম ও পাঠ/i).closest('a')?.className).toContain(
+        'bg-indigo-50',
+      );
+      expect(screen.getByText(/বিষয়, অধ্যায় ও টপিক/i).closest('a')?.className).toContain(
+        'bg-indigo-50',
+      );
+      expect(screen.getByText(/পাঠ্য লেসন/i).closest('a')?.className).not.toContain(
+        'bg-indigo-50',
+      );
+      curriculumRender.unmount();
+
+      mockPathname = '/admin/curriculum/lessons/les_1/edit';
+      const lessonsRender = render(<AdminSidebar isCollapsed={false} onToggleCollapse={vi.fn()} />);
+      expect(screen.getByText(/পাঠ্য লেসন/i).closest('a')?.className).toContain('bg-indigo-50');
+      expect(screen.getByText(/বিষয়, অধ্যায় ও টপিক/i).closest('a')?.className).not.toContain(
+        'bg-indigo-50',
+      );
+      lessonsRender.unmount();
+
       mockPathname = '/admin/questions/new';
-      const first = render(<AdminSidebar isCollapsed={false} onToggleCollapse={vi.fn()} />);
+      const newRender = render(<AdminSidebar isCollapsed={false} onToggleCollapse={vi.fn()} />);
+      expect(screen.getByText(/প্রশ্ন ব্যাংক ও স্টুডিও/i).closest('a')?.className).toContain(
+        'bg-indigo-50',
+      );
+      newRender.unmount();
 
-      const questionsLinkNew = screen.getByText(/প্রশ্ন ব্যাংক ও স্টুডিও/i).closest('a');
-      const overviewLinkNew = screen.getByText(/ড্যাশবোর্ড ওভারভিউ/i).closest('a');
-      expect(questionsLinkNew?.getAttribute('href')).toBe('/admin/questions');
-      expect(questionsLinkNew?.className).toContain('bg-indigo-50');
-      expect(questionsLinkNew?.className).toContain('text-indigo-700');
-      expect(overviewLinkNew?.className).not.toContain('bg-indigo-50');
-      first.unmount();
-
-      mockPathname = '/admin/questions/q_motion_mcq_1/edit';
+      mockPathname = '/admin/questions/q_1/edit';
       render(<AdminSidebar isCollapsed={false} onToggleCollapse={vi.fn()} />);
+      expect(screen.getByText(/প্রশ্ন ব্যাংক ও স্টুডিও/i).closest('a')?.className).toContain(
+        'bg-indigo-50',
+      );
+      expect(screen.getByText(/কারিকুলাম ও পাঠ/i).closest('a')?.className).not.toContain(
+        'bg-indigo-50',
+      );
+    });
 
-      const questionsLinkEdit = screen.getByText(/প্রশ্ন ব্যাংক ও স্টুডিও/i).closest('a');
-      const curriculumLinkEdit = screen.getByText(/কারিকুলাম ট্রাফি/i).closest('a');
-      expect(questionsLinkEdit?.className).toContain('bg-indigo-50');
-      expect(questionsLinkEdit?.className).toContain('text-indigo-700');
-      expect(curriculumLinkEdit?.className).not.toContain('bg-indigo-50');
+    it('auto-expands a collapsed submenu group when navigating into one of its child routes', () => {
+      mockPathname = '/admin';
+      const view = render(<AdminSidebar isCollapsed={false} onToggleCollapse={vi.fn()} />);
+
+      const toggleQuestionsBtn = screen.getByRole('button', {
+        name: /প্রশ্ন ব্যাংক ও স্টুডিও সাবমেনু টগল/i,
+      });
+      fireEvent.click(toggleQuestionsBtn);
+      expect(screen.queryByText(/MCQ প্রশ্ন/i)).toBeNull();
+
+      mockPathname = '/admin/questions/cq';
+      view.rerender(<AdminSidebar isCollapsed={false} onToggleCollapse={vi.fn()} />);
+      expect(screen.getByText(/সৃজনশীল \(CQ\)/i)).toBeDefined();
     });
   });
 
@@ -121,6 +208,48 @@ describe('Admin Layout Components', () => {
 
       await waitFor(() => {
         expect(apiClient.get).toHaveBeenCalledTimes(2);
+      });
+    });
+
+    it('renders granular breadcrumbs for MCQ, CQ, and Curriculum Lesson sub-routes', async () => {
+      mockPathname = '/admin/questions/mcq';
+      const view1 = render(<AdminTopbar isCollapsed={false} onToggleCollapse={vi.fn()} />);
+      expect(screen.getByText('প্রশ্ন ব্যাংক').closest('a')?.getAttribute('href')).toBe(
+        '/admin/questions',
+      );
+      expect(screen.getByText('MCQ')).toBeDefined();
+      view1.unmount();
+
+      mockPathname = '/admin/questions/cq';
+      const view2 = render(<AdminTopbar isCollapsed={false} onToggleCollapse={vi.fn()} />);
+      expect(screen.getByText('সৃজনশীল (CQ)')).toBeDefined();
+      view2.unmount();
+
+      mockPathname = '/admin/curriculum/lessons';
+      const viewLessons = render(<AdminTopbar isCollapsed={false} onToggleCollapse={vi.fn()} />);
+      expect(screen.getByText('কারিকুলাম').closest('a')?.getAttribute('href')).toBe(
+        '/admin/curriculum',
+      );
+      expect(screen.getByText('পাঠ্য লেসন')).toBeDefined();
+      viewLessons.unmount();
+
+      mockPathname = '/admin/curriculum/lessons/new';
+      const view3 = render(<AdminTopbar isCollapsed={false} onToggleCollapse={vi.fn()} />);
+      expect(screen.getByText('কারিকুলাম').closest('a')?.getAttribute('href')).toBe(
+        '/admin/curriculum',
+      );
+      expect(screen.getByText('পাঠ্য লেসন').closest('a')?.getAttribute('href')).toBe(
+        '/admin/curriculum/lessons',
+      );
+      expect(screen.getByText('নতুন যোগ')).toBeDefined();
+      view3.unmount();
+
+      mockPathname = '/admin/curriculum/lessons/les_1/edit';
+      render(<AdminTopbar isCollapsed={false} onToggleCollapse={vi.fn()} />);
+      expect(screen.getByText('লেসন সম্পাদনা')).toBeDefined();
+
+      await waitFor(() => {
+        expect(apiClient.get).toHaveBeenCalled();
       });
     });
   });

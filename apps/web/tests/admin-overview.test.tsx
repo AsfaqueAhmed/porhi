@@ -32,6 +32,9 @@ describe('Admin Overview Page', () => {
     expect(screen.getByText('প্রশ্ন ব্যাংক').closest('a')?.getAttribute('href')).toBe(
       '/admin/questions',
     );
+    expect(screen.getByText('পাঠ্য লেসন').closest('a')?.getAttribute('href')).toBe(
+      '/admin/curriculum/lessons',
+    );
     expect(screen.getByText(/৬-লেয়ার প্রশ্ন তৈরি/i).closest('a')?.getAttribute('href')).toBe(
       '/admin/questions/new',
     );

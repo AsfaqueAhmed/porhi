@@ -14,10 +14,26 @@ function CurriculumPageContent() {
     subId: string,
     type: 'MCQ' | 'LESSON'
   ) => {
+    if (type === 'LESSON') {
+      router.push(
+        `/admin/curriculum/lessons/new?topicId=${encodeURIComponent(topicId)}&subjectId=${encodeURIComponent(
+          subId
+        )}`
+      );
+      return;
+    }
     router.push(
       `/admin/questions/new?topicId=${encodeURIComponent(topicId)}&subjectId=${encodeURIComponent(
         subId
       )}&type=${type.toLowerCase()}`
+    );
+  };
+
+  const handleNavigateToLessons = (topicId: string, subId: string) => {
+    router.push(
+      `/admin/curriculum/lessons?topicId=${encodeURIComponent(topicId)}&subjectId=${encodeURIComponent(
+        subId
+      )}`
     );
   };
 
@@ -34,6 +50,7 @@ function CurriculumPageContent() {
       <CurriculumManager
         initialSubjectId={subjectId}
         onNavigateToAuthoring={handleNavigateToAuthoring}
+        onNavigateToLessons={handleNavigateToLessons}
         onNavigateToModelTest={handleNavigateToModelTest}
       />
     </div>

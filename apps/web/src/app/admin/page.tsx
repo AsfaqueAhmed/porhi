@@ -67,7 +67,7 @@ export default function AdminOverviewPage() {
               স্বাগতম, poRi কনটেন্ট অপারেশনস প্যানেলে
             </h1>
             <p className="text-sm text-slate-600 leading-relaxed">
-              SSC ও HSC সিলেবাসের বিষয়, অধ্যায়, টপিক এবং ৬-লেয়ার ব্যাখ্যাসমৃদ্ধ প্রশ্ন ব্যাংক পরিচালনা করুন এক জায়গায়।
+              SSC ও HSC সিলেবাসের বিষয়, অধ্যায়, টপিক, পাঠ্য লেসন এবং ৬-লেয়ার ব্যাখ্যাসমৃদ্ধ প্রশ্ন ব্যাংক পরিচালনা করুন এক জায়গায়।
             </p>
           </div>
 
@@ -78,6 +78,13 @@ export default function AdminOverviewPage() {
             >
               <GitFork className="w-4 h-4" />
               <span>কারিকুলাম এক্সপ্লোরার</span>
+            </Link>
+            <Link
+              href="/admin/curriculum/lessons"
+              className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 shadow-xs transition-all"
+            >
+              <BookOpen className="w-4 h-4 text-indigo-600" />
+              <span>পাঠ্য লেসন</span>
             </Link>
             <Link
               href="/admin/questions"

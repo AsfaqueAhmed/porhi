@@ -5,6 +5,7 @@ import {
   FolderTree,
   Plus,
   BookOpen,
+  Eye,
   Layers,
   FileText,
   ToggleLeft,
@@ -89,15 +90,17 @@ const DEFAULT_SUBJECTS: SubjectItem[] = [
   },
 ];
 
-interface CurriculumManagerProps {
+export interface CurriculumManagerProps {
   initialSubjectId?: string;
   onNavigateToAuthoring?: (topicId: string, subjectId: string, type: 'MCQ' | 'LESSON') => void;
+  onNavigateToLessons?: (topicId: string, subjectId: string) => void;
   onNavigateToModelTest?: (chapterId: string, subjectId: string) => void;
 }
 
 export function CurriculumManager({
   initialSubjectId,
   onNavigateToAuthoring,
+  onNavigateToLessons,
   onNavigateToModelTest,
 }: CurriculumManagerProps) {
   const [subjects, setSubjects] = useState<SubjectItem[]>(DEFAULT_SUBJECTS);
@@ -136,8 +139,11 @@ export function CurriculumManager({
         });
         if (isMounted && Array.isArray(res) && res.length > 0) {
           setSubjects(res);
-          const physics = res.find((s) => s.code === 'ssc_physics') || res[0];
-          setSelectedSubjectId(physics.id);
+          const preferred =
+            (initialSubjectId && res.find((s) => s.id === initialSubjectId)) ||
+            res.find((s) => s.code === 'ssc_physics') ||
+            res[0];
+          setSelectedSubjectId(preferred.id);
         }
       } catch {
         if (isMounted) {
@@ -149,7 +155,7 @@ export function CurriculumManager({
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [initialSubjectId]);
 
   useEffect(() => {
     let isMounted = true;
@@ -737,8 +743,8 @@ export function CurriculumManager({
                                 </div>
                               </div>
 
-                              {/* Topic-wise Actions: Add Question / Add Lesson */}
-                              <div className="flex items-center gap-2 self-end sm:self-auto">
+                              {/* Topic-wise Actions: Add Question / View Lessons / Add Lesson */}
+                              <div className="flex flex-wrap items-center gap-2 self-end sm:self-auto">
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -750,6 +756,19 @@ export function CurriculumManager({
                                 >
                                   <HelpCircle className="w-3 h-3 text-emerald-600" />
                                   <span>+ প্রশ্ন যোগ (MCQ/CQ)</span>
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    if (onNavigateToLessons) {
+                                      onNavigateToLessons(t.id, selectedSubjectId);
+                                    }
+                                  }}
+                                  className="text-[11px] font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-300 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
+                                >
+                                  <Eye className="w-3 h-3 text-slate-500" />
+                                  <span>লেসন দেখুন</span>
                                 </button>
 
                                 <button

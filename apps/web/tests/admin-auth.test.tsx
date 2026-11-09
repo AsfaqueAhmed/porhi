@@ -164,7 +164,7 @@ describe('Admin Authorization UI & Layout Guard', () => {
 
     expect(screen.getByTestId('login-page-child')).toBeDefined();
     expect(screen.queryByText(/poRi Admin/i)).toBeNull();
-    expect(screen.queryByText(/কারিকুলাম ট্রাফি/i)).toBeNull();
+    expect(screen.queryByText(/কারিকুলাম ও পাঠ/i)).toBeNull();
     expect(screen.queryByText(/অ্যাডমিন সেশন যাচাই করা হচ্ছে/i)).toBeNull();
     expect(getSpy).not.toHaveBeenCalled();
     expect(mockReplace).not.toHaveBeenCalled();
@@ -180,7 +180,7 @@ describe('Admin Authorization UI & Layout Guard', () => {
     );
 
     expect(screen.queryByTestId('protected-admin-page')).toBeNull();
-    expect(screen.queryByText(/কারিকুলাম ট্রাফি/i)).toBeNull();
+    expect(screen.queryByText(/কারিকুলাম ও পাঠ/i)).toBeNull();
     await waitFor(() => {
       expect(mockReplace).toHaveBeenCalledWith('/admin/login?next=%2Fadmin%2Fcurriculum');
     });
@@ -587,7 +587,7 @@ describe('Admin Authorization UI & Layout Guard', () => {
     );
 
     expect(container.querySelector('div[aria-hidden="true"]')).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: /মেনু টগল/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^মেনু টগল$/i }));
     expect(container.querySelector('div[aria-hidden="true"]')).not.toBeNull();
 
     const logoutBtns = screen.getAllByRole('button', { name: /লগআউট/i });
