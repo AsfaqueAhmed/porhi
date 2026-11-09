@@ -1,13 +1,16 @@
-import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { cleanup, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import { AdminSidebar } from '../src/components/admin/layout/AdminSidebar';
 import { AdminTopbar } from '../src/components/admin/layout/AdminTopbar';
 import { AdminDrawer } from '../src/components/admin/layout/AdminDrawer';
+import { apiClient } from '../src/lib/api-client';
+
+let mockPathname = '/admin/curriculum';
 
 // Mock next/navigation
 vi.mock('next/navigation', () => ({
-  usePathname: () => '/admin/curriculum',
+  usePathname: () => mockPathname,
   useRouter: () => ({
     push: vi.fn(),
     replace: vi.fn(),
@@ -17,6 +20,16 @@ vi.mock('next/navigation', () => ({
 }));
 
 describe('Admin Layout Components', () => {
+  beforeEach(() => {
+    mockPathname = '/admin/curriculum';
+    vi.spyOn(apiClient, 'get').mockResolvedValue([]);
+  });
+
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
   describe('AdminSidebar', () => {
     it('renders brand, navigation items, and student app switch', () => {
       const handleToggle = vi.fn();
@@ -24,7 +37,7 @@ describe('Admin Layout Components', () => {
 
       expect(screen.getByText(/poRi Admin/i)).toBeDefined();
       expect(screen.getByText(/কারিকুলাম ট্রাফি/i)).toBeDefined();
-      expect(screen.getByText(/প্রশ্ন ও লেসন স্টুডিও/i)).toBeDefined();
+      expect(screen.getByText(/প্রশ্ন ব্যাংক ও স্টুডিও/i)).toBeDefined();
       expect(screen.getByText(/মডেল টেস্ট/i)).toBeDefined();
       expect(screen.getByText(/রিভিউ ও অডিট কনসোল/i)).toBeDefined();
       expect(screen.getByText(/শিক্ষার্থী অ্যাপে যান/i)).toBeDefined();
@@ -41,7 +54,7 @@ describe('Admin Layout Components', () => {
   });
 
   describe('AdminTopbar', () => {
-    it('renders breadcrumbs and API connectivity indicator', () => {
+    it('renders breadcrumbs, API connectivity indicator, and নতুন কনটেন্ট link to /admin/questions/new', async () => {
       render(
         <AdminTopbar
           isCollapsed={false}
@@ -51,6 +64,42 @@ describe('Admin Layout Components', () => {
 
       expect(screen.getByText(/অ্যাডমিন/i)).toBeDefined();
       expect(screen.getByText(/কারিকুলাম/i)).toBeDefined();
+
+      const newContentLink = screen.getByText(/নতুন কনটেন্ট/i).closest('a');
+      expect(newContentLink?.getAttribute('href')).toBe('/admin/questions/new');
+
+      await waitFor(() => {
+        expect(apiClient.get).toHaveBeenCalledWith('/curriculum/subjects', { scope: 'admin' });
+      });
+    });
+
+    it('renders question bank breadcrumbs for /admin/questions/new and /admin/questions/[id]/edit', async () => {
+      mockPathname = '/admin/questions/new';
+      const firstRender = render(
+        <AdminTopbar isCollapsed={false} onToggleCollapse={vi.fn()} />,
+      );
+
+      expect(screen.getByText('প্রশ্ন ব্যাংক').closest('a')?.getAttribute('href')).toBe(
+        '/admin/questions',
+      );
+      expect(screen.getByText('নতুন যোগ')).toBeDefined();
+
+      await waitFor(() => {
+        expect(apiClient.get).toHaveBeenCalled();
+      });
+      firstRender.unmount();
+
+      mockPathname = '/admin/questions/q_motion_mcq_1/edit';
+      render(<AdminTopbar isCollapsed={false} onToggleCollapse={vi.fn()} />);
+
+      expect(screen.getByText('প্রশ্ন ব্যাংক').closest('a')?.getAttribute('href')).toBe(
+        '/admin/questions',
+      );
+      expect(screen.getByText('প্রশ্ন সম্পাদনা')).toBeDefined();
+
+      await waitFor(() => {
+        expect(apiClient.get).toHaveBeenCalledTimes(2);
+      });
     });
   });
 

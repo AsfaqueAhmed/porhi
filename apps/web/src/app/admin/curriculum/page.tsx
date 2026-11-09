@@ -15,7 +15,7 @@ function CurriculumPageContent() {
     type: 'MCQ' | 'LESSON'
   ) => {
     router.push(
-      `/admin/questions?topicId=${encodeURIComponent(topicId)}&subjectId=${encodeURIComponent(
+      `/admin/questions/new?topicId=${encodeURIComponent(topicId)}&subjectId=${encodeURIComponent(
         subId
       )}&type=${type.toLowerCase()}`
     );

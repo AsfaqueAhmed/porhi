@@ -74,7 +74,13 @@ export function AdminTopbar({
     if (pathname.includes('/curriculum')) {
       segments.push({ label: 'কারিকুলাম ট্রাফি', href: '/admin/curriculum' });
     } else if (pathname.includes('/questions')) {
-      segments.push({ label: 'প্রশ্ন ও লেসন স্টুডিও', href: '/admin/questions' });
+      const normalizedPath = pathname.replace(/\/+$/, '');
+      segments.push({ label: 'প্রশ্ন ব্যাংক', href: '/admin/questions' });
+      if (normalizedPath.endsWith('/questions/new')) {
+        segments.push({ label: 'নতুন যোগ', href: '/admin/questions/new' });
+      } else if (normalizedPath.endsWith('/edit')) {
+        segments.push({ label: 'প্রশ্ন সম্পাদনা', href: pathname });
+      }
     } else if (pathname.includes('/model-tests')) {
       segments.push({ label: 'মডেল টেস্ট ম্যানেজার', href: '/admin/model-tests' });
     } else if (pathname.includes('/reviews')) {
@@ -160,7 +166,7 @@ export function AdminTopbar({
 
         {/* Quick Action Link to New Question */}
         <Link
-          href="/admin/questions"
+          href="/admin/questions/new"
           className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-xs transition-colors"
         >
           <PlusCircle className="w-3.5 h-3.5" />

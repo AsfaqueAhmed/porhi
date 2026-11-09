@@ -84,7 +84,7 @@ export default function AdminOverviewPage() {
               className="inline-flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl border border-slate-200 shadow-xs transition-all"
             >
               <FileQuestion className="w-4 h-4 text-indigo-600" />
-              <span>প্রশ্ন স্টুডিও</span>
+              <span>প্রশ্ন ব্যাংক</span>
             </Link>
           </div>
         </div>
@@ -196,7 +196,7 @@ export default function AdminOverviewPage() {
           </Link>
 
           <Link
-            href="/admin/questions"
+            href="/admin/questions/new"
             className="group p-4 rounded-xl border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/30 transition-all flex flex-col justify-between"
           >
             <div>

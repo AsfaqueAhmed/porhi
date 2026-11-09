@@ -499,6 +499,8 @@ describe('Admin Authorization UI & Layout Guard', () => {
       });
     });
 
+    fireEvent.click(screen.getByText(/নমুনা ভরুন/i));
+
     const stemInput = screen.getByPlaceholderText(/প্রশ্নের মূল বিবরণ লিখুন/i) as HTMLTextAreaElement;
     fireEvent.change(stemInput, { target: { value: 'কাস্টম পদার্থবিজ্ঞান প্রশ্ন স্টেম' } });
 

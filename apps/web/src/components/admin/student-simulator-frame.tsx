@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Smartphone,
   CheckCircle2,
@@ -13,6 +13,7 @@ import {
   Wifi,
   Battery,
 } from 'lucide-react';
+import type { CQRubric } from '@pori/shared';
 import { LatexRenderer } from '../math/latex-renderer';
 
 export interface SimulatorOption {
@@ -22,10 +23,12 @@ export interface SimulatorOption {
 }
 
 export interface StudentSimulatorFrameProps {
+  questionType?: 'MCQ' | 'CQ_CREATIVE';
   stem: string;
   options: SimulatorOption[];
+  cqRubric?: Partial<CQRubric>;
   coreConcept?: string;
-  distractors?: { a?: string; b?: string; c?: string; d?: string };
+  distractors?: Record<string, string | undefined>;
   formulaSteps?: string;
   citationBook?: string;
   citationChapter?: string;
@@ -33,9 +36,18 @@ export interface StudentSimulatorFrameProps {
   proTip?: string;
 }
 
+const CQ_PART_LABELS = [
+  { key: 'ka', label: 'ক (জ্ঞানমূলক)' },
+  { key: 'kha', label: 'খ (অনুধাবনমূলক)' },
+  { key: 'ga', label: 'গ (প্রয়োগমূলক)' },
+  { key: 'gha', label: 'ঘ (উচ্চতর দক্ষতা)' },
+] as const;
+
 export function StudentSimulatorFrame({
+  questionType = 'MCQ',
   stem,
   options,
+  cqRubric,
   coreConcept,
   distractors,
   formulaSteps,
@@ -47,8 +59,17 @@ export function StudentSimulatorFrame({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showExplanation, setShowExplanation] = useState<boolean>(false);
 
+  useEffect(() => {
+    setSelectedId(null);
+    setShowExplanation(false);
+  }, [questionType]);
+
+  const isCQ = questionType === 'CQ_CREATIVE';
   const selectedOption = options.find((o) => o.id === selectedId);
   const isCorrect = selectedOption?.isCorrect ?? false;
+  const hasDistractorNotes = Boolean(
+    distractors && Object.values(distractors).some((val) => Boolean(val?.trim())),
+  );
 
   const handleSelect = (id: string) => {
     setSelectedId(id);
@@ -102,7 +123,7 @@ export function StudentSimulatorFrame({
             {/* Subject/Topic Badge in App */}
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full border border-indigo-100">
-                অনুশীলন প্রশ্ন • MCQ
+                {isCQ ? 'অনুশীলন প্রশ্ন • সৃজনশীল (CQ)' : 'অনুশীলন প্রশ্ন • MCQ'}
               </span>
               <span className="text-[10px] font-semibold text-slate-400">১/১</span>
             </div>
@@ -118,61 +139,73 @@ export function StudentSimulatorFrame({
               )}
             </div>
 
-            {/* Options List */}
-            <div className="space-y-2">
-              {options.map((opt, idx) => {
-                const label = ['ক', 'খ', 'গ', 'ঘ'][idx] || String(idx + 1);
-                const isSelected = selectedId === opt.id;
+            {/* CQ Solution Toggle or MCQ Options List */}
+            {isCQ ? (
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => setShowExplanation((prev) => !prev)}
+                  className="w-full py-2.5 px-3 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-colors"
+                >
+                  {showExplanation ? 'সমাধান ও রুব্রিক লুকান' : 'সমাধান ও রুব্রিক দেখুন'}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {options.map((opt, idx) => {
+                  const label = ['ক', 'খ', 'গ', 'ঘ'][idx] || String(idx + 1);
+                  const isSelected = selectedId === opt.id;
 
-                let cardStyle =
-                  'bg-white border-slate-200 text-slate-700 hover:border-indigo-300 hover:bg-indigo-50/20';
+                  let cardStyle =
+                    'bg-white border-slate-200 text-slate-700 hover:border-indigo-300 hover:bg-indigo-50/20';
 
-                if (selectedId) {
-                  if (opt.isCorrect) {
-                    cardStyle = 'bg-emerald-50 border-emerald-400 text-emerald-900 font-bold';
-                  } else if (isSelected) {
-                    cardStyle = 'bg-rose-50 border-rose-400 text-rose-900 font-bold';
-                  } else {
-                    cardStyle = 'opacity-50 bg-slate-50 border-slate-200 text-slate-400';
+                  if (selectedId) {
+                    if (opt.isCorrect) {
+                      cardStyle = 'bg-emerald-50 border-emerald-400 text-emerald-900 font-bold';
+                    } else if (isSelected) {
+                      cardStyle = 'bg-rose-50 border-rose-400 text-rose-900 font-bold';
+                    } else {
+                      cardStyle = 'opacity-50 bg-slate-50 border-slate-200 text-slate-400';
+                    }
                   }
-                }
 
-                return (
-                  <button
-                    key={opt.id}
-                    type="button"
-                    onClick={() => handleSelect(opt.id)}
-                    className={`w-full text-left p-3 rounded-xl border text-xs flex items-center justify-between gap-2.5 transition-all shadow-2xs ${cardStyle}`}
-                  >
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <span className="w-5 h-5 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center font-bold text-[10px] shrink-0">
-                        {label}
-                      </span>
-                      <div className="truncate">
-                        {opt.text ? (
-                          <LatexRenderer content={opt.text} />
-                        ) : (
-                          <span className="text-slate-300 italic">বিকল্প খালি</span>
-                        )}
+                  return (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => handleSelect(opt.id)}
+                      className={`w-full text-left p-3 rounded-xl border text-xs flex items-center justify-between gap-2.5 transition-all shadow-2xs ${cardStyle}`}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <span className="w-5 h-5 rounded-full bg-slate-100 border border-slate-300 flex items-center justify-center font-bold text-[10px] shrink-0">
+                          {label}
+                        </span>
+                        <div className="truncate">
+                          {opt.text ? (
+                            <LatexRenderer content={opt.text} />
+                          ) : (
+                            <span className="text-slate-300 italic">বিকল্প খালি</span>
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    {selectedId && (
-                      <div className="shrink-0">
-                        {opt.isCorrect ? (
-                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                        ) : isSelected ? (
-                          <XCircle className="w-4 h-4 text-rose-600" />
-                        ) : null}
-                      </div>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
+                      {selectedId && (
+                        <div className="shrink-0">
+                          {opt.isCorrect ? (
+                            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                          ) : isSelected ? (
+                            <XCircle className="w-4 h-4 text-rose-600" />
+                          ) : null}
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
 
-            {/* Answer Result Banner */}
-            {selectedId && (
+            {/* Answer Result Banner (MCQ only) */}
+            {!isCQ && selectedId && (
               <div
                 className={`p-3 rounded-xl border text-xs flex items-center justify-between animate-in fade-in ${
                   isCorrect
@@ -202,10 +235,33 @@ export function StudentSimulatorFrame({
                 <div className="flex items-center justify-between text-[11px] font-bold text-slate-700">
                   <span className="flex items-center gap-1">
                     <HelpCircle className="w-3.5 h-3.5 text-indigo-600" />
-                    ৬-লেয়ার কনসেপ্ট সমাধান:
+                    {isCQ ? 'মূল্যায়ন রুব্রিক ও ৬-লেয়ার সমাধান:' : '৬-লেয়ার কনসেপ্ট সমাধান:'}
                   </span>
                   <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                 </div>
+
+                {isCQ && cqRubric && (
+                  <div className="space-y-1.5">
+                    {CQ_PART_LABELS.map(({ key, label }) => {
+                      const part = cqRubric[key];
+                      if (!part || !part.criteria?.trim()) {
+                        return null;
+                      }
+                      return (
+                        <div
+                          key={key}
+                          className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-[11px] text-slate-700 space-y-1"
+                        >
+                          <div className="flex items-center justify-between text-[10px] font-bold text-slate-800">
+                            <span>{label}</span>
+                            <span className="font-mono text-indigo-700">নম্বর: {part.mark}</span>
+                          </div>
+                          <LatexRenderer content={part.criteria} />
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
 
                 {coreConcept && (
                   <div className="bg-indigo-50/70 p-2.5 rounded-xl border border-indigo-100 text-[11px] text-slate-700 space-y-1">
@@ -225,7 +281,7 @@ export function StudentSimulatorFrame({
                   </div>
                 )}
 
-                {distractors && (distractors.a || distractors.b) && (
+                {!isCQ && hasDistractorNotes && (
                   <div className="bg-amber-50/70 p-2.5 rounded-xl border border-amber-100 text-[11px] text-slate-700 space-y-1">
                     <span className="font-bold text-amber-900 block text-[10px]">
                       ৩. ভুল অপশন কেন ভুল (Distractor Analysis):

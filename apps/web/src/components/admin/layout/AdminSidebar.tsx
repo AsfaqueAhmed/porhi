@@ -62,7 +62,7 @@ export function AdminSidebar({
       badge: 'মূল গঠন',
     },
     {
-      label: 'প্রশ্ন ও লেসন স্টুডিও',
+      label: 'প্রশ্ন ব্যাংক ও স্টুডিও',
       href: '/admin/questions',
       icon: FileQuestion,
       badge: '৬-লেয়ার',
