@@ -425,14 +425,45 @@ export class ContentAdminService {
   }
 
   async listQuestions(query: ListQuestionsQueryDto = {}) {
-    if (query.type && !['MCQ', 'CQ_CREATIVE'].includes(query.type)) {
+    if (!query || typeof query !== 'object' || Array.isArray(query)) {
+      throw new BadRequestException('Query must be an object');
+    }
+
+    const stringFilterFields = [
+      'subjectId',
+      'chapterId',
+      'topicId',
+      'search',
+      'page',
+      'limit',
+    ] as const;
+    for (const field of stringFilterFields) {
+      if (query[field] !== undefined && typeof query[field] !== 'string') {
+        throw new BadRequestException(`${field} must be a string`);
+      }
+    }
+
+    if (
+      query.type !== undefined &&
+      (typeof query.type !== 'string' || !['MCQ', 'CQ_CREATIVE'].includes(query.type))
+    ) {
       throw new BadRequestException('type must be MCQ or CQ_CREATIVE');
     }
+
+    const validStatuses = Object.values(ContentStatus) as string[];
     if (
-      query.status &&
-      !['DRAFT', 'REVIEW', 'CORRECTION', 'PUBLISHED', 'ARCHIVED'].includes(query.status)
+      query.status !== undefined &&
+      (typeof query.status !== 'string' || !validStatuses.includes(query.status))
     ) {
       throw new BadRequestException('Invalid question status filter');
+    }
+
+    if (
+      query.includeArchived !== undefined &&
+      (typeof query.includeArchived !== 'string' ||
+        !['true', 'false'].includes(query.includeArchived))
+    ) {
+      throw new BadRequestException('includeArchived must be true or false');
     }
 
     const baseWhere: Prisma.QuestionWhereInput = {};
@@ -470,13 +501,20 @@ export class ContentAdminService {
       where.status = { not: ContentStatus.ARCHIVED };
     }
 
-    const parsedPage = Number.parseInt(query.page ?? '1', 10);
     const parsedLimit = Number.parseInt(query.limit ?? '20', 10);
-    const page = Number.isFinite(parsedPage) && parsedPage >= 1 ? parsedPage : 1;
     const limit =
       Number.isFinite(parsedLimit) && parsedLimit >= 1
         ? Math.min(100, parsedLimit)
         : 20;
+    const MAX_INT32 = 2_147_483_647;
+    const maxPage = Math.floor(MAX_INT32 / limit) + 1;
+    const parsedPage = Number.parseInt(query.page ?? '1', 10);
+    const page =
+      Number.isFinite(parsedPage) && parsedPage >= 1
+        ? Math.min(maxPage, parsedPage)
+        : parsedPage === Infinity
+          ? maxPage
+          : 1;
     const skip = (page - 1) * limit;
 
     const [items, total, groupedCounts] = await Promise.all([

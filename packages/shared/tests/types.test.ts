@@ -8,6 +8,10 @@ import {
   type QuestionDTO,
   type LessonDTO,
   type SubjectDTO,
+  type QuestionTopicHierarchy,
+  type AdminQuestionItem,
+  type QuestionStatusCounts,
+  type ListQuestionsResponse,
 } from '../src';
 
 describe('Shared Constants and Enums', () => {
@@ -112,5 +116,68 @@ describe('Shared Type Structures', () => {
     };
     expect(lesson.titleBangla).toBe('গতির মৌলিক ধারণা');
     expect(lesson.importantTerms[0].termEnglish).toBe('Acceleration');
+  });
+
+  it('should construct valid QuestionTopicHierarchy, AdminQuestionItem, QuestionStatusCounts, and ListQuestionsResponse', () => {
+    const topic: QuestionTopicHierarchy = {
+      id: 'top_1',
+      titleBangla: 'গতির সমীকরণ',
+      chapter: {
+        id: 'chap_2',
+        titleBangla: 'দ্বিতীয় অধ্যায়: গতি',
+        subject: {
+          id: 'sub_phy',
+          code: 'ssc_physics',
+          nameBangla: 'পদার্থবিজ্ঞান',
+        },
+      },
+    };
+
+    const item: AdminQuestionItem = {
+      id: 'q_1',
+      topicId: topic.id,
+      type: 'MCQ',
+      stem: 'বেগের একক কী?',
+      options: [
+        { id: 'opt_q1_a', text: 'm/s', isCorrect: true },
+        { id: 'opt_q1_b', text: 'm/s²', isCorrect: false },
+      ],
+      explanation: {
+        directAnswer: 'm/s',
+        coreConcept: 'v = s / t',
+      },
+      cqRubric: null,
+      difficulty: 'EASY',
+      boardSource: 'Dhaka Board 2024',
+      isVerified: true,
+      status: ContentStatus.ARCHIVED,
+      version: 2,
+      createdAt: '2026-11-08T00:00:00Z',
+      updatedAt: '2026-11-09T00:00:00Z',
+      topic,
+    };
+
+    const statusCounts: QuestionStatusCounts = {
+      ALL: 10,
+      DRAFT: 2,
+      REVIEW: 1,
+      CORRECTION: 1,
+      PUBLISHED: 6,
+      ARCHIVED: 3,
+    };
+
+    const response: ListQuestionsResponse = {
+      items: [item],
+      total: 10,
+      page: 1,
+      limit: 20,
+      totalPages: 1,
+      statusCounts,
+    };
+
+    expect(response.items[0].topic.chapter.subject.code).toBe('ssc_physics');
+    expect(response.items[0].status).toBe(ContentStatus.ARCHIVED);
+    expect(response.statusCounts.CORRECTION).toBe(1);
+    expect(response.statusCounts.ARCHIVED).toBe(3);
   });
 });

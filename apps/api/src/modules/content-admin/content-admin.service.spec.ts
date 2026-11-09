@@ -804,6 +804,114 @@ describe('ContentAdminService', () => {
         }),
       );
     });
+
+    it('uses defaults for empty query, ignores whitespace-only search, and counts CORRECTION in ALL', async () => {
+      mockPrisma.question.findMany.mockResolvedValue([]);
+      mockPrisma.question.count.mockResolvedValue(5);
+      mockPrisma.question.groupBy.mockResolvedValue([
+        { status: ContentStatus.CORRECTION, _count: { _all: 3 } },
+        { status: ContentStatus.DRAFT, _count: { _all: 2 } },
+      ]);
+
+      const res = await service.listQuestions({ search: '   ' });
+
+      expect(mockPrisma.question.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { status: { not: ContentStatus.ARCHIVED } },
+          skip: 0,
+          take: 20,
+        }),
+      );
+      expect(mockPrisma.question.groupBy).toHaveBeenCalledWith({
+        by: ['status'],
+        where: {},
+        _count: { _all: true },
+      });
+      expect(res.page).toBe(1);
+      expect(res.limit).toBe(20);
+      expect(res.totalPages).toBe(1);
+      expect(res.statusCounts).toEqual({
+        ALL: 5,
+        DRAFT: 2,
+        REVIEW: 0,
+        CORRECTION: 3,
+        PUBLISHED: 0,
+        ARCHIVED: 0,
+      });
+
+      const emptyObjRes = await service.listQuestions({});
+      expect(emptyObjRes.page).toBe(1);
+      expect(emptyObjRes.limit).toBe(20);
+    });
+
+    it('clamps extreme page numbers so skip never overflows signed 32-bit integer limits', async () => {
+      mockPrisma.question.findMany.mockResolvedValue([]);
+      mockPrisma.question.count.mockResolvedValue(0);
+      mockPrisma.question.groupBy.mockResolvedValue([]);
+
+      const MAX_INT32 = 2_147_483_647;
+      const expectedMaxPage = Math.floor(MAX_INT32 / 20) + 1;
+
+      const res = await service.listQuestions({
+        page: '9999999999',
+        limit: '20',
+      });
+
+      expect(res.page).toBe(expectedMaxPage);
+      expect(mockPrisma.question.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          skip: (expectedMaxPage - 1) * 20,
+          take: 20,
+        }),
+      );
+      const callArgs = mockPrisma.question.findMany.mock.calls[0][0];
+      expect(callArgs.skip).toBeLessThanOrEqual(MAX_INT32);
+
+      const customLimitRes = await service.listQuestions({
+        page: '999999999999',
+        limit: '100',
+      });
+      const maxPageFor100 = Math.floor(MAX_INT32 / 100) + 1;
+      expect(customLimitRes.page).toBe(maxPageFor100);
+      const secondCallArgs = mockPrisma.question.findMany.mock.calls[1][0];
+      expect(secondCallArgs.skip).toBe((maxPageFor100 - 1) * 100);
+      expect(secondCallArgs.skip).toBeLessThanOrEqual(MAX_INT32);
+    });
+
+    it('throws BadRequestException for invalid query shape, invalid enums, or non-string filter inputs', async () => {
+      await expect(service.listQuestions(null as any)).rejects.toThrow(BadRequestException);
+      await expect(service.listQuestions([] as any)).rejects.toThrow(BadRequestException);
+      await expect(service.listQuestions({ type: 'ESSAY' as any })).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.listQuestions({ type: '' as any })).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.listQuestions({ status: 'UNKNOWN' as any })).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.listQuestions({ includeArchived: 'yes' })).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.listQuestions({ subjectId: 123 as any })).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.listQuestions({ chapterId: 456 as any })).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.listQuestions({ topicId: true as any })).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.listQuestions({ search: { text: 'Dhaka' } as any })).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.listQuestions({ page: 2 as any })).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.listQuestions({ limit: 10 as any })).rejects.toThrow(
+        BadRequestException,
+      );
+    });
   });
 
   describe('getQuestionById', () => {

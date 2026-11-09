@@ -77,12 +77,12 @@ export interface QuestionTopicHierarchy {
 export interface AdminQuestionItem {
   id: string;
   topicId: string;
-  type: 'MCQ' | 'CQ_CREATIVE' | string;
+  type: 'MCQ' | 'CQ_CREATIVE' | (string & {});
   stem: string;
   options?: QuestionOption[] | null;
   explanation: ExplanationObject;
   cqRubric?: Partial<CQRubric> | null;
-  difficulty: QuestionDifficulty | string;
+  difficulty: QuestionDifficulty | (string & {});
   boardSource?: string | null;
   isVerified: boolean;
   status: ContentStatus | 'DRAFT' | 'REVIEW' | 'CORRECTION' | 'PUBLISHED' | 'ARCHIVED';

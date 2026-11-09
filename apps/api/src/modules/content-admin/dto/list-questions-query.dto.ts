@@ -1,4 +1,4 @@
-import { IsIn, IsNumberString, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsIn, IsNumberString, IsOptional, IsString } from 'class-validator';
 import { ContentStatus } from '@prisma/client';
 
 export class ListQuestionsQueryDto {
@@ -19,7 +19,7 @@ export class ListQuestionsQueryDto {
   type?: 'MCQ' | 'CQ_CREATIVE';
 
   @IsOptional()
-  @IsIn(['DRAFT', 'REVIEW', 'CORRECTION', 'PUBLISHED', 'ARCHIVED'])
+  @IsEnum(ContentStatus)
   status?: ContentStatus;
 
   @IsOptional()
@@ -31,10 +31,10 @@ export class ListQuestionsQueryDto {
   includeArchived?: string;
 
   @IsOptional()
-  @IsNumberString()
+  @IsNumberString({ no_symbols: true })
   page?: string;
 
   @IsOptional()
-  @IsNumberString()
+  @IsNumberString({ no_symbols: true })
   limit?: string;
 }
