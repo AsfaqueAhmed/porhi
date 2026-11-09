@@ -1,10 +1,11 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ContentStatus, Prisma } from '@prisma/client';
+import { ContentStatus, Prisma, Role } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import { CreateLessonAdminDto } from './dto/create-lesson-admin.dto';
 import { CreateQuestionAdminDto } from './dto/create-question-admin.dto';
@@ -13,6 +14,7 @@ import { CreateChapterAdminDto } from './dto/create-chapter-admin.dto';
 import { CreateTopicAdminDto } from './dto/create-topic-admin.dto';
 import { CreateSubjectAdminDto } from './dto/create-subject-admin.dto';
 import { ListQuestionsQueryDto } from './dto/list-questions-query.dto';
+import { UpdateQuestionAdminDto } from './dto/update-question-admin.dto';
 
 export const QUESTION_HIERARCHY_INCLUDE = {
   topic: {
@@ -88,46 +90,60 @@ export class ContentAdminService {
     });
   }
 
-  async createQuestion(dto: CreateQuestionAdminDto) {
-    if (!dto?.topicId || typeof dto.topicId !== 'string' || !dto.topicId.trim()) {
+  private validateQuestionPayload(payload: {
+    topicId?: string;
+    type?: string;
+    stem?: string;
+    options?: any;
+    explanation?: any;
+    cqRubric?: any;
+    difficulty?: string;
+  }) {
+    if (!payload.topicId || typeof payload.topicId !== 'string' || !payload.topicId.trim()) {
       throw new BadRequestException('topicId is required');
     }
-    if (!dto?.type || !['MCQ', 'CQ_CREATIVE'].includes(dto.type)) {
+    if (!payload.type || !['MCQ', 'CQ_CREATIVE'].includes(payload.type)) {
       throw new BadRequestException('type must be MCQ or CQ_CREATIVE');
     }
-    if (!dto?.stem || typeof dto.stem !== 'string' || !dto.stem.trim()) {
+    if (!payload.stem || typeof payload.stem !== 'string' || !payload.stem.trim()) {
       throw new BadRequestException('stem is required');
     }
-    if (!dto?.explanation || typeof dto.explanation !== 'object') {
+    if (
+      !payload.explanation ||
+      typeof payload.explanation !== 'object' ||
+      Array.isArray(payload.explanation)
+    ) {
       throw new BadRequestException('explanation must be a valid object');
     }
     if (
-      typeof dto.explanation.directAnswer !== 'string' ||
-      !dto.explanation.directAnswer.trim() ||
-      typeof dto.explanation.coreConcept !== 'string' ||
-      !dto.explanation.coreConcept.trim()
+      typeof payload.explanation.directAnswer !== 'string' ||
+      !payload.explanation.directAnswer.trim() ||
+      typeof payload.explanation.coreConcept !== 'string' ||
+      !payload.explanation.coreConcept.trim()
     ) {
       throw new BadRequestException(
         'explanation must include non-empty directAnswer and coreConcept',
       );
     }
-    if (!dto?.difficulty || !['EASY', 'MEDIUM', 'HARD'].includes(dto.difficulty)) {
+    if (!payload.difficulty || !['EASY', 'MEDIUM', 'HARD'].includes(payload.difficulty)) {
       throw new BadRequestException('difficulty must be EASY, MEDIUM, or HARD');
     }
 
-    if (dto.type === 'MCQ') {
-      if (!Array.isArray(dto.options) || dto.options.length < 2) {
+    if (payload.type === 'MCQ') {
+      if (!Array.isArray(payload.options) || payload.options.length < 2) {
         throw new BadRequestException('MCQ questions must include at least 2 options');
       }
       let correctCount = 0;
-      for (const opt of dto.options) {
+      for (const opt of payload.options) {
         if (
           !opt ||
           typeof opt !== 'object' ||
           !opt.id ||
           typeof opt.id !== 'string' ||
+          !opt.id.trim() ||
           !opt.text ||
           typeof opt.text !== 'string' ||
+          !opt.text.trim() ||
           typeof opt.isCorrect !== 'boolean'
         ) {
           throw new BadRequestException('Each option must contain id, text, and isCorrect boolean');
@@ -140,6 +156,51 @@ export class ContentAdminService {
         throw new BadRequestException('MCQ questions must have exactly one correct option');
       }
     }
+
+    if (
+      payload.type === 'CQ_CREATIVE' &&
+      payload.cqRubric !== undefined &&
+      payload.cqRubric !== null
+    ) {
+      if (typeof payload.cqRubric !== 'object' || Array.isArray(payload.cqRubric)) {
+        throw new BadRequestException('cqRubric must be an object keyed by ka, kha, ga, gha');
+      }
+      const partKeys = ['ka', 'kha', 'ga', 'gha'] as const;
+      let validParts = 0;
+      for (const key of partKeys) {
+        const part = payload.cqRubric[key];
+        if (part === undefined) continue;
+        if (!part || typeof part !== 'object' || Array.isArray(part)) {
+          throw new BadRequestException(`cqRubric.${key} must be an object`);
+        }
+        const criteriaValid = typeof part.criteria === 'string' && part.criteria.trim().length > 0;
+        const markValid =
+          typeof part.mark === 'number' && Number.isFinite(part.mark) && part.mark >= 0;
+        if (part.mark !== undefined && !markValid) {
+          throw new BadRequestException(`cqRubric.${key}.mark must be a non-negative number`);
+        }
+        if (criteriaValid && markValid) {
+          validParts++;
+        }
+      }
+      if (validParts === 0) {
+        throw new BadRequestException(
+          'CQ_CREATIVE cqRubric must include at least one part (ka, kha, ga, gha) with non-empty criteria and non-negative numeric mark',
+        );
+      }
+    }
+  }
+
+  async createQuestion(dto: CreateQuestionAdminDto) {
+    this.validateQuestionPayload({
+      topicId: dto?.topicId,
+      type: dto?.type,
+      stem: dto?.stem,
+      options: dto?.options,
+      explanation: dto?.explanation,
+      cqRubric: dto?.cqRubric,
+      difficulty: dto?.difficulty,
+    });
 
     const topic = await this.prisma.topic.findUnique({
       where: { id: dto.topicId },
@@ -154,9 +215,19 @@ export class ContentAdminService {
         topicId: dto.topicId,
         type: dto.type,
         stem: dto.stem,
-        options: dto.options !== undefined ? dto.options : undefined,
+        options:
+          dto.type === 'CQ_CREATIVE'
+            ? Prisma.DbNull
+            : dto.options !== undefined && dto.options !== null
+              ? dto.options
+              : Prisma.DbNull,
         explanation: dto.explanation,
-        cqRubric: dto.cqRubric !== undefined ? dto.cqRubric : undefined,
+        cqRubric:
+          dto.type === 'MCQ'
+            ? Prisma.DbNull
+            : dto.cqRubric !== undefined && dto.cqRubric !== null
+              ? dto.cqRubric
+              : Prisma.DbNull,
         difficulty: dto.difficulty,
         boardSource: dto.boardSource ?? null,
         status: ContentStatus.DRAFT,
@@ -466,6 +537,14 @@ export class ContentAdminService {
       throw new BadRequestException('includeArchived must be true or false');
     }
 
+    if (query.page !== undefined && !/^\d+$/.test(query.page)) {
+      throw new BadRequestException('page must be a non-negative integer string');
+    }
+
+    if (query.limit !== undefined && !/^\d+$/.test(query.limit)) {
+      throw new BadRequestException('limit must be a non-negative integer string');
+    }
+
     const baseWhere: Prisma.QuestionWhereInput = {};
     if (query.topicId?.trim()) {
       baseWhere.topicId = query.topicId.trim();
@@ -582,5 +661,169 @@ export class ContentAdminService {
     }
 
     return question;
+  }
+
+  async updateQuestion(id: string, dto: UpdateQuestionAdminDto, actorRole: Role) {
+    if (!dto || typeof dto !== 'object' || Array.isArray(dto)) {
+      throw new BadRequestException('Update payload must be an object');
+    }
+
+    if (dto.options !== undefined && dto.options !== null && !Array.isArray(dto.options)) {
+      throw new BadRequestException('options must be an array or null');
+    }
+    if (
+      dto.cqRubric !== undefined &&
+      dto.cqRubric !== null &&
+      (typeof dto.cqRubric !== 'object' || Array.isArray(dto.cqRubric))
+    ) {
+      throw new BadRequestException('cqRubric must be an object or null');
+    }
+    if (
+      dto.boardSource !== undefined &&
+      dto.boardSource !== null &&
+      typeof dto.boardSource !== 'string'
+    ) {
+      throw new BadRequestException('boardSource must be a string or null');
+    }
+    if (
+      dto.preservePublished !== undefined &&
+      dto.preservePublished !== null &&
+      typeof dto.preservePublished !== 'boolean'
+    ) {
+      throw new BadRequestException('preservePublished must be a boolean');
+    }
+    if (
+      dto.submitForReview !== undefined &&
+      dto.submitForReview !== null &&
+      typeof dto.submitForReview !== 'boolean'
+    ) {
+      throw new BadRequestException('submitForReview must be a boolean');
+    }
+
+    const existing = await this.prisma.question.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(`Question with id ${id} not found`);
+    }
+
+    if (existing.status === ContentStatus.ARCHIVED) {
+      throw new BadRequestException('Archived questions cannot be edited directly');
+    }
+
+    if (dto.preservePublished === true && actorRole !== Role.ADMIN) {
+      throw new ForbiddenException('Only Admin can keep a question published during edit');
+    }
+
+    const nextType = dto.type !== undefined ? dto.type : existing.type;
+    const mergedTopicId = dto.topicId !== undefined ? dto.topicId : existing.topicId;
+    const mergedStem = dto.stem !== undefined ? dto.stem : existing.stem;
+    const mergedDifficulty =
+      dto.difficulty !== undefined ? dto.difficulty : existing.difficulty;
+    const mergedExplanation =
+      dto.explanation !== undefined ? dto.explanation : existing.explanation;
+    const mergedOptions =
+      nextType === 'CQ_CREATIVE'
+        ? null
+        : dto.options !== undefined
+          ? dto.options
+          : existing.options;
+    const mergedCqRubric =
+      nextType === 'MCQ'
+        ? null
+        : dto.cqRubric !== undefined
+          ? dto.cqRubric
+          : existing.cqRubric;
+    const mergedBoardSource =
+      dto.boardSource !== undefined
+        ? typeof dto.boardSource === 'string' && dto.boardSource.trim()
+          ? dto.boardSource.trim()
+          : null
+        : existing.boardSource;
+
+    this.validateQuestionPayload({
+      topicId: mergedTopicId,
+      type: nextType,
+      stem: mergedStem,
+      options: mergedOptions,
+      explanation: mergedExplanation,
+      cqRubric: mergedCqRubric,
+      difficulty: mergedDifficulty,
+    });
+
+    const topic = await this.prisma.topic.findUnique({
+      where: { id: mergedTopicId },
+    });
+    if (!topic) {
+      throw new NotFoundException(`Topic with id ${mergedTopicId} not found`);
+    }
+
+    let nextStatus: ContentStatus = existing.status;
+    let nextIsVerified = existing.isVerified;
+
+    if (existing.status === ContentStatus.PUBLISHED) {
+      if (dto.preservePublished === true && actorRole === Role.ADMIN) {
+        nextStatus = ContentStatus.PUBLISHED;
+        nextIsVerified = true;
+      } else {
+        nextStatus = ContentStatus.REVIEW;
+        nextIsVerified = false;
+      }
+    } else if (
+      existing.status === ContentStatus.DRAFT ||
+      existing.status === ContentStatus.REVIEW ||
+      existing.status === ContentStatus.CORRECTION
+    ) {
+      nextStatus = dto.submitForReview === true ? ContentStatus.REVIEW : existing.status;
+      nextIsVerified = false;
+    }
+
+    return this.prisma.question.update({
+      where: { id },
+      data: {
+        topicId: mergedTopicId,
+        type: nextType,
+        stem: mergedStem,
+        options:
+          mergedOptions === null || mergedOptions === undefined
+            ? Prisma.DbNull
+            : (mergedOptions as Prisma.InputJsonValue),
+        explanation: mergedExplanation as Prisma.InputJsonValue,
+        cqRubric:
+          mergedCqRubric === null || mergedCqRubric === undefined
+            ? Prisma.DbNull
+            : (mergedCqRubric as Prisma.InputJsonValue),
+        difficulty: mergedDifficulty,
+        boardSource: mergedBoardSource,
+        status: nextStatus,
+        isVerified: nextIsVerified,
+        version: { increment: 1 },
+      },
+      include: QUESTION_HIERARCHY_INCLUDE,
+    });
+  }
+
+  async archiveQuestion(id: string, actorRole: Role) {
+    const existing = await this.prisma.question.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(`Question with id ${id} not found`);
+    }
+
+    if (existing.status === ContentStatus.PUBLISHED && actorRole !== Role.ADMIN) {
+      throw new ForbiddenException('Only Admin can archive published questions');
+    }
+
+    return this.prisma.question.update({
+      where: { id },
+      data: {
+        status: ContentStatus.ARCHIVED,
+        isVerified: false,
+      },
+      include: QUESTION_HIERARCHY_INCLUDE,
+    });
   }
 }

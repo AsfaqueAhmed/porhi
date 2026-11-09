@@ -2,8 +2,11 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Inject,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -21,6 +24,7 @@ import { CreateChapterAdminDto } from './dto/create-chapter-admin.dto';
 import { CreateTopicAdminDto } from './dto/create-topic-admin.dto';
 import { CreateSubjectAdminDto } from './dto/create-subject-admin.dto';
 import { ListQuestionsQueryDto } from './dto/list-questions-query.dto';
+import { UpdateQuestionAdminDto } from './dto/update-question-admin.dto';
 
 @Controller('admin/content')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -52,6 +56,26 @@ export class ContentAdminController {
   @Roles(Role.EDITOR, Role.REVIEWER, Role.ADMIN)
   async getQuestionById(@Param('id') id: string) {
     return this.contentAdminService.getQuestionById(id);
+  }
+
+  @Patch('questions/:id')
+  @Roles(Role.EDITOR, Role.ADMIN)
+  async updateQuestion(
+    @Param('id') id: string,
+    @Body() dto: UpdateQuestionAdminDto,
+    @Req() req: { user: { id: string; role: Role } },
+  ) {
+    return this.contentAdminService.updateQuestion(id, dto, req.user.role);
+  }
+
+  @Post('questions/:id/archive')
+  @HttpCode(HttpStatus.OK)
+  @Roles(Role.EDITOR, Role.ADMIN)
+  async archiveQuestion(
+    @Param('id') id: string,
+    @Req() req: { user: { id: string; role: Role } },
+  ) {
+    return this.contentAdminService.archiveQuestion(id, req.user.role);
   }
 
   @Post('review')

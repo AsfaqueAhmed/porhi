@@ -3,7 +3,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { JwtService } from '@nestjs/jwt';
 import request from 'supertest';
-import { Role, ContentStatus } from '@prisma/client';
+import { Role, ContentStatus, Prisma } from '@prisma/client';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/database/prisma.service';
 
@@ -12,6 +12,8 @@ describe('ContentAdminModule (e2e)', () => {
   let jwtService: JwtService;
 
   let users: any[] = [];
+  let subjects: any[] = [];
+  let chapters: any[] = [];
   let topics: any[] = [];
   let lessons: any[] = [];
   let questions: any[] = [];
@@ -86,15 +88,108 @@ describe('ContentAdminModule (e2e)', () => {
       },
     },
     question: {
-      findUnique: async ({ where }: any) => {
-        return questions.find((q) => q.id === where.id) || null;
+      findUnique: async ({ where, include }: any) => {
+        const found = questions.find((q) => q.id === where.id) || null;
+        if (!found) return null;
+        if (include?.topic) {
+          const t = topics.find((item) => item.id === found.topicId);
+          const ch = t ? chapters.find((c) => c.id === t.chapterId) : null;
+          const sub = ch ? subjects.find((s) => s.id === ch.subjectId) : null;
+          return {
+            ...found,
+            topic: t
+              ? {
+                  id: t.id,
+                  titleBangla: t.titleBangla,
+                  chapter: ch
+                    ? {
+                        id: ch.id,
+                        titleBangla: ch.titleBangla,
+                        subject: sub
+                          ? { id: sub.id, code: sub.code, nameBangla: sub.nameBangla }
+                          : null,
+                      }
+                    : null,
+                }
+              : null,
+          };
+        }
+        return found;
       },
-      findMany: async ({ where }: any) => {
-        let res = questions.filter((q) => {
-          if (where?.status?.in && !where.status.in.includes(q.status)) return false;
+      findMany: async ({ where, include, skip = 0, take }: any) => {
+        const matchWhere = (q: any) => {
+          if (where?.topicId && q.topicId !== where.topicId) return false;
+          if (where?.type && q.type !== where.type) return false;
+          if (where?.status) {
+            if (typeof where.status === 'string' && q.status !== where.status) return false;
+            if (where.status.in && !where.status.in.includes(q.status)) return false;
+            if (where.status.not && q.status === where.status.not) return false;
+          }
+          if (where?.topic) {
+            const t = topics.find((item) => item.id === q.topicId);
+            if (!t) return false;
+            if (where.topic.chapterId && t.chapterId !== where.topic.chapterId) return false;
+            if (where.topic.chapter?.subjectId) {
+              const ch = chapters.find((c) => c.id === t.chapterId);
+              if (!ch || ch.subjectId !== where.topic.chapter.subjectId) return false;
+            }
+          }
+          if (where?.OR) {
+            const needle = (where.OR[0]?.stem?.contains || '').toLowerCase();
+            const stemMatch = (q.stem || '').toLowerCase().includes(needle);
+            const boardMatch = (q.boardSource || '').toLowerCase().includes(needle);
+            if (!stemMatch && !boardMatch) return false;
+          }
           return true;
-        });
+        };
+
+        let res = questions
+          .filter(matchWhere)
+          .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+        if (typeof take === 'number') {
+          res = res.slice(skip, skip + take);
+        }
+        if (include?.topic) {
+          return res.map((q) => {
+            const t = topics.find((item) => item.id === q.topicId);
+            const ch = t ? chapters.find((c) => c.id === t.chapterId) : null;
+            const sub = ch ? subjects.find((s) => s.id === ch.subjectId) : null;
+            return {
+              ...q,
+              topic: t
+                ? {
+                    id: t.id,
+                    titleBangla: t.titleBangla,
+                    chapter: ch
+                      ? {
+                          id: ch.id,
+                          titleBangla: ch.titleBangla,
+                          subject: sub
+                            ? { id: sub.id, code: sub.code, nameBangla: sub.nameBangla }
+                            : null,
+                        }
+                      : null,
+                  }
+                : null,
+            };
+          });
+        }
         return res;
+      },
+      count: async ({ where }: any) => {
+        const list = await mockPrismaService.question.findMany({ where });
+        return list.length;
+      },
+      groupBy: async ({ where }: any) => {
+        const matched = await mockPrismaService.question.findMany({ where });
+        const counts = new Map<string, number>();
+        for (const q of matched) {
+          counts.set(q.status, (counts.get(q.status) || 0) + 1);
+        }
+        return Array.from(counts.entries()).map(([status, _all]) => ({
+          status,
+          _count: { _all },
+        }));
       },
       create: async ({ data }: any) => {
         const newQuestion = {
@@ -102,9 +197,9 @@ describe('ContentAdminModule (e2e)', () => {
           topicId: data.topicId,
           type: data.type ?? 'MCQ',
           stem: data.stem,
-          options: data.options ?? null,
+          options: data.options === Prisma.DbNull ? null : (data.options ?? null),
           explanation: data.explanation,
-          cqRubric: data.cqRubric ?? null,
+          cqRubric: data.cqRubric === Prisma.DbNull ? null : (data.cqRubric ?? null),
           difficulty: data.difficulty ?? 'MEDIUM',
           boardSource: data.boardSource ?? null,
           isVerified: data.isVerified ?? false,
@@ -116,17 +211,23 @@ describe('ContentAdminModule (e2e)', () => {
         questions.push(newQuestion);
         return newQuestion;
       },
-      update: async ({ where, data }: any) => {
+      update: async ({ where, data, include }: any) => {
         const idx = questions.findIndex((q) => q.id === where.id);
         if (idx === -1) throw new Error('Question not found');
         const curr = questions[idx];
+        const normalized: Record<string, any> = { ...data };
+        if (normalized.options === Prisma.DbNull) normalized.options = null;
+        if (normalized.cqRubric === Prisma.DbNull) normalized.cqRubric = null;
         const updated = {
           ...curr,
-          ...data,
+          ...normalized,
           version: data.version?.increment ? curr.version + data.version.increment : curr.version,
           updatedAt: new Date(),
         };
         questions[idx] = updated;
+        if (include?.topic) {
+          return mockPrismaService.question.findUnique({ where: { id: where.id }, include });
+        }
         return updated;
       },
     },
@@ -229,6 +330,21 @@ describe('ContentAdminModule (e2e)', () => {
     reviewerToken = jwtService.sign({ sub: reviewerUser.id, role: reviewerUser.role });
     adminToken = jwtService.sign({ sub: adminUser.id, role: adminUser.role });
 
+    subjects = [
+      {
+        id: 'sub_phy',
+        code: 'ssc_physics',
+        nameBangla: 'পদার্থবিজ্ঞান',
+      },
+    ];
+    chapters = [
+      {
+        id: 'chap_force',
+        subjectId: 'sub_phy',
+        orderIndex: 2,
+        titleBangla: 'গতি ও বল',
+      },
+    ];
     topics = [
       {
         id: 'topic_force',
@@ -708,6 +824,240 @@ describe('ContentAdminModule (e2e)', () => {
           action: 'APPROVE',
         })
         .expect(404);
+    });
+  });
+
+  describe('Question Bank List, Edit & Archive Endpoints (e2e)', () => {
+    it('enforces RBAC across GET list/detail, PATCH edit (including preservePublished), and POST archive', async () => {
+      // Seed 1 draft and 1 published question via EDITOR + REVIEWER flow
+      const draftRes = await request(app.getHttpServer())
+        .post('/admin/content/questions')
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({
+          topicId: 'topic_force',
+          type: 'MCQ',
+          stem: 'ড্রাফট প্রশ্ন: বলের একক কী?',
+          options: [
+            { id: 'opt_1', text: 'নিউটন', isCorrect: true },
+            { id: 'opt_2', text: 'জুল', isCorrect: false },
+          ],
+          explanation: { directAnswer: 'নিউটন', coreConcept: 'SI unit' },
+          difficulty: 'EASY',
+          boardSource: 'Dhaka 2024',
+        })
+        .expect(201);
+
+      const pubCreateRes = await request(app.getHttpServer())
+        .post('/admin/content/questions')
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({
+          topicId: 'topic_force',
+          type: 'CQ_CREATIVE',
+          stem: 'প্রকাশিত সৃজনশীল উদ্দীপক',
+          explanation: { directAnswer: 'ক থেকে ঘ সমাধান', coreConcept: 'F=ma' },
+          cqRubric: { ka: { mark: 1, criteria: 'বলের সংজ্ঞা' } },
+          difficulty: 'HARD',
+          boardSource: 'Rajshahi 2023',
+        })
+        .expect(201);
+
+      await request(app.getHttpServer())
+        .post('/admin/content/review')
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .send({
+          contentType: 'QUESTION',
+          contentId: pubCreateRes.body.id,
+          action: 'APPROVE',
+          comment: 'প্রকাশযোগ্য',
+        })
+        .expect(201);
+
+      // 1. Unauthenticated / STUDENT rejected on list, detail, PATCH, and archive
+      await request(app.getHttpServer()).get('/admin/content/questions').expect(401);
+      await request(app.getHttpServer()).get(`/admin/content/questions/${draftRes.body.id}`).expect(401);
+      await request(app.getHttpServer())
+        .patch(`/admin/content/questions/${draftRes.body.id}`)
+        .send({ stem: 'Anon edit' })
+        .expect(401);
+      await request(app.getHttpServer())
+        .post(`/admin/content/questions/${draftRes.body.id}/archive`)
+        .expect(401);
+
+      await request(app.getHttpServer())
+        .get('/admin/content/questions')
+        .set('Authorization', `Bearer ${studentToken}`)
+        .expect(403);
+      await request(app.getHttpServer())
+        .get(`/admin/content/questions/${draftRes.body.id}`)
+        .set('Authorization', `Bearer ${studentToken}`)
+        .expect(403);
+      await request(app.getHttpServer())
+        .patch(`/admin/content/questions/${draftRes.body.id}`)
+        .set('Authorization', `Bearer ${studentToken}`)
+        .send({ stem: 'Student edit' })
+        .expect(403);
+      await request(app.getHttpServer())
+        .post(`/admin/content/questions/${draftRes.body.id}/archive`)
+        .set('Authorization', `Bearer ${studentToken}`)
+        .expect(403);
+
+      // 1b. Invalid query params rejected with 400 from ValidationPipe
+      await request(app.getHttpServer())
+        .get('/admin/content/questions?page=-1')
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .expect(400);
+      await request(app.getHttpServer())
+        .get('/admin/content/questions?status=INVALID')
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .expect(400);
+      await request(app.getHttpServer())
+        .get('/admin/content/questions?type=INVALID')
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .expect(400);
+
+      // 2. REVIEWER can view list & single item (including 404 on unknown ID), but cannot PATCH or archive
+      const listRes = await request(app.getHttpServer())
+        .get('/admin/content/questions?subjectId=sub_phy&search=Rajshahi')
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .expect(200);
+
+      expect(listRes.body.items).toHaveLength(1);
+      expect(listRes.body.items[0].id).toBe(pubCreateRes.body.id);
+      expect(listRes.body.items[0].topic.chapter.subject.code).toBe('ssc_physics');
+      expect(listRes.body.statusCounts.PUBLISHED).toBe(1);
+
+      const detailRes = await request(app.getHttpServer())
+        .get(`/admin/content/questions/${pubCreateRes.body.id}`)
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .expect(200);
+      expect(detailRes.body.cqRubric.ka.mark).toBe(1);
+
+      await request(app.getHttpServer())
+        .get('/admin/content/questions/non_existent_question_id')
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .expect(404);
+
+      await request(app.getHttpServer())
+        .patch(`/admin/content/questions/${draftRes.body.id}`)
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .send({ stem: 'Reviewer cannot edit' })
+        .expect(403);
+
+      await request(app.getHttpServer())
+        .post(`/admin/content/questions/${draftRes.body.id}/archive`)
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .expect(403);
+
+      // 3. EDITOR cannot preservePublished or archive PUBLISHED question
+      await request(app.getHttpServer())
+        .patch(`/admin/content/questions/${pubCreateRes.body.id}`)
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({ stem: 'Editor edit', preservePublished: true })
+        .expect(403);
+
+      await request(app.getHttpServer())
+        .post(`/admin/content/questions/${pubCreateRes.body.id}/archive`)
+        .set('Authorization', `Bearer ${editorToken}`)
+        .expect(403);
+
+      // 4. EDITOR editing PUBLISHED without preservePublished moves it to REVIEW and increments version
+      const editorPatchRes = await request(app.getHttpServer())
+        .patch(`/admin/content/questions/${pubCreateRes.body.id}`)
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({ stem: 'সংশোধিত উদ্দীপক' })
+        .expect(200);
+      expect(editorPatchRes.body.status).toBe(ContentStatus.REVIEW);
+      expect(editorPatchRes.body.version).toBe(3);
+
+      // 5. Re-approve and let ADMIN preservePublished + archive cleanly
+      await request(app.getHttpServer())
+        .post('/admin/content/review')
+        .set('Authorization', `Bearer ${reviewerToken}`)
+        .send({
+          contentType: 'QUESTION',
+          contentId: pubCreateRes.body.id,
+          action: 'APPROVE',
+          comment: 'পুনরায় অনুমোদিত',
+        })
+        .expect(201);
+
+      const adminPatchRes = await request(app.getHttpServer())
+        .patch(`/admin/content/questions/${pubCreateRes.body.id}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ stem: 'অ্যাডমিন সরাসরি আপডেট', preservePublished: true })
+        .expect(200);
+      expect(adminPatchRes.body.status).toBe(ContentStatus.PUBLISHED);
+      expect(adminPatchRes.body.isVerified).toBe(true);
+
+      const archiveRes = await request(app.getHttpServer())
+        .post(`/admin/content/questions/${pubCreateRes.body.id}/archive`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200);
+      expect(archiveRes.body.status).toBe(ContentStatus.ARCHIVED);
+      expect(archiveRes.body.isVerified).toBe(false);
+
+      // Archived question excluded from default list, present with status=ARCHIVED and includeArchived=true, and blocks direct edit
+      const defaultAfterArchive = await request(app.getHttpServer())
+        .get('/admin/content/questions')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200);
+      expect(defaultAfterArchive.body.items.map((q: any) => q.id)).toEqual([draftRes.body.id]);
+
+      const archivedFilter = await request(app.getHttpServer())
+        .get('/admin/content/questions?status=ARCHIVED')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200);
+      expect(archivedFilter.body.items).toHaveLength(1);
+      expect(archivedFilter.body.items[0].id).toBe(pubCreateRes.body.id);
+
+      const includeArchivedRes = await request(app.getHttpServer())
+        .get('/admin/content/questions?includeArchived=true')
+        .set('Authorization', `Bearer ${adminToken}`)
+        .expect(200);
+      expect(includeArchivedRes.body.items).toHaveLength(2);
+
+      await request(app.getHttpServer())
+        .patch(`/admin/content/questions/${pubCreateRes.body.id}`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ stem: 'আর্কাইভ প্রশ্নে এডিট হবে না' })
+        .expect(400);
+    });
+
+    it('validates UpdateQuestionAdminDto and nullable fields via ValidationPipe and ContentAdminService', async () => {
+      const created = await request(app.getHttpServer())
+        .post('/admin/content/questions')
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({
+          topicId: 'topic_force',
+          type: 'MCQ',
+          stem: 'প্রাথমিক স্টেম',
+          options: [
+            { id: 'opt_1', text: 'সঠিক', isCorrect: true },
+            { id: 'opt_2', text: 'ভুল', isCorrect: false },
+          ],
+          explanation: { directAnswer: 'সঠিক', coreConcept: 'গতি' },
+          difficulty: 'MEDIUM',
+          boardSource: 'Cumilla 2023',
+        })
+        .expect(201);
+
+      // Invalid enum rejected with 400
+      await request(app.getHttpServer())
+        .patch(`/admin/content/questions/${created.body.id}`)
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({ type: 'ESSAY' })
+        .expect(400);
+
+      // Nullable boardSource: null clears boardSource, submitForReview moves DRAFT -> REVIEW
+      const updatedRes = await request(app.getHttpServer())
+        .patch(`/admin/content/questions/${created.body.id}`)
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({ boardSource: null, submitForReview: true })
+        .expect(200);
+
+      expect(updatedRes.body.boardSource).toBeNull();
+      expect(updatedRes.body.status).toBe(ContentStatus.REVIEW);
+      expect(updatedRes.body.version).toBe(2);
     });
   });
 });

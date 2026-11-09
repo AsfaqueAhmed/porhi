@@ -1,8 +1,16 @@
+import 'reflect-metadata';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+  ValidationPipe,
+} from '@nestjs/common';
 import { ContentAdminService } from './content-admin.service';
 import { PrismaService } from '../../database/prisma.service';
-import { ContentStatus } from '@prisma/client';
+import { ContentStatus, Prisma, Role } from '@prisma/client';
+import { UpdateQuestionAdminDto } from './dto/update-question-admin.dto';
+import { ListQuestionsQueryDto } from './dto/list-questions-query.dto';
 
 describe('ContentAdminService', () => {
   let service: ContentAdminService;
@@ -911,6 +919,12 @@ describe('ContentAdminService', () => {
       await expect(service.listQuestions({ limit: 10 as any })).rejects.toThrow(
         BadRequestException,
       );
+      await expect(service.listQuestions({ page: '-1' })).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.listQuestions({ limit: 'abc' })).rejects.toThrow(
+        BadRequestException,
+      );
     });
   });
 
@@ -961,6 +975,358 @@ describe('ContentAdminService', () => {
       mockPrisma.question.findUnique.mockResolvedValue(null);
 
       await expect(service.getQuestionById('missing_q')).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('updateQuestion', () => {
+    const existingDraftMcq = {
+      id: 'q_draft_1',
+      topicId: 'topic_force_1',
+      type: 'MCQ',
+      stem: 'পুরনো প্রশ্ন',
+      options: [
+        { id: 'opt_q1_a', text: 'উত্তর ১', isCorrect: true },
+        { id: 'opt_q1_b', text: 'উত্তর ২', isCorrect: false },
+      ],
+      explanation: {
+        directAnswer: 'সঠিক উত্তর ১',
+        coreConcept: 'F = ma',
+        distractorAnalysis: { opt_q1_b: 'ভুল গুণন' },
+      },
+      cqRubric: null,
+      difficulty: 'MEDIUM',
+      boardSource: 'Dhaka Board 2022',
+      isVerified: false,
+      status: ContentStatus.DRAFT,
+      version: 1,
+    };
+
+    it('updates DRAFT question, preserves status unless submitForReview=true, and increments version', async () => {
+      mockPrisma.question.findUnique.mockResolvedValue(existingDraftMcq);
+      mockPrisma.topic.findUnique.mockResolvedValue({ id: 'topic_force_1' });
+      mockPrisma.question.update.mockResolvedValue({
+        ...existingDraftMcq,
+        stem: 'নতুন প্রশ্ন',
+        version: 2,
+      });
+
+      await service.updateQuestion(
+        'q_draft_1',
+        { stem: 'নতুন প্রশ্ন' },
+        Role.EDITOR,
+      );
+
+      expect(mockPrisma.question.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'q_draft_1' },
+          data: expect.objectContaining({
+            stem: 'নতুন প্রশ্ন',
+            status: ContentStatus.DRAFT,
+            isVerified: false,
+            version: { increment: 1 },
+          }),
+        }),
+      );
+
+      await service.updateQuestion(
+        'q_draft_1',
+        { submitForReview: true },
+        Role.EDITOR,
+      );
+
+      expect(mockPrisma.question.update).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status: ContentStatus.REVIEW,
+            version: { increment: 1 },
+          }),
+        }),
+      );
+    });
+
+    it('moves PUBLISHED question back to REVIEW by default, blocks EDITOR preservePublished with 403, and allows ADMIN preservePublished', async () => {
+      const publishedQuestion = {
+        ...existingDraftMcq,
+        status: ContentStatus.PUBLISHED,
+        isVerified: true,
+        version: 3,
+      };
+      mockPrisma.question.findUnique.mockResolvedValue(publishedQuestion);
+      mockPrisma.topic.findUnique.mockResolvedValue({ id: 'topic_force_1' });
+      mockPrisma.question.update.mockResolvedValue({
+        ...publishedQuestion,
+        status: ContentStatus.REVIEW,
+        isVerified: false,
+        version: 4,
+      });
+
+      await service.updateQuestion('q_draft_1', { stem: 'সংশোধিত' }, Role.ADMIN);
+      expect(mockPrisma.question.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status: ContentStatus.REVIEW,
+            isVerified: false,
+            version: { increment: 1 },
+          }),
+        }),
+      );
+
+      await expect(
+        service.updateQuestion(
+          'q_draft_1',
+          { stem: 'সংশোধিত', preservePublished: true },
+          Role.EDITOR,
+        ),
+      ).rejects.toThrow(ForbiddenException);
+
+      await expect(
+        service.updateQuestion(
+          'q_draft_1',
+          { stem: 'সংশোধিত', preservePublished: true },
+          Role.EDITOR,
+        ),
+      ).rejects.toThrow('Only Admin can keep a question published during edit');
+
+      await service.updateQuestion(
+        'q_draft_1',
+        { stem: 'সরাসরি আপডেট', preservePublished: true },
+        Role.ADMIN,
+      );
+      expect(mockPrisma.question.update).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            status: ContentStatus.PUBLISHED,
+            isVerified: true,
+            version: { increment: 1 },
+          }),
+        }),
+      );
+    });
+
+    it('validates CQ_CREATIVE rubric, rejects ARCHIVED edits, and throws 404 on missing question or topic', async () => {
+      mockPrisma.question.findUnique.mockResolvedValueOnce(null);
+      await expect(
+        service.updateQuestion('missing_q', { stem: 'x' }, Role.ADMIN),
+      ).rejects.toThrow(NotFoundException);
+
+      mockPrisma.question.findUnique.mockResolvedValue({
+        ...existingDraftMcq,
+        status: ContentStatus.ARCHIVED,
+      });
+
+      await expect(
+        service.updateQuestion('q_draft_1', { stem: 'x' }, Role.ADMIN),
+      ).rejects.toThrow(BadRequestException);
+
+      mockPrisma.question.findUnique.mockResolvedValue(existingDraftMcq);
+      mockPrisma.topic.findUnique.mockResolvedValue({ id: 'topic_force_1' });
+
+      await expect(
+        service.updateQuestion(
+          'q_draft_1',
+          {
+            type: 'CQ_CREATIVE',
+            cqRubric: { ka: { mark: 1, criteria: '' } },
+          },
+          Role.ADMIN,
+        ),
+      ).rejects.toThrow(BadRequestException);
+
+      mockPrisma.topic.findUnique.mockResolvedValue(null);
+      await expect(
+        service.updateQuestion('q_draft_1', { topicId: 'missing_topic' }, Role.ADMIN),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('clears options with Prisma.DbNull when switching MCQ -> CQ_CREATIVE and clears cqRubric with Prisma.DbNull when switching CQ_CREATIVE -> MCQ', async () => {
+      mockPrisma.question.findUnique.mockResolvedValue(existingDraftMcq);
+      mockPrisma.topic.findUnique.mockResolvedValue({ id: 'topic_force_1' });
+      mockPrisma.question.update.mockResolvedValue({
+        ...existingDraftMcq,
+        type: 'CQ_CREATIVE',
+        options: null,
+        cqRubric: { ka: { mark: 1, criteria: 'বলের সংজ্ঞা' } },
+        version: 2,
+      });
+
+      await service.updateQuestion(
+        'q_draft_1',
+        {
+          type: 'CQ_CREATIVE',
+          cqRubric: { ka: { mark: 1, criteria: 'বলের সংজ্ঞা' } },
+        },
+        Role.EDITOR,
+      );
+
+      expect(mockPrisma.question.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            type: 'CQ_CREATIVE',
+            options: Prisma.DbNull,
+            cqRubric: { ka: { mark: 1, criteria: 'বলের সংজ্ঞা' } },
+          }),
+        }),
+      );
+
+      const existingCq = {
+        ...existingDraftMcq,
+        id: 'q_cq_1',
+        type: 'CQ_CREATIVE',
+        options: null,
+        cqRubric: { ka: { mark: 1, criteria: 'বলের সংজ্ঞা' } },
+      };
+      mockPrisma.question.findUnique.mockResolvedValue(existingCq);
+      mockPrisma.question.update.mockResolvedValue({
+        ...existingCq,
+        type: 'MCQ',
+        options: existingDraftMcq.options,
+        cqRubric: null,
+        version: 2,
+      });
+
+      await service.updateQuestion(
+        'q_cq_1',
+        {
+          type: 'MCQ',
+          options: existingDraftMcq.options,
+        },
+        Role.EDITOR,
+      );
+
+      expect(mockPrisma.question.update).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            type: 'MCQ',
+            options: existingDraftMcq.options,
+            cqRubric: Prisma.DbNull,
+          }),
+        }),
+      );
+    });
+  });
+
+  describe('archiveQuestion', () => {
+    it('blocks EDITOR from archiving PUBLISHED questions, allows ADMIN, and archives non-published items', async () => {
+      mockPrisma.question.findUnique.mockResolvedValue({
+        id: 'q_pub',
+        status: ContentStatus.PUBLISHED,
+      });
+
+      await expect(service.archiveQuestion('q_pub', Role.EDITOR)).rejects.toThrow(
+        ForbiddenException,
+      );
+      await expect(service.archiveQuestion('q_pub', Role.EDITOR)).rejects.toThrow(
+        'Only Admin can archive published questions',
+      );
+
+      mockPrisma.question.update.mockResolvedValue({
+        id: 'q_pub',
+        status: ContentStatus.ARCHIVED,
+        isVerified: false,
+      });
+
+      const res = await service.archiveQuestion('q_pub', Role.ADMIN);
+      expect(mockPrisma.question.update).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { id: 'q_pub' },
+          data: { status: ContentStatus.ARCHIVED, isVerified: false },
+        }),
+      );
+      expect(res.status).toBe(ContentStatus.ARCHIVED);
+
+      mockPrisma.question.findUnique.mockResolvedValue({
+        id: 'q_draft',
+        status: ContentStatus.DRAFT,
+      });
+      await service.archiveQuestion('q_draft', Role.EDITOR);
+      expect(mockPrisma.question.update).toHaveBeenCalledTimes(2);
+    });
+
+    it('throws NotFoundException when archiving non-existent question', async () => {
+      mockPrisma.question.findUnique.mockResolvedValue(null);
+
+      await expect(service.archiveQuestion('missing_q', Role.ADMIN)).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('updateQuestion runtime payload & DTO ValidationPipe checks', () => {
+    it('rejects malformed payload shapes and field types in updateQuestion', async () => {
+      await expect(service.updateQuestion('q_1', null as any, Role.ADMIN)).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(service.updateQuestion('q_1', [] as any, Role.ADMIN)).rejects.toThrow(
+        BadRequestException,
+      );
+      await expect(
+        service.updateQuestion('q_1', { options: 'not-array' as any }, Role.ADMIN),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        service.updateQuestion('q_1', { cqRubric: ['bad'] as any }, Role.ADMIN),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        service.updateQuestion('q_1', { boardSource: 123 as any }, Role.ADMIN),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        service.updateQuestion('q_1', { preservePublished: 'true' as any }, Role.ADMIN),
+      ).rejects.toThrow(BadRequestException);
+      await expect(
+        service.updateQuestion('q_1', { submitForReview: 'yes' as any }, Role.ADMIN),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('validates UpdateQuestionAdminDto and ListQuestionsQueryDto via ValidationPipe', async () => {
+      const pipe = new ValidationPipe({ whitelist: true, transform: true });
+
+      const validPatch = await pipe.transform(
+        {
+          stem: 'হালনাগাদ প্রশ্ন',
+          options: null,
+          cqRubric: null,
+          boardSource: null,
+          preservePublished: true,
+          unknownExtraField: 'should-be-stripped',
+        },
+        { type: 'body', metatype: UpdateQuestionAdminDto },
+      );
+
+      expect(validPatch).toMatchObject({
+        stem: 'হালনাগাদ প্রশ্ন',
+        options: null,
+        cqRubric: null,
+        boardSource: null,
+        preservePublished: true,
+      });
+      expect((validPatch as any).unknownExtraField).toBeUndefined();
+
+      await expect(
+        pipe.transform(
+          { boardSource: 123 },
+          { type: 'body', metatype: UpdateQuestionAdminDto },
+        ),
+      ).rejects.toThrow(BadRequestException);
+
+      await expect(
+        pipe.transform(
+          { type: 'INVALID' },
+          { type: 'body', metatype: UpdateQuestionAdminDto },
+        ),
+      ).rejects.toThrow(BadRequestException);
+
+      await expect(
+        pipe.transform(
+          { page: '-1' },
+          { type: 'query', metatype: ListQuestionsQueryDto },
+        ),
+      ).rejects.toThrow(BadRequestException);
+
+      await expect(
+        pipe.transform(
+          { status: 'INVALID' },
+          { type: 'query', metatype: ListQuestionsQueryDto },
+        ),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });
