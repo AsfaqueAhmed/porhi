@@ -787,11 +787,12 @@ describe('QuestionBankManager', () => {
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(screen.queryByRole('dialog', { name: /প্রশ্নের বিস্তারিত/i })).toBeNull();
 
-    // 2. Open CQ details and verify rubric parts + archive stacking + Escape coordination
+    // 2. Open CQ details and verify rubric parts + total mark + archive stacking + Escape coordination
     fireEvent.click(screen.getAllByRole('button', { name: /বিস্তারিত দেখুন/i })[1]);
     expect(screen.getByRole('dialog', { name: /প্রশ্নের বিস্তারিত/i })).toBeDefined();
     expect(screen.getByText(/ক — জ্ঞানমূলক/i)).toBeDefined();
     expect(screen.getByText(/ত্বরণ কী\?/i)).toBeDefined();
+    expect(screen.getByText(/মোট নম্বর: 3/i)).toBeDefined();
 
     // Click Archive inside Drawer -> Archive modal opens ON TOP of Drawer
     fireEvent.click(screen.getByRole('button', { name: /আর্কাইভ করুন/i }));
@@ -810,6 +811,78 @@ describe('QuestionBankManager', () => {
       expect(screen.queryByRole('dialog')).toBeNull();
       expect(screen.getByText(/প্রশ্নটি সফলভাবে আর্কাইভ করা হয়েছে/i)).toBeDefined();
     });
+  });
+
+  it('opens QuestionDetailDrawer from stem button, closes via footer & backdrop, and renders distractorNotes, unmappedDistractors & whitespace guards', async () => {
+    const customMcq: AdminQuestionItem = {
+      ...MOCK_QUESTIONS[0],
+      createdAt: '   ',
+      explanation: {
+        directAnswer: '4 m/s',
+        coreConcept: 'v = u + at',
+        stepDerivation: '   ',
+        proTipShortcut: '   ',
+        distractorAnalysis: {
+          opt_q1_a: 'সঠিক উত্তর',
+          legacy_key: 'পুরাতন অজানা ডিস্ট্র্যাক্টর নোট',
+        },
+        textbookCitation: {
+          bookTitle: '   ',
+          chapterName: 'গতি',
+        },
+        ...({ distractorNotes: 'সাধারণ ডিস্ট্র্যাক্টর মন্তব্য' } as Record<string, unknown>),
+      },
+    };
+    mockDefaultApi([customMcq]);
+    render(<QuestionBankManager />);
+    await waitForInitialLoad();
+
+    // Open by clicking the table stem button directly
+    const stemButton = screen.getByRole('button', { name: /^স্থির অবস্থান থেকে সুষম ত্বরণে/i });
+    fireEvent.click(stemButton);
+
+    const drawer = screen.getByRole('dialog', { name: /প্রশ্নের বিস্তারিত/i });
+    expect(drawer).toBeDefined();
+    expect(screen.getByText(/সাধারণ ডিস্ট্র্যাক্টর মন্তব্য/i)).toBeDefined();
+    expect(screen.getByText(/legacy_key:/i)).toBeDefined();
+    expect(screen.getByText(/পুরাতন অজানা ডিস্ট্র্যাক্টর নোট/i)).toBeDefined();
+
+    // Whitespace-only optional callouts and timestamps fall back cleanly
+    expect(screen.queryByText(/ধাপওয়ারী সমাধান/i)).toBeNull();
+    expect(screen.queryByText(/NCTB পাঠ্যবই রেফারেন্স/i)).toBeNull();
+    expect(screen.queryByText(/প্রো-টিপ \/ শর্টকাট/i)).toBeNull();
+    expect(screen.getByText(/তৈরি: —/i)).toBeDefined();
+
+    // Close via footer "বন্ধ করুন" button
+    fireEvent.click(screen.getByText('বন্ধ করুন'));
+    expect(screen.queryByRole('dialog', { name: /প্রশ্নের বিস্তারিত/i })).toBeNull();
+
+    // Re-open via stem button and close via backdrop click
+    fireEvent.click(screen.getByRole('button', { name: /^স্থির অবস্থান থেকে সুষম ত্বরণে/i }));
+    const reopenedDrawer = screen.getByRole('dialog', { name: /প্রশ্নের বিস্তারিত/i });
+    const backdrop = reopenedDrawer.querySelector('[aria-hidden="true"]') as HTMLElement;
+    expect(backdrop).not.toBeNull();
+    fireEvent.click(backdrop);
+    expect(screen.queryByRole('dialog', { name: /প্রশ্নের বিস্তারিত/i })).toBeNull();
+  });
+
+  it('closes QuestionDetailDrawer and surfaces error alert when archiving fails from inside the drawer', async () => {
+    mockDefaultApi();
+    mockedApi.post.mockRejectedValueOnce(
+      new ApiError(403, 'Forbidden', { message: 'Only Admin can archive published questions' }),
+    );
+    render(<QuestionBankManager />);
+    await waitForInitialLoad();
+
+    fireEvent.click(screen.getAllByRole('button', { name: /বিস্তারিত দেখুন/i })[0]);
+    expect(screen.getByRole('dialog', { name: /প্রশ্নের বিস্তারিত/i })).toBeDefined();
+
+    fireEvent.click(screen.getByRole('button', { name: /আর্কাইভ করুন/i }));
+    fireEvent.click(screen.getByText(/আর্কাইভ নিশ্চিত করুন/i));
+
+    const alert = await screen.findByRole('alert');
+    expect(alert.textContent).toContain('অনুমতি নেই');
+    expect(screen.queryByRole('dialog')).toBeNull();
   });
 
   it('supports fixedType="MCQ" and fixedType="CQ_CREATIVE" sub-pages locking type filter and pre-seeding add CTA', async () => {
