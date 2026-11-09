@@ -47,6 +47,10 @@ const EMPTY_COUNTS: QuestionStatusCounts = {
   ARCHIVED: 0,
 };
 
+function isHtmlPayload(value: string): boolean {
+  return /^\s*</.test(value);
+}
+
 function formatQuestionBankError(err: unknown): string {
   if (err instanceof ApiError) {
     if (err.status === 401) {
@@ -57,18 +61,25 @@ function formatQuestionBankError(err: unknown): string {
     }
     if (err.data && typeof err.data === 'object' && 'message' in err.data) {
       const msg = (err.data as { message?: unknown }).message;
-      if (typeof msg === 'string' && msg.trim()) {
+      if (typeof msg === 'string' && msg.trim() && !isHtmlPayload(msg)) {
         return msg.trim();
       }
       if (Array.isArray(msg) && msg.length > 0) {
         const joined = msg
-          .filter((m): m is string => typeof m === 'string' && m.trim().length > 0)
+          .filter(
+            (m): m is string =>
+              typeof m === 'string' && m.trim().length > 0 && !isHtmlPayload(m),
+          )
           .join(', ');
         if (joined) {
           return joined;
         }
       }
-    } else if (typeof err.data === 'string' && err.data.trim()) {
+    } else if (
+      typeof err.data === 'string' &&
+      err.data.trim() &&
+      !isHtmlPayload(err.data)
+    ) {
       return err.data.trim();
     }
     return 'প্রশ্ন তালিকা লোড বা আপডেট করতে সার্ভার ত্রুটি ঘটেছে।';
@@ -193,8 +204,8 @@ export function QuestionBankManager({ userRole }: QuestionBankManagerProps) {
   // Load chapters when subject filter changes
   useEffect(() => {
     let isMounted = true;
+    setChapters((prev) => (prev.length === 0 ? prev : []));
     if (!subjectId) {
-      setChapters([]);
       return;
     }
     async function loadChapters() {
@@ -225,6 +236,7 @@ export function QuestionBankManager({ userRole }: QuestionBankManagerProps) {
     const requestId = ++requestSeqRef.current;
     setLoading(true);
     setErrorMessage(null);
+    let willClampPage = false;
     try {
       const params = new URLSearchParams();
       if (subjectId) params.set('subjectId', subjectId);
@@ -246,17 +258,25 @@ export function QuestionBankManager({ userRole }: QuestionBankManagerProps) {
         return;
       }
 
+      const nextTotalPages = Math.max(1, res.totalPages ?? 1);
+      if (page > nextTotalPages) {
+        willClampPage = true;
+        setPage(nextTotalPages);
+        return;
+      }
+
       setItems(Array.isArray(res.items) ? res.items : []);
       setTotal(res.total ?? 0);
-      setTotalPages(Math.max(1, res.totalPages ?? 1));
+      setTotalPages(nextTotalPages);
       setStatusCounts(res.statusCounts ?? EMPTY_COUNTS);
     } catch (err: unknown) {
       if (!isMountedRef.current || requestId !== requestSeqRef.current) {
         return;
       }
+      setSuccessMessage(null);
       setErrorMessage(formatQuestionBankError(err));
     } finally {
-      if (isMountedRef.current && requestId === requestSeqRef.current) {
+      if (!willClampPage && isMountedRef.current && requestId === requestSeqRef.current) {
         setLoading(false);
       }
     }
@@ -297,6 +317,7 @@ export function QuestionBankManager({ userRole }: QuestionBankManagerProps) {
   }, [subjectId, topicId]);
 
   const handleResetFilters = () => {
+    setSuccessMessage(null);
     setSubjectId('');
     setChapterId('');
     setTopicId('');
@@ -427,6 +448,7 @@ export function QuestionBankManager({ userRole }: QuestionBankManagerProps) {
             aria-label="বিষয় ফিল্টার"
             value={subjectId}
             onChange={(e) => {
+              setSuccessMessage(null);
               setSubjectId(e.target.value);
               setChapterId('');
               setTopicId('');
@@ -447,6 +469,7 @@ export function QuestionBankManager({ userRole }: QuestionBankManagerProps) {
             value={chapterId}
             disabled={!subjectId}
             onChange={(e) => {
+              setSuccessMessage(null);
               setChapterId(e.target.value);
               setTopicId('');
               setPage(1);
@@ -466,6 +489,7 @@ export function QuestionBankManager({ userRole }: QuestionBankManagerProps) {
             value={topicId}
             disabled={!chapterId}
             onChange={(e) => {
+              setSuccessMessage(null);
               setTopicId(e.target.value);
               setPage(1);
             }}
@@ -483,6 +507,7 @@ export function QuestionBankManager({ userRole }: QuestionBankManagerProps) {
             aria-label="প্রশ্নের ধরন ফিল্টার"
             value={typeFilter}
             onChange={(e) => {
+              setSuccessMessage(null);
               setTypeFilter(e.target.value as '' | 'MCQ' | 'CQ_CREATIVE');
               setPage(1);
             }}
@@ -497,6 +522,7 @@ export function QuestionBankManager({ userRole }: QuestionBankManagerProps) {
             aria-label="অবস্থা ফিল্টার"
             value={statusFilter}
             onChange={(e) => {
+              setSuccessMessage(null);
               setStatusFilter(e.target.value);
               setPage(1);
             }}
@@ -516,7 +542,10 @@ export function QuestionBankManager({ userRole }: QuestionBankManagerProps) {
               type="search"
               aria-label="প্রশ্ন বা বোর্ডের উৎস খুঁজুন"
               value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
+              onChange={(e) => {
+                setSuccessMessage(null);
+                setSearchInput(e.target.value);
+              }}
               placeholder="প্রশ্ন বা বোর্ডের উৎস খুঁজুন..."
               className="w-full text-xs pl-8 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:border-indigo-500"
             />
@@ -656,7 +685,10 @@ export function QuestionBankManager({ userRole }: QuestionBankManagerProps) {
             <button
               type="button"
               disabled={page <= 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              onClick={() => {
+                setSuccessMessage(null);
+                setPage((p) => Math.max(1, p - 1));
+              }}
               className="px-3 py-1 rounded-lg border border-slate-300 bg-white font-semibold disabled:opacity-50 hover:bg-slate-100"
             >
               আগের পাতা
@@ -664,7 +696,10 @@ export function QuestionBankManager({ userRole }: QuestionBankManagerProps) {
             <button
               type="button"
               disabled={page >= totalPages}
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              onClick={() => {
+                setSuccessMessage(null);
+                setPage((p) => Math.min(totalPages, p + 1));
+              }}
               className="px-3 py-1 rounded-lg border border-slate-300 bg-white font-semibold disabled:opacity-50 hover:bg-slate-100"
             >
               পরের পাতা
