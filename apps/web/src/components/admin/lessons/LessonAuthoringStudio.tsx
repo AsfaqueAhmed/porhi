@@ -398,6 +398,7 @@ export function LessonAuthoringStudio({
         lessonTitle: lessonForm.lessonTitle,
         learningGoal: lessonForm.learningGoal,
         lessonExplanation: lessonForm.lessonExplanation,
+        interactiveWidgetUrl: lessonForm.interactiveWidgetUrl,
         terms: lessonForm.terms,
         workedExampleProblem: lessonForm.workedExampleProblem,
         workedExampleSolution: lessonForm.workedExampleSolution,

@@ -55,6 +55,7 @@ export interface LessonFormState {
   lessonTitle: string;
   learningGoal: string;
   lessonExplanation: string;
+  interactiveWidgetUrl?: string;
   terms: LessonTermDraft[];
   workedExampleProblem: string;
   workedExampleSolution: string;
@@ -270,6 +271,7 @@ export function createEmptyLessonFormState(): LessonFormState {
     lessonTitle: '',
     learningGoal: '',
     lessonExplanation: '',
+    interactiveWidgetUrl: '',
     terms: [{ termBangla: '', termEnglish: '', definition: '' }],
     workedExampleProblem: '',
     workedExampleSolution: '',
@@ -296,6 +298,7 @@ export function createInitialLessonFormState(
     lessonTitle: lesson.titleBangla || '',
     learningGoal: lesson.learningGoal || '',
     lessonExplanation: lesson.explanation || '',
+    interactiveWidgetUrl: lesson.interactiveWidgetUrl || '',
     terms: normalizedTerms,
     workedExampleProblem: lesson.workedExample?.problem ?? '',
     workedExampleSolution: lesson.workedExample?.stepByStepSolution ?? '',
@@ -488,6 +491,7 @@ export function buildLessonPayload(params: {
   lessonTitle: string;
   learningGoal: string;
   lessonExplanation: string;
+  interactiveWidgetUrl?: string;
   terms: LessonTermDraft[];
   workedExampleProblem: string;
   workedExampleSolution: string;
@@ -502,6 +506,7 @@ export function buildLessonPayload(params: {
     titleBangla: params.lessonTitle.trim(),
     learningGoal: params.learningGoal.trim(),
     explanation: params.lessonExplanation.trim(),
+    interactiveWidgetUrl: params.interactiveWidgetUrl?.trim() || undefined,
     importantTerms: params.terms
       .filter((t) => t.termBangla.trim())
       .map((t) => ({
@@ -524,6 +529,7 @@ export function buildLessonEditPayload(params: {
   lessonTitle: string;
   learningGoal: string;
   lessonExplanation: string;
+  interactiveWidgetUrl?: string;
   terms: LessonTermDraft[];
   workedExampleProblem: string;
   workedExampleSolution: string;
@@ -532,6 +538,7 @@ export function buildLessonEditPayload(params: {
   const createShape = buildLessonPayload(params);
   return {
     ...createShape,
+    interactiveWidgetUrl: params.interactiveWidgetUrl?.trim() || null,
     workedExample: createShape.workedExample ?? null,
     memoryAid: params.memoryAid.trim() || null,
   };
