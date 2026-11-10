@@ -15,6 +15,8 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { useAdminAuthStore, type AdminPortalRole } from '@/store/admin-auth-store';
+import { useLanguageStore } from '@/store/language-store';
+import { LanguageToggle } from '@/components/navigation/LanguageToggle';
 
 export interface AdminTopbarProps {
   userRole?: AdminPortalRole;
@@ -38,6 +40,7 @@ export function AdminTopbar({
   const logout = useAdminAuthStore((s) => s.logout);
   const role = userRole ?? adminUser?.role;
   const canEdit = role ? role === 'ADMIN' || role === 'EDITOR' : true;
+  const t = useLanguageStore((s) => s.t);
 
   useEffect(() => {
     let isMounted = true;
@@ -196,9 +199,12 @@ export function AdminTopbar({
             className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-xs transition-colors"
           >
             <PlusCircle className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">নতুন কনটেন্ট</span>
+            <span className="hidden sm:inline">{t('action.newContent')}</span>
           </Link>
         )}
+
+        {/* Dual Language Switch */}
+        <LanguageToggle />
 
         {/* Signed-in Admin Identity & Logout */}
         {adminUser && (
@@ -206,7 +212,7 @@ export function AdminTopbar({
             <div className="hidden sm:flex items-center gap-1.5 bg-slate-100/90 border border-slate-200 px-2.5 py-1 rounded-xl text-xs">
               <ShieldCheck className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
               <span className="font-semibold text-slate-700 max-w-[140px] truncate">
-                {adminUser.fullName || adminUser.phoneNumber || 'অ্যাডমিন'}
+                {adminUser.fullName || adminUser.phoneNumber || t('role.admin')}
               </span>
               <span className="text-[10px] font-bold uppercase tracking-wide px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">
                 {adminUser.role}
@@ -216,12 +222,12 @@ export function AdminTopbar({
             <button
               type="button"
               onClick={handleLogout}
-              aria-label="লগআউট"
-              title="লগআউট"
+              aria-label={t('action.logout')}
+              title={t('action.logout')}
               className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors cursor-pointer"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden md:inline">লগআউট</span>
+              <span className="hidden md:inline">{t('action.logout')}</span>
             </button>
           </div>
         )}

@@ -20,6 +20,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useAdminAuthStore } from '@/store/admin-auth-store';
+import { useLanguageStore } from '@/store/language-store';
+import type { Language } from '@/lib/i18n/translations';
 
 export interface AdminSidebarProps {
   isCollapsed?: boolean;
@@ -45,49 +47,64 @@ interface SidebarNavGroup {
   children?: SidebarSubItem[];
 }
 
-const NAV_ITEMS: SidebarNavGroup[] = [
-  {
-    label: 'ড্যাশবোর্ড ওভারভিউ',
-    href: '/admin',
-    icon: LayoutDashboard,
-    badge: 'মেট্রিক্স',
-    exactMatch: true,
-  },
-  {
-    key: 'curriculum',
-    label: 'কারিকুলাম ও পাঠ',
-    href: '/admin/curriculum',
-    icon: GitFork,
-    badge: 'মূল গঠন',
-    children: [
-      { label: 'বিষয়, অধ্যায় ও টপিক', href: '/admin/curriculum', exactMatch: true },
-      { label: 'পাঠ্য লেসন', href: '/admin/curriculum/lessons' },
-    ],
-  },
-  {
-    key: 'questions',
-    label: 'প্রশ্ন ব্যাংক ও স্টুডিও',
-    href: '/admin/questions',
-    icon: FileQuestion,
-    badge: '৬-লেয়ার',
-    children: [
-      { label: 'MCQ প্রশ্ন', href: '/admin/questions/mcq' },
-      { label: 'সৃজনশীল (CQ)', href: '/admin/questions/cq' },
-    ],
-  },
-  {
-    label: 'মডেল টেস্ট ম্যানেজার',
-    href: '/admin/model-tests',
-    icon: Trophy,
-    badge: 'পরীক্ষা',
-  },
-  {
-    label: 'রিভিউ ও অডিট কনসোল',
-    href: '/admin/reviews',
-    icon: ShieldCheck,
-    badge: 'অনুমোদন',
-  },
-];
+function getNavItems(lang: Language): SidebarNavGroup[] {
+  return [
+    {
+      label: lang === 'bn' ? 'ড্যাশবোর্ড ওভারভিউ' : 'Dashboard Overview',
+      href: '/admin',
+      icon: LayoutDashboard,
+      badge: lang === 'bn' ? 'মেট্রিক্স' : 'Metrics',
+      exactMatch: true,
+    },
+    {
+      key: 'curriculum',
+      label: lang === 'bn' ? 'কারিকুলাম ও পাঠ' : 'Curriculum & Lessons',
+      href: '/admin/curriculum',
+      icon: GitFork,
+      badge: lang === 'bn' ? 'মূল গঠন' : 'Structure',
+      children: [
+        {
+          label: lang === 'bn' ? 'বিষয়, অধ্যায় ও টপিক' : 'Subjects, Chapters & Topics',
+          href: '/admin/curriculum',
+          exactMatch: true,
+        },
+        {
+          label: lang === 'bn' ? 'পাঠ্য লেসন' : 'Lessons Bank',
+          href: '/admin/curriculum/lessons',
+        },
+      ],
+    },
+    {
+      key: 'questions',
+      label: lang === 'bn' ? 'প্রশ্ন ব্যাংক ও স্টুডিও' : 'Question Bank & Studio',
+      href: '/admin/questions',
+      icon: FileQuestion,
+      badge: lang === 'bn' ? '৬-লেয়ার' : '6-Layer',
+      children: [
+        {
+          label: lang === 'bn' ? 'MCQ প্রশ্ন' : 'MCQ Questions',
+          href: '/admin/questions/mcq',
+        },
+        {
+          label: lang === 'bn' ? 'সৃজনশীল (CQ)' : 'Creative (CQ)',
+          href: '/admin/questions/cq',
+        },
+      ],
+    },
+    {
+      label: lang === 'bn' ? 'মডেল টেস্ট ম্যানেজার' : 'Model Test Manager',
+      href: '/admin/model-tests',
+      icon: Trophy,
+      badge: lang === 'bn' ? 'পরীক্ষা' : 'Exam',
+    },
+    {
+      label: lang === 'bn' ? 'রিভিউ ও অডিট কনসোল' : 'Review & Audit Console',
+      href: '/admin/reviews',
+      icon: ShieldCheck,
+      badge: lang === 'bn' ? 'অনুমোদন' : 'Approvals',
+    },
+  ];
+}
 
 export function AdminSidebar({
   isCollapsed = false,
@@ -101,6 +118,9 @@ export function AdminSidebar({
   const router = useRouter();
   const adminUser = useAdminAuthStore((s) => s.adminUser);
   const logout = useAdminAuthStore((s) => s.logout);
+  const language = useLanguageStore((s) => s.language);
+  const t = useLanguageStore((s) => s.t);
+  const navItems = getNavItems(language);
 
   const [openGroups, setOpenGroups] = useState<{
     curriculum: boolean;
@@ -194,12 +214,12 @@ export function AdminSidebar({
         <div className="p-3 space-y-1.5">
           {showLabels && (
             <div className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-              প্রধান মডিউলসমূহ
+              {language === 'bn' ? 'প্রধান মডিউলসমূহ' : 'Main Modules'}
             </div>
           )}
 
           <nav className="space-y-1">
-            {NAV_ITEMS.map((item) => {
+            {navItems.map((item) => {
               const active = isLinkActive(item.href, item.exactMatch);
               const Icon = item.icon;
               const groupKey = item.key;
@@ -297,7 +317,7 @@ export function AdminSidebar({
                   <UserCheck className="w-4 h-4 text-indigo-600 shrink-0" />
                   <div className="min-w-0">
                     <div className="text-xs font-bold text-slate-800 truncate">
-                      {adminUser.fullName || adminUser.phoneNumber || 'অ্যাডমিন'}
+                      {adminUser.fullName || adminUser.phoneNumber || t('role.admin')}
                     </div>
                     {adminUser.fullName && adminUser.phoneNumber && (
                       <div className="text-[10px] text-slate-400 truncate font-mono">
@@ -315,12 +335,12 @@ export function AdminSidebar({
             <button
               type="button"
               onClick={handleLogout}
-              aria-label="লগআউট"
-              title="লগআউট"
+              aria-label={t('action.logout')}
+              title={t('action.logout')}
               className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-xs font-semibold text-rose-700 bg-rose-50/90 border border-rose-200/80 hover:bg-rose-100 transition-colors cursor-pointer"
             >
               <LogOut className="w-4 h-4 shrink-0" />
-              {showLabels && <span>লগআউট</span>}
+              {showLabels && <span>{t('action.logout')}</span>}
             </button>
           </div>
         )}
@@ -329,12 +349,14 @@ export function AdminSidebar({
           href="/dashboard"
           onClick={() => onCloseMobile?.()}
           className="flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-medium text-emerald-800 bg-emerald-50 border border-emerald-200/80 hover:bg-emerald-100/80 transition-colors group"
-          title={!showLabels ? 'শিক্ষার্থী অ্যাপে যান' : undefined}
+          title={!showLabels ? (language === 'bn' ? 'শিক্ষার্থী অ্যাপে যান' : 'Go to Student App') : undefined}
         >
           <Sparkles className="w-4 h-4 shrink-0 text-emerald-600 group-hover:rotate-12 transition-transform" />
           {showLabels && (
             <div className="flex items-center justify-between flex-1 min-w-0">
-              <span className="truncate font-semibold">শিক্ষার্থী অ্যাপে যান</span>
+              <span className="truncate font-semibold">
+                {language === 'bn' ? 'শিক্ষার্থী অ্যাপে যান' : 'Go to Student App'}
+              </span>
               <ExternalLink className="w-3.5 h-3.5 opacity-70" />
             </div>
           )}

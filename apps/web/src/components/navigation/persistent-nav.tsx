@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, BookOpen, BarChart3, ChevronRight } from 'lucide-react';
 import { useUserStore } from '@/store/user-store';
+import { useLanguageStore } from '@/store/language-store';
+import { LanguageToggle } from '@/components/navigation/LanguageToggle';
 import { toBanglaDigits } from '@/lib/formatters';
 
 export { toBanglaDigits };
@@ -17,22 +19,24 @@ export const PersistentNav: React.FC<PersistentNavProps> = ({ currentPath: propP
   const pathname = usePathname();
   const activePath = propPath || pathname || '/dashboard';
   const activeSubject = useUserStore((s) => s.activeSubject);
+  const t = useLanguageStore((s) => s.t);
+  const formatDigits = useLanguageStore((s) => s.formatDigits);
 
   const destinations = [
     {
-      name: 'হোম',
+      name: t('nav.home'),
       href: '/dashboard',
       icon: Home,
       isActive: activePath === '/dashboard',
     },
     {
-      name: 'বিষয়সমূহ',
+      name: t('nav.subjects'),
       href: '/subjects',
       icon: BookOpen,
       isActive: activePath === '/subjects' || activePath.startsWith('/curriculum'),
     },
     {
-      name: 'অগ্রগতি',
+      name: t('nav.progress'),
       href: '/progress',
       icon: BarChart3,
       isActive: activePath === '/progress',
@@ -47,23 +51,28 @@ export const PersistentNav: React.FC<PersistentNavProps> = ({ currentPath: propP
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           {activeSubject ? (
             <span className="truncate">
-              বর্তমান বিষয়: {activeSubject.nameBangla}
+              {t('common.currentSubject')}: {activeSubject.nameBangla}
               {activeSubject.program || activeSubject.syllabusYear
-                ? ` (${[activeSubject.program, activeSubject.syllabusYear ? toBanglaDigits(activeSubject.syllabusYear) : null]
+                ? ` (${[activeSubject.program, activeSubject.syllabusYear ? formatDigits(activeSubject.syllabusYear) : null]
                     .filter(Boolean)
                     .join(' ')})`
                 : ''}
             </span>
           ) : (
-            <span className="text-gray-600">বিষয় নির্বাচন করুন</span>
+            <span className="text-gray-600">{t('common.selectSubject')}</span>
           )}
         </div>
-        <Link
-          href="/subjects"
-          className="text-indigo-600 hover:text-indigo-800 text-[11px] font-semibold flex items-center shrink-0 ml-2"
-        >
-          পরিবর্তন <ChevronRight className="w-3 h-3 ml-0.5" />
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/subjects"
+            className="text-indigo-600 hover:text-indigo-800 text-[11px] font-semibold flex items-center shrink-0"
+          >
+            {t('action.edit')} <ChevronRight className="w-3 h-3 ml-0.5" />
+          </Link>
+          <div className="md:hidden">
+            <LanguageToggle showIcon={false} />
+          </div>
+        </div>
       </div>
 
       {/* Main Bar */}
@@ -76,25 +85,28 @@ export const PersistentNav: React.FC<PersistentNavProps> = ({ currentPath: propP
           <span className="tracking-tight">পড়ি (poRi)</span>
         </Link>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-1">
-          {destinations.map((dest) => {
-            const Icon = dest.icon;
-            return (
-              <Link
-                key={dest.href}
-                href={dest.href}
-                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                  dest.isActive
-                    ? 'bg-indigo-100 text-indigo-800 font-semibold'
-                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                <span>{dest.name}</span>
-              </Link>
-            );
-          })}
+        {/* Desktop Links & Language Switch */}
+        <div className="hidden md:flex items-center gap-3">
+          <div className="flex items-center gap-1">
+            {destinations.map((dest) => {
+              const Icon = dest.icon;
+              return (
+                <Link
+                  key={dest.href}
+                  href={dest.href}
+                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    dest.isActive
+                      ? 'bg-indigo-100 text-indigo-800 font-semibold'
+                      : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{dest.name}</span>
+                </Link>
+              );
+            })}
+          </div>
+          <LanguageToggle />
         </div>
       </div>
 
