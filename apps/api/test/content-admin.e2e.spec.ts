@@ -774,6 +774,28 @@ describe('ContentAdminModule (e2e)', () => {
         .expect(400);
     });
 
+    it('should reject PATCH /admin/content/lessons/:id with importantTerms: [] with 400', async () => {
+      // Create a lesson first
+      const created = await request(app.getHttpServer())
+        .post('/admin/content/lessons')
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({
+          topicId: 'topic_force',
+          titleBangla: 'গতিসূত্র যাচাই',
+          learningGoal: 'বল বোঝা',
+          explanation: '$F = ma$',
+          importantTerms: [{ termBangla: 'বল' }],
+        })
+        .expect(201);
+
+      // Empty importantTerms array must be rejected (ArrayMinSize(1))
+      await request(app.getHttpServer())
+        .patch(`/admin/content/lessons/${created.body.id}`)
+        .set('Authorization', `Bearer ${editorToken}`)
+        .send({ importantTerms: [] })
+        .expect(400);
+    });
+
     it('should reject invalid CreateQuestionAdminDto with 400 Bad Request', async () => {
       // Invalid type and missing stem
       await request(app.getHttpServer())

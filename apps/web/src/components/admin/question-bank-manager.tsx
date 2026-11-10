@@ -346,13 +346,15 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-          <Link
-            href={newQuestionHref}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-xs transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            <span>+ নতুন প্রশ্ন যোগ করুন</span>
-          </Link>
+          {canEdit && (
+            <Link
+              href={newQuestionHref}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-xs transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              <span>+ নতুন প্রশ্ন যোগ করুন</span>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -518,13 +520,15 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
             <p className="text-xs font-semibold text-slate-500">
               নির্বাচিত ফিল্টারে কোনো প্রশ্ন পাওয়া যায়নি।
             </p>
-            <Link
-              href={newQuestionHref}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>নতুন প্রশ্ন যোগ করুন</span>
-            </Link>
+            {canEdit && (
+              <Link
+                href={newQuestionHref}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>নতুন প্রশ্ন যোগ করুন</span>
+              </Link>
+            )}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -615,7 +619,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
                           </button>
                           {showEdit && (
                             <Link
-                              href={`/admin/questions/${q.id}/edit`}
+                              href={`/admin/questions/${encodeURIComponent(q.id)}/edit`}
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors"
                             >
                               <Pencil className="w-3 h-3" />

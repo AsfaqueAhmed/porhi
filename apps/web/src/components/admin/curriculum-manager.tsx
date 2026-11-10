@@ -20,6 +20,7 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { apiClient, ApiError } from '@/lib/api-client';
+import { useAdminAuthStore, type AdminPortalRole } from '@/store/admin-auth-store';
 import { AdminDrawer } from './layout/AdminDrawer';
 
 type MutationPermissionScope = 'ADMIN_ONLY' | 'EDITOR_OR_ADMIN';
@@ -91,6 +92,7 @@ const DEFAULT_SUBJECTS: SubjectItem[] = [
 ];
 
 export interface CurriculumManagerProps {
+  userRole?: AdminPortalRole;
   initialSubjectId?: string;
   onNavigateToAuthoring?: (topicId: string, subjectId: string, type: 'MCQ' | 'LESSON') => void;
   onNavigateToLessons?: (topicId: string, subjectId: string) => void;
@@ -98,11 +100,17 @@ export interface CurriculumManagerProps {
 }
 
 export function CurriculumManager({
+  userRole,
   initialSubjectId,
   onNavigateToAuthoring,
   onNavigateToLessons,
   onNavigateToModelTest,
 }: CurriculumManagerProps) {
+  const adminUser = useAdminAuthStore((s) => s.adminUser);
+  const role = userRole ?? adminUser?.role;
+  const isAdmin = role ? role === 'ADMIN' : true;
+  const canEdit = role ? role === 'ADMIN' || role === 'EDITOR' : true;
+
   const [subjects, setSubjects] = useState<SubjectItem[]>(DEFAULT_SUBJECTS);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>(initialSubjectId || 'sub_ssc_physics');
   const [chapters, setChapters] = useState<ChapterItem[]>([]);
@@ -468,15 +476,17 @@ export function CurriculumManager({
               />
             </div>
 
-            {/* "+ Add New Subject" Action Button */}
-            <button
-              type="button"
-              onClick={() => setShowAddSubject(true)}
-              className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-colors shrink-0"
-            >
-              <Plus className="w-4 h-4" />
-              <span>নতুন বিষয় যোগ করুন</span>
-            </button>
+            {/* "+ Add New Subject" Action Button - ADMIN only */}
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => setShowAddSubject(true)}
+                className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-colors shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+                <span>নতুন বিষয় যোগ করুন</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -631,14 +641,16 @@ export function CurriculumManager({
             </h3>
           </div>
 
-          <button
-            type="button"
-            onClick={() => setShowAddChapter(true)}
-            className="inline-flex items-center gap-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-xl shadow-xs transition-colors self-start sm:self-auto"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            <span>+ এই বিষয়ে নতুন অধ্যায় যোগ করুন</span>
-          </button>
+          {canEdit && (
+            <button
+              type="button"
+              onClick={() => setShowAddChapter(true)}
+              className="inline-flex items-center gap-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-xl shadow-xs transition-colors self-start sm:self-auto"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>+ এই বিষয়ে নতুন অধ্যায় যোগ করুন</span>
+            </button>
+          )}
         </div>
 
         {loading ? (
@@ -649,14 +661,16 @@ export function CurriculumManager({
             <p className="font-medium">
               &ldquo;{activeSubject?.nameBangla}&rdquo; বিষয়ে এখনও কোনো অধ্যায় যুক্ত করা হয়নি।
             </p>
-            <button
-              type="button"
-              onClick={() => setShowAddChapter(true)}
-              className="inline-flex items-center gap-1.5 text-xs font-bold bg-indigo-600 text-white px-4 py-2 rounded-xl"
-            >
-              <Plus className="w-4 h-4" />
-              <span>প্রথম অধ্যায় তৈরি করুন</span>
-            </button>
+            {canEdit && (
+              <button
+                type="button"
+                onClick={() => setShowAddChapter(true)}
+                className="inline-flex items-center gap-1.5 text-xs font-bold bg-indigo-600 text-white px-4 py-2 rounded-xl"
+              >
+                <Plus className="w-4 h-4" />
+                <span>প্রথম অধ্যায় তৈরি করুন</span>
+              </button>
+            )}
           </div>
         ) : (
           <div className="space-y-4">
@@ -703,17 +717,20 @@ export function CurriculumManager({
                       </button>
 
                       {/* Add Topic/Section Button */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setTargetChapterId(chap.id);
-                          setShowAddTopic(true);
-                        }}
-                        className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 bg-white border border-indigo-200 hover:bg-indigo-50 px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1 shadow-2xs"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                        <span>+ টপিক/সেকশন যোগ</span>
-                      </button>
+                      {/* Add Topic/Section Button - canEdit only */}
+                      {canEdit && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setTargetChapterId(chap.id);
+                            setShowAddTopic(true);
+                          }}
+                          className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 bg-white border border-indigo-200 hover:bg-indigo-50 px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1 shadow-2xs"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                          <span>+ টপিক/সেকশন যোগ</span>
+                        </button>
+                      )}
                     </div>
                   </div>
 
@@ -745,18 +762,20 @@ export function CurriculumManager({
 
                               {/* Topic-wise Actions: Add Question / View Lessons / Add Lesson */}
                               <div className="flex flex-wrap items-center gap-2 self-end sm:self-auto">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    if (onNavigateToAuthoring) {
-                                      onNavigateToAuthoring(t.id, selectedSubjectId, 'MCQ');
-                                    }
-                                  }}
-                                  className="text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
-                                >
-                                  <HelpCircle className="w-3 h-3 text-emerald-600" />
-                                  <span>+ প্রশ্ন যোগ (MCQ/CQ)</span>
-                                </button>
+                                {canEdit && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (onNavigateToAuthoring) {
+                                        onNavigateToAuthoring(t.id, selectedSubjectId, 'MCQ');
+                                      }
+                                    }}
+                                    className="text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
+                                  >
+                                    <HelpCircle className="w-3 h-3 text-emerald-600" />
+                                    <span>+ প্রশ্ন যোগ (MCQ/CQ)</span>
+                                  </button>
+                                )}
 
                                 <button
                                   type="button"
@@ -771,18 +790,20 @@ export function CurriculumManager({
                                   <span>লেসন দেখুন</span>
                                 </button>
 
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    if (onNavigateToAuthoring) {
-                                      onNavigateToAuthoring(t.id, selectedSubjectId, 'LESSON');
-                                    }
-                                  }}
-                                  className="text-[11px] font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
-                                >
-                                  <BookOpen className="w-3 h-3 text-indigo-600" />
-                                  <span>+ পাঠ্য লেসন যোগ</span>
-                                </button>
+                                {canEdit && (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (onNavigateToAuthoring) {
+                                        onNavigateToAuthoring(t.id, selectedSubjectId, 'LESSON');
+                                      }
+                                    }}
+                                    className="text-[11px] font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
+                                  >
+                                    <BookOpen className="w-3 h-3 text-indigo-600" />
+                                    <span>+ পাঠ্য লেসন যোগ</span>
+                                  </button>
+                                )}
                               </div>
                             </div>
                           ))}
@@ -790,17 +811,19 @@ export function CurriculumManager({
                       ) : (
                         <div className="p-6 text-center border border-dashed border-slate-200 rounded-xl text-xs text-slate-400 space-y-2">
                           <p>এই অধ্যায়ে এখনও কোনো টপিক বা সেকশন যুক্ত করা হয়নি।</p>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setTargetChapterId(chap.id);
-                              setShowAddTopic(true);
-                            }}
-                            className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:underline"
-                          >
-                            <Plus className="w-3 h-3" />
-                            <span>প্রথম টপিক যুক্ত করুন</span>
-                          </button>
+                          {canEdit && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setTargetChapterId(chap.id);
+                                setShowAddTopic(true);
+                              }}
+                              className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:underline"
+                            >
+                              <Plus className="w-3 h-3" />
+                              <span>প্রথম টপিক যুক্ত করুন</span>
+                            </button>
+                          )}
                         </div>
                       )}
                     </div>
@@ -947,7 +970,7 @@ export function CurriculumManager({
               required
               value={newChapterTitle}
               onChange={(e) => setNewChapterTitle(e.target.value)}
-              placeholder="যেমন: ৩য় অধ্যায়: বল (Force)"
+              placeholder="যেমন: ৩য় অধ্যায়: বল (Force)"
               className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500"
             />
           </div>

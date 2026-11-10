@@ -1,4 +1,5 @@
 import {
+  ArrayMinSize,
   IsArray,
   IsBoolean,
   IsObject,
@@ -26,6 +27,7 @@ export class UpdateLessonAdminDto {
 
   @IsOptional()
   @IsArray()
+  @ArrayMinSize(1, { message: 'importantTerms must have at least one entry if provided' })
   importantTerms?: any[];
 
   @IsOptional()

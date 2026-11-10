@@ -226,6 +226,7 @@ describe('QuestionBankManager', () => {
     expect(screen.getAllByText(/সম্পাদনা/i)).toHaveLength(2);
     // Only the DRAFT row exposes Archive for EDITOR (not PUBLISHED row)
     expect(screen.getAllByText(/^আর্কাইভ$/i)).toHaveLength(1);
+    expect(screen.getByText(/\+ নতুন প্রশ্ন যোগ করুন/i)).toBeDefined();
 
     act(() => {
       useAdminAuthStore.getState().setSession('rev_jwt', {
@@ -239,6 +240,7 @@ describe('QuestionBankManager', () => {
     await waitFor(() => {
       expect(screen.queryByText(/সম্পাদনা/i)).toBeNull();
       expect(screen.queryByText(/^আর্কাইভ$/i)).toBeNull();
+      expect(screen.queryByText(/\+ নতুন প্রশ্ন যোগ করুন/i)).toBeNull();
     });
   });
 

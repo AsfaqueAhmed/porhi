@@ -182,6 +182,18 @@ describe('Admin Layout Components', () => {
       });
     });
 
+    it('hides নতুন কনটেন্ট quick action link for REVIEWER role in AdminTopbar', () => {
+      render(
+        <AdminTopbar
+          userRole="REVIEWER"
+          isCollapsed={false}
+          onToggleCollapse={vi.fn()}
+        />
+      );
+
+      expect(screen.queryByText(/নতুন কনটেন্ট/i)).toBeNull();
+    });
+
     it('renders question bank breadcrumbs for /admin/questions/new and /admin/questions/[id]/edit', async () => {
       mockPathname = '/admin/questions/new';
       const firstRender = render(

@@ -101,6 +101,9 @@ export function AuthoringStudio({
   const activeSubjectIdRef = useRef(activeSubjectId);
   activeSubjectIdRef.current = activeSubjectId;
 
+  const isMountedRef = useRef(true);
+  useEffect(() => () => { isMountedRef.current = false; }, []);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -348,6 +351,7 @@ export function AuthoringStudio({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
     if (isArchived) {
       return;
     }
@@ -407,6 +411,7 @@ export function AuthoringStudio({
           await apiClient.post('/admin/content/questions', cqCreatePayload, {
             scope: 'admin',
           });
+          if (!isMountedRef.current) return;
           setSuccessMessage(
             '✅ ৬-স্তরের ব্যাখ্যাসহ সৃজনশীল (CQ) প্রশ্ন সফলভাবে তৈরি হয়েছে!',
           );
@@ -450,6 +455,7 @@ export function AuthoringStudio({
           onQuestionUpdated?.(updated);
         } else {
           await apiClient.post('/admin/content/questions', mcqPayload, { scope: 'admin' });
+          if (!isMountedRef.current) return;
           setSuccessMessage(
             '✅ ৬-স্তরের ব্যাখ্যাসহ MCQ প্রশ্ন সফলভাবে তৈরি হয়েছে এবং রিভিউ কিউতে যুক্ত করা হয়েছে!',
           );

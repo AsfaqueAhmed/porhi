@@ -14,9 +14,10 @@ import {
   ShieldCheck,
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
-import { useAdminAuthStore } from '@/store/admin-auth-store';
+import { useAdminAuthStore, type AdminPortalRole } from '@/store/admin-auth-store';
 
 export interface AdminTopbarProps {
+  userRole?: AdminPortalRole;
   isCollapsed?: boolean;
   onToggleCollapse?: () => void;
   onOpenMobile?: () => void;
@@ -24,6 +25,7 @@ export interface AdminTopbarProps {
 }
 
 export function AdminTopbar({
+  userRole,
   isCollapsed = false,
   onToggleCollapse,
   onOpenMobile,
@@ -34,6 +36,8 @@ export function AdminTopbar({
   const [apiOnline, setApiOnline] = useState<boolean>(true);
   const adminUser = useAdminAuthStore((s) => s.adminUser);
   const logout = useAdminAuthStore((s) => s.logout);
+  const role = userRole ?? adminUser?.role;
+  const canEdit = role ? role === 'ADMIN' || role === 'EDITOR' : true;
 
   useEffect(() => {
     let isMounted = true;
@@ -186,13 +190,15 @@ export function AdminTopbar({
         </div>
 
         {/* Quick Action Link to New Question */}
-        <Link
-          href="/admin/questions/new"
-          className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-xs transition-colors"
-        >
-          <PlusCircle className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">নতুন কনটেন্ট</span>
-        </Link>
+        {canEdit && (
+          <Link
+            href="/admin/questions/new"
+            className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl shadow-xs transition-colors"
+          >
+            <PlusCircle className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">নতুন কনটেন্ট</span>
+          </Link>
+        )}
 
         {/* Signed-in Admin Identity & Logout */}
         {adminUser && (

@@ -157,5 +157,58 @@ describe('CurriculumManager with AdminDrawer', () => {
       scope: 'admin',
     });
   });
+
+  it('hides authoring and management action buttons for REVIEWER while keeping "লেসন দেখুন" visible', async () => {
+    vi.spyOn(apiClient, 'get').mockImplementation(async (endpoint: string) => {
+      if (endpoint === '/curriculum/subjects') {
+        return [
+          {
+            id: 'sub_ssc_physics',
+            code: 'ssc_physics',
+            nameBangla: 'পদার্থবিজ্ঞান',
+            classLevel: 'CLASS_9_10',
+            syllabusYear: 2026,
+            isReady: true,
+            chapterCount: 1,
+          },
+        ];
+      }
+      if (endpoint === '/curriculum/subjects/sub_ssc_physics/chapters') {
+        return [
+          {
+            id: 'chap_motion',
+            subjectId: 'sub_ssc_physics',
+            orderIndex: 2,
+            titleBangla: 'দ্বিতীয় অধ্যায়: গতি',
+            topics: [
+              {
+                id: 'top_motion_eq',
+                chapterId: 'chap_motion',
+                orderIndex: 1,
+                titleBangla: 'গতির সমীকরণ ও সমাধান',
+              },
+            ],
+          },
+        ];
+      }
+      return [];
+    });
+
+    render(<CurriculumManager userRole="REVIEWER" />);
+
+    expect(await screen.findByText(/গতির সমীকরণ ও সমাধান/i)).toBeDefined();
+
+    // REVIEWER cannot add subjects or chapters
+    expect(screen.queryByRole('button', { name: /নতুন বিষয় যোগ করুন/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /\+ এই বিষয়ে নতুন অধ্যায় যোগ করুন/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /\+ টপিক\/সেকশন যোগ/i })).toBeNull();
+
+    // REVIEWER cannot add questions or lessons from topic row
+    expect(screen.queryByRole('button', { name: /\+ প্রশ্ন যোগ \(MCQ\/CQ\)/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /\+ পাঠ্য লেসন যোগ/i })).toBeNull();
+
+    // "লেসন দেখুন" remains visible to all
+    expect(screen.getByRole('button', { name: /লেসন দেখুন/i })).toBeDefined();
+  });
 });
 
