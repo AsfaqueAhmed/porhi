@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Eye, HelpCircle } from 'lucide-react';
+import { useLanguageStore } from '@/store/language-store';
 import { MathToolbar } from '@/components/admin/math-toolbar';
 import { LatexRenderer } from '@/components/math/latex-renderer';
 
@@ -26,6 +27,8 @@ export function QuestionStemCard({
   onBoardSourceChange,
   onInsertFormula,
 }: QuestionStemCardProps) {
+  const tr = useLanguageStore((s) => s.tr);
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -33,29 +36,29 @@ export function QuestionStemCard({
           <HelpCircle className="w-4 h-4 text-indigo-600" />
           <span>
             {isCq
-              ? 'সৃজনশীল উদ্দীপক (CQ Stimulus / Stem)'
-              : 'প্রশ্নের বিবরণ (Question Stem)'}
+              ? tr('সৃজনশীল উদ্দীপক (CQ Stimulus / Stem)', 'Creative Stimulus / Stem')
+              : tr('প্রশ্নের বিবরণ (Question Stem)', 'Question Stem')}
           </span>
         </h3>
         <div className="flex items-center gap-2">
           <select
-            aria-label="প্রশ্নের কাঠিন্য"
+            aria-label={tr('প্রশ্নের কাঠিন্য', 'Difficulty')}
             value={difficulty}
             onChange={(e) =>
               onDifficultyChange(e.target.value as 'EASY' | 'MEDIUM' | 'HARD')
             }
             className="text-xs font-bold p-1.5 bg-slate-50 border border-slate-300 rounded-lg"
           >
-            <option value="EASY">সহজ (EASY)</option>
-            <option value="MEDIUM">মাঝারি (MEDIUM)</option>
-            <option value="HARD">কঠিন (HARD)</option>
+            <option value="EASY">{tr('সহজ (EASY)', 'Easy (EASY)')}</option>
+            <option value="MEDIUM">{tr('মাঝারি (MEDIUM)', 'Medium (MEDIUM)')}</option>
+            <option value="HARD">{tr('কঠিন (HARD)', 'Hard (HARD)')}</option>
           </select>
           <input
             type="text"
-            aria-label="বোর্ড পরীক্ষার উৎস"
+            aria-label={tr('বোর্ড পরীক্ষার উৎস', 'Board Exam Source')}
             value={boardSource}
             onChange={(e) => onBoardSourceChange(e.target.value)}
-            placeholder="বোর্ড পরীক্ষার উৎস"
+            placeholder={tr('বোর্ড পরীক্ষার উৎস', 'Board Exam Source')}
             className="text-xs p-1.5 border border-slate-300 rounded-lg w-36"
           />
         </div>
@@ -68,14 +71,14 @@ export function QuestionStemCard({
         required
         value={stem}
         onChange={(e) => onStemChange(e.target.value)}
-        placeholder="প্রশ্নের মূল বিবরণ লিখুন..."
+        placeholder={tr('প্রশ্নের মূল বিবরণ লিখুন...', 'Write question stem...')}
         className="w-full text-xs p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
       />
 
       <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1">
         <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1">
           <Eye className="w-3 h-3" />
-          <span>লাইভ সমীকরণ প্রিভিউ:</span>
+          <span>{tr('লাইভ সমীকরণ প্রিভিউ:', 'Live Formula Preview:')}</span>
         </span>
         <div className="text-xs text-slate-900">
           <LatexRenderer content={stem} />

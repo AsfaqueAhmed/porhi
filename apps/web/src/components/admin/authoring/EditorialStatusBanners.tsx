@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { AlertTriangle } from 'lucide-react';
 import type { AdminLessonItem, AdminQuestionItem } from '@pori/shared';
+import { useLanguageStore } from '@/store/language-store';
 
 type ContentEditorialStatus = AdminQuestionItem['status'] | AdminLessonItem['status'];
 
@@ -27,19 +28,23 @@ export function EditorialStatusBanners({
   isArchived,
   status,
   questionStatus,
-  itemTypeLabel = 'প্রশ্নটি',
+  itemTypeLabel,
   backHref = '/admin/questions',
-  backLabel = 'প্রশ্ন তালিকায় ফিরুন',
+  backLabel,
   adminRole,
   preservePublished,
   submitForReview,
   onPreservePublishedChange,
   onSubmitForReviewChange,
 }: EditorialStatusBannersProps) {
+  const tr = useLanguageStore((s) => s.tr);
+
   if (!isEditMode) {
     return null;
   }
 
+  const resolvedItemTypeLabel = itemTypeLabel || tr('আইটেমটি', 'item');
+  const resolvedBackLabel = backLabel || tr('তালিকায় ফিরুন', 'Back to list');
   const resolvedStatus = status ?? questionStatus;
 
   return (
@@ -52,14 +57,17 @@ export function EditorialStatusBanners({
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
             <span>
-              এই {itemTypeLabel} আর্কাইভ (ARCHIVED) অবস্থায় আছে — সরাসরি সম্পাদনা করা যাবে না।
+              {tr(
+                `এই ${resolvedItemTypeLabel} আর্কাইভ (ARCHIVED) অবস্থায় আছে — সরাসরি সম্পাদনা করা যাবে না।`,
+                `This ${resolvedItemTypeLabel} is ARCHIVED — direct editing is disabled.`,
+              )}
             </span>
           </div>
           <Link
             href={backHref}
             className="underline text-rose-900 hover:text-rose-700 shrink-0"
           >
-            {backLabel}
+            {resolvedBackLabel}
           </Link>
         </div>
       )}
@@ -69,7 +77,10 @@ export function EditorialStatusBanners({
           <div className="flex items-start gap-2 font-bold">
             <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <span>
-              এই {itemTypeLabel} বর্তমানে প্রকাশিত (PUBLISHED) অবস্থায় আছে। সংরক্ষণ করলে এটি স্বয়ংক্রিয়ভাবে REVIEW অবস্থায় যাবে।
+              {tr(
+                `এই ${resolvedItemTypeLabel} বর্তমানে প্রকাশিত (PUBLISHED) অবস্থায় আছে। সংরক্ষণ করলে এটি স্বয়ংক্রিয়ভাবে REVIEW অবস্থায় যাবে।`,
+                `This ${resolvedItemTypeLabel} is currently PUBLISHED. Saving will automatically transition it to REVIEW status.`,
+              )}
             </span>
           </div>
           {adminRole === 'ADMIN' && (
@@ -80,7 +91,7 @@ export function EditorialStatusBanners({
                 onChange={(e) => onPreservePublishedChange(e.target.checked)}
                 className="rounded text-indigo-600 focus:ring-indigo-500"
               />
-              <span>সরাসরি প্রকাশিত রাখুন (Keep Published)</span>
+              <span>{tr('সরাসরি প্রকাশিত রাখুন (Keep Published)', 'Keep Published')}</span>
             </label>
           )}
         </div>
@@ -95,7 +106,7 @@ export function EditorialStatusBanners({
               onChange={(e) => onSubmitForReviewChange(e.target.checked)}
               className="rounded text-indigo-600 focus:ring-indigo-500"
             />
-            <span>রিভিউয়ের জন্য পাঠান (Submit for Review)</span>
+            <span>{tr('রিভিউয়ের জন্য পাঠান (Submit for Review)', 'Submit for Review')}</span>
           </label>
         </div>
       )}

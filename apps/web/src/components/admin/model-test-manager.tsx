@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { toBanglaDigits } from '@/lib/formatters';
+import { useLanguageStore } from '@/store/language-store';
 
 interface SubjectItem {
   id: string;
@@ -77,6 +78,7 @@ export function ModelTestManager({
   initialSubjectId,
   initialChapterId,
 }: ModelTestManagerProps = {}) {
+  const { tr, language } = useLanguageStore();
   const [subjects, setSubjects] = useState<SubjectItem[]>([]);
   const [selectedSubjectId, setSelectedSubjectId] = useState(
     initialSubjectId || 'sub_ssc_physics'
@@ -183,7 +185,12 @@ export function ModelTestManager({
     };
 
     setPresets([newPreset, ...presets]);
-    setSuccessMessage(`✅ "${newPreset.titleBangla}" মডেল টেস্ট সফলভাবে তৈরি ও কনফিগার করা হয়েছে!`);
+    setSuccessMessage(
+      tr(
+        `✅ "${newPreset.titleBangla}" মডেল টেস্ট সফলভাবে তৈরি ও কনফিগার করা হয়েছে!`,
+        `✅ "${newPreset.titleBangla}" model test created and configured successfully!`
+      )
+    );
     setShowCreateModal(false);
     setTestTitle('');
     setTimeout(() => setSuccessMessage(null), 4000);
@@ -196,10 +203,18 @@ export function ModelTestManager({
         <div>
           <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
             <Trophy className="w-5 h-5 text-indigo-600" />
-            <span>অধ্যায় ও বিষয়ভিত্তিক মডেল টেস্ট কনফিগারেশন</span>
+            <span>
+              {tr(
+                'অধ্যায় ও বিষয়ভিত্তিক মডেল টেস্ট কনফিগারেশন',
+                'Chapter & Subject-wise Model Test Configuration'
+              )}
+            </span>
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            শিক্ষার্থীদের জন্য অধ্যায়ভিত্তিক সময়সীমাবদ্ধ পরীক্ষা, নেগেটিভ মার্কিং ও পাস নম্বর নির্ধারণ করুন।
+            {tr(
+              'শিক্ষার্থীদের জন্য অধ্যায়ভিত্তিক সময়সীমাবদ্ধ পরীক্ষা, নেগেটিভ মার্কিং ও পাস নম্বর নির্ধারণ করুন।',
+              'Configure chapter-wise timed exams, negative marking, and pass criteria for students.'
+            )}
           </p>
         </div>
 
@@ -209,7 +224,7 @@ export function ModelTestManager({
           className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-xs transition-colors self-start sm:self-auto"
         >
           <Sliders className="w-4 h-4" />
-          <span>নতুন মডেল টেস্ট তৈরি করো</span>
+          <span>{tr('নতুন মডেল টেস্ট তৈরি করো', '+ Create Model Test')}</span>
         </button>
       </div>
 
@@ -245,33 +260,41 @@ export function ModelTestManager({
             {/* Test Rules Badges */}
             <div className="grid grid-cols-4 gap-2 text-center bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs">
               <div>
-                <span className="text-[10px] text-slate-400 block">সময়</span>
-                <strong className="text-slate-800">{toBanglaDigits(preset.durationMinutes)} মি.</strong>
+                <span className="text-[10px] text-slate-400 block">{tr('সময়', 'Duration')}</span>
+                <strong className="text-slate-800">
+                  {language === 'bn' ? toBanglaDigits(preset.durationMinutes) : preset.durationMinutes} {tr('মি.', 'min')}
+                </strong>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 block">প্রশ্ন</span>
-                <strong className="text-slate-800">{toBanglaDigits(preset.totalQuestions)}টি</strong>
+                <span className="text-[10px] text-slate-400 block">{tr('প্রশ্ন', 'Questions')}</span>
+                <strong className="text-slate-800">
+                  {language === 'bn' ? toBanglaDigits(preset.totalQuestions) : preset.totalQuestions} {tr('টি', 'Q')}
+                </strong>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 block">নেগেটিভ</span>
-                <strong className="text-rose-600">-{toBanglaDigits(preset.negativeRatio)}</strong>
+                <span className="text-[10px] text-slate-400 block">{tr('নেগেটিভ', 'Negative')}</span>
+                <strong className="text-rose-600">
+                  -{language === 'bn' ? toBanglaDigits(preset.negativeRatio) : preset.negativeRatio}
+                </strong>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 block">পাস মার্ক</span>
-                <strong className="text-emerald-600">{toBanglaDigits(preset.passPercentage)}%</strong>
+                <span className="text-[10px] text-slate-400 block">{tr('পাস মার্ক', 'Pass Mark')}</span>
+                <strong className="text-emerald-600">
+                  {language === 'bn' ? toBanglaDigits(preset.passPercentage) : preset.passPercentage}%
+                </strong>
               </div>
             </div>
 
             {/* Live Test Run Button */}
             <div className="pt-1 flex items-center justify-between border-t border-slate-100">
-              <span className="text-[11px] text-slate-400">তারিখ: {preset.createdAt}</span>
+              <span className="text-[11px] text-slate-400">{tr('তারিখ: ', 'Date: ')}{preset.createdAt}</span>
               <Link
                 href={`/exam/${preset.chapterId}`}
                 target="_blank"
                 className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors"
               >
                 <Play className="w-3.5 h-3.5 fill-indigo-600" />
-                <span>লাইভ টেস্ট রান দেখুন</span>
+                <span>{tr('লাইভ টেস্ট রান দেখুন', 'View Live Test Run')}</span>
               </Link>
             </div>
           </div>
@@ -284,25 +307,34 @@ export function ModelTestManager({
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl border border-slate-200">
             <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-indigo-600" />
-              <span>নতুন অধ্যায়ভিত্তিক মডেল টেস্ট কনফিগার করুন</span>
+              <span>
+                {tr(
+                  'নতুন অধ্যায়ভিত্তিক মডেল টেস্ট কনফিগার করুন',
+                  'Configure New Chapter-wise Model Test'
+                )}
+              </span>
             </h3>
 
             <form onSubmit={handleCreatePreset} className="space-y-3">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">মডেল টেস্টের নাম</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  {tr('মডেল টেস্টের নাম', 'Model Test Title')}
+                </label>
                 <input
                   type="text"
                   required
                   value={testTitle}
                   onChange={(e) => setTestTitle(e.target.value)}
-                  placeholder="যেমন: ২য় অধ্যায়: গতি ফাইনাল মডেল টেস্ট"
+                  placeholder={tr('যেমন: ২য় অধ্যায়: গতি ফাইনাল মডেল টেস্ট', 'e.g. Chapter 2: Motion Final Model Test')}
                   className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">বিষয়</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    {tr('বিষয়', 'Subject')}
+                  </label>
                   <select
                     value={selectedSubjectId}
                     onChange={(e) => setSelectedSubjectId(e.target.value)}
@@ -317,7 +349,9 @@ export function ModelTestManager({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">অধ্যায়</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">
+                    {tr('অধ্যায়', 'Chapter')}
+                  </label>
                   <select
                     value={selectedChapterId}
                     onChange={(e) => setSelectedChapterId(e.target.value)}
@@ -334,7 +368,9 @@ export function ModelTestManager({
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">সময় (মিনিট)</label>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    {tr('সময় (মিনিট)', 'Duration (min)')}
+                  </label>
                   <input
                     type="number"
                     min={5}
@@ -345,7 +381,9 @@ export function ModelTestManager({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">মোট প্রশ্ন</label>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    {tr('মোট প্রশ্ন', 'Total Qs')}
+                  </label>
                   <input
                     type="number"
                     min={5}
@@ -356,19 +394,23 @@ export function ModelTestManager({
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">নেগেটিভ মার্ক</label>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    {tr('নেগেটিভ মার্ক', 'Negative Mark')}
+                  </label>
                   <select
                     value={negativeRatio}
                     onChange={(e) => setNegativeRatio(parseFloat(e.target.value) || 0.25)}
                     className="w-full text-xs p-2 border border-slate-300 rounded-lg text-center bg-white"
                   >
-                    <option value={0.0}>০ (নেই)</option>
-                    <option value={0.25}>০.২৫</option>
-                    <option value={0.5}>০.৫০</option>
+                    <option value={0.0}>{tr('০ (নেই)', '0 (None)')}</option>
+                    <option value={0.25}>{tr('০.২৫', '0.25')}</option>
+                    <option value={0.5}>{tr('০.৫০', '0.50')}</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">পাস মার্ক %</label>
+                  <label className="block text-xs font-semibold text-slate-600 mb-1">
+                    {tr('পাস মার্ক %', 'Pass Mark %')}
+                  </label>
                   <input
                     type="number"
                     min={20}
@@ -386,13 +428,13 @@ export function ModelTestManager({
                   onClick={() => setShowCreateModal(false)}
                   className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
                 >
-                  বাতিল
+                  {tr('বাতিল', 'Cancel')}
                 </button>
                 <button
                   type="submit"
                   className="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-sm"
                 >
-                  মডেল টেস্ট সংরক্ষণ করো
+                  {tr('মডেল টেস্ট সংরক্ষণ করো', 'Save Model Test')}
                 </button>
               </div>
             </form>

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import type { MediaCategory, MediaUploadResponse } from '@pori/shared';
 import { apiClient } from '@/lib/api-client';
+import { useLanguageStore } from '@/store/language-store';
 import { resolveMediaUrl } from '@/components/content/rich-content-renderer';
 
 export interface MediaUploadModalProps {
@@ -33,41 +34,6 @@ interface CategoryConfig {
   hint: string;
 }
 
-const CATEGORIES: CategoryConfig[] = [
-  {
-    key: 'IMAGE',
-    label: 'ছবি (Image)',
-    accept: 'image/png,image/jpeg,image/webp,image/svg+xml',
-    maxSize: 'সর্বোচ্চ 10MB',
-    icon: ImageIcon,
-    hint: 'PNG, JPEG, WebP বা SVG ডায়াগ্রাম ও চিত্র',
-  },
-  {
-    key: 'AUDIO',
-    label: 'অডিও (Audio)',
-    accept: 'audio/mpeg,audio/wav,audio/ogg,audio/mp4',
-    maxSize: 'সর্বোচ্চ 25MB',
-    icon: Volume2,
-    hint: 'MP3, WAV বা OGG সাউন্ড কম্পাঙ্ক ও অডিও নোট',
-  },
-  {
-    key: 'VIDEO',
-    label: 'ভিডিও (Video)',
-    accept: 'video/mp4,video/webm',
-    maxSize: 'সর্বোচ্চ 100MB',
-    icon: VideoIcon,
-    hint: 'MP4 বা WebM অ্যানিমেশন ও ভিডিও লেকচার',
-  },
-  {
-    key: 'INTERACTIVE',
-    label: 'সিমুলেশন (Interactive)',
-    accept: '.zip,.html,text/html,application/zip,application/x-zip-compressed',
-    maxSize: 'সর্বোচ্চ 15MB',
-    icon: Sparkles,
-    hint: 'একক HTML ফাইল বা index.html সহ জিপ আর্কাইভ',
-  },
-];
-
 export function MediaUploadModal({
   isOpen,
   initialCategory = 'IMAGE',
@@ -75,11 +41,47 @@ export function MediaUploadModal({
   onInsertTag,
   onSelectSimulation,
 }: MediaUploadModalProps) {
+  const tr = useLanguageStore((s) => s.tr);
   const [selectedCategory, setSelectedCategory] = useState<MediaCategory>(initialCategory);
   const [title, setTitle] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [uploadResult, setUploadResult] = useState<MediaUploadResponse | null>(null);
+
+  const categories: CategoryConfig[] = [
+    {
+      key: 'IMAGE',
+      label: tr('ছবি (Image)', 'Image'),
+      accept: 'image/png,image/jpeg,image/webp,image/svg+xml',
+      maxSize: tr('সর্বোচ্চ 10MB', 'Max 10MB'),
+      icon: ImageIcon,
+      hint: tr('PNG, JPEG, WebP বা SVG ডায়াগ্রাম ও চিত্র', 'PNG, JPEG, WebP or SVG diagrams and figures'),
+    },
+    {
+      key: 'AUDIO',
+      label: tr('অডিও (Audio)', 'Audio'),
+      accept: 'audio/mpeg,audio/wav,audio/ogg,audio/mp4',
+      maxSize: tr('সর্বোচ্চ 25MB', 'Max 25MB'),
+      icon: Volume2,
+      hint: tr('MP3, WAV বা OGG সাউন্ড কম্পাঙ্ক ও অডিও নোট', 'MP3, WAV or OGG sound waveforms and notes'),
+    },
+    {
+      key: 'VIDEO',
+      label: tr('ভিডিও (Video)', 'Video'),
+      accept: 'video/mp4,video/webm',
+      maxSize: tr('সর্বোচ্চ 100MB', 'Max 100MB'),
+      icon: VideoIcon,
+      hint: tr('MP4 বা WebM অ্যানিমেশন ও ভিডিও লেকচার', 'MP4 or WebM animations and video lectures'),
+    },
+    {
+      key: 'INTERACTIVE',
+      label: tr('সিমুলেশন (Interactive)', 'Interactive Simulation'),
+      accept: '.zip,.html,text/html,application/zip,application/x-zip-compressed',
+      maxSize: tr('সর্বোচ্চ 15MB', 'Max 15MB'),
+      icon: Sparkles,
+      hint: tr('একক HTML ফাইল বা index.html সহ জিপ আর্কাইভ', 'Standalone HTML or zip archive containing index.html'),
+    },
+  ];
 
   useEffect(() => {
     if (isOpen) {
@@ -93,7 +95,7 @@ export function MediaUploadModal({
   if (!isOpen) return null;
 
   const currentConfig =
-    CATEGORIES.find((c) => c.key === selectedCategory) || CATEGORIES[0];
+    categories.find((c) => c.key === selectedCategory) || categories[0];
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -179,16 +181,19 @@ export function MediaUploadModal({
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div>
             <h2 id="modal-title" className="text-sm font-bold text-slate-900">
-              মিডিয়া ও সিমুলেশন আপলোড (Media Asset Uploader)
+              {tr('মিডিয়া ও সিমুলেশন আপলোড (Media Asset Uploader)', 'Upload Media & Simulation')}
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              লেসনের মূল ব্যাখ্যা বা ইন্টার‍্যাক্টিভ সিমুলেশন স্লটে ব্যবহারের জন্য ফাইল যুক্ত করুন
+              {tr(
+                'লেসনের মূল ব্যাখ্যা বা ইন্টার‍্যাক্টিভ সিমুলেশন স্লটে ব্যবহারের জন্য ফাইল যুক্ত করুন',
+                'Upload media files for lesson explanations or interactive simulation widgets',
+              )}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="বন্ধ করুন"
+            aria-label={tr('বন্ধ করুন', 'Close')}
             className="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg hover:bg-slate-100 transition-colors"
           >
             <X className="w-5 h-5" />
@@ -197,7 +202,7 @@ export function MediaUploadModal({
 
         {/* Category Tabs */}
         <div className="px-6 pt-4 border-b border-slate-100 flex gap-2 overflow-x-auto">
-          {CATEGORIES.map((cat) => {
+          {categories.map((cat) => {
             const Icon = cat.icon;
             const isSelected = cat.key === selectedCategory;
             return (
@@ -241,7 +246,12 @@ export function MediaUploadModal({
                 <Upload className="w-8 h-8 text-slate-400" />
               )}
               <div className="text-xs font-semibold text-slate-700">
-                {isUploading ? 'ফাইল আপলোড হচ্ছে...' : 'কম্পিউটার থেকে ফাইল নির্বাচন করুন বা এখানে ড্রপ করুন'}
+                {isUploading
+                  ? tr('ফাইল আপলোড হচ্ছে...', 'Uploading file...')
+                  : tr(
+                      'কম্পিউটার থেকে ফাইল নির্বাচন করুন বা এখানে ড্রপ করুন',
+                      'Select a file from your computer or drop it here',
+                    )}
               </div>
               <div className="text-[11px] text-slate-500">
                 {currentConfig.hint} • {currentConfig.maxSize}
@@ -265,7 +275,10 @@ export function MediaUploadModal({
             <div className="space-y-4 pt-2 border-t border-slate-100 animate-in fade-in">
               <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 p-2.5 rounded-lg border border-emerald-200">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>ফাইল সফলভাবে আপলোড হয়েছে: {uploadResult.originalName}</span>
+                <span>
+                  {tr('ফাইল সফলভাবে আপলোড হয়েছে: ', 'File uploaded successfully: ')}
+                  {uploadResult.originalName}
+                </span>
               </div>
 
               {/* Title / Caption */}
@@ -274,21 +287,21 @@ export function MediaUploadModal({
                   htmlFor="media-asset-title"
                   className="block text-xs font-bold text-slate-700 mb-1"
                 >
-                  অ্যাসেটের শিরোনাম বা ক্যাপশন (Title / Caption)
+                  {tr('অ্যাসেটের শিরোনাম বা ক্যাপশন (Title / Caption)', 'Asset Title / Caption')}
                 </label>
                 <input
                   id="media-asset-title"
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  placeholder="যেমন: কম কম্পাঙ্কের শব্দ তরঙ্গ - ১০০ Hz"
+                  placeholder={tr('যেমন: কম কম্পাঙ্কের শব্দ তরঙ্গ - ১০০ Hz', 'e.g. Low frequency sound wave - 100 Hz')}
                   className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               {/* In-Modal Previews */}
               <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
-                <span className="text-[11px] font-bold text-slate-500 block">প্রিভিউ:</span>
+                <span className="text-[11px] font-bold text-slate-500 block">{tr('প্রিভিউ:', 'Preview:')}</span>
                 {uploadResult.category === 'IMAGE' && (
                   <div className="flex justify-center bg-white p-2 rounded-lg border border-slate-200">
                     <img
@@ -316,7 +329,7 @@ export function MediaUploadModal({
                   >
                     <iframe
                       src={resolvedPreviewUrl}
-                      title={title || 'সিমুলেশন প্রিভিউ'}
+                      title={title || tr('সিমুলেশন প্রিভিউ', 'Simulation Preview')}
                       sandbox="allow-scripts allow-same-origin allow-downloads"
                       className="w-full h-44"
                     />
@@ -334,7 +347,7 @@ export function MediaUploadModal({
             onClick={onClose}
             className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-300 rounded-xl transition-colors"
           >
-            বাতিল
+            {tr('বাতিল', 'Cancel')}
           </button>
 
           {uploadResult && uploadResult.category === 'INTERACTIVE' && onSelectSimulation && (
@@ -343,7 +356,7 @@ export function MediaUploadModal({
               onClick={handleSelectSimOnly}
               className="px-4 py-2 text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl transition-colors"
             >
-              লেসনের সিমুলেশন হিসেবে সেট করুন
+              {tr('লেসনের সিমুলেশন হিসেবে সেট করুন', 'Set as Lesson Simulation')}
             </button>
           )}
 
@@ -354,8 +367,8 @@ export function MediaUploadModal({
               className="px-4 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition-colors"
             >
               {uploadResult.category === 'INTERACTIVE' && onSelectSimulation
-                ? 'সিমুলেশন স্লটে যুক্ত করুন'
-                : 'লেসনে যুক্ত করুন'}
+                ? tr('সিমুলেশন স্লটে যুক্ত করুন', 'Insert into Simulation Slot')
+                : tr('লেসনে যুক্ত করুন', 'Insert into Lesson')}
             </button>
           )}
         </div>

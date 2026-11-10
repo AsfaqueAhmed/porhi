@@ -6,6 +6,7 @@ import { PenTool, CheckCircle } from 'lucide-react';
 import type { AdminQuestionItem } from '@pori/shared';
 import { apiClient } from '@/lib/api-client';
 import { useAdminAuthStore } from '@/store/admin-auth-store';
+import { useLanguageStore } from '@/store/language-store';
 import { TopicHierarchySelector } from './authoring/TopicHierarchySelector';
 import { EditorialStatusBanners } from './authoring/EditorialStatusBanners';
 import { QuestionAuthoringForm } from './authoring/QuestionAuthoringForm';
@@ -56,6 +57,7 @@ export function AuthoringStudio({
   const isEditMode = mode === 'edit' && Boolean(initialQuestion);
   const isArchived = isEditMode && initialQuestion?.status === 'ARCHIVED';
   const adminRole = useAdminAuthStore((s) => s.adminUser?.role);
+  const tr = useLanguageStore((s) => s.tr);
 
   const [contentType, setContentType] = useState<AuthoringContentType>(() => {
     if (isEditMode && initialQuestion) {
@@ -485,21 +487,21 @@ export function AuthoringStudio({
             <PenTool className="w-5 h-5 text-indigo-600" />
             <span>
               {isEditMode
-                ? 'প্রশ্ন সম্পাদনা (Edit Question)'
-                : 'অথরিং স্টুডিও (Content Authoring Studio)'}
+                ? tr('প্রশ্ন সম্পাদনা (Edit Question)', 'Edit Question')
+                : tr('অথরিং স্টুডিও (Content Authoring Studio)', 'Content Authoring Studio')}
             </span>
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
             {isEditMode && initialQuestion
-              ? `প্রশ্ন আইডি: ${initialQuestion.id} • বর্তমান ভার্সন v${initialQuestion.version} (${initialQuestion.status})`
-              : 'কাঠামোগত ইনপুট, LaTeX সমীকরণ ও ৬-স্তরের ব্যাখ্যার সাথে নতুন প্রশ্ন তৈরি করুন।'}
+              ? `${tr('প্রশ্ন আইডি:', 'Question ID:')} ${initialQuestion.id} • ${tr('বর্তমান ভার্সন', 'Current Version')} v${initialQuestion.version} (${initialQuestion.status})`
+              : tr('কাঠামোগত ইনপুট, LaTeX সমীকরণ ও ৬-স্তরের ব্যাখ্যার সাথে নতুন প্রশ্ন তৈরি করুন।', 'Create new questions with structured inputs, LaTeX formulas, and 6-layer explanations.')}
           </p>
         </div>
 
         {isEditMode && initialQuestion ? (
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200 text-xs font-bold text-indigo-700">
             <span>
-              {initialQuestion.type === 'CQ_CREATIVE' ? 'সৃজনশীল (CQ)' : 'MCQ'} • v
+              {initialQuestion.type === 'CQ_CREATIVE' ? tr('সৃজনশীল (CQ)', 'Creative (CQ)') : 'MCQ'} • v
               {initialQuestion.version}
             </span>
           </div>
@@ -510,13 +512,13 @@ export function AuthoringStudio({
               onClick={handleFillSample}
               className="px-3 py-1.5 rounded-xl text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors"
             >
-              নমুনা ভরুন
+              {tr('নমুনা ভরুন', 'Fill Sample')}
             </button>
             <div className="flex bg-slate-100 p-1 rounded-xl">
               {(
                 [
-                  { type: 'MCQ', label: '৬-স্তরের MCQ' },
-                  { type: 'CQ', label: 'সৃজনশীল (CQ)' },
+                  { type: 'MCQ', label: tr('৬-স্তরের MCQ', '6-Layer MCQ') },
+                  { type: 'CQ', label: tr('সৃজনশীল (CQ)', 'Creative (CQ)') },
                 ] as const
               ).map((tab) => (
                 <button
@@ -541,6 +543,9 @@ export function AuthoringStudio({
         isEditMode={isEditMode}
         isArchived={isArchived}
         questionStatus={initialQuestion?.status}
+        itemTypeLabel={tr('প্রশ্নটি', 'question')}
+        backHref="/admin/questions"
+        backLabel={tr('প্রশ্ন তালিকায় ফিরুন', 'Back to Question List')}
         adminRole={adminRole}
         preservePublished={preservePublished}
         submitForReview={submitForReview}
@@ -558,7 +563,7 @@ export function AuthoringStudio({
             href="/admin/questions"
             className="underline font-bold text-emerald-900 hover:text-emerald-700 shrink-0"
           >
-            তালিকায় ফিরুন
+            {tr('তালিকায় ফিরুন', 'Back to list')}
           </Link>
         </div>
       )}

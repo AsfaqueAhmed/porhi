@@ -2,7 +2,7 @@
 
 import React from 'react';
 import type { CQRubric } from '@pori/shared';
-import { CQ_SECTIONS } from './authoring-helpers';
+import { useLanguageStore } from '@/store/language-store';
 
 export interface CqRubricEditorProps {
   cqRubric: CQRubric;
@@ -10,13 +10,42 @@ export interface CqRubricEditorProps {
 }
 
 export function CqRubricEditor({ cqRubric, onChange }: CqRubricEditorProps) {
+  const tr = useLanguageStore((s) => s.tr);
+
+  const sections: Array<{
+    key: keyof CQRubric;
+    title: string;
+    placeholder: string;
+  }> = [
+    {
+      key: 'ka',
+      title: tr('ক — জ্ঞানমূলক মানদণ্ড', 'A — Knowledge Criterion'),
+      placeholder: tr('ক অংশের জ্ঞানমূলক প্রশ্ন ও মূল্যায়ন মানদণ্ড লিখুন...', 'Enter part A knowledge criteria...'),
+    },
+    {
+      key: 'kha',
+      title: tr('খ — অনুধাবনমূলক মানদণ্ড', 'B — Comprehension Criterion'),
+      placeholder: tr('খ অংশের অনুধাবনমূলক প্রশ্ন ও মূল্যায়ন মানদণ্ড লিখুন...', 'Enter part B comprehension criteria...'),
+    },
+    {
+      key: 'ga',
+      title: tr('গ — প্রয়োগমূলক মানদণ্ড', 'C — Application Criterion'),
+      placeholder: tr('গ অংশের প্রয়োগমূলক সমস্যা ও সমাধান ধাপ লিখুন...', 'Enter part C application criteria...'),
+    },
+    {
+      key: 'gha',
+      title: tr('ঘ — উচ্চতর দক্ষতা মানদণ্ড', 'D — Higher-order Skills Criterion'),
+      placeholder: tr('ঘ অংশের উচ্চতর চিন্তন দক্ষতা ও মূল্যায়ন মানদণ্ড লিখুন...', 'Enter part D higher-order criteria...'),
+    },
+  ];
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
       <h3 className="text-sm font-bold text-slate-900">
-        সৃজনশীল (CQ) ৪ অংশের প্রশ্ন ও মূল্যায়ন রুব্রিক
+        {tr('সৃজনশীল (CQ) ৪ অংশের প্রশ্ন ও মূল্যায়ন রুব্রিক', 'Creative (CQ) 4-Part Rubric & Scoring')}
       </h3>
       <div className="space-y-3">
-        {CQ_SECTIONS.map((part) => (
+        {sections.map((part) => (
           <div
             key={part.key}
             className="p-3 rounded-xl border border-slate-200 bg-slate-50/60 space-y-2"
@@ -33,7 +62,7 @@ export function CqRubricEditor({ cqRubric, onChange }: CqRubricEditorProps) {
                   htmlFor={`cq-${part.key}-mark`}
                   className="text-[11px] font-semibold text-slate-600"
                 >
-                  নম্বর:
+                  {tr('নম্বর:', 'Marks:')}
                 </label>
                 <input
                   id={`cq-${part.key}-mark`}

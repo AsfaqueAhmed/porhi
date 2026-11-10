@@ -9,11 +9,13 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { useUserStore } from '@/store/user-store';
+import { useLanguageStore } from '@/store/language-store';
 import { toBanglaDigits } from '@/lib/formatters';
 import { LatexRenderer } from '@/components/math/latex-renderer';
 
 export default function ProgressPage() {
   const { activeSubject } = useUserStore();
+  const { tr, language } = useLanguageStore();
   const subjectName = activeSubject?.nameBangla || 'পদার্থবিজ্ঞান';
 
   const weakTopics = [
@@ -59,41 +61,47 @@ export default function ProgressPage() {
       {/* Header */}
       <div>
         <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider">
-          ব্যক্তিগত অ্যানালিটিক্স
+          {tr('ব্যক্তিগত অ্যানালিটিক্স', 'Personal Analytics')}
         </span>
         <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 mt-1">
-          অগ্রগতি ও দুর্বলতা রিপোর্ট
+          {tr('অগ্রগতি ও দুর্বলতা রিপোর্ট', 'Progress & Weakness Report')}
         </h1>
         <p className="text-sm text-slate-600">
-          {subjectName} বিষয়ে তোমার বর্তমান দক্ষতা, বারবার ভুল হওয়া টপিক এবং সিলেবাস কভারেজ।
+          {subjectName} {tr('বিষয়ে তোমার বর্তমান দক্ষতা, বারবার ভুল হওয়া টপিক এবং সিলেবাস কভারেজ।', 'curriculum mastery, frequent mistake topics, and syllabus coverage.')}
         </p>
       </div>
 
       {/* Overview Metric Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-          <div className="text-xs font-semibold text-slate-500">সিলেবাস কভারেজ</div>
-          <div className="text-2xl font-black text-slate-900">৬৫%</div>
+          <div className="text-xs font-semibold text-slate-500">{tr('সিলেবাস কভারেজ', 'Syllabus Coverage')}</div>
+          <div className="text-2xl font-black text-slate-900">{language === 'bn' ? '৬৫%' : '65%'}</div>
           <div className="w-full bg-slate-100 rounded-full h-2">
             <div className="bg-indigo-600 h-2 rounded-full" style={{ width: '65%' }} />
           </div>
-          <div className="text-xs text-slate-500 pt-1">১৪টির মধ্যে ৯টি টপিক সম্পন্ন</div>
+          <div className="text-xs text-slate-500 pt-1">
+            {tr('১৪টির মধ্যে ৯টি টপিক সম্পন্ন', '9 of 14 topics completed')}
+          </div>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-          <div className="text-xs font-semibold text-slate-500">গড় নির্ভুলতা (Accuracy)</div>
-          <div className="text-2xl font-black text-emerald-600">৭৮%</div>
+          <div className="text-xs font-semibold text-slate-500">{tr('গড় নির্ভুলতা (Accuracy)', 'Average Accuracy')}</div>
+          <div className="text-2xl font-black text-emerald-600">{language === 'bn' ? '৭৮%' : '78%'}</div>
           <div className="w-full bg-slate-100 rounded-full h-2">
             <div className="bg-emerald-500 h-2 rounded-full" style={{ width: '78%' }} />
           </div>
-          <div className="text-xs text-slate-500 pt-1">মোট ১৮৪টি প্রশ্নের মধ্যে ১৪৪টি সঠিক</div>
+          <div className="text-xs text-slate-500 pt-1">
+            {tr('মোট ১৮৪টি প্রশ্নের মধ্যে ১৪৪টি সঠিক', '144 of 184 questions correct')}
+          </div>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
-          <div className="text-xs font-semibold text-slate-500">অনুশীলন ও মডেল টেস্ট</div>
-          <div className="text-2xl font-black text-amber-600">১২টি সেশন</div>
+          <div className="text-xs font-semibold text-slate-500">{tr('অনুশীলন ও মডেল টেস্ট', 'Practice & Model Tests')}</div>
+          <div className="text-2xl font-black text-amber-600">
+            {language === 'bn' ? '১২টি সেশন' : '12 sessions'}
+          </div>
           <div className="text-xs text-slate-600 pt-3">
-            সর্বশেষ মডেল টেস্ট স্কোর: <span className="font-bold text-slate-900">১৮/২০</span>
+            {tr('সর্বশেষ মডেল টেস্ট স্কোর: ', 'Latest Model Test Score: ')}<span className="font-bold text-slate-900">{language === 'bn' ? '১৮/২০' : '18/20'}</span>
           </div>
         </div>
       </div>
@@ -102,11 +110,14 @@ export default function ProgressPage() {
       <div className="bg-white rounded-2xl border border-rose-100 shadow-sm p-6 space-y-4">
         <div className="flex items-center gap-2 text-rose-600 font-bold text-lg border-b border-rose-50 pb-3">
           <TrendingDown className="w-5 h-5 text-rose-500" />
-          <span>দুর্বল টপিক রিপোর্ট (অতিরিক্ত অনুশীলন প্রয়োজন)</span>
+          <span>{tr('দুর্বল টপিক রিপোর্ট (অতিরিক্ত অনুশীলন প্রয়োজন)', 'Weak Topics Report (Extra Practice Needed)')}</span>
         </div>
 
         <p className="text-xs text-slate-600">
-          যেসব টপিকে তোমার সঠিক উত্তরের হার ৬০% এর নিচে, সেগুলোতে ধারণা পরিষ্কার করতে পুনরায় লেসন পড়ুন।
+          {tr(
+            'যেসব টপিকে তোমার সঠিক উত্তরের হার ৬০% এর নিচে, সেগুলোতে ধারণা পরিষ্কার করতে পুনরায় লেসন পড়ুন।',
+            'Read lessons again to reinforce concepts for topics where your accuracy is below 60%.'
+          )}
         </p>
 
         <div className="space-y-3">
@@ -117,13 +128,17 @@ export default function ProgressPage() {
             >
               <div className="space-y-1">
                 <span className="text-xs font-bold text-rose-800 bg-rose-100 px-2.5 py-0.5 rounded-full">
-                  অধ্যায়: {topic.chapterName}
+                  {tr('অধ্যায়: ', 'Chapter: ')}{topic.chapterName}
                 </span>
                 <h3 className="font-bold text-slate-900 text-sm mt-1">{topic.topicTitle}</h3>
                 <div className="text-xs text-slate-600 flex items-center gap-3">
-                  <span>নির্ভুলতা: <strong className="text-rose-600">{toBanglaDigits(topic.accuracy)}%</strong></span>
+                  <span>
+                    {tr('নির্ভুলতা: ', 'Accuracy: ')}<strong className="text-rose-600">{language === 'bn' ? toBanglaDigits(topic.accuracy) : topic.accuracy}%</strong>
+                  </span>
                   <span>•</span>
-                  <span>ভুল হয়েছে: <strong>{toBanglaDigits(topic.mistakeCount)}টি প্রশ্ন</strong></span>
+                  <span>
+                    {tr('ভুল হয়েছে: ', 'Mistakes: ')}<strong>{language === 'bn' ? toBanglaDigits(topic.mistakeCount) : topic.mistakeCount} {tr('টি প্রশ্ন', ' questions')}</strong>
+                  </span>
                 </div>
               </div>
 
@@ -133,14 +148,14 @@ export default function ProgressPage() {
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-indigo-700 bg-white border border-indigo-200 rounded-lg hover:bg-indigo-50 transition-colors shadow-sm"
                 >
                   <BookOpen className="w-3.5 h-3.5" />
-                  <span>লেসন পড়ো</span>
+                  <span>{tr('লেসন পড়ো', 'Read Lesson')}</span>
                 </Link>
                 <Link
                   href={topic.practiceHref}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
-                  <span>অনুশীলন করো</span>
+                  <span>{tr('অনুশীলন করো', 'Practice Now')}</span>
                 </Link>
               </div>
             </div>
@@ -153,9 +168,9 @@ export default function ProgressPage() {
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2 text-slate-900 font-bold text-lg">
             <AlertOctagon className="w-5 h-5 text-amber-500" />
-            <span>ভুল প্রশ্নের নোটবুক (Mistakes List)</span>
+            <span>{tr('ভুল প্রশ্নের নোটবুক (Mistakes List)', 'Mistake Notebook (Mistakes List)')}</span>
           </div>
-          <span className="text-xs font-semibold text-slate-500">সাম্প্রতিক ভুলসমূহ</span>
+          <span className="text-xs font-semibold text-slate-500">{tr('সাম্প্রতিক ভুলসমূহ', 'Recent Mistakes')}</span>
         </div>
 
         <div className="space-y-4">
@@ -167,17 +182,17 @@ export default function ProgressPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                 <div className="p-2.5 rounded-lg bg-rose-50 border border-rose-200 text-rose-900">
-                  <span className="font-bold">তোমার দেওয়া ভুল উত্তর: </span>
+                  <span className="font-bold">{tr('তোমার দেওয়া ভুল উত্তর: ', 'Your Answer: ')}</span>
                   <LatexRenderer content={m.yourAnswer} />
                 </div>
                 <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-900 font-semibold">
-                  <span className="font-bold">সঠিক উত্তর: </span>
+                  <span className="font-bold">{tr('সঠিক উত্তর: ', 'Correct Answer: ')}</span>
                   <LatexRenderer content={m.correctAnswer} />
                 </div>
               </div>
 
               <div className="text-xs text-slate-700 bg-white p-2.5 rounded-lg border border-slate-200">
-                <span className="font-bold text-indigo-700">মনে রাখার টেকনিক: </span>
+                <span className="font-bold text-indigo-700">{tr('মনে রাখার টেকনিক: ', 'Memory Technique: ')}</span>
                 <LatexRenderer content={m.conceptNote} />
               </div>
             </div>

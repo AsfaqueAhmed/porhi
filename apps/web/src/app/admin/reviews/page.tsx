@@ -2,9 +2,12 @@
 
 import React, { Suspense } from 'react';
 import { ShieldCheck } from 'lucide-react';
+import { useLanguageStore } from '@/store/language-store';
 import { ReviewConsole } from '../../../components/admin/review-console';
 
 function ReviewsContent() {
+  const tr = useLanguageStore((s) => s.tr);
+
   return (
     <div className="space-y-6">
       {/* Top Banner */}
@@ -12,10 +15,13 @@ function ReviewsContent() {
         <div>
           <h1 className="text-base font-bold text-slate-900 flex items-center gap-2">
             <ShieldCheck className="w-5 h-5 text-indigo-600" />
-            <span>এডিটোরিয়াল রিভিউ ও অডিট কনসোল</span>
+            <span>{tr('এডিটোরিয়াল রিভিউ ও অডিট কনসোল', 'Editorial Review & Audit Console')}</span>
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            পেন্ডিং অনুমোদন কিউ, স্টুডেন্ট সিমুলেটর প্রিভিউ ও এডিটোরিয়াল হিস্ট্রি পরিচালনা করুন।
+            {tr(
+              'পেন্ডিং অনুমোদন কিউ, স্টুডেন্ট সিমুলেটর প্রিভিউ ও এডিটোরিয়াল হিস্ট্রি পরিচালনা করুন।',
+              'Manage pending review queues, student simulator previews, and editorial history.',
+            )}
           </p>
         </div>
       </div>
@@ -26,11 +32,13 @@ function ReviewsContent() {
 }
 
 export default function AdminReviewsPage() {
+  const tr = useLanguageStore((s) => s.tr);
+
   return (
     <Suspense
       fallback={
         <div className="p-8 text-center text-xs text-slate-400">
-          রিভিউ কনসোল লোড হচ্ছে...
+          {tr('রিভিউ কনসোল লোড হচ্ছে...', 'Loading review console...')}
         </div>
       }
     >

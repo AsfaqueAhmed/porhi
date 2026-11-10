@@ -2,6 +2,7 @@
 
 import React, { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useLanguageStore } from '@/store/language-store';
 import { ModelTestManager } from '../../../components/admin/model-test-manager';
 
 function ModelTestsContent() {
@@ -20,11 +21,13 @@ function ModelTestsContent() {
 }
 
 export default function AdminModelTestsPage() {
+  const tr = useLanguageStore((s) => s.tr);
+
   return (
     <Suspense
       fallback={
         <div className="p-8 text-center text-xs text-slate-400">
-          মডেল টেস্ট ম্যানেজার লোড হচ্ছে...
+          {tr('মডেল টেস্ট ম্যানেজার লোড হচ্ছে...', 'Loading model test manager...')}
         </div>
       }
     >

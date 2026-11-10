@@ -70,6 +70,10 @@ export function t(key: TranslationKey, lang: Language = 'bn'): string {
   return item[lang] || item.bn || key;
 }
 
+export function tr(bn: string, en: string, lang: Language = 'bn'): string {
+  return lang === 'en' ? en : bn;
+}
+
 export function formatDigits(val: string | number, lang: Language): string {
   const str = String(val);
   if (lang === 'en') {

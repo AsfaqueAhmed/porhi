@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, Clock, BookMarked, ArrowRight } from 'lucide-react';
 import { useUserStore, ActiveSubject } from '@/store/user-store';
+import { useLanguageStore } from '@/store/language-store';
 import { apiClient } from '@/lib/api-client';
 import { toBanglaDigits } from '@/lib/formatters';
 
@@ -77,6 +78,7 @@ const DEFAULT_SUBJECTS: SubjectItem[] = [
 export default function SubjectsPage() {
   const router = useRouter();
   const { activeSubject, setActiveSubject } = useUserStore();
+  const { tr, language } = useLanguageStore();
   const [subjects, setSubjects] = useState<SubjectItem[]>(DEFAULT_SUBJECTS);
   const [filter, setFilter] = useState<'ALL' | 'SSC' | 'HSC'>('ALL');
 
@@ -123,10 +125,13 @@ export default function SubjectsPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
-            বিষয় ক্যাটালগ
+            {tr('বিষয় ক্যাটালগ', 'Subject Catalog')}
           </h1>
           <p className="text-sm text-slate-600 mt-1">
-            তোমার প্রয়োজনীয় বিষয়টি নির্বাচন করে কারিকুলাম ও অনুশীলন শুরু করো।
+            {tr(
+              'তোমার প্রয়োজনীয় বিষয়টি নির্বাচন করে কারিকুলাম ও অনুশীলন শুরু করো।',
+              'Select your subject to explore curriculum and start practicing.'
+            )}
           </p>
         </div>
 
@@ -138,7 +143,7 @@ export default function SubjectsPage() {
               filter === 'ALL' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            সকল বিষয়
+            {tr('সকল বিষয়', 'All Subjects')}
           </button>
           <button
             onClick={() => setFilter('SSC')}
@@ -186,7 +191,7 @@ export default function SubjectsPage() {
                   </div>
                   <div>
                     <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                      {item.program} • {toBanglaDigits(item.syllabusYear)}
+                      {item.program} • {language === 'bn' ? toBanglaDigits(item.syllabusYear) : item.syllabusYear}
                     </span>
                     <h3 className="text-lg font-bold text-slate-900">{item.nameBangla}</h3>
                   </div>
@@ -196,12 +201,12 @@ export default function SubjectsPage() {
                 {item.isReady ? (
                   <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-emerald-200">
                     <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>প্রস্তুত</span>
+                    <span>{tr('প্রস্তুত', 'Ready')}</span>
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-amber-200">
                     <Clock className="w-3.5 h-3.5" />
-                    <span>শীঘ্রই আসছে</span>
+                    <span>{tr('শীঘ্রই আসছে', 'Coming Soon')}</span>
                   </span>
                 )}
               </div>
@@ -210,14 +215,18 @@ export default function SubjectsPage() {
                 {item.isReady ? (
                   <>
                     <span className="text-slate-500">
-                      {isSelected ? 'বর্তমানে সক্রিয় বিষয়' : 'কারিকুলাম ও অধ্যায়সমূহ দেখুন'}
+                      {isSelected
+                        ? tr('বর্তমানে সক্রিয় বিষয়', 'Currently active subject')
+                        : tr('কারিকুলাম ও অধ্যায়সমূহ দেখুন', 'View curriculum & chapters')}
                     </span>
                     <span className="font-bold text-indigo-600 flex items-center gap-1">
-                      প্রবেশ করো <ArrowRight className="w-3 h-3" />
+                      {tr('প্রবেশ করো', 'Enter')} <ArrowRight className="w-3 h-3" />
                     </span>
                   </>
                 ) : (
-                  <span className="text-slate-400">বিষয়বস্তু সম্পাদনার কাজ প্রক্রিয়াধীন</span>
+                  <span className="text-slate-400">
+                    {tr('বিষয়বস্তু সম্পাদনার কাজ প্রক্রিয়াধীন', 'Content authoring in progress')}
+                  </span>
                 )}
               </div>
             </div>

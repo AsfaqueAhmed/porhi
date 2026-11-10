@@ -6,6 +6,7 @@ import { useParams } from 'next/navigation';
 import { BookOpen, ChevronRight, Play, Trophy } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { toBanglaDigits } from '@/lib/formatters';
+import { useLanguageStore } from '@/store/language-store';
 
 interface TopicItem {
   id: string;
@@ -112,6 +113,7 @@ const DEFAULT_CHAPTERS: ChapterItem[] = [
 export default function CurriculumPage() {
   const params = useParams();
   const subjectId = (params?.subjectId as string) || 'sub-ssc-phy';
+  const { tr, language } = useLanguageStore();
   const [chapters, setChapters] = useState<ChapterItem[]>(DEFAULT_CHAPTERS);
 
   useEffect(() => {
@@ -134,16 +136,19 @@ export default function CurriculumPage() {
       <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-2">
         <div className="flex items-center gap-2 text-xs font-semibold text-indigo-600">
           <Link href="/subjects" className="hover:underline">
-            বিষয়সমূহ
+            {tr('বিষয়সমূহ', 'Subjects')}
           </Link>
           <ChevronRight className="w-3.5 h-3.5" />
-          <span>কারিকুলাম সূচি</span>
+          <span>{tr('কারিকুলাম সূচি', 'Curriculum Index')}</span>
         </div>
         <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900">
-          অধ্যায় ও টপিক সিলেবাস
+          {tr('অধ্যায় ও টপিক সিলেবাস', 'Chapter & Topic Syllabus')}
         </h1>
         <p className="text-sm text-slate-600">
-          প্রতিটি অধ্যায়ের টপিকভিত্তিক লেসন পড়ুন, ৬-স্তরের ব্যাখ্যার সাথে MCQ অনুশীলন করুন এবং শেষে মডেল টেস্ট দিন।
+          {tr(
+            'প্রতিটি অধ্যায়ের টপিকভিত্তিক লেসন পড়ুন, ৬-স্তরের ব্যাখ্যার সাথে MCQ অনুশীলন করুন এবং শেষে মডেল টেস্ট দিন।',
+            'Read topic-wise lessons, practice MCQs with 6-layer explanations, and take chapter model tests.'
+          )}
         </p>
       </div>
 
@@ -158,11 +163,11 @@ export default function CurriculumPage() {
             <div className="bg-slate-50/80 p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <span className="w-9 h-9 rounded-xl bg-indigo-600 text-white font-black text-sm flex items-center justify-center shrink-0">
-                  {toBanglaDigits(chapter.orderIndex)}
+                  {language === 'bn' ? toBanglaDigits(chapter.orderIndex) : chapter.orderIndex}
                 </span>
                 <div>
                   <span className="text-xs font-bold text-indigo-700 uppercase tracking-wide">
-                    অধ্যায় {toBanglaDigits(chapter.orderIndex)}
+                    {tr('অধ্যায় ', 'Chapter ')}{language === 'bn' ? toBanglaDigits(chapter.orderIndex) : chapter.orderIndex}
                   </span>
                   <h2 className="text-lg font-bold text-slate-900">{chapter.titleBangla}</h2>
                 </div>
@@ -175,14 +180,14 @@ export default function CurriculumPage() {
                   className="inline-flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold px-3 py-2 rounded-xl transition-colors border border-indigo-200"
                 >
                   <BookOpen className="w-3.5 h-3.5" />
-                  <span>MCQ প্র্যাকটিস</span>
+                  <span>{tr('MCQ প্র্যাকটিস', 'MCQ Practice')}</span>
                 </Link>
                 <Link
                   href={`/exam/${chapter.id}`}
                   className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold px-3 py-2 rounded-xl transition-colors"
                 >
                   <Trophy className="w-3.5 h-3.5 text-amber-400" />
-                  <span>মডেল টেস্ট</span>
+                  <span>{tr('মডেল টেস্ট', 'Model Test')}</span>
                 </Link>
               </div>
             </div>
@@ -197,7 +202,9 @@ export default function CurriculumPage() {
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-xs text-slate-400 font-medium w-5">
-                      {toBanglaDigits(chapter.orderIndex)}.{toBanglaDigits(index + 1)}
+                      {language === 'bn'
+                        ? `${toBanglaDigits(chapter.orderIndex)}.${toBanglaDigits(index + 1)}`
+                        : `${chapter.orderIndex}.${index + 1}`}
                     </span>
                     <span className="text-sm font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors">
                       {topic.titleBangla}
@@ -205,7 +212,7 @@ export default function CurriculumPage() {
                   </div>
 
                   <div className="flex items-center gap-2 text-xs font-semibold text-slate-400 group-hover:text-indigo-600">
-                    <span className="hidden sm:inline">লেসন পড়ুন</span>
+                    <span className="hidden sm:inline">{tr('লেসন পড়ুন', 'Read Lesson')}</span>
                     <Play className="w-3.5 h-3.5 fill-current" />
                   </div>
                 </Link>

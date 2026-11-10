@@ -18,6 +18,7 @@ import { apiClient } from '@/lib/api-client';
 import { useUserStore } from '@/store/user-store';
 import { QuestionDTO, QuestionType, ContentStatus } from '@pori/shared';
 import { toBanglaDigits } from '@/lib/formatters';
+import { useLanguageStore } from '@/store/language-store';
 
 const EXAM_QUESTIONS: QuestionDTO[] = [
   {
@@ -83,6 +84,7 @@ export default function ExamRunnerPage() {
   const params = useParams();
   const chapterId = (params?.chapterId as string) || 'ch-motion';
   const activeSubject = useUserStore((s) => s.activeSubject);
+  const { tr, language } = useLanguageStore();
 
   const [questions, setQuestions] = useState<QuestionDTO[]>(EXAM_QUESTIONS);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -190,7 +192,11 @@ export default function ExamRunnerPage() {
   const formatTimer = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${toBanglaDigits(mins.toString().padStart(2, '0'))}:${toBanglaDigits(secs.toString().padStart(2, '0'))}`;
+    const minsStr = mins.toString().padStart(2, '0');
+    const secsStr = secs.toString().padStart(2, '0');
+    return language === 'bn' 
+      ? `${toBanglaDigits(minsStr)}:${toBanglaDigits(secsStr)}`
+      : `${minsStr}:${secsStr}`;
   };
 
   const currentQ = questions[currentIndex] || questions[0];
@@ -216,25 +222,32 @@ export default function ExamRunnerPage() {
 
           <div>
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              মডেল টেস্ট ফলাফল শিট
+              {tr('মডেল টেস্ট ফলাফল শিট', 'Model Test Result Sheet')}
             </span>
             <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 mt-1">
-              তোমার অর্জিত স্কোর: {toBanglaDigits(correctCount)} / {toBanglaDigits(questions.length)} ({toBanglaDigits(scorePercent)}%)
+              {tr('তোমার অর্জিত স্কোর: ', 'Your Score: ')}
+              {language === 'bn' ? toBanglaDigits(correctCount) : correctCount} / {language === 'bn' ? toBanglaDigits(questions.length) : questions.length} ({language === 'bn' ? toBanglaDigits(scorePercent) : scorePercent}%)
             </h1>
           </div>
 
           <div className="grid grid-cols-3 gap-3 max-w-md mx-auto pt-2">
             <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-xl">
-              <div className="text-xl font-bold text-emerald-700">{toBanglaDigits(correctCount)}</div>
-              <div className="text-xs text-emerald-600 font-semibold">সঠিক উত্তর</div>
+              <div className="text-xl font-bold text-emerald-700">
+                {language === 'bn' ? toBanglaDigits(correctCount) : correctCount}
+              </div>
+              <div className="text-xs text-emerald-600 font-semibold">{tr('সঠিক উত্তর', 'Correct')}</div>
             </div>
             <div className="bg-rose-50 border border-rose-200 p-3 rounded-xl">
-              <div className="text-xl font-bold text-rose-700">{toBanglaDigits(incorrectCount)}</div>
-              <div className="text-xs text-rose-600 font-semibold">ভুল উত্তর</div>
+              <div className="text-xl font-bold text-rose-700">
+                {language === 'bn' ? toBanglaDigits(incorrectCount) : incorrectCount}
+              </div>
+              <div className="text-xs text-rose-600 font-semibold">{tr('ভুল উত্তর', 'Incorrect')}</div>
             </div>
             <div className="bg-slate-100 border border-slate-200 p-3 rounded-xl">
-              <div className="text-xl font-bold text-slate-700">{toBanglaDigits(skippedCount)}</div>
-              <div className="text-xs text-slate-600 font-semibold">উত্তরবিহীন</div>
+              <div className="text-xl font-bold text-slate-700">
+                {language === 'bn' ? toBanglaDigits(skippedCount) : skippedCount}
+              </div>
+              <div className="text-xs text-slate-600 font-semibold">{tr('উত্তরবিহীন', 'Skipped')}</div>
             </div>
           </div>
 
@@ -250,13 +263,13 @@ export default function ExamRunnerPage() {
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors"
             >
               <RotateCcw className="w-4 h-4" />
-              <span>পুনরায় পরীক্ষা দাও</span>
+              <span>{tr('পুনরায় পরীক্ষা দাও', 'Retake Exam')}</span>
             </button>
             <Link
               href="/progress"
               className="inline-flex items-center gap-2 px-5 py-2 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors shadow"
             >
-              <span>অগ্রগতি ড্যাশবোর্ড দেখুন</span>
+              <span>{tr('অগ্রগতি ড্যাশবোর্ড দেখুন', 'View Progress Dashboard')}</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
@@ -264,7 +277,7 @@ export default function ExamRunnerPage() {
 
         {/* Question Review List */}
         <div className="space-y-4">
-          <h2 className="text-lg font-bold text-slate-900">প্রশ্নোত্তর ও বিশ্লেষণ পর্যালোচনা</h2>
+          <h2 className="text-lg font-bold text-slate-900">{tr('প্রশ্নোত্তর ও বিশ্লেষণ পর্যালোচনা', 'Review Questions & Analysis')}</h2>
           {questions.map((q, idx) => {
             const chosenId = answers[q.id];
             const correctOpt = q.options?.find((o) => o.isCorrect);
@@ -277,21 +290,21 @@ export default function ExamRunnerPage() {
               >
                 <div className="flex items-start justify-between gap-3">
                   <span className="font-bold text-sm text-slate-900">
-                    প্রশ্ন {toBanglaDigits(idx + 1)}.
+                    {tr('প্রশ্ন ', 'Question ')}{language === 'bn' ? toBanglaDigits(idx + 1) : idx + 1}.
                   </span>
                   {chosenId ? (
                     isRight ? (
                       <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                        <CheckCircle2 className="w-3.5 h-3.5" /> সঠিক (+১)
+                        <CheckCircle2 className="w-3.5 h-3.5" /> {tr('সঠিক (+১)', 'Correct (+1)')}
                       </span>
                     ) : (
                       <span className="inline-flex items-center gap-1 text-xs font-bold text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">
-                        <XCircle className="w-3.5 h-3.5" /> ভুল (০)
+                        <XCircle className="w-3.5 h-3.5" /> {tr('ভুল (০)', 'Incorrect (0)')}
                       </span>
                     )
                   ) : (
                     <span className="text-xs font-semibold text-slate-400 bg-slate-100 px-2.5 py-0.5 rounded-full">
-                      উত্তরবিহীন
+                      {tr('উত্তরবিহীন', 'Skipped')}
                     </span>
                   )}
                 </div>
@@ -322,7 +335,7 @@ export default function ExamRunnerPage() {
 
                 {q.explanation && (
                   <div className="bg-indigo-50/60 p-3.5 rounded-xl border border-indigo-100 text-xs text-indigo-950 space-y-1">
-                    <span className="font-bold text-indigo-800">ব্যাখ্যা:</span>
+                    <span className="font-bold text-indigo-800">{tr('ব্যাখ্যা:', 'Explanation:')}</span>
                     <LatexRenderer content={q.explanation.directAnswer || q.explanation.coreConcept} />
                   </div>
                 )}
@@ -344,7 +357,7 @@ export default function ExamRunnerPage() {
             <Clock className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-xs text-slate-500 font-medium">অবশিষ্ট সময়</div>
+            <div className="text-xs text-slate-500 font-medium">{tr('অবশিষ্ট সময়', 'Time Remaining')}</div>
             <div
               className={`text-lg font-black font-mono ${
                 timeLeft < 180 ? 'text-rose-600 animate-pulse' : 'text-slate-900'
@@ -358,7 +371,7 @@ export default function ExamRunnerPage() {
         {/* Autosave Heartbeat Indicator */}
         <div className="flex items-center gap-2 text-xs text-slate-500">
           <Save className={`w-3.5 h-3.5 ${isSaving ? 'text-indigo-600 animate-spin' : 'text-emerald-500'}`} />
-          <span className="hidden sm:inline">অটোসেভ সক্রিয়</span>
+          <span className="hidden sm:inline">{tr('অটোসেভ সক্রিয়', 'Autosave Active')}</span>
         </div>
 
         {/* Finish Exam Button */}
@@ -366,7 +379,7 @@ export default function ExamRunnerPage() {
           onClick={handleSubmitExam}
           className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs md:text-sm px-4 py-2.5 rounded-xl shadow transition-colors"
         >
-          পরীক্ষা সাবমিট করো
+          {tr('পরীক্ষা সাবমিট করো', 'Submit Exam')}
         </button>
       </div>
 
@@ -376,7 +389,7 @@ export default function ExamRunnerPage() {
           <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <span className="text-xs font-bold text-indigo-700 uppercase tracking-wider">
-                প্রশ্ন {toBanglaDigits(currentIndex + 1)} / {toBanglaDigits(questions.length)}
+                {tr('প্রশ্ন ', 'Question ')}{language === 'bn' ? toBanglaDigits(currentIndex + 1) : currentIndex + 1} / {language === 'bn' ? toBanglaDigits(questions.length) : questions.length}
               </span>
 
               <button
@@ -387,7 +400,7 @@ export default function ExamRunnerPage() {
                     : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                 }`}
               >
-                {flagged[currentQ.id] ? '★ ফ্ল্যাগ করা হয়েছে' : '☆ ফ্ল্যাগ করে রাখো'}
+                {flagged[currentQ.id] ? tr('★ ফ্ল্যাগ করা হয়েছে', '★ Flagged') : tr('☆ ফ্ল্যাগ করে রাখো', '☆ Flag for Review')}
               </button>
             </div>
 
@@ -400,7 +413,7 @@ export default function ExamRunnerPage() {
             <div className="grid grid-cols-1 gap-3">
               {currentQ?.options?.map((opt, idx) => {
                 const isChosen = answers[currentQ.id] === opt.id;
-                const letters = ['ক', 'খ', 'গ', 'ঘ'];
+                const letters = language === 'bn' ? ['ক', 'খ', 'গ', 'ঘ'] : ['A', 'B', 'C', 'D'];
                 const letter = letters[idx] || String(idx + 1);
 
                 return (
@@ -437,7 +450,7 @@ export default function ExamRunnerPage() {
               className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 disabled:opacity-40 transition-colors shadow-sm"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span>পূর্ববর্তী</span>
+              <span>{tr('পূর্ববর্তী', 'Previous')}</span>
             </button>
 
             {currentIndex < questions.length - 1 ? (
@@ -445,7 +458,7 @@ export default function ExamRunnerPage() {
                 onClick={() => setCurrentIndex((prev) => prev + 1)}
                 className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors shadow"
               >
-                <span>পরবর্তী প্রশ্ন</span>
+                <span>{tr('পরবর্তী প্রশ্ন', 'Next Question')}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             ) : (
@@ -453,7 +466,7 @@ export default function ExamRunnerPage() {
                 onClick={handleSubmitExam}
                 className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl transition-colors shadow"
               >
-                <span>পরীক্ষা সমাপ্ত করো</span>
+                <span>{tr('পরীক্ষা সমাপ্ত করো', 'Finish Exam')}</span>
               </button>
             )}
           </div>
@@ -461,7 +474,7 @@ export default function ExamRunnerPage() {
 
         {/* Question Navigator Panel (Right Sidebar) */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4 h-fit">
-          <h3 className="font-bold text-slate-900 text-sm">প্রশ্ন নেভিগেটর</h3>
+          <h3 className="font-bold text-slate-900 text-sm">{tr('প্রশ্ন নেভিগেটর', 'Question Navigator')}</h3>
 
           <div className="grid grid-cols-5 gap-2">
             {questions.map((q, idx) => {
@@ -485,7 +498,7 @@ export default function ExamRunnerPage() {
                   onClick={() => setCurrentIndex(idx)}
                   className={`w-full aspect-square rounded-xl border text-xs font-bold flex items-center justify-center transition-all ${style}`}
                 >
-                  {toBanglaDigits(idx + 1)}
+                  {language === 'bn' ? toBanglaDigits(idx + 1) : idx + 1}
                 </button>
               );
             })}
@@ -494,15 +507,15 @@ export default function ExamRunnerPage() {
           <div className="space-y-1.5 pt-2 text-xs text-slate-600 border-t border-slate-100">
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded bg-indigo-600" />
-              <span>উত্তর সম্পন্ন ({toBanglaDigits(answeredCount)})</span>
+              <span>{tr('উত্তর সম্পন্ন', 'Answered')} ({language === 'bn' ? toBanglaDigits(answeredCount) : answeredCount})</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded bg-slate-100 border border-slate-300" />
-              <span>বাকি প্রশ্ন ({toBanglaDigits(questions.length - answeredCount)})</span>
+              <span>{tr('বাকি প্রশ্ন', 'Remaining')} ({language === 'bn' ? toBanglaDigits(questions.length - answeredCount) : questions.length - answeredCount})</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="w-3 h-3 rounded bg-amber-100 border border-amber-300" />
-              <span>পর্যালোচনার জন্য ফ্ল্যাগড</span>
+              <span>{tr('পর্যালোচনার জন্য ফ্ল্যাগড', 'Flagged for Review')}</span>
             </div>
           </div>
         </div>

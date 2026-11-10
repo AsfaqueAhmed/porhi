@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { apiClient, ApiError } from '@/lib/api-client';
 import { useAdminAuthStore, type AdminPortalRole } from '@/store/admin-auth-store';
+import { useLanguageStore } from '@/store/language-store';
 import { AdminDrawer } from './layout/AdminDrawer';
 
 type MutationPermissionScope = 'ADMIN_ONLY' | 'EDITOR_OR_ADMIN';
@@ -106,6 +107,7 @@ export function CurriculumManager({
   onNavigateToLessons,
   onNavigateToModelTest,
 }: CurriculumManagerProps) {
+  const tr = useLanguageStore((s) => s.tr);
   const adminUser = useAdminAuthStore((s) => s.adminUser);
   const role = userRole ?? adminUser?.role;
   const isAdmin = role ? role === 'ADMIN' : true;
@@ -448,18 +450,21 @@ export function CurriculumManager({
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                কারিকুলাম কনফিগারেশন
+                {tr('কারিকুলাম কনফিগারেশন', 'Curriculum Configuration')}
               </span>
               <span className="text-[10px] font-bold bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full">
-                {subjects.length}টি বিষয় নথিভুক্ত
+                {subjects.length}{tr('টি বিষয় নথিভুক্ত', ' subjects listed')}
               </span>
             </div>
             <h2 className="text-base font-bold text-slate-900 mt-1 flex items-center gap-2">
               <FolderTree className="w-5 h-5 text-indigo-600" />
-              <span>কারিকুলাম বিষয় ও অধ্যায় কন্ট্রোল প্যানেল</span>
+              <span>{tr('কারিকুলাম বিষয় ও অধ্যায় কন্ট্রোল প্যানেল', 'Curriculum Subjects & Chapters Control Panel')}</span>
             </h2>
             <p className="text-xs text-slate-500 mt-0.5">
-              সকল বিষয়ের তালিকা, সিলেবাসের বছর, অধ্যায় সংখ্যা এবং শিক্ষার্থী দৃশ্যমানতা পরিচালনা করুন।
+              {tr(
+                'সকল বিষয়ের তালিকা, সিলেবাসের বছর, অধ্যায় সংখ্যা এবং শিক্ষার্থী দৃশ্যমানতা পরিচালনা করুন।',
+                'Manage all subjects, syllabus years, chapter counts, and student visibility.',
+              )}
             </p>
           </div>
 
@@ -471,7 +476,7 @@ export function CurriculumManager({
                 type="text"
                 value={subjectSearchQuery}
                 onChange={(e) => setSubjectSearchQuery(e.target.value)}
-                placeholder="বিষয় খুঁজুন..."
+                placeholder={tr('বিষয় খুঁজুন...', 'Search subject...')}
                 className="pl-8.5 pr-3 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 w-44 sm:w-56 transition-all"
               />
             </div>
@@ -484,7 +489,7 @@ export function CurriculumManager({
                 className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-xs transition-colors shrink-0"
               >
                 <Plus className="w-4 h-4" />
-                <span>নতুন বিষয় যোগ করুন</span>
+                <span>{tr('+ নতুন বিষয় যোগ করুন', '+ Add New Subject')}</span>
               </button>
             )}
           </div>
@@ -494,16 +499,16 @@ export function CurriculumManager({
         <div className="border border-slate-200/90 rounded-2xl overflow-hidden bg-white">
           {/* Table Header (Visible on Desktop) */}
           <div className="hidden md:grid md:grid-cols-12 gap-3 px-4 py-2.5 bg-slate-50 border-b border-slate-200/80 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-            <div className="col-span-4">বিষয় ও পরিচিতি</div>
-            <div className="col-span-3">শ্রেণী ও সিলেবাস বছর</div>
-            <div className="col-span-2">অধ্যায় সংখ্যা</div>
-            <div className="col-span-3 text-right">দৃশ্যমানতা ও নিয়ন্ত্রণ</div>
+            <div className="col-span-4">{tr('বিষয় ও পরিচিতি', 'Subject & Details')}</div>
+            <div className="col-span-3">{tr('শ্রেণী ও সিলেবাস বছর', 'Class & Syllabus Year')}</div>
+            <div className="col-span-2">{tr('অধ্যায় সংখ্যা', 'Chapters')}</div>
+            <div className="col-span-3 text-right">{tr('দৃশ্যমানতা ও নিয়ন্ত্রণ', 'Visibility & Control')}</div>
           </div>
 
           {/* Subjects Rows */}
           {filteredSubjects.length === 0 ? (
             <div className="p-8 text-center text-xs text-slate-400">
-              কোনো বিষয় পাওয়া যায়নি।
+              {tr('কোনো বিষয় পাওয়া যায়নি।', 'No subjects found.')}
             </div>
           ) : (
             <div className="divide-y divide-slate-100">
@@ -543,12 +548,12 @@ export function CurriculumManager({
                           {isSelected && (
                             <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full shrink-0">
                               <CheckCircle2 className="w-3 h-3 text-indigo-600" />
-                              <span>সক্রিয় বিষয়</span>
+                              <span>{tr('সক্রিয় বিষয়', 'Active Subject')}</span>
                             </span>
                           )}
                         </div>
                         <span className="text-[11px] font-mono text-slate-400 block mt-0.5 truncate">
-                          id: {sub.id} • কোড: {sub.code}
+                          id: {sub.id} • {tr('কোড:', 'Code:')} {sub.code}
                         </span>
                       </div>
                     </div>
@@ -557,21 +562,21 @@ export function CurriculumManager({
                     <div className="col-span-3 flex flex-wrap items-center gap-1.5 text-xs">
                       <span className="bg-slate-100 text-slate-700 font-semibold px-2.5 py-0.5 rounded-lg text-[11px]">
                         {sub.classLevel === 'CLASS_9_10'
-                          ? 'SSC (৯ম-১০ম)'
+                          ? tr('SSC (৯ম-১০ম)', 'SSC (Class 9-10)')
                           : sub.classLevel === 'HSC' || sub.classLevel === 'CLASS_11_12'
-                          ? 'HSC (১১দশ-১২শ)'
-                          : 'ভর্তি পরীক্ষা'}
+                          ? tr('HSC (১১দশ-১২শ)', 'HSC (Class 11-12)')
+                          : tr('ভর্তি পরীক্ষা', 'Admission')}
                       </span>
                       <span className="text-slate-500 text-[11px]">
-                        • {sub.syllabusYear} শিক্ষাবর্ষ
+                        • {sub.syllabusYear} {tr('শিক্ষাবর্ষ', 'Syllabus Year')}
                       </span>
                     </div>
 
                     {/* Chapter Count */}
                     <div className="col-span-2 flex items-center gap-1.5 text-xs text-slate-600">
                       <BookOpen className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                      <span className="font-bold text-slate-800">{chapterCountDisplay}টি</span>
-                      <span className="text-slate-500 text-[11px]">অধ্যায়</span>
+                      <span className="font-bold text-slate-800">{chapterCountDisplay}{tr('টি', '')}</span>
+                      <span className="text-slate-500 text-[11px]">{tr('অধ্যায়', 'Chapters')}</span>
                     </div>
 
                     {/* Visibility Switch & Select/View Chapters Button */}
@@ -583,7 +588,7 @@ export function CurriculumManager({
                           e.stopPropagation();
                           handleToggleReady(sub.id);
                         }}
-                        title={sub.isReady ? 'শিক্ষার্থীদের জন্য সচল' : 'খসড়া অবস্থায় সংরক্ষিত'}
+                        title={sub.isReady ? tr('শিক্ষার্থীদের জন্য সচল', 'Active for students') : tr('খসড়া অবস্থায় সংরক্ষিত', 'Saved as draft')}
                         className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-bold transition-colors border ${
                           sub.isReady
                             ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100'
@@ -593,12 +598,12 @@ export function CurriculumManager({
                         {sub.isReady ? (
                           <>
                             <ToggleRight className="w-4 h-4 text-emerald-600 shrink-0" />
-                            <span>সচল (Live)</span>
+                            <span>{tr('সচল (Live)', 'Live')}</span>
                           </>
                         ) : (
                           <>
                             <ToggleLeft className="w-4 h-4 text-amber-600 shrink-0" />
-                            <span>খসড়া (Draft)</span>
+                            <span>{tr('খসড়া (Draft)', 'Draft')}</span>
                           </>
                         )}
                       </button>
@@ -616,7 +621,7 @@ export function CurriculumManager({
                             : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:border-slate-300'
                         }`}
                       >
-                        <span>{isSelected ? 'অধ্যায় সক্রিয় ✓' : 'অধ্যায় দেখুন'}</span>
+                        <span>{isSelected ? tr('অধ্যায় সক্রিয় ✓', 'Active Chapters ✓') : tr('অধ্যায় দেখুন', 'View Chapters')}</span>
                         <ChevronRight className={`w-3.5 h-3.5 ${isSelected ? 'text-indigo-200' : 'text-slate-400'}`} />
                       </button>
                     </div>
@@ -633,11 +638,11 @@ export function CurriculumManager({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
           <div>
             <div className="text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2.5 py-0.5 rounded-full uppercase tracking-wider inline-block">
-              অধ্যায় ও পাঠ্যক্রম কাঠামো
+              {tr('অধ্যায় ও পাঠ্যক্রম কাঠামো', 'Chapters & Curriculum Structure')}
             </div>
             <h3 className="font-bold text-slate-900 text-sm mt-1 flex items-center gap-2">
               <Layers className="w-4 h-4 text-indigo-600" />
-              <span>{activeSubject?.nameBangla} বিষয়ের অধ্যায় ও টপিক কাঠামো</span>
+              <span>{activeSubject?.nameBangla} {tr('বিষয়ের অধ্যায় ও টপিক কাঠামো', 'Chapters & Topics Structure')}</span>
             </h3>
           </div>
 
@@ -648,18 +653,18 @@ export function CurriculumManager({
               className="inline-flex items-center gap-1.5 text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-xl shadow-xs transition-colors self-start sm:self-auto"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>+ এই বিষয়ে নতুন অধ্যায় যোগ করুন</span>
+              <span>{tr('+ এই বিষয়ে নতুন অধ্যায় যোগ করুন', '+ Add New Chapter')}</span>
             </button>
           )}
         </div>
 
         {loading ? (
-          <div className="p-8 text-center text-xs text-slate-400">অধ্যায়সমূহ লোড হচ্ছে...</div>
+          <div className="p-8 text-center text-xs text-slate-400">{tr('অধ্যায়সমূহ লোড হচ্ছে...', 'Loading chapters...')}</div>
         ) : chapters.length === 0 ? (
           <div className="p-10 text-center border border-dashed border-slate-300 rounded-2xl text-xs text-slate-500 space-y-3">
             <BookOpen className="w-8 h-8 text-slate-300 mx-auto" />
             <p className="font-medium">
-              &ldquo;{activeSubject?.nameBangla}&rdquo; বিষয়ে এখনও কোনো অধ্যায় যুক্ত করা হয়নি।
+              &ldquo;{activeSubject?.nameBangla}&rdquo; {tr('বিষয়ে এখনও কোনো অধ্যায় যুক্ত করা হয়নি।', 'has no chapters added yet.')}
             </p>
             {canEdit && (
               <button
@@ -668,7 +673,7 @@ export function CurriculumManager({
                 className="inline-flex items-center gap-1.5 text-xs font-bold bg-indigo-600 text-white px-4 py-2 rounded-xl"
               >
                 <Plus className="w-4 h-4" />
-                <span>প্রথম অধ্যায় তৈরি করুন</span>
+                <span>{tr('প্রথম অধ্যায় তৈরি করুন', 'Create First Chapter')}</span>
               </button>
             )}
           </div>
@@ -696,7 +701,7 @@ export function CurriculumManager({
                       <BookOpen className="w-4 h-4 text-indigo-600 shrink-0" />
                       <span className="text-sm">{chap.titleBangla}</span>
                       <span className="text-[11px] font-normal text-slate-400">
-                        ({chap.topics?.length || 0}টি সেকশন/টপিক)
+                        ({chap.topics?.length || 0}{tr('টি সেকশন/টপিক', ' topics/sections')})
                       </span>
                     </button>
 
@@ -713,10 +718,9 @@ export function CurriculumManager({
                         className="text-[11px] font-bold text-amber-700 hover:text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1 shadow-2xs"
                       >
                         <Trophy className="w-3.5 h-3.5 text-amber-600" />
-                        <span>অধ্যায় মডেল টেস্ট</span>
+                        <span>{tr('অধ্যায় মডেল টেস্ট', 'Chapter Model Test')}</span>
                       </button>
 
-                      {/* Add Topic/Section Button */}
                       {/* Add Topic/Section Button - canEdit only */}
                       {canEdit && (
                         <button
@@ -728,7 +732,7 @@ export function CurriculumManager({
                           className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 bg-white border border-indigo-200 hover:bg-indigo-50 px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1 shadow-2xs"
                         >
                           <Plus className="w-3.5 h-3.5" />
-                          <span>+ টপিক/সেকশন যোগ</span>
+                          <span>{tr('+ টপিক/সেকশন যোগ', '+ Add Topic')}</span>
                         </button>
                       )}
                     </div>
@@ -738,7 +742,7 @@ export function CurriculumManager({
                   {isExpanded && (
                     <div className="p-4 bg-white border-t border-slate-100 space-y-3">
                       <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                        অধ্যায়ের টপিক ও সেকশনসমূহ:
+                        {tr('অধ্যায়ের টপিক ও সেকশনসমূহ:', 'Chapter Topics & Sections:')}
                       </div>
 
                       {chap.topics && chap.topics.length > 0 ? (
@@ -773,7 +777,7 @@ export function CurriculumManager({
                                     className="text-[11px] font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
                                   >
                                     <HelpCircle className="w-3 h-3 text-emerald-600" />
-                                    <span>+ প্রশ্ন যোগ (MCQ/CQ)</span>
+                                    <span>{tr('+ প্রশ্ন যোগ (MCQ/CQ)', '+ Add Question (MCQ/CQ)')}</span>
                                   </button>
                                 )}
 
@@ -787,7 +791,7 @@ export function CurriculumManager({
                                   className="text-[11px] font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-300 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
                                 >
                                   <Eye className="w-3 h-3 text-slate-500" />
-                                  <span>লেসন দেখুন</span>
+                                  <span>{tr('লেসন দেখুন', 'View Lessons')}</span>
                                 </button>
 
                                 {canEdit && (
@@ -801,7 +805,7 @@ export function CurriculumManager({
                                     className="text-[11px] font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
                                   >
                                     <BookOpen className="w-3 h-3 text-indigo-600" />
-                                    <span>+ পাঠ্য লেসন যোগ</span>
+                                    <span>{tr('+ পাঠ্য লেসন যোগ', '+ Add Lesson')}</span>
                                   </button>
                                 )}
                               </div>
@@ -810,7 +814,7 @@ export function CurriculumManager({
                         </div>
                       ) : (
                         <div className="p-6 text-center border border-dashed border-slate-200 rounded-xl text-xs text-slate-400 space-y-2">
-                          <p>এই অধ্যায়ে এখনও কোনো টপিক বা সেকশন যুক্ত করা হয়নি।</p>
+                          <p>{tr('এই অধ্যায়ে এখনও কোনো টপিক বা সেকশন যুক্ত করা হয়নি।', 'No topics or sections added to this chapter yet.')}</p>
                           {canEdit && (
                             <button
                               type="button"
@@ -821,7 +825,7 @@ export function CurriculumManager({
                               className="inline-flex items-center gap-1 text-xs font-bold text-indigo-600 hover:underline"
                             >
                               <Plus className="w-3 h-3" />
-                              <span>প্রথম টপিক যুক্ত করুন</span>
+                              <span>{tr('প্রথম টপিক যুক্ত করুন', 'Add First Topic')}</span>
                             </button>
                           )}
                         </div>
@@ -839,8 +843,8 @@ export function CurriculumManager({
       <AdminDrawer
         isOpen={showAddSubject}
         onClose={() => setShowAddSubject(false)}
-        title="নতুন বিষয় যোগ করুন"
-        subtitle="সিলেবাসে নতুন বিষয় কোড ও শ্রেণি নির্ধারণ করুন"
+        title={tr('নতুন বিষয় যোগ করুন', 'Add New Subject')}
+        subtitle={tr('সিলেবাসে নতুন বিষয় কোড ও শ্রেণি নির্ধারণ করুন', 'Set new subject code and class level')}
         footer={
           <>
             <button
@@ -848,7 +852,7 @@ export function CurriculumManager({
               onClick={() => setShowAddSubject(false)}
               className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl"
             >
-              বাতিল
+              {tr('বাতিল', 'Cancel')}
             </button>
             <button
               type="button"
@@ -856,7 +860,7 @@ export function CurriculumManager({
               disabled={actionLoading}
               className="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs"
             >
-              {actionLoading ? 'সংরক্ষণ হচ্ছে...' : 'বিষয় সংরক্ষণ করো'}
+              {actionLoading ? tr('সংরক্ষণ হচ্ছে...', 'Saving...') : tr('বিষয় সংরক্ষণ করো', 'Save Subject')}
             </button>
           </>
         }
@@ -864,7 +868,7 @@ export function CurriculumManager({
         <form onSubmit={handleCreateSubject} className="space-y-4">
           <div>
             <label htmlFor="newSubNameBangla" className="block text-xs font-bold text-slate-700 mb-1">
-              বিষয়ের বাংলা নাম
+              {tr('বিষয়ের বাংলা নাম', 'Subject Bengali Name')}
             </label>
             <input
               id="newSubNameBangla"
@@ -872,14 +876,14 @@ export function CurriculumManager({
               required
               value={newSubNameBangla}
               onChange={(e) => setNewSubNameBangla(e.target.value)}
-              placeholder="যেমন: জীববিজ্ঞান, উচ্চতর গণিত"
+              placeholder={tr('যেমন: জীববিজ্ঞান, উচ্চতর গণিত', 'e.g. Biology, Higher Math')}
               className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
           <div>
             <label htmlFor="newSubCode" className="block text-xs font-bold text-slate-700 mb-1">
-              ইউনিক কোড (English Slugs)
+              {tr('ইউনিক কোড (English Slugs)', 'Unique Code (English Slug)')}
             </label>
             <input
               id="newSubCode"
@@ -887,14 +891,14 @@ export function CurriculumManager({
               required
               value={newSubCode}
               onChange={(e) => setNewSubCode(e.target.value)}
-              placeholder="যেমন: ssc_biology, ssc_higher_math"
+              placeholder={tr('যেমন: ssc_biology, ssc_higher_math', 'e.g. ssc_biology, ssc_higher_math')}
               className="w-full text-xs p-2.5 border border-slate-300 rounded-xl font-mono focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label htmlFor="newSubClassLevel" className="block text-xs font-bold text-slate-700 mb-1">শ্রেণি স্তর</label>
+              <label htmlFor="newSubClassLevel" className="block text-xs font-bold text-slate-700 mb-1">{tr('শ্রেণি স্তর', 'Class Level')}</label>
               <select
                 id="newSubClassLevel"
                 value={newSubClassLevel}
@@ -908,7 +912,7 @@ export function CurriculumManager({
             </div>
 
             <div>
-              <label htmlFor="newSubSyllabusYear" className="block text-xs font-bold text-slate-700 mb-1">সিলেবাস বছর</label>
+              <label htmlFor="newSubSyllabusYear" className="block text-xs font-bold text-slate-700 mb-1">{tr('সিলেবাস বছর', 'Syllabus Year')}</label>
               <input
                 id="newSubSyllabusYear"
                 type="number"
@@ -927,7 +931,7 @@ export function CurriculumManager({
                 onChange={(e) => setNewSubIsReady(e.target.checked)}
                 className="rounded text-indigo-600 focus:ring-indigo-500"
               />
-              <span>শিক্ষার্থীদের জন্য এখনই সচল করুন (Live Ready)</span>
+              <span>{tr('শিক্ষার্থীদের জন্য এখনই সচল করুন (Live Ready)', 'Make live for students now (Live Ready)')}</span>
             </label>
           </div>
         </form>
@@ -937,8 +941,11 @@ export function CurriculumManager({
       <AdminDrawer
         isOpen={showAddChapter}
         onClose={() => setShowAddChapter(false)}
-        title="নতুন অধ্যায় যোগ করুন"
-        subtitle={`"${activeSubject?.nameBangla}" বিষয়ের অধীনে নতুন অধ্যায় তৈরি করুন`}
+        title={tr('নতুন অধ্যায় যোগ করুন', 'Add New Chapter')}
+        subtitle={tr(
+          `"${activeSubject?.nameBangla}" বিষয়ের অধীনে নতুন অধ্যায় তৈরি করুন`,
+          `Create a new chapter under "${activeSubject?.nameBangla}"`,
+        )}
         footer={
           <>
             <button
@@ -946,7 +953,7 @@ export function CurriculumManager({
               onClick={() => setShowAddChapter(false)}
               className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg"
             >
-              বাতিল
+              {tr('বাতিল', 'Cancel')}
             </button>
             <button
               type="button"
@@ -954,7 +961,7 @@ export function CurriculumManager({
               disabled={actionLoading}
               className="px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow"
             >
-              {actionLoading ? 'যোগ হচ্ছে...' : 'অধ্যায় সংরক্ষণ করো'}
+              {actionLoading ? tr('যোগ হচ্ছে...', 'Adding...') : tr('অধ্যায় সংরক্ষণ করো', 'Save Chapter')}
             </button>
           </>
         }
@@ -962,7 +969,7 @@ export function CurriculumManager({
         <form onSubmit={handleCreateChapter} className="space-y-4">
           <div>
             <label htmlFor="newChapterTitle" className="block text-xs font-bold text-slate-700 mb-1">
-              অধ্যায়ের নাম ও নম্বর (বাংলায়)
+              {tr('অধ্যায়ের নাম ও নম্বর (বাংলায়)', 'Chapter Name & Number')}
             </label>
             <input
               id="newChapterTitle"
@@ -970,7 +977,7 @@ export function CurriculumManager({
               required
               value={newChapterTitle}
               onChange={(e) => setNewChapterTitle(e.target.value)}
-              placeholder="যেমন: ৩য় অধ্যায়: বল (Force)"
+              placeholder={tr('যেমন: ৩য় অধ্যায়: বল (Force)', 'e.g. Chapter 3: Force')}
               className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500"
             />
           </div>
@@ -981,8 +988,8 @@ export function CurriculumManager({
       <AdminDrawer
         isOpen={showAddTopic}
         onClose={() => setShowAddTopic(false)}
-        title="নতুন টপিক বা সেকশন যোগ করুন"
-        subtitle="অধ্যায়ের অধীনে নতুন পাঠ্য টপিক যুক্ত করুন"
+        title={tr('নতুন টপিক বা সেকশন যোগ করুন', 'Add New Topic / Section')}
+        subtitle={tr('অধ্যায়ের অধীনে নতুন পাঠ্য টপিক যুক্ত করুন', 'Add a new topic under this chapter')}
         footer={
           <>
             <button
@@ -990,7 +997,7 @@ export function CurriculumManager({
               onClick={() => setShowAddTopic(false)}
               className="px-3.5 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg"
             >
-              বাতিল
+              {tr('বাতিল', 'Cancel')}
             </button>
             <button
               type="button"
@@ -998,7 +1005,7 @@ export function CurriculumManager({
               disabled={actionLoading}
               className="px-4 py-1.5 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg shadow"
             >
-              {actionLoading ? 'যোগ হচ্ছে...' : 'টপিক সংরক্ষণ করো'}
+              {actionLoading ? tr('যোগ হচ্ছে...', 'Adding...') : tr('টপিক সংরক্ষণ করো', 'Save Topic')}
             </button>
           </>
         }
@@ -1006,7 +1013,7 @@ export function CurriculumManager({
         <form onSubmit={handleCreateTopic} className="space-y-4">
           <div>
             <label htmlFor="newTopicTitle" className="block text-xs font-bold text-slate-700 mb-1">
-              টপিক/সেকশনের নাম (বাংলায়)
+              {tr('টপিক/সেকশনের নাম (বাংলায়)', 'Topic / Section Name')}
             </label>
             <input
               id="newTopicTitle"
@@ -1014,7 +1021,7 @@ export function CurriculumManager({
               required
               value={newTopicTitle}
               onChange={(e) => setNewTopicTitle(e.target.value)}
-              placeholder="যেমন: নিউটনের ১ম গতিসূত্র ও জড়তা"
+              placeholder={tr('যেমন: নিউটনের ১ম গতিসূত্র ও জড়তা', "e.g. Newton's 1st Law & Inertia")}
               className="w-full text-xs p-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500"
             />
           </div>

@@ -1,9 +1,23 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
 import { useLanguageStore } from '../src/store/language-store';
 import { LanguageToggle } from '../src/components/navigation/LanguageToggle';
 import { t, formatDigits } from '../src/lib/i18n/translations';
+import { getContentStatusBadge } from '../src/components/admin/content-status-badge';
+import { ContentStatus } from '@pori/shared';
+import { LessonBankManager } from '../src/components/admin/lessons/LessonBankManager';
+import { ModelTestManager } from '../src/components/admin/model-test-manager';
+
+vi.mock('@/lib/api-client', () => ({
+  apiClient: {
+    get: vi.fn().mockResolvedValue([]),
+    post: vi.fn().mockResolvedValue({}),
+    put: vi.fn().mockResolvedValue({}),
+    delete: vi.fn().mockResolvedValue({}),
+  },
+  ApiError: class extends Error {},
+}));
 
 describe('Language Store & i18n Translations', () => {
   beforeEach(() => {
@@ -62,5 +76,38 @@ describe('Language Store & i18n Translations', () => {
     // Click Bangla button
     fireEvent.click(bnBtn);
     expect(useLanguageStore.getState().language).toBe('bn');
+  });
+
+  it('localizes status badges accurately in bn and en', () => {
+    const pubBn = getContentStatusBadge(ContentStatus.PUBLISHED, 'bn');
+    const pubEn = getContentStatusBadge(ContentStatus.PUBLISHED, 'en');
+    expect(pubBn.label).toContain('প্রকাশিত');
+    expect(pubEn.label).toBe('Published');
+
+    const revBn = getContentStatusBadge(ContentStatus.REVIEW, 'bn');
+    const revEn = getContentStatusBadge(ContentStatus.REVIEW, 'en');
+    expect(revBn.label).toContain('রিভিউ');
+    expect(revEn.label).toBe('In Review');
+  });
+
+  it('renders LessonBankManager in English when language is en', () => {
+    useLanguageStore.setState({ language: 'en' });
+    render(<LessonBankManager />);
+
+    expect(screen.getByText('Lesson Bank & Directory')).toBeDefined();
+    expect(screen.getByPlaceholderText('Search by lesson title or goal...')).toBeDefined();
+    expect(screen.getByText('Reset Filters')).toBeDefined();
+  });
+
+  it('renders ModelTestManager in English when language is en', () => {
+    useLanguageStore.setState({ language: 'en' });
+    render(<ModelTestManager />);
+
+    expect(
+      screen.getByText('Chapter & Subject-wise Model Test Configuration')
+    ).toBeDefined();
+    expect(
+      screen.getByRole('button', { name: /\+ Create Model Test/i })
+    ).toBeDefined();
   });
 });

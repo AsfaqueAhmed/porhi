@@ -22,6 +22,7 @@ import { apiClient } from '@/lib/api-client';
 import { formatAdminApiError } from '@/lib/admin-api-errors';
 import { useAdminAuthStore, type AdminPortalRole } from '@/store/admin-auth-store';
 import { LatexRenderer } from '@/components/math/latex-renderer';
+import { useLanguageStore } from '@/store/language-store';
 import { getContentStatusBadge } from './content-status-badge';
 import { QuestionDetailDrawer } from './questions/QuestionDetailDrawer';
 
@@ -70,6 +71,9 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
   const role = userRole ?? storeRole;
   const canEdit = role === 'ADMIN' || role === 'EDITOR';
   const isAdmin = role === 'ADMIN';
+
+  const language = useLanguageStore((s) => s.language);
+  const tr = useLanguageStore((s) => s.tr);
 
   const [subjects, setSubjects] = useState<SubjectSummary[]>([]);
   const [chapters, setChapters] = useState<ChapterSummary[]>([]);
@@ -303,27 +307,30 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
             <FileQuestion className="w-5 h-5 text-indigo-600" />
             <span>
               {fixedType === 'MCQ'
-                ? 'MCQ প্রশ্ন ব্যাংক'
+                ? tr('MCQ প্রশ্ন ব্যাংক', 'MCQ Question Bank')
                 : fixedType === 'CQ_CREATIVE'
-                  ? 'সৃজনশীল (CQ) প্রশ্ন ব্যাংক'
-                  : 'প্রশ্ন ব্যাংক ও তালিকা'}
+                  ? tr('সৃজনশীল (CQ) প্রশ্ন ব্যাংক', 'Creative (CQ) Question Bank')
+                  : tr('প্রশ্ন ব্যাংক ও তালিকা', 'Question Bank & Directory')}
             </span>
             {fixedType && (
               <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
                 {fixedType === 'MCQ'
-                  ? 'শুধুমাত্র MCQ প্রশ্ন'
-                  : 'শুধুমাত্র সৃজনশীল (CQ) প্রশ্ন'}
+                  ? tr('শুধুমাত্র MCQ প্রশ্ন', 'MCQ Questions Only')
+                  : tr('শুধুমাত্র সৃজনশীল (CQ) প্রশ্ন', 'CQ Questions Only')}
               </span>
             )}
           </h1>
           <p className="text-xs text-slate-500">
-            বিদ্যমান MCQ ও সৃজনশীল (CQ) প্রশ্ন খুঁজুন, ফিল্টার করুন, হালনাগাদ করুন অথবা অবস্থা পরিচালনা করুন।
+            {tr(
+              'বিদ্যমান MCQ ও সৃজনশীল (CQ) প্রশ্ন খুঁজুন, ফিল্টার করুন, হালনাগাদ করুন অথবা অবস্থা পরিচালনা করুন।',
+              'Search, filter, update, and manage the lifecycle of existing MCQ and Creative (CQ) questions.',
+            )}
           </p>
 
           {/* Status Summary Pills */}
           <div className="flex flex-wrap items-center gap-2 pt-2">
             <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-              সর্বমোট: {statusCounts.ALL}
+              {tr('সর্বমোট', 'Total')}: {statusCounts.ALL}
             </span>
             <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
               Published: {statusCounts.PUBLISHED}
@@ -352,7 +359,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-xs transition-colors"
             >
               <Plus className="w-4 h-4" />
-              <span>+ নতুন প্রশ্ন যোগ করুন</span>
+              <span>{tr('+ নতুন প্রশ্ন যোগ করুন', '+ Add New Question')}</span>
             </Link>
           )}
         </div>
@@ -379,7 +386,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
             <Filter className="w-4 h-4 text-indigo-600" />
-            <span>ফিল্টার ও অনুসন্ধান</span>
+            <span>{tr('ফিল্টার ও অনুসন্ধান', 'Filters & Search')}</span>
           </div>
           <button
             type="button"
@@ -387,7 +394,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
             className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-600 hover:text-indigo-700 px-2.5 py-1 rounded-lg hover:bg-slate-100 transition-colors"
           >
             <RotateCcw className="w-3 h-3" />
-            <span>ফিল্টার রিসেট</span>
+            <span>{tr('ফিল্টার রিসেট', 'Reset Filters')}</span>
           </button>
         </div>
 
@@ -408,7 +415,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
             }}
             className="text-xs font-medium p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:border-indigo-500"
           >
-            <option value="">সব বিষয়</option>
+            <option value="">{tr('সব বিষয়', 'All Subjects')}</option>
             {subjects.map((sub) => (
               <option key={sub.id} value={sub.id}>
                 {sub.nameBangla}
@@ -428,7 +435,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
             }}
             className="text-xs font-medium p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:border-indigo-500 disabled:opacity-50"
           >
-            <option value="">সব অধ্যায়</option>
+            <option value="">{tr('সব অধ্যায়', 'All Chapters')}</option>
             {chapters.map((ch) => (
               <option key={ch.id} value={ch.id}>
                 {ch.titleBangla}
@@ -447,7 +454,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
             }}
             className="text-xs font-medium p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:border-indigo-500 disabled:opacity-50"
           >
-            <option value="">সব টপিক</option>
+            <option value="">{tr('সব টপিক', 'All Topics')}</option>
             {availableTopics.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.titleBangla}
@@ -466,9 +473,9 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
               }}
               className="text-xs font-medium p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:border-indigo-500"
             >
-              <option value="">সব ধরন</option>
+              <option value="">{tr('সব ধরন', 'All Types')}</option>
               <option value="MCQ">MCQ</option>
-              <option value="CQ_CREATIVE">সৃজনশীল (CQ)</option>
+              <option value="CQ_CREATIVE">{tr('সৃজনশীল (CQ)', 'Creative (CQ)')}</option>
             </select>
           )}
 
@@ -482,7 +489,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
             }}
             className="text-xs font-medium p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:border-indigo-500"
           >
-            <option value="">সক্রিয় সব</option>
+            <option value="">{tr('সক্রিয় সব', 'Active (All)')}</option>
             <option value="PUBLISHED">Published</option>
             <option value="REVIEW">Review</option>
             <option value="DRAFT">Draft</option>
@@ -500,7 +507,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
                 setSuccessMessage(null);
                 setSearchInput(e.target.value);
               }}
-              placeholder="প্রশ্ন বা বোর্ডের উৎস খুঁজুন..."
+              placeholder={tr('প্রশ্ন বা বোর্ডের উৎস খুঁজুন...', 'Search by question stem or board source...')}
               className="w-full text-xs pl-8 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:border-indigo-500"
             />
           </div>
@@ -518,7 +525,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
         ) : items.length === 0 ? (
           <div className="p-10 text-center space-y-3">
             <p className="text-xs font-semibold text-slate-500">
-              নির্বাচিত ফিল্টারে কোনো প্রশ্ন পাওয়া যায়নি।
+              {tr('নির্বাচিত ফিল্টারে কোনো প্রশ্ন পাওয়া যায়নি।', 'No questions found matching the selected filters.')}
             </p>
             {canEdit && (
               <Link
@@ -526,7 +533,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>নতুন প্রশ্ন যোগ করুন</span>
+                <span>{tr('নতুন প্রশ্ন যোগ করুন', 'Add New Question')}</span>
               </Link>
             )}
           </div>
@@ -535,16 +542,16 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                  <th className="px-4 py-3">প্রশ্ন ও উৎস</th>
-                  <th className="px-4 py-3">অবস্থান</th>
-                  <th className="px-4 py-3">ধরন ও মান</th>
-                  <th className="px-4 py-3">অবস্থা ও ভার্সন</th>
-                  <th className="px-4 py-3 text-right">কার্যক্রম</th>
+                  <th className="px-4 py-3">{tr('প্রশ্ন ও উৎস', 'Question & Source')}</th>
+                  <th className="px-4 py-3">{tr('অবস্থান', 'Hierarchy')}</th>
+                  <th className="px-4 py-3">{tr('ধরন ও মান', 'Type & Difficulty')}</th>
+                  <th className="px-4 py-3">{tr('অবস্থা ও ভার্সন', 'Status & Version')}</th>
+                  <th className="px-4 py-3 text-right">{tr('কার্যক্রম', 'Actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs">
                 {items.map((q) => {
-                  const statusMeta = getContentStatusBadge(q.status);
+                  const statusMeta = getContentStatusBadge(q.status, language);
                   const showEdit = canEdit && q.status !== 'ARCHIVED';
                   const showArchive =
                     canEdit &&
@@ -571,7 +578,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
 
                       <td className="px-4 py-3.5 text-[11px] text-slate-600">
                         <div className="font-semibold text-slate-800">
-                          {q.topic?.chapter?.subject?.nameBangla || 'অজানা বিষয়'}
+                          {q.topic?.chapter?.subject?.nameBangla || tr('অজানা বিষয়', 'Unknown Subject')}
                         </div>
                         <div className="text-slate-500">
                           {q.topic?.chapter?.titleBangla || ''} &gt; {q.topic?.titleBangla || ''}
@@ -587,7 +594,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
                                 : 'bg-sky-50 text-sky-700 border-sky-200'
                             }`}
                           >
-                            {q.type === 'CQ_CREATIVE' ? 'সৃজনশীল (CQ)' : 'MCQ'}
+                            {q.type === 'CQ_CREATIVE' ? tr('সৃজনশীল (CQ)', 'Creative (CQ)') : 'MCQ'}
                           </span>
                           <span className="text-[10px] font-mono font-bold text-slate-500">
                             {q.difficulty}
@@ -615,7 +622,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-colors"
                           >
                             <Eye className="w-3 h-3" />
-                            <span>বিস্তারিত দেখুন</span>
+                            <span>{tr('বিস্তারিত দেখুন', 'Details')}</span>
                           </button>
                           {showEdit && (
                             <Link
@@ -623,7 +630,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors"
                             >
                               <Pencil className="w-3 h-3" />
-                              <span>সম্পাদনা</span>
+                              <span>{tr('সম্পাদনা', 'Edit')}</span>
                             </Link>
                           )}
                           {showArchive && (
@@ -633,7 +640,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors"
                             >
                               <Archive className="w-3 h-3" />
-                              <span>আর্কাইভ</span>
+                              <span>{tr('আর্কাইভ', 'Archive')}</span>
                             </button>
                           )}
                         </div>
@@ -649,7 +656,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
         {/* Pagination */}
         <div className="px-4 py-3 border-t border-slate-200 bg-slate-50/70 flex items-center justify-between text-xs text-slate-600">
           <span>
-            মোট {total}টি প্রশ্ন • পাতা {page} / {totalPages}
+            {tr('মোট', 'Total')} {total}{tr('টি প্রশ্ন • পাতা', ' questions • Page')} {page} / {totalPages}
           </span>
           <div className="flex items-center gap-2">
             <button
@@ -661,7 +668,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
               }}
               className="px-3 py-1 rounded-lg border border-slate-300 bg-white font-semibold disabled:opacity-50 hover:bg-slate-100"
             >
-              আগের পাতা
+              {tr('আগের পাতা', 'Previous')}
             </button>
             <button
               type="button"
@@ -672,7 +679,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
               }}
               className="px-3 py-1 rounded-lg border border-slate-300 bg-white font-semibold disabled:opacity-50 hover:bg-slate-100"
             >
-              পরের পাতা
+              {tr('পরের পাতা', 'Next')}
             </button>
           </div>
         </div>
@@ -698,10 +705,13 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
         >
           <div className="bg-white rounded-2xl border border-slate-200 max-w-md w-full p-6 space-y-4 shadow-2xl">
             <h2 id="archive-dialog-title" className="text-sm font-bold text-slate-900">
-              প্রশ্ন আর্কাইভ নিশ্চিতকরণ
+              {tr('প্রশ্ন আর্কাইভ নিশ্চিতকরণ', 'Confirm Question Archive')}
             </h2>
             <p className="text-xs text-slate-600 leading-relaxed">
-              প্রশ্নটি আর্কাইভ করলে শিক্ষার্থীদের জন্য আর প্রদর্শিত হবে না, তবে পূর্ববর্তী পরীক্ষার ইতিহাস ও ভুল সংশোধনী রেকর্ড অক্ষুণ্ণ থাকবে।
+              {tr(
+                'প্রশ্নটি আর্কাইভ করলে শিক্ষার্থীদের জন্য আর প্রদর্শিত হবে না, তবে পূর্ববর্তী পরীক্ষার ইতিহাস ও ভুল সংশোধনী রেকর্ড অক্ষুণ্ণ থাকবে।',
+                'Archiving this question will hide it from students while preserving exam analytics and revision history.',
+              )}
             </p>
             <div className="flex justify-end gap-2 pt-2">
               <button
@@ -710,7 +720,7 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
                 onClick={() => setConfirmArchiveItem(null)}
                 className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 disabled:opacity-50"
               >
-                বাতিল
+                {tr('বাতিল', 'Cancel')}
               </button>
               <button
                 type="button"
@@ -718,7 +728,9 @@ export function QuestionBankManager({ userRole, fixedType }: QuestionBankManager
                 onClick={handleConfirmArchive}
                 className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-50"
               >
-                {isArchiving ? 'আর্কাইভ হচ্ছে...' : 'আর্কাইভ নিশ্চিত করুন'}
+                {isArchiving
+                  ? tr('আর্কাইভ হচ্ছে...', 'Archiving...')
+                  : tr('আর্কাইভ নিশ্চিত করুন', 'Confirm Archive')}
               </button>
             </div>
           </div>

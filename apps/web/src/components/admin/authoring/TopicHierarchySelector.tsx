@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { BookOpen } from 'lucide-react';
+import { useLanguageStore } from '@/store/language-store';
 import type { ChapterOption, SubjectOption } from './authoring-helpers';
 
 export interface TopicHierarchySelectorProps {
@@ -28,6 +29,8 @@ export function TopicHierarchySelector({
   onChapterChange,
   onTopicChange,
 }: TopicHierarchySelectorProps) {
+  const tr = useLanguageStore((s) => s.tr);
+
   return (
     <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
@@ -37,17 +40,20 @@ export function TopicHierarchySelector({
           </div>
           <div>
             <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-              কারিকুলাম টপিক নির্বাচন
+              {tr('কারিকুলাম টপিক নির্বাচন', 'Curriculum Topic Selection')}
             </h3>
             <p className="text-[11px] text-slate-500">
-              বিষয়, অধ্যায় ও নির্দিষ্ট টপিক নির্বাচন করে কন্টেন্ট ট্যাগিং নিশ্চিত করুন।
+              {tr(
+                'বিষয়, অধ্যায় ও নির্দিষ্ট টপিক নির্বাচন করে কন্টেন্ট ট্যাগিং নিশ্চিত করুন।',
+                'Select subject, chapter, and topic to tag your educational content accurately.',
+              )}
             </p>
           </div>
         </div>
 
         {selectedTopicId && (
           <div className="text-[11px] text-slate-600 bg-slate-50 border border-slate-200/80 px-2.5 py-1 rounded-lg font-mono self-start sm:self-auto">
-            টপিক আইডি: <span className="font-bold text-indigo-700">{selectedTopicId}</span>
+            {tr('টপিক আইডি:', 'Topic ID:')} <span className="font-bold text-indigo-700">{selectedTopicId}</span>
           </div>
         )}
       </div>
@@ -61,7 +67,7 @@ export function TopicHierarchySelector({
             className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-            <span>১. বিষয় (Subject)</span>
+            <span>{tr('১. বিষয় (Subject)', '1. Subject')}</span>
           </label>
           <select
             id="authoring-subject-select"
@@ -93,7 +99,7 @@ export function TopicHierarchySelector({
             className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-            <span>২. অধ্যায় (Chapter)</span>
+            <span>{tr('২. অধ্যায় (Chapter)', '2. Chapter')}</span>
           </label>
           <select
             id="authoring-chapter-select"
@@ -102,11 +108,11 @@ export function TopicHierarchySelector({
             className="w-full text-xs font-medium p-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl transition-all outline-none"
           >
             {chapters.length === 0 ? (
-              <option value="">অধ্যায় পাওয়া যায়নি...</option>
+              <option value="">{tr('অধ্যায় পাওয়া যায়নি...', 'No chapters found...')}</option>
             ) : (
               chapters.map((chap) => (
                 <option key={chap.id} value={chap.id}>
-                  {chap.titleBangla} ({chap.topics?.length || 0}টি টপিক)
+                  {chap.titleBangla} ({chap.topics?.length || 0} {tr('টি টপিক', 'topics')})
                 </option>
               ))
             )}
@@ -120,7 +126,7 @@ export function TopicHierarchySelector({
             className="block text-xs font-semibold text-slate-700 mb-1.5 flex items-center gap-1.5"
           >
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-            <span>৩. নির্দিষ্ট টপিক (Topic)</span>
+            <span>{tr('৩. নির্দিষ্ট টপিক (Topic)', '3. Topic')}</span>
           </label>
           <select
             id="authoring-topic-select"
@@ -129,7 +135,7 @@ export function TopicHierarchySelector({
             className="w-full text-xs font-medium p-2.5 bg-slate-50 hover:bg-white focus:bg-white border border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 rounded-xl transition-all outline-none"
           >
             {availableTopics.length === 0 ? (
-              <option value="">(এই অধ্যায়ে কোনো টপিক নেই)</option>
+              <option value="">{tr('(এই অধ্যায়ে কোনো টপিক নেই)', '(No topics in this chapter)')}</option>
             ) : (
               availableTopics.map((t) => (
                 <option key={t.id} value={t.id}>

@@ -18,6 +18,7 @@ import { apiClient } from '@/lib/api-client';
 import { QuestionDTO, QuestionType, ContentStatus } from '@pori/shared';
 import { toBanglaDigits } from '@/lib/formatters';
 import { useUserStore } from '@/store/user-store';
+import { useLanguageStore } from '@/store/language-store';
 
 const SAMPLE_QUESTIONS: QuestionDTO[] = [
   {
@@ -101,6 +102,7 @@ export default function PracticeRunnerPage() {
   const params = useParams();
   const chapterId = (params?.chapterId as string) || 'ch-motion';
   const activeSubject = useUserStore((s) => s.activeSubject);
+  const { tr, language } = useLanguageStore();
 
   const [questions, setQuestions] = useState<QuestionDTO[]>(SAMPLE_QUESTIONS);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -184,20 +186,21 @@ export default function PracticeRunnerPage() {
       <div className="flex items-center justify-between border-b border-slate-200 pb-4">
         <div>
           <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider">
-            MCQ অনুশীলন
+            {tr('MCQ অনুশীলন', 'MCQ Practice')}
           </span>
           <h1 className="text-xl font-bold text-slate-900">
-            প্রশ্ন {toBanglaDigits(currentIndex + 1)} / {toBanglaDigits(questions.length)}
+            {tr('প্রশ্ন ', 'Question ')}
+            {language === 'bn' ? toBanglaDigits(currentIndex + 1) : currentIndex + 1} / {language === 'bn' ? toBanglaDigits(questions.length) : questions.length}
           </h1>
         </div>
 
         {/* Score indicator */}
         <div className="flex items-center gap-3 text-xs font-semibold">
           <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200">
-            সঠিক: {toBanglaDigits(correctCount)}
+            {tr('সঠিক: ', 'Correct: ')}{language === 'bn' ? toBanglaDigits(correctCount) : correctCount}
           </span>
           <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full">
-            সম্পন্ন: {toBanglaDigits(answeredCount)}/{toBanglaDigits(questions.length)}
+            {tr('সম্পন্ন: ', 'Completed: ')}{language === 'bn' ? toBanglaDigits(answeredCount) : answeredCount}/{language === 'bn' ? toBanglaDigits(questions.length) : questions.length}
           </span>
         </div>
       </div>
@@ -213,7 +216,7 @@ export default function PracticeRunnerPage() {
         <div className="grid grid-cols-1 gap-3">
           {currentQ?.options?.map((opt, idx) => {
             const isChosen = selectedOptionId === opt.id;
-            const letters = ['ক', 'খ', 'গ', 'ঘ'];
+            const letters = language === 'bn' ? ['ক', 'খ', 'গ', 'ঘ'] : ['A', 'B', 'C', 'D'];
             const letter = letters[idx] || String(idx + 1);
 
             let btnStyle = 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50';
@@ -260,7 +263,7 @@ export default function PracticeRunnerPage() {
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-0.5">
           <div className="bg-slate-900 text-white p-4 font-bold text-sm flex items-center gap-2">
             <Zap className="w-4 h-4 text-amber-400" />
-            <span>৬-স্তরের তাৎক্ষণিক ব্যাখ্যা ও বিশ্লেষণ</span>
+            <span>{tr('৬-স্তরের তাৎক্ষণিক ব্যাখ্যা ও বিশ্লেষণ', '6-Layer Instant Explanation & Breakdown')}</span>
           </div>
 
           {/* Layer 1: Direct Answer */}
@@ -269,7 +272,7 @@ export default function PracticeRunnerPage() {
               onClick={() => toggleLayer('direct')}
               className="w-full p-4 flex items-center justify-between text-left font-bold text-sm text-slate-900 bg-slate-50/50 hover:bg-slate-50"
             >
-              <span>১. সরাসরি উত্তর (Direct Answer)</span>
+              <span>{tr('১. সরাসরি উত্তর (Direct Answer)', '1. Direct Answer')}</span>
               {openLayers.direct ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
             </button>
             {openLayers.direct && (
@@ -285,7 +288,7 @@ export default function PracticeRunnerPage() {
               onClick={() => toggleLayer('concept')}
               className="w-full p-4 flex items-center justify-between text-left font-bold text-sm text-slate-900 bg-slate-50/50 hover:bg-slate-50"
             >
-              <span>২. মূল তত্ত্ব ও কনসেপ্ট (Core Concept)</span>
+              <span>{tr('২. মূল তত্ত্ব ও কনসেপ্ট (Core Concept)', '2. Core Concept & Theory')}</span>
               {openLayers.concept ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
             </button>
             {openLayers.concept && (
@@ -302,7 +305,7 @@ export default function PracticeRunnerPage() {
                 onClick={() => toggleLayer('derivation')}
                 className="w-full p-4 flex items-center justify-between text-left font-bold text-sm text-slate-900 bg-slate-50/50 hover:bg-slate-50"
               >
-                <span>৩. ধাপে ধাপে গাণিতিক প্রতিপাদন (Step Derivation)</span>
+                <span>{tr('৩. ধাপে ধাপে গাণিতিক প্রতিপাদন (Step Derivation)', '3. Step-by-Step Derivation')}</span>
                 {openLayers.derivation ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
               </button>
               {openLayers.derivation && (
@@ -320,14 +323,14 @@ export default function PracticeRunnerPage() {
                 onClick={() => toggleLayer('distractors')}
                 className="w-full p-4 flex items-center justify-between text-left font-bold text-sm text-slate-900 bg-slate-50/50 hover:bg-slate-50"
               >
-                <span>৪. ভুল অপশনগুলোর বিশ্লেষণ (Distractor Analysis)</span>
+                <span>{tr('৪. ভুল অপশনগুলোর বিশ্লেষণ (Distractor Analysis)', '4. Distractor Analysis')}</span>
                 {openLayers.distractors ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
               </button>
               {openLayers.distractors && (
                 <div className="p-4 pt-1 space-y-2 text-xs text-slate-600">
                   {Object.entries(currentQ.explanation.distractorAnalysis).map(([optKey, desc]) => (
                     <div key={optKey} className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                      <span className="font-bold text-rose-600 mr-1.5">অপশন {optKey}:</span>
+                      <span className="font-bold text-rose-600 mr-1.5">{tr('অপশন ', 'Option ')}{optKey}:</span>
                       <span>{desc}</span>
                     </div>
                   ))}
@@ -343,7 +346,7 @@ export default function PracticeRunnerPage() {
                 onClick={() => toggleLayer('citation')}
                 className="w-full p-4 flex items-center justify-between text-left font-bold text-sm text-slate-900 bg-slate-50/50 hover:bg-slate-50"
               >
-                <span>৫. পাঠ্যবই রেফারেন্স (NCTB Textbook Citation)</span>
+                <span>{tr('৫. পাঠ্যবই রেফারেন্স (NCTB Textbook Citation)', '5. NCTB Textbook Citation')}</span>
                 {openLayers.citation ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
               </button>
               {openLayers.citation && (
@@ -353,7 +356,7 @@ export default function PracticeRunnerPage() {
                     {currentQ.explanation.textbookCitation.bookTitle} •{' '}
                     {currentQ.explanation.textbookCitation.chapterName}
                     {currentQ.explanation.textbookCitation.pageNumber &&
-                      ` (পৃষ্ঠা ${toBanglaDigits(currentQ.explanation.textbookCitation.pageNumber)})`}
+                      ` (${tr('পৃষ্ঠা ', 'Page ')}${language === 'bn' ? toBanglaDigits(currentQ.explanation.textbookCitation.pageNumber) : currentQ.explanation.textbookCitation.pageNumber})`}
                   </span>
                 </div>
               )}
@@ -367,7 +370,7 @@ export default function PracticeRunnerPage() {
                 onClick={() => toggleLayer('protip')}
                 className="w-full p-4 flex items-center justify-between text-left font-bold text-sm text-amber-900 bg-amber-50/50 hover:bg-amber-50"
               >
-                <span>৬. প্রো-টিপ ও শর্টকাট (Pro Tip & Shortcut)</span>
+                <span>{tr('৬. প্রো-টিপ ও শর্টকাট (Pro Tip & Shortcut)', '6. Pro Tip & Shortcut')}</span>
                 {openLayers.protip ? <ChevronUp className="w-4 h-4 text-amber-600" /> : <ChevronDown className="w-4 h-4 text-amber-600" />}
               </button>
               {openLayers.protip && (
@@ -388,7 +391,7 @@ export default function PracticeRunnerPage() {
           className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 disabled:opacity-40 transition-colors shadow-sm"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>পূর্ববর্তী প্রশ্ন</span>
+          <span>{tr('পূর্ববর্তী প্রশ্ন', 'Previous Question')}</span>
         </button>
 
         {currentIndex < questions.length - 1 ? (
@@ -396,7 +399,7 @@ export default function PracticeRunnerPage() {
             onClick={() => setCurrentIndex((prev) => prev + 1)}
             className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors shadow"
           >
-            <span>পরবর্তী প্রশ্ন</span>
+            <span>{tr('পরবর্তী প্রশ্ন', 'Next Question')}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         ) : (
@@ -404,7 +407,7 @@ export default function PracticeRunnerPage() {
             href={`/curriculum/${activeSubject?.id || 'sub-ssc-phy'}`}
             className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors shadow"
           >
-            <span>অনুশীলন সম্পন্ন</span>
+            <span>{tr('অনুশীলন সম্পন্ন', 'Finish Practice')}</span>
             <CheckCircle2 className="w-4 h-4" />
           </Link>
         )}

@@ -16,6 +16,7 @@ import { RichContentRenderer } from '@/components/content/rich-content-renderer'
 import { InteractiveSimulationRunner } from '@/components/content/interactive-simulation-runner';
 import { apiClient } from '@/lib/api-client';
 import { LessonDTO, ContentStatus } from '@pori/shared';
+import { useLanguageStore } from '@/store/language-store';
 
 const SAMPLE_LESSON: LessonDTO = {
   id: 'lesson-motion-equations',
@@ -85,6 +86,7 @@ $$s = ut + \\frac{1}{2}at^2 = (0 \\times 10) + \\frac{1}{2} \\times 2 \\times (1
 export default function LessonPage() {
   const params = useParams();
   const topicId = (params?.topicId as string) || 'topic-motion-3';
+  const { tr } = useLanguageStore();
   const [lesson, setLesson] = useState<LessonDTO>(SAMPLE_LESSON);
 
   useEffect(() => {
@@ -107,7 +109,7 @@ export default function LessonPage() {
       <div className="space-y-3">
         <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full">
           <BookOpen className="w-3.5 h-3.5" />
-          <span>অধ্যায়ভিত্তিক বিস্তারিত পাঠ</span>
+          <span>{tr('অধ্যায়ভিত্তিক বিস্তারিত পাঠ', 'Chapter Detailed Lesson')}</span>
         </div>
         <h1 className="text-2xl md:text-4xl font-extrabold text-slate-900 leading-tight">
           {lesson.titleBangla}
@@ -118,7 +120,7 @@ export default function LessonPage() {
       <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-5 space-y-2">
         <div className="flex items-center gap-2 text-emerald-800 font-bold text-sm">
           <Target className="w-5 h-5 text-emerald-600" />
-          <span>পাঠের শিখনফল</span>
+          <span>{tr('পাঠের শিখনফল', 'Learning Goals')}</span>
         </div>
         <div className="text-sm text-emerald-900 leading-relaxed pl-7">
           <LatexRenderer content={lesson.learningGoal} />
@@ -136,7 +138,7 @@ export default function LessonPage() {
       {/* Main Explanation with RichContentRenderer */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
         <h2 className="text-xl font-bold text-slate-900 border-b border-slate-100 pb-3">
-          মূল বিষয়বস্তু ও গাণিতিক প্রতিপাদন
+          {tr('মূল বিষয়বস্তু ও গাণিতিক প্রতিপাদন', 'Core Concept & Mathematical Derivation')}
         </h2>
         <div className="text-slate-800 leading-relaxed text-base space-y-4">
           <RichContentRenderer content={lesson.explanation} />
@@ -148,7 +150,7 @@ export default function LessonPage() {
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
           <div className="flex items-center gap-2 text-slate-900 font-bold text-lg border-b border-slate-100 pb-3">
             <Bookmark className="w-5 h-5 text-indigo-600" />
-            <span>জরুরি পারিভাষিক শব্দ ও সংজ্ঞাসমূহ</span>
+            <span>{tr('জরুরি পারিভাষিক শব্দ ও সংজ্ঞাসমূহ', 'Essential Terminology & Definitions')}</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -175,12 +177,12 @@ export default function LessonPage() {
         <div className="bg-slate-900 text-white rounded-2xl shadow-md p-6 space-y-4">
           <div className="flex items-center gap-2 text-amber-400 font-bold text-base">
             <Calculator className="w-5 h-5" />
-            <span>বাস্তব উদাহরণ ও ধাপে ধাপে সমাধান</span>
+            <span>{tr('বাস্তব উদাহরণ ও ধাপে ধাপে সমাধান', 'Worked Example & Step-by-Step Solution')}</span>
           </div>
 
           <div className="bg-slate-800/80 rounded-xl p-4 border border-slate-700 space-y-2">
             <span className="text-xs font-bold text-amber-300 uppercase tracking-wider">
-              সমস্যা:
+              {tr('সমস্যা:', 'Problem:')}
             </span>
             <div className="text-sm font-medium text-slate-100">
               <LatexRenderer content={lesson.workedExample.problem} />
@@ -189,7 +191,7 @@ export default function LessonPage() {
 
           <div className="bg-slate-800/40 rounded-xl p-4 border border-slate-700/60 space-y-2">
             <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">
-              ধাপে ধাপে সমাধান:
+              {tr('ধাপে ধাপে সমাধান:', 'Step-by-Step Solution:')}
             </span>
             <div className="text-sm text-slate-200">
               <LatexRenderer content={lesson.workedExample.stepByStepSolution} />
@@ -203,7 +205,7 @@ export default function LessonPage() {
         <div className="bg-amber-50/80 border border-amber-300 rounded-2xl p-5 flex items-start gap-3">
           <Lightbulb className="w-6 h-6 text-amber-600 shrink-0 mt-0.5" />
           <div className="space-y-1">
-            <h3 className="font-bold text-amber-900 text-sm">মনে রাখার টিপস ও ট্রিকস</h3>
+            <h3 className="font-bold text-amber-900 text-sm">{tr('মনে রাখার টিপস ও ট্রিকস', 'Memory Aids & Shortcuts')}</h3>
             <div className="text-xs text-amber-900 leading-relaxed">
               <LatexRenderer content={lesson.memoryAid} />
             </div>
@@ -217,13 +219,13 @@ export default function LessonPage() {
           href="/curriculum/sub-ssc-phy"
           className="text-sm font-semibold text-slate-600 hover:text-slate-900"
         >
-          ← অধ্যায় সূচিতে ফেরত যান
+          {tr('← অধ্যায় সূচিতে ফেরত যান', '← Back to Chapter Index')}
         </Link>
         <Link
           href="/practice/ch-motion"
           className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm px-6 py-3 rounded-xl shadow transition-colors"
         >
-          <span>এবার MCQ অনুশীলন শুরু করো</span>
+          <span>{tr('এবার MCQ অনুশীলন শুরু করো', 'Start MCQ Practice Now')}</span>
           <ArrowRight className="w-4 h-4" />
         </Link>
       </div>

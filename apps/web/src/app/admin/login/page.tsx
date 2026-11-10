@@ -21,10 +21,12 @@ import {
   useAdminAuthStore,
   type AdminUserProfile,
 } from '@/store/admin-auth-store';
+import { useLanguageStore } from '@/store/language-store';
 
 function AdminLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { tr } = useLanguageStore();
 
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
@@ -38,7 +40,7 @@ function AdminLoginForm() {
 
     const trimmedPhone = phoneNumber.trim();
     if (!trimmedPhone || !password) {
-      setErrorMessage('অনুগ্রহ করে মোবাইল নম্বর এবং পাসওয়ার্ড দিন।');
+      setErrorMessage(tr('অনুগ্রহ করে মোবাইল নম্বর এবং পাসওয়ার্ড দিন।', 'Please enter mobile number and password.'));
       return;
     }
 
@@ -54,7 +56,7 @@ function AdminLoginForm() {
       );
 
       if (!response?.accessToken || !isAllowedAdminRole(response?.user?.role)) {
-        setErrorMessage('এই অ্যাকাউন্টটির অ্যাডমিন প্যানেলে প্রবেশের অনুমতি নেই।');
+        setErrorMessage(tr('এই অ্যাকাউন্টটির অ্যাডমিন প্যানেলে প্রবেশের অনুমতি নেই।', 'This account is not authorized to access the admin panel.'));
         return;
       }
 
@@ -65,17 +67,20 @@ function AdminLoginForm() {
       if (error instanceof ApiError) {
         if (error.status === 400) {
           setErrorMessage(
-            'সঠিক ১১ সংখ্যার মোবাইল নম্বর (01XXXXXXXXX) এবং কমপক্ষে ৬ অক্ষরের পাসওয়ার্ড দিন।',
+            tr(
+              'সঠিক ১১ সংখ্যার মোবাইল নম্বর (01XXXXXXXXX) এবং কমপক্ষে ৬ অক্ষরের পাসওয়ার্ড দিন।',
+              'Please provide a valid 11-digit phone number (01XXXXXXXXX) and at least 6-character password.'
+            )
           );
         } else if (error.status === 401) {
-          setErrorMessage('ভুল মোবাইল নম্বর অথবা পাসওয়ার্ড। অনুগ্রহ করে আবার চেষ্টা করুন।');
+          setErrorMessage(tr('ভুল মোবাইল নম্বর অথবা পাসওয়ার্ড। অনুগ্রহ করে আবার চেষ্টা করুন।', 'Incorrect mobile number or password. Please try again.'));
         } else if (error.status === 403) {
-          setErrorMessage('এই অ্যাকাউন্টটির অ্যাডমিন প্যানেলে প্রবেশের অনুমতি নেই।');
+          setErrorMessage(tr('এই অ্যাকাউন্টটির অ্যাডমিন প্যানেলে প্রবেশের অনুমতি নেই।', 'This account is not authorized to access the admin panel.'));
         } else {
-          setErrorMessage('লগইন সম্পন্ন করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।');
+          setErrorMessage(tr('লগইন সম্পন্ন করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।', 'Login failed. Please try again.'));
         }
       } else {
-        setErrorMessage('এপিআই সার্ভারের সাথে সংযোগ স্থাপন করা যায়নি।');
+        setErrorMessage(tr('এপিআই সার্ভারের সাথে সংযোগ স্থাপন করা যায়নি।', 'Unable to connect to the API server.'));
       }
     } finally {
       setIsSubmitting(false);
@@ -100,15 +105,15 @@ function AdminLoginForm() {
               </div>
               <p className="text-[11px] text-slate-500 mt-0.5 flex items-center justify-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                <span>এডটেক কন্ট্রোল স্যুট</span>
+                <span>{tr('এডটেক কন্ট্রোল স্যুট', 'Edtech Control Suite')}</span>
               </p>
             </div>
           </div>
 
           <div className="border-t border-slate-100 pt-5 space-y-1 text-center">
-            <h1 className="text-xl font-extrabold text-slate-900">অ্যাডমিন ও স্টাফ লগইন</h1>
+            <h1 className="text-xl font-extrabold text-slate-900">{tr('অ্যাডমিন ও স্টাফ লগইন', 'Admin & Staff Login')}</h1>
             <p className="text-xs text-slate-500">
-              শুধুমাত্র অনুমোদিত অ্যাডমিন, এডিটর ও রিভিউয়ারদের প্রবেশের জন্য
+              {tr('শুধুমাত্র অনুমোদিত অ্যাডমিন, এডিটর ও রিভিউয়ারদের প্রবেশের জন্য', 'Authorized Admins, Editors, and Reviewers only')}
             </p>
           </div>
 
@@ -128,7 +133,7 @@ function AdminLoginForm() {
                 htmlFor="admin-phone"
                 className="block text-xs font-bold text-slate-700"
               >
-                মোবাইল নম্বর
+                {tr('মোবাইল নম্বর', 'Mobile Number')}
               </label>
               <div className="relative">
                 <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -136,7 +141,7 @@ function AdminLoginForm() {
                   id="admin-phone"
                   name="phoneNumber"
                   type="tel"
-                  aria-label="মোবাইল নম্বর"
+                  aria-label={tr('মোবাইল নম্বর', 'Mobile Number')}
                   autoComplete="tel"
                   placeholder="017XXXXXXXX"
                   value={phoneNumber}
@@ -152,7 +157,7 @@ function AdminLoginForm() {
                 htmlFor="admin-password"
                 className="block text-xs font-bold text-slate-700"
               >
-                পাসওয়ার্ড
+                {tr('পাসওয়ার্ড', 'Password')}
               </label>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -160,7 +165,7 @@ function AdminLoginForm() {
                   id="admin-password"
                   name="password"
                   type={showPassword ? 'text' : 'password'}
-                  aria-label="পাসওয়ার্ড"
+                  aria-label={tr('পাসওয়ার্ড', 'Password')}
                   autoComplete="current-password"
                   placeholder="••••••••"
                   value={password}
@@ -171,7 +176,7 @@ function AdminLoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((prev) => !prev)}
-                  aria-label={showPassword ? 'অক্ষর লুকান' : 'অক্ষর দেখান'}
+                  aria-label={showPassword ? tr('অক্ষর লুকান', 'Hide password') : tr('অক্ষর দেখান', 'Show password')}
                   disabled={isSubmitting}
                   className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors disabled:opacity-60"
                 >
@@ -192,12 +197,12 @@ function AdminLoginForm() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>যাচাই করা হচ্ছে...</span>
+                  <span>{tr('যাচাই করা হচ্ছে...', 'Verifying...')}</span>
                 </>
               ) : (
                 <>
                   <ShieldCheck className="w-4 h-4" />
-                  <span>লগইন করুন</span>
+                  <span>{tr('লগইন করুন', 'Sign In')}</span>
                 </>
               )}
             </button>
@@ -209,7 +214,7 @@ function AdminLoginForm() {
               className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-indigo-600 transition-colors"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
-              <span>মূল প্ল্যাটফর্মে ফিরে যান</span>
+              <span>{tr('মূল প্ল্যাটফর্মে ফিরে যান', 'Back to Main Platform')}</span>
             </Link>
           </div>
         </div>
@@ -219,13 +224,14 @@ function AdminLoginForm() {
 }
 
 export default function AdminLoginPage() {
+  const { tr } = useLanguageStore();
   return (
     <Suspense
       fallback={
         <div className="min-h-screen bg-slate-50 text-slate-800 antialiased flex items-center justify-center p-4">
           <div className="bg-white border border-slate-200 rounded-2xl px-6 py-5 shadow-sm flex items-center gap-3">
             <Loader2 className="w-5 h-5 text-indigo-600 animate-spin" />
-            <span className="text-sm font-semibold text-slate-700">লোড হচ্ছে...</span>
+            <span className="text-sm font-semibold text-slate-700">{tr('লোড হচ্ছে...', 'Loading...')}</span>
           </div>
         </div>
       }

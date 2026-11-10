@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { Archive, BookOpen, Calculator, Lightbulb, Pencil, Tag } from 'lucide-react';
 import type { AdminLessonItem, LessonTermItem } from '@pori/shared';
+import { useLanguageStore } from '@/store/language-store';
 import { AdminDrawer } from '../layout/AdminDrawer';
 import { LatexRenderer } from '@/components/math/latex-renderer';
 import { RichContentRenderer } from '@/components/content/rich-content-renderer';
@@ -29,11 +30,14 @@ export function LessonDetailDrawer({
   isAdmin,
   onRequestArchive,
 }: LessonDetailDrawerProps) {
+  const language = useLanguageStore((s) => s.language);
+  const tr = useLanguageStore((s) => s.tr);
+
   if (!isOpen || !lesson) {
     return null;
   }
 
-  const statusMeta = getContentStatusBadge(lesson.status);
+  const statusMeta = getContentStatusBadge(lesson.status, language);
   const showEdit = canEdit && lesson.status !== 'ARCHIVED';
   const showArchive =
     canEdit &&
@@ -41,7 +45,7 @@ export function LessonDetailDrawer({
     (lesson.status !== 'PUBLISHED' || isAdmin);
 
   const hierarchyLabel = [
-    lesson.topic?.chapter?.subject?.nameBangla || 'অজানা বিষয়',
+    lesson.topic?.chapter?.subject?.nameBangla || tr('অজানা বিষয়', 'Unknown Subject'),
     lesson.topic?.chapter?.titleBangla,
     lesson.topic?.titleBangla,
   ]
@@ -76,7 +80,7 @@ export function LessonDetailDrawer({
       onClose={onClose}
       closeOnEscape={closeOnEscape}
       widthClass="max-w-xl"
-      title="লেসনের বিস্তারিত (Lesson Details)"
+      title={tr('লেসনের বিস্তারিত', 'Lesson Details')}
       subtitle={hierarchyLabel}
       footer={
         <div className="w-full flex flex-wrap items-center justify-end gap-2.5">
@@ -86,7 +90,7 @@ export function LessonDetailDrawer({
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors"
             >
               <Pencil className="w-3.5 h-3.5" />
-              <span>সম্পাদনা করুন</span>
+              <span>{tr('সম্পাদনা করুন', 'Edit Lesson')}</span>
             </Link>
           )}
           {showArchive && (
@@ -96,7 +100,7 @@ export function LessonDetailDrawer({
               className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors"
             >
               <Archive className="w-3.5 h-3.5" />
-              <span>আর্কাইভ করুন</span>
+              <span>{tr('আর্কাইভ করুন', 'Archive Lesson')}</span>
             </button>
           )}
           <button
@@ -104,7 +108,7 @@ export function LessonDetailDrawer({
             onClick={onClose}
             className="px-4 py-2 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-slate-100 border border-slate-300 transition-colors"
           >
-            বন্ধ করুন
+            {tr('বন্ধ করুন', 'Close')}
           </button>
         </div>
       }
@@ -131,7 +135,7 @@ export function LessonDetailDrawer({
       <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3">
         <div>
           <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            পাঠের শিরোনাম
+            {tr('পাঠের শিরোনাম', 'Lesson Title')}
           </h3>
           <div className="text-sm font-bold text-slate-900 mt-1 leading-relaxed">
             <LatexRenderer content={lesson.titleBangla} />
@@ -140,7 +144,7 @@ export function LessonDetailDrawer({
 
         <div className="bg-indigo-50/60 border border-indigo-200 rounded-xl p-3 space-y-1">
           <div className="text-[11px] font-bold text-indigo-900">
-            শিখনফল (Learning Goal)
+            {tr('শিখনফল', 'Learning Goal')}
           </div>
           <div className="text-xs text-slate-800 leading-relaxed">
             <LatexRenderer content={lesson.learningGoal} />
@@ -160,7 +164,7 @@ export function LessonDetailDrawer({
       <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-2">
         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">
           <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
-          <span>মূল ব্যাখ্যা ও কনটেন্ট</span>
+          <span>{tr('মূল ব্যাখ্যা ও কনটেন্ট', 'Core Content & Explanation')}</span>
         </div>
         <div className="text-xs text-slate-800 leading-relaxed">
           <RichContentRenderer content={lesson.explanation} />
@@ -173,10 +177,10 @@ export function LessonDetailDrawer({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">
               <Tag className="w-3.5 h-3.5 text-indigo-600" />
-              <span>গুরুত্বপূর্ণ পরিভাষা (Terminology)</span>
+              <span>{tr('গুরুত্বপূর্ণ পরিভাষা', 'Key Terminology')}</span>
             </div>
             <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-              {validTerms.length}টি
+              {validTerms.length}{tr('টি', ' terms')}
             </span>
           </div>
           <ul className="space-y-2">
@@ -211,17 +215,16 @@ export function LessonDetailDrawer({
         </div>
       )}
 
-      {/* Worked Example */}
       {hasWorkedExample && (
         <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3 text-xs">
           <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">
             <Calculator className="w-3.5 h-3.5 text-purple-600" />
-            <span>গাণিতিক উদাহরণ (Worked Example)</span>
+            <span>{tr('গাণিতিক উদাহরণ', 'Worked Example')}</span>
           </div>
 
           {workedProblem && (
             <div className="bg-purple-50/60 border border-purple-200 rounded-xl p-3 space-y-1">
-              <div className="text-[11px] font-bold text-purple-900">গাণিতিক সমস্যা</div>
+              <div className="text-[11px] font-bold text-purple-900">{tr('গাণিতিক সমস্যা', 'Problem Statement')}</div>
               <div className="text-slate-800 leading-relaxed">
                 <LatexRenderer content={workedProblem} />
               </div>
@@ -230,7 +233,7 @@ export function LessonDetailDrawer({
 
           {workedSolution && (
             <div className="bg-emerald-50/60 border border-emerald-200 rounded-xl p-3 space-y-1">
-              <div className="text-[11px] font-bold text-emerald-900">ধাপওয়ারী সমাধান</div>
+              <div className="text-[11px] font-bold text-emerald-900">{tr('ধাপওয়ারী সমাধান', 'Step-by-Step Solution')}</div>
               <div className="text-slate-800 leading-relaxed">
                 <LatexRenderer content={workedSolution} />
               </div>
@@ -246,7 +249,7 @@ export function LessonDetailDrawer({
             <Lightbulb className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <div className="space-y-0.5">
               <div className="text-[11px] font-bold text-amber-900">
-                মনে রাখার টেকনিক / ছন্দ (Memory Aid)
+                {tr('মনে রাখার টেকনিক / ছন্দ', 'Memory Aid / Mnemonic')}
               </div>
               <div className="text-slate-800">
                 <LatexRenderer content={memoryAid} />
@@ -256,8 +259,8 @@ export function LessonDetailDrawer({
         )}
 
         <div className="pt-2 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-500">
-          <span>তৈরি: {formatAdminDateTime(lesson.createdAt)}</span>
-          <span>সর্বশেষ হালনাগাদ: {formatAdminDateTime(lesson.updatedAt)}</span>
+          <span>{tr('তৈরি:', 'Created:')} {formatAdminDateTime(lesson.createdAt, language)}</span>
+          <span>{tr('সর্বশেষ হালনাগাদ:', 'Last Updated:')} {formatAdminDateTime(lesson.updatedAt, language)}</span>
         </div>
       </div>
     </AdminDrawer>

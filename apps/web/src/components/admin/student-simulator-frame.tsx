@@ -14,6 +14,7 @@ import {
   Battery,
 } from 'lucide-react';
 import type { CQRubric } from '@pori/shared';
+import { useLanguageStore } from '@/store/language-store';
 import { LatexRenderer } from '../math/latex-renderer';
 
 export interface SimulatorOption {
@@ -36,13 +37,6 @@ export interface StudentSimulatorFrameProps {
   proTip?: string;
 }
 
-const CQ_PART_LABELS = [
-  { key: 'ka', label: 'ক (জ্ঞানমূলক)' },
-  { key: 'kha', label: 'খ (অনুধাবনমূলক)' },
-  { key: 'ga', label: 'গ (প্রয়োগমূলক)' },
-  { key: 'gha', label: 'ঘ (উচ্চতর দক্ষতা)' },
-] as const;
-
 export function StudentSimulatorFrame({
   questionType = 'MCQ',
   stem,
@@ -56,6 +50,16 @@ export function StudentSimulatorFrame({
   citationPage,
   proTip,
 }: StudentSimulatorFrameProps) {
+  const language = useLanguageStore((s) => s.language);
+  const tr = useLanguageStore((s) => s.tr);
+
+  const cqPartLabels = [
+    { key: 'ka' as const, label: tr('ক (জ্ঞানমূলক)', 'A (Knowledge)') },
+    { key: 'kha' as const, label: tr('খ (অনুধাবনমূলক)', 'B (Comprehension)') },
+    { key: 'ga' as const, label: tr('গ (প্রয়োগমূলক)', 'C (Application)') },
+    { key: 'gha' as const, label: tr('ঘ (উচ্চতর দক্ষতা)', 'D (Higher Order)') },
+  ];
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showExplanation, setShowExplanation] = useState<boolean>(false);
 
@@ -87,16 +91,16 @@ export function StudentSimulatorFrame({
       <div className="w-full flex items-center justify-between pb-3 border-b border-slate-800 text-xs">
         <div className="flex items-center gap-2 text-indigo-400 font-bold">
           <Smartphone className="w-4 h-4" />
-          <span>লাইভ স্টুডেন্ট সিমুলেটর</span>
+          <span>{tr('লাইভ স্টুডেন্ট সিমুলেটর', 'Live Student Simulator')}</span>
         </div>
         <button
           type="button"
           onClick={handleReset}
           className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400 hover:text-white transition-colors bg-slate-800 px-2 py-0.5 rounded-lg"
-          title="সিমুলেটর রিসেট করুন"
+          title={tr('সিমুলেটর রিসেট করুন', 'Reset Simulator')}
         >
           <RotateCcw className="w-3 h-3" />
-          <span>রিসেট</span>
+          <span>{tr('রিসেট', 'Reset')}</span>
         </button>
       </div>
 
@@ -123,9 +127,9 @@ export function StudentSimulatorFrame({
             {/* Subject/Topic Badge in App */}
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2.5 py-0.5 rounded-full border border-indigo-100">
-                {isCQ ? 'অনুশীলন প্রশ্ন • সৃজনশীল (CQ)' : 'অনুশীলন প্রশ্ন • MCQ'}
+                {isCQ ? tr('অনুশীলন প্রশ্ন • সৃজনশীল (CQ)', 'Practice • Creative (CQ)') : tr('অনুশীলন প্রশ্ন • MCQ', 'Practice • MCQ')}
               </span>
-              <span className="text-[10px] font-semibold text-slate-400">১/১</span>
+              <span className="text-[10px] font-semibold text-slate-400">1/1</span>
             </div>
 
             {/* Question Stem */}
@@ -134,7 +138,10 @@ export function StudentSimulatorFrame({
                 <LatexRenderer content={stem} />
               ) : (
                 <span className="text-slate-400 italic">
-                  বামের এডিটরে প্রশ্ন লিখলে এখানে রিয়েল-টাইমে প্রদর্শিত হবে...
+                  {tr(
+                    'বামের এডিটরে প্রশ্ন লিখলে এখানে রিয়েল-টাইমে প্রদর্শিত হবে...',
+                    'Write question in the editor to preview it here in real-time...',
+                  )}
                 </span>
               )}
             </div>
@@ -147,13 +154,13 @@ export function StudentSimulatorFrame({
                   onClick={() => setShowExplanation((prev) => !prev)}
                   className="w-full py-2.5 px-3 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold transition-colors"
                 >
-                  {showExplanation ? 'সমাধান ও রুব্রিক লুকান' : 'সমাধান ও রুব্রিক দেখুন'}
+                  {showExplanation ? tr('সমাধান ও রুব্রিক লুকান', 'Hide Solution & Rubric') : tr('সমাধান ও রুব্রিক দেখুন', 'View Solution & Rubric')}
                 </button>
               </div>
             ) : (
               <div className="space-y-2">
                 {options.map((opt, idx) => {
-                  const label = ['ক', 'খ', 'গ', 'ঘ'][idx] || String(idx + 1);
+                  const label = language === 'bn' ? (['ক', 'খ', 'গ', 'ঘ'][idx] || String(idx + 1)) : (['A', 'B', 'C', 'D'][idx] || String(idx + 1));
                   const isSelected = selectedId === opt.id;
 
                   let cardStyle =
@@ -184,7 +191,7 @@ export function StudentSimulatorFrame({
                           {opt.text ? (
                             <LatexRenderer content={opt.text} />
                           ) : (
-                            <span className="text-slate-300 italic">বিকল্প খালি</span>
+                            <span className="text-slate-300 italic">{tr('বিকল্প খালি', 'Empty Option')}</span>
                           )}
                         </div>
                       </div>
@@ -217,12 +224,12 @@ export function StudentSimulatorFrame({
                   {isCorrect ? (
                     <>
                       <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      <span>সঠিক উত্তর! দারুণ হয়েছে।</span>
+                      <span>{tr('সঠিক উত্তর! দারুণ হয়েছে।', 'Correct Answer! Well done.')}</span>
                     </>
                   ) : (
                     <>
                       <XCircle className="w-4 h-4 text-rose-600" />
-                      <span>ভুল উত্তর! সঠিক ব্যাখ্যাটি নিচে দেখুন।</span>
+                      <span>{tr('ভুল উত্তর! সঠিক ব্যাখ্যাটি নিচে দেখুন।', 'Incorrect! See the explanation below.')}</span>
                     </>
                   )}
                 </div>
@@ -235,14 +242,14 @@ export function StudentSimulatorFrame({
                 <div className="flex items-center justify-between text-[11px] font-bold text-slate-700">
                   <span className="flex items-center gap-1">
                     <HelpCircle className="w-3.5 h-3.5 text-indigo-600" />
-                    {isCQ ? 'মূল্যায়ন রুব্রিক ও ৬-লেয়ার সমাধান:' : '৬-লেয়ার কনসেপ্ট সমাধান:'}
+                    {isCQ ? tr('মূল্যায়ন রুব্রিক ও ৬-লেয়ার সমাধান:', 'Evaluation Rubric & 6-Layer Solution:') : tr('৬-লেয়ার কনসেপ্ট সমাধান:', '6-Layer Concept Explanation:')}
                   </span>
                   <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
                 </div>
 
                 {isCQ && cqRubric && (
                   <div className="space-y-1.5">
-                    {CQ_PART_LABELS.map(({ key, label }) => {
+                    {cqPartLabels.map(({ key, label }) => {
                       const part = cqRubric[key];
                       if (!part || !part.criteria?.trim()) {
                         return null;
@@ -254,7 +261,7 @@ export function StudentSimulatorFrame({
                         >
                           <div className="flex items-center justify-between text-[10px] font-bold text-slate-800">
                             <span>{label}</span>
-                            <span className="font-mono text-indigo-700">নম্বর: {part.mark}</span>
+                            <span className="font-mono text-indigo-700">{tr('নম্বর:', 'Marks:')} {part.mark}</span>
                           </div>
                           <LatexRenderer content={part.criteria} />
                         </div>
@@ -266,7 +273,7 @@ export function StudentSimulatorFrame({
                 {coreConcept && (
                   <div className="bg-indigo-50/70 p-2.5 rounded-xl border border-indigo-100 text-[11px] text-slate-700 space-y-1">
                     <span className="font-bold text-indigo-900 block text-[10px]">
-                      ১. কোর সঠিক ব্যাখ্যা:
+                      {tr('১. কোর সঠিক ব্যাখ্যা:', '1. Core Concept Explanation:')}
                     </span>
                     <LatexRenderer content={coreConcept} />
                   </div>
@@ -275,7 +282,7 @@ export function StudentSimulatorFrame({
                 {formulaSteps && (
                   <div className="bg-purple-50/70 p-2.5 rounded-xl border border-purple-100 text-[11px] text-slate-700 space-y-1">
                     <span className="font-bold text-purple-900 block text-[10px]">
-                      ২. গাণিতিক সূত্র ও ধাপ:
+                      {tr('২. গাণিতিক সূত্র ও ধাপ:', '2. Mathematical Formula & Steps:')}
                     </span>
                     <LatexRenderer content={formulaSteps} />
                   </div>
@@ -284,10 +291,10 @@ export function StudentSimulatorFrame({
                 {!isCQ && hasDistractorNotes && (
                   <div className="bg-amber-50/70 p-2.5 rounded-xl border border-amber-100 text-[11px] text-slate-700 space-y-1">
                     <span className="font-bold text-amber-900 block text-[10px]">
-                      ৩. ভুল অপশন কেন ভুল (Distractor Analysis):
+                      {tr('৩. ভুল অপশন কেন ভুল (Distractor Analysis):', '3. Why other options are incorrect (Distractor Analysis):')}
                     </span>
                     <p className="text-[10px] text-slate-600">
-                      ভুল উত্তরগুলো শিক্ষার্থীদের সাধারণ ধারণাগত ভুল চিহ্নিত করে।
+                      {tr('ভুল উত্তরগুলো শিক্ষার্থীদের সাধারণ ধারণাগত ভুল চিহ্নিত করে।', 'Distractors identify common conceptual misconceptions.')}
                     </p>
                   </div>
                 )}
@@ -296,9 +303,9 @@ export function StudentSimulatorFrame({
                   <div className="bg-slate-100 p-2.5 rounded-xl text-[10px] text-slate-600 flex items-center gap-2">
                     <BookOpen className="w-3.5 h-3.5 text-slate-500 shrink-0" />
                     <span>
-                      <strong>NCTB রেফারেন্স:</strong> {citationBook}{' '}
+                      <strong>{tr('NCTB রেফারেন্স:', 'NCTB Reference:')}</strong> {citationBook}{' '}
                       {citationChapter ? `• ${citationChapter}` : ''}{' '}
-                      {citationPage ? `• পৃষ্ঠা: ${citationPage}` : ''}
+                      {citationPage ? `• ${tr('পৃষ্ঠা:', 'Page:')} ${citationPage}` : ''}
                     </span>
                   </div>
                 )}
@@ -307,7 +314,7 @@ export function StudentSimulatorFrame({
                   <div className="bg-emerald-50 p-2.5 rounded-xl text-[10px] text-emerald-800 flex items-center gap-2 border border-emerald-200">
                     <Sparkles className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                     <span>
-                      <strong>শর্টকাট প্রো-টিপ:</strong> {proTip}
+                      <strong>{tr('শর্টকাট প্রো-টিপ:', 'Shortcut Pro-Tip:')}</strong> {proTip}
                     </span>
                   </div>
                 )}

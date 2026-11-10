@@ -16,6 +16,7 @@ import {
 import { LatexRenderer } from '@/components/math/latex-renderer';
 import { apiClient, ApiError } from '@/lib/api-client';
 import { ContentStatus } from '@pori/shared';
+import { useLanguageStore } from '@/store/language-store';
 
 interface ReviewAuditItem {
   id: string;
@@ -84,6 +85,7 @@ const DEFAULT_REVIEW_ITEMS: ContentItem[] = [
 ];
 
 export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsoleProps) {
+  const { tr, language } = useLanguageStore();
   const activeContentList = contentList && contentList.length > 0 ? contentList : DEFAULT_REVIEW_ITEMS;
   const [activeTab, setActiveTab] = useState<ContentStatus | 'ALL'>('ALL');
   const [typeFilter, setTypeFilter] = useState<'ALL' | 'LESSON' | 'QUESTION'>('ALL');
@@ -233,7 +235,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="কন্টেন্ট বা আইডি দিয়ে খুঁজুন..."
+            placeholder={tr('কন্টেন্ট বা আইডি দিয়ে খুঁজুন...', 'Search by content or ID...')}
             className="w-full text-xs pl-9 pr-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
           />
         </div>
@@ -241,11 +243,11 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
         {/* Status Filter Tabs */}
         <div className="flex flex-wrap gap-1.5 w-full md:w-auto">
           {[
-            { label: 'সকল', value: 'ALL' },
-            { label: 'খসড়া (Draft)', value: ContentStatus.DRAFT },
-            { label: 'অপেক্ষমাণ (Review)', value: ContentStatus.REVIEW },
-            { label: 'সংশোধন (Correction)', value: ContentStatus.CORRECTION },
-            { label: 'প্রকাশিত (Published)', value: ContentStatus.PUBLISHED },
+            { label: tr('সকল', 'All'), value: 'ALL' },
+            { label: tr('খসড়া (Draft)', 'Draft'), value: ContentStatus.DRAFT },
+            { label: tr('অপেক্ষমাণ (Review)', 'Under Review'), value: ContentStatus.REVIEW },
+            { label: tr('সংশোধন (Correction)', 'Correction'), value: ContentStatus.CORRECTION },
+            { label: tr('প্রকাশিত (Published)', 'Published'), value: ContentStatus.PUBLISHED },
           ].map((tab) => (
             <button
               key={tab.value}
@@ -270,7 +272,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
               typeFilter === 'ALL' ? 'bg-white text-indigo-700 shadow-2xs' : 'text-slate-600'
             }`}
           >
-            সব
+            {tr('সব', 'All')}
           </button>
           <button
             type="button"
@@ -288,7 +290,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
               typeFilter === 'LESSON' ? 'bg-white text-indigo-700 shadow-2xs' : 'text-slate-600'
             }`}
           >
-            পাঠ
+            {tr('পাঠ', 'Lessons')}
           </button>
         </div>
       </div>
@@ -297,8 +299,8 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
         {/* Left Side: Pending Items List */}
         <div className="space-y-3">
           <div className="flex items-center justify-between text-xs font-bold text-slate-700 px-1">
-            <span>রিভিউ তালিকা</span>
-            <span className="text-slate-400">({filteredContent.length}টি কন্টেন্ট)</span>
+            <span>{tr('রিভিউ তালিকা', 'Review Queue')}</span>
+            <span className="text-slate-400">({filteredContent.length} {tr('টি কন্টেন্ট', ' items')})</span>
           </div>
 
           <div className="space-y-2 max-h-[680px] overflow-y-auto pr-1">
@@ -338,7 +340,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
 
             {filteredContent.length === 0 && (
               <div className="p-8 text-center border border-dashed border-slate-300 rounded-xl text-xs text-slate-400">
-                কোনো কন্টেন্ট পাওয়া যায়নি।
+                {tr('কোনো কন্টেন্ট পাওয়া যায়নি।', 'No content found.')}
               </div>
             )}
           </div>
@@ -353,7 +355,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
                 <div>
                   <h3 className="font-bold text-slate-900 text-sm">{selectedItem.titleBangla}</h3>
                   <div className="text-[11px] text-slate-400 mt-0.5">
-                    আইডি: <span className="font-mono">{selectedItem.id}</span> • সংস্করণ: v{selectedItem.version}
+                    {tr('আইডি: ', 'ID: ')}<span className="font-mono">{selectedItem.id}</span> • {tr('সংস্করণ: v', 'Version: v')}{selectedItem.version}
                   </div>
                 </div>
 
@@ -367,7 +369,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
                         : 'text-slate-600'
                     }`}
                   >
-                    শিক্ষার্থী সিমুলেটর
+                    {tr('শিক্ষার্থী সিমুলেটর', 'Student Simulator')}
                   </button>
                   <button
                     type="button"
@@ -378,7 +380,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
                         : 'text-slate-600'
                     }`}
                   >
-                    র ডাটা ভিউ
+                    {tr('র ডাটা ভিউ', 'Raw Data View')}
                   </button>
                 </div>
               </div>
@@ -389,7 +391,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
                   <div className="space-y-4">
                     <div className="inline-flex items-center gap-1.5 bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full border border-indigo-200">
                       <Eye className="w-3.5 h-3.5" />
-                      <span>অ্যাপে শিক্ষার্থী যেভাবে দেখবে:</span>
+                      <span>{tr('অ্যাপে শিক্ষার্থী যেভাবে দেখবে:', 'As students see it in the app:')}</span>
                     </div>
 
                     {/* Question Simulator */}
@@ -402,7 +404,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
                         {selectedItem.payload?.options && (
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2">
                             {selectedItem.payload.options.map((opt: any, i: number) => {
-                              const label = ['ক', 'খ', 'গ', 'ঘ'][i];
+                              const label = language === 'bn' ? ['ক', 'খ', 'গ', 'ঘ'][i] : ['A', 'B', 'C', 'D'][i];
                               return (
                                 <div
                                   key={opt.id || i}
@@ -417,7 +419,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
                                   </span>
                                   {opt.isCorrect && (
                                     <span className="text-[10px] bg-emerald-600 text-white px-1.5 py-0.5 rounded">
-                                      সঠিক
+                                      {tr('সঠিক', 'Correct')}
                                     </span>
                                   )}
                                 </div>
@@ -431,18 +433,18 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
                           <div className="bg-white p-4 rounded-xl border border-indigo-100 space-y-2 mt-3">
                             <span className="text-xs font-bold text-indigo-700 flex items-center gap-1">
                               <Sparkles className="w-3.5 h-3.5" />
-                              <span>৬-স্তরের ব্যাখ্যা প্রিভিউ:</span>
+                              <span>{tr('৬-স্তরের ব্যাখ্যা প্রিভিউ:', '6-Layer Explanation Preview:')}</span>
                             </span>
                             <div className="text-xs text-slate-700 space-y-1">
                               <div>
-                                <strong>সরাসরি উত্তর:</strong> {selectedItem.payload.explanation.directAnswer}
+                                <strong>{tr('সরাসরি উত্তর:', 'Direct Answer:')}</strong> {selectedItem.payload.explanation.directAnswer}
                               </div>
                               <div>
-                                <strong>মূল ধারণা:</strong> {selectedItem.payload.explanation.coreConcept}
+                                <strong>{tr('মূল ধারণা:', 'Core Concept:')}</strong> {selectedItem.payload.explanation.coreConcept}
                               </div>
                               {selectedItem.payload.explanation.stepDerivation && (
                                 <div className="pt-1">
-                                  <strong>প্রতিপাদন:</strong>
+                                  <strong>{tr('প্রতিপাদন:', 'Derivation:')}</strong>
                                   <div className="bg-slate-50 p-2 rounded border border-slate-200 mt-1 font-mono text-[11px]">
                                     <LatexRenderer content={selectedItem.payload.explanation.stepDerivation} />
                                   </div>
@@ -474,10 +476,10 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
                   <div className="flex items-center justify-between">
                     <h4 className="font-bold text-sm text-slate-900 flex items-center gap-1.5">
                       <CheckCircle className="w-4 h-4 text-emerald-600" />
-                      <span>সম্পাদকীয় যাচাই ও সিদ্ধান্ত রেকর্ড করুন</span>
+                      <span>{tr('সম্পাদকীয় যাচাই ও সিদ্ধান্ত রেকর্ড করুন', 'Record Editorial Review & Decision')}</span>
                     </h4>
                     <span className="text-[11px] text-slate-400">
-                      বর্তমান স্ট্যাটাস: <strong className="text-slate-700">{selectedItem.status}</strong>
+                      {tr('বর্তমান স্ট্যাটাস: ', 'Current Status: ')}<strong className="text-slate-700">{selectedItem.status}</strong>
                     </span>
                   </div>
 
@@ -493,7 +495,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
                       }`}
                     >
                       <CheckCircle className="w-4 h-4" />
-                      <span>অনুমোদন ও প্রকাশ</span>
+                      <span>{tr('অনুমোদন ও প্রকাশ', 'Approve & Publish')}</span>
                     </button>
                     <button
                       type="button"
@@ -505,7 +507,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
                       }`}
                     >
                       <AlertTriangle className="w-4 h-4" />
-                      <span>সংশোধন অনুরোধ</span>
+                      <span>{tr('সংশোধন অনুরোধ', 'Request Changes')}</span>
                     </button>
                     <button
                       type="button"
@@ -517,21 +519,24 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
                       }`}
                     >
                       <XCircle className="w-4 h-4" />
-                      <span>বাতিল (Reject)</span>
+                      <span>{tr('বাতিল (Reject)', 'Reject')}</span>
                     </button>
                   </div>
 
                   <div>
                     <label className="block text-xs font-semibold text-slate-700 mb-1">
-                      রিভিউয়ার মন্তব্য / কারণ{' '}
-                      {decision !== 'APPROVE' && <span className="text-rose-500">* (আবশ্যক)</span>}
+                      {tr('রিভিউয়ার মন্তব্য / কারণ ', 'Reviewer Comment / Reason ')}
+                      {decision !== 'APPROVE' && <span className="text-rose-500">{tr('* (আবশ্যক)', '* (Required)')}</span>}
                     </label>
                     <textarea
                       rows={2}
                       required={decision !== 'APPROVE'}
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
-                      placeholder="পাঠ্যবইয়ের রেফারেন্স, সমীকরণের নির্ভুলতা বা সংশোধনের নির্দিষ্ট নির্দেশাবলী..."
+                      placeholder={tr(
+                        'পাঠ্যবইয়ের রেফারেন্স, সমীকরণের নির্ভুলতা বা সংশোধনের নির্দিষ্ট নির্দেশাবলী...',
+                        'Textbook reference, equation accuracy, or specific revision instructions...'
+                      )}
                       className="w-full text-xs p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     />
                   </div>
@@ -542,7 +547,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
                     className="w-full bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold py-3 rounded-xl shadow transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     <Send className="w-4 h-4" />
-                    <span>{isSubmitting ? 'আপডেট হচ্ছে...' : 'সিদ্ধান্ত রেকর্ড ও স্ট্যাটাস আপডেট করো'}</span>
+                    <span>{isSubmitting ? tr('আপডেট হচ্ছে...', 'Updating...') : tr('সিদ্ধান্ত রেকর্ড ও স্ট্যাটাস আপডেট করো', 'Record Decision & Update Status')}</span>
                   </button>
                 </form>
               </div>
@@ -552,15 +557,15 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
                 <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
                   <History className="w-4 h-4 text-indigo-600" />
                   <h4 className="font-bold text-slate-900 text-xs">
-                    সম্পাদকীয় অডিট ও পর্যালোচনার ইতিহাস ({auditLogs.length}টি এন্ট্রি)
+                    {tr('সম্পাদকীয় অডিট ও পর্যালোচনার ইতিহাস', 'Editorial Audit & Review History')} ({auditLogs.length} {tr('টি এন্ট্রি', 'entries')})
                   </h4>
                 </div>
 
                 {auditLoading ? (
-                  <div className="text-center py-4 text-xs text-slate-400">অডিট ইতিহাস লোড হচ্ছে...</div>
+                  <div className="text-center py-4 text-xs text-slate-400">{tr('অডিট ইতিহাস লোড হচ্ছে...', 'Loading audit history...')}</div>
                 ) : auditLogs.length === 0 ? (
                   <div className="text-center py-4 text-xs text-slate-400">
-                    এই কন্টেন্টের জন্য এখনও কোনো পূর্ববর্তী রিভিউ অডিট রেকর্ড নেই।
+                    {tr('এই কন্টেন্টের জন্য এখনও কোনো পূর্ববর্তী রিভিউ অডিট রেকর্ড নেই।', 'No previous review audit records found for this content.')}
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -578,7 +583,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-1.5 font-bold text-slate-800">
                               <User className="w-3.5 h-3.5 text-slate-500" />
-                              <span>{log.reviewer?.fullName || 'সম্পাদকীয় কর্মকর্তা'}</span>
+                              <span>{log.reviewer?.fullName || tr('সম্পাদকীয় কর্মকর্তা', 'Editorial Officer')}</span>
                               <span className="text-[10px] text-slate-400">
                                 ({log.reviewer?.role || 'REVIEWER'})
                               </span>
@@ -597,7 +602,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
 
                           <div className="text-[10px] text-slate-400 flex items-center gap-1">
                             <Clock className="w-3 h-3" />
-                            <span>{new Date(log.createdAt).toLocaleString('bn-BD')}</span>
+                            <span>{new Date(log.createdAt).toLocaleString(language === 'bn' ? 'bn-BD' : 'en-US')}</span>
                           </div>
                         </div>
                       );
@@ -608,7 +613,7 @@ export function ReviewConsole({ contentList, onStatusUpdated }: ReviewConsolePro
             </div>
           ) : (
             <div className="bg-slate-50 border border-dashed border-slate-300 rounded-2xl p-16 text-center text-slate-500 text-xs">
-              বামদিকের তালিকা থেকে যেকোনো কন্টেন্ট নির্বাচন করুন।
+              {tr('বামদিকের তালিকা থেকে যেকোনো কন্টেন্ট নির্বাচন করুন।', 'Please select a content item from the left list.')}
             </div>
           )}
         </div>

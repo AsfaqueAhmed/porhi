@@ -22,6 +22,7 @@ import { apiClient } from '@/lib/api-client';
 import { formatAdminApiError } from '@/lib/admin-api-errors';
 import { useAdminAuthStore, type AdminPortalRole } from '@/store/admin-auth-store';
 import { LatexRenderer } from '@/components/math/latex-renderer';
+import { useLanguageStore } from '@/store/language-store';
 import { getContentStatusBadge } from '../content-status-badge';
 import { LessonDetailDrawer } from './LessonDetailDrawer';
 
@@ -75,6 +76,9 @@ export function LessonBankManager({
   const role = userRole ?? storeRole;
   const canEdit = role === 'ADMIN' || role === 'EDITOR';
   const isAdmin = role === 'ADMIN';
+
+  const language = useLanguageStore((s) => s.language);
+  const tr = useLanguageStore((s) => s.tr);
 
   const [subjects, setSubjects] = useState<SubjectSummary[]>([]);
   const [chapters, setChapters] = useState<ChapterSummary[]>([]);
@@ -335,16 +339,19 @@ export function LessonBankManager({
         <div className="space-y-1">
           <h1 className="text-lg font-bold text-slate-900 flex items-center gap-2">
             <BookOpen className="w-5 h-5 text-indigo-600" />
-            <span>পাঠ্য লেসন ব্যাংক ও তালিকা</span>
+            <span>{tr('পাঠ্য লেসন ব্যাংক ও তালিকা', 'Lesson Bank & Directory')}</span>
           </h1>
           <p className="text-xs text-slate-500">
-            কারিকুলামের সকল পাঠ্য লেসন, পরিভাষা ও গাণিতিক উদাহরণ খুঁজুন, ফিল্টার করুন ও হালনাগাদ করুন।
+            {tr(
+              'কারিকুলামের সকল পাঠ্য লেসন, পরিভাষা ও গাণিতিক উদাহরণ খুঁজুন, ফিল্টার করুন ও হালনাগাদ করুন।',
+              'Search, filter, and update all curriculum lessons, terminology, and worked examples.',
+            )}
           </p>
 
           {/* Status Summary Pills */}
           <div className="flex flex-wrap items-center gap-2 pt-2">
             <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700 border border-slate-200">
-              সর্বমোট: {statusCounts.ALL}
+              {tr('সর্বমোট', 'Total')}: {statusCounts.ALL}
             </span>
             <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
               Published: {statusCounts.PUBLISHED}
@@ -373,7 +380,7 @@ export function LessonBankManager({
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-xs transition-colors"
             >
               <Plus className="w-4 h-4" />
-              <span>+ নতুন লেসন যোগ</span>
+              <span>{tr('+ নতুন লেসন যোগ', '+ Add New Lesson')}</span>
             </Link>
           </div>
         )}
@@ -400,7 +407,7 @@ export function LessonBankManager({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-xs font-bold text-slate-700">
             <Filter className="w-4 h-4 text-indigo-600" />
-            <span>ফিল্টার ও অনুসন্ধান</span>
+            <span>{tr('ফিল্টার ও অনুসন্ধান', 'Filters & Search')}</span>
           </div>
           <button
             type="button"
@@ -408,7 +415,7 @@ export function LessonBankManager({
             className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-600 hover:text-indigo-700 px-2.5 py-1 rounded-lg hover:bg-slate-100 transition-colors"
           >
             <RotateCcw className="w-3 h-3" />
-            <span>ফিল্টার রিসেট</span>
+            <span>{tr('ফিল্টার রিসেট', 'Reset Filters')}</span>
           </button>
         </div>
 
@@ -426,7 +433,7 @@ export function LessonBankManager({
             }}
             className="text-xs font-medium p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:border-indigo-500"
           >
-            <option value="">সব বিষয়</option>
+            <option value="">{tr('সব বিষয়', 'All Subjects')}</option>
             {subjects.map((sub) => (
               <option key={sub.id} value={sub.id}>
                 {sub.nameBangla}
@@ -446,7 +453,7 @@ export function LessonBankManager({
             }}
             className="text-xs font-medium p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:border-indigo-500 disabled:opacity-50"
           >
-            <option value="">সব অধ্যায়</option>
+            <option value="">{tr('সব অধ্যায়', 'All Chapters')}</option>
             {chapters.map((ch) => (
               <option key={ch.id} value={ch.id}>
                 {ch.titleBangla}
@@ -465,7 +472,7 @@ export function LessonBankManager({
             }}
             className="text-xs font-medium p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:border-indigo-500 disabled:opacity-50"
           >
-            <option value="">সব টপিক</option>
+            <option value="">{tr('সব টপিক', 'All Topics')}</option>
             {availableTopics.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.titleBangla}
@@ -483,7 +490,7 @@ export function LessonBankManager({
             }}
             className="text-xs font-medium p-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:border-indigo-500"
           >
-            <option value="">সক্রিয় সব</option>
+            <option value="">{tr('সক্রিয় সব', 'Active (All)')}</option>
             <option value="PUBLISHED">Published</option>
             <option value="REVIEW">Review</option>
             <option value="DRAFT">Draft</option>
@@ -501,7 +508,7 @@ export function LessonBankManager({
                 setSuccessMessage(null);
                 setSearchInput(e.target.value);
               }}
-              placeholder="লেসনের শিরোনাম বা শিখনফল খুঁজুন..."
+              placeholder={tr('লেসনের শিরোনাম বা শিখনফল খুঁজুন...', 'Search by lesson title or goal...')}
               className="w-full text-xs pl-8 pr-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl outline-none focus:border-indigo-500"
             />
           </div>
@@ -519,7 +526,7 @@ export function LessonBankManager({
         ) : items.length === 0 ? (
           <div className="p-10 text-center space-y-3">
             <p className="text-xs font-semibold text-slate-500">
-              নির্বাচিত ফিল্টারে কোনো লেসন পাওয়া যায়নি।
+              {tr('নির্বাচিত ফিল্টারে কোনো লেসন পাওয়া যায়নি।', 'No lessons found matching the selected filters.')}
             </p>
             {canEdit && (
               <Link
@@ -527,7 +534,7 @@ export function LessonBankManager({
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>নতুন লেসন যোগ করুন</span>
+                <span>{tr('নতুন লেসন যোগ করুন', 'Add New Lesson')}</span>
               </Link>
             )}
           </div>
@@ -536,16 +543,16 @@ export function LessonBankManager({
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                  <th className="px-4 py-3">লেসন ও শিখনফল</th>
-                  <th className="px-4 py-3">অবস্থান</th>
-                  <th className="px-4 py-3">পরিভাষা</th>
-                  <th className="px-4 py-3">অবস্থা ও ভার্সন</th>
-                  <th className="px-4 py-3 text-right">কার্যক্রম</th>
+                  <th className="px-4 py-3">{tr('লেসন ও শিখনফল', 'Lesson & Learning Goal')}</th>
+                  <th className="px-4 py-3">{tr('অবস্থান', 'Hierarchy')}</th>
+                  <th className="px-4 py-3">{tr('পরিভাষা', 'Terminology')}</th>
+                  <th className="px-4 py-3">{tr('অবস্থা ও ভার্সন', 'Status & Version')}</th>
+                  <th className="px-4 py-3 text-right">{tr('কার্যক্রম', 'Actions')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs">
                 {items.map((lesson) => {
-                  const statusMeta = getContentStatusBadge(lesson.status);
+                  const statusMeta = getContentStatusBadge(lesson.status, language);
                   const showEdit = canEdit && lesson.status !== 'ARCHIVED';
                   const showArchive =
                     canEdit &&
@@ -584,7 +591,7 @@ export function LessonBankManager({
 
                       <td className="px-4 py-3.5 text-[11px] text-slate-600">
                         <div className="font-semibold text-slate-800">
-                          {lesson.topic?.chapter?.subject?.nameBangla || 'অজানা বিষয়'}
+                          {lesson.topic?.chapter?.subject?.nameBangla || tr('অজানা বিষয়', 'Unknown Subject')}
                         </div>
                         {locationTrail && (
                           <div className="text-slate-500">{locationTrail}</div>
@@ -593,7 +600,7 @@ export function LessonBankManager({
 
                       <td className="px-4 py-3.5">
                         <span className="inline-block text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-                          {termCount}টি পরিভাষা
+                          {termCount}{tr('টি পরিভাষা', ' terms')}
                         </span>
                       </td>
 
@@ -619,7 +626,7 @@ export function LessonBankManager({
                             className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-300 transition-colors"
                           >
                             <Eye className="w-3 h-3" />
-                            <span>বিস্তারিত দেখুন</span>
+                            <span>{tr('বিস্তারিত দেখুন', 'Details')}</span>
                           </button>
                           {showEdit && (
                             <Link
@@ -627,7 +634,7 @@ export function LessonBankManager({
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors"
                             >
                               <Pencil className="w-3 h-3" />
-                              <span>সম্পাদনা</span>
+                              <span>{tr('সম্পাদনা', 'Edit')}</span>
                             </Link>
                           )}
                           {showArchive && (
@@ -637,7 +644,7 @@ export function LessonBankManager({
                               className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[11px] font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 transition-colors"
                             >
                               <Archive className="w-3 h-3" />
-                              <span>আর্কাইভ</span>
+                              <span>{tr('আর্কাইভ', 'Archive')}</span>
                             </button>
                           )}
                         </div>
@@ -653,7 +660,7 @@ export function LessonBankManager({
         {/* Pagination */}
         <div className="px-4 py-3 border-t border-slate-200 bg-slate-50/70 flex items-center justify-between text-xs text-slate-600">
           <span>
-            মোট {total}টি লেসন • পাতা {page} / {totalPages}
+            {tr('মোট', 'Total')} {total}{tr('টি লেসন • পাতা', ' lessons • Page')} {page} / {totalPages}
           </span>
           <div className="flex items-center gap-2">
             <button
@@ -665,7 +672,7 @@ export function LessonBankManager({
               }}
               className="px-3 py-1 rounded-lg border border-slate-300 bg-white font-semibold disabled:opacity-50 hover:bg-slate-100"
             >
-              আগের পাতা
+              {tr('আগের পাতা', 'Previous')}
             </button>
             <button
               type="button"
@@ -676,7 +683,7 @@ export function LessonBankManager({
               }}
               className="px-3 py-1 rounded-lg border border-slate-300 bg-white font-semibold disabled:opacity-50 hover:bg-slate-100"
             >
-              পরের পাতা
+              {tr('পরের পাতা', 'Next')}
             </button>
           </div>
         </div>
@@ -702,10 +709,13 @@ export function LessonBankManager({
         >
           <div className="bg-white rounded-2xl border border-slate-200 max-w-md w-full p-6 space-y-4 shadow-2xl">
             <h2 id="lesson-archive-dialog-title" className="text-sm font-bold text-slate-900">
-              লেসন আর্কাইভ নিশ্চিতকরণ
+              {tr('লেসন আর্কাইভ নিশ্চিতকরণ', 'Confirm Lesson Archive')}
             </h2>
             <p className="text-xs text-slate-600 leading-relaxed">
-              লেসনটি আর্কাইভ করলে শিক্ষার্থীদের জন্য আর প্রদর্শিত হবে না, তবে বিষয়বস্তুর ইতিহাস ও সংস্করণ সংরক্ষিত থাকবে।
+              {tr(
+                'লেসনটি আর্কাইভ করলে শিক্ষার্থীদের জন্য আর প্রদর্শিত হবে না, তবে বিষয়বস্তুর ইতিহাস ও সংস্করণ সংরক্ষিত থাকবে।',
+                'Archiving this lesson will hide it from students, while preserving history and version logs.',
+              )}
             </p>
             <div className="flex justify-end gap-2 pt-2">
               <button
@@ -714,7 +724,7 @@ export function LessonBankManager({
                 onClick={() => setConfirmArchiveItem(null)}
                 className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 disabled:opacity-50"
               >
-                বাতিল
+                {tr('বাতিল', 'Cancel')}
               </button>
               <button
                 type="button"
@@ -722,7 +732,9 @@ export function LessonBankManager({
                 onClick={handleConfirmArchive}
                 className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 disabled:opacity-50"
               >
-                {isArchiving ? 'আর্কাইভ হচ্ছে...' : 'আর্কাইভ নিশ্চিত করুন'}
+                {isArchiving
+                  ? tr('আর্কাইভ হচ্ছে...', 'Archiving...')
+                  : tr('আর্কাইভ নিশ্চিত করুন', 'Confirm Archive')}
               </button>
             </div>
           </div>

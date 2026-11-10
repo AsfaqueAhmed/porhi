@@ -4,11 +4,13 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { BookOpen, CheckCircle, ArrowRight, Flame, Award } from 'lucide-react';
 import { useUserStore } from '@/store/user-store';
+import { useLanguageStore } from '@/store/language-store';
 import { apiClient } from '@/lib/api-client';
 
 export default function LandingPage() {
   const router = useRouter();
   const { setToken, setUser, setGuestId, guestId } = useUserStore();
+  const { tr } = useLanguageStore();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [otpStep, setOtpStep] = useState<'PHONE' | 'OTP'>('PHONE');
@@ -81,16 +83,19 @@ export default function LandingPage() {
       {/* Badge */}
       <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-200 px-3.5 py-1.5 rounded-full text-indigo-700 text-sm font-semibold">
         <Flame className="w-4 h-4 text-orange-500 fill-orange-500" />
-        <span>NCTB কারিকুলাম ২০২৬ অনুসারী সেলফ-স্টাডি লার্নিং</span>
+        <span>{tr('NCTB কারিকুলাম ২০২৬ অনুসারী সেলফ-স্টাডি লার্নিং', 'NCTB Curriculum 2026 Aligned Self-Study Platform')}</span>
       </div>
 
       {/* Main Title */}
       <div className="space-y-4">
         <h1 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 leading-tight">
-          সহজ ভাষায় শিখো, নির্ভুলভাবে নিজেকে যাচাই করো
+          {tr('সহজ ভাষায় শিখো, নির্ভুলভাবে নিজেকে যাচাই করো', 'Learn with Clarity, Master Concepts with Precision')}
         </h1>
         <p className="text-base md:text-lg text-slate-600 max-w-2xl mx-auto">
-          পদার্থবিজ্ঞান, গণিত ও রসায়নের জটিল কনসেপ্ট বাংলায় সুস্পষ্ট ব্যাখ্যা, ৬-স্তরের MCQ বিশ্লেষণ এবং বাস্তবসম্মত মডেল টেস্ট।
+          {tr(
+            'পদার্থবিজ্ঞান, গণিত ও রসায়নের জটিল কনসেপ্ট বাংলায় সুস্পষ্ট ব্যাখ্যা, ৬-স্তরের MCQ বিশ্লেষণ এবং বাস্তবসম্মত মডেল টেস্ট।',
+            'Clear conceptual explanations for Physics, Math & Chemistry, 6-layer MCQ breakdown, and realistic chapter-wise model tests.'
+          )}
         </p>
       </div>
 
@@ -102,10 +107,10 @@ export default function LandingPage() {
           className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-xl shadow transition-all flex items-center justify-center gap-2 disabled:opacity-70"
         >
           {guestLoading ? (
-            <span>প্রবেশ করা হচ্ছে...</span>
+            <span>{tr('প্রবেশ করা হচ্ছে...', 'Entering...')}</span>
           ) : (
             <>
-              <span>গেস্ট হিসেবে সরাসরি শুরু করো</span>
+              <span>{tr('গেস্ট হিসেবে সরাসরি শুরু করো', 'Start Directly as Guest')}</span>
               <ArrowRight className="w-4 h-4" />
             </>
           )}
@@ -113,15 +118,15 @@ export default function LandingPage() {
 
         <div className="relative flex items-center justify-center">
           <div className="border-t border-slate-200 w-full" />
-          <span className="bg-white px-3 text-xs text-slate-400 font-medium uppercase">অথবা</span>
+          <span className="bg-white px-3 text-xs text-slate-400 font-medium uppercase">{tr('অথবা', 'OR')}</span>
           <div className="border-t border-slate-200 w-full" />
         </div>
 
         <form onSubmit={handlePhoneSubmit} className="space-y-2">
           <label htmlFor="phone" className="block text-xs font-semibold text-slate-700">
             {otpStep === 'PHONE'
-              ? 'মোবাইল নম্বর দিয়ে অগ্রগতি সংরক্ষণ করুন'
-              : `কোড পাঠানো হয়েছে (${phoneNumber})-এ:`}
+              ? tr('মোবাইল নম্বর দিয়ে অগ্রগতি সংরক্ষণ করুন', 'Save your progress with mobile number')
+              : `${tr('কোড পাঠানো হয়েছে', 'Verification code sent to')} (${phoneNumber}):`}
           </label>
           <div className="flex gap-2">
             {otpStep === 'PHONE' ? (
@@ -139,7 +144,7 @@ export default function LandingPage() {
                   disabled={loading || !phoneNumber}
                   className="bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
                 >
-                  {loading ? 'অপেক্ষা করুন...' : 'চালিয়ে যান'}
+                  {loading ? tr('অপেক্ষা করুন...', 'Please wait...') : tr('চালিয়ে যান', 'Continue')}
                 </button>
               </>
             ) : (
@@ -150,7 +155,7 @@ export default function LandingPage() {
                   maxLength={6}
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value)}
-                  placeholder="OTP কোড (যেমন: 1234)"
+                  placeholder={tr('OTP কোড (যেমন: 1234)', 'OTP Code (e.g. 1234)')}
                   className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono tracking-widest text-center"
                 />
                 <button
@@ -158,7 +163,7 @@ export default function LandingPage() {
                   disabled={loading}
                   className="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors disabled:opacity-50"
                 >
-                  {loading ? 'যাচাই হচ্ছে...' : 'যাচাই করুন'}
+                  {loading ? tr('যাচাই হচ্ছে...', 'Verifying...') : tr('যাচাই করুন', 'Verify')}
                 </button>
               </>
             )}
@@ -172,9 +177,12 @@ export default function LandingPage() {
           <div className="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
             <BookOpen className="w-5 h-5" />
           </div>
-          <h3 className="font-bold text-slate-900">বাংলায় গভীর কনসেপ্ট</h3>
+          <h3 className="font-bold text-slate-900">{tr('বাংলায় গভীর কনসেপ্ট', 'Deep Conceptual Clarity')}</h3>
           <p className="text-xs text-slate-600 leading-relaxed">
-            LaTeX সমীকরণ, বাস্তব উদাহরণ ও সূত্র মনে রাখার টেকনিকসহ বিস্তারিত পাঠ।
+            {tr(
+              'LaTeX সমীকরণ, বাস্তব উদাহরণ ও সূত্র মনে রাখার টেকনিকসহ বিস্তারিত পাঠ।',
+              'Detailed lessons with LaTeX formulas, real-world examples, and memory mnemonics.'
+            )}
           </p>
         </div>
 
@@ -182,9 +190,12 @@ export default function LandingPage() {
           <div className="w-10 h-10 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
             <CheckCircle className="w-5 h-5" />
           </div>
-          <h3 className="font-bold text-slate-900">৬-স্তরের পূর্ণাঙ্গ ব্যাখ্যা</h3>
+          <h3 className="font-bold text-slate-900">{tr('৬-স্তরের পূর্ণাঙ্গ ব্যাখ্যা', '6-Layer Comprehensive Breakdown')}</h3>
           <p className="text-xs text-slate-600 leading-relaxed">
-            সরাসরি উত্তর, মূল তত্ত্ব, ভুল উত্তরের কারণ ও পাঠ্যবই রেফারেন্স প্রতিটি প্রশ্নে।
+            {tr(
+              'সরাসরি উত্তর, মূল তত্ত্ব, ভুল উত্তরের কারণ ও পাঠ্যবই রেফারেন্স প্রতিটি প্রশ্নে।',
+              'Direct answer, core theory, distractor analysis, and textbook citations on every question.'
+            )}
           </p>
         </div>
 
@@ -192,9 +203,12 @@ export default function LandingPage() {
           <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
             <Award className="w-5 h-5" />
           </div>
-          <h3 className="font-bold text-slate-900">অধ্যায়ভিত্তিক মডেল টেস্ট</h3>
+          <h3 className="font-bold text-slate-900">{tr('অধ্যায়ভিত্তিক মডেল টেস্ট', 'Chapter-wise Model Tests')}</h3>
           <p className="text-xs text-slate-600 leading-relaxed">
-            কাউন্টডাউন টাইমার, অটোসেভ হার্টবিট এবং বিস্তারিত রেজাল্ট শিট।
+            {tr(
+              'কাউন্টডাউন টাইমার, অটোসেভ হার্টবিট এবং বিস্তারিত রেজাল্ট শিট।',
+              'Countdown timer, autosave heartbeat, and comprehensive result sheets.'
+            )}
           </p>
         </div>
       </div>

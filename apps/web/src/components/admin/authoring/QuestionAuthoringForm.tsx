@@ -3,6 +3,7 @@
 import React from 'react';
 import { Send } from 'lucide-react';
 import type { CQRubric } from '@pori/shared';
+import { useLanguageStore } from '@/store/language-store';
 import { StudentSimulatorFrame } from '../student-simulator-frame';
 import { CqRubricEditor } from './CqRubricEditor';
 import { McqOptionsEditor } from './McqOptionsEditor';
@@ -29,6 +30,7 @@ export function QuestionAuthoringForm({
   onQuestionFormChange,
   onSubmit,
 }: QuestionAuthoringFormProps) {
+  const tr = useLanguageStore((s) => s.tr);
   const updateField = <K extends keyof QuestionFormState>(
     field: K,
     value: QuestionFormState[K],
@@ -131,12 +133,12 @@ export function QuestionAuthoringForm({
               <Send className="w-4 h-4" />
               <span>
                 {isSubmitting
-                  ? 'সংরক্ষণ হচ্ছে...'
+                  ? tr('সংরক্ষণ হচ্ছে...', 'Saving...')
                   : isEditMode
-                    ? 'পরিবর্তন সংরক্ষণ করুন'
+                    ? tr('পরিবর্তন সংরক্ষণ করুন', 'Save Changes')
                     : contentType === 'CQ'
-                      ? '৬-স্তরের ব্যাখ্যাসহ সৃজনশীল প্রশ্ন জমা দাও'
-                      : '৬-স্তরের ব্যাখ্যাসহ প্রশ্ন জমা দাও'}
+                      ? tr('৬-স্তরের ব্যাখ্যাসহ সৃজনশীল প্রশ্ন জমা দাও', 'Submit Creative Question with 6-Layer Explanation')
+                      : tr('৬-স্তরের ব্যাখ্যাসহ প্রশ্ন জমা দাও', 'Submit Question with 6-Layer Explanation')}
               </span>
             </button>
           </div>

@@ -6,6 +6,7 @@ import { BookOpen, CheckCircle } from 'lucide-react';
 import type { AdminLessonItem } from '@pori/shared';
 import { apiClient } from '@/lib/api-client';
 import { useAdminAuthStore } from '@/store/admin-auth-store';
+import { useLanguageStore } from '@/store/language-store';
 import { TopicHierarchySelector } from '../authoring/TopicHierarchySelector';
 import { EditorialStatusBanners } from '../authoring/EditorialStatusBanners';
 import { LessonAuthoringForm } from '../authoring/LessonAuthoringForm';
@@ -46,6 +47,7 @@ export function LessonAuthoringStudio({
   const isEditMode = mode === 'edit' && Boolean(initialLesson);
   const isArchived = isEditMode && initialLesson?.status === 'ARCHIVED';
   const adminRole = useAdminAuthStore((s) => s.adminUser?.role);
+  const tr = useLanguageStore((s) => s.tr);
 
   const initialDefaultChapters =
     !isEditMode
@@ -459,20 +461,23 @@ export function LessonAuthoringStudio({
             <BookOpen className="w-5 h-5 text-indigo-600" />
             <span>
               {isEditMode
-                ? 'লেসন সম্পাদনা (Edit Lesson)'
-                : 'পাঠ্য লেসন স্টুডিও (Lesson Authoring Studio)'}
+                ? tr('লেসন সম্পাদনা (Edit Lesson)', 'Edit Lesson')
+                : tr('পাঠ্য লেসন স্টুডিও (Lesson Authoring Studio)', 'Lesson Authoring Studio')}
             </span>
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
             {isEditMode && initialLesson
-              ? `লেসন আইডি: ${initialLesson.id} • বর্তমান ভার্সন v${initialLesson.version} (${initialLesson.status})`
-              : 'শিখনফল, মূল ব্যাখ্যা, পরিভাষা ও গাণিতিক উদাহরণসহ নতুন পাঠ্য লেসন তৈরি করুন।'}
+              ? `${tr('লেসন আইডি:', 'Lesson ID:')} ${initialLesson.id} • ${tr('বর্তমান ভার্সন', 'Current Version')} v${initialLesson.version} (${initialLesson.status})`
+              : tr(
+                  'শিখনফল, মূল ব্যাখ্যা, পরিভাষা ও গাণিতিক উদাহরণসহ নতুন পাঠ্য লেসন তৈরি করুন।',
+                  'Create a new curriculum lesson with learning goals, core explanation, terminology, and worked examples.',
+                )}
           </p>
         </div>
 
         {isEditMode && initialLesson ? (
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200 text-xs font-bold text-indigo-700">
-            <span>পাঠ্য লেসন • v{initialLesson.version}</span>
+            <span>{tr('পাঠ্য লেসন • v', 'Lesson • v')}{initialLesson.version}</span>
           </div>
         ) : (
           <button
@@ -480,7 +485,7 @@ export function LessonAuthoringStudio({
             onClick={handleFillSample}
             className="px-3 py-1.5 rounded-xl text-xs font-bold text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 transition-colors"
           >
-            নমুনা লেসন ভরুন
+            {tr('নমুনা লেসন ভরুন', 'Fill Sample Lesson')}
           </button>
         )}
       </div>
@@ -489,9 +494,9 @@ export function LessonAuthoringStudio({
         isEditMode={isEditMode}
         isArchived={isArchived}
         status={initialLesson?.status}
-        itemTypeLabel="লেসনটি"
+        itemTypeLabel={tr('লেসনটি', 'lesson')}
         backHref="/admin/curriculum/lessons"
-        backLabel="লেসন তালিকায় ফিরুন"
+        backLabel={tr('লেসন তালিকায় ফিরুন', 'Back to Lesson List')}
         adminRole={adminRole}
         preservePublished={preservePublished}
         submitForReview={submitForReview}
@@ -509,7 +514,7 @@ export function LessonAuthoringStudio({
             href="/admin/curriculum/lessons"
             className="underline font-bold text-emerald-900 hover:text-emerald-700 shrink-0"
           >
-            তালিকায় ফিরুন
+            {tr('তালিকায় ফিরুন', 'Back to list')}
           </Link>
         </div>
       )}
