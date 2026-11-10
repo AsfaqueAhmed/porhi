@@ -6,6 +6,8 @@ import { Archive, BookOpen, Calculator, Lightbulb, Pencil, Tag } from 'lucide-re
 import type { AdminLessonItem, LessonTermItem } from '@pori/shared';
 import { AdminDrawer } from '../layout/AdminDrawer';
 import { LatexRenderer } from '@/components/math/latex-renderer';
+import { RichContentRenderer } from '@/components/content/rich-content-renderer';
+import { InteractiveSimulationRunner } from '@/components/content/interactive-simulation-runner';
 import { formatAdminDateTime, getContentStatusBadge } from '../content-status-badge';
 
 export interface LessonDetailDrawerProps {
@@ -146,14 +148,22 @@ export function LessonDetailDrawer({
         </div>
       </div>
 
-      {/* Core Explanation */}
+      {/* Interactive Simulation (if present) */}
+      {lesson.interactiveWidgetUrl && (
+        <InteractiveSimulationRunner
+          widgetUrl={lesson.interactiveWidgetUrl}
+          title={lesson.titleBangla}
+        />
+      )}
+
+      {/* Core Explanation with Rich Content (Audio, Video, Images, KaTeX) */}
       <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-2">
         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">
           <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
-          <span>মূল ব্যাখ্যা</span>
+          <span>মূল ব্যাখ্যা ও কনটেন্ট</span>
         </div>
         <div className="text-xs text-slate-800 leading-relaxed">
-          <LatexRenderer content={lesson.explanation} />
+          <RichContentRenderer content={lesson.explanation} />
         </div>
       </div>
 
