@@ -53,6 +53,7 @@ export interface AdminLessonItem {
   titleBangla: string;
   learningGoal: string;
   explanation: string;
+  interactiveWidgetUrl?: string | null;
   importantTerms: LessonTermItem[];
   workedExample?: LessonWorkedExample | null;
   memoryAid?: string | null;
@@ -61,6 +62,16 @@ export interface AdminLessonItem {
   createdAt: Date | string;
   updatedAt: Date | string;
   topic?: QuestionTopicHierarchy;
+}
+
+export type MediaCategory = 'IMAGE' | 'AUDIO' | 'VIDEO' | 'INTERACTIVE';
+
+export interface MediaUploadResponse {
+  url: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  category: MediaCategory;
 }
 
 export interface LessonStatusCounts {

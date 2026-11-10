@@ -41,6 +41,11 @@ export class UpdateLessonAdminDto {
   memoryAid?: string | null;
 
   @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @IsString()
+  interactiveWidgetUrl?: string | null;
+
+  @IsOptional()
   @IsBoolean()
   preservePublished?: boolean;
 

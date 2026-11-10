@@ -33,3 +33,7 @@ coverage/
 .idea/
 *.swp
 *.swo
+
+# Uploads
+apps/api/uploads/*
+!apps/api/uploads/**/.gitkeep

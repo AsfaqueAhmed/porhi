@@ -17,6 +17,7 @@ import {
 import {
   createLessonRecord,
   normalizeImportantTerms,
+  normalizeInteractiveWidgetUrl,
   normalizeMemoryAid,
   normalizeWorkedExample,
   resolveLessonEditStatus,
@@ -167,6 +168,10 @@ export class ContentAdminLessonsService {
     const mergedMemoryAid = normalizeMemoryAid(
       dto.memoryAid !== undefined ? dto.memoryAid : existing.memoryAid,
     );
+    const mergedInteractiveWidgetUrl =
+      dto.interactiveWidgetUrl !== undefined
+        ? normalizeInteractiveWidgetUrl(dto.interactiveWidgetUrl)
+        : existing.interactiveWidgetUrl;
 
     const topic = await this.prisma.topic.findUnique({
       where: { id: mergedStrings.topicId },
@@ -195,6 +200,7 @@ export class ContentAdminLessonsService {
             ? Prisma.DbNull
             : (mergedWorkedExample as unknown as Prisma.InputJsonValue),
         memoryAid: mergedMemoryAid,
+        interactiveWidgetUrl: mergedInteractiveWidgetUrl,
         status: nextStatus,
         version: { increment: 1 },
       },

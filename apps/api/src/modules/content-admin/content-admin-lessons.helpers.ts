@@ -85,6 +85,17 @@ export function normalizeMemoryAid(raw: unknown): string | null {
   return trimmed ? trimmed : null;
 }
 
+export function normalizeInteractiveWidgetUrl(raw: unknown): string | null {
+  if (raw === undefined || raw === null) {
+    return null;
+  }
+  if (typeof raw !== 'string') {
+    throw new BadRequestException('interactiveWidgetUrl must be a string or null');
+  }
+  const trimmed = raw.trim();
+  return trimmed ? trimmed : null;
+}
+
 export function validateRequiredLessonStrings(payload: {
   topicId?: unknown;
   titleBangla?: unknown;
@@ -164,6 +175,7 @@ export async function createLessonRecord(
   });
   const workedExample = normalizeWorkedExample(dto?.workedExample);
   const memoryAid = normalizeMemoryAid(dto?.memoryAid);
+  const interactiveWidgetUrl = normalizeInteractiveWidgetUrl(dto?.interactiveWidgetUrl);
 
   const topic = await prisma.topic.findUnique({
     where: { id: strings.topicId },
@@ -178,6 +190,7 @@ export async function createLessonRecord(
       titleBangla: strings.titleBangla,
       learningGoal: strings.learningGoal,
       explanation: strings.explanation,
+      interactiveWidgetUrl,
       importantTerms: importantTerms as unknown as Prisma.InputJsonValue,
       workedExample:
         workedExample !== null

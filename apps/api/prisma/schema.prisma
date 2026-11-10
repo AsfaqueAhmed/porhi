@@ -74,19 +74,20 @@ model Topic {
 }
 
 model Lesson {
-  id             String        @id @default(uuid())
-  topicId        String
-  topic          Topic         @relation(fields: [topicId], references: [id])
-  titleBangla    String
-  learningGoal   String
-  explanation    String        // Markdown with KaTeX formulas
-  importantTerms Json          // Array of { termBangla, termEnglish, definition }
-  workedExample  Json?         // { problem, stepByStepSolution }
-  memoryAid      String?       // Mnemonics or high-yield summary
-  status         ContentStatus @default(DRAFT)
-  version        Int           @default(1)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id                   String        @id @default(uuid())
+  topicId              String
+  topic                Topic         @relation(fields: [topicId], references: [id])
+  titleBangla          String
+  learningGoal         String
+  explanation          String        // Formatted Markdown with KaTeX math & inline media tags
+  interactiveWidgetUrl String?       // Optional URL to sandboxed HTML simulation
+  importantTerms       Json          // Array of { termBangla, termEnglish, definition }
+  workedExample        Json?         // { problem, stepByStepSolution }
+  memoryAid            String?       // Mnemonics or high-yield summary
+  status               ContentStatus @default(DRAFT)
+  version              Int           @default(1)
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
 
   @@index([topicId, status])
   @@index([status, updatedAt])

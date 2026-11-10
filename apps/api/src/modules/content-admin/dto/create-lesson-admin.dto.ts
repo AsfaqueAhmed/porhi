@@ -27,4 +27,8 @@ export class CreateLessonAdminDto {
   @IsOptional()
   @IsString()
   memoryAid?: string;
+
+  @IsOptional()
+  @IsString()
+  interactiveWidgetUrl?: string;
 }

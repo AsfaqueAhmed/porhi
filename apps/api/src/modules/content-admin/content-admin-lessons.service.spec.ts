@@ -90,6 +90,7 @@ describe('ContentAdminLessonsService', () => {
           importantTerms: [{ termBangla: 'বেগ', termEnglish: 'Velocity', definition: '' }],
           workedExample: undefined,
           memoryAid: null,
+          interactiveWidgetUrl: null,
           status: ContentStatus.DRAFT,
           version: 1,
         },

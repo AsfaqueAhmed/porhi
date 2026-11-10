@@ -6,6 +6,7 @@ import { LessonModule } from './modules/lesson/lesson.module';
 import { PracticeModule } from './modules/practice/practice.module';
 import { ExamModule } from './modules/exam/exam.module';
 import { ContentAdminModule } from './modules/content-admin/content-admin.module';
+import { MediaAdminModule } from './modules/media-admin/media-admin.module';
 
 @Module({
   imports: [
@@ -16,9 +17,9 @@ import { ContentAdminModule } from './modules/content-admin/content-admin.module
     PracticeModule,
     ExamModule,
     ContentAdminModule,
+    MediaAdminModule,
   ],
   controllers: [],
   providers: [],
 })
 export class AppModule {}
-
