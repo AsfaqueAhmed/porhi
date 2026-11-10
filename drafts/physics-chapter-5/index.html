@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>পদার্থবিজ্ঞান · অধ্যায় ৫: পদার্থের অবস্থা ও চাপ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- KaTeX for crisp mathematical formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+  <style>
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(125deg, #0f766e 0%, #0d9488 58%, #2dd4bf 100%);
+      color: #fff;
+      border-radius: 24px;
+      padding: clamp(26px, 5vw, 46px);
+      margin: 26px 0 20px;
+      box-shadow: 0 16px 36px rgba(15, 118, 110, 0.25);
+    }
+    .hero:after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      right: -70px;
+      top: -110px;
+      box-shadow: 0 0 0 28px rgba(255, 255, 255, 0.08), 0 0 0 58px rgba(255, 255, 255, 0.04);
+    }
+    .hero > * {
+      position: relative;
+      z-index: 1;
+    }
+    .hero .badge {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.35);
+      color: #fff;
+    }
+    .hero h1 {
+      font-size: clamp(30px, 5.6vw, 46px);
+      line-height: 1.28;
+      margin: 15px 0 8px;
+      max-width: 700px;
+    }
+    .hero p {
+      color: #ccfbf1;
+      margin: 0;
+      max-width: 640px;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .hero .button {
+      background: #fff;
+      color: #0f766e;
+      font-weight: 800;
+    }
+    .hero .button:hover {
+      background: #f0fdfa;
+      color: #115e59;
+    }
+    .hero .button.secondary {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.5);
+      color: #fff;
+    }
+    .hero .button.secondary:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 18px 0 32px;
+    }
+    .stat {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 18px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .stat strong {
+      display: block;
+      font-size: 20px;
+      line-height: 1.3;
+      color: #0f766e;
+    }
+    .stat span {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .roadmap-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 15px;
+      margin: 32px 0 14px;
+    }
+    .roadmap-head h2 {
+      font-size: 23px;
+      margin: 0;
+      line-height: 1.35;
+      color: #1e293b;
+    }
+    .roadmap-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .roadmap {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .route-card {
+      display: grid;
+      grid-template-columns: 52px 1fr 24px;
+      gap: 14px;
+      align-items: start;
+      min-height: 156px;
+      padding: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      color: var(--ink);
+      text-decoration: none;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+      transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
+    }
+    .route-card:hover {
+      transform: translateY(-2px);
+      border-color: #5eead4;
+      box-shadow: 0 10px 24px rgba(15, 118, 110, 0.12);
+      text-decoration: none;
+    }
+    .route-no {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: #ccfbf1;
+      color: #0f766e;
+      font-weight: 900;
+      font-size: 14px;
+    }
+    .route-title {
+      font-size: 16px;
+      line-height: 1.4;
+      font-weight: 800;
+      margin: 1px 0 3px;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .route-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 800;
+      background: #f0fdfa;
+      color: #0d9488;
+      border: 1px solid #99f6e4;
+      border-radius: 6px;
+      padding: 2px 7px;
+    }
+    .route-en {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+    .route-sub {
+      color: #475569;
+      font-size: 12px;
+      line-height: 1.65;
+      display: block;
+    }
+    .route-open {
+      color: #0d9488;
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .group-label {
+      grid-column: 1 / -1;
+      margin: 14px 2px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #475569;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .group-label:after {
+      content: "";
+      height: 1px;
+      background: var(--line);
+      flex: 1;
+    }
+    .source-card {
+      margin: 32px 0 20px;
+      padding: 22px;
+      border: 1px solid #99f6e4;
+      border-radius: 20px;
+      background: linear-gradient(110deg, #f0fdfa, #fff 75%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .source-card h2 {
+      font-size: 18px;
+      line-height: 1.4;
+      margin: 0 0 4px;
+      color: #134e4a;
+    }
+    .source-card p {
+      font-size: 13px;
+      color: #475569;
+      margin: 0;
+    }
+    .source-card .button {
+      flex: none;
+      background: #0f766e;
+      color: #fff;
+    }
+    .source-card .button:hover {
+      background: #115e59;
+    }
+    .source-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 12px 2px 0;
+    }
+    @media (max-width: 720px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 650px) {
+      .roadmap { grid-template-columns: 1fr; }
+      .route-card { min-height: 0; }
+      .source-card { align-items: flex-start; flex-direction: column; }
+      .source-card .button { width: 100%; text-align: center; }
+      .roadmap-head { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">SSC · পদার্থবিজ্ঞান অধ্যায় ৫</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <span class="badge">অধ্যায় ৫ · পদার্থের অবস্থা ও চাপ</span>
+      <h1>পদার্থের অবস্থা ও চাপ</h1>
+      <p>চাপ ও ক্ষেত্রফলের সম্পর্ক, ঘনত্বের তাৎপর্য, তরলের গভীরতায় চাপ, প্যাসকেলের সূত্র ও প্লবতা, বায়ুচাপ ও ব্যারোমিটার, স্থিতিস্থাপকতায় হুকের সূত্র এবং অণুর গতিতত্ত্ব ও প্লাজমা—অধ্যায়টির প্রতিটি বিষয় বিস্তারিত তত্ত্ব, বাস্তব উদাহরণ ও ইন্টারেক্টিভ সিমুলেশন ল্যাব সহযোগে শেখো।</p>
+      <div class="hero-actions">
+        <a class="button" href="section-01.html">প্রথম পাঠ শুরু করো →</a>
+        <a class="button secondary" href="chapter-source.html">মূল বইয়ের ৩২ পৃষ্ঠা ↗</a>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="অধ্যায়ের প্রধান পরিসংখ্যান">
+      <div class="stat">
+        <strong>৬টি</strong>
+        <span>গভীর বিষয়ভিত্তিক পাঠ</span>
+      </div>
+      <div class="stat">
+        <strong>১৫+</strong>
+        <span>গাণিতিক সমস্যা ও নিখুঁত সমাধান</span>
+      </div>
+      <div class="stat">
+        <strong>২টি</strong>
+        <span>লাইভ সিমুলেশন ল্যাব</span>
+      </div>
+      <div class="stat">
+        <strong>১০০%</strong>
+        <span>এনসিটিবি ২০২৬ পাঠ্যক্রম মান</span>
+      </div>
+    </section>
+
+    <div class="roadmap-head">
+      <div>
+        <h2>বইয়ের ধারায় বিষয়সূচি</h2>
+        <p>অধ্যায়ের ৬টি পাঠ ক্রমানুসারে সাজানো হয়েছে। প্রতিটি পাঠে রয়েছে স্পষ্ট ব্যাখ্যা, সূত্র, উদাহরণ, কুইজ ও সিমুলেশন।</p>
+      </div>
+    </div>
+
+    <section class="roadmap" aria-label="অধ্যায় ৫ এর ছয়টি পাঠ">
+      <div class="group-label">চাপ ও ঘনত্বের মৌলিক বলবিদ্যা</div>
+
+      <a class="route-card" href="section-01.html">
+        <span class="route-no">5.1</span>
+        <span>
+          <span class="route-title">চাপ</span>
+          <small class="route-en">Pressure</small>
+          <span class="route-sub">বল ও ক্ষেত্রফলের সম্পর্ক · চাপের একক প্যাসকেল ($\text{Pa}$) ও মাত্রা · পেরেকের তীক্ষ্ণতা ও হাই-হিল জুতার প্রভাব · $P = \frac{F}{A}$ সমীকরণ ও গাণিতিক প্রয়োগ</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-02.html">
+        <span class="route-no">5.2</span>
+        <span>
+          <span class="route-title">ঘনত্ব</span>
+          <small class="route-en">Density</small>
+          <span class="route-sub">একক আয়তনে ভরের পরিমাণ ($\rho = \frac{m}{V}$) · একক রূপান্তর ($\text{kg/m}^3 \leftrightarrow \text{g/cm}^3$) · $4^\circ\text{C}$-এ পানির ব্যতিক্রমী প্রসারণ · ভাসা ও ডোবার বৈজ্ঞানিক শর্তাবলি</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <div class="group-label">প্রবাহী বলবিদ্যা, প্যাসকেল ও বায়ুচাপ</div>
+
+      <a class="route-card" href="section-03.html">
+        <span class="route-no">5.3</span>
+        <span>
+          <span class="route-title">তরলে চাপ, প্যাসকেলের সূত্র ও প্লবতা <span class="route-badge">⚡ লাইভ ল্যাব</span></span>
+          <small class="route-en">Pressure in Liquids, Pascal’s Law and Buoyancy</small>
+          <span class="route-sub">গভীরতায় তরলের চাপ ($P = h\rho g$) · প্যাসকেলের সূত্রে বলবৃদ্ধিকরণ ($F_2 = F_1 \frac{A_2}{A_1}$) · আর্কিমিডিসের নীতি ও প্লবতা ($F_b = V\rho g$) · ⚡ লাইভ হাইড্রোলিক ল্যাব</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-04.html">
+        <span class="route-no">5.4</span>
+        <span>
+          <span class="route-title">বায়ুচাপ, ব্যারোমিটার ও আবহাওয়া</span>
+          <small class="route-en">Air Pressure, Barometer and Weather</small>
+          <span class="route-sub">বায়ুমণ্ডলীয় চাপ · প্রমাণ বায়ুচাপ ($1\text{ atm} = 76\text{ cm Hg} = 101325\text{ Pa}$) · টরিসেলির পরীক্ষা ও শূন্যস্থান · ব্যারোমিটার পাঠে আবহাওয়া পূর্বাভাস ও উচ্চতার প্রভাব</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <div class="group-label">পদার্থের স্থিতিস্থাপকতা ও আণবিক গতিতত্ত্ব</div>
+
+      <a class="route-card" href="section-05.html">
+        <span class="route-no">5.5</span>
+        <span>
+          <span class="route-title">স্থিতিস্থাপকতা ও হুকের সূত্র <span class="route-badge">⚡ লাইভ ল্যাব</span></span>
+          <small class="route-en">Elasticity and Hooke’s Law</small>
+          <span class="route-sub">বিকৃতি ও পীড়ন · হুকের সূত্র ও স্থিতিস্থাপক সীমা · বিভিন্ন পদার্থের ইয়ংয়ের গুণাঙ্ক ($Y$) · স্প্রিং ধ্রুবক ($k$) ও বিভব শক্তি ($E_p = \frac{1}{2}kx^2$) · ⚡ লাইভ স্প্রিং ল্যাব</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-06.html">
+        <span class="route-no">5.6</span>
+        <span>
+          <span class="route-title">পদার্থের তিন অবস্থা, আণবিক গতিতত্ত্ব ও প্লাজমা</span>
+          <small class="route-en">States of Matter, Molecular Kinetic Theory and Plasma</small>
+          <span class="route-sub">কঠিন, তরল ও গ্যাসের আণবিক বিন্যাস · গতিতত্ত্বের মৌলিক স্বীকার্য · গ্যাসের চাপ ও তাপমাত্রা ($P \propto T$) · চতুর্থ অবস্থা ‘প্লাজমা’র ধর্ম, মহাজাগতিক প্রাচুর্য ও প্রয়োগ</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+    </section>
+
+    <section class="source-card">
+      <div>
+        <h2>সম্পূর্ণ অধ্যায়ের মূল পাঠ্যবই পৃষ্ঠা দেখতে চাও?</h2>
+        <p>সংযুক্ত PDF-এর ৩২টি মূল স্ক্যান পৃষ্ঠা একক ফাইলে রাখা আছে; মূল বইয়ের চিত্র, সারণি ও তথ্যাবলি সরাসরি মিলিয়ে নিতে পারো।</p>
+      </div>
+      <a class="button" href="chapter-source.html">উৎস অধ্যায় দেখো →</a>
+    </section>
+
+    <p class="source-note">জাতীয় শিক্ষাক্রম ও পাঠ্যপুস্তক বোর্ড (NCTB) অনুমোদিত ৯ম-১০ম শ্রেণির পদার্থবিজ্ঞান পাঠ্যবইয়ের ৫ম অধ্যায় (পদার্থের অবস্থা ও চাপ) অবলম্বনে প্রস্তুত।</p>
+
+    <footer class="footer">
+      পড়ি (poRi) · পদার্থবিজ্ঞান ডিজিটাল পাঠ
+    </footer>
+  </main>
+</body>
+</html>
