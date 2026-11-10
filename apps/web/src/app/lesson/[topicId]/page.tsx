@@ -12,6 +12,8 @@ import {
   Bookmark,
 } from 'lucide-react';
 import { LatexRenderer } from '@/components/math/latex-renderer';
+import { RichContentRenderer } from '@/components/content/rich-content-renderer';
+import { InteractiveSimulationRunner } from '@/components/content/interactive-simulation-runner';
 import { apiClient } from '@/lib/api-client';
 import { LessonDTO, ContentStatus } from '@pori/shared';
 
@@ -123,13 +125,21 @@ export default function LessonPage() {
         </div>
       </div>
 
-      {/* Main Explanation with LatexRenderer */}
+      {/* Interactive Physics Simulation Lab (if available) */}
+      {lesson.interactiveWidgetUrl && (
+        <InteractiveSimulationRunner
+          widgetUrl={lesson.interactiveWidgetUrl}
+          title={lesson.titleBangla}
+        />
+      )}
+
+      {/* Main Explanation with RichContentRenderer */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
         <h2 className="text-xl font-bold text-slate-900 border-b border-slate-100 pb-3">
           মূল বিষয়বস্তু ও গাণিতিক প্রতিপাদন
         </h2>
         <div className="text-slate-800 leading-relaxed text-base space-y-4">
-          <LatexRenderer content={lesson.explanation} />
+          <RichContentRenderer content={lesson.explanation} />
         </div>
       </div>
 

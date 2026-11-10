@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import { PrismaClient, ContentStatus, Role } from '@prisma/client';
 import { hashPassword } from '../src/modules/auth/password.util';
 import { normalizeBangladeshPhone } from '../src/modules/auth/phone.util';
@@ -147,6 +149,7 @@ $$s_{\\text{total}} = s_1 + s_2 = 900 + 300 = 1200\\text{ m}$$
   },
   memoryAid:
     '🚀 SUVAT মেমোরি এইড: গতির ৫টি মৌলিক চলকের মধ্যে যেকোনো ৩টি জানা থাকলে বাকি ২টি সরাসরি বের করা যায়। সূত্র বাছাইয়ের নিয়ম: যে চলকটি প্রশ্নে নেই, সেই চলকবিহীন সূত্রটি নির্বাচন করো!',
+  interactiveWidgetUrl: '/uploads/interactive/sound-wave-simulator.html',
   status: ContentStatus.PUBLISHED,
   version: 1,
 };
@@ -368,6 +371,13 @@ export async function seed(prisma: PrismaClient) {
   });
 
   // 4. Seed Lesson
+  const sampleSimSrc = path.join(__dirname, 'sample-simulations', 'sound-wave-simulator.html');
+  const sampleSimDestDir = path.join(process.cwd(), 'uploads', 'interactive');
+  if (fs.existsSync(sampleSimSrc)) {
+    fs.mkdirSync(sampleSimDestDir, { recursive: true });
+    fs.copyFileSync(sampleSimSrc, path.join(sampleSimDestDir, 'sound-wave-simulator.html'));
+  }
+
   await prisma.lesson.upsert({
     where: { id: lessonMotionEquations.id },
     update: lessonMotionEquations,

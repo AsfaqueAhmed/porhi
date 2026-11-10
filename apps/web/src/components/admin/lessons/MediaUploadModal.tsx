@@ -265,7 +265,7 @@ export function MediaUploadModal({
             <div className="space-y-4 pt-2 border-t border-slate-100 animate-in fade-in">
               <div className="flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 p-2.5 rounded-lg border border-emerald-200">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>ফাইল সফলভাবে আপলোড হয়েছে: {uploadResult.filename}</span>
+                <span>ফাইল সফলভাবে আপলোড হয়েছে: {uploadResult.originalName}</span>
               </div>
 
               {/* Title / Caption */}

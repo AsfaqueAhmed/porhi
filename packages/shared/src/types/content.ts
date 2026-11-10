@@ -30,6 +30,7 @@ export interface LessonDTO {
   importantTerms: ImportantTerm[];
   workedExample?: WorkedExample;
   memoryAid?: string;
+  interactiveWidgetUrl?: string | null;
   status: ContentStatus;
   version: number;
   createdAt?: Date | string;

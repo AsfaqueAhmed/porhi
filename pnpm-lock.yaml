@@ -75,6 +75,9 @@ importers:
       '@types/adm-zip':
         specifier: ^0.6.0
         version: 0.6.0
+      '@types/express':
+        specifier: ^5.0.6
+        version: 5.0.6
       '@types/multer':
         specifier: ^2.3.0
         version: 2.3.0

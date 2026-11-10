@@ -52,6 +52,7 @@ describe('InteractiveSimulationRunner', () => {
     expect(reloadBtn).toBeDefined();
 
     const iframeBefore = screen.getByTitle(/অপটিক্স পরীক্ষা/i) as HTMLIFrameElement;
+    expect(iframeBefore).toBeDefined();
     fireEvent.click(reloadBtn);
     const iframeAfter = screen.getByTitle(/অপটিক্স পরীক্ষা/i) as HTMLIFrameElement;
     expect(iframeAfter).toBeDefined();

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>শব্দ তরঙ্গ ও কম্পাঙ্ক সিমুলেটর (Sound Wave Simulator)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #0f172a; color: #f8fafc; padding: 16px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    .container { max-width: 680px; width: 100%; display: flex; flex-direction: column; gap: 14px; }
+    header { text-align: center; }
+    h1 { font-size: 1.15rem; color: #38bdf8; margin-bottom: 4px; }
+    p { font-size: 0.8rem; color: #94a3b8; }
+    canvas { background: #1e293b; border-radius: 12px; border: 1px solid #334155; width: 100%; height: 180px; display: block; }
+    .controls { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 12px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .control-group { display: flex; flex-direction: column; gap: 4px; }
+    label { font-size: 0.75rem; color: #cbd5e1; display: flex; justify-content: space-between; }
+    input[type=range] { accent-color: #38bdf8; cursor: pointer; }
+    .btn-row { display: flex; gap: 8px; justify-content: center; margin-top: 4px; grid-column: span 2; }
+    button { background: #0284c7; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: background 0.2s; }
+    button:hover { background: #0369a1; }
+    button.active { background: #ef4444; }
+    .info-card { background: #0b1329; border: 1px solid #1e293b; border-radius: 8px; padding: 10px; font-size: 0.75rem; color: #7dd3fc; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>শব্দ তরঙ্গ ও কম্পাঙ্ক সিমুলেটর</h1>
+      <p>কম্পাঙ্ক ($f$) ও বিস্তার ($A$) পরিবর্তন করে তরঙ্গের রূপ ও শব্দ পরীক্ষা করুন</p>
+    </header>
+
+    <canvas id="waveCanvas"></canvas>
+
+    <div class="controls">
+      <div class="control-group">
+        <label for="freq"><span>কম্পাঙ্ক (Frequency):</span> <span id="freqVal">250 Hz</span></label>
+        <input type="range" id="freq" min="100" max="1000" step="10" value="250">
+      </div>
+      <div class="control-group">
+        <label for="amp"><span>বিস্তার (Amplitude):</span> <span id="ampVal">40</span></label>
+        <input type="range" id="amp" min="10" max="70" step="1" value="40">
+      </div>
+      <div class="control-group">
+        <label for="speed"><span>তরঙ্গ বেগ (Wave Speed):</span> <span id="speedVal">340 m/s</span></label>
+        <input type="range" id="speed" min="100" max="600" step="20" value="340">
+      </div>
+      <div class="control-group">
+        <label><span>তরঙ্গদৈর্ঘ্য ($\lambda = v / f$):</span> <span id="lambdaVal">1.36 m</span></label>
+        <div class="info-card">উচ্চ কম্পাঙ্কে তরঙ্গদৈর্ঘ্য ছোট হয় এবং তীক্ষ্ণতা বাড়ে</div>
+      </div>
+      <div class="btn-row">
+        <button id="soundBtn">🔊 শব্দ শুনুন (Play Sound)</button>
+        <button id="pauseBtn">⏸️ বিরতি (Pause Wave)</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('waveCanvas');
+    const ctx = canvas.getContext('2d');
+    const freqInput = document.getElementById('freq');
+    const ampInput = document.getElementById('amp');
+    const speedInput = document.getElementById('speed');
+    const freqVal = document.getElementById('freqVal');
+    const ampVal = document.getElementById('ampVal');
+    const speedVal = document.getElementById('speedVal');
+    const lambdaVal = document.getElementById('lambdaVal');
+    const soundBtn = document.getElementById('soundBtn');
+    const pauseBtn = document.getElementById('pauseBtn');
+
+    let audioCtx = null;
+    let oscillator = null;
+    let gainNode = null;
+    let isPlayingAudio = false;
+    let isPaused = false;
+    let phase = 0;
+
+    function resize() {
+      canvas.width = canvas.clientWidth * window.devicePixelRatio;
+      canvas.height = canvas.clientHeight * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    function updateLabels() {
+      const f = parseFloat(freqInput.value);
+      const a = parseFloat(ampInput.value);
+      const v = parseFloat(speedInput.value);
+      freqVal.textContent = f + ' Hz';
+      ampVal.textContent = a;
+      speedVal.textContent = v + ' m/s';
+      const lambda = (v / f).toFixed(2);
+      lambdaVal.textContent = lambda + ' m';
+
+      if (oscillator) {
+        oscillator.frequency.setTargetAtTime(f, audioCtx.currentTime, 0.05);
+      }
+    }
+
+    freqInput.addEventListener('input', updateLabels);
+    ampInput.addEventListener('input', updateLabels);
+    speedInput.addEventListener('input', updateLabels);
+
+    soundBtn.addEventListener('click', () => {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (!isPlayingAudio) {
+        oscillator = audioCtx.createOscillator();
+        gainNode = audioCtx.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(parseFloat(freqInput.value), audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.start();
+        isPlayingAudio = true;
+        soundBtn.textContent = '🔇 শব্দ বন্ধ করুন (Stop Sound)';
+        soundBtn.classList.add('active');
+      } else {
+        oscillator.stop();
+        oscillator.disconnect();
+        isPlayingAudio = false;
+        soundBtn.textContent = '🔊 শব্দ শুনুন (Play Sound)';
+        soundBtn.classList.remove('active');
+      }
+    });
+
+    pauseBtn.addEventListener('click', () => {
+      isPaused = !isPaused;
+      pauseBtn.textContent = isPaused ? '▶️ চালু করুন (Resume Wave)' : '⏸️ বিরতি (Pause Wave)';
+    });
+
+    function draw() {
+      const width = canvas.clientWidth;
+      const height = canvas.clientHeight;
+      ctx.clearRect(0, 0, width, height);
+
+      // Centerline
+      ctx.beginPath();
+      ctx.strokeStyle = '#334155';
+      ctx.setLineDash([4, 4]);
+      ctx.moveTo(0, height / 2);
+      ctx.lineTo(width, height / 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      const f = parseFloat(freqInput.value);
+      const amp = parseFloat(ampInput.value);
+      const v = parseFloat(speedInput.value);
+      const waveLengthPx = (v / f) * 120;
+
+      ctx.beginPath();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#38bdf8';
+
+      for (let x = 0; x < width; x++) {
+        const y = height / 2 + Math.sin((x / waveLengthPx) * Math.PI * 2 - phase) * amp;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      if (!isPaused) {
+        phase += (f / 60) * 0.15;
+      }
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  </script>
+</body>
+</html>
