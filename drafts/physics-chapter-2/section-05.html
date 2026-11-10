@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>2.5 দ্রুতি ও বেগ · অধ্যায় ২: গতি | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ২ / ২.৫</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই ২.৫</span>
+    <h1 class="title">দ্রুতি ও বেগ (Speed and Velocity)</h1>
+    <p class="subtitle">গতি কত দ্রুত এবং কোন দিকে—গড় ও তাৎক্ষণিক মান, একক ও গাণিতিক বিশ্লেষণ।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>দ্রুতি ও বেগের সংজ্ঞা, একক ও মাত্রা নিরূপণ করতে পারবে, গড় ও তাৎক্ষণিক মানের পার্থক্য ব্যাখ্যা করতে পারবে এবং বাস্তব গতি সংক্রান্ত সমস্যা সমাধান করতে পারবে।</p>
+    </section>
+
+    <section class="section">
+      <h2>২.৫ · দূরত্বের হার বনাম সরণের হার</h2>
+      <p>দৈনন্দিন কথাবার্তায় আমরা "দ্রুতি" ও "বেগ" শব্দ দুটিকে একই অর্থে ব্যবহার করলেও পদার্থবিজ্ঞানে এদের মধ্যে সুস্পষ্ট পার্থক্য রয়েছে:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>তুলনার বিষয়</th>
+              <th>দ্রুতি (Speed, $v$)</th>
+              <th>বেগ (Velocity, $\vec{v}$)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>সংজ্ঞা</b></td>
+              <td>সময়ের সাথে বস্তুর দূরত্বের পরিবর্তনের হার।</td>
+              <td>সময়ের সাথে বস্তুর সরণের পরিবর্তনের হার (নির্দিষ্ট দিকে দ্রুতি)।</td>
+            </tr>
+            <tr>
+              <td><b>গাণিতিক সূত্র</b></td>
+              <td>$$v = \frac{d}{t} = \frac{\text{দূরত্ব}}{\text{সময়}}$$</td>
+              <td>$$\vec{v} = \frac{\vec{s}}{t} = \frac{\text{সরণ}}{\text{সময়}}$$</td>
+            </tr>
+            <tr>
+              <td><b>রাশির প্রকৃতি</b></td>
+              <td><b>স্কেলার</b> (কেবল মান আছে, দিক নেই)।</td>
+              <td><b>ভেক্টর</b> (মান ও নির্দিষ্ট দিক উভয়ই আছে)।</td>
+            </tr>
+            <tr>
+              <td><b>SI একক ও মাত্রা</b></td>
+              <td>একক: $\text{m/s}$ বা $\text{ms}^{-1}$, মাত্রা: $[LT^{-1}]$</td>
+              <td>একক: $\text{m/s}$ বা $\text{ms}^{-1}$, মাত্রা: $[LT^{-1}]$</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>সুষম বেগ বনাম অসম বেগ</h3>
+      <p>যদি কোনো গতিশীল বস্তুর গতিকালে বেগের <b>মান এবং দিক—উভয়ই অপরিবর্তিত থাকে</b>, তবে তাকে <b>সুষম বেগ (Uniform Velocity)</b> বলে। যদি মান অথবা দিক—যেকোনো একটি পরিবর্তিত হয়, তবেই বেগ অসম হয়ে যায়। যেমন: বৃত্তাকার পথে সমদ্রুতিতে ঘুরলেও দিক প্রতি মুহূর্তে বদলায় বলে তার বেগ <b>অসম</b>!</p>
+
+      <h3>তাৎক্ষণিক দ্রুতি (Instantaneous Speed)</h3>
+      <p>কোনো বিশেষ মুহূর্তে বস্তুর দ্রুতিকে তাৎক্ষণিক দ্রুতি বলে। গাড়ির ড্যাশবোর্ডে থাকা **স্পিডোমিটার (Speedometer)** সবসময় গাড়ির সেই মুহূর্তের তাৎক্ষণিক দ্রুতি প্রদর্শন করে।</p>
+    </section>
+
+    <!-- Worked Example -->
+    <div class="worked">
+      <h2>📝 পাঠ্যবইয়ের স্ট্যান্ডার্ড উদাহরণ</h2>
+      <div class="problem">
+        একটি গাড়ি আঁকাবাঁকা পথে $4\text{ km}$ দূরত্ব অতিক্রম করতে $20\text{ min}$ সময় নিল। কিন্তু গাড়িটির শুরুর স্থান থেকে গন্তব্যের সরণ হলো সরলরেখায় $3\text{ km}$ পূর্ব দিকে। গাড়িটির গড় দ্রুতি ও গড় বেগ কত?
+      </div>
+      <div class="solution">
+        <b>প্রদত্ত তথ্য:</b><br>
+        সময় $t = 20\text{ min} = 20 \times 60\text{ s} = 1200\text{ s}$<br>
+        দূরত্ব $d = 4\text{ km} = 4000\text{ m}$<br>
+        সরণ $s = 3\text{ km} = 3000\text{ m}$ পূর্ব দিকে<br><br>
+        <b>১. গড় দ্রুতি ($v_{\text{avg}}$):</b><br>
+        $$v_{\text{avg}} = \frac{d}{t} = \frac{4000\text{ m}}{1200\text{ s}} \approx 3.33\text{ m/s}$$<br>
+        <b>২. গড় বেগ ($\vec{v}_{\text{avg}}$):</b><br>
+        $$v_{\text{avg}} = \frac{s}{t} = \frac{3000\text{ m}}{1200\text{ s}} = 2.50\text{ m/s}$$<br>
+        <b>উত্তর:</b> গড় দ্রুতি $3.33\text{ m/s}$ এবং গড় বেগ পূর্ব দিকে $2.50\text{ m/s}$।
+      </div>
+    </div>
+
+    <div class="memory">
+      <h2>🧠 মনে রাখার সূত্র</h2>
+      <p><b>দূরত্ব থেকে দ্রুতি আসে (দ-এ দ), সরণ থেকে বেগ আসে (স-এ ব)!</b><br>সরণ শূন্য হলে গড় বেগ শূন্য হবেই, কিন্তু গাড়ি চললে দ্রুতি কখনো শূন্য হবে না।</p>
+    </div>
+
+    <details class="check">
+      <summary>প্রশ্ন: একটি বস্তু সমদ্রুতিতে চললেও তার বেগ কি পরিবর্তন হতে পারে?</summary>
+      <p><b>উত্তর:</b> হ্যাঁ, নিশ্চিতভাবেই পারে! বস্তু যদি বৃত্তাকার বা বক্রপথে ধ্রুব দ্রুতিতে চলে, তবে প্রতিটি মুহূর্তে তার গতির দিক পরিবর্তিত হয়। যেহেতু বেগ একটি ভেক্টর রাশি, দিক পরিবর্তনের কারণে তার বেগেরও পরিবর্তন ঘটে।</p>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-04.html">← আগের পাঠ</a>
+      <a class="button" href="section-06.html">পরের পাঠ: ত্বরণ ও মন্দন →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF)</a> · অধ্যায় ২: গতি · পড়ি (poRi)
+    </footer>
+  </main>
+</body>
+</html>

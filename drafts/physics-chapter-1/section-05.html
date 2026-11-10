@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>1.5 ভৌত রাশি ও তাদের পরিমাপ · অধ্যায় ১</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- KaTeX for crisp mathematical formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ১ / 1.5</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">বইয়ের পাঠ্যক্রম · section 1.5</span>
+    <h1 class="title">ভৌত রাশি ও তাদের পরিমাপ (Physical Quantities and Measurements)</h1>
+    <p class="subtitle">মৌলিক ও লব্ধ রাশি, এসআই একক, উপসর্গ বা গুণিতক, মাত্রা সমীকরণ এবং বৈজ্ঞানিক প্রতীকের আন্তর্জাতিক নিয়মাবলি।</p>
+
+    <!-- লক্ষ্য -->
+    <section class="goal">
+      <h2>🎯 এই অংশের শিখনফল</h2>
+      <p>এই পাঠটি সম্পন্ন করার পর তুমি—</p>
+      <ul>
+        <li>ভৌত রাশি, মৌলিক রাশি এবং লব্ধ রাশির সুনির্দিষ্ট সংজ্ঞা ও পার্থক্য বলতে পারবে।</li>
+        <li>৭টি মৌলিক রাশির SI একক ও প্রতীক এবং ২০১৯ সালের আধুনিকীকরণের ভিত্তি ব্যাখ্যা করতে পারবে।</li>
+        <li>উপসর্গ (Prefix: $10^{-18}$ থেকে $10^{18}$) ব্যবহার করে অতি বৃহৎ ও ক্ষুদ্র সংখ্যার রূপান্তর করতে পারবে।</li>
+        <li>যেকোনো লব্ধ রাশির মাত্রা সমীকরণ নির্ণয় করতে এবং সমীকরণের শুদ্ধতা যাচাই করতে পারবে।</li>
+        <li>আন্তর্জাতিক বৈজ্ঞানিক সংকেত ও একক লেখার সর্বজনীন নিয়ম নির্ভুলভাবে প্রয়োগ করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <!-- রাশি ও পরিমাপ -->
+    <section class="section">
+      <h2>ভৌত রাশি কী? (Physical Quantity)</h2>
+      <p>এই ভৌত জগতে যা কিছু নিখুঁতভাবে সংখ্যা ও এককের মাধ্যমে পরিমাপ করা যায়, তাকে <b>ভৌত রাশি</b> বলে। যেমন: টেবিলের দৈর্ঘ্য, বস্তুর ভর, ঘরের তাপমাত্রা ইত্যাদি। কোনো ব্যক্তির রাগ, আনন্দ বা দুঃখ পরিমাপ করা যায় না, তাই এগুলো ভৌত রাশি নয়।</p>
+      
+      <div class="formula">
+        যেকোনো পরিমাপ = বিশুদ্ধ সাংখ্যিক মান (Numerical Value) × উপযুক্ত একক (Unit)
+      </div>
+      <p>যেমন: $5\text{ m}$ বলতে বোঝায় দৈর্ঘ্যটির মান ১ মিটারের ৫ গুণ।</p>
+
+      <h3>মৌলিক ও লব্ধ রাশি</h3>
+      <div class="grid">
+        <div class="term">
+          <strong>মৌলিক রাশি (Fundamental Quantities)</strong>
+          <small>যেসব রাশি স্বাধীন বা নিরপেক্ষ, অন্য কোনো রাশির ওপর নির্ভর করে না বরং অন্য রাশিগুলো এদের ওপর ভিত্তি করে তৈরি হয়। যেমন: দৈর্ঘ্য, ভর, সময়। প্রকৃতিতে এমন রাশি মাত্র ৭টি।</small>
+        </div>
+        <div class="term">
+          <strong>লব্ধ বা যৌগিক রাশি (Derived Quantities)</strong>
+          <small>যেসব রাশি মৌলিক রাশিগুলোর গুণ বা ভাগের মাধ্যমে গঠিত হয়। যেমন: বেগ ($\text{দৈর্ঘ্য}/\text{সময়}$), ক্ষেত্রফল ($\text{দৈর্ঘ্য}^2$), বল ($\text{ভর}\times\text{ত্বরণ}$)।</small>
+        </div>
+      </div>
+    </section>
+
+    <!-- 1.5.1 SI একক -->
+    <section class="section">
+      <h2>1.5.1 · আন্তর্জাতিক একক পদ্ধতি (SI Units)</h2>
+      <p>১৯৬০ সালে বিশ্বব্যাপী বৈজ্ঞানিক পরিমাপে অভিন্নতা আনার জন্য <b>Système International d'Unités (SI)</b> বা আন্তর্জাতিক একক পদ্ধতি চালু করা হয়। ২০১৯ সালে বিশ্বের শীর্ষ পরিমাপ বিজ্ঞানীরা এসআই পদ্ধতির এককগুলোকে কোনো মানবনির্মিত ধাতব খণ্ডের ওপর নির্ভর না করে প্রকৃতির সর্বজনীন ধ্রুবকের (যেমন: আলোর বেগ $c$, প্ল্যাঙ্কের ধ্রুবক $h$, ইলেকট্রনের আধান $e$) ভিত্তিতে পুনর্নির্ধারণ করেন।</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ক্রম</th>
+              <th>মৌলিক রাশি (Quantity)</th>
+              <th>SI একক (SI Unit)</th>
+              <th>প্রতীক (Symbol)</th>
+              <th>সংজ্ঞার ভিত্তি (২০১৯ আধুনিকীকরণ)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>১</td>
+              <td>দৈর্ঘ্য (Length)</td>
+              <td>মিটার (meter)</td>
+              <td>$\text{m}$</td>
+              <td>শূন্যস্থানে আলো $1/299,792,458$ সেকেন্ডে যে দূরত্ব অতিক্রম করে।</td>
+            </tr>
+            <tr>
+              <td>২</td>
+              <td>ভর (Mass)</td>
+              <td>কিলোগ্রাম (kilogram)</td>
+              <td>$\text{kg}$</td>
+              <td>প্ল্যাঙ্কের ধ্রুবকের নির্দিষ্ট সাংখ্যিক মান ($h = 6.62607015 \times 10^{-34}\text{ J}\cdot\text{s}$) দ্বারা নির্ধারিত।</td>
+            </tr>
+            <tr>
+              <td>৩</td>
+              <td>সময় (Time)</td>
+              <td>সেকেন্ড (second)</td>
+              <td>$\text{s}$</td>
+              <td>সিজিয়াম-১৩৩ পরমাণুর ৯,১৯২,৬৩১,৭৭০টি স্পন্দনের প্রয়োজনীয় সময়।</td>
+            </tr>
+            <tr>
+              <td>৪</td>
+              <td>তড়িৎ প্রবাহ (Electric Current)</td>
+              <td>অ্যাম্পিয়ার (ampere)</td>
+              <td>$\text{A}$</td>
+              <td>মৌলিক আধানের মান $e = 1.602176634 \times 10^{-19}\text{ C}$ দ্বারা নির্ধারিত।</td>
+            </tr>
+            <tr>
+              <td>৫</td>
+              <td>তাপমাত্রা (Temperature)</td>
+              <td>কেলভিন (kelvin)</td>
+              <td>$\text{K}$</td>
+              <td>বোল্টজম্যান ধ্রুবক $k = 1.380649 \times 10^{-23}\text{ J/K}$ দ্বারা নির্ধারিত।</td>
+            </tr>
+            <tr>
+              <td>৬</td>
+              <td>পদার্থের পরিমাণ (Amount of Substance)</td>
+              <td>মোল (mole)</td>
+              <td>$\text{mol}$</td>
+              <td>অ্যাভোগাড্রো সংখ্যা $N_A = 6.02214076 \times 10^{23}$ টি কণা।</td>
+            </tr>
+            <tr>
+              <td>৭</td>
+              <td>দীপন তীব্রতা (Luminous Intensity)</td>
+              <td>ক্যান্ডেলা (candela)</td>
+              <td>$\text{cd}$</td>
+              <td>$540 \times 10^{12}\text{ Hz}$ কম্পাঙ্কের আলোর দীপন কার্যকারিতা দ্বারা।</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- পরিমাপের ব্যাপ্তি -->
+    <section class="section">
+      <h2>প্রকৃতিতে পরিমাপের অবিশ্বাস্য ব্যাপ্তি (Scale of the Universe)</h2>
+      <p>পদার্থবিজ্ঞান ক্ষুদ্রাতিক্ষুদ্র কোয়ান্টাম জগত থেকে দৃশ্যমান মহাবিশ্বের প্রান্ত পর্যন্ত অনুসন্ধান করে:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>দৈর্ঘ্য (মিটার)</th>
+              <th>ভর (কিলোগ্রাম)</th>
+              <th>সময় (সেকেন্ড)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>প্রোটনের ব্যাসার্ধ: $10^{-15}\text{ m}$</td>
+              <td>ইলেকট্রনের ভর: $9.11 \times 10^{-31}\text{ kg}$</td>
+              <td>আলোর নিউক্লিয়াস অতিক্রম: $10^{-23}\text{ s}$</td>
+            </tr>
+            <tr>
+              <td>ভাইরাস বা ব্যাকটেরিয়া: $10^{-8} - 10^{-6}\text{ m}$</td>
+              <td>একটি রক্তকণিকা: $10^{-14}\text{ kg}$</td>
+              <td>চোখের একটি পলক: $0.1\text{ s}$</td>
+            </tr>
+            <tr>
+              <td>মানুষের উচ্চতা: $\sim 1.7\text{ m}$</td>
+              <td>একজন প্রাপ্তবয়স্ক মানুষ: $\sim 70\text{ kg}$</td>
+              <td>১ দিন (২৪ ঘণ্টা): $8.64 \times 10^4\text{ s}$</td>
+            </tr>
+            <tr>
+              <td>পৃথিবীর ব্যাস: $1.28 \times 10^7\text{ m}$</td>
+              <td>পৃথিবীর ভর: $5.97 \times 10^{24}\text{ kg}$</td>
+              <td>১ বছর: $3.15 \times 10^7\text{ s}$</td>
+            </tr>
+            <tr>
+              <td>দৃশ্যমান মহাবিশ্বের ব্যাস: $\sim 10^{26}\text{ m}$</td>
+              <td>দৃশ্যমান মহাবিশ্বের ভর: $\sim 10^{53}\text{ kg}$</td>
+              <td>মহাবিশ্বের বয়স: $4.3 \times 10^{17}\text{ s}$ ($\sim 13.8$ বিলিয়ন বছর)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 1.5.2 উপসর্গ -->
+    <section class="section">
+      <h2>1.5.2 · এসআই উপসর্গ বা গুণিতক (SI Prefixes)</h2>
+      <p>এত বিশাল বা ক্ষুদ্র সংখ্যাগুলো সাধারণ দশমিকে লেখা অসম্ভব। তাই মূল এককের পূর্বে ১০-এর ঘাতযুক্ত কিছু নির্দিষ্ট উপসর্গ বা প্রিফিক্স ব্যবহার করা হয়:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>বৃহৎ গুণিতক (Multiples)</th>
+              <th>প্রতীক</th>
+              <th>মান</th>
+              <th>ক্ষুদ্র গুণিতক (Sub-multiples)</th>
+              <th>প্রতীক</th>
+              <th>মান</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>এক্সা (Exa)</td><td>$\text{E}$</td><td>$10^{18}$</td><td>ডেসি (Deci)</td><td>$\text{d}$</td><td>$10^{-1}$</td></tr>
+            <tr><td>পেটা (Peta)</td><td>$\text{P}$</td><td>$10^{15}$</td><td>সেন্টি (Centi)</td><td>$\text{c}$</td><td>$10^{-2}$</td></tr>
+            <tr><td>টেরা (Tera)</td><td>$\text{T}$</td><td>$10^{12}$</td><td>মিলি (Milli)</td><td>$\text{m}$</td><td>$10^{-3}$</td></tr>
+            <tr><td>গিগা (Giga)</td><td>$\text{G}$</td><td>$10^9$</td><td>মাইক্রো (Micro)</td><td>$\mu$</td><td>$10^{-6}$</td></tr>
+            <tr><td>মেগা (Mega)</td><td>$\text{M}$</td><td>$10^6$</td><td>ন্যানো (Nano)</td><td>$\text{n}$</td><td>$10^{-9}$</td></tr>
+            <tr><td>কিলো (Kilo)</td><td>$\text{k}$</td><td>$10^3$</td><td>পিকো (Pico)</td><td>$\text{p}$</td><td>$10^{-12}$</td></tr>
+            <tr><td>হেক্টো (Hecto)</td><td>$\text{h}$</td><td>$10^2$</td><td>ফেমটো (Femto)</td><td>$\text{f}$</td><td>$10^{-15}$</td></tr>
+            <tr><td>ডেকা (Deka)</td><td>$\text{da}$</td><td>$10^1$</td><td>অ্যাটো (Atto)</td><td>$\text{a}$</td><td>$10^{-18}$</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="note">
+        <b>সতর্কতা:</b> ক্ষেত্রফল ও আয়তন রূপান্তরের সময় প্রিফিক্সের ঘাতও বর্গ বা ঘন হয়:<br>
+        • $1\text{ cm} = 10^{-2}\text{ m} \implies 1\text{ cm}^2 = (10^{-2}\text{ m})^2 = 10^{-4}\text{ m}^2$<br>
+        • $1\text{ mm} = 10^{-3}\text{ m} \implies 1\text{ mm}^3 = (10^{-3}\text{ m})^3 = 10^{-9}\text{ m}^3$
+      </div>
+    </section>
+
+    <!-- 1.5.3 মাত্রা -->
+    <section class="section">
+      <h2>1.5.3 · মাত্রা ও মাত্রা সমীকরণ (Dimensions of Physical Quantities)</h2>
+      <p>যেকোনো ভৌত রাশিতে মৌলিক রাশিগুলো (দৈর্ঘ্য $L$, ভর $M$, সময় $T$) কোন কোন ঘাতে উপস্থিত রয়েছে, তাকে ঐ রাশির <b>মাত্রা</b> বলে। মাত্রাকে সবসময় তৃতীয় বন্ধনী $[\ ]$ এর ভেতরে লেখা হয়।</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>রাশি</th>
+              <th>গাণিতিক সম্পর্ক</th>
+              <th>একক (SI)</th>
+              <th>মাত্রা সমীকরণ</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>বেগ ($v$)</td>
+              <td>$\text{সরণ} / \text{সময়}$</td>
+              <td>$\text{m/s}$ বা $\text{m}\cdot\text{s}^{-1}$</td>
+              <td>$[v] = [L T^{-1}]$</td>
+            </tr>
+            <tr>
+              <td>ত্বরণ ($a$)</td>
+              <td>$\text{বেগের পরিবর্তন} / \text{সময়}$</td>
+              <td>$\text{m/s}^2$ বা $\text{m}\cdot\text{s}^{-2}$</td>
+              <td>$[a] = [L T^{-2}]$</td>
+            </tr>
+            <tr>
+              <td>বল ($F$)</td>
+              <td>$\text{ভর} \times \text{ত্বরণ}$</td>
+              <td>$\text{kg}\cdot\text{m/s}^2$ বা নিউটন ($\text{N}$)</td>
+              <td>$[F] = [M L T^{-2}]$</td>
+            </tr>
+            <tr>
+              <td>কাজ ও শক্তি ($W, E$)</td>
+              <td>$\text{বল} \times \text{সরণ}$</td>
+              <td>$\text{N}\cdot\text{m}$ বা জুল ($\text{J}$)</td>
+              <td>$[W] = [M L^2 T^{-2}]$</td>
+            </tr>
+            <tr>
+              <td>ক্ষমতা ($P$)</td>
+              <td>$\text{কাজ} / \text{সময়}$</td>
+              <td>$\text{J/s}$ বা ওয়াট ($\text{W}$)</td>
+              <td>$[P] = [M L^2 T^{-3}]$</td>
+            </tr>
+            <tr>
+              <td>চাপ ও পীড়ন ($P$)</td>
+              <td>$\text{বল} / \text{ক্ষেত্রফল}$</td>
+              <td>$\text{N/m}^2$ বা প্যাসকেল ($\text{Pa}$)</td>
+              <td>$[P] = [M L^{-1} T^{-2}]$</td>
+            </tr>
+            <tr>
+              <td>ঘনত্ব ($\rho$)</td>
+              <td>$\text{ভর} / \text{আয়তন}$</td>
+              <td>$\text{kg/m}^3$</td>
+              <td>$[\rho] = [M L^{-3}]$</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>মাত্রার সাহায্যে সমীকরণের যথার্থতা যাচাই (Principle of Homogeneity)</h3>
+      <p>একটি ভৌতিক সমীকরণ তখনই সঠিক হবে, যখন সমীকরণের বাম পাশের প্রতিটি পদের মাত্রা ডান পাশের প্রতিটি পদের মাত্রার সমান হবে।</p>
+    </section>
+
+    <!-- 1.5.4 বৈজ্ঞানিক প্রতীক ও সংকেত -->
+    <section class="section">
+      <h2>1.5.4 · বৈজ্ঞানিক সংকেত ও একক লেখার আন্তর্জাতিক নিয়মাবলি</h2>
+      <p>খুব বড় বা ছোট সংখ্যা প্রকাশে আদর্শ বৈজ্ঞানিক সংকেত হলো: <b>$a \times 10^n$</b> (যেখানে $1 \le a < 10$ এবং $n$ একটি পূর্ণসংখ্যা)। যেমন: আলোর বেগ $2.998 \times 10^8\text{ m/s}$।</p>
+
+      <div class="highlight-box">
+        <b>একক লেখার সার্বজনীন নিয়মাবলি (BIPM Rules):</b>
+        <ol>
+          <li><b>বিজ্ঞানী বনাম সাধারণ নাম:</b> কোনো বিজ্ঞানীর নামানুসারে এককের পুরো নাম লিখলে ছোট হাতের অক্ষরে লিখতে হবে (যেমন: $5\text{ newton}$, $10\text{ joule}$), কিন্তু এককের <b>প্রতীক</b> লেখার সময় বড় হাতের হরফ হবে (যেমন: $5\text{ N}$, $10\text{ J}$, $20\text{ W}$, $300\text{ K}$)। সাধারণ এককে ছোট হাতের হরফ হয় (যেমন: $\text{m}, \text{s}, \text{kg}$)।</li>
+          <li><b>সংখ্যা ও এককের মাঝে ফাঁক:</b> সংখ্যা ও এককের প্রতীকের মাঝে একটি স্পেস রাখতে হবে (যেমন: $2.5\text{ kg}$, $10\text{ m}$)। ভুল: $2.5\text{kg}$। তবে কোণের ডিগ্রি ($^\circ$) চিহ্নে স্পেস লাগে না।</li>
+          <li><b>বহুবচনে পরিবর্তন নেই:</b> এককের প্রতীক কখনো বহুবচন ($s$ বা $es$) হয় না (যেমন: $10\text{ kg}$, কখনোই $10\text{ kgs}$ নয়)।</li>
+          <li><b>দাঁড়ি বা ফুলস্টপ নিষেধ:</b> এককের প্রতীকের শেষে কোনো ফুলস্টপ বা ডট চিহ্ন দেওয়া যাবে না, যদি না তা বাক্যের শেষ শব্দ হয়।</li>
+          <li><b>গুণ ও ভাগ:</b> গুণ বুঝাতে স্পেস বা বিন্দু (যেমন: $\text{N}\cdot\text{m}$ বা $\text{N m}$) এবং ভাগ বুঝাতে slash বা ঋণাত্মক ঘাত (যেমন: $\text{m/s}$ বা $\text{m}\cdot\text{s}^{-1}$) ব্যবহার করতে হবে। একটি রাশিতে একের অধিক slash দেওয়া নিষিদ্ধ (যেমন: $\text{m/s/s}$ ভুল, সঠিক হলো $\text{m/s}^2$ বা $\text{m}\cdot\text{s}^{-2}$)।</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- গাণিতিক উদাহরণ -->
+    <section class="worked">
+      <h2>📐 গাণিতিক উদাহরণ ও সমাধান</h2>
+
+      <div class="problem">
+        <b>সমস্যা ১ (একক রূপান্তর):</b> একটি বুলেট $108\text{ km/h}$ বেগে লক্ষ্যবস্তুতে আঘাত করে। এর বেগকে আন্তর্জাতিক একক $\text{m/s}$-এ রূপান্তর করো।
+      </div>
+      <div class="solution">
+        <b>সমাধান:</b><br>
+        আমরা জানি, $1\text{ km} = 1000\text{ m}$ এবং $1\text{ h} = 3600\text{ s}$।<br>
+        $$\text{বেগ} = 108 \times \frac{1000\text{ m}}{3600\text{ s}} = 108 \times \frac{5}{18}\text{ m/s} = 6 \times 5 = 30\text{ m/s}$$<br>
+        <b>উত্তর:</b> $30\text{ m/s}$। (সংক্ষিপ্ত টিপস: $\text{km/h}$ থেকে $\text{m/s}$ করতে $5/18$ দিয়ে গুণ করতে হয়)।
+      </div>
+
+      <div class="problem">
+        <b>সমস্যা ২ (মাত্রা বিশ্লেষণ):</b> গতির সমীকরণ $s = ut + \frac{1}{2}at^2$-এর মাত্রিক নির্ভুলতা যাচাই করো।
+      </div>
+      <div class="solution">
+        <b>সমাধান:</b><br>
+        এখানে,<br>
+        • বামপাশের পদ $s$ (দূরত্ব)-এর মাত্রা: $[s] = [L]$<br>
+        • ডানপাশের প্রথম পদ $ut$-এর মাত্রা: $[u][t] = [L T^{-1}] [T] = [L]$<br>
+        • ডানপাশের দ্বিতীয় পদ $\frac{1}{2}at^2$-এ $\frac{1}{2}$ একটি মাত্রাহীন সংখ্যা। তাই মাত্রা হবে: $[a][t]^2 = [L T^{-2}] [T]^2 = [L]$<br>
+        দেখা যাচ্ছে সমীকরণের প্রতিটি পদের মাত্রা সমান ($[L]$)। সুতরাং সমীকরণটি মাত্রাগতভাবে সঠিক।
+      </div>
+
+      <div class="problem">
+        <b>সমস্যা ৩ (উপসর্গ ও আয়তন):</b> পানির একটি পাত্রের ধারণক্ষমতা $2.5\text{ L}$। এর আয়তনকে $\text{m}^3$ এবং $\text{cm}^3$-এ প্রকাশ করো।
+      </div>
+      <div class="solution">
+        <b>সমাধান:</b><br>
+        আমরা জানি, $1\text{ L} = 10^{-3}\text{ m}^3$ এবং $1\text{ m}^3 = 10^6\text{ cm}^3$।<br>
+        • $\text{m}^3$-এ আয়তন = $2.5 \times 10^{-3}\text{ m}^3$<br>
+        • $\text{cm}^3$-এ আয়তন = $2.5 \times 10^{-3} \times 10^6\text{ cm}^3 = 2500\text{ cm}^3$।
+      </div>
+    </section>
+
+    <!-- মনে রাখো -->
+    <aside class="memory">
+      <b>💡 সারসংক্ষেপ (Memory Tip):</b><br>
+      • মৌলিক রাশি ৭টি (দৈর্ঘ্য, ভর, সময়, তাপমাত্রা, তড়িৎ প্রবাহ, দীপন তীব্রতা, পদার্থের পরিমাণ)।<br>
+      • উপসর্গ মুখস্থ রাখার শর্টকাট: কিলো ($10^3$), মেগা ($10^6$), গিগা ($10^9$), টেরা ($10^{12}$) | মিলি ($10^{-3}$), মাইক্রো ($10^{-6}$), ন্যানো ($10^{-9}$), পিকো ($10^{-12}$)।<br>
+      • বলের মাত্রা $[MLT^{-2}]$, কাজ ও শক্তির মাত্রা $[ML^2T^{-2}]$।
+    </aside>
+
+    <!-- নিজেকে যাচাই করো -->
+    <section class="section">
+      <h2>নিজেকে যাচাই করো (Self Assessment)</h2>
+
+      <details class="check">
+        <summary>১. তাপ ও তাপমাত্রার মধ্যে কোনটি মৌলিক রাশি এবং কেন?</summary>
+        <p><b>উত্তর:</b> তাপমাত্রা মৌলিক রাশি, কিন্তু তাপ মৌলিক রাশি নয়। তাপ হলো এক প্রকার শক্তি (কাজ করার সামর্থ্য), যার একক জুল ($\text{J}$) এবং মাত্রা $[ML^2T^{-2}]$ যা একাধিক মৌলিক রাশির ওপর নির্ভরশীল। অপরপক্ষে তাপমাত্রা হলো বস্তুর তাপীয় অবস্থা, যা কোনো রাশির ওপর নির্ভর করে না এবং এর নিজস্ব স্বাধীন SI একক কেলভিন ($\text{K}$)।</p>
+      </details>
+
+      <details class="check">
+        <summary>২. ১ ন্যানোসেকেন্ডে আলো শূন্যস্থানে কত দূরত্ব অতিক্রম করে?</summary>
+        <p><b>উত্তর:</b> ১ ন্যানোসেকেন্ড $= 10^{-9}\text{ s}$। শূন্যস্থানে আলোর বেগ $c \approx 3 \times 10^8\text{ m/s}$।<br>
+        অতএব অতিক্রান্ত দূরত্ব $d = c \times t = (3 \times 10^8\text{ m/s}) \times 10^{-9}\text{ s} = 0.3\text{ m} = 30\text{ cm}$।</p>
+      </details>
+
+      <details class="check">
+        <summary>৩. এক ব্যক্তি লিখলেন: "আমার গাড়ির গতি ৫০ Kmph এবং গাড়ির ওজন ৭০০ Kgs"। এই লেখায় আন্তর্জাতিক নিয়মের কী কী ভুল আছে?</summary>
+        <p><b>উত্তর:</b><br>
+        (১) "Kmph" ভুল প্রতীক; সঠিক হলো $\text{km/h}$ বা $\text{km}\cdot\text{h}^{-1}$ (কিলো-র $k$ ছোট হাতের হবে)।<br>
+        (২) "Kgs" ভুল; এককের প্রতীক কখনো বহুবচন হয় না এবং কিলো ছোট হাতের $k$ হবে, অর্থাৎ সঠিক প্রতীক হলো $\text{kg}$।<br>
+        (৩) ওজন আসলে বল (একক নিউটন $\text{N}$), ভরের একক হিসেবে $\text{kg}$ ব্যবহৃত হয়।</p>
+      </details>
+    </section>
+
+    <!-- নেভিগেশন -->
+    <nav class="nav">
+      <a class="button secondary" href="section-04.html">← আগের পাঠ: পদার্থবিজ্ঞানের উদ্দেশ্য</a>
+      <a class="button" href="section-06.html">পরের পাঠ: পরিমাপের যন্ত্রপাতি →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">সম্পূর্ণ পাঠ্যবই PDF উৎস</a> · SSC পদার্থবিজ্ঞান অধ্যায় ১
+    </footer>
+  </main>
+</body>
+</html>

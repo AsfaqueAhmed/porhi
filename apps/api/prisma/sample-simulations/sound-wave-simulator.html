@@ -12,10 +12,75 @@
     h1 { font-size: 1.15rem; color: #38bdf8; margin-bottom: 4px; }
     p { font-size: 0.8rem; color: #94a3b8; }
     canvas { background: #1e293b; border-radius: 12px; border: 1px solid #334155; width: 100%; height: 180px; display: block; }
-    .controls { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 12px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .controls { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 14px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .control-group { display: flex; flex-direction: column; gap: 4px; }
-    label { font-size: 0.75rem; color: #cbd5e1; display: flex; justify-content: space-between; }
-    input[type=range] { accent-color: #38bdf8; cursor: pointer; }
+    label { font-size: 0.75rem; color: #cbd5e1; display: flex; justify-content: space-between; font-weight: 700; }
+    
+    /* Skeuomorphic Striped Slider */
+    .slider-container { position: relative; width: 100%; padding: 3px 0 1px 0; }
+    .custom-range {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      outline: none;
+      border: 1px solid #0f172a;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.85), inset 0 -1px 1px rgba(255, 255, 255, 0.1), 0 1px 2px rgba(0, 0, 0, 0.4);
+      cursor: pointer;
+      position: relative;
+      margin: 0;
+      display: block;
+      background: 
+        linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.05) 50%, rgba(255,255,255,0.18) 100%),
+        repeating-linear-gradient(135deg, #ff7a00 0px, #ff7a00 4px, #d95a00 4px, #d95a00 8px) 0 0 / var(--fill-pct, 50%) 100% no-repeat,
+        repeating-linear-gradient(135deg, #2a2e39 0px, #2a2e39 4px, #1a1e27 4px, #1a1e27 8px);
+    }
+    .custom-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 15px;
+      border-radius: 999px;
+      background: 
+        linear-gradient(90deg, 
+          transparent calc(50% - 5px), 
+          #64748b calc(50% - 4px), #ffffff calc(50% - 3px), transparent calc(50% - 2px), 
+          transparent calc(50% - 1px), 
+          #64748b 50%, #ffffff calc(50% + 1px), transparent calc(50% + 2px), 
+          transparent calc(50% + 3px), 
+          #64748b calc(50% + 4px), #ffffff calc(50% + 5px), transparent calc(50% + 6px)),
+        linear-gradient(180deg, #ffffff 0%, #f1f5f9 25%, #cbd5e1 60%, #94a3b8 90%, #64748b 100%);
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 1.5px 5px rgba(0,0,0,0.7), inset 0 1px 1px #ffffff, inset 0 -1px 1px rgba(0,0,0,0.25);
+      cursor: grab;
+      transition: transform 0.1s;
+    }
+    .custom-range::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.05); }
+    .custom-range::-moz-range-thumb {
+      width: 28px;
+      height: 15px;
+      border-radius: 999px;
+      background: 
+        linear-gradient(90deg, 
+          transparent calc(50% - 5px), 
+          #64748b calc(50% - 4px), #ffffff calc(50% - 3px), transparent calc(50% - 2px), 
+          transparent calc(50% - 1px), 
+          #64748b 50%, #ffffff calc(50% + 1px), transparent calc(50% + 2px), 
+          transparent calc(50% + 3px), 
+          #64748b calc(50% + 4px), #ffffff calc(50% + 5px), transparent calc(50% + 6px)),
+        linear-gradient(180deg, #ffffff 0%, #f1f5f9 25%, #cbd5e1 60%, #94a3b8 90%, #64748b 100%);
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 1.5px 5px rgba(0,0,0,0.7);
+      cursor: grab;
+    }
+    .slider-indicator-wrap { position: relative; margin-top: 3px; padding: 0 14px; }
+    .slider-track-ticks { display: flex; justify-content: space-between; align-items: flex-end; height: 5px; position: relative; }
+    .slider-tick { width: 1px; height: 4px; background: #475569; }
+    .slider-tick.major { height: 6px; background: #94a3b8; }
+    .slider-indicator-dot { position: absolute; top: -2px; width: 6px; height: 6px; border-radius: 50%; background: #f97316; box-shadow: 0 0 5px #ea580c; transform: translateX(-50%); transition: left 0.05s ease-out; pointer-events: none; }
+    .slider-labels { display: flex; justify-content: space-between; font-size: 0.62rem; font-weight: 700; color: #64748b; margin-top: 2px; }
+
     .btn-row { display: flex; gap: 8px; justify-content: center; margin-top: 4px; grid-column: span 2; }
     button { background: #0284c7; color: white; border: none; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: background 0.2s; }
     button:hover { background: #0369a1; }
@@ -35,15 +100,72 @@
     <div class="controls">
       <div class="control-group">
         <label for="freq"><span>কম্পাঙ্ক (Frequency):</span> <span id="freqVal">250 Hz</span></label>
-        <input type="range" id="freq" min="100" max="1000" step="10" value="250">
+        <div class="slider-container">
+          <input type="range" class="custom-range" id="freq" min="100" max="1000" step="10" value="250">
+        </div>
+        <div class="slider-indicator-wrap">
+          <div class="slider-track-ticks">
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+            <div class="slider-indicator-dot" id="freqDot"></div>
+          </div>
+          <div class="slider-labels">
+            <span>100 Hz</span>
+            <span>550 Hz</span>
+            <span>1000 Hz</span>
+          </div>
+        </div>
       </div>
       <div class="control-group">
         <label for="amp"><span>বিস্তার (Amplitude):</span> <span id="ampVal">40</span></label>
-        <input type="range" id="amp" min="10" max="70" step="1" value="40">
+        <div class="slider-container">
+          <input type="range" class="custom-range" id="amp" min="10" max="70" step="1" value="40">
+        </div>
+        <div class="slider-indicator-wrap">
+          <div class="slider-track-ticks">
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+            <div class="slider-indicator-dot" id="ampDot"></div>
+          </div>
+          <div class="slider-labels">
+            <span>10</span>
+            <span>40</span>
+            <span>70</span>
+          </div>
+        </div>
       </div>
       <div class="control-group">
         <label for="speed"><span>তরঙ্গ বেগ (Wave Speed):</span> <span id="speedVal">340 m/s</span></label>
-        <input type="range" id="speed" min="100" max="600" step="20" value="340">
+        <div class="slider-container">
+          <input type="range" class="custom-range" id="speed" min="100" max="600" step="20" value="340">
+        </div>
+        <div class="slider-indicator-wrap">
+          <div class="slider-track-ticks">
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick"></span>
+            <span class="slider-tick major"></span>
+            <div class="slider-indicator-dot" id="speedDot"></div>
+          </div>
+          <div class="slider-labels">
+            <span>100 m/s</span>
+            <span>350 m/s</span>
+            <span>600 m/s</span>
+          </div>
+        </div>
       </div>
       <div class="control-group">
         <label><span>তরঙ্গদৈর্ঘ্য ($\lambda = v / f$):</span> <span id="lambdaVal">1.36 m</span></label>
@@ -84,6 +206,22 @@
     window.addEventListener('resize', resize);
     resize();
 
+    function updateSliderFill(input, dotId) {
+      const min = parseFloat(input.min) || 0;
+      const max = parseFloat(input.max) || 100;
+      const val = parseFloat(input.value) || 0;
+      const pct = Math.max(0, Math.min(100, ((val - min) / (max - min)) * 100));
+      input.style.setProperty('--fill-pct', pct + '%');
+      const dot = document.getElementById(dotId);
+      if (dot) dot.style.left = pct + '%';
+    }
+
+    function updateAllSliderFills() {
+      updateSliderFill(freqInput, 'freqDot');
+      updateSliderFill(ampInput, 'ampDot');
+      updateSliderFill(speedInput, 'speedDot');
+    }
+
     function updateLabels() {
       const f = parseFloat(freqInput.value);
       const a = parseFloat(ampInput.value);
@@ -93,6 +231,7 @@
       speedVal.textContent = v + ' m/s';
       const lambda = (v / f).toFixed(2);
       lambdaVal.textContent = lambda + ' m';
+      updateAllSliderFills();
 
       if (oscillator) {
         oscillator.frequency.setTargetAtTime(f, audioCtx.currentTime, 0.05);
@@ -168,6 +307,7 @@
       }
       requestAnimationFrame(draw);
     }
+    updateAllSliderFills();
     requestAnimationFrame(draw);
   </script>
 </body>

@@ -3,6 +3,8 @@ import * as path from 'path';
 import { PrismaClient, ContentStatus, Role } from '@prisma/client';
 import { hashPassword } from '../src/modules/auth/password.util';
 import { normalizeBangladeshPhone } from '../src/modules/auth/phone.util';
+import { seedChapter1 } from './seed-chapter-1';
+import { seedChapter2 } from './seed-chapter-2';
 
 export const sscPhysicsSubject = {
   id: 'sub_ssc_physics',
@@ -149,7 +151,7 @@ $$s_{\\text{total}} = s_1 + s_2 = 900 + 300 = 1200\\text{ m}$$
   },
   memoryAid:
     '🚀 SUVAT মেমোরি এইড: গতির ৫টি মৌলিক চলকের মধ্যে যেকোনো ৩টি জানা থাকলে বাকি ২টি সরাসরি বের করা যায়। সূত্র বাছাইয়ের নিয়ম: যে চলকটি প্রশ্নে নেই, সেই চলকবিহীন সূত্রটি নির্বাচন করো!',
-  interactiveWidgetUrl: '/uploads/interactive/sound-wave-simulator.html',
+  interactiveWidgetUrl: '/uploads/interactive/motion-simulator.html',
   status: ContentStatus.PUBLISHED,
   version: 1,
 };
@@ -392,6 +394,12 @@ export async function seed(prisma: PrismaClient) {
       create: q as any,
     });
   }
+
+  // 6. Seed Chapter 1 full curriculum and question bank
+  await seedChapter1(prisma);
+
+  // 7. Seed Chapter 2 full curriculum and question bank
+  await seedChapter2(prisma);
 }
 
 async function main() {

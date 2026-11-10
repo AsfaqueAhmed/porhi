@@ -7,6 +7,7 @@ import { useUserStore, ActiveSubject } from '@/store/user-store';
 import { useLanguageStore } from '@/store/language-store';
 import { apiClient } from '@/lib/api-client';
 import { toBanglaDigits } from '@/lib/formatters';
+import { SubjectsPageSkeleton } from '@/components/ui/shimmer';
 
 interface SubjectItem {
   id: string;
@@ -80,10 +81,12 @@ export default function SubjectsPage() {
   const { activeSubject, setActiveSubject } = useUserStore();
   const { tr, language } = useLanguageStore();
   const [subjects, setSubjects] = useState<SubjectItem[]>(DEFAULT_SUBJECTS);
+  const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'ALL' | 'SSC' | 'HSC'>('ALL');
 
   useEffect(() => {
     async function loadSubjects() {
+      setIsLoading(true);
       try {
         const data = await apiClient.get<SubjectItem[]>('/curriculum/subjects');
         if (data && Array.isArray(data) && data.length > 0) {
@@ -96,6 +99,8 @@ export default function SubjectsPage() {
         }
       } catch {
         // Keep default subjects
+      } finally {
+        setIsLoading(false);
       }
     }
     loadSubjects();
@@ -118,6 +123,10 @@ export default function SubjectsPage() {
     if (filter === 'ALL') return true;
     return s.program === filter;
   });
+
+  if (isLoading) {
+    return <SubjectsPageSkeleton />;
+  }
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">

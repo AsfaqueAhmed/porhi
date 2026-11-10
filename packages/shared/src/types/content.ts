@@ -35,6 +35,7 @@ export interface LessonDTO {
   version: number;
   createdAt?: Date | string;
   updatedAt?: Date | string;
+  topic?: QuestionTopicHierarchy;
 }
 
 export interface LessonTermItem {

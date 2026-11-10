@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>2.1 স্থিতি এবং গতি · অধ্যায় ২: গতি | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- KaTeX for crisp mathematical formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ২ / ২.১</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই ২.১</span>
+    <h1 class="title">স্থিতি এবং গতি (Rest and Motion)</h1>
+    <p class="subtitle">প্রসঙ্গ কাঠামো, পরম স্থিতি ও পরম গতির আপেক্ষিকতা নিয়ে পাঠ্যবইয়ের বিশদ বিশ্লেষণ।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>প্রসঙ্গ কাঠামো ও প্রসঙ্গ বিন্দুর ধারণা ব্যাখ্যা করতে পারবে এবং মহাবিশ্বের যেকোনো গতি বা স্থিতি যে পরম নয় বরং আপেক্ষিক—তা বাস্তব উদাহরণের সাহায্যে প্রমাণ করতে পারবে।</p>
+    </section>
+
+    <section class="section">
+      <h2>২.১ · স্থিতি ও গতি: অবস্থান পরিবর্তনের বাস্তবতা</h2>
+      <p>আমরা আমাদের চারপাশের নানা বস্তুকে কখনো স্থির, আবার কখনো চলমান দেখি। কিন্তু কোনো বস্তু প্রকৃতপক্ষে স্থির নাকি গতিশীল, তা বোঝার জন্য প্রথমেই প্রয়োজন একটি **প্রসঙ্গ বিন্দু (Reference Point)** বা **প্রসঙ্গ কাঠামো (Frame of Reference)**।</p>
+
+      <div class="grid">
+        <div class="term">
+          <strong>স্থিতি (Rest)</strong>
+          <small>সময়ের পরিবর্তনের সাথে পারিপার্শ্বিক বা প্রসঙ্গ বিন্দুর সাপেক্ষে কোনো বস্তুর অবস্থানের পরিবর্তন না হওয়া।</small>
+        </div>
+        <div class="term">
+          <strong>গতি (Motion)</strong>
+          <small>সময়ের পরিবর্তনের সাথে পারিপার্শ্বিক বা প্রসঙ্গ বিন্দুর সাপেক্ষে কোনো বস্তুর অবস্থানের ধারাবাহিক পরিবর্তন।</small>
+        </div>
+        <div class="term">
+          <strong>প্রসঙ্গ কাঠামো</strong>
+          <small>যে দৃঢ় বস্তু বা স্থানাঙ্ক ব্যবস্থার ($x, y, z$ অক্ষ) সাপেক্ষে অন্য কোনো বস্তুর অবস্থান বা গতি নির্ণয় করা হয়।</small>
+        </div>
+      </div>
+
+      <h3>পরম স্থিতি ও পরম গতি কি সম্ভব?</h3>
+      <p>আমরা সাধারণত যে পৃথিবীপৃষ্ঠকে স্থির ধরে স্থিতি বা গতি পরিমাপ করি, সেই পৃথিবী নিজেই সূর্যের চারদিকে প্রায় $30\text{ km/s}$ বেগে ঘুরছে। সূর্য আবার তার সৌরজগৎ নিয়ে ছায়াপথের কেন্দ্রের চারদিকে প্রদক্ষিণ করছে। সুতরাং মহাবিশ্বে এমন কোনো বস্তু বা প্রসঙ্গ বিন্দু নেই যা সম্পূর্ণ স্থির বা পরমভাবে অচঞ্চল।</p>
+
+      <div class="highlight-box">
+        <b>💡 পদার্থবিজ্ঞানের সর্বজনীন সত্য:</b> মহাবিশ্বের সকল স্থিতিই আপেক্ষিক, সকল গতিই আপেক্ষিক। কোনো গতিই পরম নয়, পরম স্থিতি বলে কিছু নেই।
+      </div>
+
+      <h3>অবস্থান বর্ণনায় দিক ও স্থানাঙ্ক</h3>
+      <p>কাউকে যদি বলা হয় “আমার স্কুলটি বাড়ি থেকে $১\text{ km}$ দূরে”, তবে সে কখনোই স্কুলে পৌঁছাতে পারবে না—কারণ দিক জানা নেই। অবস্থান সঠিকভাবে বোঝাতে প্রসঙ্গ বিন্দু থেকে দূরত্ব এবং দিক—উভয়ই সুনির্দিষ্ট করতে হয়। যেমন: “বাড়ি থেকে পূর্ব দিকে $১\text{ km}$” বা স্থানাঙ্ক তলে $(x, y) = (800\text{ m}, 600\text{ m})$।</p>
+    </section>
+
+    <div class="note">
+      <h2>🚌 বাস্তব জীবনের আকর্ষণীয় উদাহরণ</h2>
+      <p>একটি চলন্ত ট্রেনের কামরায় সামনাসামনি বসে থাকা দুই বন্ধু ট্রেনের কামরা বা একে অপরের সাপেক্ষে <b>স্থির</b>। কিন্তু প্ল্যাটফর্মে দাঁড়িয়ে থাকা কোনো পর্যবেক্ষকের সাপেক্ষে তারা ট্রেনের বেগে <b>গতিশীল</b>। দুজন পর্যবেক্ষকের বক্তব্যই সঠিক—কারণ তাদের প্রসঙ্গ কাঠামো আলাদা!</p>
+    </div>
+
+    <div class="memory">
+      <h2>🧠 মনে রাখার কৌশল: আপেক্ষিকতার নীতি</h2>
+      <p>“বিন্দু বদলালে বদলায় পাঠ, স্থিরও যে চলে যদি খোলো চোখ-বাট!”—প্রসঙ্গ কাঠামো উল্লেখ না করে ‘স্থিতি’ বা ‘গতি’ শব্দটি উচ্চারণ করা অর্থহীন।</p>
+    </div>
+
+    <details class="check">
+      <summary>প্রশ্ন: পৃথিবীর ওপর দাঁড়িয়ে থাকা একটি গাছ কি পরম স্থির?</summary>
+      <p><b>উত্তর:</b> না, গাছটি পরম স্থির নয়। পৃথিবীর সাপেক্ষে গাছটি স্থির হলেও, মহাশূন্যের বা সূর্যের সাপেক্ষে পৃথিবী নিজেই গতিশীল হওয়ায় গাছটিও পৃথিবীর সাথে অনবরত ঘূর্ণন ও পরিক্রমণ করছে। তাই এটি আপেক্ষিক স্থিতি।</p>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="index.html">← অধ্যায়ের সূচি</a>
+      <a class="button" href="section-02.html">পরের পাঠ: বিভিন্ন প্রকার গতি →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF)</a> · অধ্যায় ২: গতি · পড়ি (poRi)
+    </footer>
+  </main>
+</body>
+</html>

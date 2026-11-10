@@ -18,21 +18,57 @@ export class PracticeService {
 
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
-  async getChapterQuestions(chapterId: string) {
-    const chapter = await this.prisma.chapter.findUnique({
-      where: { id: chapterId },
+  async getChapterQuestions(chapterId: string, topicId?: string) {
+    let resolvedChapterId = chapterId;
+    if (chapterId === 'ch-motion') {
+      const motionChapter = await this.prisma.chapter.findFirst?.({
+        where: {
+          OR: [
+            { id: 'chap_ssc_physics_ch2' },
+            { titleBangla: { contains: 'গতি' } },
+          ],
+        },
+      });
+      if (motionChapter) {
+        resolvedChapterId = motionChapter.id;
+      } else {
+        resolvedChapterId = 'chap_ssc_physics_ch2';
+      }
+    }
+
+    let chapter = await this.prisma.chapter.findUnique({
+      where: { id: resolvedChapterId },
     });
+
+    if (!chapter && this.prisma.topic?.findUnique) {
+      const topic = await this.prisma.topic.findUnique({
+        where: { id: resolvedChapterId },
+      });
+      if (topic) {
+        resolvedChapterId = topic.chapterId;
+        chapter = await this.prisma.chapter.findUnique({
+          where: { id: resolvedChapterId },
+        });
+      }
+    }
 
     if (!chapter) {
       throw new NotFoundException(`Chapter not found with id: ${chapterId}`);
     }
 
+    const where: any = {
+      type: 'MCQ',
+      status: ContentStatus.PUBLISHED,
+    };
+
+    if (topicId && typeof topicId === 'string' && topicId.trim()) {
+      where.topicId = topicId.trim();
+    } else {
+      where.topic = { chapterId: resolvedChapterId };
+    }
+
     const questions = await this.prisma.question.findMany({
-      where: {
-        topic: { chapterId },
-        type: 'MCQ',
-        status: ContentStatus.PUBLISHED,
-      },
+      where,
     });
 
     const shuffledQuestions = shuffle(questions);

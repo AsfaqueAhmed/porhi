@@ -3,6 +3,7 @@ import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { LessonService } from './lesson.service';
 import { PrismaService } from '../../database/prisma.service';
 import { ContentStatus, Role } from '@prisma/client';
+import { CONTENT_HIERARCHY_INCLUDE } from '../content-admin/admin-content-query.util';
 
 describe('LessonService', () => {
   let lessonService: LessonService;
@@ -60,6 +61,7 @@ describe('LessonService', () => {
 
       expect(prisma.lesson.findFirst).toHaveBeenCalledWith({
         where: { topicId: 'top_1', status: ContentStatus.PUBLISHED },
+        include: CONTENT_HIERARCHY_INCLUDE,
         orderBy: { version: 'desc' },
       });
 
@@ -114,6 +116,7 @@ describe('LessonService', () => {
 
       expect(prisma.lesson.findFirst).toHaveBeenCalledWith({
         where: { topicId: 'top_1', status: ContentStatus.DRAFT },
+        include: CONTENT_HIERARCHY_INCLUDE,
         orderBy: { version: 'desc' },
       });
 
@@ -170,6 +173,7 @@ describe('LessonService', () => {
           topicId: 'top_1',
           status: { not: ContentStatus.ARCHIVED },
         },
+        include: CONTENT_HIERARCHY_INCLUDE,
         orderBy: { version: 'desc' },
       });
     });

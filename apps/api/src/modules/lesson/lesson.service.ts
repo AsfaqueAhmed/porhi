@@ -1,6 +1,7 @@
 import { ForbiddenException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { ContentStatus, Role } from '@prisma/client';
+import { CONTENT_HIERARCHY_INCLUDE } from '../content-admin/admin-content-query.util';
 
 export interface LessonAuthUser {
   id: string;
@@ -32,6 +33,7 @@ export class LessonService {
           topicId,
           status: ContentStatus.DRAFT,
         },
+        include: CONTENT_HIERARCHY_INCLUDE,
         orderBy: { version: 'desc' },
       });
     } else {
@@ -40,6 +42,7 @@ export class LessonService {
           topicId,
           status: ContentStatus.PUBLISHED,
         },
+        include: CONTENT_HIERARCHY_INCLUDE,
         orderBy: { version: 'desc' },
       });
 
@@ -50,6 +53,7 @@ export class LessonService {
             topicId,
             status: { not: ContentStatus.ARCHIVED },
           },
+          include: CONTENT_HIERARCHY_INCLUDE,
           orderBy: { version: 'desc' },
         });
       }

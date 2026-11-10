@@ -15,8 +15,8 @@ async function bootstrap() {
   app.enableShutdownHooks();
 
   const port = process.env.PORT ?? 3001;
-  await app.listen(port);
-  logger.log(`poRi API running on port ${port}`);
+  await app.listen(port, '0.0.0.0');
+  logger.log(`poRi API running on port ${port} (0.0.0.0)`);
 }
 
 bootstrap();

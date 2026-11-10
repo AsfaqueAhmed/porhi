@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>2.6 ত্বরণ ও মন্দন · অধ্যায় ২: গতি | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ২ / ২.৬</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই ২.৬</span>
+    <h1 class="title">ত্বরণ ও মন্দন (Acceleration & Deceleration)</h1>
+    <p class="subtitle">বেগের পরিবর্তনের হার, ঋণাত্মক ত্বরণ, একক ও মাত্রা এবং সমত্বরণের বৈজ্ঞানিক রূপ।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>ত্বরণ ও মন্দনের সমীকরণ প্রতিপাদন করতে পারবে, একক ও মাত্রা বিশ্লেষণ করতে পারবে এবং বাস্তব জীবনে ব্রেকিং বা এক্সিলারেশনের গাণিতিক হিসাব সম্পন্ন করতে পারবে।</p>
+    </section>
+
+    <section class="section">
+      <h2>২.৬ · বেগ পরিবর্তনের হারই হলো ত্বরণ</h2>
+      <p>কোনো গতিশীল বস্তু যখন একই বেগে (সমবেগে) চলে, তখন তার কোনো ত্বরণ থাকে না ($a = 0$)। কিন্তু বাস্তব জীবনে গাড়ি স্টার্ট দেওয়া, গতি বাড়ানো বা ব্রেক চাপার সময় বেগের মান প্রতিনিয়ত পরিবর্তিত হয়।</p>
+
+      <div class="formula">
+        $$\text{ত্বরণ } (a) = \frac{\text{বেগের পরিবর্তন}}{\text{প্রয়োজনীয় সময়}} = \frac{v - u}{t}$$
+      </div>
+
+      <div class="grid">
+        <div class="term">
+          <strong>আদিবেগ ($u$)</strong>
+          <small>পর্যবেক্ষণের শুরুতে বস্তুর বেগ ($\text{m/s}$)।</small>
+        </div>
+        <div class="term">
+          <strong>শেষ বেগ ($v$)</strong>
+          <small>$t$ সময় পর বস্তুর প্রাপ্ত বেগ ($\text{m/s}$)।</small>
+        </div>
+        <div class="term">
+          <strong>ত্বরণ ($a$)</strong>
+          <small>বেগের বৃদ্ধির হার ($\text{m/s}^2$ বা $\text{ms}^{-2}$)।</small>
+        </div>
+        <div class="term">
+          <strong>মন্দন (Deceleration)</strong>
+          <small>ঋণাত্মক ত্বরণ বা বেগ হ্রাসের হার।</small>
+        </div>
+      </div>
+
+      <h3>ত্বরণের মাত্রা ও একক প্রতিপাদন</h3>
+      <p>ত্বরণ হলো বেগকে সময় দিয়ে ভাগ করার ফল:</p>
+      $$\text{একক} = \frac{\text{বেগের একক}}{\text{সময়ের একক}} = \frac{\text{m/s}}{\text{s}} = \text{m/s}^2 \quad (\text{বা ms}^{-2})$$
+      $$\text{মাত্রা} = \frac{[LT^{-1}]}{[T]} = [LT^{-2}]$$
+
+      <h3>সুষম ত্বরণ বনাম অসম ত্বরণ</h3>
+      <ul>
+        <li><b>সুষম ত্বরণ (Uniform Acceleration):</b> যদি কোনো বস্তুর বেগ নির্দিষ্ট দিকে সবসময় সমান হারে বৃদ্ধি পায়। যেমন: পৃথিবীর অভিকর্ষের টানে মুক্তভাবে পড়ন্ত বস্তুর ত্বরণ ($g = 9.8\text{ m/s}^2$)।</li>
+        <li><b>অসম ত্বরণ (Non-uniform Acceleration):</b> যদি সময়ের ব্যবধানে বেগ বৃদ্ধির হার সমান না থাকে। যেমন: যানজটপূর্ণ ব্যস্ত রাস্তায় চলা বাসের গতি।</li>
+      </ul>
+    </section>
+
+    <!-- Worked Example -->
+    <div class="worked">
+      <h2>📝 পাঠ্যবইয়ের স্ট্যান্ডার্ড উদাহরণ</h2>
+      <div class="problem">
+        একটি দ্রুতগামী প্রাইভেট কার $20\text{ m/s}$ আদিবেগে চলছিল। চালক ব্রেক চাপায় গাড়িটি সুষম মন্দনে $5\text{ s}$ পর সম্পূর্ণ থেমে গেল। গাড়িটির ত্বরণ ও মন্দন কত?
+      </div>
+      <div class="solution">
+        <b>প্রদত্ত তথ্য:</b><br>
+        আদিবেগ $u = 20\text{ m/s}$<br>
+        শেষ বেগ $v = 0\text{ m/s}$ (যেহেতু থেমে গেল)<br>
+        সময় $t = 5\text{ s}$<br><br>
+        <b>ত্বরণের সূত্র প্রয়োগ করে:</b><br>
+        $$a = \frac{v - u}{t} = \frac{0 - 20\text{ m/s}}{5\text{ s}} = -4\text{ m/s}^2$$<br>
+        এখানে ঋণাত্মক চিহ্নটি প্রকাশ করছে যে বেগ কমেছে।<br>
+        <b>উত্তর:</b> গাড়িটির ত্বরণ $-4\text{ m/s}^2$ অথবা গাড়িটির <b>মন্দন $4\text{ m/s}^2$</b>।
+      </div>
+    </div>
+
+    <div class="note">
+      <h2>⚠️ সতর্কবার্তা: মন্দনের সাথে মাইনাস চিহ্ন নয়!</h2>
+      <p>যখন তুমি বলবে <b>"ত্বরণ"</b>, তখন ঋণাত্মক মান আসলে লিখবে: $a = -4\text{ m/s}^2$। কিন্তু যখন তুমি মুখে বা খাতায় <b>"মন্দন"</b> শব্দটি ব্যবহার করবে, তখন আর মাইনাস চিহ্ন দেওয়া যাবে না—বলতে হবে "মন্দন $4\text{ m/s}^2$", কারণ মন্দন নিজেই ঋণাত্মক ত্বরণ প্রকাশ করে।</p>
+    </div>
+
+    <div class="memory">
+      <h2>🧠 মনে রাখার কৌশল</h2>
+      <p><b>এক্সিলারেটরে চাপ দিলে বেগ বাড়ে $\implies$ ধনাত্মক ত্বরণ ($a > 0$)<br>ব্রেকে চাপ দিলে বেগ কমে $\implies$ ঋণাত্মক ত্বরণ বা মন্দন ($a < 0$)!</b></p>
+    </div>
+
+    <details class="check">
+      <summary>প্রশ্ন: একটি বস্তু সমবেগে চললে তার ত্বরণ কত হবে?</summary>
+      <p><b>উত্তর:</b> সমবেগে চললে আদিবেগ ও শেষ বেগ সমান থাকে ($v = u$)। ফলে বেগের পরিবর্তন $v - u = 0$। সুতরাং ত্বরণ $a = 0$। সমবেগে চলা বস্তুর কোনো ত্বরণ থাকে না।</p>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-05.html">← আগের পাঠ</a>
+      <a class="button" href="section-07.html">পরের পাঠ: গতির সমীকরণ ও লাইভ ল্যাব →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF)</a> · অধ্যায় ২: গতি · পড়ি (poRi)
+    </footer>
+  </main>
+</body>
+</html>

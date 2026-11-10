@@ -132,6 +132,24 @@ describe('PracticeService', () => {
         NotFoundException,
       );
     });
+
+    it('should filter questions strictly by topicId when topicId is provided', async () => {
+      prisma.chapter.findUnique.mockResolvedValue({ id: 'chap_1', titleBangla: 'বল' });
+      prisma.question.findMany.mockResolvedValue([sampleQuestion]);
+
+      const result = await practiceService.getChapterQuestions('chap_1', 'top_1');
+
+      expect(prisma.question.findMany).toHaveBeenCalledWith({
+        where: {
+          topicId: 'top_1',
+          type: 'MCQ',
+          status: ContentStatus.PUBLISHED,
+        },
+      });
+
+      expect(result).toHaveLength(1);
+      expect(result[0].topicId).toBe('top_1');
+    });
   });
 
   describe('submitPractice', () => {

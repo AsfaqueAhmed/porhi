@@ -161,12 +161,23 @@ export function LessonDetailDrawer({
       )}
 
       {/* Core Explanation with Rich Content (Audio, Video, Images, KaTeX) */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-2">
-        <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">
-          <BookOpen className="w-3.5 h-3.5 text-indigo-600" />
-          <span>{tr('মূল ব্যাখ্যা ও কনটেন্ট', 'Core Content & Explanation')}</span>
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-5 md:p-6 space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+              <BookOpen className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-indigo-700">
+                {tr('মূল ব্যাখ্যা ও কনটেন্ট', 'Core Content & Explanation')}
+              </span>
+              <p className="text-[11px] text-slate-400">
+                {tr('এনসিটিবি পাঠ্যবই অনুযায়ী তাত্ত্বিক বিষয়বস্তু, সূত্র ও বিশ্লেষণ', 'NCTB textbook theory, formulas, and analysis')}
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="text-xs text-slate-800 leading-relaxed">
+        <div className="text-sm md:text-base text-slate-800 leading-relaxed">
           <RichContentRenderer content={lesson.explanation} />
         </div>
       </div>
@@ -216,7 +227,7 @@ export function LessonDetailDrawer({
       )}
 
       {hasWorkedExample && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-4 space-y-3 text-xs">
+        <div className="bg-white rounded-2xl border border-slate-200 p-5 space-y-3 text-xs">
           <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500 uppercase tracking-wider">
             <Calculator className="w-3.5 h-3.5 text-purple-600" />
             <span>{tr('গাণিতিক উদাহরণ', 'Worked Example')}</span>
@@ -232,10 +243,10 @@ export function LessonDetailDrawer({
           )}
 
           {workedSolution && (
-            <div className="bg-emerald-50/60 border border-emerald-200 rounded-xl p-3 space-y-1">
+            <div className="bg-emerald-50/60 border border-emerald-200 rounded-xl p-3.5 space-y-1.5">
               <div className="text-[11px] font-bold text-emerald-900">{tr('ধাপওয়ারী সমাধান', 'Step-by-Step Solution')}</div>
-              <div className="text-slate-800 leading-relaxed">
-                <LatexRenderer content={workedSolution} />
+              <div className="text-xs md:text-sm text-slate-800 leading-relaxed">
+                <RichContentRenderer content={workedSolution} />
               </div>
             </div>
           )}

@@ -46,9 +46,9 @@ export const PersistentNav: React.FC<PersistentNavProps> = ({ currentPath: propP
   return (
     <nav className="w-full bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm" aria-label="Main Navigation">
       {/* Top Banner / Active Subject Indicator */}
-      <div className="bg-indigo-50 border-b border-indigo-100 px-4 py-1.5 text-xs font-medium text-indigo-900 flex items-center justify-between">
-        <div className="flex items-center gap-1.5 truncate">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+      <div className="bg-indigo-50 border-b border-indigo-100 px-3 sm:px-4 py-1.5 text-xs font-medium text-indigo-900 flex items-center justify-between gap-2 overflow-hidden">
+        <div className="flex items-center gap-1.5 min-w-0 truncate">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0"></span>
           {activeSubject ? (
             <span className="truncate">
               {t('common.currentSubject')}: {activeSubject.nameBangla}
@@ -59,10 +59,10 @@ export const PersistentNav: React.FC<PersistentNavProps> = ({ currentPath: propP
                 : ''}
             </span>
           ) : (
-            <span className="text-gray-600">{t('common.selectSubject')}</span>
+            <span className="text-gray-600 truncate">{t('common.selectSubject')}</span>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <Link
             href="/subjects"
             className="text-indigo-600 hover:text-indigo-800 text-[11px] font-semibold flex items-center shrink-0"

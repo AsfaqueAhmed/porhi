@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>2.8 পতনশীল বস্তুর সূত্র ও লেখচিত্র · অধ্যায় ২: গতি | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ২ / ২.৮</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই ২.৮</span>
+    <h1 class="title">পতনশীল বস্তুর সূত্র ও গতির লেখচিত্র (Falling Bodies & Graphs)</h1>
+    <p class="subtitle">গ্যালিলিওর ৩টি মৌলিক সূত্র, অভিকর্ষজ ত্বরণ $g$, খাড়া নিক্ষিপ্ত বস্তু এবং গ্রাফ বিশ্লেষণ।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>গ্যালিলিওর ৩টি পতনশীল বস্তুর সূত্র ব্যাখ্যা করতে পারবে, অভিকর্ষের অধীনে মুক্তপতন ও নিক্ষিপ্ত বস্তুর গাণিতিক সমস্যা সমাধান করতে পারবে এবং $s-t$ ও $v-t$ লেখচিত্র থেকে বেগ, ত্বরণ ও দূরত্ব নির্ণয় করতে পারবে।</p>
+    </section>
+
+    <section class="section">
+      <h2>২.৮ · গ্যালিলিওর পরন্ত বস্তুর ৩টি সূত্র</h2>
+      <p>বাতাসের বাধা না থাকলে ভারী ও হালকা সকল বস্তু একই সাথে মাটিতে পড়বে—বিজ্ঞানী গ্যালিলিও পরীক্ষার সাহায্যে এই বৈপ্লবিক সত্য প্রতিষ্ঠা করেন।</p>
+
+      <div class="grid">
+        <div class="term">
+          <strong>প্রথম সূত্র (সমান সময়)</strong>
+          <small>স্থির অবস্থান ও একই উচ্চতা থেকে বিনা বাধায় পড়ন্ত সকল বস্তু সমান সময়ে সমান পথ অতিক্রম করে।</small>
+        </div>
+        <div class="term">
+          <strong>দ্বিতীয় সূত্র (বেগ ও সময়)</strong>
+          <small>স্থির অবস্থা থেকে বিনা বাধায় পড়ন্ত বস্তুর নির্দিষ্ট সময়ে প্রাপ্ত বেগ ($v$) ঐ সময়ের ($t$) সমানুপাতিক: $$v \propto t$$</small>
+        </div>
+        <div class="term">
+          <strong>তৃতীয় সূত্র (দূরত্ব ও সময়)</strong>
+          <small>স্থির অবস্থা থেকে বিনা বাধায় পড়ন্ত বস্তু নির্দিষ্ট সময়ে যে দূরত্ব ($h$) অতিক্রম করে, তা ঐ সময়ের ($t$) বর্গের সমানুপাতিক: $$h \propto t^2$$</small>
+        </div>
+      </div>
+
+      <h3>অভিকর্ষজ ত্বরণ ($g$) ও গতির সমীকরণ</h3>
+      <p>পৃথিবীপৃষ্ঠের কাছাকাছি মুক্তভাবে পড়ন্ত বস্তুর ত্বরণকে **অভিকর্ষজ ত্বরণ ($g \approx 9.8\text{ m/s}^2$)** ধরা হয়। সাধারণ গতির সমীকরণে সরণ $s$-এর স্থানে উচ্চতা $h$ এবং ত্বরণ $a$-এর স্থানে $g$ বসিয়ে সূত্রগুলো পাওয়া যায়:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>গতির অবস্থা</th>
+              <th>বেগ ($v$)</th>
+              <th>উচ্চতা ($h$)</th>
+              <th>বেগ ও উচ্চতা</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>নিচে পড়ন্ত বস্তু ($a = +g$)</b></td>
+              <td>$$v = u + gt$$</td>
+              <td>$$h = ut + \frac{1}{2}gt^2$$</td>
+              <td>$$v^2 = u^2 + 2gh$$</td>
+            </tr>
+            <tr>
+              <td><b>খাড়া উপরে নিক্ষিপ্ত ($a = -g$)</b></td>
+              <td>$$v = u - gt$$</td>
+              <td>$$h = ut - \frac{1}{2}gt^2$$</td>
+              <td>$$v^2 = u^2 - 2gh$$</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>খাড়া উপরে নিক্ষিপ্ত বস্তুর বিশেষ সূত্র</h3>
+      <ul>
+        <li>সর্বোচ্চ উচ্চতায় শেষ বেগ: <b>$v = 0$</b></li>
+        <li>সর্বোচ্চ উচ্চতা: $$H_{\text{max}} = \frac{u^2}{2g}$$</li>
+        <li>সর্বোচ্চ উচ্চতায় ওঠার সময়: $$t_{\text{rise}} = \frac{u}{g}$$</li>
+        <li>মোট বিচরণকাল বা উড্ডয়নকাল (উপরে উঠে আবার মাটিতে ফেরা): $$T = \frac{2u}{g}$$</li>
+      </ul>
+    </section>
+
+    <!-- Motion Graphs Section -->
+    <section class="section">
+      <h2>📈 গতির লেখচিত্র (Motion Graphs) বিশ্লেষণ</h2>
+      <p>পদার্থবিজ্ঞানে বস্তুর গতি নিখুঁতভাবে পর্যালোচনা করার শক্তিশালী মাধ্যম হলো লেখচিত্র:</p>
+      
+      <div class="grid">
+        <div class="term">
+          <strong>১. সরণ-সময় ($s-t$) লেখচিত্র</strong>
+          <small>লেখচিত্রের ঢাল (Slope) বস্তুর <b>বেগ ($v$)</b> প্রকাশ করে। রেখা যত খাড়া, বেগ তত বেশি। অনুভূমিক সমান্তরাল সরলরেখা মানে বস্তু স্থির ($v = 0$)।</small>
+        </div>
+        <div class="term">
+          <strong>২. বেগ-সময় ($v-t$) লেখচিত্র</strong>
+          <small>লেখচিত্রের ঢাল (Slope) বস্তুর <b>ত্বরণ ($a$)</b> প্রকাশ করে। ঊর্ধ্বমুখী ঢাল = ত্বরণ, সমতল = সমবেগ, নিম্নমুখী ঢাল = মন্দন।</small>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <b>💡 অতি গুরুত্বপূর্ণ জ্যামিতিক নিয়ম:</b> বেগ-সময় ($v-t$) লেখচিত্রের রেখার নিচের মোট ক্ষেত্রফল (Area under curve) বস্তুটির <b>অতিক্রান্ত দূরত্ব বা সরণ ($s$)</b> নির্দেশ করে!
+      </div>
+    </section>
+
+    <!-- Worked Example -->
+    <div class="worked">
+      <h2>📝 পাঠ্যবইয়ের স্ট্যান্ডার্ড উদাহরণ: মুক্তপতন</h2>
+      <div class="problem">
+        একটি উঁচু ভবনের ছাদ থেকে একটি পাথর ছেড়ে দেওয়া হলো (স্থির অবস্থান থেকে)। পাথরটি $3\text{ s}$ পর মাটিতে পড়লে ভবনের উচ্চতা কত ছিল এবং মাটিতে স্পর্শ করার মুহূর্তে তার বেগ কত ছিল? ($g = 9.8\text{ m/s}^2$ ধরো)
+      </div>
+      <div class="solution">
+        <b>প্রদত্ত তথ্য:</b><br>
+        স্থির অবস্থা থেকে ছেড়ে দেওয়ায় আদিবেগ $u = 0\text{ m/s}$<br>
+        অভিকর্ষজ ত্বরণ $g = 9.8\text{ m/s}^2$<br>
+        পতনের সময় $t = 3\text{ s}$<br><br>
+        <b>১. ভবনের উচ্চতা ($h$):</b><br>
+        $$h = ut + \frac{1}{2}gt^2 = (0 \times 3) + \frac{1}{2} \times 9.8 \times (3)^2 = 0 + 4.9 \times 9 = 44.1\text{ m}$$<br>
+        <b>২. মাটিতে স্পর্শের বেগ ($v$):</b><br>
+        $$v = u + gt = 0 + (9.8 \times 3) = 29.4\text{ m/s}$$<br>
+        <b>উত্তর:</b> ভবনের উচ্চতা $44.1\text{ m}$ এবং মাটিতে স্পর্শের বেগ $29.4\text{ m/s}$।
+      </div>
+    </div>
+
+    <div class="memory">
+      <h2>🧠 মনে রাখার কৌশল: গ্যালিলিওর ৩য় সূত্র</h2>
+      <p>স্থির অবস্থান থেকে পড়লে $h = \frac{1}{2}gt^2 \implies h \propto t^2$!<br>
+      • $1\text{ s}$-এ পড়লে দূরত্ব $1$ গুণ হলে,<br>
+      • $2\text{ s}$-এ পড়বে $2^2 = 4$ গুণ,<br>
+      • $3\text{ s}$-এ পড়বে $3^2 = 9$ গুণ দূরত্ব!</p>
+    </div>
+
+    <details class="check">
+      <summary>প্রশ্ন: একটি মুদ্রা ও একটি পাখির পালক বাতাসভর্তি ঘরে একসাথে ফেললে মুদ্রা আগে পড়ে কেন?</summary>
+      <p><b>উত্তর:</b> বাতাসে পালকের পৃষ্ঠের ক্ষেত্রফল বেশি হওয়ায় এর ওপর বায়ুর ঊর্ধ্বমুখী প্লবতা ও বাধার প্রভাব অনেক বেশি থাকে, যা পালকের পতনকে শ্লথ করে দেয়। কিন্তু বাতাস নিষ্কাশন করে ভ্যাকুয়াম (বায়ুশূন্য) টিউবে পরীক্ষা করলে দেখা যায় মুদ্রা ও পালক হুবহু একই সাথে নিচে এসে পড়ে।</p>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-07.html">← আগের পাঠ: গতির সমীকরণ</a>
+      <a class="button" href="index.html">অধ্যায়ের সূচিতে ফিরো →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF)</a> · অধ্যায় ২: গতি · পড়ি (poRi)
+    </footer>
+  </main>
+</body>
+</html>

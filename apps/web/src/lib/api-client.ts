@@ -1,7 +1,21 @@
 import { useUserStore } from '@/store/user-store';
 import { useAdminAuthStore, ADMIN_TOKEN_STORAGE_KEY } from '@/store/admin-auth-store';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+export function getApiBaseUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+  if (typeof window !== 'undefined' && window.location?.hostname) {
+    try {
+      const parsed = new URL(envUrl);
+      if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+        parsed.hostname = window.location.hostname;
+        return parsed.origin;
+      }
+    } catch {
+      // Fallback
+    }
+  }
+  return envUrl;
+}
 
 export class ApiError extends Error {
   constructor(
@@ -37,7 +51,23 @@ function isAdminEndpoint(endpoint: string): boolean {
 }
 
 async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-  const url = /^https?:\/\//i.test(endpoint) ? endpoint : `${API_BASE_URL}${endpoint}`;
+  const baseUrl = getApiBaseUrl();
+  let url = endpoint;
+  if (/^https?:\/\//i.test(endpoint)) {
+    if (typeof window !== 'undefined' && window.location?.hostname) {
+      try {
+        const parsed = new URL(endpoint);
+        if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') {
+          parsed.hostname = window.location.hostname;
+          url = parsed.toString();
+        }
+      } catch {
+        // Fallback
+      }
+    }
+  } else {
+    url = `${baseUrl}${endpoint}`;
+  }
   const { scope, token: explicitToken, ...fetchOptions } = options;
   const pathname = getPathname(endpoint);
   const isAdminScope = scope === 'admin' || (!scope && isAdminEndpoint(endpoint));

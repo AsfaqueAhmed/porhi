@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>2.7 গতির সমীকরণ · অধ্যায় ২: গতি | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+  <style>
+    .lab-iframe-card {
+      background: #090d16;
+      border: 1px solid #1e293b;
+      border-radius: 18px;
+      overflow: hidden;
+      margin: 24px 0;
+      box-shadow: 0 12px 36px rgba(15, 23, 42, 0.2);
+    }
+    .lab-iframe-header {
+      background: #0f172a;
+      border-bottom: 1px solid #1e293b;
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .lab-iframe-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #e0e7ff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .lab-iframe {
+      width: 100%;
+      height: 680px;
+      border: none;
+      display: block;
+    }
+    @media (max-width: 640px) {
+      .lab-iframe { height: 720px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ২ / ২.৭</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই ২.৭</span>
+    <h1 class="title">গতির সমীকরণ (Equations of Motion)</h1>
+    <p class="subtitle">সুষম ত্বরণে সরলরৈখিক গতির ৪টি মূল সূত্রের বৈজ্ঞানিক প্রতিপাদন ও লাইভ ইন্টারেক্টিভ সিমুলেশন।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>গতির ৪টি সমীকরণ প্রতিপাদন করতে পারবে, কোন গাণিতিক সমস্যায় কোন সমীকরণটি ব্যবহার করতে হবে তা সঠিকভাবে বাছাই করতে পারবে এবং বাস্তব গতি সংক্রান্ত সমস্যা সমাধান করতে পারবে।</p>
+    </section>
+
+    <!-- Interactive Simulation Card -->
+    <div class="lab-iframe-card">
+      <div class="lab-iframe-header">
+        <div class="lab-iframe-title">
+          <span>⚡ লাইভ সিমুলেশন ল্যাব: গতির সমীকরণ ও কার কন্ট্রোল</span>
+        </div>
+        <span class="badge" style="background:#1e1b4b;border-color:#4338ca;color:#c7d2fe">কুইজ মোড অন্তর্ভুক্ত</span>
+      </div>
+      <iframe class="lab-iframe" src="../../apps/api/uploads/interactive/motion-simulator.html" title="Motion Simulator"></iframe>
+    </div>
+
+    <section class="section">
+      <h2>২.৭ · সমত্বরণে গতির ৪টি মৌলিক সমীকরণ</h2>
+      <p>কোনো বস্তু যখন নির্দিষ্ট দিকে **ধ্রুব ত্বরণে ($a$)** সরলরেখা বরাবর গতিশীল থাকে, তখন আদিবেগ ($u$), শেষ বেগ ($v$), ত্বরণ ($a$), সময় ($t$) এবং সরণ ($s$)—এই পাঁচটি রাশির পারস্পরিক সম্পর্কের সমীকরণগুলো হলো গতির সমীকরণ।</p>
+
+      <div class="grid">
+        <div class="term">
+          <strong>১ম সমীকরণ ($s$ অনুপস্থিত)</strong>
+          <small>$$v = u + at$$</small>
+        </div>
+        <div class="term">
+          <strong>২য় সমীকরণ ($a$ অনুপস্থিত)</strong>
+          <small>$$s = \frac{u + v}{2} \times t$$</small>
+        </div>
+        <div class="term">
+          <strong>৩য় সমীকরণ ($v$ অনুপস্থিত)</strong>
+          <small>$$s = ut + \frac{1}{2}at^2$$</small>
+        </div>
+        <div class="term">
+          <strong>৪র্থ সমীকরণ ($t$ অনুপস্থিত)</strong>
+          <small>$$v^2 = u^2 + 2as$$</small>
+        </div>
+      </div>
+
+      <h3>সমীকরণগুলোর সহজ প্রতিপাদন (Derivations)</h3>
+      <ol>
+        <li>
+          <b>১ম সমীকরণ ($v = u + at$):</b><br>
+          ত্বরণের সংজ্ঞা হতে আমরা জানি, $a = \frac{v - u}{t} \implies at = v - u \implies v = u + at$।
+        </li>
+        <li>
+          <b>২য় সমীকরণ ($s = \frac{u+v}{2}t$):</b><br>
+          সুষম ত্বরণে বস্তুর গড় বেগ হলো আদি ও শেষ বেগের সাধারণ গড়, $\bar{v} = \frac{u + v}{2}$। আবার আমরা জানি মোট সরণ $s = \bar{v} \times t$। সুতরাং $s = \frac{u + v}{2}t$।
+        </li>
+        <li>
+          <b>৩য় সমীকরণ ($s = ut + \frac{1}{2}at^2$):</b><br>
+          ২য় সমীকরণে $v$-এর মান ($u + at$) বসালে পাই:<br>
+          $$s = \frac{u + (u + at)}{2} \times t = \frac{2u + at}{2} \times t = \left(u + \frac{1}{2}at\right)t = ut + \frac{1}{2}at^2$$
+        </li>
+        <li>
+          <b>৪র্থ সমীকরণ ($v^2 = u^2 + 2as$):</b><br>
+          ১ম সমীকরণ থেকে সময় $t = \frac{v - u}{a}$। এই মানটি ২য় সমীকরণে বসালে পাই:<br>
+          $$s = \left(\frac{v + u}{2}\right) \left(\frac{v - u}{a}\right) = \frac{v^2 - u^2}{2a} \implies 2as = v^2 - u^2 \implies v^2 = u^2 + 2as$$
+        </li>
+      </ol>
+    </section>
+
+    <!-- Decision Guide Card -->
+    <div class="note">
+      <h2>🧭 কোন সমীকরণ কখন ব্যবহার করবে? (Magic Selection Table)</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>প্রশ্নে যে রাশিটি দেওয়া নেই ও চাওয়া হয়নি</th>
+              <th>যে সমীকরণটি বেছে নেবে</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>দূরত্ব বা সরণ ($s$) অনুপস্থিত</td>
+              <td><b>$v = u + at$</b></td>
+            </tr>
+            <tr>
+              <td>ত্বরণ ($a$) অনুপস্থিত</td>
+              <td><b>$s = \frac{u + v}{2}t$</b></td>
+            </tr>
+            <tr>
+              <td>শেষ বেগ ($v$) অনুপস্থিত</td>
+              <td><b>$s = ut + \frac{1}{2}at^2$</b></td>
+            </tr>
+            <tr>
+              <td>সময় ($t$) অনুপস্থিত</td>
+              <td><b>$v^2 = u^2 + 2as$</b></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Worked Example -->
+    <div class="worked">
+      <h2>📝 পাঠ্যবইয়ের স্ট্যান্ডার্ড গাণিতিক সমস্যা</h2>
+      <div class="problem">
+        একটি স্থির দাঁড়িয়ে থাকা গাড়ি $2\text{ m/s}^2$ সমত্বরণে চলতে শুরু করল। $5\text{ s}$ পর গাড়িটির শেষ বেগ এবং অতিক্রান্ত দূরত্ব কত হবে?
+      </div>
+      <div class="solution">
+        <b>প্রদত্ত তথ্য:</b><br>
+        স্থির অবস্থা থেকে শুরু করায় আদিবেগ $u = 0\text{ m/s}$<br>
+        ত্বরণ $a = 2\text{ m/s}^2$<br>
+        সময় $t = 5\text{ s}$<br><br>
+        <b>১. শেষ বেগ ($v$) নির্ণয়:</b><br>
+        $$v = u + at = 0 + (2 \times 5) = 10\text{ m/s}$$<br>
+        <b>২. অতিক্রান্ত দূরত্ব ($s$) নির্ণয়:</b><br>
+        $$s = ut + \frac{1}{2}at^2 = (0 \times 5) + \frac{1}{2} \times 2 \times (5)^2 = 0 + 25 = 25\text{ m}$$<br>
+        <b>উত্তর:</b> শেষ বেগ $10\text{ m/s}$ এবং অতিক্রান্ত দূরত্ব $25\text{ m}$।
+      </div>
+    </div>
+
+    <div class="memory">
+      <h2>🧠 মনে রাখার টেকনিক: $u = 0$ হলে রূপ</h2>
+      <p>বস্তু যদি স্থির অবস্থান থেকে শুরু করে ($u = 0$), তবে সূত্রগুলো নিমেষেই ছোট হয়ে যায়:<br>
+      • $v = at$<br>
+      • $s = \frac{1}{2}at^2 \implies s \propto t^2$ (দূরত্ব সময়ের বর্গের সমানুপাতিক!)<br>
+      • $v^2 = 2as \implies v \propto \sqrt{s}$</p>
+    </div>
+
+    <details class="check">
+      <summary>প্রশ্ন: একটি গাড়ির আদিবেগ $10\text{ m/s}$, শেষ বেগ $30\text{ m/s}$ এবং সরণ $100\text{ m}$ হলে ত্বরণ কত?</summary>
+      <p><b>উত্তর:</b> এখানে সময় $t$ নেই। তাই ৪র্থ সমীকরণ ব্যবহার করব:<br>
+      $v^2 = u^2 + 2as \implies (30)^2 = (10)^2 + 2a(100) \implies 900 = 100 + 200a \implies 200a = 800 \implies a = 4\text{ m/s}^2$।</p>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-06.html">← আগের পাঠ</a>
+      <a class="button" href="section-08.html">পরের পাঠ: পতনশীল বস্তুর সূত্র →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF)</a> · অধ্যায় ২: গতি · পড়ি (poRi)
+    </footer>
+  </main>
+</body>
+</html>

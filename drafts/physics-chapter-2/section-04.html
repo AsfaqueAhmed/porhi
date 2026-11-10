@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>2.4 দূরত্ব ও সরণ · অধ্যায় ২: গতি | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+  <style>
+    .motion-diagram{overflow:auto;background:#0f172a;border:1px solid #1e293b;border-radius:14px;padding:12px;margin:16px 0}
+    .motion-diagram svg{display:block;width:100%;min-width:540px;height:auto}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ২ / ২.৪</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই ২.৪</span>
+    <h1 class="title">দূরত্ব ও সরণ (Distance and Displacement)</h1>
+    <p class="subtitle">বাঁকানো পথের মোট দৈর্ঘ্য বনাম আদি ও শেষ বিন্দুর সরলরৈখিক ন্যূনতম তফাত।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>দূরত্ব ও সরণের মৌলিক পার্থক্য বুঝতে পারবে, সরণের মান ও দিক জ্যামিতিকভাবে নির্ণয় করতে পারবে এবং বৃত্তাকার ও সমকোণী পথে সরণ গণনা করতে পারবে।</p>
+    </section>
+
+    <section class="section">
+      <h2>২.৪ · চলার পথ আর সরলরেখার পার্থক্য</h2>
+      <p>কোনো গতিশীল বস্তু এক স্থান থেকে অন্য স্থানে গেলে তার অবস্থানের পরিবর্তন ঘটে। কিন্তু চলার পথটি সোজা হতে পারে আবার ভীষণ আঁকাবাঁকাও হতে পারে। এই বাস্তব থেকেই দূরত্ব ও সরণের সৃষ্টি:</p>
+
+      <div class="grid">
+        <div class="term">
+          <strong>দূরত্ব (Distance, $d$)</strong>
+          <small>কোনো বস্তুর দ্বারা অতিক্রান্ত পথের মোট দৈর্ঘ্য। এটি <b>স্কেলার রাশি</b>। বস্তু যে পথেই যাক না কেন, প্রতিটি অংশের দৈর্ঘ্য যোগ করে মোট দূরত্ব পাওয়া যায়।</small>
+        </div>
+        <div class="term">
+          <strong>সরণ (Displacement, $\vec{s}$)</strong>
+          <small>আদি অবস্থান থেকে শেষ অবস্থানের দিকে সরাসরি <b>সরলরৈখিক ন্যূনতম দূরত্ব</b>। এটি <b>ভেক্টর রাশি</b> এবং এর দিক সর্বদা শুরুর বিন্দু থেকে শেষ বিন্দুমুখী।</small>
+        </div>
+      </div>
+
+      <!-- Vector SVG Diagram -->
+      <div class="motion-diagram">
+        <svg viewBox="0 0 720 220" role="img" aria-label="দূরত্ব ও সরণের তুলনা ডায়াগ্রাম">
+          <defs>
+            <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L7,3 z" fill="#6366f1"/>
+            </marker>
+          </defs>
+          <!-- Curved path for Distance -->
+          <path d="M 80 160 C 140 40, 200 60, 260 140 S 380 200, 440 100 S 560 30, 640 80" fill="none" stroke="#64748b" stroke-width="14" stroke-linecap="round"/>
+          <path d="M 80 160 C 140 40, 200 60, 260 140 S 380 200, 440 100 S 560 30, 640 80" fill="none" stroke="#e2e8f0" stroke-width="6" stroke-linecap="round"/>
+          
+          <!-- Direct Straight line for Displacement -->
+          <line x1="80" y1="160" x2="636" y2="81" stroke="#6366f1" stroke-width="3.5" stroke-dasharray="6 4" marker-end="url(#arrow)"/>
+          
+          <!-- Nodes -->
+          <circle cx="80" cy="160" r="9" fill="#22c55e" stroke="#fff" stroke-width="2"/>
+          <circle cx="640" cy="80" r="9" fill="#ef4444" stroke="#fff" stroke-width="2"/>
+          
+          <!-- Labels -->
+          <text x="65" y="195" font-size="13" font-weight="800" fill="#22c55e">A (শুরু)</text>
+          <text x="625" y="55" font-size="13" font-weight="800" fill="#ef4444">B (শেষ)</text>
+          <text x="290" y="55" font-size="13" font-weight="800" fill="#94a3b8">আঁকাবাঁকা পথ = দূরত্ব (d = ৪ কিমি)</text>
+          <text x="310" y="145" font-size="13" font-weight="800" fill="#a5b4fc">সরাসরি তীর = সরণ (s⃗ = ৩ কিমি, A হতে B)</text>
+        </svg>
+      </div>
+
+      <div class="formula">
+        $$\text{সরণের মান } |\vec{s}| \le \text{অতিক্রান্ত দূরত্ব } d$$
+      </div>
+
+      <p>যদি কোনো বস্তু সোজা সরলরেখায় কোনো দিক না বদলে চলে, কেবল তখনই সরণের মান ও দূরত্বের মান সমান হবে ($|\vec{s}| = d$)। যেকোনো বাঁকা পথে দূরত্বের মান সর্বদা সরণের চেয়ে বেশি হবে।</p>
+    </section>
+
+    <!-- Worked Example -->
+    <div class="worked">
+      <h2>📝 পাঠ্যবইয়ের স্ট্যান্ডার্ড গাণিতিক উদাহরণ</h2>
+      <div class="problem">
+        একজন ছাত্র তার বাড়ি থেকে উত্তর দিকে $4\text{ km}$ হেঁটে গেল। এরপর সে ডানদিকে মোড় নিয়ে পূর্ব দিকে আরও $3\text{ km}$ গেল। তার অতিক্রান্ত দূরত্ব ও সরণ নির্ণয় করো।
+      </div>
+      <div class="solution">
+        <b>১. অতিক্রান্ত দূরত্ব ($d$):</b><br>
+        মোট পথ-দৈর্ঘ্য $d = 4\text{ km} + 3\text{ km} = 7\text{ km}$।<br><br>
+        <b>২. সরণ ($\vec{s}$):</b><br>
+        উত্তর ও পূর্ব দিকের মধ্যবর্তী কোণ $90^\circ$ (সমকোণ)। সুতরাং পিথাগোরাসের উপপাদ্য অনুযায়ী সরণের মান:<br>
+        $$|\vec{s}| = \sqrt{4^2 + 3^2} = \sqrt{16 + 9} = \sqrt{25} = 5\text{ km}$$<br>
+        <b>দিক:</b> উত্তর-পূর্ব দিকে।<br>
+        <b>উত্তর:</b> দূরত্ব $7\text{ km}$ এবং সরণ উত্তর-পূর্ব দিকে $5\text{ km}$।
+      </div>
+    </div>
+
+    <div class="note">
+      <h2>🔄 বৃত্তাকার ট্র্যাকে এক চক্কর দৌড়ালে কী ঘটে?</h2>
+      <p>একটি $400\text{ m}$ বৃত্তাকার মাঠ পুরো এক চক্কর ঘুরে ঠিক শুরুর স্থানে ফিরে আসলে অতিক্রান্ত দূরত্ব হবে $d = 400\text{ m}$। কিন্তু যেহেতু শুরুর অবস্থান ও শেষ অবস্থান হুবহু এক, তাই সরণ হবে শূন্য ($\vec{s} = 0$)!</p>
+    </div>
+
+    <details class="check">
+      <summary>প্রশ্ন: সরণ কি ঋণাত্মক হতে পারে?</summary>
+      <p><b>উত্তর:</b> হ্যাঁ, সরণ ঋণাত্মক হতে পারে। সরলরৈখিক গতিতে কোনো একটি নির্দিষ্ট দিককে ধনাত্মক ($+x$) ধরলে, তার বিপরীত দিকের সরণকে ঋণাত্মক ($-x$) চিহ্ন দিয়ে প্রকাশ করা হয়। কিন্তু দূরত্বের মান সর্বদা অশূন্য ও ধনাত্মক হয়।</p>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-03.html">← আগের পাঠ</a>
+      <a class="button" href="section-05.html">পরের পাঠ: দ্রুতি ও বেগ →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF)</a> · অধ্যায় ২: গতি · পড়ি (poRi)
+    </footer>
+  </main>
+</body>
+</html>

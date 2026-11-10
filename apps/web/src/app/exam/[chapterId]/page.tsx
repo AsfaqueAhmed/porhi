@@ -19,6 +19,7 @@ import { useUserStore } from '@/store/user-store';
 import { QuestionDTO, QuestionType, ContentStatus } from '@pori/shared';
 import { toBanglaDigits } from '@/lib/formatters';
 import { useLanguageStore } from '@/store/language-store';
+import { ExamPageSkeleton } from '@/components/ui/shimmer';
 
 const EXAM_QUESTIONS: QuestionDTO[] = [
   {
@@ -87,6 +88,7 @@ export default function ExamRunnerPage() {
   const { tr, language } = useLanguageStore();
 
   const [questions, setQuestions] = useState<QuestionDTO[]>(EXAM_QUESTIONS);
+  const [isLoading, setIsLoading] = useState(true);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -98,6 +100,7 @@ export default function ExamRunnerPage() {
   // Initialize Exam Session
   useEffect(() => {
     async function startSession() {
+      setIsLoading(true);
       try {
         const res = await apiClient.post<{ sessionId: string; questions?: QuestionDTO[] }>('/exam/start', {
           testType: 'CHAPTER_TEST',
@@ -115,6 +118,8 @@ export default function ExamRunnerPage() {
       } catch {
         // Fallback local session
         setSessionId('local_sess_' + Date.now());
+      } finally {
+        setIsLoading(false);
       }
     }
     startSession();
@@ -201,6 +206,7 @@ export default function ExamRunnerPage() {
 
   const currentQ = questions[currentIndex] || questions[0];
   const answeredCount = Object.keys(answers).length;
+  const flaggedCount = Object.values(flagged).filter(Boolean).length;
 
   // Calculate results
   const correctCount = questions.filter((q) => {
@@ -210,6 +216,10 @@ export default function ExamRunnerPage() {
   const incorrectCount = answeredCount - correctCount;
   const skippedCount = questions.length - answeredCount;
   const scorePercent = Math.round((correctCount / questions.length) * 100);
+
+  if (isLoading) {
+    return <ExamPageSkeleton />;
+  }
 
   // Result Sheet View
   if (isSubmitted) {
@@ -473,49 +483,88 @@ export default function ExamRunnerPage() {
         </div>
 
         {/* Question Navigator Panel (Right Sidebar) */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4 h-fit">
-          <h3 className="font-bold text-slate-900 text-sm">{tr('প্রশ্ন নেভিগেটর', 'Question Navigator')}</h3>
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 space-y-4 h-fit md:sticky md:top-20">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+              <span>{tr('প্রশ্ন নেভিগেটর', 'Question Navigator')}</span>
+            </h3>
+            <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+              {language === 'bn' ? toBanglaDigits(answeredCount) : answeredCount} / {language === 'bn' ? toBanglaDigits(questions.length) : questions.length}
+            </span>
+          </div>
 
-          <div className="grid grid-cols-5 gap-2">
+          {/* Progress bar */}
+          <div className="space-y-1">
+            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-indigo-600 rounded-full transition-all duration-300 ease-out"
+                style={{ width: `${Math.min(100, Math.round((answeredCount / (questions.length || 1)) * 100))}%` }}
+              />
+            </div>
+          </div>
+
+          {/* Compact Question Grid (scrollable if >30 questions) */}
+          <div className="grid grid-cols-6 gap-2 max-h-[340px] overflow-y-auto p-1.5 select-none">
             {questions.map((q, idx) => {
               const isAnswered = Boolean(answers[q.id]);
               const isFlag = Boolean(flagged[q.id]);
               const isCurrent = idx === currentIndex;
 
-              let style = 'bg-slate-100 text-slate-700 border-slate-200';
-              if (isCurrent) {
-                style = 'ring-2 ring-indigo-600 border-indigo-600 font-bold';
-              }
+              let btnStyle = '';
               if (isAnswered) {
-                style += ' bg-indigo-600 text-white border-indigo-600';
+                btnStyle = isCurrent
+                  ? 'bg-indigo-600 text-white border-indigo-700 ring-2 ring-indigo-500 ring-offset-2 font-black shadow-sm'
+                  : 'bg-indigo-600 text-white border-indigo-600 hover:bg-indigo-700 font-bold shadow-xs';
+              } else if (isCurrent) {
+                btnStyle = 'bg-indigo-50 text-indigo-700 border-indigo-500 ring-2 ring-indigo-500 ring-offset-1 font-black shadow-xs';
               } else if (isFlag) {
-                style += ' bg-amber-100 text-amber-900 border-amber-300';
+                btnStyle = 'bg-amber-50 text-amber-900 border-amber-300 hover:bg-amber-100 font-bold';
+              } else {
+                btnStyle = 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300 hover:text-slate-900 font-medium';
               }
 
               return (
                 <button
                   key={q.id}
                   onClick={() => setCurrentIndex(idx)}
-                  className={`w-full aspect-square rounded-xl border text-xs font-bold flex items-center justify-center transition-all ${style}`}
+                  className={`relative aspect-square rounded-xl border text-xs flex items-center justify-center transition-all ${btnStyle}`}
+                  title={`${tr('প্রশ্ন', 'Question')} ${idx + 1}`}
                 >
-                  {language === 'bn' ? toBanglaDigits(idx + 1) : idx + 1}
+                  <span>{language === 'bn' ? toBanglaDigits(idx + 1) : idx + 1}</span>
+                  {isFlag && (
+                    <span
+                      className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-amber-400 ring-2 ring-white shadow-xs"
+                      title={tr('পর্যালোচনার জন্য ফ্ল্যাগড', 'Flagged for Review')}
+                    />
+                  )}
                 </button>
               );
             })}
           </div>
 
-          <div className="space-y-1.5 pt-2 text-xs text-slate-600 border-t border-slate-100">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded bg-indigo-600" />
-              <span>{tr('উত্তর সম্পন্ন', 'Answered')} ({language === 'bn' ? toBanglaDigits(answeredCount) : answeredCount})</span>
+          {/* Compact Legend with stats */}
+          <div className="space-y-1.5 pt-3 text-xs text-slate-600 border-t border-slate-100">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-indigo-600 shrink-0" />
+                <span className="truncate">
+                  {tr('উত্তর সম্পন্ন', 'Answered')} ({language === 'bn' ? toBanglaDigits(answeredCount) : answeredCount})
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-3 h-3 rounded bg-slate-100 border border-slate-300 shrink-0" />
+                <span className="truncate">
+                  {tr('বাকি প্রশ্ন', 'Remaining')} ({language === 'bn' ? toBanglaDigits(questions.length - answeredCount) : questions.length - answeredCount})
+                </span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded bg-slate-100 border border-slate-300" />
-              <span>{tr('বাকি প্রশ্ন', 'Remaining')} ({language === 'bn' ? toBanglaDigits(questions.length - answeredCount) : questions.length - answeredCount})</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded bg-amber-100 border border-amber-300" />
-              <span>{tr('পর্যালোচনার জন্য ফ্ল্যাগড', 'Flagged for Review')}</span>
+            <div className="flex items-center gap-1.5 text-slate-600">
+              <span className="relative w-3 h-3 rounded bg-amber-50 border border-amber-300 shrink-0 flex items-center justify-center">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+              </span>
+              <span>
+                {tr('পর্যালোচনার জন্য ফ্ল্যাগড', 'Flagged for Review')} ({language === 'bn' ? toBanglaDigits(flaggedCount) : flaggedCount})
+              </span>
             </div>
           </div>
         </div>

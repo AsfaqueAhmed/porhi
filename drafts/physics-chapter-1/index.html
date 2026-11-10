@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>পদার্থবিজ্ঞান · অধ্যায় ১: ভৌত রাশি ও পরিমাপ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .hero{position:relative;overflow:hidden;background:linear-gradient(125deg,#312e81 0%,#4f46e5 58%,#6366f1 100%);color:#fff;border-radius:24px;padding:clamp(26px,5vw,46px);margin:26px 0 20px;box-shadow:0 16px 36px #312e8130}
+    .hero:after{content:"";position:absolute;width:260px;height:260px;border:1px solid #ffffff24;border-radius:50%;right:-70px;top:-110px;box-shadow:0 0 0 28px #ffffff0d,0 0 0 58px #ffffff08}
+    .hero>*{position:relative;z-index:1}
+    .hero .badge{background:#ffffff18;border-color:#ffffff35;color:#fff}
+    .hero h1{font-size:clamp(30px,5.6vw,46px);line-height:1.28;margin:15px 0 8px;max-width:700px}
+    .hero p{color:#e0e7ff;margin:0;max-width:620px;font-size:16px;line-height:1.6}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+    .hero .button{background:#fff;color:#3730a3}
+    .hero .button:hover{background:#f1f5f9;color:#312e81}
+    .hero .button.secondary{background:#ffffff12;border-color:#ffffff55;color:#fff}
+    .hero .button.secondary:hover{background:#ffffff22}
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0 32px}
+    .stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px 18px;box-shadow:0 1px 3px rgba(0,0,0,0.03)}
+    .stat strong{display:block;font-size:20px;line-height:1.3;color:#312e81}
+    .stat span{font-size:12px;color:var(--muted);font-weight:600}
+    .roadmap-head{display:flex;justify-content:space-between;align-items:end;gap:15px;margin:32px 0 14px}
+    .roadmap-head h2{font-size:23px;margin:0;line-height:1.35;color:#1e293b}
+    .roadmap-head p{margin:4px 0 0;color:var(--muted);font-size:13px}
+    .roadmap{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .route-card{display:grid;grid-template-columns:52px 1fr 24px;gap:14px;align-items:start;min-height:156px;padding:18px;background:#fff;border:1px solid var(--line);border-radius:18px;color:var(--ink);text-decoration:none;box-shadow:0 1px 3px #0f172a08;transition:transform .16s,border-color .16s,box-shadow .16s}
+    .route-card:hover{transform:translateY(-2px);border-color:#a5b4fc;box-shadow:0 10px 24px #312e8112;text-decoration:none}
+    .route-no{width:48px;height:48px;display:grid;place-items:center;border-radius:14px;background:#eef2ff;color:#4338ca;font-weight:900;font-size:14px}
+    .route-title{font-size:16px;line-height:1.4;font-weight:800;margin:1px 0 3px;color:#1e293b}
+    .route-en{display:block;color:var(--muted);font-size:12px;line-height:1.4;margin-bottom:8px}
+    .route-sub{color:#475569;font-size:12px;line-height:1.65;display:block}
+    .route-open{color:#6366f1;font-size:22px;font-weight:800;line-height:1.2}
+    .group-label{grid-column:1/-1;margin:14px 2px 0;display:flex;align-items:center;gap:10px;color:#475569;font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase}
+    .group-label:after{content:"";height:1px;background:var(--line);flex:1}
+    .source-card{margin:32px 0 20px;padding:22px;border:1px solid #c7d2fe;border-radius:20px;background:linear-gradient(110deg,#eef2ff,#fff 75%);display:flex;align-items:center;justify-content:space-between;gap:20px}
+    .source-card h2{font-size:18px;line-height:1.4;margin:0 0 4px;color:#1e1b4b}
+    .source-card p{font-size:13px;color:#475569;margin:0}
+    .source-card .button{flex:none}
+    .source-note{font-size:12px;color:var(--muted);margin:12px 2px 0}
+    @media(max-width:720px){.stats{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:650px){.roadmap{grid-template-columns:1fr}.route-card{min-height:0}.source-card{align-items:flex-start;flex-direction:column}.source-card .button{width:100%;text-align:center}.roadmap-head{align-items:flex-start;flex-direction:column}}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">SSC · পদার্থবিজ্ঞান অধ্যায় ১</span>
+    </div>
+  </header>
+  
+  <main>
+    <section class="hero">
+      <span class="badge">অধ্যায় ১ · ইন্টারেক্টিভ পাঠ্যক্রম</span>
+      <h1>ভৌত রাশি ও পরিমাপ</h1>
+      <p>পাঠ্যবইয়ের প্রতিটি অধ্যায় ও বিষয়বস্তু অনুসরণ করে সম্পূর্ণ সারসংক্ষেপ, বাস্তব উদাহরণ, গাণিতিক সমাধান, লাইভ সিমুলেশন ল্যাব এবং নিজেকে যাচাই করার কুইজসহ সাজানো হয়েছে।</p>
+      <div class="hero-actions">
+        <a class="button" href="section-01.html">প্রথম পাঠ শুরু করো <span aria-hidden="true">→</span></a>
+        <a class="button secondary" href="chapter-source.html">মূল পাঠ্যবইয়ের ৩১ পৃষ্ঠা ↗</a>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="অধ্যায়ের সংক্ষেপ">
+      <div class="stat"><strong>৭টি</strong><span>মূল পাঠ (Sections)</span></div>
+      <div class="stat"><strong>১৫+</strong><span>গাণিতিক ও বাস্তব উদাহরণ</span></div>
+      <div class="stat"><strong>২১টি</strong><span>সেলফ অ্যাসেসমেন্ট প্রশ্ন</span></div>
+      <div class="stat"><strong>১টি</strong><span>ইন্টারেক্টিভ ল্যাব সিমুলেটর</span></div>
+    </section>
+
+    <div class="roadmap-head">
+      <div>
+        <h2>অধ্যায়ের বিষয়ভিত্তিক পথনির্দেশ</h2>
+        <p>যেকোনো কার্ডে ক্লিক করে সেই পাঠের সমৃদ্ধ ব্যাখ্যা ও গাণিতিক অনুশীলন শুরু করো।</p>
+      </div>
+      <span class="badge">NCTB পাঠ্যক্রম</span>
+    </div>
+
+    <section class="roadmap" aria-label="অধ্যায়ের সাতটি পাঠ">
+      <div class="group-label">ভিত্তি ও বিকাশ</div>
+      <a class="route-card" href="section-01.html">
+        <span class="route-no">1.1</span>
+        <span>
+          <span class="route-title">পদার্থবিজ্ঞান</span>
+          <small class="route-en">Physics</small>
+          <span class="route-sub">পদার্থ, শক্তি, পারস্পরিক মিথস্ক্রিয়া ও বৈজ্ঞানিক অনুসন্ধান পদ্ধতি</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-02.html">
+        <span class="route-no">1.2</span>
+        <span>
+          <span class="route-title">পদার্থবিজ্ঞানের পরিসর</span>
+          <small class="route-en">Scope of Physics</small>
+          <span class="route-sub">চিরায়ত ও আধুনিক শাখা, আন্তঃবিষয়ক প্রয়োগ (জ্যোতিঃ, জৈব ও চিকিৎসা পদার্থবিজ্ঞান)</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-03.html">
+        <span class="route-no">1.3</span>
+        <span>
+          <span class="route-title">পদার্থবিজ্ঞানের ক্রমবিকাশ</span>
+          <small class="route-en">Development of Physics</small>
+          <span class="route-sub">আদি পর্ব · বিজ্ঞানের উত্থান · আধুনিক ও সাম্প্রতিক পদার্থবিজ্ঞান · আচার্য জগদীশচন্দ্র বসু</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <div class="group-label">উদ্দেশ্য ও দর্শন</div>
+      <a class="route-card" href="section-04.html">
+        <span class="route-no">1.4</span>
+        <span>
+          <span class="route-title">পদার্থবিজ্ঞানের উদ্দেশ্য</span>
+          <small class="route-en">Objectives of Physics (বইয়ে 1.8)</small>
+          <span class="route-sub">প্রকৃতির রহস্য উদ্ঘাটন · সর্বজনীন নিয়ম আবিষ্কার · মানবকল্যাণে প্রযুক্তির দায়িত্বশীল বিকাশ</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <div class="group-label">রাশি, একক ও পরিমাপক যন্ত্র</div>
+      <a class="route-card" href="section-05.html">
+        <span class="route-no">1.5</span>
+        <span>
+          <span class="route-title">ভৌত রাশি ও তাদের পরিমাপ</span>
+          <small class="route-en">Physical Quantities and Their Measurement</small>
+          <span class="route-sub">মৌলিক ও লব্ধ রাশি · ৭টি SI একক · উপসর্গ বা গুণিতক · মাত্রা বিশ্লেষণ · প্রতীক লেখার নিয়ম</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-06.html">
+        <span class="route-no">1.6</span>
+        <span>
+          <span class="route-title">পরিমাপের যন্ত্রপাতি</span>
+          <small class="route-en">Measuring Instruments & Interactive Lab</small>
+          <span class="route-sub">মিটার স্কেল · স্লাইড ক্যালিপার্স ও ভার্নিয়ার ধ্রুবক · স্ক্রু গজ · শূন্য ত্রুটি · ব্যালান্স ও স্টপওয়াচ</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-07.html">
+        <span class="route-no">1.7</span>
+        <span>
+          <span class="route-title">পরিমাপের ত্রুটি ও নির্ভুলতা</span>
+          <small class="route-en">Error and Accuracy of Measurements</small>
+          <span class="route-sub">পরম, আপেক্ষিক ও শতকরা ত্রুটি · নির্ভুলতা বনাম সূক্ষ্মতা · ক্ষেত্রফল ও আয়তনে ত্রুটির বিস্তার</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+    </section>
+
+    <section class="source-card">
+      <div>
+        <h2>মূল পাঠ্যবইয়ের পৃষ্ঠাগুলোও দেখতে চাও?</h2>
+        <p>সংযুক্ত ৩১টি স্ক্যান করা পৃষ্ঠা একক ফাইলে রাখা আছে; মূল বইয়ের ছবি, সারণি ও চিত্র সহজে দেখতে পারো।</p>
+      </div>
+      <a class="button" href="chapter-source.html">সম্পূর্ণ মূল বই উৎস <span aria-hidden="true">→</span></a>
+    </section>
+
+    <p class="source-note">জাতীয় শিক্ষাক্রম ও পাঠ্যপুস্তক বোর্ড (NCTB) অনুমোদিত ৯ম-১০ম শ্রেণির পদার্থবিজ্ঞান পাঠ্যবইয়ের ১ম অধ্যায় অবলম্বনে প্রস্তুত।</p>
+    
+    <footer class="footer">
+      পড়ি (poRi) শিক্ষা প্ল্যাটফর্ম · পদার্থবিজ্ঞান ডিজিটাল সংস্করণ
+    </footer>
+  </main>
+</body>
+</html>

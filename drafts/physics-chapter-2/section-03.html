@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>2.3 স্কেলার ও ভেক্টর রাশি · অধ্যায় ২: গতি | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ২ / ২.৩</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই ২.৩</span>
+    <h1 class="title">স্কেলার ও ভেক্টর রাশি (Scalar and Vector)</h1>
+    <p class="subtitle">রাশির মান ও দিকগত বৈশিষ্ট্য, ভেক্টর চিহ্নের সঠিক নিয়ম এবং গাণিতিক সমতুল্যতা।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>স্কেলার ও ভেক্টর রাশির পার্থক্য ব্যাখ্যা করতে পারবে, প্রতীক ও তীরচিহ্ন দিয়ে ভেক্টর প্রকাশ করতে পারবে এবং সমান ও বিপরীত ভেক্টরের শর্ত চিনতে পারবে।</p>
+    </section>
+
+    <section class="section">
+      <h2>২.৩ · প্রকাশের পূর্ণাঙ্গতায় দিকের ভূমিকা</h2>
+      <p>ভৌত জগতের রাশিগুলোকে প্রকাশ করার জন্য দিক জানা জরুরি কি না—তার ওপর ভিত্তি করে রাশিগুলোকে দুই ভাগে ভাগ করা হয়:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>বৈশিষ্ট্য</th>
+              <th>স্কেলার রাশি (Scalar)</th>
+              <th>ভেক্টর রাশি (Vector)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><b>সংজ্ঞা</b></td>
+              <td>যেসব রাশি প্রকাশের জন্য শুধু মান ও একক প্রয়োজন হয়।</td>
+              <td>যেসব রাশি সম্পূর্ণ প্রকাশের জন্য মান, একক এবং নির্দিষ্ট দিকের প্রয়োজন হয়।</td>
+            </tr>
+            <tr>
+              <td><b>প্রয়োজনীয় তথ্য</b></td>
+              <td>শুধু "কতটুকু?" ($5\text{ kg}$, $10\text{ s}$)</td>
+              <td>"কতটুকু এবং কোন দিকে?" ($10\text{ m/s}$ উত্তর দিকে)</td>
+            </tr>
+            <tr>
+              <td><b>যোগ-বিয়োগ নিয়ম</b></td>
+              <td>সাধারণ পাটিগণিত বা বীজগণিতের নিয়মে যোগ-বিয়োগ হয়। ($২\text{ kg} + ৩\text{ kg} = ৫\text{ kg}$)</td>
+              <td>জ্যামিতিক বা ভেক্টর বীজগণিতের বিশেষ নিয়মে যোগ-বিয়োগ হয়।</td>
+            </tr>
+            <tr>
+              <td><b>বইয়ের উদাহরণ</b></td>
+              <td>ভর ($m$), সময় ($t$), তাপমাত্রা ($T$), দূরত্ব ($d$), দ্রুতি ($v$), কাজ ($W$), ঘনত্ব ($\rho$)।</td>
+              <td>সরণ ($\vec{s}$), বেগ ($\vec{v}$), ত্বরণ ($\vec{a}$), বল ($\vec{F}$), ওজন ($\vec{W}$), ভরবেগ ($\vec{p}$)।</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>ভেক্টরের প্রকাশ ও সংকেত</h3>
+      <p>ভেক্টরকে বইয়ে সাধারণত মোটা হরফে বোল্ড করে (যেমন: $\mathbf{v}$, $\mathbf{F}$) অথবা অক্ষরের মাথায় তীরচিহ্ন দিয়ে ($\vec{v}$, $\vec{F}$) প্রকাশ করা হয়।</p>
+      <ul>
+        <li>ভেক্টরের পরম মান বা মান বোঝাতে মডুলাস ব্যবহার করা হয়: $|\vec{v}|$ বা সাধারণ হরফে $v$।</li>
+        <li><b>সমান ভেক্টর:</b> দুটি ভেক্টরের মান সমান এবং দিক একই হলে তারা সমান ভেক্টর ($\vec{A} = \vec{B}$)।</li>
+        <li><b>বিপরীত (ঋণাত্মক) ভেক্টর:</b> দুটি ভেক্টরের মান সমান কিন্তু দিক পরস্পর বিপরীতমুখী হলে একটি অপরটির ঋণাত্মক ($\vec{A} = -\vec{B}$)।</li>
+      </ul>
+    </section>
+
+    <div class="note">
+      <h2>🌡️ তাপমাত্রার কি দিক আছে?</h2>
+      <p>আমরা বলি "আজকের তাপমাত্রা $35^\circ\text{C}$"। এর সাথে "উত্তর দিকে" বা "পশ্চিম দিকে" বলার কোনো অর্থ নেই। কিন্তু কোনো বস্তুকে "১০ নিউটন বল দিয়ে ঠেলা হলো" বললে কোন দিকে ঠেলা হলো তা না জানলে বস্তুর গতিপথ নির্ণয় করা অসম্ভব। তাই বল ভেক্টর, তাপমাত্রা স্কেলার।</p>
+    </div>
+
+    <div class="memory">
+      <h2>🧠 দ্রুত যাচাই করার ট্রিক</h2>
+      <p>প্রশ্ন করো: <b>"কোন দিকে?"</b>—উত্তর যদি অর্থহীন হয় (যেমন: ১০ সেকেন্ড কোন দিকে?), তবে তা <b>স্কেলার</b>। আর যদি উত্তর অর্থবহ ও অনিবার্য হয় (যেমন: ২০ মিটার কোন দিকে?), তবে তা নিশ্চিতভাবে <b>ভেক্টর</b>!</p>
+    </div>
+
+    <details class="check">
+      <summary>প্রশ্ন: বিদ্যুৎ প্রবাহের কি নির্দিষ্ট দিক আছে? এটি কি ভেক্টর রাশি?</summary>
+      <p><b>উত্তর:</b> বিদ্যুৎ প্রবাহ উচ্চ বিভব থেকে নিম্ন বিভবে চলে এবং এর নির্দিষ্ট দিক থাকে। তা সত্ত্বেও বিদ্যুৎ প্রবাহ <b>স্কেলার রাশি</b>, কারণ এটি ভেক্টর যোগের ত্রিভুজ বা সামান্তরিক সূত্র মেনে চলে না, সাধারণ পাটিগণিতের মতো বীজগাণিতিকভাবে যোগ করা যায়।</p>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-02.html">← আগের পাঠ</a>
+      <a class="button" href="section-04.html">পরের পাঠ: দূরত্ব ও সরণ →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF)</a> · অধ্যায় ২: গতি · পড়ি (poRi)
+    </footer>
+  </main>
+</body>
+</html>

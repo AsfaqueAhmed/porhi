@@ -142,7 +142,7 @@ export default function DashboardPage() {
 
           <div className="grid grid-cols-2 gap-2 text-xs">
             <Link
-              href={`/curriculum/${activeSubject?.id || 'sub-ssc-phy'}`}
+              href={`/curriculum/${activeSubject?.id || 'sub_ssc_physics'}`}
               className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 font-semibold text-slate-800 flex flex-col gap-1 transition-colors"
             >
               <BookOpen className="w-4 h-4 text-indigo-600" />

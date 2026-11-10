@@ -57,4 +57,48 @@ describe('RichContentRenderer', () => {
     fireEvent.click(img);
     expect(screen.getByLabelText(/জুম বন্ধ করুন|close lightbox/i)).toBeDefined();
   });
+
+  it('renders markdown headings, dividers, callout boxes, and lists with styled elements', () => {
+    const content = `
+# পদার্থবিজ্ঞান (Physics)
+
+বিজ্ঞানের প্রাচীনতম শাখা হলো **পদার্থবিজ্ঞান**।
+
+---
+
+### পদার্থবিজ্ঞান কী?
+> **সংজ্ঞা:** বিজ্ঞানের যে শাখায় পদার্থ ও শক্তি নিয়ে আলোচনা করা হয়।
+
+- **পদার্থ (Matter):** যার ভর আছে।
+- **শক্তি (Energy):** কাজ করার সামর্থ্য।
+
+১. সুনির্দিষ্ট পর্যবেক্ষণ (Observation)
+২. তথ্য সংগ্রহ (Questioning)
+`;
+
+    const { container } = render(<RichContentRenderer content={content} />);
+
+    // Check heading h1 and h3
+    const h1 = container.querySelector('h1');
+    expect(h1).not.toBeNull();
+    expect(h1?.textContent).toContain('পদার্থবিজ্ঞান (Physics)');
+
+    const h3 = container.querySelector('h3');
+    expect(h3).not.toBeNull();
+    expect(h3?.textContent).toContain('পদার্থবিজ্ঞান কী?');
+
+    // Bold tags
+    const strongs = container.querySelectorAll('strong');
+    expect(strongs.length).toBeGreaterThanOrEqual(3);
+
+    // Callout box / blockquote definition
+    expect(container.textContent).toContain('বিজ্ঞানের যে শাখায় পদার্থ ও শক্তি নিয়ে আলোচনা করা হয়');
+
+    // Lists
+    const ul = container.querySelector('ul');
+    expect(ul).not.toBeNull();
+    const ol = container.querySelector('ol');
+    expect(ol).not.toBeNull();
+    expect(container.textContent).toContain('সুনির্দিষ্ট পর্যবেক্ষণ');
+  });
 });

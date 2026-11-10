@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import {
   CheckCircle2,
   XCircle,
@@ -19,6 +19,7 @@ import { QuestionDTO, QuestionType, ContentStatus } from '@pori/shared';
 import { toBanglaDigits } from '@/lib/formatters';
 import { useUserStore } from '@/store/user-store';
 import { useLanguageStore } from '@/store/language-store';
+import { PracticePageSkeleton } from '@/components/ui/shimmer';
 
 const SAMPLE_QUESTIONS: QuestionDTO[] = [
   {
@@ -100,11 +101,14 @@ $$\\frac{h_2}{h} = \\left(\\frac{6}{3}\\right)^2 = (2)^2 = 4 \\implies h_2 = 4h$
 
 export default function PracticeRunnerPage() {
   const params = useParams();
-  const chapterId = (params?.chapterId as string) || 'ch-motion';
+  const searchParams = useSearchParams();
+  const chapterId = (params?.chapterId as string) || 'chap_ssc_physics_ch2';
+  const topicId = searchParams?.get('topicId') || '';
   const activeSubject = useUserStore((s) => s.activeSubject);
   const { tr, language } = useLanguageStore();
 
   const [questions, setQuestions] = useState<QuestionDTO[]>(SAMPLE_QUESTIONS);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
   const [openLayers, setOpenLayers] = useState<Record<string, boolean>>({
@@ -118,17 +122,28 @@ export default function PracticeRunnerPage() {
 
   useEffect(() => {
     async function loadQuestions() {
+      setIsLoading(true);
       try {
-        const res = await apiClient.get<QuestionDTO[]>(`/practice/chapter/${chapterId}/questions`);
-        if (res && Array.isArray(res) && res.length > 0) {
-          setQuestions(res);
+        const query = topicId ? `?topicId=${encodeURIComponent(topicId)}` : '';
+        const res = await apiClient.get<QuestionDTO[]>(`/practice/chapter/${chapterId}/questions${query}`);
+        if (res && Array.isArray(res)) {
+          const filtered = topicId ? res.filter((q) => !q.topicId || q.topicId === topicId) : res;
+          setQuestions(filtered);
         }
       } catch {
-        // Fallback to sample questions
+        // Fallback to sample questions filtered by topicId if provided
+        if (topicId) {
+          const topicFiltered = SAMPLE_QUESTIONS.filter((q) => q.topicId === topicId);
+          setQuestions(topicFiltered);
+        } else {
+          setQuestions(SAMPLE_QUESTIONS);
+        }
+      } finally {
+        setIsLoading(false);
       }
     }
     loadQuestions();
-  }, [chapterId]);
+  }, [chapterId, topicId]);
 
   const currentQ = questions[currentIndex] || questions[0];
   const selectedOptionId = selectedAnswers[currentQ?.id];
@@ -180,13 +195,52 @@ export default function PracticeRunnerPage() {
 
   const answeredCount = Object.keys(selectedAnswers).length;
 
+  if (isLoading) {
+    return <PracticePageSkeleton />;
+  }
+
+  if (questions.length === 0) {
+    return (
+      <div className="max-w-3xl mx-auto space-y-6 pb-12">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+          <div>
+            <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider">
+              {topicId ? tr('টপিকভিত্তিক MCQ অনুশীলন', 'Topic MCQ Practice') : tr('MCQ অনুশীলন', 'MCQ Practice')}
+            </span>
+            <h1 className="text-xl font-bold text-slate-900">
+              {tr('অনুশীলন প্রশ্ন', 'Practice Questions')}
+            </h1>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center space-y-4">
+          <BookOpen className="w-12 h-12 text-slate-400 mx-auto" />
+          <h2 className="text-lg font-bold text-slate-800">
+            {tr('এই টপিকের জন্য বর্তমানে কোনো MCQ প্রশ্ন পাওয়া যায়নি', 'No MCQs currently found for this topic')}
+          </h2>
+          <p className="text-sm text-slate-500">
+            {tr('অধ্যায়ের সকল প্রশ্নের সাথে অনুশীলন করতে নিচের বাটনে চাপ দিন।', 'Click below to practice all MCQs from this chapter.')}
+          </p>
+          <div className="flex justify-center gap-3 pt-2">
+            <Link
+              href={`/practice/${chapterId}`}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition-colors shadow-sm"
+            >
+              {tr('সম্পূর্ণ অধ্যায় অনুশীলন করো', 'Practice Full Chapter')}
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-3xl mx-auto space-y-6 pb-12">
       {/* Header and Progress */}
       <div className="flex items-center justify-between border-b border-slate-200 pb-4">
         <div>
           <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider">
-            {tr('MCQ অনুশীলন', 'MCQ Practice')}
+            {topicId ? tr('টপিকভিত্তিক MCQ অনুশীলন', 'Topic MCQ Practice') : tr('MCQ অনুশীলন', 'MCQ Practice')}
           </span>
           <h1 className="text-xl font-bold text-slate-900">
             {tr('প্রশ্ন ', 'Question ')}
@@ -404,7 +458,7 @@ export default function PracticeRunnerPage() {
           </button>
         ) : (
           <Link
-            href={`/curriculum/${activeSubject?.id || 'sub-ssc-phy'}`}
+            href={`/curriculum/${activeSubject?.id || 'sub_ssc_physics'}`}
             className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors shadow"
           >
             <span>{tr('অনুশীলন সম্পন্ন', 'Finish Practice')}</span>
