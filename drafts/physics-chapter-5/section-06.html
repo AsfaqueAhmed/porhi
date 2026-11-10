@@ -523,10 +523,10 @@
         <div class="slider-group" style="margin-bottom:14px;">
           <span style="font-size:13.5px;font-weight:750;color:#334155;">দ্রুত অবস্থা নির্বাচন করো (Presets):</span>
           <div class="state-btn-group">
-            <button class="state-btn" onclick="setPreset('solid')">🧊 কঠিন (Solid - 120 K)</button>
-            <button class="state-btn active" onclick="setPreset('liquid')">💧 তরল (Liquid - 300 K)</button>
-            <button class="state-btn" onclick="setPreset('gas')">💨 গ্যাস (Gas - 600 K)</button>
-            <button class="state-btn" onclick="setPreset('plasma')">⚡ প্লাজমা (Plasma - 4500 K)</button>
+            <button class="state-btn" onclick="setPreset('solid', this)">🧊 কঠিন (Solid - 120 K)</button>
+            <button class="state-btn active" onclick="setPreset('liquid', this)">💧 তরল (Liquid - 300 K)</button>
+            <button class="state-btn" onclick="setPreset('gas', this)">💨 গ্যাস (Gas - 600 K)</button>
+            <button class="state-btn" onclick="setPreset('plasma', this)">⚡ প্লাজমা (Plasma - 4500 K)</button>
           </div>
         </div>
 
@@ -688,23 +688,20 @@
       });
     }
 
-    function setPreset(preset) {
-      document.querySelectorAll('.state-btn').forEach(btn => btn.classList.remove('active'));
+    function setPreset(preset, btn) {
+      document.querySelectorAll('.state-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
       if (preset === 'solid') {
         tempSlider.value = 120;
         magToggle.checked = false;
-        event.target.classList.add('active');
       } else if (preset === 'liquid') {
         tempSlider.value = 300;
         magToggle.checked = false;
-        event.target.classList.add('active');
       } else if (preset === 'gas') {
         tempSlider.value = 600;
         magToggle.checked = false;
-        event.target.classList.add('active');
       } else if (preset === 'plasma') {
         tempSlider.value = 4500;
-        event.target.classList.add('active');
       }
       updateSimulation();
     }
