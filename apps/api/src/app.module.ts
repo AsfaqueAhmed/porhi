@@ -7,6 +7,7 @@ import { PracticeModule } from './modules/practice/practice.module';
 import { ExamModule } from './modules/exam/exam.module';
 import { ContentAdminModule } from './modules/content-admin/content-admin.module';
 import { MediaAdminModule } from './modules/media-admin/media-admin.module';
+import { StudentModule } from './modules/student/student.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { MediaAdminModule } from './modules/media-admin/media-admin.module';
     ExamModule,
     ContentAdminModule,
     MediaAdminModule,
+    StudentModule,
   ],
   controllers: [],
   providers: [],
