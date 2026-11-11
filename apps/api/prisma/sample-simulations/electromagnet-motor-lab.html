@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>সলিনয়েড, তড়িৎচুম্বক ও DC মোটর ল্যাব | poRi</title>
+  <style>
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-indigo: #4f46e5;
+      --pori-indigo-soft: #eef2ff;
+      --pori-indigo-border: #c7d2fe;
+      --pori-indigo-ink: #3730a3;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 18px;
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+    .app {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--pori-indigo-ink);
+      background: var(--pori-indigo-soft);
+      border: 1px solid var(--pori-indigo-border);
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-bottom: 6px;
+    }
+    h1 { margin: 0; font-size: 1.35rem; color: var(--pori-heading); }
+    .sub { margin: 4px 0 0; font-size: 0.88rem; color: var(--pori-muted); }
+    .preset-row { display: flex; gap: 7px; flex-wrap: wrap; }
+    button.preset {
+      border: 1px solid var(--pori-border);
+      background: #ffffff;
+      color: var(--pori-heading);
+      border-radius: 999px;
+      padding: 6px 11px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    button.preset.active {
+      background: var(--pori-indigo);
+      border-color: var(--pori-indigo);
+      color: #ffffff;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 315px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 820px) { .layout { grid-template-columns: 1fr; } }
+    .panel {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .ctrl { margin-bottom: 14px; }
+    .ctrl:last-child { margin-bottom: 0; }
+    .ctrl label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--pori-heading);
+      margin-bottom: 6px;
+    }
+    .ctrl label span.val { color: var(--pori-indigo); font-variant-numeric: tabular-nums; }
+    select.ctrl-select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--pori-border);
+      border-radius: 10px;
+      background: #ffffff;
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--pori-heading);
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--pori-indigo) var(--fill, 50%), #e2e8f0 var(--fill, 50%));
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--pori-indigo);
+      border: 2px solid #ffffff;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
+    }
+    .stage {
+      background: #ffffff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 10px;
+    }
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    @media (max-width: 640px) { .calc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    .calc-item {
+      background: #ffffff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .calc-item.highlight {
+      background: var(--pori-indigo-soft);
+      border-color: var(--pori-indigo-border);
+    }
+    .calc-item .title { font-size: 0.72rem; font-weight: 800; color: var(--pori-muted); margin-bottom: 4px; }
+    .calc-item .value { font-size: 0.96rem; font-weight: 900; color: var(--pori-heading); font-variant-numeric: tabular-nums; }
+    .calc-item.highlight .value { color: var(--pori-indigo-ink); }
+    .readout {
+      margin-top: 12px;
+      background: var(--pori-indigo-soft);
+      border: 1px solid var(--pori-indigo-border);
+      border-left: 4px solid var(--pori-indigo);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.84rem;
+      color: #312e81;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="head">
+      <div>
+        <div class="eyebrow">PORI UNIFIED SIMULATOR THEME • SSC পদার্থবিজ্ঞান অধ্যায় ১২</div>
+        <h1>সলিনয়েড, তড়িৎচুম্বক ও DC মোটর ল্যাব</h1>
+        <p class="sub">কয়েলের পাকসংখ্যা (N), প্রবাহ (I), প্রবাহের দিক এবং নরম লোহার কোর বদলে তড়িৎচুম্বকের মেরু ও DC মোটরের ঘূর্ণন পর্যবেক্ষণ করো।</p>
+      </div>
+      <div class="preset-row">
+        <button class="preset active" data-mode="electromagnet" data-n="350" data-i="6" data-core="iron" data-dir="1">শক্তিশালী ক্রেন (লোহা)</button>
+        <button class="preset" data-mode="electromagnet" data-n="150" data-i="2" data-core="air" data-dir="1">বায়ু কোর সলিনয়েড</button>
+        <button class="preset" data-mode="motor" data-n="300" data-i="5" data-core="iron" data-dir="1">DC মোটর (ডানাবর্ত)</button>
+        <button class="preset" data-mode="motor" data-n="300" data-i="5" data-core="iron" data-dir="-1">DC মোটর (বিপরীত প্রবাহ)</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="panel">
+        <div class="ctrl">
+          <label for="modeSel">পরীক্ষার মোড</label>
+          <select id="modeSel" class="ctrl-select">
+            <option value="electromagnet">১২.২.১–১২.২.২ সলিনয়েড ও তড়িৎচুম্বক</option>
+            <option value="motor">১২.২.৩–১২.২.৪ ফ্লেমিং বল ও DC মোটর</option>
+          </select>
+        </div>
+        <div class="ctrl">
+          <label for="nRange">কুণ্ডলীর পাকসংখ্যা (N) <span class="val" id="nVal">350 পাক</span></label>
+          <input id="nRange" type="range" min="50" max="500" step="25" value="350" />
+        </div>
+        <div class="ctrl">
+          <label for="iRange">তড়িৎ প্রবাহ (I) <span class="val" id="iVal">6.0 A</span></label>
+          <input id="iRange" type="range" min="0.5" max="10" step="0.5" value="6" />
+        </div>
+        <div class="ctrl">
+          <label for="coreSel">মজ্জা বা কোর উপাদান</label>
+          <select id="coreSel" class="ctrl-select">
+            <option value="iron">নরম লোহার কোর (উচ্চ চুম্বকত্ব)</option>
+            <option value="air">বায়ু কোর (শূন্য/হালকা)</option>
+          </select>
+        </div>
+        <div class="ctrl">
+          <label for="dirSel">ব্যাটারি প্রবাহের দিক</label>
+          <select id="dirSel" class="ctrl-select">
+            <option value="1">স্বাভাবিক (+ থেকে −)</option>
+            <option value="-1">উল্টানো (− থেকে +)</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <div class="stage">
+          <svg id="magSvg" viewBox="0 0 660 280" width="100%" style="display:block;border-radius:10px;background:#f8fbff"></svg>
+        </div>
+
+        <div class="calc-grid">
+          <div class="calc-item highlight">
+            <div class="title">অ্যাম্পিয়ার-পাক (N·I)</div>
+            <div class="value" id="niStat">2100 A·turns</div>
+          </div>
+          <div class="calc-item highlight">
+            <div class="title" id="statTitle2">আপেক্ষিক চৌম্বক শক্তি</div>
+            <div class="value" id="statVal2">105 k-ইউনিট</div>
+          </div>
+          <div class="calc-item">
+            <div class="title" id="statTitle3">সৃষ্ট মেরু বিন্যাস</div>
+            <div class="value" id="statVal3">বাম N · ডান S</div>
+          </div>
+          <div class="calc-item">
+            <div class="title" id="statTitle4">ব্যবহারিক অবস্থা</div>
+            <div class="value" id="statVal4">ভারী লোহা আকর্ষণ</div>
+          </div>
+        </div>
+
+        <div class="readout" id="readoutBox">
+          নরম লোহার কোরের ওপর ৩৫০ পাক ও ৬.০ A প্রবাহে শক্তিশালী অস্থায়ী তড়িৎচুম্বক তৈরি হয়েছে।
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const modeEl = document.getElementById('modeSel');
+      const nEl = document.getElementById('nRange');
+      const iEl = document.getElementById('iRange');
+      const coreEl = document.getElementById('coreSel');
+      const dirEl = document.getElementById('dirSel');
+      const svg = document.getElementById('magSvg');
+
+      function update() {
+        const mode = modeEl.value;
+        const N = Math.max(50, parseInt(nEl.value, 10));
+        const I = Math.max(0.5, parseFloat(iEl.value));
+        const hasIron = coreEl.value === 'iron';
+        const dir = parseInt(dirEl.value, 10);
+
+        document.getElementById('nVal').textContent = N + ' পাক';
+        document.getElementById('iVal').textContent = I.toFixed(1) + ' A';
+
+        const NI = N * I;
+        const factor = hasIron ? 50 : 1;
+        const strength = NI * factor;
+
+        document.getElementById('niStat').textContent = NI.toFixed(0) + ' A·turns';
+
+        if (mode === 'electromagnet') {
+          const leftPole = dir === 1 ? 'N' : 'S';
+          const rightPole = dir === 1 ? 'S' : 'N';
+          const leftColor = leftPole === 'N' ? '#ef4444' : '#2563eb';
+          const rightColor = rightPole === 'N' ? '#ef4444' : '#2563eb';
+
+          document.getElementById('statTitle2').textContent = 'আপেক্ষিক চৌম্বক শক্তি';
+          document.getElementById('statVal2').textContent = hasIron
+            ? (strength / 1000).toFixed(1) + ' k-ইউনিট'
+            : strength.toFixed(0) + ' ইউনিট';
+          document.getElementById('statTitle3').textContent = 'সৃষ্ট মেরু বিন্যাস';
+          document.getElementById('statVal3').textContent = `বাম ${leftPole} · ডান ${rightPole}`;
+          document.getElementById('statTitle4').textContent = 'কার্যকর ক্ষমতা';
+          document.getElementById('statVal4').textContent = strength > 80000 ? 'অতি প্রবল' : (strength > 15000 ? 'মাঝারি-উচ্চ' : 'হালকা');
+
+          const turnsDrawn = Math.min(12, Math.max(4, Math.round(N / 42)));
+          let loops = '';
+          const startX = 190, spanX = 280, step = spanX / turnsDrawn;
+          for (let k = 0; k < turnsDrawn; k++) {
+            const x = startX + k * step + step * 0.5;
+            loops += `<ellipse cx="${x.toFixed(1)}" cy="135" rx="11" ry="44" fill="none" stroke="#4f46e5" stroke-width="4" />`;
+          }
+
+          svg.innerHTML = `
+            <rect x="14" y="14" width="632" height="252" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+            <text x="330" y="38" text-anchor="middle" font-size="14" font-weight="800" fill="#1e293b">সলিনয়েড ও তড়িৎচুম্বক (${hasIron ? 'নরম লোহার কোরসহ' : 'বায়ু কোর'})</text>
+            ${hasIron ? '<rect x="170" y="110" width="320" height="50" rx="8" fill="#cbd5e1" stroke="#475569" stroke-width="2.5"/>' : '<rect x="170" y="110" width="320" height="50" rx="8" fill="#f8fafc" stroke="#cbd5e1" stroke-dasharray="6 4" stroke-width="2"/>'}
+            ${loops}
+            <circle cx="135" cy="135" r="24" fill="${leftColor}"/>
+            <text x="135" y="143" text-anchor="middle" font-size="22" font-weight="800" fill="#ffffff">${leftPole}</text>
+            <circle cx="525" cy="135" r="24" fill="${rightColor}"/>
+            <text x="525" y="143" text-anchor="middle" font-size="22" font-weight="800" fill="#ffffff">${rightPole}</text>
+            <path d="M 195 178 V 224 H 465 V 178" fill="none" stroke="#334155" stroke-width="3.5"/>
+            <rect x="275" y="206" width="110" height="34" rx="8" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+            <text x="330" y="228" text-anchor="middle" font-size="12" font-weight="800" fill="#92400e">প্রবাহ I = ${I.toFixed(1)} A (${dir === 1 ? 'ডান' : 'বাম'})</text>
+          `;
+
+          document.getElementById('readoutBox').textContent =
+            `${hasIron ? 'নরম লোহার কোর' : 'বায়ু কোর'} ও N = ${N} পাকে বাম প্রান্তে ${leftPole} এবং ডান প্রান্তে ${rightPole} মেরু তৈরি হয়েছে। প্রবাহ উল্টালে মেরু অদলবদল হয়।`;
+        } else {
+          const rotLabel = dir === 1 ? 'ঘড়ির কাঁটার দিকে (CW)' : 'বিপরীত দিকে (CCW)';
+          const relSpeed = Math.round((NI * (hasIron ? 1.8 : 1)) / 25);
+          const leftArrow = dir === 1 ? 'M 278 130 V 66 M 268 82 L 278 62 L 288 82' : 'M 278 130 V 194 M 268 178 L 278 198 L 288 178';
+          const rightArrow = dir === 1 ? 'M 382 130 V 194 M 372 178 L 382 198 L 392 178' : 'M 382 130 V 66 M 372 82 L 382 62 L 392 82';
+
+          document.getElementById('statTitle2').textContent = 'আপেক্ষিক টর্ক সূচক';
+          document.getElementById('statVal2').textContent = relSpeed + ' RPM*';
+          document.getElementById('statTitle3').textContent = 'ঘূর্ণনের দিক';
+          document.getElementById('statVal3').textContent = dir === 1 ? 'ডানাবর্ত (CW)' : 'বামাবর্ত (CCW)';
+          document.getElementById('statTitle4').textContent = 'কমিউটেটর ভূমিকা';
+          document.getElementById('statVal4').textContent = '১৮০° পরে দিক বদল';
+
+          svg.innerHTML = `
+            <rect x="14" y="14" width="632" height="252" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5"/>
+            <text x="330" y="36" text-anchor="middle" font-size="14" font-weight="800" fill="#1e293b">DC মোটর: ফ্লেমিংয়ের বামহস্ত নিয়মে ঘূর্ণন (${rotLabel})</text>
+            <rect x="52" y="70" width="90" height="124" rx="10" fill="#ef4444"/>
+            <text x="97" y="141" text-anchor="middle" font-size="28" font-weight="800" fill="#ffffff">N</text>
+            <rect x="518" y="70" width="90" height="124" rx="10" fill="#2563eb"/>
+            <text x="563" y="141" text-anchor="middle" font-size="28" font-weight="800" fill="#ffffff">S</text>
+            <line x1="142" y1="132" x2="518" y2="132" stroke="#94a3b8" stroke-width="2" stroke-dasharray="7 5"/>
+            <rect x="260" y="92" width="140" height="80" rx="6" fill="${hasIron ? '#eef2ff' : '#ffffff'}" stroke="#4f46e5" stroke-width="5"/>
+            <path d="${leftArrow}" fill="none" stroke="#059669" stroke-width="4" stroke-linecap="round"/>
+            <path d="${rightArrow}" fill="none" stroke="#059669" stroke-width="4" stroke-linecap="round"/>
+            <circle cx="315" cy="212" r="14" fill="#f59e0b" opacity="0.85"/>
+            <circle cx="345" cy="212" r="14" fill="#f59e0b" opacity="0.85"/>
+            <rect x="328" y="196" width="4" height="32" fill="#ffffff"/>
+            <text x="330" y="250" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">স্প্লিট-রিং কমিউটেটর (অবিরাম একমুখী ঘূর্ণন নিশ্চিত করে)</text>
+          `;
+
+          document.getElementById('readoutBox').textContent =
+            `DC মোটরে N = ${N} পাক ও I = ${I.toFixed(1)} A প্রবাহে বিপরীত বাহুতে বিপরীত বল তৈরি হয়ে কুণ্ডলীটি ${rotLabel} ঘুরছে।`;
+        }
+
+        if (window.syncPoriRange) {
+          [nEl, iEl].forEach(window.syncPoriRange);
+        }
+      }
+
+      document.querySelectorAll('.preset').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.preset').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          modeEl.value = btn.dataset.mode;
+          nEl.value = btn.dataset.n;
+          iEl.value = btn.dataset.i;
+          coreEl.value = btn.dataset.core;
+          dirEl.value = btn.dataset.dir;
+          update();
+        });
+      });
+
+      [nEl, iEl].forEach(el => el.addEventListener('input', update));
+      [modeEl, coreEl, dirEl].forEach(el => el.addEventListener('change', update));
+      update();
+    })();
+  </script>
+
+  <!-- PORI UNIFIED RANGE SYNC START -->
+  <script>
+    (function () {
+      function syncRange(el) {
+        if (!el) return;
+        const min = el.min !== '' ? parseFloat(el.min) : 0;
+        const max = el.max !== '' ? parseFloat(el.max) : 100;
+        const val = parseFloat(el.value);
+        const pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
+        el.style.setProperty('--fill', pct.toFixed(2) + '%');
+        el.style.setProperty('--fill-pct', pct.toFixed(2) + '%');
+      }
+      window.syncPoriRange = syncRange;
+      function initRanges() {
+        document.querySelectorAll('input[type="range"]').forEach(el => {
+          if (el.dataset.poriRangeBound) return;
+          el.dataset.poriRangeBound = '1';
+          syncRange(el);
+          el.addEventListener('input', () => syncRange(el));
+          el.addEventListener('change', () => syncRange(el));
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initRanges);
+      } else {
+        initRanges();
+      }
+    })();
+  </script>
+  <!-- PORI UNIFIED RANGE SYNC END -->
+</body>
+</html>
