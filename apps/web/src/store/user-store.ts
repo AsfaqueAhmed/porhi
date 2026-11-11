@@ -16,19 +16,143 @@ export interface UserProfile {
   isGuest?: boolean;
 }
 
+export interface TopicMasteryStats {
+  attempted: number;
+  correct: number;
+  lastPracticedAt: string;
+}
+
+export interface SavedMistakeItem {
+  questionId: string;
+  stemBangla: string;
+  topicId: string;
+  topicTitle: string;
+  chapterId: string;
+  chapterTitle: string;
+  selectedKey: string;
+  correctKey: string;
+  explanationBangla?: string;
+  wrongCount: number;
+  resolved: boolean;
+  lastWrongAt: string;
+}
+
+export interface ExamHistoryItem {
+  examSessionId: string;
+  chapterId: string;
+  chapterTitle: string;
+  score: number;
+  totalQuestions: number;
+  accuracyPercent: number;
+  submittedAt: string;
+}
+
+export interface BookmarkItem {
+  id: string; // topicId or questionId
+  type: 'topic' | 'question';
+  titleBangla: string;
+  subtitleBangla?: string;
+  href: string;
+  createdAt: string;
+}
+
+export interface LastVisitedTopic {
+  topicId: string;
+  topicTitle: string;
+  chapterId: string;
+  chapterTitle: string;
+  visitedAt: string;
+}
+
+export interface ServerOverviewPayload {
+  streakDays?: number;
+  activityDays?: string[];
+  lastActivity?: {
+    topicId: string;
+    topicTitle: string;
+    chapterId: string;
+    chapterTitle: string;
+    timestamp: string;
+  } | null;
+  topicStats?: Record<
+    string,
+    {
+      completedLesson: boolean;
+      attempted: number;
+      correct: number;
+      accuracyPercent: number;
+      status: string;
+    }
+  >;
+  unresolvedMistakes?: Array<{
+    questionId: string;
+    stemBangla: string;
+    topicId: string;
+    topicTitle: string;
+    chapterId: string;
+    chapterTitle: string;
+    selectedKey: string;
+    correctKey: string;
+    explanationBangla?: string;
+    wrongCount: number;
+    lastWrongAt: string;
+  }>;
+  recentExams?: ExamHistoryItem[];
+}
+
 interface UserState {
   guestId: string | null;
   token: string | null;
   user: UserProfile | null;
   activeSubject: ActiveSubject | null;
   streakDays: number;
-  
+
+  // Dynamic Learning State
+  completedTopics: string[];
+  lastVisitedTopic: LastVisitedTopic | null;
+  topicMastery: Record<string, TopicMasteryStats>;
+  savedMistakes: SavedMistakeItem[];
+  examHistory: ExamHistoryItem[];
+  bookmarks: BookmarkItem[];
+  lessonNotes: Record<string, string>;
+  studyDates: string[];
+
   setGuestId: (id: string | null) => void;
   setToken: (token: string | null) => void;
   setUser: (user: UserProfile | null) => void;
   setActiveSubject: (subject: ActiveSubject | null) => void;
   setStreakDays: (streak: number) => void;
   logout: () => void;
+
+  // Learning Actions
+  recordLessonVisit: (topicId: string, topicTitle: string, chapterId: string, chapterTitle: string) => void;
+  markTopicCompleted: (topicId: string, topicTitle?: string, chapterId?: string, chapterTitle?: string) => void;
+  recordPracticeAttempt: (payload: {
+    questionId: string;
+    stemBangla: string;
+    topicId: string;
+    topicTitle: string;
+    chapterId: string;
+    chapterTitle: string;
+    selectedKey: string;
+    correctKey: string;
+    explanationBangla?: string;
+    isCorrect: boolean;
+  }) => void;
+  recordExamCompletion: (entry: ExamHistoryItem) => void;
+  resolveMistake: (questionId: string) => void;
+  toggleBookmark: (item: Omit<BookmarkItem, 'createdAt'>) => void;
+  saveLessonNote: (topicId: string, note: string) => void;
+  hydrateFromServerOverview: (overview: ServerOverviewPayload) => void;
+}
+
+function getTodayIsoDate(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function addStudyDate(existing: string[], dateStr = getTodayIsoDate()): string[] {
+  const set = new Set([...(existing || []), dateStr]);
+  return Array.from(set).sort().slice(-30);
 }
 
 export const useUserStore = create<UserState>()(
@@ -45,6 +169,15 @@ export const useUserStore = create<UserState>()(
         program: 'SSC',
       },
       streakDays: 3,
+
+      completedTopics: [],
+      lastVisitedTopic: null,
+      topicMastery: {},
+      savedMistakes: [],
+      examHistory: [],
+      bookmarks: [],
+      lessonNotes: {},
+      studyDates: [],
 
       setGuestId: (id) => set({ guestId: id }),
       setToken: (token) => {
@@ -66,6 +199,224 @@ export const useUserStore = create<UserState>()(
         }
         set({ token: null, user: null });
       },
+
+      recordLessonVisit: (topicId, topicTitle, chapterId, chapterTitle) =>
+        set((state) => ({
+          lastVisitedTopic: {
+            topicId,
+            topicTitle,
+            chapterId,
+            chapterTitle,
+            visitedAt: new Date().toISOString(),
+          },
+          studyDates: addStudyDate(state.studyDates),
+        })),
+
+      markTopicCompleted: (topicId, topicTitle, chapterId, chapterTitle) =>
+        set((state) => {
+          const completedTopics = state.completedTopics.includes(topicId)
+            ? state.completedTopics
+            : [...state.completedTopics, topicId];
+          const lastVisitedTopic =
+            topicTitle && chapterId && chapterTitle
+              ? {
+                  topicId,
+                  topicTitle,
+                  chapterId,
+                  chapterTitle,
+                  visitedAt: new Date().toISOString(),
+                }
+              : state.lastVisitedTopic;
+          return {
+            completedTopics,
+            lastVisitedTopic,
+            studyDates: addStudyDate(state.studyDates),
+          };
+        }),
+
+      recordPracticeAttempt: (payload) =>
+        set((state) => {
+          const now = new Date().toISOString();
+          const prevStats = state.topicMastery[payload.topicId] || {
+            attempted: 0,
+            correct: 0,
+            lastPracticedAt: now,
+          };
+          const updatedTopicMastery: Record<string, TopicMasteryStats> = {
+            ...state.topicMastery,
+            [payload.topicId]: {
+              attempted: prevStats.attempted + 1,
+              correct: prevStats.correct + (payload.isCorrect ? 1 : 0),
+              lastPracticedAt: now,
+            },
+          };
+
+          let updatedMistakes = [...state.savedMistakes];
+          const existingIdx = updatedMistakes.findIndex((m) => m.questionId === payload.questionId);
+
+          if (!payload.isCorrect) {
+            if (existingIdx >= 0) {
+              const current = updatedMistakes[existingIdx];
+              updatedMistakes[existingIdx] = {
+                ...current,
+                selectedKey: payload.selectedKey,
+                correctKey: payload.correctKey,
+                explanationBangla: payload.explanationBangla || current.explanationBangla,
+                wrongCount: (current.wrongCount || 1) + 1,
+                resolved: false,
+                lastWrongAt: now,
+              };
+            } else {
+              updatedMistakes = [
+                {
+                  questionId: payload.questionId,
+                  stemBangla: payload.stemBangla,
+                  topicId: payload.topicId,
+                  topicTitle: payload.topicTitle,
+                  chapterId: payload.chapterId,
+                  chapterTitle: payload.chapterTitle,
+                  selectedKey: payload.selectedKey,
+                  correctKey: payload.correctKey,
+                  explanationBangla: payload.explanationBangla,
+                  wrongCount: 1,
+                  resolved: false,
+                  lastWrongAt: now,
+                },
+                ...updatedMistakes,
+              ];
+            }
+          } else if (existingIdx >= 0) {
+            updatedMistakes[existingIdx] = {
+              ...updatedMistakes[existingIdx],
+              resolved: true,
+            };
+          }
+
+          return {
+            topicMastery: updatedTopicMastery,
+            savedMistakes: updatedMistakes,
+            lastVisitedTopic: {
+              topicId: payload.topicId,
+              topicTitle: payload.topicTitle,
+              chapterId: payload.chapterId,
+              chapterTitle: payload.chapterTitle,
+              visitedAt: now,
+            },
+            studyDates: addStudyDate(state.studyDates),
+          };
+        }),
+
+      recordExamCompletion: (entry) =>
+        set((state) => {
+          const filtered = state.examHistory.filter((e) => e.examSessionId !== entry.examSessionId);
+          return {
+            examHistory: [entry, ...filtered].slice(0, 20),
+            studyDates: addStudyDate(state.studyDates),
+          };
+        }),
+
+      resolveMistake: (questionId) =>
+        set((state) => ({
+          savedMistakes: state.savedMistakes.map((m) =>
+            m.questionId === questionId ? { ...m, resolved: true } : m
+          ),
+        })),
+
+      toggleBookmark: (item) =>
+        set((state) => {
+          const exists = state.bookmarks.some((b) => b.id === item.id && b.type === item.type);
+          const bookmarks = exists
+            ? state.bookmarks.filter((b) => !(b.id === item.id && b.type === item.type))
+            : [{ ...item, createdAt: new Date().toISOString() }, ...state.bookmarks];
+          return { bookmarks };
+        }),
+
+      saveLessonNote: (topicId, note) =>
+        set((state) => ({
+          lessonNotes: {
+            ...state.lessonNotes,
+            [topicId]: note,
+          },
+        })),
+
+      hydrateFromServerOverview: (overview) =>
+        set((state) => {
+          if (!overview) return state;
+
+          const mergedCompleted = new Set(state.completedTopics);
+          const mergedMastery: Record<string, TopicMasteryStats> = { ...state.topicMastery };
+
+          if (overview.topicStats) {
+            for (const [topicId, stats] of Object.entries(overview.topicStats)) {
+              if (stats.completedLesson) {
+                mergedCompleted.add(topicId);
+              }
+              if (stats.attempted > 0) {
+                const local = mergedMastery[topicId];
+                if (!local || stats.attempted >= local.attempted) {
+                  mergedMastery[topicId] = {
+                    attempted: stats.attempted,
+                    correct: stats.correct,
+                    lastPracticedAt: local?.lastPracticedAt || new Date().toISOString(),
+                  };
+                }
+              }
+            }
+          }
+
+          const mergedMistakes = [...state.savedMistakes];
+          if (Array.isArray(overview.unresolvedMistakes)) {
+            for (const srvMistake of overview.unresolvedMistakes) {
+              const idx = mergedMistakes.findIndex((m) => m.questionId === srvMistake.questionId);
+              if (idx === -1) {
+                mergedMistakes.push({
+                  ...srvMistake,
+                  resolved: false,
+                });
+              }
+            }
+          }
+
+          const mergedExams = [...state.examHistory];
+          if (Array.isArray(overview.recentExams)) {
+            for (const srvExam of overview.recentExams) {
+              if (!mergedExams.some((e) => e.examSessionId === srvExam.examSessionId)) {
+                mergedExams.push(srvExam);
+              }
+            }
+          }
+
+          const mergedStudyDates = Array.from(
+            new Set([...state.studyDates, ...(overview.activityDays || [])])
+          )
+            .sort()
+            .slice(-30);
+
+          const lastVisitedTopic =
+            state.lastVisitedTopic ||
+            (overview.lastActivity
+              ? {
+                  topicId: overview.lastActivity.topicId,
+                  topicTitle: overview.lastActivity.topicTitle,
+                  chapterId: overview.lastActivity.chapterId,
+                  chapterTitle: overview.lastActivity.chapterTitle,
+                  visitedAt: overview.lastActivity.timestamp,
+                }
+              : null);
+
+          return {
+            completedTopics: Array.from(mergedCompleted),
+            topicMastery: mergedMastery,
+            savedMistakes: mergedMistakes,
+            examHistory: mergedExams.slice(0, 20),
+            studyDates: mergedStudyDates,
+            lastVisitedTopic,
+            streakDays:
+              typeof overview.streakDays === 'number' && overview.streakDays > 0
+                ? Math.max(state.streakDays, overview.streakDays)
+                : state.streakDays,
+          };
+        }),
     }),
     {
       name: 'pori-user-storage',
@@ -75,6 +426,14 @@ export const useUserStore = create<UserState>()(
         user: state.user,
         activeSubject: state.activeSubject,
         streakDays: state.streakDays,
+        completedTopics: state.completedTopics,
+        lastVisitedTopic: state.lastVisitedTopic,
+        topicMastery: state.topicMastery,
+        savedMistakes: state.savedMistakes,
+        examHistory: state.examHistory,
+        bookmarks: state.bookmarks,
+        lessonNotes: state.lessonNotes,
+        studyDates: state.studyDates,
       }),
     }
   )
