@@ -124,7 +124,7 @@ export default function CurriculumPage() {
           filteredTopics: matchingTopics,
         };
       })
-      .filter((ch) => ch.filteredTopics.length > 0);
+      .filter((ch) => (filterMode === 'ALL' && !q ? true : ch.filteredTopics.length > 0));
   }, [chapters, searchQuery, filterMode, completedTopics, topicMastery, bookmarks]);
 
   const allCollapsed = chapters.length > 0 && collapsedIds.size === chapters.length;
