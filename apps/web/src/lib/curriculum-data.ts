@@ -83,6 +83,20 @@ export const DEFAULT_CHAPTERS: ChapterItem[] = [
     ],
   },
   {
+    id: 'chap_ssc_physics_ch5',
+    subjectId: 'sub_ssc_physics',
+    orderIndex: 5,
+    titleBangla: 'পঞ্চম অধ্যায়: পদার্থের অবস্থা ও চাপ (States of Matter and Pressure)',
+    topics: [
+      { id: 'top_ssc_physics_ch5_1', chapterId: 'chap_ssc_physics_ch5', orderIndex: 1, titleBangla: '৫.১ চাপ (Pressure)' },
+      { id: 'top_ssc_physics_ch5_2', chapterId: 'chap_ssc_physics_ch5', orderIndex: 2, titleBangla: '৫.২ ঘনত্ব (Density)' },
+      { id: 'top_ssc_physics_ch5_3', chapterId: 'chap_ssc_physics_ch5', orderIndex: 3, titleBangla: '৫.৩ তরলে চাপ, প্যাসকেলের সূত্র ও প্লবতা (Pressure in Liquids, Pascal’s Law & Lab)' },
+      { id: 'top_ssc_physics_ch5_4', chapterId: 'chap_ssc_physics_ch5', orderIndex: 4, titleBangla: '৫.৪ বায়ুচাপ, ব্যারোমিটার ও আবহাওয়া (Air Pressure, Barometer and Weather)' },
+      { id: 'top_ssc_physics_ch5_5', chapterId: 'chap_ssc_physics_ch5', orderIndex: 5, titleBangla: '৫.৫ স্থিতিস্থাপকতা ও হুকের সূত্র (Elasticity and Hooke’s Law & Lab)' },
+      { id: 'top_ssc_physics_ch5_6', chapterId: 'chap_ssc_physics_ch5', orderIndex: 6, titleBangla: '৫.৬ পদার্থের তিন অবস্থা, আণবিক গতিতত্ত্ব ও প্লাজমা (States of Matter & Plasma)' },
+    ],
+  },
+  {
     id: 'chap_ssc_physics_ch6',
     subjectId: 'sub_ssc_physics',
     orderIndex: 6,
@@ -150,6 +164,16 @@ export function findTopicHierarchy(topicId: string, customChapters: ChapterItem[
       topicTitle: 'কাজ, ক্ষমতা ও শক্তি',
       chapterId: 'chap_ssc_physics_ch4',
       chapterTitle: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+      subjectId: 'sub_ssc_physics',
+    };
+  }
+
+  if (topicId.includes('ch5') || topicId.includes('pressure') || topicId.includes('density') || topicId.includes('buoyancy') || topicId.includes('elasticity') || topicId.includes('plasma')) {
+    return {
+      topicId,
+      topicTitle: 'পদার্থের অবস্থা ও চাপ',
+      chapterId: 'chap_ssc_physics_ch5',
+      chapterTitle: 'পঞ্চম অধ্যায়: পদার্থের অবস্থা ও চাপ',
       subjectId: 'sub_ssc_physics',
     };
   }

@@ -7,6 +7,7 @@ import { seedChapter1 } from './seed-chapter-1';
 import { seedChapter2 } from './seed-chapter-2';
 import { seedChapter3 } from './seed-chapter-3';
 import { seedChapter4 } from './seed-chapter-4';
+import { seedChapter5 } from './seed-chapter-5';
 import { seedChapter6 } from './seed-chapter-6';
 
 export const sscPhysicsSubject = {
@@ -415,7 +416,10 @@ export async function seed(prisma: PrismaClient) {
   // 9. Seed Chapter 4 full curriculum and question bank
   await seedChapter4(prisma);
 
-  // 10. Seed Chapter 6 full curriculum and question bank
+  // 10. Seed Chapter 5 full curriculum and question bank
+  await seedChapter5(prisma);
+
+  // 11. Seed Chapter 6 full curriculum and question bank
   await seedChapter6(prisma);
 }
 
