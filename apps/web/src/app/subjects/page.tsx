@@ -2,11 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckCircle2, Clock, BookMarked, ArrowRight } from 'lucide-react';
+import { CheckCircle2, Clock, BookMarked, ArrowRight, Search, Layers, BookOpen } from 'lucide-react';
 import { useUserStore, ActiveSubject } from '@/store/user-store';
 import { useLanguageStore } from '@/store/language-store';
 import { apiClient } from '@/lib/api-client';
 import { toBanglaDigits } from '@/lib/formatters';
+import { DEFAULT_CHAPTERS } from '@/lib/curriculum-data';
 import { SubjectsPageSkeleton } from '@/components/ui/shimmer';
 
 interface SubjectItem {
@@ -17,7 +18,12 @@ interface SubjectItem {
   classLevel: string;
   isReady: boolean;
   program?: string;
+  chapterCount?: number;
+  topicCount?: number;
 }
+
+const DEFAULT_PHYSICS_CHAPTER_COUNT = DEFAULT_CHAPTERS.length;
+const DEFAULT_PHYSICS_TOPIC_COUNT = DEFAULT_CHAPTERS.reduce((sum, ch) => sum + ch.topics.length, 0);
 
 const DEFAULT_SUBJECTS: SubjectItem[] = [
   {
@@ -28,6 +34,8 @@ const DEFAULT_SUBJECTS: SubjectItem[] = [
     classLevel: 'CLASS_9_10',
     program: 'SSC',
     isReady: true,
+    chapterCount: DEFAULT_PHYSICS_CHAPTER_COUNT,
+    topicCount: DEFAULT_PHYSICS_TOPIC_COUNT,
   },
   {
     id: 'sub-ssc-chem',
@@ -37,6 +45,8 @@ const DEFAULT_SUBJECTS: SubjectItem[] = [
     classLevel: 'CLASS_9_10',
     program: 'SSC',
     isReady: true,
+    chapterCount: 12,
+    topicCount: 72,
   },
   {
     id: 'sub-ssc-math',
@@ -46,6 +56,8 @@ const DEFAULT_SUBJECTS: SubjectItem[] = [
     classLevel: 'CLASS_9_10',
     program: 'SSC',
     isReady: false,
+    chapterCount: 17,
+    topicCount: 95,
   },
   {
     id: 'sub-ssc-hmath',
@@ -55,6 +67,8 @@ const DEFAULT_SUBJECTS: SubjectItem[] = [
     classLevel: 'CLASS_9_10',
     program: 'SSC',
     isReady: false,
+    chapterCount: 14,
+    topicCount: 78,
   },
   {
     id: 'sub-ssc-bio',
@@ -64,6 +78,8 @@ const DEFAULT_SUBJECTS: SubjectItem[] = [
     classLevel: 'CLASS_9_10',
     program: 'SSC',
     isReady: false,
+    chapterCount: 14,
+    topicCount: 84,
   },
   {
     id: 'sub-hsc-phy',
@@ -73,16 +89,19 @@ const DEFAULT_SUBJECTS: SubjectItem[] = [
     classLevel: 'CLASS_11_12',
     program: 'HSC',
     isReady: false,
+    chapterCount: 21,
+    topicCount: 140,
   },
 ];
 
 export default function SubjectsPage() {
   const router = useRouter();
-  const { activeSubject, setActiveSubject } = useUserStore();
+  const { activeSubject, setActiveSubject, completedTopics } = useUserStore();
   const { tr, language } = useLanguageStore();
   const [subjects, setSubjects] = useState<SubjectItem[]>(DEFAULT_SUBJECTS);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'ALL' | 'SSC' | 'HSC'>('ALL');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     async function loadSubjects() {
@@ -94,6 +113,12 @@ export default function SubjectsPage() {
             data.map((s) => ({
               ...s,
               program: s.classLevel === 'CLASS_11_12' ? 'HSC' : 'SSC',
+              chapterCount:
+                s.chapterCount ??
+                (s.code.toLowerCase().includes('phy') ? DEFAULT_PHYSICS_CHAPTER_COUNT : 12),
+              topicCount:
+                s.topicCount ??
+                (s.code.toLowerCase().includes('phy') ? DEFAULT_PHYSICS_TOPIC_COUNT : 72),
             }))
           );
         }
@@ -120,8 +145,14 @@ export default function SubjectsPage() {
   };
 
   const filteredSubjects = subjects.filter((s) => {
-    if (filter === 'ALL') return true;
-    return s.program === filter;
+    const matchesProgram = filter === 'ALL' || s.program === filter;
+    const q = searchQuery.trim().toLowerCase();
+    const matchesQuery =
+      !q ||
+      s.nameBangla.toLowerCase().includes(q) ||
+      s.code.toLowerCase().includes(q) ||
+      (s.program || '').toLowerCase().includes(q);
+    return matchesProgram && matchesQuery;
   });
 
   if (isLoading) {
@@ -130,7 +161,7 @@ export default function SubjectsPage() {
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
-      {/* Title */}
+      {/* Title & Controls */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -144,39 +175,62 @@ export default function SubjectsPage() {
           </p>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex bg-slate-200/70 p-1 rounded-xl self-start">
-          <button
-            onClick={() => setFilter('ALL')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-              filter === 'ALL' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            {tr('সকল বিষয়', 'All Subjects')}
-          </button>
-          <button
-            onClick={() => setFilter('SSC')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-              filter === 'SSC' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            SSC
-          </button>
-          <button
-            onClick={() => setFilter('HSC')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-              filter === 'HSC' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            HSC
-          </button>
+        {/* Search & Filter Tabs */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+          <div className="relative">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={tr('বিষয় খুঁজুন...', 'Search subject...')}
+              className="pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-48"
+            />
+          </div>
+
+          <div className="flex bg-slate-200/70 p-1 rounded-xl self-start">
+            <button
+              onClick={() => setFilter('ALL')}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                filter === 'ALL' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              {tr('সকল বিষয়', 'All Subjects')}
+            </button>
+            <button
+              onClick={() => setFilter('SSC')}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                filter === 'SSC' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              SSC
+            </button>
+            <button
+              onClick={() => setFilter('HSC')}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                filter === 'HSC' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              HSC
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Subjects Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredSubjects.map((item) => {
-          const isSelected = activeSubject?.id === item.id;
+          const isSelected =
+            activeSubject?.id === item.id ||
+            (activeSubject?.id === 'sub_ssc_physics' && item.id === 'sub-ssc-phy');
+          const chaptersCount = item.chapterCount || DEFAULT_PHYSICS_CHAPTER_COUNT;
+          const topicsCount = item.topicCount || DEFAULT_PHYSICS_TOPIC_COUNT;
+          const isPhysics =
+            item.id.includes('phy') && item.program === 'SSC';
+          const completedForSubject = isPhysics ? completedTopics.length : 0;
+          const progressPct =
+            topicsCount > 0 ? Math.min(100, Math.round((completedForSubject / topicsCount) * 100)) : 0;
+
           return (
             <div
               key={item.id}
@@ -219,6 +273,36 @@ export default function SubjectsPage() {
                   </span>
                 )}
               </div>
+
+              {/* Metadata Pills */}
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-600">
+                <span className="inline-flex items-center gap-1 bg-slate-100 px-2.5 py-1 rounded-lg font-semibold">
+                  <Layers className="w-3.5 h-3.5 text-indigo-600" />
+                  {language === 'bn' ? `${toBanglaDigits(chaptersCount)}টি অধ্যায়` : `${chaptersCount} Chapters`}
+                </span>
+                <span className="inline-flex items-center gap-1 bg-slate-100 px-2.5 py-1 rounded-lg font-semibold">
+                  <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
+                  {language === 'bn' ? `${toBanglaDigits(topicsCount)}টি টপিক` : `${topicsCount} Topics`}
+                </span>
+              </div>
+
+              {/* Progress Bar for Ready Subjects */}
+              {item.isReady && (
+                <div className="mt-3 space-y-1">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-slate-600">
+                    <span>{tr('সিলেবাস অগ্রগতি', 'Syllabus Progress')}</span>
+                    <span className="text-indigo-700 font-bold">
+                      {language === 'bn' ? `${toBanglaDigits(progressPct)}%` : `${progressPct}%`}
+                    </span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-indigo-600 rounded-full transition-all"
+                      style={{ width: `${progressPct}%` }}
+                    />
+                  </div>
+                </div>
+              )}
 
               <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                 {item.isReady ? (

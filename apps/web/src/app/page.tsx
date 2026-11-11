@@ -1,27 +1,36 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BookOpen, CheckCircle, ArrowRight, Flame, Award } from 'lucide-react';
+import { BookOpen, CheckCircle, ArrowRight, Flame, Award, Zap, Layers } from 'lucide-react';
 import { useUserStore } from '@/store/user-store';
 import { useLanguageStore } from '@/store/language-store';
 import { apiClient } from '@/lib/api-client';
+import { DEFAULT_CHAPTERS } from '@/lib/curriculum-data';
+import { toBanglaDigits } from '@/lib/formatters';
 
 export default function LandingPage() {
   const router = useRouter();
-  const { setToken, setUser, setGuestId, guestId } = useUserStore();
-  const { tr } = useLanguageStore();
+  const { setToken, setUser, setGuestId, guestId, user, lastVisitedTopic, completedTopics } = useUserStore();
+  const { tr, language } = useLanguageStore();
   const [phoneNumber, setPhoneNumber] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [otpStep, setOtpStep] = useState<'PHONE' | 'OTP'>('PHONE');
   const [loading, setLoading] = useState(false);
   const [guestLoading, setGuestLoading] = useState(false);
 
+  const totalChapters = DEFAULT_CHAPTERS.length;
+  const totalTopics = DEFAULT_CHAPTERS.reduce((sum, ch) => sum + ch.topics.length, 0);
+  const totalLabs = DEFAULT_CHAPTERS.reduce(
+    (sum, ch) => sum + ch.topics.filter((t) => t.hasInteractiveLab).length,
+    0
+  );
+
   const handleGuestStart = async () => {
     try {
       setGuestLoading(true);
       const generatedGuestId = 'guest_' + Math.random().toString(36).substring(2, 9);
-      // Attempt backend guest login if available
       try {
         const res = await apiClient.post<{ accessToken?: string; user?: any }>('/auth/guest', {
           guestId: generatedGuestId,
@@ -33,7 +42,6 @@ export default function LandingPage() {
           setUser(res.user);
         }
       } catch {
-        // Fallback for offline/local guest state
         setGuestId(generatedGuestId);
         setUser({ id: generatedGuestId, isGuest: true });
       }
@@ -97,10 +105,39 @@ export default function LandingPage() {
             'Clear conceptual explanations for Physics, Math & Chemistry, 6-layer MCQ breakdown, and realistic chapter-wise model tests.'
           )}
         </p>
+
+        {/* Live Curriculum Stats Strip */}
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
+            <Layers className="w-3.5 h-3.5 text-indigo-600" />
+            {language === 'bn' ? toBanglaDigits(totalChapters) : totalChapters}
+            {tr('টি অধ্যায়', ' Chapters')}
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-bold">
+            <BookOpen className="w-3.5 h-3.5 text-emerald-600" />
+            {language === 'bn' ? toBanglaDigits(totalTopics) : totalTopics}
+            {tr('টি ইন্টারেক্টিভ পাঠ', ' Interactive Lessons')}
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold border border-amber-200">
+            <Zap className="w-3.5 h-3.5 text-amber-600" />
+            {language === 'bn' ? toBanglaDigits(totalLabs) : totalLabs}
+            {tr('টি ভার্চুয়াল ল্যাব সিমুলেশন', ' Virtual Lab Simulations')}
+          </span>
+        </div>
       </div>
 
       {/* Quick Action Card */}
       <div className="w-full max-w-md bg-white border border-slate-200 rounded-2xl shadow-sm p-6 space-y-4 text-left">
+        {(user || lastVisitedTopic || completedTopics.length > 0) && (
+          <Link
+            href="/dashboard"
+            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-xs transition-all flex items-center justify-between text-sm"
+          >
+            <span>{tr('পড়া চালিয়ে যাও (ড্যাশবোর্ড)', 'Continue Learning (Dashboard)')}</span>
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        )}
+
         <button
           onClick={handleGuestStart}
           disabled={guestLoading}
