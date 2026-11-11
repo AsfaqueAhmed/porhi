@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ভরবেগ সংরক্ষণ ও দ্বৈত কার সংঘর্ষ ল্যাব</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #0f172a; color: #f8fafc; padding: 14px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    .container { max-width: 720px; width: 100%; display: flex; flex-direction: column; gap: 12px; }
+    header { text-align: center; }
+    h1 { font-size: 1.15rem; color: #38bdf8; margin-bottom: 3px; }
+    p { font-size: 0.8rem; color: #94a3b8; }
+    .canvas-wrap { background: #1e293b; border-radius: 12px; border: 1px solid #334155; overflow: hidden; width: 100%; position: relative; }
+    svg { display: block; width: 100%; height: 180px; }
+    .controls { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 12px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .control-group { display: flex; flex-direction: column; gap: 4px; }
+    label { font-size: 0.75rem; color: #cbd5e1; display: flex; justify-content: space-between; font-weight: 700; }
+    .custom-range {
+      -webkit-appearance: none; appearance: none; width: 100%; height: 8px; border-radius: 999px; outline: none;
+      background: linear-gradient(90deg, #38bdf8 var(--fill, 50%), #334155 var(--fill, 50%)); cursor: pointer;
+    }
+    .custom-range::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #38bdf8; border: 2px solid #fff; cursor: pointer;
+    }
+    .btn-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    button { padding: 6px 14px; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #fff; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+    button.primary { background: #0284c7; border-color: #0284c7; }
+    button.active { background: #0369a1; border-color: #38bdf8; color: #fff; }
+    button:hover { filter: brightness(1.15); }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 8px; text-align: center; }
+    .card .title { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; }
+    .card .val { font-size: 1.05rem; font-weight: 800; color: #38bdf8; }
+    .readout { background: #1e293b; border-left: 3px solid #38bdf8; padding: 8px 12px; border-radius: 0 8px 8px 0; font-size: 0.8rem; color: #cbd5e1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>💥 ভরবেগ সংরক্ষণ ও দ্বৈত কার সংঘর্ষ ল্যাব</h1>
+      <p>দুটি গতিশীল গাড়ির ভর ($m_1, m_2$) ও আদিবেগ ($u_1, u_2$) পরিবর্তন করে সংঘর্ষ ঘটাও।</p>
+    </header>
+
+    <div class="canvas-wrap">
+      <svg id="collideSvg" viewBox="0 0 700 180"></svg>
+    </div>
+
+    <div class="btn-row">
+      <button class="active" id="bInelastic" onclick="setMode('inelastic', this)">🧲 মিলিত বেগ (Inelastic)</button>
+      <button id="bElastic" onclick="setMode('elastic', this)">⚡ স্থিতিস্থাপক প্রতিক্ষেপ (Elastic)</button>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>কার ১ ভর: <span id="m1Disp" style="color:#38bdf8">3.0 kg</span> | বেগ: <span id="u1Disp" style="color:#38bdf8">+4.0 m/s</span></label>
+        <input id="m1Slide" class="custom-range" type="range" min="1" max="10" value="3" step="0.5" oninput="onParam()">
+        <input id="u1Slide" class="custom-range" type="range" min="0" max="8" value="4" step="0.5" oninput="onParam()" style="margin-top:4px">
+      </div>
+      <div class="control-group">
+        <label>কার ২ ভর: <span id="m2Disp" style="color:#f472b6">2.0 kg</span> | বেগ: <span id="u2Disp" style="color:#f472b6">0.0 m/s</span></label>
+        <input id="m2Slide" class="custom-range" type="range" min="1" max="10" value="2" step="0.5" oninput="onParam()">
+        <input id="u2Slide" class="custom-range" type="range" min="-5" max="5" value="0" step="0.5" oninput="onParam()" style="margin-top:4px">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="primary" id="playBtn" onclick="togglePlay()">💥 সংঘর্ষ শুরু</button>
+      <button onclick="resetSim()">🔄 রিসেট</button>
+    </div>
+
+    <div class="grid">
+      <div class="card"><div class="title">আদি মোট ভরবেগ (Pᵢ)</div><div class="val" id="dispPi">12.0 kg·m/s</div></div>
+      <div class="card"><div class="title">শেষ মোট ভরবেগ (Pբ)</div><div class="val" id="dispPf">12.0 kg·m/s</div></div>
+      <div class="card"><div class="title">কার ১ শেষ বেগ</div><div class="val" id="dispV1">+2.40 m/s</div></div>
+      <div class="card"><div class="title">কার ২ শেষ বেগ</div><div class="val" id="dispV2">+2.40 m/s</div></div>
+    </div>
+
+    <div class="readout" id="mathReadout">
+      ভরবেগের নিত্যতা: Pᵢ = m₁u₁ + m₂u₂ = 12.0 kg·m/s = Pբ (সংরক্ষিত!)
+    </div>
+  </div>
+
+  <script>
+    let m1 = 3.0, u1 = 4.0, m2 = 2.0, u2 = 0.0;
+    let v1 = 4.0, v2 = 0.0;
+    let mode = 'inelastic';
+    let x1 = 100, x2 = 420;
+    let running = false, collided = false, lastTs = 0;
+
+    function render() {
+      const svg = document.getElementById('collideSvg');
+      const w1 = 55 + m1 * 3;
+      const w2 = 55 + m2 * 3;
+      const cy = 120 - 28;
+
+      let html = `
+        <rect x="0" y="120" width="700" height="60" fill="#334155"/>
+        <line x1="0" y1="120" x2="700" y2="120" stroke="#0284c7" stroke-width="3"/>
+      `;
+
+      // Cart 1 (Blue)
+      html += `
+        <rect x="${x1}" y="${cy}" width="${w1}" height="28" rx="5" fill="#0284c7" stroke="#0369a1" stroke-width="2"/>
+        <circle cx="${x1 + 12}" cy="120" r="6" fill="#64748b"/>
+        <circle cx="${x1 + w1 - 12}" cy="120" r="6" fill="#64748b"/>
+        <text x="${x1 + w1/2}" y="${cy + 18}" fill="#fff" font-size="10" font-weight="800" text-anchor="middle">${m1}kg</text>
+      `;
+
+      // Cart 2 (Pink)
+      html += `
+        <rect x="${x2}" y="${cy}" width="${w2}" height="28" rx="5" fill="#db2777" stroke="#9d174d" stroke-width="2"/>
+        <circle cx="${x2 + 12}" cy="120" r="6" fill="#64748b"/>
+        <circle cx="${x2 + w2 - 12}" cy="120" r="6" fill="#64748b"/>
+        <text x="${x2 + w2/2}" y="${cy + 18}" fill="#fff" font-size="10" font-weight="800" text-anchor="middle">${m2}kg</text>
+      `;
+
+      svg.innerHTML = html;
+    }
+
+    function calculateVelocities() {
+      if (mode === 'inelastic') {
+        const V = (m1 * u1 + m2 * u2) / (m1 + m2);
+        v1 = V; v2 = V;
+      } else {
+        v1 = ((m1 - m2) / (m1 + m2)) * u1 + ((2 * m2) / (m1 + m2)) * u2;
+        v2 = ((2 * m1) / (m1 + m2)) * u1 + ((m2 - m1) / (m1 + m2)) * u2;
+      }
+    }
+
+    function update() {
+      document.getElementById('m1Disp').innerText = m1.toFixed(1) + ' kg';
+      document.getElementById('u1Disp').innerText = (u1 > 0 ? '+' : '') + u1.toFixed(1) + ' m/s';
+      document.getElementById('m2Disp').innerText = m2.toFixed(1) + ' kg';
+      document.getElementById('u2Disp').innerText = (u2 > 0 ? '+' : '') + u2.toFixed(1) + ' m/s';
+
+      const pi = m1 * u1 + m2 * u2;
+      const pf = m1 * v1 + m2 * v2;
+
+      document.getElementById('dispPi').innerText = pi.toFixed(1) + ' kg·m/s';
+      document.getElementById('dispPf').innerText = pf.toFixed(1) + ' kg·m/s';
+      document.getElementById('dispV1').innerText = (v1 > 0 ? '+' : '') + v1.toFixed(2) + ' m/s';
+      document.getElementById('dispV2').innerText = (v2 > 0 ? '+' : '') + v2.toFixed(2) + ' m/s';
+
+      document.getElementById('m1Slide').style.setProperty('--fill', ((m1 - 1) / 9 * 100) + '%');
+      document.getElementById('u1Slide').style.setProperty('--fill', (u1 / 8 * 100) + '%');
+      document.getElementById('m2Slide').style.setProperty('--fill', ((m2 - 1) / 9 * 100) + '%');
+      document.getElementById('u2Slide').style.setProperty('--fill', ((u2 - (-5)) / 10 * 100) + '%');
+
+      document.getElementById('mathReadout').innerText = 
+        `ভরবেগের নিত্যতা: Pᵢ = (${m1}×${u1}) + (${m2}×${u2}) = ${pi.toFixed(1)} kg·m/s = Pբ (সংরক্ষিত!)`;
+
+      render();
+    }
+
+    function onParam() {
+      m1 = parseFloat(document.getElementById('m1Slide').value);
+      u1 = parseFloat(document.getElementById('u1Slide').value);
+      m2 = parseFloat(document.getElementById('m2Slide').value);
+      u2 = parseFloat(document.getElementById('u2Slide').value);
+
+      if (!collided) { v1 = u1; v2 = u2; } else { calculateVelocities(); }
+      update();
+    }
+
+    function setMode(m, btn) {
+      mode = m;
+      document.querySelectorAll('#bInelastic, #bElastic').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      if (collided) calculateVelocities();
+      update();
+    }
+
+    function togglePlay() {
+      running = !running;
+      const btn = document.getElementById('playBtn');
+      if (running) {
+        btn.innerText = '⏸️ বিরতি';
+        lastTs = performance.now();
+        requestAnimationFrame(loop);
+      } else {
+        btn.innerText = '💥 সংঘর্ষ শুরু';
+      }
+    }
+
+    function resetSim() {
+      running = false;
+      collided = false;
+      document.getElementById('playBtn').innerText = '💥 সংঘর্ষ শুরু';
+      x1 = 100; x2 = 420;
+      v1 = u1; v2 = u2;
+      update();
+    }
+
+    function loop(ts) {
+      if (!running) return;
+      const dt = Math.min((ts - lastTs) / 1000, 0.05);
+      lastTs = ts;
+
+      x1 += v1 * dt * 25;
+      x2 += v2 * dt * 25;
+
+      const w1 = 55 + m1 * 3;
+      const w2 = 55 + m2 * 3;
+
+      if (!collided && x1 + w1 >= x2) {
+        collided = true;
+        calculateVelocities();
+        x1 = x2 - w1;
+      }
+
+      if (collided && mode === 'inelastic') {
+        x2 = x1 + w1;
+      }
+
+      if (x1 < 10) { x1 = 10; v1 = 0; }
+      if (x2 > 680 - w2) { x2 = 680 - w2; v2 = 0; }
+
+      update();
+      if (running) requestAnimationFrame(loop);
+    }
+
+    calculateVelocities();
+    update();
+  </script>
+</body>
+</html>

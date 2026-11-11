@@ -1,0 +1,686 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৪.৪ শক্তির নিত্যতা ও রূপান্তর · অধ্যায় ৪: কাজ, ক্ষমতা ও শক্তি | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- KaTeX for crisp mathematical formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+  <style>
+    .lab-card{background:#ffffff;border:1px solid #cbd5e1;border-radius:18px;padding:22px;margin:22px 0;box-shadow:0 10px 32px rgba(15,23,42,0.06)}
+    .lab-card-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+    .lab-card-title{font-size:19px;font-weight:800;color:#0f766e;margin:0 0 4px}
+    .lab-card-desc{font-size:13px;color:#64748b;margin:0;line-height:1.6}
+    .preset-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0}
+    .preset-btn{background:#fff;border:1px solid #cbd5e1;color:#334155;border-radius:10px;padding:6px 12px;font-size:12.5px;font-weight:700;cursor:pointer;transition:all .15s}
+    .preset-btn:hover{background:#f0fdfa;color:#0f766e;border-color:#99f6e4}
+    .preset-btn.active{background:#0f766e;color:#fff;border-color:#0f766e}
+    .control-panel{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin:16px 0}
+    .control-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;margin-top:14px}
+    .slider-group{flex:1;min-width:240px}
+    .slider-label{display:flex;justify-content:space-between;font-size:13.5px;font-weight:750;color:#334155;margin-bottom:6px}
+    .fine-tune-btns{display:flex;flex-wrap:wrap;gap:6px}
+    .btn-step{background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:6px 12px;font-weight:800;font-size:13px;cursor:pointer;color:#334155;transition:all .15s}
+    .btn-step:hover{background:#f0fdfa;color:#0f766e;border-color:#99f6e4}
+    .btn-step.primary{background:#0f766e;color:#fff;border-color:#0f766e}
+    .btn-step.primary:hover{background:#115e59}
+    .lab-svg-wrap{overflow-x:auto;background:linear-gradient(180deg,#f8fafc 0%,#f1f5f9 100%);border:1px solid #cbd5e1;border-radius:14px;padding:12px;margin:14px 0;position:relative}
+    .lab-svg{display:block;width:100%;min-width:760px;height:auto}
+    .calc-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:16px 0}
+    .calc-item{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.02)}
+    .calc-item .title{font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;margin:0 0 4px}
+    .calc-item .value{font-size:17px;font-weight:900;color:#1e293b;margin:0}
+    .calc-item.highlight{background:#f0fdfa;border-color:#99f6e4}
+    .calc-item.highlight .value{color:#0f766e}
+    .calc-item.danger{background:#fff7ed;border-color:#fed7aa}
+    .calc-item.danger .value{color:#ea580c}
+    .calc-item.info{background:#f0f9ff;border-color:#bae6fd}
+    .calc-item.info .value{color:#0284c7}
+    .readout{background:#f0fdfa;color:#115e59;font-weight:800;border-radius:12px;padding:12px;text-align:center;font-size:14.5px;border:1px solid #99f6e4;margin:12px 0}
+    .quiz-box{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:16px;margin:16px 0;display:none}
+    .quiz-box.active{display:block}
+    @media(max-width:850px){
+      .calc-grid{grid-template-columns:repeat(3,1fr)}
+    }
+    @media(max-width:550px){
+      .calc-grid{grid-template-columns:repeat(2,1fr)}
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৪ / ৪.৪</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই ৪.৪</span>
+    <h1 class="title">শক্তির নিত্যতা ও রূপান্তর <small>(Conservation and Conversion of Energy)</small></h1>
+    <p class="subtitle">মহাবিশ্বের শক্তির অবিনাশিতা নীতি, পড়ন্ত বস্তুর যান্ত্রিক শক্তির সংরক্ষণশীলতা প্রতিপাদন এবং লাইভ ইন্টারঅ্যাক্টিভ সিমুলেশন ল্যাব।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>এই পাঠটি সম্পন্ন করার পর তুমি—</p>
+      <ul>
+        <li>শক্তির সংরক্ষণশীলতা নীতি (Law of Conservation of Energy) সুস্পষ্টভাবে বিবৃত ও বিশ্লেষণ করতে পারবে।</li>
+        <li>মুক্তভাবে পড়ন্ত বস্তুর ক্ষেত্রে গতিশক্তি ও বিভবশক্তির যোগফল যেকোনো অবস্থানে ধ্রুবক থাকে ($E_k + E_p = \text{constant}$) তা গাণিতিক প্রতিপাদনের মাধ্যমে প্রমাণ করতে পারবে।</li>
+        <li>ইন্টারঅ্যাক্টিভ সিমুলেশন ল্যাবের মাধ্যমে উচ্চতা ও ভরের পরিবর্তনের সাথে সাথে গতিশক্তি ও বিভবশক্তির পারস্পরিক রূপান্তর এবং মোট শক্তির নিত্যতা লাইভ পরীক্ষা করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <!-- Interactive Simulation Lab: Mechanical Energy Conservation Lab -->
+    <div class="lab-card" id="energy-lab">
+      <div class="lab-card-head">
+        <div>
+          <h2 class="lab-card-title">⚡ মুক্ত পতনে যান্ত্রিক শক্তির সংরক্ষণশীলতা ($E_k + E_p = \text{Constant}$) · লাইভ ল্যাব</h2>
+          <p class="lab-card-desc">স্লাইডারে প্রারম্ভিক উচ্চতা ($H$), বস্তুর ভর ($m$) ও পতনের দূরত্ব ($x$) পরিবর্তন করো; বাস্তব ফিজিক্স ইঞ্জিনে বিভবশক্তি ও গতিশক্তির রূপান্তর এবং মোট শক্তির নিত্যতা পর্যবেক্ষণ করো:</p>
+        </div>
+        <span class="badge" style="background:#f0fdfa;color:#0f766e;border-color:#99f6e4">NCTB অধ্যায় ৪ সিমুলেটর</span>
+      </div>
+
+      <!-- পরীক্ষার প্রিসেট নির্বাচন -->
+      <div class="preset-row">
+        <span style="font-size:13px;font-weight:750;color:#475569;display:flex;align-items:center;margin-right:4px">পরীক্ষার প্রিসেট:</span>
+        <button class="preset-btn active" onclick="setPreset(50, 2, 0, this)">১. আদর্শ পতন (H=50m, m=2kg)</button>
+        <button class="preset-btn" onclick="setPreset(100, 5, 0, this)">২. আকাশচুম্বী টাওয়ার (H=100m, m=5kg)</button>
+        <button class="preset-btn" onclick="setPreset(40, 3, 20, this)">৩. মাঝামাঝি বিন্দু (h=20m, Ek=Ep)</button>
+        <button class="preset-btn" onclick="setPreset(60, 2, 40, this)">৪. দুই-তৃতীয়াংশ পতন (Ek=2Ep)</button>
+        <button class="preset-btn" onclick="setPreset(50, 2, 50, this)">৫. ভূমি স্পর্শ মুহূর্ত (Ek=Max, Ep=0)</button>
+      </div>
+
+      <!-- কন্ট্রোল প্যানেল -->
+      <div class="control-panel">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px">
+          <!-- প্রারম্ভিক উচ্চতা স্লাইডার -->
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>প্রারম্ভিক উচ্চতা ($H$): <b id="lblH" style="color:#0f766e">50.0 m</b></span>
+              <span style="font-size:12px;color:#64748b">পরিসীমা: 20m - 100m</span>
+            </div>
+            <div class="slider-container">
+              <input id="rngH" class="range custom-range" type="range" min="20" max="100" value="50" step="5" oninput="onHChange(this.value)">
+            </div>
+            <div class="slider-indicator-wrap">
+              <div class="slider-track-ticks">
+                <span class="slider-tick major"></span>
+                <span class="slider-tick"></span>
+                <span class="slider-tick"></span>
+                <span class="slider-tick major"></span>
+                <span class="slider-tick"></span>
+                <span class="slider-tick"></span>
+                <span class="slider-tick major"></span>
+                <div class="slider-indicator-dot" id="dotH"></div>
+              </div>
+              <div class="slider-labels">
+                <span>20 m</span>
+                <span>40 m</span>
+                <span>60 m</span>
+                <span>80 m</span>
+                <span>100 m</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- বস্তুর ভর স্লাইডার -->
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>বস্তুর ভর ($m$): <b id="lblM" style="color:#0f766e">2.0 kg</b></span>
+              <span style="font-size:12px;color:#64748b">পরিসীমা: 1.0kg - 10.0kg</span>
+            </div>
+            <div class="slider-container">
+              <input id="rngM" class="range custom-range" type="range" min="1" max="10" value="2" step="0.5" oninput="onMChange(this.value)">
+            </div>
+            <div class="slider-indicator-wrap">
+              <div class="slider-track-ticks">
+                <span class="slider-tick major"></span>
+                <span class="slider-tick"></span>
+                <span class="slider-tick major"></span>
+                <span class="slider-tick"></span>
+                <span class="slider-tick major"></span>
+                <div class="slider-indicator-dot" id="dotM"></div>
+              </div>
+              <div class="slider-labels">
+                <span>1 kg</span>
+                <span>3 kg</span>
+                <span>5 kg</span>
+                <span>7 kg</span>
+                <span>10 kg</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- পতন অগ্রগতি স্লাইডার -->
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>পতনের দূরত্ব ($x$ নিচে): <b id="lblX" style="color:#0f766e">0.0 m</b></span>
+              <span style="font-size:12px;color:#64748b">ভূমি থেকে উচ্চতা: <b id="lblCurrentH" style="color:#0284c7">50.0 m</b></span>
+            </div>
+            <div class="slider-container">
+              <input id="rngX" class="range custom-range" type="range" min="0" max="50" value="0" step="0.5" oninput="onXChange(this.value)">
+            </div>
+            <div class="slider-indicator-wrap">
+              <div class="slider-track-ticks">
+                <span class="slider-tick major"></span>
+                <span class="slider-tick"></span>
+                <span class="slider-tick"></span>
+                <span class="slider-tick major"></span>
+                <span class="slider-tick"></span>
+                <span class="slider-tick"></span>
+                <span class="slider-tick major"></span>
+                <div class="slider-indicator-dot" id="dotX"></div>
+              </div>
+              <div class="slider-labels">
+                <span>শীর্ষ (x=0)</span>
+                <span>অর্ধেক (H/2)</span>
+                <span>ভূমি (x=H)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-row">
+          <div class="fine-tune-btns">
+            <button class="btn-step" onclick="stepX(-5)">⬆️ ৫ মি. উপরে</button>
+            <button class="btn-step" onclick="stepX(5)">⬇️ ৫ মি. নিচে</button>
+            <button class="btn-step" onclick="stepM(-0.5)">− ০.৫ কেজি</button>
+            <button class="btn-step" onclick="stepM(0.5)">+ ০.৫ কেজি</button>
+            <button class="btn-step primary" id="playBtn" onclick="togglePlay()">▶️ অ্যানিমেশন শুরু</button>
+            <button class="btn-step" onclick="resetSim()">🔄 রিসেট</button>
+          </div>
+          <button class="btn-step" id="quizToggleBtn" style="background:#f0fdfa;color:#0f766e;border-color:#99f6e4" onclick="toggleQuizMode()">🎯 কুইজ মোড চালু করো</button>
+        </div>
+      </div>
+
+      <!-- ইন্টারেক্টিভ SVG ডায়াগ্রাম -->
+      <div class="lab-svg-wrap">
+        <svg id="energySvg" class="lab-svg" viewBox="0 0 800 230" role="img" aria-label="শক্তির সংরক্ষণশীলতা ল্যাব সিমুলেশন">
+          <!-- Sky Background -->
+          <rect x="0" y="0" width="800" height="230" fill="#f8fafc" rx="10"/>
+
+          <!-- Left Canvas: Tower, Height Ruler & Falling Ball -->
+          <g transform="translate(40, 15)">
+            <!-- Ground -->
+            <rect x="0" y="195" width="380" height="15" fill="#94a3b8" rx="3"/>
+            <text x="10" y="206" font-size="10" font-weight="800" fill="#ffffff">ভূপৃষ্ঠ (Ground, h = 0 m)</text>
+
+            <!-- Tower Vertical Scale -->
+            <line x1="80" y1="15" x2="80" y2="195" stroke="#cbd5e1" stroke-width="4"/>
+            <!-- Major Ticks -->
+            <line x1="72" y1="15" x2="88" y2="15" stroke="#64748b" stroke-width="2.5"/>
+            <text x="65" y="19" font-size="11" font-weight="800" fill="#64748b" text-anchor="end">H (শীর্ষ A)</text>
+
+            <line x1="74" y1="105" x2="86" y2="105" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3"/>
+            <text x="65" y="109" font-size="10" font-weight="700" fill="#94a3b8" text-anchor="end">H/2 (বিন্দু B)</text>
+
+            <line x1="72" y1="195" x2="88" y2="195" stroke="#64748b" stroke-width="2.5"/>
+            <text x="65" y="193" font-size="11" font-weight="800" fill="#64748b" text-anchor="end">0 m (ভূমি C)</text>
+
+            <!-- Object Guide Path -->
+            <line id="pathLine" x1="160" y1="15" x2="160" y2="195" stroke="#99f6e4" stroke-width="2" stroke-dasharray="4"/>
+
+            <!-- Moving Ball with shadow -->
+            <ellipse id="ballShadow" cx="160" cy="198" rx="14" ry="4" fill="#64748b" opacity="0.3"/>
+            <circle id="ballObj" cx="160" cy="15" r="16" fill="#0f766e" stroke="#115e59" stroke-width="3"/>
+            <text id="ballLabel" x="160" y="20" font-size="11" font-weight="900" fill="#ffffff" text-anchor="middle">m</text>
+
+            <!-- Live Height Indicator Arrow -->
+            <path id="heightArrow" d="M 120 195 L 120 15" stroke="#0284c7" stroke-width="2" marker-end="url(#arrowhead)"/>
+            <text id="svgHeightText" x="125" y="110" font-size="12" font-weight="800" fill="#0284c7">h = 50.0 m</text>
+
+            <!-- Live Velocity Vector Arrow -->
+            <line id="velArrow" x1="160" y1="31" x2="160" y2="31" stroke="#ea580c" stroke-width="3" stroke-linecap="round"/>
+            <polygon id="velHead" points="160,31 156,25 164,25" fill="#ea580c"/>
+            <text id="svgVelText" x="185" y="35" font-size="12" font-weight="800" fill="#ea580c">v = 0.0 m/s</text>
+          </g>
+
+          <!-- Vertical Divider -->
+          <line x1="440" y1="15" x2="440" y2="210" stroke="#e2e8f0" stroke-width="2"/>
+
+          <!-- Right Canvas: Energy Bar Charts -->
+          <g transform="translate(460, 15)">
+            <text x="0" y="15" font-size="13" font-weight="800" fill="#1e293b">শক্তির লাইভ রূপান্তর গ্রাফ:</text>
+            <text x="280" y="15" font-size="11" font-weight="700" fill="#0f766e" text-anchor="end">E_total = ধ্রুবক ✅</text>
+
+            <!-- Total Energy Reference Limit Line -->
+            <line x1="20" y1="35" x2="280" y2="35" stroke="#16a34a" stroke-width="2" stroke-dasharray="5"/>
+            <text x="285" y="38" font-size="10" font-weight="800" fill="#16a34a">মোট শক্তি সীমা</text>
+
+            <!-- Bar 1: Potential Energy (Ep) -->
+            <g transform="translate(40, 35)">
+              <rect x="0" y="0" width="46" height="150" fill="#e0f2fe" rx="6"/>
+              <rect id="svgBarEp" x="0" y="0" width="46" height="150" fill="#0284c7" rx="6"/>
+              <text id="svgEpVal" x="23" y="-8" font-size="11" font-weight="800" fill="#0284c7" text-anchor="middle">980 J</text>
+              <text x="23" y="166" font-size="12" font-weight="800" fill="#0284c7" text-anchor="middle">Ep (বিভব)</text>
+            </g>
+
+            <!-- Conversion symbol -->
+            <text x="110" y="115" font-size="18" font-weight="800" fill="#94a3b8" text-anchor="middle">⇄</text>
+
+            <!-- Bar 2: Kinetic Energy (Ek) -->
+            <g transform="translate(130, 35)">
+              <rect x="0" y="0" width="46" height="150" fill="#ffedd5" rx="6"/>
+              <rect id="svgBarEk" x="0" y="150" width="46" height="0" fill="#ea580c" rx="6"/>
+              <text id="svgEkVal" x="23" y="-8" font-size="11" font-weight="800" fill="#ea580c" text-anchor="middle">0 J</text>
+              <text x="23" y="166" font-size="12" font-weight="800" fill="#ea580c" text-anchor="middle">Ek (গতি)</text>
+            </g>
+
+            <!-- Equal symbol -->
+            <text x="200" y="115" font-size="20" font-weight="800" fill="#94a3b8" text-anchor="middle">=</text>
+
+            <!-- Bar 3: Total Mechanical Energy (Etotal) -->
+            <g transform="translate(220, 35)">
+              <rect x="0" y="0" width="46" height="150" fill="#dcfce7" rx="6"/>
+              <rect id="svgBarTotal" x="0" y="0" width="46" height="150" fill="#16a34a" rx="6"/>
+              <text id="svgTotalVal" x="23" y="-8" font-size="11" font-weight="800" fill="#16a34a" text-anchor="middle">980 J</text>
+              <text x="23" y="166" font-size="12" font-weight="800" fill="#16a34a" text-anchor="middle">মোট শক্তি</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <!-- পাঠ বিশ্লেষণ কার্ড (Calc Grid) -->
+      <div class="calc-grid" id="calcGrid">
+        <div class="calc-item info">
+          <div class="title">বর্তমান উচ্চতা (h = H − x)</div>
+          <div class="value" id="valCurrentH">50.0 m</div>
+        </div>
+        <div class="calc-item danger">
+          <div class="title">তাৎক্ষণিক বেগ (v = √(2gx))</div>
+          <div class="value" id="valV">0.0 m/s</div>
+        </div>
+        <div class="calc-item info">
+          <div class="title">বিভবশক্তি (Ep = mgh)</div>
+          <div class="value" id="valEp">980.0 J</div>
+        </div>
+        <div class="calc-item danger">
+          <div class="title">গতিশক্তি (Ek = ½mv²)</div>
+          <div class="value" id="valEk">0.0 J</div>
+        </div>
+        <div class="calc-item highlight">
+          <div class="title">মোট শক্তি (E = Ep + Ek)</div>
+          <div class="value" id="valTotal">980.0 J</div>
+        </div>
+      </div>
+
+      <!-- লাইভ গণনার বিস্তারিত বাক্য (Readout) -->
+      <div class="readout" id="detailedReadout">
+        উচ্চতা $h = 50.0\text{ m}$-এ: বিভবশক্তি $E_p = 980.0\text{ J}$ এবং গতিশক্তি $E_k = 0.0\text{ J}$। মোট যান্ত্রিক শক্তি $E_{\text{total}} = 980.0\text{ J}$ (ধ্রুবক ✅)।
+      </div>
+
+      <!-- কুইজ চ্যালেঞ্জ বক্স -->
+      <div class="quiz-box" id="quizBox">
+        <p style="margin:0 0 8px;font-weight:800;color:#92400e" id="quizQuestion">
+          🎯 কুইজ প্রশ্ন: $2\text{ kg}$ ভরের বস্তু $50\text{ m}$ উচ্চতা থেকে $20\text{ m}$ নিচে নামলে এর গতিশক্তি ($E_k$) কত জুল হবে? ($g=9.8\text{ m/s}^2$)
+        </p>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <input type="number" id="studentAnswer" placeholder="যেমন: 392" style="padding:8px 14px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;width:150px" step="1">
+          <button class="button" style="padding:8px 16px;font-size:13px;background:#0f766e" onclick="checkQuizAnswer()">যাচাই করো</button>
+          <button class="btn-step" onclick="generateNewQuiz()">নতুন প্রশ্ন ❯</button>
+          <span id="quizFeedback" style="font-weight:750;font-size:14px"></span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let H = 50;
+      let m = 2;
+      let x = 0;
+      const g = 9.8;
+      let isPlaying = false;
+      let animId = null;
+      let quizActive = false;
+      let currentQuizExpected = 392;
+
+      function updateSim() {
+        const currentH = Math.max(0, H - x);
+        const v = Math.sqrt(2 * g * x);
+        const Ep = m * g * currentH;
+        const Ek = m * g * x;
+        const Etotal = Ep + Ek;
+
+        document.getElementById('lblH').innerText = H.toFixed(1) + ' m';
+        document.getElementById('lblM').innerText = m.toFixed(1) + ' kg';
+        document.getElementById('lblX').innerText = x.toFixed(1) + ' m';
+        document.getElementById('lblCurrentH').innerText = currentH.toFixed(1) + ' m';
+
+        document.getElementById('rngX').max = H;
+
+        // Visual position: top y=15, ground y=195 (span = 180)
+        const ballY = 15 + (x / H) * 180;
+        document.getElementById('ballObj').setAttribute('cy', ballY);
+        document.getElementById('ballLabel').setAttribute('y', ballY + 4);
+        document.getElementById('ballLabel').textContent = m.toFixed(0) + 'k';
+        document.getElementById('ballShadow').setAttribute('opacity', 0.15 + (x / H) * 0.35);
+
+        // Height arrow
+        document.getElementById('svgHeightText').textContent = 'h = ' + currentH.toFixed(1) + ' m';
+        document.getElementById('svgHeightText').setAttribute('y', Math.max(35, (ballY + 195) / 2));
+
+        // Velocity vector arrow
+        const vArrowLen = Math.min(45, v * 1.5);
+        const vHead = document.getElementById('velHead');
+        const vArrow = document.getElementById('velArrow');
+        if (v > 0.5) {
+          vArrow.setAttribute('y1', ballY + 16);
+          vArrow.setAttribute('y2', ballY + 16 + vArrowLen);
+          vArrow.style.display = 'block';
+          vHead.setAttribute('points', '160,' + (ballY + 16 + vArrowLen + 6) + ' 155,' + (ballY + 16 + vArrowLen) + ' 165,' + (ballY + 16 + vArrowLen));
+          vHead.style.display = 'block';
+          document.getElementById('svgVelText').textContent = 'v = ' + v.toFixed(1) + ' m/s';
+          document.getElementById('svgVelText').setAttribute('y', ballY + 16 + vArrowLen / 2);
+          document.getElementById('svgVelText').style.display = 'block';
+        } else {
+          vArrow.style.display = 'none';
+          vHead.style.display = 'none';
+          document.getElementById('svgVelText').style.display = 'none';
+        }
+
+        // Energy bars (height = 150 px)
+        const barH = 150;
+        const epPx = (Ep / Etotal) * barH;
+        const ekPx = (Ek / Etotal) * barH;
+
+        const barEp = document.getElementById('svgBarEp');
+        barEp.setAttribute('y', barH - epPx);
+        barEp.setAttribute('height', epPx);
+        document.getElementById('svgEpVal').textContent = Ep.toFixed(0) + ' J';
+
+        const barEk = document.getElementById('svgBarEk');
+        barEk.setAttribute('y', barH - ekPx);
+        barEk.setAttribute('height', ekPx);
+        document.getElementById('svgEkVal').textContent = Ek.toFixed(0) + ' J';
+
+        document.getElementById('svgTotalVal').textContent = Etotal.toFixed(0) + ' J';
+
+        // Calculation cards
+        document.getElementById('valCurrentH').innerText = currentH.toFixed(1) + ' m';
+        document.getElementById('valV').innerText = v.toFixed(1) + ' m/s';
+        document.getElementById('valEp').innerText = Ep.toFixed(1) + ' J';
+        document.getElementById('valEk').innerText = Ek.toFixed(1) + ' J';
+        document.getElementById('valTotal').innerText = Etotal.toFixed(1) + ' J';
+
+        // Readout formula text
+        const readout = document.getElementById('detailedReadout');
+        readout.innerHTML = 'উচ্চতা $h = ' + currentH.toFixed(1) + '\\text{ m}$-এ: বিভবশক্তি $E_p = mgh = ' + Ep.toFixed(1) + '\\text{ J}$ এবং গতিশক্তি $E_k = mgx = ' + Ek.toFixed(1) + '\\text{ J}$। মোট যান্ত্রিক শক্তি $E_{\\text{total}} = E_p + E_k = ' + Etotal.toFixed(1) + '\\text{ J}$ (অপরিবর্তিত ✅)।';
+        if (window.renderMathInElement) {
+          renderMathInElement(readout, { delimiters: [{left: '$', right: '$', display: false}] });
+        }
+      }
+
+      function onHChange(val) {
+        H = parseFloat(val);
+        if (x > H) x = H;
+        document.getElementById('rngX').value = x;
+        updateSim();
+      }
+
+      function onMChange(val) {
+        m = parseFloat(val);
+        updateSim();
+      }
+
+      function onXChange(val) {
+        x = parseFloat(val);
+        updateSim();
+      }
+
+      function stepX(delta) {
+        x = Math.max(0, Math.min(H, x + delta));
+        document.getElementById('rngX').value = x;
+        updateSim();
+      }
+
+      function stepM(delta) {
+        m = Math.max(1, Math.min(10, m + delta));
+        document.getElementById('rngM').value = m;
+        updateSim();
+      }
+
+      function setPreset(newH, newM, newX, btn) {
+        H = newH;
+        m = newM;
+        x = newX;
+        document.getElementById('rngH').value = H;
+        document.getElementById('rngM').value = m;
+        document.getElementById('rngX').value = x;
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        updateSim();
+      }
+
+      function togglePlay() {
+        isPlaying = !isPlaying;
+        const btn = document.getElementById('playBtn');
+        if (isPlaying) {
+          btn.innerText = '⏸️ বিরতি';
+          function loop() {
+            if (x >= H) {
+              x = 0;
+            } else {
+              x += H * 0.012;
+              if (x > H) x = H;
+            }
+            document.getElementById('rngX').value = x;
+            updateSim();
+            if (isPlaying && x < H) {
+              animId = requestAnimationFrame(loop);
+            } else if (isPlaying && x >= H) {
+              setTimeout(() => {
+                if (isPlaying) {
+                  x = 0;
+                  animId = requestAnimationFrame(loop);
+                }
+              }, 600);
+            }
+          }
+          animId = requestAnimationFrame(loop);
+        } else {
+          btn.innerText = '▶️ অ্যানিমেশন শুরু';
+          cancelAnimationFrame(animId);
+        }
+      }
+
+      function resetSim() {
+        isPlaying = false;
+        cancelAnimationFrame(animId);
+        document.getElementById('playBtn').innerText = '▶️ অ্যানিমেশন শুরু';
+        x = 0;
+        document.getElementById('rngX').value = 0;
+        updateSim();
+      }
+
+      function toggleQuizMode() {
+        quizActive = !quizActive;
+        const box = document.getElementById('quizBox');
+        const btn = document.getElementById('quizToggleBtn');
+        const grid = document.getElementById('calcGrid');
+        if (quizActive) {
+          box.classList.add('active');
+          btn.innerText = 'বইয়ের ধারায় ফেরো';
+          btn.style.background = '#fef3c7';
+          btn.style.color = '#92400e';
+          grid.style.opacity = '0.35';
+          generateNewQuiz();
+        } else {
+          box.classList.remove('active');
+          btn.innerText = '🎯 কুইজ মোড চালু করো';
+          btn.style.background = '#f0fdfa';
+          btn.style.color = '#0f766e';
+          grid.style.opacity = '1';
+        }
+      }
+
+      function generateNewQuiz() {
+        const qH = Math.floor(Math.random() * 6 + 3) * 10; // 30 to 80 m
+        const qM = Math.floor(Math.random() * 5 + 1) * 2;  // 2 to 10 kg
+        const qX = Math.floor(Math.random() * (qH / 10 - 1) + 1) * 10; // 10 to (qH-10)
+        currentQuizExpected = Math.round(qM * g * qX);
+        const qBox = document.getElementById('quizQuestion');
+        qBox.innerHTML = '🎯 কুইজ প্রশ্ন: $' + qM + '\\text{ kg}$ ভরের বস্তু $' + qH + '\\text{ m}$ উচ্চতা থেকে $' + qX + '\\text{ m}$ নিচে পড়লে তার গতিশক্তি ($E_k$) কত জুল হবে? ($g = 9.8\\text{ m/s}^2$)';
+        document.getElementById('studentAnswer').value = '';
+        document.getElementById('quizFeedback').innerText = '';
+        if (window.renderMathInElement) {
+          renderMathInElement(qBox, { delimiters: [{left: '$', right: '$', display: false}] });
+        }
+      }
+
+      function checkQuizAnswer() {
+        const ans = parseFloat(document.getElementById('studentAnswer').value);
+        const fb = document.getElementById('quizFeedback');
+        if (isNaN(ans)) {
+          fb.innerText = 'দয়া করে সংখ্যায় উত্তর লিখুন!';
+          fb.style.color = '#dc2626';
+          return;
+        }
+        const diff = Math.abs(ans - currentQuizExpected);
+        if (diff <= 5) {
+          fb.innerText = 'অভিনন্দন! সঠিক উত্তর (' + currentQuizExpected + ' J) 🎉';
+          fb.style.color = '#16a34a';
+        } else {
+          fb.innerHTML = 'ভুল হয়েছে। সঠিক উত্তর হবে: ' + currentQuizExpected + ' J ($E_k = mgx$)';
+          fb.style.color = '#dc2626';
+          if (window.renderMathInElement) {
+            renderMathInElement(fb, { delimiters: [{left: '$', right: '$', display: false}] });
+          }
+        }
+      }
+
+      updateSim();
+    </script>
+
+    <section class="section">
+      <h2>৪.৪ · শক্তির অবিনাশিতা ও নিত্যতা নীতি</h2>
+      <p>মহাবিশ্বের অন্যতম সেরা এবং অপরিবর্তনীয় নিয়ম হলো শক্তির সংরক্ষণশীলতা নীতি। বিজ্ঞান অনুযায়ী—<b>শক্তির কোনো সৃষ্টি বা ধ্বংস নেই, শক্তি কেবল এক রূপ থেকে অন্য এক বা একাধিক রূপে রূপান্তরিত হতে পারে। মহাবিশ্বের মোট শক্তির পরিমাণ নির্দিষ্ট ও ধ্রুব।</b></p>
+
+      <div class="highlight-box">
+        <b>💡 শক্তির নিত্যতা নীতি (Law of Conservation of Energy):</b>
+        "Energy can neither be created nor destroyed, it can only be transformed from one form to another."
+        কোনো বিচ্ছিন্ন ব্যবস্থার মোট যান্ত্রিক শক্তি:
+        $$E_{\text{total}} = E_k + E_p = \text{ধ্রুবক (Constant)}$$
+      </div>
+
+      <h3>পড়ন্ত বস্তুর ক্ষেত্রে যান্ত্রিক শক্তির নিত্যতা প্রমাণ</h3>
+      <p>ধরা যাক, $m$ ভরের একটি বস্তুকে ভূপৃষ্ঠ থেকে খাড়া $h$ উচ্চতায় $A$ বিন্দুতে স্থির রাখা আছে ($u=0$)। বস্তুটিকে মুক্তভাবে নিচে পড়তে দিলে বিভিন্ন বিন্দুতে মোট শক্তি বিশ্লেষণ করি:</p>
+
+      <ol>
+        <li><b>বিন্দু $A$ (সর্বোচ্চ উচ্চতা $h$-এ):</b><br>
+          যেহেতু বস্তুটি স্থির, তাই বেগ $v_A = 0$।<br>
+          গতিশক্তি $E_{kA} = \frac{1}{2}m(v_A)^2 = 0$<br>
+          বিভবশক্তি $E_{pA} = mgh$<br>
+          মোট যান্ত্রিক শক্তি $E_A = E_{kA} + E_{pA} = 0 + mgh = mgh$
+        </li>
+        <li><b>বিন্দু $B$ (উচ্চতা থেকে $x$ দূরত্ব নিচে নেমে আসার পর, অর্থাৎ ভূমি থেকে $h-x$ উচ্চতায়):</b><br>
+          $x$ দূরত্ব পতনের পর অর্জিত বেগ $v_B^2 = 0 + 2gx = 2gx$।<br>
+          গতিশক্তি $E_{kB} = \frac{1}{2}mv_B^2 = \frac{1}{2}m(2gx) = mgx$<br>
+          ভূমি থেকে বর্তমান উচ্চতা $(h-x)$, তাই বিভবশক্তি $E_{pB} = mg(h-x) = mgh - mgx$<br>
+          মোট যান্ত্রিক শক্তি $E_B = E_{kB} + E_{pB} = mgx + (mgh - mgx) = mgh$
+        </li>
+        <li><b>বিন্দু $C$ (ভূমি স্পর্শ করার ঠিক পূর্বমুহূর্তে):</b><br>
+          মোট পতন দূরত্ব $h$, তাই শেষ বেগ $v_C^2 = 0 + 2gh = 2gh$।<br>
+          গতিশক্তি $E_{kC} = \frac{1}{2}mv_C^2 = \frac{1}{2}m(2gh) = mgh$<br>
+          যেহেতু ভূমি স্পর্শ করেছে, উচ্চতা $h=0$, বিভবশক্তি $E_{pC} = mg(0) = 0$<br>
+          মোট যান্ত্রিক শক্তি $E_C = E_{kC} + E_{pC} = mgh + 0 = mgh$
+        </li>
+      </ol>
+
+      <p><b>সিদ্ধান্ত:</b> দেখা যাচ্ছে $E_A = E_B = E_C = mgh$। অর্থাৎ পতনের প্রতিটি মুহূর্তে যে পরিমাণ বিভবশক্তি হ্রাস পায়, ঠিক সেই পরিমাণ গতিশক্তি বৃদ্ধি পায় এবং মোট শক্তি সর্বদাই সংরক্ষিত থাকে।</p>
+    </section>
+
+    <div class="grid">
+      <div class="term">
+        <strong>শক্তির নিত্যতা নীতি</strong>
+        <small>মহাবিশ্বের মোট শক্তির পরিমাণ ধ্রুব। শক্তি সৃষ্টি বা বিনাশযোগ্য নয়, কেবল রূপান্তরযোগ্য।</small>
+      </div>
+      <div class="term">
+        <strong>যান্ত্রিক শক্তির সংরক্ষণ</strong>
+        <small>ঘর্ষণহীন বা প্রতিরোধী বলহীন ক্ষেত্রে গতিশক্তি ও বিভবশক্তির যোগফল সর্বদা ধ্রুব ($E_k + E_p = C$)।</small>
+      </div>
+      <div class="term">
+        <strong>সরল দোলকে শক্তি রূপান্তর</strong>
+        <small>দুই প্রান্তে বিভবশক্তি সর্বোচ্চ ও গতিশক্তি শূন্য; মধ্যবিন্দুতে গতিশক্তি সর্বোচ্চ ও বিভবশক্তি সর্বনিম্ন।</small>
+      </div>
+      <div class="term">
+        <strong>রোলার কোস্টার ফিজিক্স</strong>
+        <small>চূড়ায় ওঠার সময় গতি কমে বিভবশক্তি বৃদ্ধি পায়, এবং নিচে নামার সময় বিভবশক্তি গতিশক্তিতে রূপান্তরিত হয়।</small>
+      </div>
+    </div>
+
+    <div class="note">
+      <h2>🚌 বাস্তব জীবনের আকর্ষণীয় উদাহরণ</h2>
+      <ul>
+        <li><b>রোলার কোস্টারের রোমাঞ্চ:</b> রোলার কোস্টার যখন মোটর দিয়ে সর্বোচ্চ চূড়ায় ওঠে, তখন তার ভেতরে বিপুল পরিমাণ অভিকর্ষীয় বিভবশক্তি সঞ্চিত হয়। এরপর ইঞ্জিন বন্ধ থাকলেও নিচে নামার সময় সেই বিভবশক্তি প্রবল গতিশক্তিতে রূপ নেয়, যা দিয়ে এটি পরবর্তী লুপ ও বাঁকগুলো অনায়াসে অতিক্রম করে।</li>
+        <li><b>সরল দোলকের অবিরাম দোলন:</b> একটি ভারী বব সুতায় ঝুলিয়ে টেনে ছেড়ে দিলে এটি দুই প্রান্ত ও মধ্যবিন্দুর মাঝে প্রতিনিয়ত বিভবশক্তি $\leftrightarrow$ গতিশক্তির রূপান্তর ঘটিয়ে দুলতে থাকে।</li>
+        <li><b>পড়ন্ত বস্তু মাটিতে আছড়ে পড়লে শক্তি কোথায় যায়?:</b> মাটিতে পড়ার ঠিক মুহূর্তে বস্তুর সমস্ত শক্তি গতিশক্তি হলেও আঘাতের পরপরই সেই শক্তি শব্দ শক্তি (ধপাস শব্দ), তাপ শক্তি (সংস্পর্শ তলে তাপমাত্রা বৃদ্ধি) ও যান্ত্রিক বিকৃতি শক্তিতে রূপান্তরিত হয়ে প্রকৃতিতে বিলীন হয়।</li>
+      </ul>
+    </div>
+
+    <div class="memory">
+      <h2>🧠 মনে রাখার কৌশল: নিত্যতার ছন্দ</h2>
+      <p>“শক্তির সৃষ্টি নাই, ধ্বংসও নাই, রূপান্তরেই বিশ্ব চলে জানবে সবাই;<br>
+      নিচে নামলে বিভব কমে গতি পায় ঠাঁই, মোট যোগফল সর্বদাই সমান ভাই!”</p>
+    </div>
+
+    <div class="worked">
+      <h2>📝 পাঠ্যবইয়ের স্ট্যান্ডার্ড গাণিতিক সমস্যা</h2>
+      <div class="problem">
+        $2\text{ kg}$ ভরের একটি পাথরকে $40\text{ m}$ উঁচু দালানের ছাদ থেকে খাড়া নিচের দিকে মুক্তভাবে ছেড়ে দেওয়া হলো।<br>
+        (ক) ভূমি থেকে কত উচ্চতায় বস্তুটির গতিশক্তি এর বিভবশক্তির দ্বিগুণ ($E_k = 2E_p$) হবে?<br>
+        (খ) প্রমাণ করো যে, সর্বোচ্চ বিন্দু এবং পতনের মধ্যবর্তী যেকোনো বিন্দুতে মোট শক্তির পরিমাণ একই থাকে। ($g = 9.8\text{ m/s}^2$)
+      </div>
+      <div class="solution">
+        <b>(ক) গতিশক্তি বিভবশক্তির দ্বিগুণ হওয়ার উচ্চতা নির্ণয়:</b><br>
+        ধরা যাক, ভূমি থেকে $h'$ উচ্চতায় পাথরটির গতিশক্তি বিভবশক্তির দ্বিগুণ হবে।<br>
+        তাহলে পাথরটির পতন দূরত্ব $x = (40 - h')$ মিটার।<br>
+        আমরা জানি:<br>
+        বিভবশক্তি $E_p = mgh'$<br>
+        গতিশক্তি $E_k = mgx = mg(40 - h')$<br><br>
+        শর্তানুসারে:<br>
+        $$E_k = 2E_p$$
+        $$mg(40 - h') = 2mgh'$$
+        উভয়পক্ষ থেকে $mg$ বাদ দিয়ে পাই:<br>
+        $$40 - h' = 2h' \implies 3h' = 40 \implies h' = \frac{40}{3} \approx 13.33\text{ m}$$<br>
+        <b>উত্তর:</b> ভূমি থেকে $13.33\text{ m}$ উচ্চতায় গতিশক্তি বিভবশক্তির ঠিক দ্বিগুণ হবে।<br><br>
+        <b>(খ) মোট শক্তির অপরিবর্তনশীলতা যাচাই:</b><br>
+        সর্বোচ্চ উচ্চতায় মোট শক্তি $E_{\text{top}} = mgh = 2 \times 9.8 \times 40 = 784\text{ J}$।<br>
+        $h' = 13.33\text{ m}$ উচ্চতায়:<br>
+        $E_p = 2 \times 9.8 \times 13.333 \approx 261.33\text{ J}$<br>
+        $E_k = 2 \times E_p \approx 522.67\text{ J}$<br>
+        মোট শক্তি $E_{\text{total}} = 261.33 + 522.67 = 784\text{ J}$।<br>
+        দেখা যাচ্ছে উভয় বিন্দুতেই মোট শক্তির পরিমাণ $784\text{ J}$ ধ্রুবক। (প্রমাণিত)
+      </div>
+    </div>
+
+    <details class="check">
+      <summary>প্রশ্ন: একটি পড়ন্ত বস্তু যখন মাটিতে আছড়ে পড়ে থেমে যায়, তখন তার গতিশক্তি কি ধ্বংস হয়ে যায়? শক্তির সংরক্ষণশীলতা নীতি এখানে কীভাবে সত্য থাকে?</summary>
+      <p><b>উত্তর:</b> গতিশক্তি কখনই ধ্বংস হয় না। মাটিতে আঘাতের সাথে সাথে বস্তুর যান্ত্রিক গতিশক্তি তিনটি নতুন রূপে রূপান্তরিত হয়: (১) বিকট শব্দ শক্তিতে, (২) বস্তু ও মাটির আঘাতপ্রাপ্ত তলে তাপ শক্তিতে (তাপমাত্রা সামান্য বৃদ্ধি পায়), এবং (৩) মাটি বা বস্তুর আকৃতিগত বিকৃতি শক্তিতে। এই সমস্ত শক্তি পরিবেশে ছড়িয়ে পড়লেও মহাবিশ্বের সর্বমোট শক্তির পরিমাণ অবিকল সংরক্ষিত থাকে।</p>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-03.html">← পূর্বের পাঠ: গতিশক্তি ও বিভবশক্তি</a>
+      <a class="button" href="section-05.html">পরের পাঠ: শক্তির উৎস ও পরিবেশের ওপর প্রভাব →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF)</a> · অধ্যায় ৪: কাজ, ক্ষমতা ও শক্তি · পড়ি (poRi)
+    </footer>
+  </main>
+</body>
+</html>

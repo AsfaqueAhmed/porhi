@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>পদার্থবিজ্ঞান · অধ্যায় ৪: কাজ, ক্ষমতা ও শক্তি | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- KaTeX for crisp mathematical formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+  <style>
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(125deg, #0f766e 0%, #0d9488 58%, #2dd4bf 100%);
+      color: #fff;
+      border-radius: 24px;
+      padding: clamp(26px, 5vw, 46px);
+      margin: 26px 0 20px;
+      box-shadow: 0 16px 36px rgba(15, 118, 110, 0.25);
+    }
+    .hero:after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      right: -70px;
+      top: -110px;
+      box-shadow: 0 0 0 28px rgba(255, 255, 255, 0.08), 0 0 0 58px rgba(255, 255, 255, 0.04);
+    }
+    .hero > * {
+      position: relative;
+      z-index: 1;
+    }
+    .hero .badge {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.35);
+      color: #fff;
+    }
+    .hero h1 {
+      font-size: clamp(30px, 5.6vw, 46px);
+      line-height: 1.28;
+      margin: 15px 0 8px;
+      max-width: 720px;
+    }
+    .hero p {
+      color: #ccfbf1;
+      margin: 0;
+      max-width: 660px;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .hero .button {
+      background: #fff;
+      color: #0f766e;
+      font-weight: 800;
+    }
+    .hero .button:hover {
+      background: #f0fdfa;
+      color: #115e59;
+    }
+    .hero .button.secondary {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.5);
+      color: #fff;
+    }
+    .hero .button.secondary:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 18px 0 32px;
+    }
+    .stat {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 18px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .stat strong {
+      display: block;
+      font-size: 20px;
+      line-height: 1.3;
+      color: #0f766e;
+    }
+    .stat span {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .roadmap-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 15px;
+      margin: 32px 0 14px;
+    }
+    .roadmap-head h2 {
+      font-size: 23px;
+      margin: 0;
+      line-height: 1.35;
+      color: #1e293b;
+    }
+    .roadmap-head p {
+      margin: 4px 0 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .roadmap {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .route-card {
+      display: grid;
+      grid-template-columns: 52px 1fr 20px;
+      gap: 14px;
+      align-items: center;
+      min-height: 110px;
+      padding: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      color: var(--ink);
+      text-decoration: none;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+      transition: all 0.2s ease;
+    }
+    .route-card:hover {
+      border-color: #99f6e4;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(15, 118, 110, 0.08);
+    }
+    .route-no {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: #ccfbf1;
+      color: #0f766e;
+      font-weight: 900;
+      font-size: 16px;
+    }
+    .route-body {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .route-title {
+      font-weight: 800;
+      font-size: 16px;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tag-sim {
+      font-size: 11px;
+      font-weight: 800;
+      background: #fef3c7;
+      color: #b45309;
+      padding: 2px 7px;
+      border-radius: 6px;
+      border: 1px solid #fde68a;
+    }
+    .route-en {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+    .route-sub {
+      display: block;
+      color: #475569;
+      font-size: 12.5px;
+      line-height: 1.5;
+    }
+    .route-arrow {
+      font-size: 24px;
+      color: #0d9488;
+      transition: transform 0.2s;
+    }
+    .route-card:hover .route-arrow {
+      transform: translateX(4px);
+    }
+    .source-card {
+      margin: 34px 0 24px;
+      padding: 24px;
+      border: 1px solid #99f6e4;
+      border-radius: 20px;
+      background: linear-gradient(110deg, #f0fdfa, #fff 75%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      box-shadow: 0 4px 16px rgba(15, 118, 110, 0.05);
+    }
+    .source-card h2 {
+      margin: 0 0 6px;
+      font-size: 19px;
+      color: #0f766e;
+    }
+    .source-card p {
+      font-size: 13.5px;
+      color: #475569;
+      margin: 0;
+      line-height: 1.5;
+    }
+    @media (max-width: 768px) {
+      .roadmap {
+        grid-template-columns: 1fr;
+      }
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .source-card {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">SSC · পদার্থবিজ্ঞান অধ্যায় ৪</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <span class="badge">অধ্যায় ৪ · কাজ, ক্ষমতা ও শক্তি</span>
+      <h1>কাজ, ক্ষমতা ও শক্তি <small style="font-size:24px;display:block;opacity:0.9;margin-top:6px;font-weight:600">(Work, Power and Energy)</small></h1>
+      <p>পদার্থবিজ্ঞানে কাজের বৈজ্ঞানিক সংজ্ঞা, শক্তির রূপভেদ, পড়ন্ত বস্তুর যান্ত্রিক শক্তির সংরক্ষণশীলতা, আইনস্টাইনের ভর-শক্তি সমতা, ক্ষমতা ও ইঞ্জিনের কর্মদক্ষতা—লাইভ ইন্টারঅ্যাক্টিভ ল্যাব সিমুলেশনসহ পাঠ্যবইয়ের ধারায় সহজে শেখো।</p>
+      <div class="hero-actions">
+        <a class="button" href="section-01.html">প্রথম পাঠ শুরু করো →</a>
+        <a class="button secondary" href="chapter-source.html">মূল বইয়ের ২৯ পৃষ্ঠা ↗</a>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="stat">
+        <strong>৮টি</strong>
+        <span>বিষয়ভিত্তিক পূর্ণাঙ্গ পাঠ</span>
+      </div>
+      <div class="stat">
+        <strong>২টি</strong>
+        <span>লাইভ সিমুলেশন ল্যাব</span>
+      </div>
+      <div class="stat">
+        <strong>২৫+</strong>
+        <span>গাণিতিক সমস্যা ও উদাহরণ</span>
+      </div>
+      <div class="stat">
+        <strong>১০০%</strong>
+        <span>এনসিটিবি ২০২৬ পাঠ্যক্রম</span>
+      </div>
+    </section>
+
+    <div class="roadmap-head">
+      <div>
+        <h2>বইয়ের ধারায় ধারাবাহিক বিষয়সূচি</h2>
+        <p>এনসিটিবি পাঠ্যক্রমের প্রতিটি টপিককে গভীর বৈজ্ঞানিক ব্যাখ্যা, KaTeX সমীকরণ ও বাস্তব উদাহরণ দিয়ে সাজানো হয়েছে।</p>
+      </div>
+    </div>
+
+    <section class="roadmap">
+      <a class="route-card" href="section-01.html">
+        <span class="route-no">4.1</span>
+        <div class="route-body">
+          <span class="route-title">কাজ</span>
+          <small class="route-en">Work ($W = Fs \cos\theta$)</small>
+          <span class="route-sub">বল প্রয়োগে সরণ, ধনাত্মক, ঋণাত্মক ও শূন্য কাজ, একক জুল এবং খাড়া সিঁড়ি দিয়ে ওঠার গাণিতিক হিসাব।</span>
+        </div>
+        <span class="route-arrow" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-02.html">
+        <span class="route-no">4.2</span>
+        <div class="route-body">
+          <span class="route-title">শক্তি ও শক্তির বিভিন্ন রূপ</span>
+          <small class="route-en">Energy and Forms of Energy</small>
+          <span class="route-sub">কাজ-শক্তি নীতি ($W = \Delta E$), শক্তির আটটি রূপ, স্কেলার রাশি এবং পৃথিবীর সকল শক্তির মূল উৎস সূর্য।</span>
+        </div>
+        <span class="route-arrow" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-03.html">
+        <span class="route-no">4.3</span>
+        <div class="route-body">
+          <span class="route-title">গতিশক্তি ও বিভবশক্তি</span>
+          <small class="route-en">Kinetic and Potential Energy</small>
+          <span class="route-sub">গতিশক্তির প্রতিপাদন ($E_k = \frac{1}{2}mv^2$), ভরবেগ সম্পর্ক ($E_k = \frac{p^2}{2m}$), অভিকর্ষীয় $mgh$ ও স্প্রিং শক্তি।</span>
+        </div>
+        <span class="route-arrow" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-04.html">
+        <span class="route-no">4.4</span>
+        <div class="route-body">
+          <span class="route-title">শক্তির নিত্যতা ও রূপান্তর <span class="tag-sim">🧪 ল্যাব সিমুলেশন</span></span>
+          <small class="route-en">Conservation & Transformation</small>
+          <span class="route-sub">পড়ন্ত বস্তুর যান্ত্রিক শক্তি নিত্যতা প্রমাণ এবং রিয়েল-টাইম বার চার্ট ও অ্যানিমেটেড সিমুলেটর ল্যাব।</span>
+        </div>
+        <span class="route-arrow" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-05.html">
+        <span class="route-no">4.5</span>
+        <div class="route-body">
+          <span class="route-title">শক্তির উৎস ও পরিবেশের প্রভাব</span>
+          <small class="route-en">Energy Sources and Environment</small>
+          <span class="route-sub">অনবায়নযোগ্য বনাম নবায়নযোগ্য জ্বালানি, গ্রিনহাউস প্রভাব, বৈশ্বিক উষ্ণায়ন ও টেকসই শক্তির ভবিষ্যৎ।</span>
+        </div>
+        <span class="route-arrow" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-06.html">
+        <span class="route-no">4.6</span>
+        <div class="route-body">
+          <span class="route-title">ভর ও শক্তির সম্পর্ক</span>
+          <small class="route-en">Mass–Energy Relation ($E = mc^2$)</small>
+          <span class="route-sub">আইনস্টাইনের সূত্র, ভর ত্রুটি, নিউক্লীয় ফিশন ও ফিউশন বিক্রিয়া এবং রূপপুর পারমাণবিক বিদ্যুৎ কেন্দ্র।</span>
+        </div>
+        <span class="route-arrow" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-07.html">
+        <span class="route-no">4.7</span>
+        <div class="route-body">
+          <span class="route-title">ক্ষমতা</span>
+          <small class="route-en">Power ($P = \frac{W}{t} = Fv$)</small>
+          <span class="route-sub">কাজ বা শক্তি রূপান্তরের হার, ওয়াট, অশ্বক্ষমতা ($1\text{ HP} = 746\text{ W}$) এবং বিদ্যুৎ বিলের ইউনিট ($\text{kWh}$)।</span>
+        </div>
+        <span class="route-arrow" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-08.html">
+        <span class="route-no">4.8</span>
+        <div class="route-body">
+          <span class="route-title">কর্মদক্ষতা <span class="tag-sim">🧪 ল্যাব সিমুলেশন</span></span>
+          <small class="route-en">Efficiency ($\eta = \frac{P_{\text{out}}}{P_{\text{in}}} \times 100\%$)</small>
+          <span class="route-sub">লভ্য কার্যকর ক্ষমতা ও শক্তির অপচয়, কেন কর্মদক্ষতা ১০০% হতে পারে না এবং লাইভ পাম্প এফিসিয়েন্সি গেজ ল্যাব।</span>
+        </div>
+        <span class="route-arrow" aria-hidden="true">›</span>
+      </a>
+    </section>
+
+    <section class="source-card">
+      <div>
+        <h2>সম্পূর্ণ অধ্যায়ের মূল স্ক্যান পৃষ্ঠা</h2>
+        <p>জাতীয় শিক্ষাক্রম ও পাঠ্যপুস্তক বোর্ড (NCTB)-এর মূল বইয়ের ২৯টি স্ক্যান পৃষ্ঠা বইয়ের মূল ধারায় সংযুক্ত আছে।</p>
+      </div>
+      <a class="button" href="chapter-source.html">উৎস অধ্যায় দেখো →</a>
+    </section>
+
+    <footer class="footer">
+      পড়ি (poRi) · পদার্থবিজ্ঞান ডিজিটাল পাঠ · অধ্যায় ৪: কাজ, ক্ষমতা ও শক্তি
+    </footer>
+  </main>
+</body>
+</html>

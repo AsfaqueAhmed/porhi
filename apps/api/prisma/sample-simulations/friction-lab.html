@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ঘর্ষণ বল ও সীমাস্ত মান ল্যাব</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #0f172a; color: #f8fafc; padding: 14px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    .container { max-width: 720px; width: 100%; display: flex; flex-direction: column; gap: 12px; }
+    header { text-align: center; }
+    h1 { font-size: 1.15rem; color: #f59e0b; margin-bottom: 3px; }
+    p { font-size: 0.8rem; color: #94a3b8; }
+    .canvas-wrap { background: #1e293b; border-radius: 12px; border: 1px solid #334155; overflow: hidden; width: 100%; position: relative; }
+    svg { display: block; width: 100%; height: 180px; }
+    .controls { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 12px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .control-group { display: flex; flex-direction: column; gap: 4px; }
+    label { font-size: 0.75rem; color: #cbd5e1; display: flex; justify-content: space-between; font-weight: 700; }
+    .custom-range {
+      -webkit-appearance: none; appearance: none; width: 100%; height: 8px; border-radius: 999px; outline: none;
+      background: linear-gradient(90deg, #f59e0b var(--fill, 25%), #334155 var(--fill, 25%)); cursor: pointer;
+    }
+    .custom-range::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #f59e0b; border: 2px solid #fff; cursor: pointer;
+    }
+    .btn-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    button { padding: 6px 14px; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #fff; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+    button.primary { background: #d97706; border-color: #d97706; }
+    button.active { background: #b45309; border-color: #f59e0b; }
+    button:hover { filter: brightness(1.15); }
+    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 8px 4px; text-align: center; }
+    .card .title { font-size: 0.6rem; color: #94a3b8; text-transform: uppercase; }
+    .card .val { font-size: 0.95rem; font-weight: 800; color: #f59e0b; }
+    .readout { background: #1e293b; border-left: 3px solid #f59e0b; padding: 8px 12px; border-radius: 0 8px 8px 0; font-size: 0.8rem; color: #cbd5e1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🪵 ঘর্ষণ বল ও সীমাস্ত মান ল্যাব</h1>
+      <p>স্প্রিং টেনে কাঠের ব্লকে বল বাড়াও; সীমাস্ত স্থিতি ঘর্ষণ ($f_s^{\text{max}}$) ও গতিশীল রূপান্তর পর্যবেক্ষণ করো।</p>
+    </header>
+
+    <div class="canvas-wrap">
+      <svg id="fSvg" viewBox="0 0 700 180"></svg>
+    </div>
+
+    <div class="btn-row">
+      <button onclick="setSurf(0.12, 0.08, 'বরফ', this)">🧊 বরফ (μs=0.12)</button>
+      <button class="active" onclick="setSurf(0.40, 0.30, 'কাঠ', this)">🪵 কাঠ (μs=0.40)</button>
+      <button onclick="setSurf(0.75, 0.55, 'কংক্রিট', this)">🧱 কংক্রিট (μs=0.75)</button>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>টান বল (F): <span id="fDisp" style="color:#f59e0b">25.0 N</span></label>
+        <input id="fSlide" class="custom-range" type="range" min="0" max="100" value="25" step="1" oninput="onF(this.value)">
+      </div>
+      <div class="control-group">
+        <label>ব্লকের ভর (m): <span id="mDisp" style="color:#f59e0b">10.0 kg</span></label>
+        <input id="mSlide" class="custom-range" type="range" min="1" max="25" value="10" step="0.5" oninput="onM(this.value)">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="primary" id="playBtn" onclick="togglePlay()">▶️ অ্যানিমেশন শুরু</button>
+      <button onclick="resetSim()">🔄 রিসেট</button>
+    </div>
+
+    <div class="grid">
+      <div class="card"><div class="title">টান বল (F)</div><div class="val" id="dispPull">25.0 N</div></div>
+      <div class="card"><div class="title">অভিলম্ব বল (R)</div><div class="val" id="dispR">98.0 N</div></div>
+      <div class="card"><div class="title">সীমাস্ত (fₛ,ₘₐₓ)</div><div class="val" id="dispFsMax">39.2 N</div></div>
+      <div class="card"><div class="title">সক্রিয় ঘর্ষণ</div><div class="val" id="dispActiveF">25.0 N</div></div>
+      <div class="card"><div class="title">অবস্থা ও ত্বরণ</div><div class="val" id="dispState" style="color:#38bdf8">🛑 স্থির</div></div>
+    </div>
+
+    <div class="readout" id="mathReadout">
+      সীমাস্ত ঘর্ষণ $f_s^{\text{max}} = \mu_s R = 39.2\text{ N}$। বল $F = 25.0\text{ N} < f_s^{\text{max}}$, তাই সক্রিয় ঘর্ষণ $f = 25.0\text{ N}$ এবং ব্লক স্থির।
+    </div>
+  </div>
+
+  <script>
+    let Fpull = 25.0, mBlock = 10.0, mu_s = 0.40, mu_k = 0.30;
+    const g = 9.8;
+    let bX = 100, bV = 0.0, running = false, lastTs = 0;
+
+    function compute() {
+      const R = mBlock * g;
+      const fsMax = mu_s * R;
+      const fk = mu_k * R;
+      let activeF = 0, a = 0, state = 'static';
+
+      if (bV === 0) {
+        if (Fpull < fsMax) {
+          activeF = Fpull; state = 'static'; a = 0;
+        } else {
+          activeF = fk; a = (Fpull - fk) / mBlock; state = 'kinetic';
+        }
+      } else {
+        activeF = fk; a = (Fpull - fk) / mBlock; state = 'kinetic';
+      }
+      return { R, fsMax, fk, activeF, a, state };
+    }
+
+    function render() {
+      const svg = document.getElementById('fSvg');
+      const phys = compute();
+      const bw = 80 + mBlock * 2;
+      const cy = 120 - 40;
+
+      let html = `
+        <rect x="0" y="120" width="700" height="60" fill="#334155"/>
+        <line x1="0" y1="120" x2="700" y2="120" stroke="#f59e0b" stroke-width="3"/>
+      `;
+
+      // Block
+      html += `
+        <rect x="${bX}" y="${cy}" width="${bw}" height="40" rx="4" fill="#d97706" stroke="#b45309" stroke-width="2"/>
+        <text x="${bX + bw/2}" y="${cy + 24}" fill="#fff" font-size="11" font-weight="800" text-anchor="middle">${mBlock}kg</text>
+      `;
+
+      // Spring & Pull
+      const springX = bX + bw;
+      const pullLen = 30 + Fpull * 0.8;
+      html += `
+        <line x1="${springX}" y1="${cy + 20}" x2="${springX + pullLen}" y2="${cy + 20}" stroke="#94a3b8" stroke-width="3" stroke-dasharray="4,2"/>
+        <circle cx="${springX + pullLen + 6}" cy="${cy + 20}" r="6" fill="none" stroke="#cbd5e1" stroke-width="2"/>
+        <text x="${springX + pullLen + 16}" y="${cy + 23}" fill="#22c55e" font-size="10" font-weight="800">F=${Fpull}N</text>
+      `;
+
+      // Friction arrow
+      if (phys.activeF > 0.5) {
+        const fl = Math.min(phys.activeF * 1.2, 60);
+        html += `
+          <line x1="${bX}" y1="118" x2="${bX - fl}" y2="118" stroke="#ef4444" stroke-width="3"/>
+          <polygon points="${bX - fl},118 ${bX - fl + 6},115 ${bX - fl + 6},121" fill="#ef4444"/>
+          <text x="${bX - fl - 6}" y="115" fill="#ef4444" font-size="9" font-weight="700" text-anchor="end">f=${phys.activeF.toFixed(0)}N</text>
+        `;
+      }
+
+      svg.innerHTML = html;
+    }
+
+    function update() {
+      const phys = compute();
+      document.getElementById('fDisp').innerText = Fpull.toFixed(1) + ' N';
+      document.getElementById('mDisp').innerText = mBlock.toFixed(1) + ' kg';
+      document.getElementById('dispPull').innerText = Fpull.toFixed(1) + ' N';
+      document.getElementById('dispR').innerText = phys.R.toFixed(1) + ' N';
+      document.getElementById('dispFsMax').innerText = phys.fsMax.toFixed(1) + ' N';
+      document.getElementById('dispActiveF').innerText = phys.activeF.toFixed(1) + ' N';
+
+      const sEl = document.getElementById('dispState');
+      if (phys.state === 'static') {
+        sEl.innerText = '🛑 স্থির (0 m/s²)'; sEl.style.color = '#38bdf8';
+      } else {
+        sEl.innerText = `🚀 গতি (${phys.a.toFixed(2)}m/s²)`; sEl.style.color = '#22c55e';
+      }
+
+      document.getElementById('fSlide').style.setProperty('--fill', (Fpull / 100 * 100) + '%');
+      document.getElementById('mSlide').style.setProperty('--fill', ((mBlock - 1) / 24 * 100) + '%');
+
+      document.getElementById('mathReadout').innerText = 
+        `R = ${phys.R.toFixed(1)} N | fs,max = ${phys.fsMax.toFixed(1)} N | কার্যকর ঘর্ষণ f = ${phys.activeF.toFixed(1)} N (${phys.state === 'static' ? 'বল < fs,max তাই স্থির' : 'ত্বরণ a = ' + phys.a.toFixed(2) + ' m/s²'})`;
+
+      render();
+    }
+
+    function onF(val) { Fpull = parseFloat(val); update(); }
+    function onM(val) { mBlock = parseFloat(val); update(); }
+
+    function setSurf(ms, mk, name, btn) {
+      mu_s = ms; mu_k = mk;
+      document.querySelectorAll('.btn-row button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      resetSim();
+    }
+
+    function togglePlay() {
+      running = !running;
+      const btn = document.getElementById('playBtn');
+      if (running) {
+        btn.innerText = '⏸️ বিরতি';
+        lastTs = performance.now();
+        requestAnimationFrame(loop);
+      } else {
+        btn.innerText = '▶️ অ্যানিমেশন শুরু';
+      }
+    }
+
+    function resetSim() {
+      running = false;
+      document.getElementById('playBtn').innerText = '▶️ অ্যানিমেশন শুরু';
+      bX = 100; bV = 0.0;
+      update();
+    }
+
+    function loop(ts) {
+      if (!running) return;
+      const dt = Math.min((ts - lastTs) / 1000, 0.05);
+      lastTs = ts;
+
+      const phys = compute();
+      bV += phys.a * dt;
+      if (bV < 0) bV = 0;
+      bX += bV * dt * 25;
+
+      if (bX > 500) bX = 50;
+
+      update();
+      if (running) requestAnimationFrame(loop);
+    }
+
+    update();
+  </script>
+</body>
+</html>

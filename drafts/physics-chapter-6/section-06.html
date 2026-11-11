@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৬.৬ ক্যালরিমিতির মূলনীতি · অধ্যায় ৬ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+
+    let sMetalSec = 400;
+
+    function setSecCalMetal(s, col, btn) {
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      sMetalSec = s;
+      const sp = document.getElementById('secCalSpecimen');
+      if (sp) {
+        sp.setAttribute('fill', col);
+        sp.setAttribute('stroke', col);
+      }
+      recalcSecCal();
+    }
+
+    function recalcSecCal() {
+      const m1_g = parseFloat(document.getElementById('inM1').value);
+      const t1 = parseFloat(document.getElementById('inT1').value);
+      const m2_g = parseFloat(document.getElementById('inM2').value);
+      const t2 = parseFloat(document.getElementById('inT2').value);
+
+      document.getElementById('dispM1').innerText = m1_g + ' g';
+      document.getElementById('dispT1').innerText = t1 + ' °C';
+      document.getElementById('dispM2').innerText = m2_g + ' g';
+      document.getElementById('dispT2').innerText = t2 + ' °C';
+
+      const m1 = m1_g / 1000;
+      const m2 = m2_g / 1000;
+      const c1 = m1 * sMetalSec;
+      const c2 = m2 * 4200;
+
+      const tf = (c1 * t1 + c2 * t2) / (c1 + c2);
+      const qLost = c1 * (t1 - tf);
+
+      document.getElementById('dispTf').innerText = tf.toFixed(1) + ' °C';
+      document.getElementById('dispDtW').innerText = '+' + (tf - t2).toFixed(1) + ' °C';
+      document.getElementById('dispDtM').innerText = '-' + (t1 - tf).toFixed(1) + ' °C';
+      document.getElementById('dispQTrans').innerText = Math.round(qLost) + ' J';
+
+      document.getElementById('textQLost').innerText = `${m1_g}g × ${sMetalSec} × ${(t1 - tf).toFixed(1)}K = ${Math.round(qLost)} J`;
+      document.getElementById('textQGained').innerText = `${m2_g}g × 4200 × ${(tf - t2).toFixed(1)}K = ${Math.round(qLost)} J`;
+
+      const hHot = (t1 / 100) * 80;
+      const hCold = (t2 / 100) * 80;
+      const hFinal = (tf / 100) * 80;
+
+      const barHot = document.getElementById('secBarHot');
+      if (barHot) {
+        barHot.setAttribute('height', hHot);
+        barHot.setAttribute('y', 115 - hHot);
+        document.getElementById('secTextBarHot').setAttribute('y', 110 - hHot);
+        document.getElementById('secTextBarHot').innerText = t1 + '°C';
+      }
+      const barCold = document.getElementById('secBarCold');
+      if (barCold) {
+        barCold.setAttribute('height', hCold);
+        barCold.setAttribute('y', 115 - hCold);
+        document.getElementById('secTextBarCold').setAttribute('y', 110 - hCold);
+        document.getElementById('secTextBarCold').innerText = t2 + '°C';
+      }
+      const barFinal = document.getElementById('secBarFinal');
+      if (barFinal) {
+        barFinal.setAttribute('height', hFinal);
+        barFinal.setAttribute('y', 115 - hFinal);
+        document.getElementById('secTextBarFinal').setAttribute('y', 110 - hFinal);
+        document.getElementById('secTextBarFinal').innerText = tf.toFixed(1) + '°C';
+      }
+      const dashed = document.getElementById('secEqDashed');
+      if (dashed) {
+        dashed.setAttribute('y1', 115 - hFinal);
+        dashed.setAttribute('y2', 115 - hFinal);
+      }
+      const thermoL = document.getElementById('secThermLiquid');
+      if (thermoL) {
+        const thH = (tf / 100) * 70;
+        thermoL.setAttribute('height', thH);
+        thermoL.setAttribute('y', 120 - thH);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      recalcSecCal();
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৬ / ৬.৬</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই · অধ্যায় ৬</span>
+    <h1 class="title">ক্যালরিমিতির মূলনীতি <small>(Principles of Calorimetry)</small></h1>
+    <p class="subtitle">তাপশক্তি সংরক্ষণশীলতা, মিশ্রণের চূড়ান্ত সাম্যাবস্থার তাপমাত্রা এবং পানির সমতুল্য ও বরফ গলনের সমস্যা।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>এই পাঠটি সম্পন্ন করার পর তুমি—</p>
+      <ul>
+        <li>ক্যালরিমিতির মূলনীতি এবং বিচ্ছিন্ন তাপীয় ব্যবস্থার প্রয়োজনীয় শর্ত ব্যাখ্যা করতে পারবে।</li>
+        <li>বর্জিত তাপ = গৃহীত তাপ সমীকরণের সাহায্যে একাধিক বস্তুর মিশ্রণের চূড়ান্ত তাপমাত্রা ($T_f$) নির্ণয় করতে পারবে।</li>
+        <li>পানির সমতুল্য ($W = mc$) ও ক্যালরিমিটারের পাত্রের তাপ শোষণের প্রভাব গাণিতিকভাবে বিশ্লেষণ করতে পারবে।</li>
+        <li>পানি ও বরফের মিশ্রণ সংক্রান্ত দশান্তরসহ জটিল সমস্যার চূড়ান্ত অবস্থা নির্ভুলভাবে নির্ধারণ করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>১. ক্যালরিমিতির মূলনীতি (Principle of Calorimetry)</h2>
+      <p>ভিন্ন ভিন্ন তাপমাত্রার দুটি বা ততোধিক বস্তুকে পরস্পরের তাপীয় সংস্পর্শে আনলে তাদের মধ্যে তাপের আদান-প্রদান শুরু হয়। গরম বস্তুটি তাপ বর্জন করতে থাকে এবং ঠান্ডা বস্তুটি সেই তাপ গ্রহণ করতে থাকে, যতক্ষণ না উভয়ের তাপমাত্রা সমান হয় অর্থাৎ <strong>তাপীয় সাম্যাবস্থা</strong> অর্জিত হয়।</p>
+      <div class="highlight-box">
+        <strong>💡 ক্যালরিমিতির মূলনীতি:</strong> যদি কোনো রাসায়নিক বিক্রিয়া না ঘটে এবং পরিবেশের সাথে কোনো তাপশক্তির অপচয় বা আদান-প্রদান না হয় (বিচ্ছিন্ন ব্যবস্থা), তবে—<br>
+        <span style="font-size:18px;font-weight:800;color:var(--indigo)">বর্জিত তাপ = গৃহীত তাপ ($Q_{\text{lost}} = Q_{\text{gained}}$)</span>
+      </div>
+
+      <h3>বিচ্ছিন্ন ব্যবস্থার শর্তাবলি:</h3>
+      <ol>
+        <li>বস্তুগুলোর মধ্যে কোনো রাসায়নিক বিক্রিয়া বা দ্রবীভবন ঘটা চলবে না।</li>
+        <li>পরিবেশের সাথে পরিচলন, বিকিরণ বা পরিবহন প্রক্রিয়ায় কোনো তাপের আদান-প্রদান ঘটবে না।</li>
+        <li>পরীক্ষাগারে তাপের অপচয় কমাতে <strong>ক্যালরিমিটার</strong> ব্যবহার করা হয়, যার বাইরের দেয়াল অপরিবাহী পদার্থ (যেমন কর্ক বা তুলো) দিয়ে সুরক্ষিত থাকে এবং চকচকে মসৃণ রাখা হয়।</li>
+      </ol>
+
+      <h3>২. মিশ্রণের চূড়ান্ত তাপমাত্রা প্রতিপাদন</h3>
+      <p>ধরি, $m_1$ ভরের একটি উত্তপ্ত বস্তুর তাপমাত্রা $T_1$ এবং উপাদানের আপেক্ষিক তাপ $s_1$। একে $m_2$ ভরের অপর একটি শীতল তরলে যার তাপমাত্রা $T_2$ এবং আপেক্ষিক তাপ $s_2$ ($T_1 > T_2$), মিশ্রিত করা হলো। মিশ্রণের চূড়ান্ত সাম্যাবস্থার তাপমাত্রা $T_f$ হলে:</p>
+      <p>উত্তপ্ত বস্তু দ্বারা বর্জিত তাপ:</p>
+      <div class="formula">
+        $$Q_{\text{lost}} = m_1 \cdot s_1 \cdot (T_1 - T_f)$$
+      </div>
+      <p>শীতল বস্তু দ্বারা গৃহীত তাপ:</p>
+      <div class="formula">
+        $$Q_{\text{gained}} = m_2 \cdot s_2 \cdot (T_f - T_2)$$
+      </div>
+      <p>ক্যালরিমিতির মূলনীতি ($Q_{\text{lost}} = Q_{\text{gained}}$) অনুসারে:</p>
+      <div class="formula">
+        $$m_1 s_1 (T_1 - T_f) = m_2 s_2 (T_f - T_2)$$
+      </div>
+      <p>উভয়পক্ষ সমাধান করে চূড়ান্ত তাপমাত্রা $T_f$ পাওয়া যায়:</p>
+      <div class="formula">
+        $$T_f = \frac{m_1 s_1 T_1 + m_2 s_2 T_2}{m_1 s_1 + m_2 s_2}$$
+      </div>
+
+      <h3>পানির সমতুল্য (Water Equivalent, $W$)</h3>
+      <p>কোনো বস্তুর তাপমাত্রা $1\text{ K}$ বৃদ্ধি করতে যে পরিমাণ তাপ লাগে, সেই পরিমাণ তাপ দিয়ে যত ভর পানির তাপমাত্রা $1\text{ K}$ বৃদ্ধি করা সম্ভব, সেই ভরের পানিকে ওই বস্তুর <strong>পানির সমতুল্য ($W$)</strong> বলে।</p>
+      <div class="formula">
+        $$W = m \cdot \frac{s}{s_{\text{water}}} \quad \text{বা সংক্ষেপে,} \quad W = m \cdot s \text{ (যদি সিজিএস এ পানির } s=1 \text{ হয়)}$$
+      </div>
+    </section>
+
+    <!-- Embedded Interactive Calorimetry Lab -->
+    <div class="lab" id="calorimetry-lab">
+      <div class="lab-head">
+        <div>
+          <h2>🔬 ইন্টারঅ্যাক্টিভ সিমুলেশন ল্যাব: ক্যালরিমিতি ও তাপীয় সাম্যাবস্থা</h2>
+          <p style="margin:4px 0 0;font-size:13px;color:var(--muted)">ধাতু ও পানির ভর এবং আদি তাপমাত্রা পরিবর্তন করে লাইভ সাম্য তাপমাত্রা ($T_f$) ও তাপের সমতা যাচাই করো।</p>
+        </div>
+        <span class="lab-tag">সিমুলেশন ৬.২</span>
+      </div>
+
+      <div class="preset-row">
+        <button class="preset-btn active" onclick="setSecCalMetal(400, '#ea580c', this)">তামা (s = 400 J/kg·K)</button>
+        <button class="preset-btn" onclick="setSecCalMetal(460, '#94a3b8', this)">লোহা (s = 460 J/kg·K)</button>
+        <button class="preset-btn" onclick="setSecCalMetal(130, '#64748b', this)">সীসা (s = 130 J/kg·K)</button>
+        <button class="preset-btn" onclick="setSecCalMetal(900, '#0284c7', this)">অ্যালুমিনিয়াম (s = 900 J/kg·K)</button>
+      </div>
+
+      <div class="zoom-card" style="background:#0f172a;border-color:#334155;color:#fff">
+        <svg id="secCalSvg" viewBox="0 0 700 170" style="display:block;width:100%;height:170px">
+          <defs>
+            <linearGradient id="secWaterGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.85"/>
+              <stop offset="100%" stop-color="#0284c7" stop-opacity="0.95"/>
+            </linearGradient>
+          </defs>
+          <!-- Calorimeter Beaker -->
+          <rect x="70" y="24" width="170" height="125" rx="8" fill="#334155" stroke="#64748b" stroke-width="2"/>
+          <rect x="78" y="32" width="154" height="112" rx="6" fill="#1e293b"/>
+          <rect x="83" y="60" width="144" height="80" rx="4" fill="url(#secWaterGrad)"/>
+          <text x="155" y="50" text-anchor="middle" fill="#94a3b8" font-size="10" font-weight="700">ইনসুলেটেড ক্যালরিমিটার</text>
+          <!-- Submerged sphere -->
+          <circle id="secCalSpecimen" cx="155" cy="105" r="22" fill="#ea580c" stroke="#f97316" stroke-width="2"/>
+          <text x="155" y="109" text-anchor="middle" fill="#fff" font-size="9" font-weight="800">ধাতু</text>
+          <!-- Thermometer -->
+          <rect x="105" y="16" width="6" height="105" rx="2" fill="#cbd5e1"/>
+          <circle cx="108" cy="120" r="6" fill="#ef4444"/>
+          <rect id="secThermLiquid" x="106.5" y="55" width="3" height="65" fill="#ef4444"/>
+
+          <!-- Temperature Spectrum Graph -->
+          <g transform="translate(310, 20)">
+            <text x="0" y="10" fill="#cbd5e1" font-size="11" font-weight="700">তাপমাত্রা রূপান্তর ও সাম্য রেখা:</text>
+            <line x1="30" y1="20" x2="330" y2="20" stroke="#475569" stroke-width="1.5"/>
+            <line x1="30" y1="115" x2="330" y2="115" stroke="#475569" stroke-width="1.5"/>
+            <line x1="30" y1="20" x2="30" y2="115" stroke="#475569" stroke-width="1.5"/>
+
+            <rect id="secBarHot" x="65" y="35" width="40" height="80" fill="#ea580c" rx="4"/>
+            <text id="secTextBarHot" x="85" y="28" text-anchor="middle" fill="#fb923c" font-size="10" font-weight="800">90°C</text>
+            <text x="85" y="130" text-anchor="middle" fill="#94a3b8" font-size="9">গরম ধাতু</text>
+
+            <rect id="secBarCold" x="150" y="85" width="40" height="30" fill="#0284c7" rx="4"/>
+            <text id="secTextBarCold" x="170" y="78" text-anchor="middle" fill="#38bdf8" font-size="10" font-weight="800">20°C</text>
+            <text x="170" y="130" text-anchor="middle" fill="#94a3b8" font-size="9">ঠান্ডা পানি</text>
+
+            <rect id="secBarFinal" x="235" y="75" width="40" height="40" fill="#10b981" rx="4"/>
+            <text id="secTextBarFinal" x="255" y="68" text-anchor="middle" fill="#34d399" font-size="10" font-weight="800">23.2°C</text>
+            <text x="255" y="130" text-anchor="middle" fill="#34d399" font-size="9" font-weight="700">সাম্য (T_f)</text>
+
+            <line id="secEqDashed" x1="30" y1="75" x2="330" y2="75" stroke="#34d399" stroke-width="1.5" stroke-dasharray="3 3"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="lab-controls">
+        <div>
+          <label style="display:flex;justify-content:space-between;font-size:13px;font-weight:750;color:#334155;margin-bottom:6px">
+            ধাতুর ভর ($m_1$): <span id="dispM1" style="color:#ea580c">150 g</span> | তাপমাত্রা ($T_1$): <span id="dispT1" style="color:#ea580c">90 °C</span>
+          </label>
+          <input type="range" class="range" id="inM1" min="50" max="500" step="10" value="150" oninput="recalcSecCal()">
+          <input type="range" class="range" id="inT1" min="40" max="100" step="5" value="90" oninput="recalcSecCal()" style="margin-top:6px">
+        </div>
+        <div>
+          <label style="display:flex;justify-content:space-between;font-size:13px;font-weight:750;color:#334155;margin-bottom:6px">
+            পানির ভর ($m_2$): <span id="dispM2" style="color:#0284c7">300 g</span> | তাপমাত্রা ($T_2$): <span id="dispT2" style="color:#0284c7">20 °C</span>
+          </label>
+          <input type="range" class="range" id="inM2" min="100" max="800" step="20" value="300" oninput="recalcSecCal()">
+          <input type="range" class="range" id="inT2" min="10" max="30" step="1" value="20" oninput="recalcSecCal()" style="margin-top:6px">
+        </div>
+      </div>
+
+      <div class="calc-breakdown">
+        <div class="calc-box">
+          <div class="label">চূড়ান্ত তাপমাত্রা (T_f)</div>
+          <div class="val" id="dispTf" style="color:#10b981">23.2°C</div>
+        </div>
+        <div class="calc-box">
+          <div class="label">পানির বৃদ্ধি (ΔT_w)</div>
+          <div class="val" id="dispDtW" style="color:#0284c7">+3.2°C</div>
+        </div>
+        <div class="calc-box">
+          <div class="label">ধাতুর হ্রাস (ΔT_m)</div>
+          <div class="val" id="dispDtM" style="color:#ea580c">-66.8°C</div>
+        </div>
+        <div class="calc-box">
+          <div class="label">বিনিমিত তাপ (Q)</div>
+          <div class="val" id="dispQTrans" style="color:#6366f1">4008 J</div>
+        </div>
+      </div>
+
+      <div class="readout" style="border-left-color:var(--indigo);background:#f8fafc;color:#1e293b">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><strong>🔥 বর্জিত তাপ:</strong> <span id="textQLost">150g × 400 × 66.8K = 4008 J</span></div>
+          <div><strong>❄️ গৃহীত তাপ:</strong> <span id="textQGained">300g × 4200 × 3.2K = 4008 J</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="term">
+        <strong>ক্যালরিমিতির মূলনীতি</strong>
+        <small>বিচ্ছিন্ন পরিবেশে বর্জিত মোট তাপ = গৃহীত মোট তাপ ($Q_{\text{lost}} = Q_{\text{gained}}$)।</small>
+      </div>
+      <div class="term">
+        <strong>তাপীয় সাম্যাবস্থা (Thermal Equilibrium)</strong>
+        <small>তাপ আদান-প্রদান শেষে মিশ্রণের সকল উপাদানের তাপমাত্রা অভিন্ন হওয়ার চূড়ান্ত দশা।</small>
+      </div>
+      <div class="term">
+        <strong>পানির সমতুল্য (Water Equivalent)</strong>
+        <small>কোনো বস্তুর তাপমাত্রা $1\text{ K}$ বাড়াতে প্রয়োজনীয় তাপে সমপরিমাণ তাপগ্রাহী পানির ভর ($W = mc$)।</small>
+      </div>
+      <div class="term">
+        <strong>ক্যালরিমিটার (Calorimeter)</strong>
+        <small>তাপীয় আদান-প্রদানে তাপের অপচয় সর্বনিম্ন রাখার জন্য ব্যবহৃত ইনসুলেটেড ধাতব পাত্র।</small>
+      </div>
+    </div>
+
+    <div class="note">
+      <h2>🚌 বাস্তব জীবনের আকর্ষণীয় অভিজ্ঞতা</h2>
+      <p>আমরা যখন গোসল করার জন্য অতিরিক্ত গরম পানিতে বালতির ঠান্ডা পানি মেশাই, তখন কয়েক সেকেন্ডেই কিন্তু পানি সমভাবে আরামদায়ক উষ্ণ হয়ে ওঠে। ফুটন্ত পানি যতখানি তাপ ছাড়ে, ঠান্ডা পানি ঠিক ততখানি তাপ গ্রহণ করে এবং উভয়ে মিলে একটি মাঝামাঝি সাম্যাবস্থার তাপমাত্রায় ($T_f$) পৌঁছায়।</p>
+    </div>
+
+    <div class="memory">
+      <h2>🧠 মনে রাখার কৌশল</h2>
+      <p><strong>ছন্দ:</strong><br>
+      "গরম বস্তু তাপ ছাড়ে, ঠান্ডা বস্তু তা ধরে;<br>
+      লস্ট সমান গেইন্ড হলে সাম্য তাপটি গড়ে!<br>
+      বরফ থাকলে চেক করে নাও গলবে কি না সবটা;<br>
+      সুপ্ততাপের হিসাব ছাড়া মেলানো যে শক্ত তা!"</p>
+    </div>
+
+    <div class="worked">
+      <h2>📝 স্ট্যান্ডার্ড গাণিতিক সমস্যা ও সমাধান</h2>
+      <div class="problem">
+        <strong>সমস্যা ১:</strong> $90^\circ\text{C}$ তাপমাত্রার $100\text{ g}$ ভরের একটি তামার টুকরা $20^\circ\text{C}$ তাপমাত্রার $200\text{ g}$ পানিতে ছেড়ে দেওয়া হলো। তাপের অপচয় অগ্রাহ্য করলে মিশ্রণের চূড়ান্ত সাম্যাবস্থার তাপমাত্রা কত হবে?<br>
+        <em>[তামার $s = 400\text{ J/(kg}\cdot\text{K)}$, পানির $s = 4200\text{ J/(kg}\cdot\text{K)}$]</em><br><br>
+        <strong>সমস্যা ২ (সৃজনশীল বোর্ড প্রশ্ন - বরফ ও পানির মিশ্রণ):</strong> $50^\circ\text{C}$ তাপমাত্রার $400\text{ g}$ পানিতে $0^\circ\text{C}$ তাপমাত্রার $50\text{ g}$ বরফখণ্ড ছেড়ে দেওয়া হলো।<br>
+        (ক) বরফখণ্ডটি কি সম্পূর্ণ গলবে?<br>
+        (খ) মিশ্রণের চূড়ান্ত তাপমাত্রা কত হবে? ($L_f = 3.36 \times 10^5\text{ J/kg}$)
+      </div>
+      <div class="solution">
+        <strong>ধাপে ধাপে সমাধান:</strong><br><br>
+        <b>সমস্যা ১ এর সমাধান:</b><br>
+        ধরি, মিশ্রণের চূড়ান্ত তাপমাত্রা $T_f$।<br>
+        তামার ভর $m_1 = 100\text{ g} = 0.1\text{ kg}$, $T_1 = 90^\circ\text{C}$, $s_1 = 400\text{ J/(kg}\cdot\text{K)}$<br>
+        পানির ভর $m_2 = 200\text{ g} = 0.2\text{ kg}$, $T_2 = 20^\circ\text{C}$, $s_2 = 4200\text{ J/(kg}\cdot\text{K)}$<br><br>
+        তামা কর্তৃক বর্জিত তাপ:
+        $$Q_{\text{lost}} = m_1 \cdot s_1 \cdot (T_1 - T_f) = 0.1 \times 400 \times (90 - T_f) = 40(90 - T_f) = 3600 - 40T_f$$
+        পানি কর্তৃক গৃহীত তাপ:
+        $$Q_{\text{gained}} = m_2 \cdot s_2 \cdot (T_f - T_2) = 0.2 \times 4200 \times (T_f - 20) = 840(T_f - 20) = 840T_f - 16800$$
+        ক্যালরিমিতির মূলনীতি অনুসারে, $Q_{\text{lost}} = Q_{\text{gained}}$:
+        $$3600 - 40T_f = 840T_f - 16800$$
+        $$880T_f = 20400 \implies T_f = \frac{20400}{880} \approx 23.18^\circ\text{C}$$
+        অতএব, মিশ্রণের চূড়ান্ত সাম্যাবস্থার তাপমাত্রা হবে <strong>$23.18^\circ\text{C}$</strong>।<br><br>
+
+        <b>সমস্যা ২ এর সমাধান:</b><br>
+        <b>(ক) বরফ সম্পূর্ণ গলবে কি না যাচাই:</b><br>
+        $0^\circ\text{C}$-এর সম্পূর্ণ বরফকে গলাতে প্রয়োজনীয় সুপ্ততাপ:
+        $$Q_{\text{melt}} = m_{\text{ice}} \cdot L_f = 0.05\text{ kg} \times (3.36 \times 10^5\text{ J/kg}) = 16,800\text{ J}$$
+        অপরদিকে $400\text{ g}$ পানি $50^\circ\text{C}$ থেকে $0^\circ\text{C}$-এ নেমে আসলে সর্বোচ্চ যে তাপ বর্জন করতে পারে:
+        $$Q_{\text{release}} = m_{\text{water}} \cdot s_{\text{water}} \cdot \Delta T = 0.4 \times 4200 \times (50 - 0) = 84,000\text{ J}$$
+        যেহেতু পানির বর্জনযোগ্য তাপ ($84,000\text{ J}$) বরফ গলতে প্রয়োজনীয় তাপ ($16,800\text{ J}$) অপেক্ষা অনেক বেশি, তাই <strong>সমস্ত বরফ সম্পূর্ণ গলে পানিতে পরিণত হবে</strong>।<br><br>
+
+        <b>(খ) চূড়ান্ত তাপমাত্রা নির্ণয়:</b><br>
+        ধরি, মিশ্রণের চূড়ান্ত তাপমাত্রা $T_f$ ($0^\circ\text{C} < T_f < 50^\circ\text{C}$)।<br>
+        বরফ দ্বারা মোট গৃহীত তাপ = বরফ গলতে সুপ্ততাপ + গলিত পানির তাপমাত্রা $0^\circ\text{C}$ থেকে $T_f$ বৃদ্ধিতে তাপ:
+        $$Q_{\text{gained}} = 16800 + [m_{\text{ice}} \cdot s_{\text{water}} \cdot (T_f - 0)] = 16800 + [0.05 \times 4200 \times T_f] = 16800 + 210T_f$$
+        পানি দ্বারা বর্জিত তাপ:
+        $$Q_{\text{lost}} = m_{\text{water}} \cdot s_{\text{water}} \cdot (50 - T_f) = 0.4 \times 4200 \times (50 - T_f) = 1680(50 - T_f) = 84000 - 1680T_f$$
+        শর্তমতে, $Q_{\text{lost}} = Q_{\text{gained}}$:
+        $$84000 - 1680T_f = 16800 + 210T_f$$
+        $$1890T_f = 84000 - 16800 = 67200$$
+        $$T_f = \frac{67200}{1890} \approx 35.56^\circ\text{C}$$
+        অতএব, মিশ্রণের চূড়ান্ত তাপমাত্রা হবে <strong>$35.56^\circ\text{C}$</strong>।
+      </div>
+    </div>
+
+    <details class="check">
+      <summary>❓ আত্মযাচাই ১: গরম চায়ে ঠান্ডা চামচ ডুবালে চামচের গৃহীত তাপ এবং চায়ের বর্জিত তাপ কি ঠিক সমান হবে?</summary>
+      <p><strong>উত্তর:</strong> যদি পরিবেশের সাথে কোনো তাপীয় আদান-প্রদান না হয় (আদর্শ বিচ্ছিন্ন ব্যবস্থা), তবে চামচের গৃহীত তাপ চায়ের বর্জিত তাপের ঠিক সমান হবে। কিন্তু বাস্তব জীবনে কাপের পৃষ্ঠ থেকে কিছু তাপ বাতাসে ও কাপের উপাদানে ছড়িয়ে পড়ে, তাই চামচের গৃহীত তাপ চায়ের বর্জিত তাপের চেয়ে সামান্য কম হতে পারে।</p>
+    </details>
+
+    <details class="check">
+      <summary>❓ আত্মযাচাই ২: 0°C-এর 100 g বরফে 0°C-এর 100 g পানি মেশালে কী ঘটবে?</summary>
+      <p><strong>উত্তর:</strong> যেহেতু বরফ ও পানি উভয়ের তাপমাত্রা সমান ($0^\circ\text{C}$), তাই তাদের মধ্যে কোনো তাপমাত্রার পার্থক্য নেই। তাপমাত্রার পার্থক্য না থাকায় কোনো তাপের আদান-প্রদান ঘটবে না। ফলে কোনো বরফও গলবে না, পানিও জমবে না; তারা পূর্বের দশাতেই তাপীয় সাম্যাবস্থায় থাকবে।</p>
+    </details>
+
+    <div class="nav">
+      <a class="button secondary" href="section-05.html">← পূর্ববর্তী: ৬.৫ আপেক্ষিক তাপ ও তাপধারণক্ষমতা</a>
+      <a class="button" href="section-07.html">পরের পাঠ: ৬.৭ চাপের প্রভাব ও স্ফুটনাঙ্ক →</a>
+    </div>
+
+    <footer class="footer">
+      পড়ি (poRi) · পদার্থবিজ্ঞান ডিজিটাল পাঠ · <a href="chapter-source.html" style="color:var(--muted);text-decoration:underline">মূল পাঠ্যবইয়ের পৃষ্ঠা দেখুন</a>
+    </footer>
+  </main>
+</body>
+</html>

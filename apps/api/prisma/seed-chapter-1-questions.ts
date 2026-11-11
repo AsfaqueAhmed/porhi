@@ -1,5 +1,6 @@
 import { ContentStatus } from '@prisma/client';
 import { chapter1Batch2Questions } from './seed-chapter-1-questions-batch2';
+import { chapter1Batch3Questions } from './seed-chapter-1-questions-batch3';
 
 export interface QuestionData {
   id: string;
@@ -1332,4 +1333,5 @@ $$\\text{শতকরা ত্রুটি}_V = \\frac{5.5476}{200} \\times 100
 export const chapter1Questions: QuestionData[] = [
   ...batch1Questions,
   ...chapter1Batch2Questions,
+  ...chapter1Batch3Questions,
 ];

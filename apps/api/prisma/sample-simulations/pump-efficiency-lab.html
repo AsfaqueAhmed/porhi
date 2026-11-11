@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>বৈদ্যুতিক মোটর ও পানির পাম্পের কর্মদক্ষতা ল্যাব</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #0f172a; color: #f8fafc; padding: 14px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    .container { max-width: 720px; width: 100%; display: flex; flex-direction: column; gap: 12px; }
+    header { text-align: center; }
+    h1 { font-size: 1.15rem; color: #38bdf8; margin-bottom: 3px; }
+    p { font-size: 0.8rem; color: #94a3b8; }
+    .canvas-wrap { background: #1e293b; border-radius: 12px; border: 1px solid #334155; overflow: hidden; width: 100%; position: relative; }
+    svg { display: block; width: 100%; height: 210px; }
+    .controls { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 12px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .control-group { display: flex; flex-direction: column; gap: 3px; }
+    label { font-size: 0.72rem; color: #cbd5e1; display: flex; justify-content: space-between; font-weight: 700; }
+    .custom-range {
+      -webkit-appearance: none; appearance: none; width: 100%; height: 8px; border-radius: 999px; outline: none;
+      background: linear-gradient(90deg, #38bdf8 var(--fill, 50%), #334155 var(--fill, 50%)); cursor: pointer;
+    }
+    .custom-range::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #38bdf8; border: 2px solid #fff; cursor: pointer;
+    }
+    .btn-row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+    button { padding: 5px 11px; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #fff; font-size: 0.72rem; font-weight: 700; cursor: pointer; }
+    button.primary { background: #0284c7; border-color: #0284c7; }
+    button:hover { filter: brightness(1.15); }
+    .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 7px 5px; text-align: center; }
+    .card .title { font-size: 0.6rem; color: #94a3b8; text-transform: uppercase; }
+    .card .val { font-size: 0.95rem; font-weight: 800; color: #38bdf8; }
+    .card.highlight { border-color: #10b981; background: #064e3b; }
+    .card.highlight .val { color: #6ee7b7; }
+    .readout { background: #1e293b; border-left: 3px solid #10b981; padding: 8px 12px; border-radius: 0 8px 8px 0; font-size: 0.8rem; color: #cbd5e1; }
+    .warn { background: #7f1d1d; border-left: 3px solid #ef4444; padding: 8px 12px; border-radius: 0 8px 8px 0; font-size: 0.78rem; color: #fecaca; display: none; }
+    @media(max-width: 600px) {
+      .controls { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: repeat(3, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚡ বৈদ্যুতিক মোটর ও পানির পাম্পের কর্মদক্ষতা ($\eta$) ল্যাব</h1>
+      <p>মোটরে প্রদত্ত ক্ষমতা ($P_{\text{in}}$), পানির ভর ($m$), উত্তোলন উচ্চতা ($h$) এবং সময় ($t$) পরিবর্তন করো; লভ্য কার্যকর ক্ষমতা ও কর্মদক্ষতা প্রত্যক্ষ করো।</p>
+    </header>
+
+    <div class="btn-row">
+      <button class="primary" onclick="setPreset(3.0, 2000, 15, 120)">১. সাধারণ ২ HP পাম্প</button>
+      <button onclick="setPreset(5.0, 4000, 20, 180)">২. শক্তিশালী ৫ HP মোটর</button>
+      <button onclick="setPreset(2.5, 1000, 25, 60)">৩. গভীর নলকূপ উত্তোলন</button>
+      <button onclick="setPreset(4.0, 3000, 10, 80)">৪. উচ্চ কর্মদক্ষতা পাম্প</button>
+      <button id="pumpBtn" onclick="togglePump()">▶️ পাম্প চালু করুন</button>
+    </div>
+
+    <div class="canvas-wrap">
+      <svg id="pumpSvg" viewBox="0 0 700 210"></svg>
+    </div>
+
+    <div class="warn" id="warnBox">
+      ⚠️ সতর্কবার্তা: কার্যকর ক্ষমতা মোট প্রদত্ত ক্ষমতাকে অতিক্রম করেছে ($P_{\text{out}} > P_{\text{in}}$)! বাস্তব জগতে শক্তির সংরক্ষণশীলতা নীতি অনুসারে কর্মদক্ষতা কখনোই ১০০% এর বেশি হতে পারে না।
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>প্রদত্ত ক্ষমতা (Pin): <span id="pinDisp" style="color:#38bdf8">3.0 kW (4.02 HP)</span></label>
+        <input id="pinSlide" class="custom-range" type="range" min="0.5" max="6.0" value="3.0" step="0.1" oninput="onPin(this.value)">
+      </div>
+      <div class="control-group">
+        <label>পানির ভর (m): <span id="mDisp" style="color:#38bdf8">2000 kg (L)</span></label>
+        <input id="mSlide" class="custom-range" type="range" min="500" max="5000" value="2000" step="100" oninput="onM(this.value)">
+      </div>
+      <div class="control-group">
+        <label>উত্তোলন উচ্চতা (h): <span id="hDisp" style="color:#38bdf8">15.0 m</span></label>
+        <input id="hSlide" class="custom-range" type="range" min="5" max="30" value="15" step="1" oninput="onH(this.value)">
+      </div>
+      <div class="control-group">
+        <label>উত্তোলন সময় (t): <span id="tDisp" style="color:#38bdf8">120 s (2.0 min)</span></label>
+        <input id="tSlide" class="custom-range" type="range" min="30" max="180" value="120" step="5" oninput="onT(this.value)">
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card"><div class="title">প্রদত্ত ক্ষমতা (Pin)</div><div class="val" id="valPin">3.00 kW</div></div>
+      <div class="card"><div class="title">কার্যকর কাজ (Wout)</div><div class="val" id="valWout">294.0 kJ</div></div>
+      <div class="card"><div class="title">লভ্য ক্ষমতা (Pout)</div><div class="val" id="valPout">2.45 kW</div></div>
+      <div class="card"><div class="title">অপচয় ক্ষমতা (Ploss)</div><div class="val" id="valPloss">0.55 kW</div></div>
+      <div class="card highlight" id="etaCard"><div class="title">কর্মদক্ষতা (η)</div><div class="val" id="valEta">81.7%</div></div>
+    </div>
+
+    <div class="readout" id="readout">
+      লভ্য কার্যকর ক্ষমতা Pout = mgh / t = (2000 × 9.8 × 15) / 120 = 2450 W (2.45 kW) | কর্মদক্ষতা η = (2.45 / 3.00) × 100% = 81.67%
+    </div>
+  </div>
+
+  <script>
+    const g = 9.8;
+    let Pin_kW = 3.0;
+    let m_kg = 2000;
+    let h_m = 15;
+    let t_s = 120;
+    let isPumping = false;
+    let pumpAngle = 0;
+    let pumpTimer = null;
+
+    function render() {
+      const svg = document.getElementById('pumpSvg');
+      const Pin = Pin_kW * 1000;
+      const Wout = m_kg * g * h_m;
+      const Pout = Wout / t_s;
+      const Ploss = Math.max(0, Pin - Pout);
+      const eta = Pin > 0 ? (Pout / Pin) * 100 : 0;
+      const isOverload = Pout > Pin;
+
+      // Circular gauge coordinates (radius 60, cx 590, cy 115)
+      const cx = 590;
+      const cy = 115;
+      const r = 55;
+      const clampedEta = Math.min(100, Math.max(0.1, eta));
+      const fraction = clampedEta / 100;
+      const angle = Math.PI * (1 - fraction);
+      const arcEndX = cx + r * Math.cos(angle);
+      const arcEndY = cy - r * Math.sin(angle);
+      const arcStartX = cx - r;
+      const arcStartY = cy;
+
+      const gaugeColor = isOverload ? '#ef4444' : (eta >= 70 ? '#10b981' : (eta >= 40 ? '#f59e0b' : '#ef4444'));
+
+      svg.innerHTML = `
+        <defs>
+          <linearGradient id="wellGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0284c7"/>
+            <stop offset="100%" stop-color="#0369a1"/>
+          </linearGradient>
+          <linearGradient id="tankWater" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#38bdf8"/>
+            <stop offset="100%" stop-color="#0284c7"/>
+          </linearGradient>
+          <linearGradient id="pipeMetal" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#475569"/>
+            <stop offset="50%" stop-color="#94a3b8"/>
+            <stop offset="100%" stop-color="#334155"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Underground Reservoir (Well) -->
+        <rect x="25" y="130" width="120" height="70" rx="6" fill="#0f172a" stroke="#334155" stroke-width="2"/>
+        <rect x="30" y="150" width="110" height="45" rx="3" fill="url(#wellGrad)"/>
+        <text x="85" y="145" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">ভূগর্ভস্থ কূপ (Well)</text>
+
+        <!-- Vertical Pipe -->
+        <rect x="75" y="60" width="10" height="90" fill="url(#pipeMetal)"/>
+        <line x1="80" y1="60" x2="80" y2="150" stroke="#0284c7" stroke-width="4" stroke-dasharray="6,4"/>
+
+        <!-- Pump & Motor Housing -->
+        <rect x="135" y="80" width="65" height="55" rx="8" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+        <circle cx="167" cy="107" r="18" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+        <!-- Spinning Rotor Blades -->
+        <g transform="rotate(${pumpAngle}, 167, 107)">
+          <line x1="167" y1="92" x2="167" y2="122" stroke="#38bdf8" stroke-width="3"/>
+          <line x1="152" y1="107" x2="182" y2="107" stroke="#38bdf8" stroke-width="3"/>
+        </g>
+        <text x="167" y="150" fill="#e2e8f0" font-size="10" font-weight="800" text-anchor="middle">পাম্প মোটর</text>
+
+        <!-- Delivery Pipe to Tank -->
+        <path d="M 200 95 L 290 95 L 290 45 L 340 45" fill="none" stroke="url(#pipeMetal)" stroke-width="10"/>
+        <path d="M 200 95 L 290 95 L 290 45 L 340 45" fill="none" stroke="#38bdf8" stroke-width="4" stroke-dasharray="6,4"/>
+
+        <!-- Overhead Tank -->
+        <rect x="325" y="25" width="110" height="120" rx="8" fill="#0f172a" stroke="#475569" stroke-width="2"/>
+        <rect x="330" y="${60 + (1 - Math.min(1, m_kg / 5000)) * 60}" width="100" height="${Math.min(1, m_kg / 5000) * 80}" rx="4" fill="url(#tankWater)"/>
+        <text x="380" y="45" fill="#e2e8f0" font-size="10" font-weight="800" text-anchor="middle">ছাদের পানির ট্যাংক</text>
+        <text x="380" y="105" fill="#ffffff" font-size="11" font-weight="800" text-anchor="middle">${m_kg} L</text>
+        <text x="380" y="160" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">উচ্চতা h = ${h_m} m</text>
+
+        <!-- Gauge Panel -->
+        <rect x="475" y="20" width="205" height="165" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+        <text x="577" y="40" fill="#e2e8f0" font-size="11" font-weight="800" text-anchor="middle">কর্মদক্ষতা মিটার (Gauge)</text>
+
+        <!-- Background Arc -->
+        <path d="M ${arcStartX} ${arcStartY} A ${r} ${r} 0 0 1 ${cx + r} ${cy}" fill="none" stroke="#334155" stroke-width="10" stroke-linecap="round"/>
+
+        <!-- Filled Progress Arc -->
+        <path d="M ${arcStartX} ${arcStartY} A ${r} ${r} 0 0 1 ${arcEndX} ${arcEndY}" fill="none" stroke="${gaugeColor}" stroke-width="10" stroke-linecap="round"/>
+
+        <!-- Gauge Needle & Center -->
+        <circle cx="${cx}" cy="${cy}" r="6" fill="#f8fafc"/>
+        <text x="${cx}" y="${cy - 12}" fill="${gaugeColor}" font-size="18" font-weight="900" text-anchor="middle">${isOverload ? '! OVERLOAD !' : eta.toFixed(1) + '%'}</text>
+        <text x="${cx}" y="${cy + 24}" fill="#94a3b8" font-size="9" font-weight="700" text-anchor="middle">0% (বাম) ➔ 100% (ডান)</text>
+      `;
+    }
+
+    function update() {
+      const Pin = Pin_kW * 1000;
+      const Wout = m_kg * g * h_m;
+      const Pout = Wout / t_s;
+      const Ploss = Math.max(0, Pin - Pout);
+      const eta = Pin > 0 ? (Pout / Pin) * 100 : 0;
+      const isOverload = Pout > Pin;
+
+      document.getElementById('pinDisp').innerText = Pin_kW.toFixed(1) + ' kW (' + (Pin_kW * 1.341).toFixed(2) + ' HP)';
+      document.getElementById('mDisp').innerText = m_kg + ' kg (L)';
+      document.getElementById('hDisp').innerText = h_m.toFixed(1) + ' m';
+      document.getElementById('tDisp').innerText = t_s + ' s (' + (t_s / 60).toFixed(1) + ' min)';
+
+      document.getElementById('valPin').innerText = Pin_kW.toFixed(2) + ' kW';
+      document.getElementById('valWout').innerText = (Wout / 1000).toFixed(1) + ' kJ';
+      document.getElementById('valPout').innerText = (Pout / 1000).toFixed(2) + ' kW';
+      document.getElementById('valPloss').innerText = (Ploss / 1000).toFixed(2) + ' kW';
+      document.getElementById('valEta').innerText = eta.toFixed(1) + '%';
+
+      document.getElementById('warnBox').style.display = isOverload ? 'block' : 'none';
+
+      const etaCard = document.getElementById('etaCard');
+      if (isOverload) {
+        etaCard.style.borderColor = '#ef4444';
+        etaCard.style.background = '#7f1d1d';
+      } else {
+        etaCard.style.borderColor = '#10b981';
+        etaCard.style.background = '#064e3b';
+      }
+
+      document.getElementById('pinSlide').style.setProperty('--fill', ((Pin_kW - 0.5) / 5.5 * 100) + '%');
+      document.getElementById('mSlide').style.setProperty('--fill', ((m_kg - 500) / 4500 * 100) + '%');
+      document.getElementById('hSlide').style.setProperty('--fill', ((h_m - 5) / 25 * 100) + '%');
+      document.getElementById('tSlide').style.setProperty('--fill', ((t_s - 30) / 150 * 100) + '%');
+
+      document.getElementById('readout').innerText =
+        'লভ্য কার্যকর ক্ষমতা Pout = mgh / t = (' + m_kg + ' × 9.8 × ' + h_m + ') / ' + t_s + ' = ' + Math.round(Pout) + ' W (' + (Pout / 1000).toFixed(2) + ' kW) | কর্মদক্ষতা η = (' + (Pout / 1000).toFixed(2) + ' / ' + Pin_kW.toFixed(2) + ') × 100% = ' + eta.toFixed(1) + '%';
+
+      render();
+    }
+
+    function onPin(v) { Pin_kW = parseFloat(v); update(); }
+    function onM(v) { m_kg = parseInt(v); update(); }
+    function onH(v) { h_m = parseFloat(v); update(); }
+    function onT(v) { t_s = parseInt(v); update(); }
+
+    function setPreset(p, m, h, t) {
+      Pin_kW = p; m_kg = m; h_m = h; t_s = t;
+      document.getElementById('pinSlide').value = Pin_kW;
+      document.getElementById('mSlide').value = m_kg;
+      document.getElementById('hSlide').value = h_m;
+      document.getElementById('tSlide').value = t_s;
+      update();
+    }
+
+    function togglePump() {
+      if (isPumping) {
+        clearInterval(pumpTimer);
+        pumpTimer = null;
+        isPumping = false;
+        document.getElementById('pumpBtn').innerText = '▶️ পাম্প চালু করুন';
+      } else {
+        isPumping = true;
+        document.getElementById('pumpBtn').innerText = '⏸️ পাম্প বন্ধ করুন';
+        pumpTimer = setInterval(() => {
+          pumpAngle = (pumpAngle + 18) % 360;
+          render();
+        }, 40);
+      }
+    }
+
+    update();
+  </script>
+</body>
+</html>

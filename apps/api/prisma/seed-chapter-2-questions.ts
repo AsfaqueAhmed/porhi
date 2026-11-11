@@ -1,5 +1,6 @@
 import { ContentStatus } from '@prisma/client';
 import { chapter2Batch2Questions } from './seed-chapter-2-questions-batch2';
+import { chapter2Batch3Questions } from './seed-chapter-2-questions-batch3';
 
 export interface QuestionData {
   id: string;
@@ -1283,4 +1284,5 @@ $$\\vec{v}_{\\text{avg}} = \\frac{s_{\\text{final}}}{t} = \\frac{0\\text{ m}}{10
 export const chapter2Questions: QuestionData[] = [
   ...batch1Questions,
   ...chapter2Batch2Questions,
+  ...chapter2Batch3Questions,
 ];

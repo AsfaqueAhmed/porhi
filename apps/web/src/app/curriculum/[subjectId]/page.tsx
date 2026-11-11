@@ -3,11 +3,11 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { BookOpen, ChevronRight, ChevronDown, Play, Trophy, Layers, CheckSquare } from 'lucide-react';
+import { BookOpen, ChevronRight, ChevronDown, Play, Trophy, Layers } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { toBanglaDigits } from '@/lib/formatters';
 import { useLanguageStore } from '@/store/language-store';
-import { DEFAULT_CHAPTERS, ChapterItem, TopicItem } from '@/lib/curriculum-data';
+import { DEFAULT_CHAPTERS, ChapterItem } from '@/lib/curriculum-data';
 import { CurriculumPageSkeleton } from '@/components/ui/shimmer';
 
 export default function CurriculumPage() {

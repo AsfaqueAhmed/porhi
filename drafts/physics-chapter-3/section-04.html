@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৩.৪ বেগের ওপর বলের প্রভাব · অধ্যায় ৩: বল | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- KaTeX for crisp mathematical formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৩ / ৩.৪</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই ৩.৪</span>
+    <h1 class="title">বেগের ওপর বলের প্রভাব <small>(How Force Changes Velocity)</small></h1>
+    <p class="subtitle">বেগের মান ও দিক পরিবর্তনের বৈজ্ঞানিক প্রক্রিয়া, ত্বরণ-মন্দন এবং কেন্দ্রমুখী বলের উৎপত্তি।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>এই পাঠটি সম্পন্ন করার পর তুমি—</p>
+      <ul>
+        <li>বল কীভাবে একটি বস্তুর বেগের মান, দিক কিংবা উভয়ই পরিবর্তন করতে পারে তা বিশ্লেষণ করতে পারবে।</li>
+        <li>গতির দিকে ও বিপরীত দিকে বল প্রয়োগে ত্বরণ ও মন্দনের গাণিতিক রূপ বুঝতে পারবে।</li>
+        <li>বৃত্তাকার গতিতে কেন্দ্রমুখী বলের ($F_c = \frac{mv^2}{r}$) ভূমিকা ও বাস্তব উদাহরণ ব্যাখ্যা করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>৩.৪ · বল ও বেগের পরিবর্তনের সম্পর্ক</h2>
+      <p>যেহেতু <b>বেগ ($\vec{v}$)</b> একটি ভেক্টর রাশি, তাই এর মান (দ্রুতি) এবং দিক—উভয়ই রয়েছে। কোনো বস্তুর ওপর প্রযুক্ত অসাম্য বল তিনটি ভিন্ন উপায়ে বেগের পরিবর্তন বা ত্বরণ ঘটাতে পারে:</p>
+
+      <div class="grid">
+        <div class="term">
+          <strong>১. বেগের মান বৃদ্ধি (ত্বরণ)</strong>
+          <small>বলের দিক ও গতির দিক একই হলে বেগের মান বাড়ে ($a > 0$)। যেমন: গ্যাস প্যাডেল চেপে গাড়ির গতি বাড়ানো।</small>
+        </div>
+        <div class="term">
+          <strong>২. বেগের মান হ্রাস (মন্দন)</strong>
+          <small>বলের দিক ও গতির দিক বিপরীতমুখী হলে গতি মন্থর হয়ে থেমে যায় ($a < 0$)। যেমন: গাড়ির ব্রেক কষা।</small>
+        </div>
+        <div class="term">
+          <strong>৩. বেগের দিক পরিবর্তন</strong>
+          <small>গতির লম্বভাবে বল কাজ করলে দ্রুতি অপরিবর্তিত থাকলেও কেবল দিক ঘোরে, যার ফলে বৃত্তাকার গতি তৈরি হয়।</small>
+        </div>
+        <div class="term">
+          <strong>কেন্দ্রমুখী বল ($F_c$)</strong>
+          <small>বৃত্তাকার পথে ঘূর্ণনশীল বস্তুকে কেন্দ্রের দিকে ধরে রাখার জন্য প্রয়োজনীয় লম্ব বল: $F_c = \frac{mv^2}{r}$</small>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <b>💡 কেন্দ্রমুখী ত্বরণ ও বলের সমীকরণ:</b><br>
+        যদি $m$ ভরের কোনো বস্তু $r$ ব্যাসার্ধের বৃত্তাকার পথে $v$ সমদ্রুতিতে ঘুরতে থাকে, তবে কেন্দ্রের দিকে কার্যকর ত্বরণ ও বল হবে:
+        $$a_c = \frac{v^2}{r}, \quad F_c = m a_c = \frac{mv^2}{r}$$
+      </div>
+
+      <h3>বল ও ত্বরণের দিক সর্বদা এক</h3>
+      <p>একটি গুরুত্বপূর্ণ বৈজ্ঞানিক সত্য হলো: <b>ত্বরণের দিক সবসময় প্রযুক্ত লব্ধি বলের দিকেই হয়</b>। তবে বলের দিক এবং বস্তুর তাৎক্ষণিক গতির দিক সর্বদা এক নাও হতে পারে। যেমন খাড়া উপরে ঢিল ছুড়লে ঢিল উপরে ওঠে (গতির দিক উর্ধ্বমুখী), অথচ পৃথিবীর অভিকর্ষ বল ও ত্বরণ নিচের দিকে কাজ করে!</p>
+    </section>
+
+    <div class="note">
+      <h2>🚌 বাস্তব জীবনের আকর্ষণীয় উদাহরণ</h2>
+      <ul>
+        <li><b>সুতায় বাঁধা পাথর ঘোরানো:</b> সুতার মাধ্যমে তোমার হাত পাথরের ওপর সার্বক্ষণিক কেন্দ্রমুখী টান প্রয়োগ করে। হঠাৎ সুতা ছিঁড়ে গেলে কেন্দ্রমুখী বল শূন্য হয়ে যায়, ফলে পাথরটি স্পর্শক বরাবর সোজা ছিটকে চলে যায়!</li>
+        <li><b>বাঁকা রাস্তায় গাড়ির ব্যাংকিং:</b> দ্রুতগামী গাড়ি যখন বাঁক নেয়, তখন কেন্দ্রমুখী বলের জোগান দিতে রাস্তার বাইরের পাশ কিছুটা উঁচু করা হয়, যাকে ব্যাংকিং (Banking) বলা হয়। এটি চাকা পিছলে যাওয়া রোধ করে।</li>
+      </ul>
+    </div>
+
+    <div class="memory">
+      <h2>🧠 মনে রাখার কৌশল: বলের ত্রি-প্রভাব</h2>
+      <p>“গতির দিকে দিলে বল—বাড়বে বেগ অবিরল,<br>
+      গতির উল্টো দিলে বল—থামবে বেগ অচঞ্চল;<br>
+      লম্ব দিকে দিলে বল—ঘুরবে বৃত্তে অবিচল!”</p>
+    </div>
+
+    <div class="worked">
+      <h2>📝 পাঠ্যবইয়ের স্ট্যান্ডার্ড গাণিতিক সমস্যা</h2>
+      <div class="problem">
+        একটি $0.5\text{ kg}$ ভরের পাথরকে $1.5\text{ m}$ লম্বা একটি হালকা সুতার প্রান্তে বেঁধে অনুভূমিক তলে $6\text{ m/s}$ সমদ্রুতিতে বৃত্তাকার পথে ঘোরানো হচ্ছে।<br>
+        ১. পাথরটির কেন্দ্রমুখী ত্বরণ নির্ণয় করো।<br>
+        ২. সুতাটির ওপর প্রযুক্ত কেন্দ্রমুখী টান বল কত?
+      </div>
+      <div class="solution">
+        <b>প্রদত্ত তথ্য:</b><br>
+        পাথরের ভর $m = 0.5\text{ kg}$<br>
+        বৃত্তাকার পথের ব্যাসার্ধ $r = 1.5\text{ m}$<br>
+        রৈখিক দ্রুতি $v = 6\text{ m/s}$<br><br>
+        <b>১. কেন্দ্রমুখী ত্বরণ ($a_c$) নির্ণয়:</b><br>
+        $$a_c = \frac{v^2}{r} = \frac{(6)^2}{1.5} = \frac{36}{1.5} = 24\text{ m/s}^2$$<br>
+        <b>২. সুতার কেন্দ্রমুখী টান বল ($F_c$) নির্ণয়:</b><br>
+        $$F_c = m a_c = 0.5\text{ kg} \times 24\text{ m/s}^2 = 12\text{ N}$$
+        <b>উত্তর:</b> কেন্দ্রমুখী ত্বরণ $24\text{ m/s}^2$ এবং সুতার টান বল $12\text{ N}$।
+      </div>
+    </div>
+
+    <details class="check">
+      <summary>প্রশ্ন: বৃত্তাকার পথে সমদ্রুতিতে ঘূর্ণনশীল কোনো বস্তুর ওপর কেন্দ্রমুখী বল দ্বারা কৃতকাজ কত?</summary>
+      <p><b>উত্তর:</b> কৃতকাজ শূন্য ($W = 0$)। কারণ কেন্দ্রমুখী বল সর্বদা বৃত্তের কেন্দ্রের দিকে ব্যাসার্ধ বরাবর কাজ করে এবং যেকোনো মুহূর্তে সরণ ঘটে বৃত্তের স্পর্শক বরাবর। অর্থাৎ বল ও সরণের মধ্যবর্তী কোণ $\theta = 90^\circ$। আমরা জানি, $W = F s \cos 90^\circ = 0$।</p>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-03.html">← আগের পাঠ</a>
+      <a class="button" href="section-05.html">পরের পাঠ: নিউটনের দ্বিতীয় সূত্র ও বল পরিমাপ →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF)</a> · অধ্যায় ৩: বল · পড়ি (poRi)
+    </footer>
+  </main>
+</body>
+</html>

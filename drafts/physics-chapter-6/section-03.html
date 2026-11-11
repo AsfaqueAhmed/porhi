@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৬.৩ পদার্থের তাপীয় প্রসারণ · অধ্যায় ৬ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+
+    let currentAlpha = 16.7e-6;
+    let baseColor = '#ea580c';
+    let lightColor = '#fdba74';
+
+    function setLabMaterial(alpha, col1, col2, btn) {
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentAlpha = alpha;
+      baseColor = col1;
+      lightColor = col2;
+
+      const stop0 = document.querySelector('#secRodGrad stop[offset="0%"]');
+      const stop50 = document.querySelector('#secRodGrad stop[offset="50%"]');
+      const stop100 = document.querySelector('#secRodGrad stop[offset="100%"]');
+      if (stop0 && stop50 && stop100) {
+        stop0.setAttribute('stop-color', lightColor);
+        stop50.setAttribute('stop-color', baseColor);
+        stop100.setAttribute('stop-color', baseColor);
+      }
+      recalcExpansion();
+    }
+
+    function recalcExpansion() {
+      const l1 = parseFloat(document.getElementById('inL1').value);
+      const dt = parseFloat(document.getElementById('inDt').value);
+
+      document.getElementById('dispL1').innerText = l1.toFixed(1) + ' m';
+      document.getElementById('dispDt').innerText = dt.toFixed(0) + ' °C';
+
+      const dL = l1 * currentAlpha * dt;
+      const dLmm = dL * 1000;
+      const l2 = l1 + dL;
+
+      document.getElementById('resDeltaL').innerText = dLmm.toFixed(2) + ' mm';
+      document.getElementById('resL2').innerText = l2.toFixed(4) + ' m';
+      document.getElementById('resBeta').innerText = (currentAlpha * 2 * 1e6).toFixed(1) + '×10⁻⁶';
+      document.getElementById('resGamma').innerText = (currentAlpha * 3 * 1e6).toFixed(1) + '×10⁻⁶';
+
+      const baseWidth = 120 + (l1 / 25) * 320;
+      const visualDelta = Math.min(50, dLmm * 3);
+      const totalWidth = baseWidth + visualDelta;
+
+      const rod = document.getElementById('secMetalRod');
+      if (rod) rod.setAttribute('width', totalWidth);
+
+      const extLine = document.getElementById('secExtLine');
+      const origLine = document.getElementById('secOrigLine');
+      const extText = document.getElementById('secExtText');
+      const gauge = document.getElementById('secGauge');
+
+      if (origLine) {
+        origLine.setAttribute('x1', 70 + baseWidth);
+        origLine.setAttribute('x2', 70 + baseWidth);
+      }
+      if (extLine) {
+        extLine.setAttribute('x1', 70 + totalWidth);
+        extLine.setAttribute('x2', 70 + totalWidth);
+      }
+      if (extText) {
+        extText.setAttribute('x', 70 + totalWidth + 8);
+        extText.innerText = '+' + dLmm.toFixed(2) + ' mm';
+      }
+      if (gauge) {
+        gauge.setAttribute('transform', `translate(${Math.min(640, 70 + totalWidth + 55)}, 84)`);
+      }
+
+      const needle = document.getElementById('secNeedle');
+      if (needle) {
+        needle.setAttribute('transform', `rotate(${(dLmm * 28) % 360}, 0, 0)`);
+      }
+      const gaugeText = document.getElementById('secGaugeText');
+      if (gaugeText) gaugeText.innerText = dLmm.toFixed(2) + ' mm';
+
+      const flames = document.querySelectorAll('#secFlames circle');
+      flames.forEach(f => {
+        f.setAttribute('r', 4 + (dt / 200) * 8);
+        f.setAttribute('opacity', dt === 0 ? '0.1' : (0.4 + (dt / 200) * 0.5));
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+      recalcExpansion();
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৬ / ৬.৩</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই · অধ্যায় ৬</span>
+    <h1 class="title">পদার্থের তাপীয় প্রসারণ <small>(Thermal Expansion of Matter)</small></h1>
+    <p class="subtitle">কঠিন পদার্থের দৈর্ঘ্য, ক্ষেত্রফল ও আয়তন প্রসারণ সহগ, তরলের প্রকৃত ও আপাত প্রসারণ এবং পানির ব্যতিক্রমী আচরণ।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>এই পাঠটি সম্পন্ন করার পর তুমি—</p>
+      <ul>
+        <li>তাপ প্রয়োগে পদার্থের অণুগুলোর আন্তঃআণবিক দূরত্ব বৃদ্ধির কারণে প্রসারণের প্রক্রিয়া ব্যাখ্যা করতে পারবে।</li>
+        <li>দৈর্ঘ্য ($\alpha$), ক্ষেত্রফল ($\beta$) ও আয়তন ($\gamma$) প্রসারণ সহগের গাণিতিক সম্পর্ক ($\frac{\alpha}{1} = \frac{\beta}{2} = \frac{\gamma}{3}$) প্রতিপাদন করতে পারবে।</li>
+        <li>তরলের প্রকৃত প্রসারণ ও আপাত প্রসারণের মধ্যে সম্পর্ক ($\gamma_r = \gamma_a + \gamma_g$) প্রয়োগ করতে পারবে।</li>
+        <li>পানির ব্যতিক্রমী প্রসারণের বৈজ্ঞানিক কারণ এবং তীব্র শীতে জলজ প্রাণীর টিকে থাকার প্রাকৃতিক ভারসাম্য বিশ্লেষণ করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>১. কঠিন পদার্থের তাপীয় প্রসারণ</h2>
+      <p>যেকোনো পদার্থকে উত্তপ্ত করলে তার অণুগুলোর কম্পন ও তাপীয় গতি বৃদ্ধি পায়। অণুগুলো তাদের সাম্যাবস্থা থেকে আরও দূরে সরে যায়, ফলে পদার্থের আয়তন বৃদ্ধি পায়। কঠিন পদার্থের নির্দিষ্ট আকার ও আয়তন থাকায় এর তিন ধরনের প্রসারণ ঘটে:</p>
+
+      <h3>(ক) দৈর্ঘ্য প্রসারণ সহগ (Coefficient of Linear Expansion, $\alpha$)</h3>
+      <p>$T_1$ তাপমাত্রায় কোনো কঠিন পদার্থের দণ্ডের আদি দৈর্ঘ্য $L_1$ এবং তাপমাত্রা বৃদ্ধি করে $T_2$ করলে দৈর্ঘ্য বেড়ে $L_2$ হয়। তবে তাপমাত্রা বৃদ্ধি $\Delta T = T_2 - T_1$ এবং দৈর্ঘ্য বৃদ্ধি $\Delta L = L_2 - L_1$।</p>
+      <p>পরীক্ষায় দেখা যায়, দৈর্ঘ্য বৃদ্ধি $\Delta L$ বস্তুর আদি দৈর্ঘ্য $L_1$ এবং তাপমাত্রা বৃদ্ধি $\Delta T$-এর সমানুপাতিক:</p>
+      <div class="formula">
+        $$\Delta L \propto L_1 \cdot \Delta T \implies \Delta L = L_1 \alpha \Delta T$$
+      </div>
+      <p>যেখানে $\alpha$ হলো পদার্থের উপাদানের <strong>দৈর্ঘ্য প্রসারণ সহগ</strong>। এর একক $\text{K}^{-1}$ বা $^\circ\text{C}^{-1}$।</p>
+      <div class="formula">
+        $$\alpha = \frac{\Delta L}{L_1 \Delta T} = \frac{L_2 - L_1}{L_1(T_2 - T_1)} \implies L_2 = L_1(1 + \alpha \Delta T)$$
+      </div>
+
+      <h3>(খ) ক্ষেত্র প্রসারণ সহগ (Coefficient of Superficial Expansion, $\beta$)</h3>
+      <p>কোনো কঠিন বস্তুর তাপমাত্রা $1\text{ K}$ বৃদ্ধি করলে তার প্রতি একক ক্ষেত্রফলে যে পরিমাণ ক্ষেত্রফল বৃদ্ধি পায়, তাকে তার উপাদানের <strong>ক্ষেত্র প্রসারণ সহগ ($\beta$)</strong> বলে:</p>
+      <div class="formula">
+        $$\beta = \frac{\Delta A}{A_1 \Delta T} = \frac{A_2 - A_1}{A_1(T_2 - T_1)} \implies A_2 = A_1(1 + \beta \Delta T)$$
+      </div>
+
+      <h3>(গ) আয়তন প্রসারণ সহগ (Coefficient of Cubical Expansion, $\gamma$)</h3>
+      <p>কোনো কঠিন বস্তুর তাপমাত্রা $1\text{ K}$ বৃদ্ধি করলে তার প্রতি একক আয়তনে যে পরিমাণ আয়তন বৃদ্ধি পায়, তাকে তার উপাদানের <strong>আয়তন প্রসারণ সহগ ($\gamma$)</strong> বলে:</p>
+      <div class="formula">
+        $$\gamma = \frac{\Delta V}{V_1 \Delta T} = \frac{V_2 - V_1}{V_1(T_2 - T_1)} \implies V_2 = V_1(1 + \gamma \Delta T)$$
+      </div>
+
+      <div class="highlight-box">
+        <strong>💡 সহগত্রয়ের মধ্যে অবিচ্ছেদ্য সম্পর্ক:</strong><br>
+        $$\beta \approx 2\alpha \quad \text{এবং} \quad \gamma \approx 3\alpha$$
+        অর্থাৎ:
+        $$\frac{\alpha}{1} = \frac{\beta}{2} = \frac{\gamma}{3}$$
+      </div>
+
+      <h3>২. তরলের প্রসারণ ও পানির ব্যতিক্রমী আচরণ</h3>
+      <p>তরল পদার্থকে সর্বদা কোনো না কোনো পাত্রে রেখে উত্তপ্ত করতে হয়। উত্তপ্ত করার সময় প্রথমে পাত্র প্রসারিত হয়, তারপর তরল প্রসারিত হয়। তাই তরলের ক্ষেত্রে দুই ধরনের প্রসারণ দেখা যায়:</p>
+      <ul>
+        <li><strong>আপাত প্রসারণ ($\Delta V_a$ বা সহগ $\gamma_a$):</strong> পাত্রের প্রসারণ বিবেচনা না করে সরাসরি চোখে তরলের যে প্রসারণ দেখা যায়।</li>
+        <li><strong>প্রকৃত প্রসারণ ($\Delta V_r$ বা সহগ $\gamma_r$):</strong> তরলের নিজস্ব বাস্তব প্রসারণ, যেখানে পাত্রের প্রসারণও যোগ করা হয়।</li>
+      </ul>
+      <div class="formula">
+        $$\text{প্রকৃত প্রসারণ} = \text{আপাত প্রসারণ} + \text{পাত্রের প্রসারণ} \implies \gamma_r = \gamma_a + \gamma_g$$
+      </div>
+
+      <h3>পানির ব্যতিক্রমী প্রসারণ (Anomalous Expansion of Water)</h3>
+      <p>সাধারণ তরলকে উত্তপ্ত করলে আয়তন বাড়ে ও ঘনত্ব কমে। কিন্তু পানিকে $0^\circ\text{C}$ থেকে উত্তপ্ত করতে শুরু করলে $4^\circ\text{C}$ পর্যন্ত এর আয়তন না বেড়ে বরং সংকুচিত হয় এবং ঘনত্ব বৃদ্ধি পায়! <strong>$4^\circ\text{C}$ তাপমাত্রায় পানির ঘনত্ব সর্বোচ্চ ($1000\text{ kg/m}^3$)</strong>। $4^\circ\text{C}$-এর বেশি উত্তপ্ত করলে পানি সাধারণ তরলের মতো প্রসারিত হতে থাকে।</p>
+      <p>এই ব্যতিক্রমী ধর্মের কারণে তীব্র শীতের দেশে হ্রদের উপরিভাগের পানি ঠান্ডা হয়ে $0^\circ\text{C}$-এ বরফ হয়ে ভেসে থাকে, কিন্তু তলদেশের পানি $4^\circ\text{C}$ তাপমাত্রায় তরল থাকে। ফলে বরফের চাদরের নিচে মাছ ও অন্যান্য জলজ প্রাণী নির্বিঘ্নে বেঁচে থাকে!</p>
+    </section>
+
+    <!-- Embedded Interactive Simulation Lab -->
+    <div class="lab" id="thermal-expansion-lab">
+      <div class="lab-head">
+        <div>
+          <h2>🔬 ইন্টারঅ্যাক্টিভ সিমুলেশন ল্যাব: কঠিনের দৈর্ঘ্য প্রসারণ</h2>
+          <p style="margin:4px 0 0;font-size:13px;color:var(--muted)">ধাতু নির্বাচন করে আদি দৈর্ঘ্য ও তাপমাত্রা বৃদ্ধি পরিবর্তন করো এবং লাইভ মাইক্রোমিটারে প্রসারণ মাপো।</p>
+        </div>
+        <span class="lab-tag">সিমুলেশন ৬.১</span>
+      </div>
+
+      <div class="preset-row">
+        <button class="preset-btn active" onclick="setLabMaterial(16.7e-6, '#ea580c', '#fdba74', this)">তামা (Copper) · 16.7×10⁻⁶</button>
+        <button class="preset-btn" onclick="setLabMaterial(12.0e-6, '#64748b', '#94a3b8', this)">লোহা (Iron) · 12.0×10⁻⁶</button>
+        <button class="preset-btn" onclick="setLabMaterial(19.0e-6, '#ca8a04', '#fde047', this)">পিতল (Brass) · 19.0×10⁻⁶</button>
+        <button class="preset-btn" onclick="setLabMaterial(23.0e-6, '#0284c7', '#38bdf8', this)">অ্যালুমিনিয়াম · 23.0×10⁻⁶</button>
+      </div>
+
+      <div class="zoom-card" style="background:#0f172a;border-color:#334155;color:#fff">
+        <svg id="secSvg" viewBox="0 0 700 170" style="display:block;width:100%;height:170px">
+          <defs>
+            <linearGradient id="secClampGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#475569"/>
+              <stop offset="100%" stop-color="#334155"/>
+            </linearGradient>
+            <linearGradient id="secRodGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#fdba74"/>
+              <stop offset="50%" stop-color="#ea580c"/>
+              <stop offset="100%" stop-color="#ea580c"/>
+            </linearGradient>
+          </defs>
+          <line x1="50" y1="135" x2="650" y2="135" stroke="#334155" stroke-dasharray="4 4"/>
+          <line x1="50" y1="55" x2="650" y2="55" stroke="#334155" stroke-dasharray="4 4"/>
+          <!-- Clamp -->
+          <rect x="40" y="28" width="30" height="104" fill="url(#secClampGrad)" rx="4"/>
+          <circle cx="55" cy="46" r="4" fill="#94a3b8"/>
+          <circle cx="55" cy="114" r="4" fill="#94a3b8"/>
+          <text x="55" y="152" text-anchor="middle" fill="#64748b" font-size="10" font-weight="700">দৃঢ় ক্ল্যাম্প</text>
+          <!-- Rod -->
+          <rect id="secMetalRod" x="70" y="66" width="380" height="28" fill="url(#secRodGrad)" rx="3"/>
+          <!-- Flames -->
+          <g id="secFlames">
+            <circle cx="160" cy="110" r="8" fill="#f97316" opacity="0.8"/>
+            <circle cx="260" cy="110" r="8" fill="#f97316" opacity="0.8"/>
+            <circle cx="360" cy="110" r="8" fill="#f97316" opacity="0.8"/>
+          </g>
+          <line x1="120" y1="117" x2="400" y2="117" stroke="#64748b" stroke-width="2.5"/>
+          <text x="260" y="130" text-anchor="middle" fill="#f97316" font-size="10" font-weight="700">🔥 বার্নার তাপ প্রয়োগ</text>
+          <!-- Gauge -->
+          <g id="secGauge" transform="translate(560, 80)">
+            <circle cx="0" cy="0" r="38" fill="#1e293b" stroke="#cbd5e1" stroke-width="2.5"/>
+            <circle cx="0" cy="0" r="34" fill="#0f172a"/>
+            <line id="secNeedle" x1="0" y1="0" x2="0" y2="-24" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="0" cy="0" r="3" fill="#f8fafc"/>
+            <text x="0" y="18" text-anchor="middle" fill="#94a3b8" font-size="8" font-weight="700">মাইক্রোমিটার</text>
+            <text id="secGaugeText" x="0" y="-6" text-anchor="middle" fill="#fb923c" font-size="9" font-weight="800">8.35 mm</text>
+          </g>
+          <!-- Ext line -->
+          <line id="secExtLine" x1="450" y1="50" x2="450" y2="110" stroke="#fb923c" stroke-width="2" stroke-dasharray="3 3"/>
+          <line id="secOrigLine" x1="450" y1="50" x2="450" y2="110" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+          <text id="secExtText" x="460" y="60" fill="#fb923c" font-size="11" font-weight="800">+8.35 mm</text>
+        </svg>
+      </div>
+
+      <div class="lab-controls">
+        <div>
+          <label style="display:flex;justify-content:space-between;font-size:13px;font-weight:750;color:#334155;margin-bottom:6px">
+            আদি দৈর্ঘ্য ($L_1$): <span id="dispL1" style="color:var(--indigo)">10.0 m</span>
+          </label>
+          <input type="range" class="range" id="inL1" min="1" max="25" step="0.5" value="10" oninput="recalcExpansion()">
+        </div>
+        <div>
+          <label style="display:flex;justify-content:space-between;font-size:13px;font-weight:750;color:#334155;margin-bottom:6px">
+            তাপমাত্রা বৃদ্ধি ($\Delta T$): <span id="dispDt" style="color:var(--indigo)">50 °C</span>
+          </label>
+          <input type="range" class="range" id="inDt" min="0" max="200" step="5" value="50" oninput="recalcExpansion()">
+        </div>
+      </div>
+
+      <div class="calc-breakdown">
+        <div class="calc-box">
+          <div class="label">দৈর্ঘ্য বৃদ্ধি (ΔL)</div>
+          <div class="val" id="resDeltaL" style="color:#c2410c">8.35 mm</div>
+        </div>
+        <div class="calc-box">
+          <div class="label">চূড়ান্ত দৈর্ঘ্য (L₂)</div>
+          <div class="val" id="resL2">10.0084 m</div>
+        </div>
+        <div class="calc-box">
+          <div class="label">ক্ষেত্র সহগ (β)</div>
+          <div class="val" id="resBeta">33.4×10⁻⁶</div>
+        </div>
+        <div class="calc-box">
+          <div class="label">আয়তন সহগ (γ)</div>
+          <div class="val" id="resGamma">50.1×10⁻⁶</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="term">
+        <strong>দৈর্ঘ্য প্রসারণ সহগ ($\alpha$)</strong>
+        <small>$1\text{ m}$ দৈর্ঘ্যের কোনো দণ্ডের তাপমাত্রা $1\text{ K}$ বাড়ালে দৈর্ঘ্যে যে বৃদ্ধি ঘটে ($\text{K}^{-1}$)।</small>
+      </div>
+      <div class="term">
+        <strong>ক্ষেত্র প্রসারণ সহগ ($\beta \approx 2\alpha$)</strong>
+        <small>$1\text{ m}^2$ ক্ষেত্রফলের কঠিন বস্তুর তাপমাত্রা $1\text{ K}$ বৃদ্ধিতে ক্ষেত্রফলের বৃদ্ধি ($\text{K}^{-1}$)।</small>
+      </div>
+      <div class="term">
+        <strong>আয়তন প্রসারণ সহগ ($\gamma \approx 3\alpha$)</strong>
+        <small>$1\text{ m}^3$ আয়তনের বস্তুর তাপমাত্রা $1\text{ K}$ বাড়ালে মোট আয়তনের বৃদ্ধি ($\text{K}^{-1}$)।</small>
+      </div>
+      <div class="term">
+        <strong>পানির ব্যতিক্রমী প্রসারণ</strong>
+        <small>$0^\circ\text{C}$ থেকে $4^\circ\text{C}$ পর্যন্ত উত্তপ্ত করলে সংকোচন ও $4^\circ\text{C}$-এ সর্বোচ্চ ঘনত্বের ধর্ম।</small>
+      </div>
+    </div>
+
+    <div class="note">
+      <h2>🚌 বাস্তব জীবনের প্রযুক্তি ও উদাহরণ</h2>
+      <p><strong>রেললাইনের পাতের জোড়ামুখে ফাঁকা রাখা:</strong> রেললাইনের ইস্পাতের পাতগুলো যখন সূর্যের তাপে এবং ট্রেনের চাকার তীব্র ঘর্ষণে উত্তপ্ত হয়, তখন দৈর্ঘ্য প্রসারণ ঘটে। যদি দুটি পাতের মধ্যে ফাঁকা রাখা না হতো, তবে তাপীয় বলের প্রচণ্ড চাপে লাইন বেঁকে গিয়ে ভয়াবহ ট্রেন দুর্ঘটনা ঘটত। একইভাবে বড় বড় ধাতব সেতুর একপ্রান্তে রোলার বসানো থাকে যাতে ঋতুভেদে দৈর্ঘ্য হ্রাস-বৃদ্ধিতে সেতু ক্ষতিগ্রস্ত না হয়।</p>
+    </div>
+
+    <div class="memory">
+      <h2>🧠 মনে রাখার টেকনিক</h2>
+      <p><strong>ছন্দ:</strong><br>
+      "আলফা দৈর্ঘ্যে একাই চলে, বিটা ক্ষেত্র দ্বিগুণ বলে;<br>
+      গামা ধরে তিনগুণ স্থান, চার ডিগ্রিতে পানির সর্বোচ্চ ঘনত্ব ও মান!"</p>
+    </div>
+
+    <div class="worked">
+      <h2>📝 স্ট্যান্ডার্ড গাণিতিক সমস্যা ও সমাধান</h2>
+      <div class="problem">
+        <strong>সমস্যা ১:</strong> $20^\circ\text{C}$ তাপমাত্রায় একটি রেললাইনের ইস্পাতের পাতের দৈর্ঘ্য $30\text{ m}$। গ্রীষ্মকালে সর্বোচ্চ তাপমাত্রা $55^\circ\text{C}$ পর্যন্ত হতে পারে। ইস্পাতের দৈর্ঘ্য প্রসারণ সহগ $\alpha = 11 \times 10^{-6}\text{ K}^{-1}$ হলে পাতের দৈর্ঘ্য বৃদ্ধি কত হবে এবং দুর্ঘটনারোধে দুটি পাতের সংযোগস্থলে সর্বনিম্ন কত ফাঁকা রাখা উচিত?<br><br>
+        <strong>সমস্যা ২:</strong> $20^\circ\text{C}$ তাপমাত্রায় একটি তামার আয়তাকার পাতের দৈর্ঘ্য $2\text{ m}$ এবং প্রস্থ $1.5\text{ m}$। তাপমাত্রা বাড়িয়ে $70^\circ\text{C}$ করা হলে এর ক্ষেত্রফল কত বৃদ্ধি পাবে? (তামার $\alpha = 16.7 \times 10^{-6}\text{ K}^{-1}$)।
+      </div>
+      <div class="solution">
+        <strong>ধাপে ধাপে সমাধান:</strong><br><br>
+        <b>সমস্যা ১ এর সমাধান:</b><br>
+        দেওয়া আছে,<br>
+        আদি দৈর্ঘ্য $L_1 = 30\text{ m}$<br>
+        আদি তাপমাত্রা $T_1 = 20^\circ\text{C}$ এবং চূড়ান্ত তাপমাত্রা $T_2 = 55^\circ\text{C}$<br>
+        তাপমাত্রার বৃদ্ধি $\Delta T = 55 - 20 = 35^\circ\text{C} = 35\text{ K}$<br>
+        দৈর্ঘ্য প্রসারণ সহগ $\alpha = 11 \times 10^{-6}\text{ K}^{-1}$<br><br>
+        আমরা জানি,
+        $$\Delta L = L_1 \cdot \alpha \cdot \Delta T$$
+        $$\Delta L = 30 \times (11 \times 10^{-6}) \times 35$$
+        $$\Delta L = 0.01155\text{ m} = 1.155\text{ cm} = 11.55\text{ mm}$$
+        অতএব, পাতের দৈর্ঘ্য $11.55\text{ mm}$ বৃদ্ধি পাবে এবং <strong>দুটি পাতের সংযোগস্থলে কমপক্ষে $11.55\text{ mm}$ (বা প্রায় $1.16\text{ cm}$) ফাঁকা রাখা প্রয়োজন</strong>।<br><br>
+
+        <b>সমস্যা ২ এর সমাধান:</b><br>
+        আদি ক্ষেত্রফল $A_1 = \text{দৈর্ঘ্য} \times \text{প্রস্থ} = 2\text{ m} \times 1.5\text{ m} = 3\text{ m}^2$<br>
+        তাপমাত্রার পরিবর্তন $\Delta T = 70 - 20 = 50\text{ K}$<br>
+        তামার ক্ষেত্র প্রসারণ সহগ $\beta = 2\alpha = 2 \times 16.7 \times 10^{-6} = 33.4 \times 10^{-6}\text{ K}^{-1}$<br>
+        ক্ষেত্রফল বৃদ্ধি:
+        $$\Delta A = A_1 \cdot \beta \cdot \Delta T$$
+        $$\Delta A = 3 \times (33.4 \times 10^{-6}) \times 50 = 5.01 \times 10^{-3}\text{ m}^2 = 50.1\text{ cm}^2$$
+        সুতরাং, তামার পাতের ক্ষেত্রফল <strong>$5.01 \times 10^{-3}\text{ m}^2$ বৃদ্ধি পাবে</strong>।
+      </div>
+    </div>
+
+    <details class="check">
+      <summary>❓ আত্মযাচাই ১: কোনো ধাতব গোলকের আয়তন প্রসারণ সহগ 36×10⁻⁶ K⁻¹ হলে তার ক্ষেত্র প্রসারণ সহগ কত?</summary>
+      <p><strong>উত্তর:</strong> আমরা জানি, $\beta \approx 2\alpha$ এবং $\gamma \approx 3\alpha \implies \alpha = \frac{\gamma}{3}$।<br>
+      সুতরাং $\beta = 2 \times \left(\frac{36 \times 10^{-6}}{3}\right) = 2 \times (12 \times 10^{-6}) = 24 \times 10^{-6}\text{ K}^{-1}$।</p>
+    </details>
+
+    <details class="check">
+      <summary>❓ আত্মযাচাই ২: শীতকালে হ্রদের পানি নিচ থেকে না জমে ওপরের পৃষ্ঠ থেকে জমতে শুরু করে কেন?</summary>
+      <p><strong>উত্তর:</strong> পানির ব্যতিক্রমী প্রসারণের কারণে! বায়ুমণ্ডলের ঠান্ডা বাতাসের সংস্পর্শে এসে হ্রদের উপরিভাগের পানির তাপমাত্রা যখন $4^\circ\text{C}$ হয়, তখন পানির ঘনত্ব সর্বোচ্চ হওয়ায় তা ভারী হয়ে তলদেশে নেমে যায়। এরপর উপরিভাগের পানি ঠান্ডা হতে হতে $0^\circ\text{C}$-এ বরফ হয়। বরফের ঘনত্ব পানির চেয়ে কম ($920\text{ kg/m}^3$) হওয়ায় বরফ ওপরে ভাসে এবং তলদেশের পানি $4^\circ\text{C}$-এই থেকে যায়।</p>
+    </details>
+
+    <div class="nav">
+      <a class="button secondary" href="section-02.html">← পূর্ববর্তী: ৬.২ তাপমাত্রিক ধর্ম ও স্কেল</a>
+      <a class="button" href="section-04.html">পরের পাঠ: ৬.৪ অবস্থার পরিবর্তন ও সুপ্ততাপ →</a>
+    </div>
+
+    <footer class="footer">
+      পড়ি (poRi) · পদার্থবিজ্ঞান ডিজিটাল পাঠ · <a href="chapter-source.html" style="color:var(--muted);text-decoration:underline">মূল পাঠ্যবইয়ের পৃষ্ঠা দেখুন</a>
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৬.২ তাপমাত্রিক ধর্ম ও তাপমাত্রার স্কেল · অধ্যায় ৬ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+
+    function convertTemp(source) {
+      const cInput = document.getElementById('c-val');
+      const fInput = document.getElementById('f-val');
+      const kInput = document.getElementById('k-val');
+
+      if (source === 'C') {
+        const c = parseFloat(cInput.value);
+        if (isNaN(c)) return;
+        fInput.value = (c * 9/5 + 32).toFixed(2);
+        kInput.value = (c + 273.15).toFixed(2);
+      } else if (source === 'F') {
+        const f = parseFloat(fInput.value);
+        if (isNaN(f)) return;
+        const c = (f - 32) * 5/9;
+        cInput.value = c.toFixed(2);
+        kInput.value = (c + 273.15).toFixed(2);
+      } else if (source === 'K') {
+        const k = parseFloat(kInput.value);
+        if (isNaN(k)) return;
+        const c = k - 273.15;
+        cInput.value = c.toFixed(2);
+        fInput.value = (c * 9/5 + 32).toFixed(2);
+      }
+    }
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৬ / ৬.২</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই · অধ্যায় ৬</span>
+    <h1 class="title">তাপমাত্রিক ধর্ম ও তাপমাত্রার স্কেল <small>(Thermometric Properties and Scales)</small></h1>
+    <p class="subtitle">তাপমাত্রিক পদার্থ ও ধর্ম, সেলসিয়াস-ফারেনহাইট-কেলভিনের সম্পর্ক এবং থার্মোমিটারের ত্রুটি সংশোধন।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>এই পাঠটি সম্পন্ন করার পর তুমি—</p>
+      <ul>
+        <li>তাপমাত্রিক পদার্থ ও তাপমাত্রিক ধর্মের সংজ্ঞা এবং বাস্তব উদাহরণ ব্যাখ্যা করতে পারবে।</li>
+        <li>স্থিরবিন্দুদ্বয়ের ভিত্তিতে সেলসিয়াস, ফারেনহাইট ও কেলভিন স্কেলের গাণিতিক সম্পর্ক প্রতিপাদন করতে পারবে।</li>
+        <li>যেকোনো ত্রুটিপূর্ণ থার্মোমিটারের ক্ষেত্রে সঠিক তাপমাত্রা নির্ণয় করার গাণিতিক কৌশল প্রয়োগ করতে পারবে।</li>
+        <li>মানবদেহের স্বাভাবিক তাপমাত্রা ও পরম শূন্য তাপমাত্রার তাৎপর্য অনুধাবন করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>১. তাপমাত্রিক পদার্থ ও তাপমাত্রিক ধর্ম</h2>
+      <p>তাপমাত্রা সরাসরি চোখ দিয়ে দেখে পরিমাপ করা যায় না। তাপমাত্রা মাপার জন্য পদার্থের এমন কোনো ভৌত বৈশিষ্ট্যের সাহায্য নিতে হয়, যা তাপমাত্রার পরিবর্তনের সাথে সুষম ও উল্লেখযোগ্যভাবে পরিবর্তিত হয়।</p>
+      <ul>
+        <li><strong>তাপমাত্রিক পদার্থ (Thermometric Substance):</strong> যে পদার্থের বিশেষ কোনো ভৌত ধর্মকে কাজে লাগিয়ে থার্মোমিটার তৈরি করা হয়, তাকে তাপমাত্রিক পদার্থ বলে। যেমন: পারদ, অ্যালকোহল, নির্দিষ্ট আয়তনের গ্যাস, প্লাটিনাম তার ইত্যাদি।</li>
+        <li><strong>তাপমাত্রিক ধর্ম (Thermometric Property):</strong> তাপমাত্রার পরিবর্তনের সাথে তাপমাত্রিক পদার্থের যে ভৌত ধর্ম নিয়মিত ও সুষমভাবে পরিবর্তিত হয় এবং যার পরিবর্তন সহজেই মেপে তাপমাত্রা নির্দেশ করা যায়, তাকে তাপমাত্রিক ধর্ম বলে।</li>
+      </ul>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>থার্মোমিটারের প্রকার</th>
+              <th>ব্যবহৃত তাপমাত্রিক পদার্থ</th>
+              <th>ব্যবহৃত তাপমাত্রিক ধর্ম</th>
+              <th>ব্যবহারের ক্ষেত্র</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>পারদ থার্মোমিটার</strong></td>
+              <td>তরল পারদ ($\text{Hg}$)</td>
+              <td>কৈশিক নলে পারদ স্তম্ভের দৈর্ঘ্য বা আয়তন প্রসারণ</td>
+              <td>ল্যাবরেটরি, চিকিৎসায় জ্বর মাপা (ক্লিনিক্যাল)</td>
+            </tr>
+            <tr>
+              <td><strong>অ্যালকোহল থার্মোমিটার</strong></td>
+              <td>রঞ্জিত অ্যালকোহল</td>
+              <td>তরল স্তম্ভের দৈর্ঘ্য প্রসারণ</td>
+              <td>অতি শীতল অঞ্চল (হিমাঙ্ক $-114^\circ\text{C}$)</td>
+            </tr>
+            <tr>
+              <td><strong>স্থির আয়তন গ্যাস থার্মোমিটার</strong></td>
+              <td>হাইড্রোজেন বা নাইট্রোজেন গ্যাস</td>
+              <td>আবদ্ধ গ্যাসের চাপ ($P$)</td>
+              <td>প্রমাণ গবেষণাগারে অতি সূক্ষ্ম পরিমাপ</td>
+            </tr>
+            <tr>
+              <td><strong>রোধ থার্মোমিটার</strong></td>
+              <td>প্লাটিনাম ধাতুর সূক্ষ্ম তার</td>
+              <td>ধাতব তারের বৈদ্যুতিক রোধ ($R$)</td>
+              <td>শিল্প-কারখানায় উচ্চ ও নিখুঁত তাপমাত্রা</td>
+            </tr>
+            <tr>
+              <td><strong>থার্মোকাপল (তাপযুগল)</strong></td>
+              <td>দুটি ভিন্ন ধাতুর সংযোগ (যেমন তামা-লোহা)</td>
+              <td>সংযোগস্থলের তড়িচ্চালক বল ($\text{EMF}$)</td>
+              <td>দ্রুত পরিবর্তনশীল অতি উচ্চ তাপমাত্রা</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="highlight-box">
+        <strong>💡 পারদের অনন্য সুবিধা:</strong> পারদ অস্বচ্ছ ও উজ্জ্বল চকচকে হওয়ায় নলের বাইরে থেকে স্পষ্ট দেখা যায়, এটি কাচের গায়ে লেগে থাকে না, তাপের ভালো সুপরিবাহী, এর বাষ্পচাপ নগণ্য এবং এর হিমাঙ্ক ($-39^\circ\text{C}$) থেকে স্ফুটনাঙ্ক ($357^\circ\text{C}$) পর্যন্ত প্রসারণ চমৎকার সুষম থাকে।
+      </div>
+
+      <h3>২. স্থিরবিন্দু ও স্কেলসমূহের সম্পর্ক</h3>
+      <p>থার্মোমিটারে তাপমাত্রার স্কেল তৈরির জন্য দুটি সুনির্দিষ্ট প্রমাণ তাপমাত্রাকে স্থিরবিন্দু হিসেবে নির্ধারণ করা হয়:</p>
+      <ol>
+        <li><strong>নিম্ন স্থিরবিন্দু বা বরফবিন্দু (Ice Point, $\theta_i$):</strong> প্রমাণ চাপে ($1\text{ atm}$) যে তাপমাত্রায় বিশুদ্ধ বরফ গলে পানি হয়।</li>
+        <li><strong> ঊর্ধ্ব স্থিরবিন্দু বা বাষ্পবিন্দু (Steam Point, $\theta_s$):</strong> প্রমাণ চাপে যে তাপমাত্রায় বিশুদ্ধ পানি ফুটে বাষ্পে পরিণত হয়।</li>
+      </ol>
+      <p>এই দুই স্থিরবিন্দুর মধ্যবর্তী ব্যবধানকে <strong>মৌলিক ব্যবধান (Fundamental Interval)</strong> বলে।</p>
+
+      <p>যেকোনো তাপমাত্রার স্কেলে প্রদর্শিত পাঠ $\theta$ হলে মৌলিক সম্পর্কটি দাঁড়ায়:</p>
+      <div class="formula">
+        $$\frac{\theta - \theta_i}{\theta_s - \theta_i} = \text{ধ্রুবক}$$
+      </div>
+
+      <p>সেলসিয়াস ($C$), ফারেনহাইট ($F$) এবং কেলভিন ($K$) স্কেলের ক্ষেত্রে মানগুলো বসিয়ে পাই:</p>
+      <div class="formula">
+        $$\frac{C - 0}{100 - 0} = \frac{F - 32}{212 - 32} = \frac{K - 273.15}{373.15 - 273.15}$$
+      </div>
+      <p>প্রতিটি হরকে ২০ দ্বারা ভাগ করে আমরা পাই বহুল ব্যবহৃত মৌলিক সমীকরণ:</p>
+      <div class="formula">
+        $$\frac{C}{5} = \frac{F - 32}{9} = \frac{K - 273}{5}$$
+      </div>
+
+      <h3>লাইভ ইন্টারেক্টিভ কনভার্টার</h3>
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:16px;margin:16px 0">
+        <strong style="color:#9a3412;display:block;margin-bottom:10px">🌡️ তাপমাত্রা রূপান্তর ক্যালকুলেটর:</strong>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px">
+          <div>
+            <label style="font-size:12px;font-weight:700;color:#7c2d12">সেলসিয়াস (°C):</label>
+            <input type="number" id="c-val" value="37" oninput="convertTemp('C')" style="width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;font-weight:700;font-size:16px">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:700;color:#7c2d12">ফারেনহাইট (°F):</label>
+            <input type="number" id="f-val" value="98.6" oninput="convertTemp('F')" style="width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;font-weight:700;font-size:16px">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:700;color:#7c2d12">কেলভিন (K):</label>
+            <input type="number" id="k-val" value="310.15" oninput="convertTemp('K')" style="width:100%;padding:8px 10px;border:1px solid #cbd5e1;border-radius:8px;font-weight:700;font-size:16px">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <div class="term">
+        <strong>তাপমাত্রিক ধর্ম (Thermometric Property)</strong>
+        <small>তাপমাত্রার সাথে সুষমভাবে পরিবর্তিত হওয়া ভৌত ধর্ম যা দিয়ে তাপমাত্রা মাপা হয়।</small>
+      </div>
+      <div class="term">
+        <strong>নিম্ন স্থিরবিন্দু (Ice Point - $\theta_i$)</strong>
+        <small>প্রমাণ চাপে বরফের গলনাঙ্ক ($0^\circ\text{C} = 32^\circ\text{F} = 273.15\text{ K}$)।</small>
+      </div>
+      <div class="term">
+        <strong>ঊর্ধ্ব স্থিরবিন্দু (Steam Point - $\theta_s$)</strong>
+        <small>প্রমাণ চাপে পানির স্ফুটনাঙ্ক ($100^\circ\text{C} = 212^\circ\text{F} = 373.15\text{ K}$)।</small>
+      </div>
+      <div class="term">
+        <strong>পরম শূন্য তাপমাত্রা (Absolute Zero)</strong>
+        <small>$0\text{ K}$ বা $-273.15^\circ\text{C}$; তাত্ত্বিকভাবে সর্বনিম্ন তাপমাত্রা যেখানে আণবিক গতি স্তব্ধ হয়।</small>
+      </div>
+    </div>
+
+    <div class="note">
+      <h2>🚌 বাস্তব জীবনের আকর্ষণীয় প্রয়োগ: নন-কন্টাক্ট ইনফ্রারেড থার্মোমিটার</h2>
+      <p>করোনা মহামারীর সময় থেকে শপিং মল, বিমানবন্দর ও ক্লিনিকে কপালে স্পর্শ না করেই থার্মাল গান দিয়ে দেহের তাপমাত্রা মাপা হচ্ছে। এটি কিন্তু পারদ বা তরলের প্রসারণ ব্যবহার করে না! প্রতিটি উত্তপ্ত বস্তু তার তাপমাত্রা অনুযায়ী অবলোহিত (Infrared) বিকিরণ নিঃসরণ করে। থার্মাল গানের ভেতরের সেন্সর সেই বিকিরণকে তড়িৎ সংকেতে রূপান্তর করে সেকেন্ডের ভগ্নাংশে ডিজিটাল স্ক্রিনে ফারেনহাইটে তাপমাত্রা প্রদর্শন করে।</p>
+    </div>
+
+    <div class="memory">
+      <h2>🧠 মনে রাখার কৌশল</h2>
+      <p><strong>ছন্দ:</strong><br>
+      "C বাই ৫ সমান F মাইনাস ৩২ বাই ৯;<br>
+      কেলভিন পেতে সেলসিয়াসে ২৭৩ যোগ দিলেই সব ফাইন!"<br>
+      <em>টিপ: তাপমাত্রার পার্থক্য গণনায় $\Delta C = \Delta K$ সবসময় সমান থাকে!</em></p>
+    </div>
+
+    <div class="worked">
+      <h2>📝 স্ট্যান্ডার্ড গাণিতিক সমস্যা ও সমাধান</h2>
+      <div class="problem">
+        <strong>সমস্যা ১:</strong> কোন তাপমাত্রায় সেলসিয়াস ও ফারেনহাইট স্কেলে পাঠ একই সংখ্যা নির্দেশ করবে?<br><br>
+        <strong>সমস্যা ২:</strong> একজন অসুস্থ শিক্ষার্থীর দেহের তাপমাত্রা থার্মোমিটারে $104^\circ\text{F}$ পাওয়া গেল। সেলসিয়াস স্কেলে তার জ্বর কত ডিগ্রি বৃদ্ধি পেয়েছে? (স্বাভাবিক তাপমাত্রা $37^\circ\text{C}$ ধর্তব্য)<br><br>
+        <strong>সমস্যা ৩ (ত্রুটিপূর্ণ থার্মোমিটার):</strong> একটি ত্রুটিপূর্ণ থার্মোমিটার গলিত বরফে $5^\circ\text{C}$ এবং প্রমাণ চাপে ফুটন্ত পানিতে $95^\circ\text{C}$ পাঠ দেয়। ওই থার্মোমিটার যখন $50^\circ\text{C}$ প্রদর্শন করে, তখন প্রকৃত তাপমাত্রা কত?
+      </div>
+      <div class="solution">
+        <strong>ধাপে ধাপে সমাধান:</strong><br><br>
+        <b>সমস্যা ১ এর সমাধান:</b><br>
+        ধরি, নির্ণেয় তাপমাত্রা $x$। অর্থাৎ $C = x$ এবং $F = x$।<br>
+        সূত্র: $\frac{C}{5} = \frac{F - 32}{9}$<br>
+        $$\frac{x}{5} = \frac{x - 32}{9}$$
+        $$\implies 9x = 5(x - 32)$$
+        $$\implies 9x = 5x - 160$$
+        $$\implies 4x = -160 \implies x = -40$$
+        অতএব, <strong>$-40^\circ$ তাপমাত্রায় সেলসিয়াস ও ফারেনহাইট স্কেলের পাঠ একই হয় ($-40^\circ\text{C} = -40^\circ\text{F}$)</strong>।<br><br>
+
+        <b>সমস্যা ২ এর সমাধান:</b><br>
+        দেওয়া আছে, $F = 104^\circ\text{F}$। সেলসিয়াসে রূপান্তর:<br>
+        $$\frac{C}{5} = \frac{104 - 32}{9} = \frac{72}{9} = 8$$
+        $$\implies C = 8 \times 5 = 40^\circ\text{C}$$
+        স্বাভাবিক শারীরিক তাপমাত্রা $37^\circ\text{C}$।<br>
+        অতএব, তাপমাত্রা বৃদ্ধি পেয়েছে: $\Delta C = 40^\circ\text{C} - 37^\circ\text{C} = 3^\circ\text{C}$।<br><br>
+
+        <b>সমস্যা ৩ এর সমাধান (ত্রুটিপূর্ণ থার্মোমিটার):</b><br>
+        ত্রুটিপূর্ণ থার্মোমিটারের বরফবিন্দুর পাঠ $X_i = 5^\circ$, বাষ্পবিন্দুর পাঠ $X_s = 95^\circ$, এবং বর্তমান পাঠ $X = 50^\circ$।<br>
+        সঠিক সেলসিয়াস পাঠ $C$ হলে আমরা জানি:<br>
+        $$\frac{X - X_i}{X_s - X_i} = \frac{C - 0}{100 - 0}$$
+        $$\frac{50 - 5}{95 - 5} = \frac{C}{100}$$
+        $$\frac{45}{90} = \frac{C}{100} \implies \frac{1}{2} = \frac{C}{100} \implies C = \frac{100}{2} = 50^\circ\text{C}$$
+        সুতরাং, ওই পরিবেশের <strong>প্রকৃত তাপমাত্রা ছিল ঠিক $50^\circ\text{C}$</strong>।
+      </div>
+    </div>
+
+    <details class="check">
+      <summary>❓ আত্মযাচাই ১: কেলভিন স্কেলে কি কখনো ঋণাত্মক মান (-5 K) হওয়া সম্ভব?</summary>
+      <p><strong>উত্তর:</strong> না, কখনোই সম্ভব নয়! কেলভিন স্কেলের শূন্য বিন্দু ($0\text{ K}$) হলো পরম শূন্য তাপমাত্রা ($-273.15^\circ\text{C}$)। এই তাপমাত্রায় তাত্ত্বিকভাবে গ্যাসীয় অণুগুলোর গতিশক্তি শূন্য হয়ে যায় এবং আয়তন শূন্যে নেমে আসার কথা। প্রকৃতির কোনো বস্তুর তাপমাত্রা পরম শূন্যের নিচে নামানো সম্ভব নয় বিধায় কেলভিন স্কেল সবসময় ধনাত্মক হয়।</p>
+    </details>
+
+    <details class="check">
+      <summary>❓ আত্মযাচাই ২: কোনো স্থানে তাপমাত্রা $10^\circ\text{C}$ বাড়লে কেলভিন ও ফারেনহাইটে কত বাড়বে?</summary>
+      <p><strong>উত্তর:</strong> কেলভিন ও সেলসিয়াসের মৌলিক ব্যবধান সমান (১০০ ভাগ)। ফলে সেলসিয়াসে তাপমাত্রা $10^\circ\text{C}$ বাড়লে কেলভিনেও ঠিক $10\text{ K}$ বাড়বে। কিন্তু ফারেনহাইটের মৌলিক ব্যবধান ১৮০ ভাগ হওয়ায় প্রতি $1^\circ\text{C}$ বৃদ্ধির জন্য ফারেনহাইটে বাড়ে $1.8^\circ\text{F}$। সুতরাং ফারেনহাইটে বৃদ্ধি পাবে $10 \times 1.8 = 18^\circ\text{F}$।</p>
+    </details>
+
+    <div class="nav">
+      <a class="button secondary" href="section-01.html">← পূর্ববর্তী: ৬.১ তাপ ও তাপমাত্রা</a>
+      <a class="button" href="section-03.html">পরের পাঠ: ৬.৩ পদার্থের তাপীয় প্রসারণ →</a>
+    </div>
+
+    <footer class="footer">
+      পড়ি (poRi) · পদার্থবিজ্ঞান ডিজিটাল পাঠ · <a href="chapter-source.html" style="color:var(--muted);text-decoration:underline">মূল পাঠ্যবইয়ের পৃষ্ঠা দেখুন</a>
+    </footer>
+  </main>
+</body>
+</html>

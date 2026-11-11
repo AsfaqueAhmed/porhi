@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৩.৯ ঘর্ষণ বলের ধরন ও বৈশিষ্ট্য · অধ্যায় ৩: বল | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- KaTeX for crisp mathematical formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৩ / ৩.৯</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই ৩.৯</span>
+    <h1 class="title">ঘর্ষণ বলের ধরন ও বৈশিষ্ট্য <small>(Types and Nature of Friction)</small></h1>
+    <p class="subtitle">আণুবীক্ষণিক ঘর্ষণ তত্ত্ব, চার প্রকার ঘর্ষণের তুলনামূলক বিশ্লেষণ এবং ঘর্ষণ গুণাঙ্কের গাণিতিক সমাধান।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>এই পাঠটি সম্পন্ন করার পর তুমি—</p>
+      <ul>
+        <li>ঘর্ষণ বলের আণুবীক্ষণিক উৎপত্তি (পৃষ্ঠের খাঁজ ও কোল্ড ওয়েল্ডিং) ব্যাখ্যা করতে পারবে।</li>
+        <li>চার প্রকার ঘর্ষণ বলের (স্থিতি, পিছলানো, আবর্ত ও প্রবাহী) তুলনা করতে পারবে এবং কেন আবর্ত ঘর্ষণ সর্বনিম্ন তা বলতে পারবে।</li>
+        <li>ঘর্ষণ গুণাঙ্ক ($\mu$) ও অভিলম্ব প্রতিক্রিয়া ($R$) সমীকরণ ব্যবহার করে সীমাস্ত ও গতীয় ঘর্ষণ বলের হিসাব করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <!-- Interactive Simulation Card -->
+    <div class="lab-iframe-card">
+      <div class="lab-iframe-header">
+        <div class="lab-iframe-title">
+          <span>🪵 লাইভ সিমুলেশন ল্যাব: ঘর্ষণ বল ও সীমাস্ত মান</span>
+        </div>
+        <span class="badge" style="background:#1e1b4b;border-color:#4338ca;color:#c7d2fe">কুইজ মোড অন্তর্ভুক্ত</span>
+      </div>
+      <iframe class="lab-iframe" src="../../apps/api/uploads/interactive/friction-lab.html" title="Friction Simulator"></iframe>
+    </div>
+
+    <section class="section">
+      <h2>৩.৯ · সংস্পর্শ তলের বাধা ও ঘর্ষণের প্রকারভেদ</h2>
+      <p>একটি বস্তুকে অপর একটি বস্তুর ওপর দিয়ে টেনে নেওয়ার চেষ্টা করলে তাদের সংযোগস্থলে গতির বিরুদ্ধে একটি বাধার উদ্ভব হয়। দুটি বস্তুর সংস্পর্শ তলে আপেক্ষিক গতির বিরোধিতাকারী এই স্পর্শ বলকেই <b>ঘর্ষণ বল (Friction Force)</b> বলে।</p>
+
+      <div class="grid">
+        <div class="term">
+          <strong>১. স্থিতি ঘর্ষণ ($f_s$)</strong>
+          <small>স্থির বস্তুকে গতিশীল করার প্রচেষ্টাকালে ক্রিয়াশীল ঘর্ষণ। এর সর্বোচ্চ মানকে সীমাস্ত ঘর্ষণ ($f_s^{\text{max}} = \mu_s R$) বলে।</small>
+        </div>
+        <div class="term">
+          <strong>২. পিছলানো ঘর্ষণ ($f_k$)</strong>
+          <small>একটি বস্তু যখন অপর তলের ওপর পিছলে (Slide) চলে: $f_k = \mu_k R$। এটি সীমাস্ত স্থিতি ঘর্ষণের চেয়ে কম হয় ($\mu_k < \mu_s$)।</small>
+        </div>
+        <div class="term">
+          <strong>৩. আবর্ত ঘর্ষণ ($f_r$)</strong>
+          <small>চাকা বা গোলক কোনো তলের ওপর গড়িয়ে (Roll) চলার সময় সৃষ্ট ঘর্ষণ। এটি পিছলানো ঘর্ষণের চেয়ে বহুগুণ কম ($f_r \ll f_k$)।</small>
+        </div>
+        <div class="term">
+          <strong>৪. প্রবাহী ঘর্ষণ ($f_f$)</strong>
+          <small>তরল বা বায়বীয় মাধ্যমের মধ্য দিয়ে বস্তু চলার সময় অনুভূত বাধা (Drag)। যেমন প্যারাস্যুট বা উড়োজাহাজের বায়ুর বাধা।</small>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <b>💡 ঘর্ষণ বলের মৌলিক সমীকরণ:</b><br>
+        • সীমাস্ত স্থিতি ঘর্ষণ: $f_s^{\text{max}} = \mu_s R = \mu_s mg$<br>
+        • গতীয় বা পিছলানো ঘর্ষণ: $f_k = \mu_k R = \mu_k mg$<br>
+        যেখানে $\mu_s$ হলো স্থিতি ঘর্ষণ গুণাঙ্ক, $\mu_k$ হলো গতীয় ঘর্ষণ গুণাঙ্ক এবং $R = mg$ হলো অভিলম্ব প্রতিক্রিয়া বল।
+      </div>
+
+      <h3>ঘর্ষণ বলের আণুবীক্ষণিক কারণ</h3>
+      <p>বাইরে থেকে দেখতে কোনো তলকে সম্পূর্ণ কাচের মতো মসৃণ মনে হলেও অণুবীক্ষণ যন্ত্রে দেখা যায় সেখানে অজস্র পাহাড়-সদৃশ খাঁজ ও খাদ রয়েছে। যখন দুটি তল পরস্পর সংস্পর্শে আসে, তখন তাদের উঁচু খাঁজগুলো একে অপরের খাঁজে আটকে যায় এবং স্পর্শবিন্দুতে প্রচণ্ড চাপে অণুগুলোর মধ্যে তাৎক্ষণিক ধাতব জোড়া বা <b>কোল্ড ওয়েল্ডিং (Cold Welding)</b> সৃষ্টি হয়। বস্তুকে টানলে এই বন্ধন ভেঙে এগিয়ে নিতে বলের প্রয়োজন হয়—এটাই ঘর্ষণ বলের মূল রহস্য।</p>
+    </section>
+
+    <div class="note">
+      <h2>🚌 বাস্তব জীবনের আকর্ষণীয় অভিজ্ঞতা</h2>
+      <p>ঘরে রাখা একটি ভারী কাঠের আলমারি ঠেলতে গিয়ে তুমি নিশ্চয়ই খেয়াল করেছ—আলমারিটি এক ইঞ্চি নড়াতে শুরুতে প্রচণ্ড বলের দরকার হয় (কারণ স্থিতি ঘর্ষণ সর্বোচ্চ $f_s^{\text{max}}$)। কিন্তু একবার আলমারি চলতে শুরু করলে সামান্য ঠেলাতেই অনায়াসে চলে (কারণ গতীয় ঘর্ষণ $f_k < f_s^{\text{max}}$)।</p>
+    </div>
+
+    <div class="memory">
+      <h2>🧠 মনে রাখার কৌশল: তীব্রতার ক্রম</h2>
+      <p><b>ঘর্ষণের তীব্রতার ক্রম:</b> স্থিতি ঘর্ষণ ($f_s$) &gt; পিছলানো ঘর্ষণ ($f_k$) &gt;&gt; আবর্ত ঘর্ষণ ($f_r$)<br>
+      <i>“স্থিতি বড়, পিছলানো মাঝারি, চাকার আবর্তে ঘর্ষণ পারি!”</i></p>
+    </div>
+
+    <div class="worked">
+      <h2>📝 পাঠ্যবইয়ের স্ট্যান্ডার্ড গাণিতিক সমস্যা</h2>
+      <div class="problem">
+        অনুভূমিক মেঝের ওপর রাখা $20\text{ kg}$ ভরের একটি কাঠের বাক্সের জন্য মেঝের স্থিতি ঘর্ষণ গুণাঙ্ক $\mu_s = 0.40$ এবং গতীয় ঘর্ষণ গুণাঙ্ক $\mu_k = 0.30$। ($g = 9.8\text{ m/s}^2$)<br>
+        ১. বাক্সটিকে স্থির অবস্থা থেকে গতিশীল করতে ন্যূনতম কত অনুভূমিক বল প্রয়োজন?<br>
+        ২. বাক্সটি একবার চলতে শুরু করলে সমবেগে সচল রাখতে কত বল প্রয়োগ করতে হবে?
+      </div>
+      <div class="solution">
+        <b>প্রদত্ত তথ্য:</b><br>
+        বাক্সের ভর $m = 20\text{ kg}$<br>
+        অভিলম্ব প্রতিক্রিয়া বল $R = mg = 20\text{ kg} \times 9.8\text{ m/s}^2 = 196\text{ N}$<br>
+        স্থিতি ঘর্ষণ গুণাঙ্ক $\mu_s = 0.40$<br>
+        গতীয় ঘর্ষণ গুণাঙ্ক $\mu_k = 0.30$<br><br>
+        <b>১. গতিশীল করার ন্যূনতম বল ($F_{\text{start}}$):</b><br>
+        বাক্সকে গতিশীল করতে সীমাস্ত স্থিতি ঘর্ষণ অতিক্রম করতে হবে:<br>
+        $$F_{\text{start}} = f_s^{\text{max}} = \mu_s R = 0.40 \times 196\text{ N} = 78.4\text{ N}$$<br>
+        <b>২. সমবেগে চালিয়ে রাখার বল ($F_{\text{move}}$):</b><br>
+        সমবেগে চলার সময় ত্বরণ $a = 0$। ফলে প্রযুক্ত বল গতীয় ঘর্ষণ বলের সমান হতে হবে:<br>
+        $$F_{\text{move}} = f_k = \mu_k R = 0.30 \times 196\text{ N} = 58.8\text{ N}$$
+        <b>উত্তর:</b> বাক্সটি চালু করতে ন্যূনতম $78.4\text{ N}$ বল এবং সচল রাখতে $58.8\text{ N}$ বল লাগবে।
+      </div>
+    </div>
+
+    <details class="check">
+      <summary>প্রশ্ন: ভারী লাগেজ বা সুটকেসের নিচে চাকা লাগানো হয় কেন?</summary>
+      <p><b>উত্তর:</b> কারণ চাকার মাধ্যমে পিছলানো ঘর্ষণকে আবর্ত ঘর্ষণে রূপান্তর করা হয়। আবর্ত ঘর্ষণের মান পিছলানো ঘর্ষণের চেয়ে প্রায় শতগুণ কম ($f_r \ll f_k$)। ফলে ভারী লাগেজ মেঝেতে টেনে নিয়ে যাওয়ার চেয়ে চাকা দিয়ে গড়িয়ে নেওয়া বহু গুণ সহজ হয়।</p>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-08.html">← আগের পাঠ</a>
+      <a class="button" href="section-10.html">পরের পাঠ: ঘর্ষণ, গতি ও ব্যবহার →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF)</a> · অধ্যায় ৩: বল · পড়ি (poRi)
+    </footer>
+  </main>
+</body>
+</html>

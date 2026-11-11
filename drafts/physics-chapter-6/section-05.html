@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৬.৫ আপেক্ষিক তাপ ও তাপধারণক্ষমতা · অধ্যায় ৬ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৬ / ৬.৫</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই · অধ্যায় ৬</span>
+    <h1 class="title">আপেক্ষিক তাপ ও তাপধারণক্ষমতা <small>(Specific Heat and Heat Capacity)</small></h1>
+    <p class="subtitle">তাপধারণক্ষমতা ও আপেক্ষিক তাপের সম্পর্ক, Q = msΔT সমীকরণ এবং পানির উচ্চ আপেক্ষিক তাপের ভূ-প্রাকৃতিক গুরুত্ব।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>এই পাঠটি সম্পন্ন করার পর তুমি—</p>
+      <ul>
+        <li>তাপধারণক্ষমতা ($C$) ও আপেক্ষিক তাপের ($s$) ভৌত সংজ্ঞা ও পার্থক্য স্পষ্ট করতে পারবে।</li>
+        <li>$Q = ms\Delta T$ এবং $C = ms$ সমীকরণদ্বয় প্রতিপাদন করে বিভিন্ন পদার্থের ক্ষেত্রে তাপের পরিমাণ গণনা করতে পারবে।</li>
+        <li>বিভিন্ন পদার্থের আপেক্ষিক তাপের মান তুলনা করে তাপ গ্রহণ ও বর্জনের হার বিশ্লেষণ করতে পারবে।</li>
+        <li>পানির অনন্য উচ্চ আপেক্ষিক তাপের কারণে উপকূলীয় মৃদু আবহাওয়া ও গাড়ির কুল্যান্টে পানি ব্যবহারের কারণ ব্যাখ্যা করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>১. তাপধারণক্ষমতা (Heat Capacity, $C$)</h2>
+      <p>যেকোনো বস্তুর তাপমাত্রা বৃদ্ধি করতে তাপের প্রয়োজন। কিন্তু একই পরিমাণ তাপমাত্রা বাড়াতে বিভিন্ন বস্তুর জন্য ভিন্ন ভিন্ন পরিমাণ তাপ লাগে।</p>
+      <div class="highlight-box">
+        <strong>💡 তাপধারণক্ষমতার সংজ্ঞা:</strong> কোনো বস্তুর সামগ্রিক তাপমাত্রা $1\text{ K}$ (বা $1^\circ\text{C}$) বাড়াতে যে পরিমাণ তাপের প্রয়োজন হয়, তাকে ওই নির্দিষ্ট বস্তুর <strong>তাপধারণক্ষমতা ($C$)</strong> বলে।
+      </div>
+      <p>যদি কোনো বস্তুর তাপমাত্রা $\Delta T$ পরিমাণ বৃদ্ধি করতে $Q$ পরিমাণ তাপশক্তির প্রয়োজন হয়, তবে তার তাপধারণক্ষমতা:</p>
+      <div class="formula">
+        $$C = \frac{Q}{\Delta T}$$
+      </div>
+      <p>তাপধারণক্ষমতার SI একক হলো <strong>জুল পার কেলভিন ($\text{J/K}$ বা $\text{J}\cdot\text{K}^{-1}$)</strong>। এর মাত্রা সমীকরণ $[ML^2T^{-2}\Theta^{-1}]$।</p>
+      <p><em>মনে রাখবে:</em> তাপধারণক্ষমতা পুরো বস্তুর ওপর নির্ভর করে। একই লোহার তৈরি ছোট একটি পেরেকের তাপধারণক্ষমতা কম, কিন্তু বড় লোহার ব্লকের তাপধারণক্ষমতা অনেক বেশি।</p>
+
+      <h3>২. আপেক্ষিক তাপ (Specific Heat, $s$)</h3>
+      <p>বস্তুর উপাদানের নিজস্ব তাপীয় ধর্ম বোঝার জন্য আমরা ভরের একক বিবেচনা করি।</p>
+      <div class="highlight-box">
+        <strong>💡 আপেক্ষিক তাপের সংজ্ঞা:</strong> $1\text{ kg}$ ভরের কোনো পদার্থের তাপমাত্রা $1\text{ K}$ বৃদ্ধি করতে যে পরিমাণ তাপের প্রয়োজন হয়, তাকে ওই পদার্থের উপাদানের <strong>আপেক্ষিক তাপ ($s$)</strong> বলে।
+      </div>
+      <p>পরীক্ষালব্ধভাবে দেখা যায়, শোষিত বা বর্জিত তাপের পরিমাণ ($Q$):</p>
+      <ol>
+        <li>বস্তুর ভর ($m$)-এর সমানুপাতিক: $Q \propto m$</li>
+        <li>তাপমাত্রার পরিবর্তন ($\Delta T$)-এর সমানুপাতিক: $Q \propto \Delta T$</li>
+      </ol>
+      <p>উভয় সম্পর্ক একত্রিত করে পাই:</p>
+      <div class="formula">
+        $$Q \propto m \cdot \Delta T \implies Q = m \cdot s \cdot \Delta T$$
+      </div>
+      <p>যেখানে $s$ একটি সমানুপাতিক ধ্রুবক, যাকে পদার্থের <strong>আপেক্ষিক তাপ</strong> বলা হয়:</p>
+      <div class="formula">
+        $$s = \frac{Q}{m \cdot \Delta T}$$
+      </div>
+      <p>আপেক্ষিক তাপের SI একক <strong>জুল পার কিলোগ্রাম পার কেলভিন ($\text{J/(kg}\cdot\text{K)}$ বা $\text{J}\cdot\text{kg}^{-1}\cdot\text{K}^{-1}$)</strong>। মাত্রা সমীকরণ $[L^2T^{-2}\Theta^{-1}]$।</p>
+
+      <h3>তাপধারণক্ষমতা ও আপেক্ষিক তাপের মধ্যকার সম্পর্ক</h3>
+      <p>আমরা জানি, $C = \frac{Q}{\Delta T}$। এখন $Q$-এর মান $ms\Delta T$ বসালে:</p>
+      <div class="formula">
+        $$C = \frac{m \cdot s \cdot \Delta T}{\Delta T} \implies C = m \cdot s$$
+      </div>
+      <p>অর্থাৎ: <strong>কোনো বস্তুর তাপধারণক্ষমতা = বস্তুর ভর $\times$ উপাদানের আপেক্ষিক তাপ</strong>।</p>
+
+      <h3>৩. বিভিন্ন পরিচিত পদার্থের আপেক্ষিক তাপ ($\text{J/(kg}\cdot\text{K)}$)</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>পদার্থ</th>
+              <th>আপেক্ষিক তাপ ($s$)</th>
+              <th>পদার্থ</th>
+              <th>আপেক্ষিক তাপ ($s$)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>পানি (Water)</strong></td>
+              <td>$4200\text{ J/(kg}\cdot\text{K)}$</td>
+              <td><strong>অ্যালুমিনিয়াম (Al)</strong></td>
+              <td>$900\text{ J/(kg}\cdot\text{K)}$</td>
+            </tr>
+            <tr>
+              <td><strong>মানবদেহ (Human Body)</strong></td>
+              <td>$\approx 3470\text{ J/(kg}\cdot\text{K)}$</td>
+              <td><strong>কাচ (Glass)</strong></td>
+              <td>$670\text{ J/(kg}\cdot\text{K)}$</td>
+            </tr>
+            <tr>
+              <td><strong>অ্যালকোহল (Ethanol)</strong></td>
+              <td>$2400\text{ J/(kg}\cdot\text{K)}$</td>
+              <td><strong>লোহা (Iron)</strong></td>
+              <td>$460\text{ J/(kg}\cdot\text{K)}$</td>
+            </tr>
+            <tr>
+              <td><strong>বরফ (Ice)</strong></td>
+              <td>$2100\text{ J/(kg}\cdot\text{K)}$</td>
+              <td><strong>তামা (Copper)</strong></td>
+              <td>$400\text{ J/(kg}\cdot\text{K)}$</td>
+            </tr>
+            <tr>
+              <td><strong>জলীয় বাষ্প (Steam)</strong></td>
+              <td>$2000\text{ J/(kg}\cdot\text{K)}$</td>
+              <td><strong>সীসা (Lead)</strong></td>
+              <td>$130\text{ J/(kg}\cdot\text{K)}$</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>৪. পানির উচ্চ আপেক্ষিক তাপের প্রাকৃতিক ও প্রযুক্তিগত গুরুত্ব</h3>
+      <p>পানির আপেক্ষিক তাপ ($4200\text{ J/(kg}\cdot\text{K)}$) অন্যান্য প্রায় সকল সাধারণ পদার্থের তুলনায় অবিশ্বাস্য রকম বেশি। এর পেছনে রয়েছে পানির শক্তিশালী হাইড্রোজেন বন্ধন। এর ফলাফলগুলো মানবজীবন ও পরিবেশের জন্য পরম আশীর্বাদ:</p>
+      <ul>
+        <li><strong>সমুদ্র উপকূলবর্তী অঞ্চলের সমভাবাপন্ন আবহাওয়া:</strong> দিনের বেলা সূর্যালোকে স্থলভাগ খুব দ্রুত উত্তপ্ত হয়, কিন্তু সমুদ্রের বিপুল জলরাশি ধীরে ধীরে উত্তপ্ত হয়। ফলে দিনে সমুদ্র থেকে শীতল বায়ু স্থলভাগের দিকে প্রবাহিত হয় (সমুদ্রবায়ু)। আবার রাতে স্থলভাগ দ্রুত তাপ বিকিরণ করে ঠান্ডা হলেও সমুদ্র ধীরে ধীরে তাপ ছাড়তে থাকে (স্থলবায়ু)। এই কারণে চট্টগ্রাম, কক্সবাজার বা উপকূলীয় অঞ্চলে কখনো চরম গরম বা চরম শীত অনুভূত হয় না।</li>
+        <li><strong>গাড়ির ইঞ্জিন ও কারখানায় কুল্যান্ট হিসেবে:</strong> গাড়ির রেডিয়েটরে পানি ব্যবহার করা হয় কারণ অল্প পরিমাণ পানি ইঞ্জিনের বিপুল তাপ শোষণ করেও নিজে মাত্রাতিরিক্ত গরম হয় না এবং ইঞ্জিনকে অতিরিক্ত উত্তপ্ত হওয়া থেকে রক্ষা করে।</li>
+        <li><strong>চিকিৎসায় হট ওয়াটার ব্যাগ:</strong> শরীরে ব্যথা উপশমে সেঁক দেওয়ার জন্য হট ওয়াটার ব্যাগে গরম পানি নেওয়া হয়। উচ্চ আপেক্ষিক তাপ থাকায় পানি দীর্ঘ সময় ধরে ধীরে ধীরে তাপ ধরে রেখে শরীরে আরামদায়ক তাপ সরবরাহ করে।</li>
+      </ul>
+    </section>
+
+    <div class="grid">
+      <div class="term">
+        <strong>তাপধারণক্ষমতা ($C = \frac{Q}{\Delta T}$)</strong>
+        <small>কোনো নির্দিষ্ট বস্তুর তাপমাত্রা $1\text{ K}$ বাড়াতে মোট প্রয়োজনীয় তাপ। একক: $\text{J/K}$।</small>
+      </div>
+      <div class="term">
+        <strong>আপেক্ষিক তাপ ($s = \frac{Q}{m\Delta T}$)</strong>
+        <small>$1\text{ kg}$ ভরের পদার্থের তাপমাত্রা $1\text{ K}$ বাড়াতে প্রয়োজনীয় তাপ। পানির জন্য $4200\text{ J/(kg}\cdot\text{K)}$।</small>
+      </div>
+      <div class="term">
+        <strong>তাপের সমীকরণ ($Q = ms\Delta T$)</strong>
+        <small>তাপমাত্রার পরিবর্তনে গৃহিত বা বর্জিত তাপশক্তি গণনার সার্বজনীন সূত্র।</small>
+      </div>
+      <div class="term">
+        <strong>কুল্যান্ট (Coolant)</strong>
+        <small>উচ্চ তাপধারণকারী তরল যা যন্ত্রপাতির তাপমাত্রা নিয়ন্ত্রণে তাপ শোষণ করে।</small>
+      </div>
+    </div>
+
+    <div class="note">
+      <h2>🚌 বাস্তব জীবনের আকর্ষণীয় তুলনা</h2>
+      <p>রোদে সমভরের একটি লোহার পাত্র এবং একটি পাত্রভর্তি পানি রাখলে আধ ঘণ্টা পর দেখা যাবে লোহা এত বেশি গরম হয়ে গেছে যে হাত দেওয়া যাচ্ছে না, কিন্তু পানি কেবল সামান্য উষ্ণ হয়েছে। কারণ লোহার আপেক্ষিক তাপ মাত্র $460\text{ J/(kg}\cdot\text{K)}$, যা পানির চেয়ে প্রায় ৯ গুণ কম! অর্থাৎ একই তাপে লোহার তাপমাত্রা পানির চেয়ে ৯ গুণ বেশি দ্রুত বৃদ্ধি পায়।</p>
+    </div>
+
+    <div class="memory">
+      <h2>🧠 মনে রাখার কৌশল</h2>
+      <p><strong>ছন্দ:</strong><br>
+      "ভর আর এস গুণ দিলে পাই সি অর্থাৎ ক্যাপাসিটি;<br>
+      পানির চার হাজার দুইশত জুলে শান্ত থাকে সব সিটি!<br>
+      এম এস ডেল্টা টি দিয়ে করো তাপের নিখুঁত মাপ;<br>
+      এস বেশি হলে ধীরে বাড়ে, কম হলে দ্রুত বাড়ে তাপ!"</p>
+    </div>
+
+    <div class="worked">
+      <h2>📝 স্ট্যান্ডার্ড গাণিতিক সমস্যা ও সমাধান</h2>
+      <div class="problem">
+        <strong>সমস্যা ১:</strong> একটি বৈদ্যুতিক কেটলিতে $2\text{ kg}$ পানি রয়েছে। পানির তাপমাত্রা $20^\circ\text{C}$ থেকে বৃদ্ধি করে $85^\circ\text{C}$-এ নিয়ে যেতে কত তাপশক্তি সরবরাহ করতে হবে? (পানির $s = 4200\text{ J/(kg}\cdot\text{K)}$)<br><br>
+        <strong>সমস্যা ২:</strong> $500\text{ g}$ ভরের একটি তামার পাত্রের তাপমাত্রা $15^\circ\text{C}$ থেকে $45^\circ\text{C}$-এ বৃদ্ধি করতে $6000\text{ J}$ তাপশক্তির প্রয়োজন হয়।<br>
+        (ক) পাত্রটির উপাদানের আপেক্ষিক তাপ কত?<br>
+        (খ) পাত্রটির তাপধারণক্ষমতা নির্ণয় করো।
+      </div>
+      <div class="solution">
+        <strong>ধাপে ধাপে সমাধান:</strong><br><br>
+        <b>সমস্যা ১ এর সমাধান:</b><br>
+        দেওয়া আছে,<br>
+        পানির ভর $m = 2\text{ kg}$<br>
+        পানির আপেক্ষিক তাপ $s = 4200\text{ J/(kg}\cdot\text{K)}$<br>
+        তাপমাত্রার বৃদ্ধি $\Delta T = 85^\circ\text{C} - 20^\circ\text{C} = 65^\circ\text{C} = 65\text{ K}$<br><br>
+        আমরা জানি,
+        $$Q = m \cdot s \cdot \Delta T$$
+        $$Q = 2 \times 4200 \times 65 = 546,000\text{ J} = 5.46 \times 10^5\text{ J} = 546\text{ kJ}$$
+        অতএব, পানিকে কাঙ্ক্ষিত তাপমাত্রায় নিতে <strong>$5.46 \times 10^5\text{ J}$ (বা $546\text{ kJ}$) তাপ সরবরাহ করতে হবে</strong>।<br><br>
+
+        <b>সমস্যা ২ এর সমাধান:</b><br>
+        দেওয়া আছে, ভর $m = 500\text{ g} = 0.5\text{ kg}$<br>
+        সরবরাহকৃত তাপ $Q = 6000\text{ J}$<br>
+        তাপমাত্রার বৃদ্ধি $\Delta T = 45 - 15 = 30^\circ\text{C} = 30\text{ K}$<br><br>
+        <b>(ক) আপেক্ষিক তাপ নির্ণয়:</b><br>
+        $$s = \frac{Q}{m \cdot \Delta T} = \frac{6000}{0.5 \times 30} = \frac{6000}{15} = 400\text{ J/(kg}\cdot\text{K)}$$
+        অতএব, তামার আপেক্ষিক তাপ হলো <strong>$400\text{ J/(kg}\cdot\text{K)}$</strong>।<br><br>
+        <b>(খ) তাপধারণক্ষমতা নির্ণয়:</b><br>
+        $$C = m \cdot s = 0.5 \times 400 = 200\text{ J/K}$$
+        <em>(অথবা $C = \frac{Q}{\Delta T} = \frac{6000}{30} = 200\text{ J/K}$ থেকেও সরাসরি পাওয়া যায়)</em><br>
+        অতএব, তামার পাত্রটির মোট তাপধারণক্ষমতা হলো <strong>$200\text{ J/K}$</strong>।
+      </div>
+    </div>
+
+    <details class="check">
+      <summary>❓ আত্মযাচাই ১: কোনো পদার্থের আপেক্ষিক তাপ 400 J/(kg·K) বলতে কী বোঝায়?</summary>
+      <p><strong>উত্তর:</strong> এর অর্থ হলো—ওই পদার্থের $1\text{ kg}$ ভরের কোনো খণ্ডের তাপমাত্রা $1\text{ K}$ (বা $1^\circ\text{C}$) বৃদ্ধি করতে বাইরে থেকে $400\text{ J}$ তাপশক্তির প্রয়োজন হবে। অথবা তাপমাত্রা $1\text{ K}$ কমাতে পদার্থটি পরিবেশকে $400\text{ J}$ তাপ বর্জন করবে।</p>
+    </details>
+
+    <details class="check">
+      <summary>❓ আত্মযাচাই ২: সমুদ্রের পাড়ের আবহাওয়া সারাবছর নাতিশীতোষ্ণ থাকে কেন?</summary>
+      <p><strong>উত্তর:</strong> পানির উচ্চ আপেক্ষিক তাপের ($4200\text{ J/(kg}\cdot\text{K)}$) কারণে! পানি ধীরে ধীরে উত্তপ্ত হয় এবং ধীরে ধীরে ঠান্ডা হয়। দিনে সমুদ্র থেকে ঠান্ডা হাওয়া স্থলভাগে আসে এবং রাতে সমুদ্র স্থলভাগের চেয়ে উষ্ণ থাকায় মৃদু উষ্ণ হাওয়া বয়। ফলে উপকূলীয় অঞ্চলে গ্রীষ্মে অতি তীব্র গরম বা শীতে তীব্র ঠান্ডা পড়তে পারে না।</p>
+    </details>
+
+    <div class="nav">
+      <a class="button secondary" href="section-04.html">← পূর্ববর্তী: ৬.৪ অবস্থার পরিবর্তন ও সুপ্ততাপ</a>
+      <a class="button" href="section-06.html">পরের পাঠ: ৬.৬ ক্যালরিমিতির মূলনীতি →</a>
+    </div>
+
+    <footer class="footer">
+      পড়ি (poRi) · পদার্থবিজ্ঞান ডিজিটাল পাঠ · <a href="chapter-source.html" style="color:var(--muted);text-decoration:underline">মূল পাঠ্যবইয়ের পৃষ্ঠা দেখুন</a>
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৪.৮ কর্মদক্ষতা · অধ্যায় ৪: কাজ, ক্ষমতা ও শক্তি | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- KaTeX for crisp mathematical formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+  <style>
+    .lab-card{background:#ffffff;border:1px solid #cbd5e1;border-radius:18px;padding:22px;margin:22px 0;box-shadow:0 10px 32px rgba(15,23,42,0.06)}
+    .lab-card-head{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+    .lab-card-title{font-size:19px;font-weight:800;color:#0f766e;margin:0 0 4px}
+    .lab-card-desc{font-size:13px;color:#64748b;margin:0;line-height:1.6}
+    .preset-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:12px 0}
+    .preset-btn{background:#fff;border:1px solid #cbd5e1;color:#334155;border-radius:10px;padding:6px 12px;font-size:12.5px;font-weight:700;cursor:pointer;transition:all .15s}
+    .preset-btn:hover{background:#f0fdfa;color:#0f766e;border-color:#99f6e4}
+    .preset-btn.active{background:#0f766e;color:#fff;border-color:#0f766e}
+    .control-panel{background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:16px;margin:16px 0}
+    .control-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;margin-top:14px}
+    .slider-group{flex:1;min-width:240px}
+    .slider-label{display:flex;justify-content:space-between;font-size:13.5px;font-weight:750;color:#334155;margin-bottom:6px}
+    .fine-tune-btns{display:flex;flex-wrap:wrap;gap:6px}
+    .btn-step{background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:6px 12px;font-weight:800;font-size:13px;cursor:pointer;color:#334155;transition:all .15s}
+    .btn-step:hover{background:#f0fdfa;color:#0f766e;border-color:#99f6e4}
+    .btn-step.primary{background:#0f766e;color:#fff;border-color:#0f766e}
+    .btn-step.primary:hover{background:#115e59}
+    .lab-svg-wrap{overflow-x:auto;background:linear-gradient(180deg,#f8fafc 0%,#f1f5f9 100%);border:1px solid #cbd5e1;border-radius:14px;padding:12px;margin:14px 0;position:relative}
+    .lab-svg{display:block;width:100%;min-width:760px;height:auto}
+    .calc-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:16px 0}
+    .calc-item{background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.02)}
+    .calc-item .title{font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;margin:0 0 4px}
+    .calc-item .value{font-size:17px;font-weight:900;color:#1e293b;margin:0}
+    .calc-item.highlight{background:#f0fdfa;border-color:#99f6e4}
+    .calc-item.highlight .value{color:#0f766e}
+    .calc-item.danger{background:#fef2f2;border-color:#fecaca}
+    .calc-item.danger .value{color:#dc2626}
+    .calc-item.info{background:#f0f9ff;border-color:#bae6fd}
+    .calc-item.info .value{color:#0284c7}
+    .readout{background:#f0fdfa;color:#115e59;font-weight:800;border-radius:12px;padding:12px;text-align:center;font-size:14.5px;border:1px solid #99f6e4;margin:12px 0}
+    .quiz-box{background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:16px;margin:16px 0;display:none}
+    .quiz-box.active{display:block}
+    @media(max-width:850px){
+      .calc-grid{grid-template-columns:repeat(3,1fr)}
+    }
+    @media(max-width:550px){
+      .calc-grid{grid-template-columns:repeat(2,1fr)}
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৪ / ৪.৮</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই ৪.৮</span>
+    <h1 class="title">কর্মদক্ষতা <small>(Efficiency)</small></h1>
+    <p class="subtitle">লভ্য কার্যকর শক্তি ও প্রদত্ত শক্তির অনুপাত, তাপীয় ও ঘর্ষণজনিত অপচয়, কেন কর্মদক্ষতা ১০০% হতে পারে না এবং লাইভ ইন্টারঅ্যাক্টিভ পাম্প ল্যাব।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>এই পাঠটি সম্পন্ন করার পর তুমি—</p>
+      <ul>
+        <li>কর্মদক্ষতার (Efficiency, $\eta$) বিজ্ঞানভিত্তিক সংজ্ঞা ও বাস্তব প্রয়োজনীয়তা নিখুঁতভাবে ব্যাখ্যা করতে পারবে।</li>
+        <li>মোট প্রদত্ত শক্তি, লভ্য কার্যকর শক্তি এবং অপচয়কৃত শক্তির সম্পর্ক $\eta = \frac{E_{\text{out}}}{E_{\text{in}}} \times 100\%$ সমীকরণ বিশ্লেষণ ও প্রয়োগ করতে পারবে।</li>
+        <li>কোনো বাস্তব ইঞ্জিনের কর্মদক্ষতা কেন কখনোই ১০০% বা তার বেশি হতে পারে না তা যুক্তি দিয়ে ব্যাখ্যা করতে পারবে।</li>
+        <li>ইন্টারঅ্যাক্টিভ সিমুলেশন ল্যাবের মাধ্যমে মোটরের প্রদত্ত ক্ষমতা, উচ্চতা ও পানির পরিমাণ পরিবর্তন করে লাইভ কর্মদক্ষতা ও অপচয় পরিমাপ করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <!-- Interactive Simulation Lab: Pump & Motor Efficiency Lab -->
+    <div class="lab-card" id="pump-lab">
+      <div class="lab-card-head">
+        <div>
+          <h2 class="lab-card-title">⚡ বৈদ্যুতিক মোটর ও পানির পাম্পের কর্মদক্ষতা ($\eta$) · লাইভ ল্যাব</h2>
+          <p class="lab-card-desc">মোটরে প্রদত্ত ক্ষমতা ($P_{\text{in}}$), পানির ভর ($m$), উত্তোলন উচ্চতা ($h$) এবং সময় ($t$) পরিবর্তন করো; লভ্য কার্যকর ক্ষমতা, অপচয় এবং কর্মদক্ষতা ডায়াল পর্যবেক্ষণ করো:</p>
+        </div>
+        <span class="badge" style="background:#f0fdfa;color:#0f766e;border-color:#99f6e4">NCTB অধ্যায় ৪ সিমুলেটর</span>
+      </div>
+
+      <!-- পরীক্ষার প্রিসেট নির্বাচন -->
+      <div class="preset-row">
+        <span style="font-size:13px;font-weight:750;color:#475569;display:flex;align-items:center;margin-right:4px">পরীক্ষার প্রিসেট:</span>
+        <button class="preset-btn active" onclick="setPreset(3.0, 2000, 15, 140, this)">১. আদর্শ পানির পাম্প (Pin=3.0kW, η=70%)</button>
+        <button class="preset-btn" onclick="setPreset(5.0, 3500, 20, 160, this)">২. উচ্চক্ষমতাসম্পন্ন মোটর (Pin=5.0kW, η=85%)</button>
+        <button class="preset-btn" onclick="setPreset(1.5, 1000, 12, 120, this)">৩. সাধারণ গৃহস্থালি মোটর (Pin=1.5kW, η=65%)</button>
+        <button class="preset-btn" onclick="setPreset(4.0, 2500, 25, 200, this)">৪. বাণিজ্যিক গভীর পাম্প (Pin=4.0kW, η=77%)</button>
+        <button class="preset-btn" onclick="setPreset(2.5, 1500, 10, 140, this)">৫. পুরনো ঘর্ষণযুক্ত পাম্প (Pin=2.5kW, η=42%)</button>
+      </div>
+
+      <!-- কন্ট্রোল প্যানেল -->
+      <div class="control-panel">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px">
+          <!-- প্রদত্ত ক্ষমতা স্লাইডার -->
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>মোট প্রদত্ত ক্ষমতা ($P_{\text{in}}$): <b id="lblPin" style="color:#0f766e">3.0 kW</b></span>
+              <span style="font-size:12px;color:#64748b">পরিসীমা: 0.5kW - 6.0kW</span>
+            </div>
+            <div class="slider-container">
+              <input id="rngPin" class="range custom-range" type="range" min="0.5" max="6.0" value="3.0" step="0.1" oninput="onPinChange(this.value)">
+            </div>
+            <div class="slider-indicator-wrap">
+              <div class="slider-track-ticks">
+                <span class="slider-tick major"></span>
+                <span class="slider-tick"></span>
+                <span class="slider-tick major"></span>
+                <span class="slider-tick"></span>
+                <span class="slider-tick major"></span>
+                <div class="slider-indicator-dot" id="dotPin"></div>
+              </div>
+              <div class="slider-labels">
+                <span>0.5 kW</span>
+                <span>2.0 kW</span>
+                <span>3.5 kW</span>
+                <span>5.0 kW</span>
+                <span>6.0 kW</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- পানির ভর স্লাইডার -->
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>পানির ভর ($m$): <b id="lblMass" style="color:#0f766e">2000 kg</b></span>
+              <span style="font-size:12px;color:#64748b">পরিসীমা: 500kg - 5000kg</span>
+            </div>
+            <div class="slider-container">
+              <input id="rngMass" class="range custom-range" type="range" min="500" max="5000" value="2000" step="100" oninput="onMassChange(this.value)">
+            </div>
+            <div class="slider-indicator-wrap">
+              <div class="slider-track-ticks">
+                <span class="slider-tick major"></span>
+                <span class="slider-tick"></span>
+                <span class="slider-tick major"></span>
+                <span class="slider-tick"></span>
+                <span class="slider-tick major"></span>
+                <div class="slider-indicator-dot" id="dotMass"></div>
+              </div>
+              <div class="slider-labels">
+                <span>500 kg</span>
+                <span>1500 kg</span>
+                <span>2500 kg</span>
+                <span>3500 kg</span>
+                <span>5000 kg</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- উচ্চতা স্লাইডার -->
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>উত্তোলন উচ্চতা ($h$): <b id="lblHeight" style="color:#0f766e">15.0 m</b></span>
+              <span style="font-size:12px;color:#64748b">পরিসীমা: 5m - 30m</span>
+            </div>
+            <div class="slider-container">
+              <input id="rngHeight" class="range custom-range" type="range" min="5" max="30" value="15" step="1" oninput="onHeightChange(this.value)">
+            </div>
+            <div class="slider-indicator-wrap">
+              <div class="slider-track-ticks">
+                <span class="slider-tick major"></span>
+                <span class="slider-tick"></span>
+                <span class="slider-tick major"></span>
+                <span class="slider-tick"></span>
+                <span class="slider-tick major"></span>
+                <div class="slider-indicator-dot" id="dotHeight"></div>
+              </div>
+              <div class="slider-labels">
+                <span>5 m</span>
+                <span>10 m</span>
+                <span>15 m</span>
+                <span>20 m</span>
+                <span>30 m</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- সময় স্লাইডার -->
+          <div class="slider-group">
+            <div class="slider-label">
+              <span>পাম্প চলার সময় ($t$): <b id="lblTime" style="color:#0f766e">140 s</b></span>
+              <span style="font-size:12px;color:#64748b">পরিসীমা: 30s - 300s</span>
+            </div>
+            <div class="slider-container">
+              <input id="rngTime" class="range custom-range" type="range" min="30" max="300" value="140" step="5" oninput="onTimeChange(this.value)">
+            </div>
+            <div class="slider-indicator-wrap">
+              <div class="slider-track-ticks">
+                <span class="slider-tick major"></span>
+                <span class="slider-tick"></span>
+                <span class="slider-tick major"></span>
+                <span class="slider-tick"></span>
+                <span class="slider-tick major"></span>
+                <div class="slider-indicator-dot" id="dotTime"></div>
+              </div>
+              <div class="slider-labels">
+                <span>30 s</span>
+                <span>90 s</span>
+                <span>150 s</span>
+                <span>210 s</span>
+                <span>300 s</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="control-row">
+          <div class="fine-tune-btns">
+            <button class="btn-step" onclick="stepPin(-0.5)">− ০.৫ kW</button>
+            <button class="btn-step" onclick="stepPin(0.5)">+ ০.৫ kW</button>
+            <button class="btn-step" onclick="stepHeight(-2)">− ২ মি.</button>
+            <button class="btn-step" onclick="stepHeight(2)">+ ২ মি.</button>
+            <button class="btn-step primary" id="pumpToggleBtn" onclick="togglePump()">▶️ পাম্প চালু করো</button>
+            <button class="btn-step" onclick="resetSim()">🔄 রিসেট</button>
+          </div>
+          <button class="btn-step" id="quizToggleBtn" style="background:#f0fdfa;color:#0f766e;border-color:#99f6e4" onclick="toggleQuizMode()">🎯 কুইজ মোড চালু করো</button>
+        </div>
+      </div>
+
+      <!-- ইন্টারেক্টিভ SVG ডায়াগ্রাম -->
+      <div class="lab-svg-wrap">
+        <svg id="pumpSvg" class="lab-svg" viewBox="0 0 800 230" role="img" aria-label="পাম্প কর্মদক্ষতা ল্যাব সিমুলেশন">
+          <!-- Background -->
+          <rect x="0" y="0" width="800" height="230" fill="#f8fafc" rx="10"/>
+
+          <!-- Left Canvas: Water Pumping Station -->
+          <g transform="translate(30, 15)">
+            <!-- Underground Reservoir -->
+            <rect x="10" y="145" width="120" height="65" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2" rx="4"/>
+            <rect id="wellWater" x="12" y="160" width="116" height="48" fill="#0284c7" opacity="0.75" rx="2"/>
+            <text x="70" y="195" font-size="11" font-weight="800" fill="#ffffff" text-anchor="middle">ভূগর্ভস্থ পানি</text>
+
+            <!-- Suction Pipe -->
+            <rect x="65" y="115" width="10" height="45" fill="#94a3b8"/>
+
+            <!-- Motor Pump Unit -->
+            <rect x="50" y="90" width="40" height="30" fill="#0f766e" stroke="#115e59" stroke-width="2" rx="6"/>
+            <!-- Rotating Impeller Blade -->
+            <g id="impeller" transform="translate(70, 105)">
+              <circle cx="0" cy="0" r="8" fill="#ffffff"/>
+              <line x1="-6" y1="0" x2="6" y2="0" stroke="#0f766e" stroke-width="2"/>
+              <line x1="0" y1="-6" x2="0" y2="6" stroke="#0f766e" stroke-width="2"/>
+            </g>
+            <text x="70" y="82" font-size="10" font-weight="800" fill="#0f766e" text-anchor="middle">মোটর পাম্প</text>
+
+            <!-- Delivery Pipe Going Up -->
+            <path d="M 90 105 L 180 105 L 180 35 L 230 35" fill="none" stroke="#64748b" stroke-width="8" stroke-linecap="round"/>
+            <path id="waterFlow" d="M 90 105 L 180 105 L 180 35 L 230 35" fill="none" stroke="#38bdf8" stroke-width="4" stroke-dasharray="8 6"/>
+
+            <!-- Overhead Roof Tank -->
+            <rect x="230" y="20" width="130" height="90" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2" rx="6"/>
+            <rect id="tankWater" x="232" y="55" width="126" height="53" fill="#0284c7" opacity="0.8" rx="4"/>
+            <text x="295" y="45" font-size="11" font-weight="800" fill="#1e293b" text-anchor="middle">ছাদের পানির ট্যাংক</text>
+            <text id="tankWaterLabel" x="295" y="85" font-size="12" font-weight="900" fill="#ffffff" text-anchor="middle">2000 kg পানি</text>
+
+            <!-- Height Dimension Indicator -->
+            <line x1="375" y1="25" x2="375" y2="195" stroke="#0f766e" stroke-width="2" stroke-dasharray="4"/>
+            <polyline points="371,30 375,25 379,30" fill="none" stroke="#0f766e" stroke-width="2"/>
+            <polyline points="371,190 375,195 379,190" fill="none" stroke="#0f766e" stroke-width="2"/>
+            <text id="svgHeightLabel" x="382" y="115" font-size="11" font-weight="800" fill="#0f766e">h = 15.0 m</text>
+          </g>
+
+          <!-- Vertical Divider -->
+          <line x1="450" y1="15" x2="450" y2="210" stroke="#e2e8f0" stroke-width="2"/>
+
+          <!-- Right Canvas: Precision Efficiency Gauge & Flow -->
+          <g transform="translate(470, 15)">
+            <text x="15" y="15" font-size="13" font-weight="800" fill="#1e293b">কর্মদক্ষতা মিটার ডায়াল:</text>
+            <text id="gaugeStatusText" x="290" y="15" font-size="11" font-weight="800" fill="#16a34a" text-anchor="end">উচ্চ কর্মদক্ষতা 🌟</text>
+
+            <!-- Semicircular Gauge (cx=150, cy=145, r=75) -->
+            <g transform="translate(0, 10)">
+              <!-- Background Track -->
+              <path d="M 75 140 A 75 75 0 0 1 225 140" fill="none" stroke="#e2e8f0" stroke-width="16" stroke-linecap="round"/>
+              <!-- Active Colored Arc -->
+              <path id="svgGaugeArc" d="M 75 140 A 75 75 0 0 1 200 85" fill="none" stroke="#16a34a" stroke-width="16" stroke-linecap="round"/>
+
+              <!-- Tick Marks -->
+              <text x="65" y="160" font-size="10" font-weight="700" fill="#94a3b8">0%</text>
+              <text x="145" y="60" font-size="10" font-weight="700" fill="#94a3b8">50%</text>
+              <text x="225" y="160" font-size="10" font-weight="700" fill="#94a3b8">100%</text>
+
+              <!-- Center Big Readout -->
+              <text id="svgEtaText" x="150" y="125" font-size="28" font-weight="900" fill="#16a34a" text-anchor="middle">70.0%</text>
+              <text x="150" y="145" font-size="11" font-weight="800" fill="#64748b" text-anchor="middle">কর্মদক্ষতা (η)</text>
+
+              <!-- Power flow summary banner -->
+              <rect x="25" y="168" width="250" height="26" fill="#f8fafc" stroke="#cbd5e1" rx="6"/>
+              <text id="powerFlowBanner" x="150" y="185" font-size="11" font-weight="800" fill="#334155" text-anchor="middle">Pin (3.0 kW) ➔ Pout (2.1 kW) + অপচয় (0.9 kW)</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <!-- পাঠ বিশ্লেষণ কার্ড (Calc Grid) -->
+      <div class="calc-grid" id="calcGrid">
+        <div class="calc-item info">
+          <div class="title">মোট প্রদত্ত ক্ষমতা (Pin)</div>
+          <div class="value" id="dispPin">3.00 kW</div>
+        </div>
+        <div class="calc-item info">
+          <div class="title">সম্পন্ন দরকারী কাজ (W = mgh)</div>
+          <div class="value" id="dispWork">294.0 kJ</div>
+        </div>
+        <div class="calc-item">
+          <div class="title">কার্যকর ক্ষমতা (Pout = W/t)</div>
+          <div class="value" id="dispPout">2.10 kW</div>
+        </div>
+        <div class="calc-item danger">
+          <div class="title">অপচয় ক্ষমতা (Ploss)</div>
+          <div class="value" id="dispPloss">0.90 kW</div>
+        </div>
+        <div class="calc-item highlight">
+          <div class="title">কর্মদক্ষতা (η = Pout/Pin)</div>
+          <div class="value" id="dispEta">70.0%</div>
+        </div>
+      </div>
+
+      <!-- লাইভ গণনার বিস্তারিত বাক্য (Readout) -->
+      <div class="readout" id="detailedReadout">
+        পাম্পের লভ্য কার্যকর ক্ষমতা $P_{\text{out}} = \frac{mgh}{t} = \frac{2000 \times 9.8 \times 15}{140} = 2100\text{ W} = 2.10\text{ kW}$। কর্মদক্ষতা $\eta = \frac{2.10}{3.00} \times 100\% = 70.0\%$।
+      </div>
+
+      <!-- কুইজ চ্যালেঞ্জ বক্স -->
+      <div class="quiz-box" id="quizBox">
+        <p style="margin:0 0 8px;font-weight:800;color:#92400e" id="quizQuestion">
+          🎯 কুইজ প্রশ্ন: একটি $2\text{ kW}$ মোটরের সাহায্যে $10\text{ m}$ উচ্চতায় $1\text{ মিনিটে } 1000\text{ kg}$ পানি তোলা হলে মোটরের কর্মদক্ষতা ($\eta$) কত শতাংশ?
+        </p>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <input type="number" id="studentAnswer" placeholder="যেমন: 81.7" style="padding:8px 14px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;width:150px" step="0.1">
+          <button class="button" style="padding:8px 16px;font-size:13px;background:#0f766e" onclick="checkQuizAnswer()">যাচাই করো</button>
+          <button class="btn-step" onclick="generateNewQuiz()">নতুন প্রশ্ন ❯</button>
+          <span id="quizFeedback" style="font-weight:750;font-size:14px"></span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let Pin = 3.0;
+      let mass = 2000;
+      let height = 15;
+      let time = 140;
+      const g = 9.8;
+      let isPumpRunning = false;
+      let pumpAnimId = null;
+      let impellerAngle = 0;
+      let quizActive = false;
+      let currentQuizExpected = 81.7;
+
+      function updateEfficiency() {
+        const PinW = Pin * 1000;
+        const usefulWork = mass * g * height;
+        const rawPoutW = usefulWork / time;
+        const rawPoutKW = rawPoutW / 1000;
+        const isOverloaded = rawPoutW > PinW;
+
+        document.getElementById('lblPin').innerText = Pin.toFixed(1) + ' kW';
+        document.getElementById('lblMass').innerText = mass.toFixed(0) + ' kg';
+        document.getElementById('lblHeight').innerText = height.toFixed(1) + ' m';
+        document.getElementById('lblTime').innerText = time.toFixed(0) + ' s';
+
+        document.getElementById('tankWaterLabel').textContent = mass.toFixed(0) + ' kg পানি';
+        document.getElementById('svgHeightLabel').textContent = 'h = ' + height.toFixed(1) + ' m';
+
+        const cx = 150, cy = 140, r = 75;
+        const gaugeArc = document.getElementById('svgGaugeArc');
+        const gaugeVal = document.getElementById('svgEtaText');
+        const gaugeStatus = document.getElementById('gaugeStatusText');
+        const readout = document.getElementById('detailedReadout');
+
+        if (isOverloaded) {
+          document.getElementById('dispPin').innerText = Pin.toFixed(2) + ' kW';
+          document.getElementById('dispWork').innerText = (usefulWork / 1000).toFixed(1) + ' kJ';
+          document.getElementById('dispPout').innerText = rawPoutKW.toFixed(2) + ' kW (অসম্ভব)';
+          document.getElementById('dispPloss').innerText = '0.00 kW';
+          document.getElementById('dispEta').innerText = '>100% ⚠️';
+
+          gaugeVal.textContent = 'ওভারলোড!';
+          gaugeVal.setAttribute('fill', '#dc2626');
+          gaugeStatus.textContent = '⚠️ শক্তির নিত্যতা লঙ্ঘন (অসম্ভব)';
+          gaugeStatus.style.color = '#dc2626';
+
+          gaugeArc.setAttribute('stroke', '#dc2626');
+          gaugeArc.setAttribute('d', 'M 75 140 A 75 75 0 0 1 225 140');
+
+          document.getElementById('powerFlowBanner').textContent = '⚠️ অতিরিক্ত লোড: এই মোটরে এত দ্রুত এত পানি তোলা অসম্ভব!';
+          readout.innerHTML = '⚠️ <b>সতর্কতা:</b> প্রদত্ত ক্ষমতা $P_{\\text{in}} = ' + Pin.toFixed(2) + '\\text{ kW}$ হলেও পানি তুলতে প্রয়োজনীয় ক্ষমতা $' + rawPoutKW.toFixed(2) + '\\text{ kW}$, যা ইনপুটের চেয়ে বেশি। এটি শক্তির নিত্যতা নীতির পরিপন্থী।';
+          if (window.renderMathInElement) {
+            renderMathInElement(readout, { delimiters: [{left: '$', right: '$', display: false}] });
+          }
+          return;
+        }
+
+        const PoutW = rawPoutW;
+        const PoutKW = rawPoutKW;
+        const PlossKW = Math.max(0, Pin - PoutKW);
+        const eta = Math.min(99.9, Math.max(0.1, (PoutW / PinW) * 100));
+
+        document.getElementById('dispPin').innerText = Pin.toFixed(2) + ' kW';
+        document.getElementById('dispWork').innerText = (usefulWork / 1000).toFixed(1) + ' kJ';
+        document.getElementById('dispPout').innerText = PoutKW.toFixed(2) + ' kW';
+        document.getElementById('dispPloss').innerText = PlossKW.toFixed(2) + ' kW';
+        document.getElementById('dispEta').innerText = eta.toFixed(1) + '%';
+
+        gaugeVal.textContent = eta.toFixed(1) + '%';
+
+        // Precision Arc Sweep
+        const fraction = Math.min(1, Math.max(0.001, eta / 100));
+        const angle = Math.PI * (1 - fraction);
+        const x = cx + r * Math.cos(angle);
+        const y = cy - r * Math.sin(angle);
+        gaugeArc.setAttribute('d', 'M 75 140 A 75 75 0 0 1 ' + x + ' ' + y);
+
+        if (eta >= 70) {
+          gaugeArc.setAttribute('stroke', '#16a34a');
+          gaugeVal.setAttribute('fill', '#16a34a');
+          gaugeStatus.textContent = 'উচ্চ কর্মদক্ষতা সম্পন্ন মোটর 🌟';
+          gaugeStatus.style.color = '#16a34a';
+        } else if (eta >= 45) {
+          gaugeArc.setAttribute('stroke', '#0f766e');
+          gaugeVal.setAttribute('fill', '#0f766e');
+          gaugeStatus.textContent = 'মাঝারি কর্মদক্ষতার মোটর 👍';
+          gaugeStatus.style.color = '#0f766e';
+        } else {
+          gaugeArc.setAttribute('stroke', '#dc2626');
+          gaugeVal.setAttribute('fill', '#dc2626');
+          gaugeStatus.textContent = 'অতিরিক্ত শক্তি অপচয় হচ্ছে ⚠️';
+          gaugeStatus.style.color = '#dc2626';
+        }
+
+        document.getElementById('powerFlowBanner').textContent = 'Pin (' + Pin.toFixed(2) + ' kW) ➔ Pout (' + PoutKW.toFixed(2) + ' kW) + অপচয় (' + PlossKW.toFixed(2) + ' kW)';
+
+        readout.innerHTML = 'পাম্পের লভ্য কার্যকর ক্ষমতা $P_{\\text{out}} = \\frac{mgh}{t} = \\frac{' + mass + ' \\times 9.8 \\times ' + height + '}{' + time + '} = ' + PoutW.toFixed(0) + '\\text{ W} = ' + PoutKW.toFixed(2) + '\\text{ kW}$। কর্মদক্ষতা $\\eta = \\frac{' + PoutKW.toFixed(2) + '}{' + Pin.toFixed(2) + '} \\times 100\\% = ' + eta.toFixed(1) + '\\%$।';
+        if (window.renderMathInElement) {
+          renderMathInElement(readout, { delimiters: [{left: '$', right: '$', display: false}] });
+        }
+      }
+
+      function onPinChange(val) { Pin = parseFloat(val); updateEfficiency(); }
+      function onMassChange(val) { mass = parseFloat(val); updateEfficiency(); }
+      function onHeightChange(val) { height = parseFloat(val); updateEfficiency(); }
+      function onTimeChange(val) { time = parseFloat(val); updateEfficiency(); }
+
+      function stepPin(delta) {
+        Pin = Math.max(0.5, Math.min(6.0, Pin + delta));
+        document.getElementById('rngPin').value = Pin;
+        updateEfficiency();
+      }
+
+      function stepHeight(delta) {
+        height = Math.max(5, Math.min(30, height + delta));
+        document.getElementById('rngHeight').value = height;
+        updateEfficiency();
+      }
+
+      function setPreset(newPin, newM, newH, newT, btn) {
+        Pin = newPin; mass = newM; height = newH; time = newT;
+        document.getElementById('rngPin').value = Pin;
+        document.getElementById('rngMass').value = mass;
+        document.getElementById('rngHeight').value = height;
+        document.getElementById('rngTime').value = time;
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        updateEfficiency();
+      }
+
+      function togglePump() {
+        isPumpRunning = !isPumpRunning;
+        const btn = document.getElementById('pumpToggleBtn');
+        const waterFlow = document.getElementById('waterFlow');
+        if (isPumpRunning) {
+          btn.innerText = '⏸️ পাম্প বন্ধ করো';
+          let flowOffset = 0;
+          function loop() {
+            impellerAngle = (impellerAngle + 12) % 360;
+            document.getElementById('impeller').setAttribute('transform', 'translate(70, 105) rotate(' + impellerAngle + ')');
+            flowOffset = (flowOffset - 2) % 28;
+            waterFlow.setAttribute('stroke-dashoffset', flowOffset);
+            if (isPumpRunning) {
+              pumpAnimId = requestAnimationFrame(loop);
+            }
+          }
+          pumpAnimId = requestAnimationFrame(loop);
+        } else {
+          btn.innerText = '▶️ পাম্প চালু করো';
+          cancelAnimationFrame(pumpAnimId);
+        }
+      }
+
+      function resetSim() {
+        isPumpRunning = false;
+        cancelAnimationFrame(pumpAnimId);
+        document.getElementById('pumpToggleBtn').innerText = '▶️ পাম্প চালু করো';
+        setPreset(3.0, 2000, 15, 140, document.querySelector('.preset-btn'));
+      }
+
+      function toggleQuizMode() {
+        quizActive = !quizActive;
+        const box = document.getElementById('quizBox');
+        const btn = document.getElementById('quizToggleBtn');
+        const grid = document.getElementById('calcGrid');
+        if (quizActive) {
+          box.classList.add('active');
+          btn.innerText = 'বইয়ের ধারায় ফেরো';
+          btn.style.background = '#fef3c7';
+          btn.style.color = '#92400e';
+          grid.style.opacity = '0.35';
+          generateNewQuiz();
+        } else {
+          box.classList.remove('active');
+          btn.innerText = '🎯 কুইজ মোড চালু করো';
+          btn.style.background = '#f0fdfa';
+          btn.style.color = '#0f766e';
+          grid.style.opacity = '1';
+        }
+      }
+
+      function generateNewQuiz() {
+        const qPin = Math.floor(Math.random() * 4 + 2); // 2 to 5 kW
+        const qM = Math.floor(Math.random() * 4 + 1) * 1000; // 1000 to 4000 kg
+        const qH = Math.floor(Math.random() * 3 + 1) * 10; // 10 to 30 m
+        const qT = 60; // 1 minute
+        const usefulW = (qM * g * qH) / qT;
+        currentQuizExpected = parseFloat(((usefulW / (qPin * 1000)) * 100).toFixed(1));
+
+        const qBox = document.getElementById('quizQuestion');
+        qBox.innerHTML = '🎯 কুইজ প্রশ্ন: একটি $' + qPin + '\\text{ kW}$ মোটরের সাহায্যে $' + qH + '\\text{ m}$ উচ্চতায় $1\\text{ মিনিটে } ' + qM + '\\text{ kg}$ পানি তোলা হলে মোটরের কর্মদক্ষতা ($\\\\eta$) কত শতাংশ? ($g = 9.8\\text{ m/s}^2$)';
+        document.getElementById('studentAnswer').value = '';
+        document.getElementById('quizFeedback').innerText = '';
+        if (window.renderMathInElement) {
+          renderMathInElement(qBox, { delimiters: [{left: '$', right: '$', display: false}] });
+        }
+      }
+
+      function checkQuizAnswer() {
+        const ans = parseFloat(document.getElementById('studentAnswer').value);
+        const fb = document.getElementById('quizFeedback');
+        if (isNaN(ans)) {
+          fb.innerText = 'দয়া করে সংখ্যায় উত্তর লিখুন!';
+          fb.style.color = '#dc2626';
+          return;
+        }
+        const diff = Math.abs(ans - currentQuizExpected);
+        if (diff <= 1.0) {
+          fb.innerText = 'অভিনন্দন! সঠিক উত্তর (' + currentQuizExpected + '%) 🎉';
+          fb.style.color = '#16a34a';
+        } else {
+          fb.innerText = 'ভুল হয়েছে। সঠিক উত্তর হবে: ' + currentQuizExpected + '%';
+          fb.style.color = '#dc2626';
+        }
+      }
+
+      updateEfficiency();
+    </script>
+
+    <section class="section">
+      <h2>৪.৮ · কর্মদক্ষতার ভৌত সংজ্ঞা ও গাণিতিক সমীকরণ</h2>
+      <p>আমরা কোনো ইঞ্জিন বা যন্ত্রে শক্তি সরবরাহ করলে যন্ত্রটি সেই শক্তির পুরোটা দিয়ে আমাদের কাঙ্ক্ষিত কাজ করতে পারে না। যন্ত্রের ভেতরে যন্ত্রাংশের ঘর্ষণ, প্রতিরোধ, উৎপন্ন তাপ ও শব্দের কারণে শক্তির একটি নির্দিষ্ট অংশ অবধারিতভাবেই পরিবেশে অপচয় হয়ে যায়।</p>
+      <p>পদার্থবিজ্ঞানে—<b>কোনো যন্ত্রে মোট যে শক্তি (বা ক্ষমতা) দেওয়া হয় এবং তা থেকে যে লভ্য কার্যকর শক্তি (বা ক্ষমতা) পাওয়া যায়, তাদের শতকরা অনুপাতকে ঐ যন্ত্রের কর্মদক্ষতা (Efficiency, $\eta$)</b> বলে।</p>
+
+      <div class="highlight-box">
+        <b>💡 কর্মদক্ষতার গাণিতিক সমীকরণ (Efficiency Formula):</b>
+        $$\eta = \frac{\text{লভ্য কার্যকর শক্তি (Useful Output Energy)}}{\text{মোট প্রদত্ত শক্তি (Total Input Energy)}} \times 100\%$$
+        ক্ষমতার মাধ্যমে প্রকাশ করলে:
+        $$\eta = \frac{\text{লভ্য কার্যকর ক্ষমতা } (P_{\text{out}})}{\text{মোট প্রদত্ত ক্ষমতা } (P_{\text{in}})} \times 100\%$$
+        যেখানে কার্যকর ক্ষমতা $P_{\text{out}} = \frac{mgh}{t}$ (পানির পাম্পের ক্ষেত্রে)।
+      </div>
+
+      <h3>শক্তির অপচয় ও কর্মদক্ষতার সীমাবদ্ধতা</h3>
+      <p>শক্তির নিত্যতা নীতি অনুসারে, কোনো যন্ত্রে প্রদত্ত মোট শক্তি দুটি ভাগে বিভক্ত হয়:</p>
+      $$\text{মোট প্রদত্ত শক্তি } (E_{\text{in}}) = \text{লভ্য কার্যকর শক্তি } (E_{\text{out}}) + \text{অপচয়কৃত শক্তি } (E_{\text{loss}})$$
+      $$\text{অপচয়কৃত ক্ষমতা } (P_{\text{loss}}) = P_{\text{in}} - P_{\text{out}}$$
+      <p><b>কেন কর্মদক্ষতা ১০০% হতে পারে না?</b><br>
+      বাস্তব জগতে এমন কোনো যন্ত্র তৈরি করা অসম্ভব যাতে ঘর্ষণ বা তাপীয় ক্ষতি সম্পূর্ণ শূন্য করা যায়। যেহেতু কিছু না কিছু শক্তি অপচয় হবেই ($E_{\text{loss}} > 0$), তাই কার্যকর শক্তি সর্বদাই প্রদত্ত শক্তির চেয়ে কম হবে ($E_{\text{out}} < E_{\text{in}}$)। ফলে বাস্তব ইঞ্জিনের কর্মদক্ষতা কখনোই $100\%$ হওয়া সম্ভব নয় ($\eta < 100\%$), আর $100\%$-এর বেশি হওয়া শক্তির নিত্যতা নীতির চরম লঙ্ঘন।</p>
+
+      <div class="grid">
+        <div class="term">
+          <strong>কর্মদক্ষতা ($\eta\%$)</strong>
+          <small>কার্যকর কাজ এবং প্রদত্ত শক্তির শতকরা অনুপাত। এর কোনো একক নেই, কারণ এটি দুটি সমজাতীয় রাশির অনুপাত।</small>
+        </div>
+        <div class="term">
+          <strong>লভ্য কার্যকর ক্ষমতা ($P_{\text{out}}$)</strong>
+          <small>যন্ত্রটি থেকে বাস্তবে যে দরকারি কাজ পাওয়া যায় তার হার ($P_{\text{out}} = \frac{W}{t} = \frac{mgh}{t}$)।</small>
+        </div>
+        <div class="term">
+          <strong>মোট প্রদত্ত ক্ষমতা ($P_{\text{in}}$)</strong>
+          <small>যন্ত্রকে সচল রাখতে যে বিদ্যুৎ বা জ্বালানি শক্তি সরবরাহ করা হয় ($P_{\text{in}}$)।</small>
+        </div>
+        <div class="term">
+          <strong>অপচয়কৃত শক্তি ($E_{\text{loss}}$)</strong>
+          <small>ঘর্ষণ, অপ্রয়োজনীয় উত্তাপ ও শব্দের মাধ্যমে পরিবেশে বিলীন হয়ে যাওয়া শক্তির অংশ ($P_{\text{loss}} = P_{\text{in}} - P_{\text{out}}$)।</small>
+        </div>
+      </div>
+    </section>
+
+    <div class="note">
+      <h2>🚌 বাস্তব জীবনের আকর্ষণীয় উদাহরণ</h2>
+      <ul>
+        <li><b>বৈদ্যুতিক মোটর কেন গরম হয়?:</b> বাসাবাড়ির পানির মোটর কিছুক্ষণ চলার পর স্পর্শ করলে বেশ গরম অনুভূত হয়। এটি মূলত সেই অপচয়কৃত শক্তি ($P_{\text{loss}}$), যা তারের রোধ ও ঘূর্ণনরত শ্যাফটের ঘর্ষণে তাপে রূপান্তরিত হয়ে পরিবেশে হারিয়ে গেছে।</li>
+        <li><b>পেট্রোল ও ডিজেল ইঞ্জিনের অপচয়:</b> গাড়ির জ্বালানি ইঞ্জিনের কর্মদক্ষতা মাত্র ২৫%-৩৫%। অর্থাৎ ১০০ টাকার তেলের প্রায় ৭০ টাকার শক্তিই ইঞ্জিন গরম করে এবং সাইলেন্সার দিয়ে ধোঁয়া ও শব্দ হিসেবে নষ্ট হয়ে যায়!</li>
+        <li><b>ইনভার্টার প্রযুক্তির সুবিধা:</b> আধুনিক ইনভার্টার এসি ও রেফ্রিজারেটরে উন্নত বিয়ারিং ও আধুনিক মোটর ড্রাইভার ব্যবহার করায় শক্তির অপচয় প্রায় অর্ধেক হ্রাস পায় এবং কর্মদক্ষতা বহুলাংশে বৃদ্ধি পায়।</li>
+      </ul>
+    </div>
+
+    <div class="memory">
+      <h2>🧠 মনে রাখার কৌশল: কর্মদক্ষতার ছন্দ</h2>
+      <p>“যা দিলে আর যা পেলে তার শতকরার ফল,<br>
+      কর্মদক্ষতা বলে ভাই ইঞ্জিনের আসল বল!<br>
+      ১০০% দক্ষতা পাওয়া অসম্ভব এ ধরায়,<br>
+      ঘর্ষণ আর তাপে কিছু শক্তি তো হারায়।”</p>
+    </div>
+
+    <div class="worked">
+      <h2>📝 পাঠ্যবইয়ের স্ট্যান্ডার্ড গাণিতিক সমস্যা</h2>
+      <div class="problem">
+        একটি $3\text{ kW}$ বৈদ্যুতিক মোটরের কর্মদক্ষতা $70\%$। মোটরটি ব্যবহার করে $10\text{ m}$ উচ্চতায় ৫ মিনিটে কত লিটার পানি তোলা সম্ভব? ($g = 9.8\text{ m/s}^2$)
+      </div>
+      <div class="solution">
+        <b>প্রদত্ত তথ্য:</b><br>
+        মোটরে প্রদত্ত মোট ক্ষমতা $P_{\text{in}} = 3\text{ kW} = 3000\text{ W}$<br>
+        কর্মদক্ষতা $\eta = 70\% = 0.70$<br>
+        পানির উত্তোলনের উচ্চতা $h = 10\text{ m}$<br>
+        সময় $t = 5\text{ মিনিট} = 5 \times 60\text{ s} = 300\text{ s}$<br>
+        অভিকর্ষজ ত্বরণ $g = 9.8\text{ m/s}^2$<br><br>
+        <b>আমরা জানি:</b><br>
+        $$\eta = \frac{P_{\text{out}}}{P_{\text{in}}} \implies P_{\text{out}} = \eta \times P_{\text{in}}$$
+        $$P_{\text{out}} = 0.70 \times 3000 = 2100\text{ W}$$<br>
+        আবার, কার্যকর ক্ষমতা:<br>
+        $$P_{\text{out}} = \frac{W}{t} = \frac{mgh}{t}$$
+        $$m = \frac{P_{\text{out}} \times t}{gh} = \frac{2100 \times 300}{9.8 \times 10} = \frac{630000}{98} \approx 6428.57\text{ kg}$$<br>
+        যেহেতু প্রতি $1\text{ kg}$ বিশুদ্ধ পানির আয়তন ঠিক $1\text{ L}$ (লিটার):<br>
+        $$\text{উত্তোলিত পানির আয়তন} \approx 6429\text{ লিটার}$$
+        <b>উত্তর:</b> মোটরটি দিয়ে ৫ মিনিটে প্রায় $6429\text{ লিটার}$ পানি উপরে তোলা যাবে।
+      </div>
+    </div>
+
+    <details class="check">
+      <summary>প্রশ্ন: একটি মোটরের কর্মদক্ষতা ৬৫% বলতে কী বোঝায়? বাকি ৩৫% শক্তি কোথায় যায়?</summary>
+      <p><b>উত্তর:</b> একটি মোটরের কর্মদক্ষতা ৬৫% বলতে বোঝায়—মোটরে মোট ১০০ জুল বৈদ্যুতিক শক্তি প্রদান করা হলে মোটরটি কেবল ৬৫ জুল শক্তিকে কার্যকর কাজে (যেমন পানি উত্তোলন বা যান্ত্রিক গতি) রূপান্তর করতে পারে। বাকি ৩৫ জুল শক্তি মোটরের কয়েলের রোধে উৎপন্ন তাপ, চলন্ত যন্ত্রাংশের ঘর্ষণজনিত উত্তাপ এবং ঘূর্ণনরত শব্দের মাধ্যমে অপচয় হয়ে চারপাশের পরিবেশে ছড়িয়ে পড়ে।</p>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-07.html">← পূর্বের পাঠ: ক্ষমতা</a>
+      <a class="button" href="index.html">অধ্যায় সূচিতে ফিরে যাও ↺</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF)</a> · অধ্যায় ৪: কাজ, ক্ষমতা ও শক্তি · পড়ি (poRi)
+    </footer>
+  </main>
+</body>
+</html>

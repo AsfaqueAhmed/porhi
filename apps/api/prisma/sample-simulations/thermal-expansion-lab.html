@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>পদার্থের তাপীয় প্রসারণ সিমুলেশন ল্যাব</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #0f172a; color: #f8fafc; padding: 14px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    .container { max-width: 740px; width: 100%; display: flex; flex-direction: column; gap: 12px; }
+    header { text-align: center; }
+    h1 { font-size: 1.15rem; color: #fb923c; margin-bottom: 3px; }
+    p { font-size: 0.8rem; color: #94a3b8; }
+    .canvas-wrap { background: #1e293b; border-radius: 12px; border: 1px solid #334155; overflow: hidden; width: 100%; position: relative; }
+    svg { display: block; width: 100%; height: 180px; }
+    .btn-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    button { padding: 6px 12px; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #e2e8f0; font-size: 0.78rem; font-weight: 750; cursor: pointer; transition: all 0.15s ease; }
+    button.active { background: #ea580c; border-color: #fb923c; color: #fff; box-shadow: 0 0 10px rgba(234, 88, 12, 0.4); }
+    button:hover { filter: brightness(1.15); }
+    .controls { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 12px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .control-group { display: flex; flex-direction: column; gap: 4px; }
+    label { font-size: 0.75rem; color: #cbd5e1; display: flex; justify-content: space-between; font-weight: 700; }
+    .custom-range {
+      -webkit-appearance: none; appearance: none; width: 100%; height: 8px; border-radius: 999px; outline: none;
+      background: #334155; cursor: pointer;
+    }
+    .custom-range::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #ea580c; border: 2px solid #fff; cursor: pointer;
+    }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 8px; text-align: center; }
+    .card .title { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; margin-bottom: 2px; }
+    .card .val { font-size: 1.05rem; font-weight: 800; color: #fb923c; }
+    .readout { background: #1e293b; border-left: 3px solid #ea580c; padding: 10px 14px; border-radius: 0 8px 8px 0; font-size: 0.82rem; color: #cbd5e1; line-height: 1.6; }
+    .formula-math { color: #fde047; font-weight: 700; font-family: ui-monospace, Menlo, monospace; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔥 পদার্থের তাপীয় প্রসারণ সিমুলেশন ল্যাব</h1>
+      <p>বিভিন্ন ধাতু নির্বাচন করো এবং তাপমাত্রা ও দৈর্ঘ্য পরিবর্তন করে দৈর্ঘ্য বৃদ্ধি ($\Delta L$) পর্যবেক্ষণ করো।</p>
+    </header>
+
+    <div class="canvas-wrap">
+      <svg id="expansionSvg" viewBox="0 0 700 180">
+        <defs>
+          <linearGradient id="clampGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#475569"/>
+            <stop offset="100%" stop-color="#334155"/>
+          </linearGradient>
+          <linearGradient id="rodGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#fdba74"/>
+            <stop offset="50%" stop-color="#ea580c"/>
+            <stop offset="100%" stop-color="#9a3412"/>
+          </linearGradient>
+        </defs>
+
+        <!-- Background grid lines -->
+        <line x1="50" y1="140" x2="650" y2="140" stroke="#334155" stroke-dasharray="4 4"/>
+        <line x1="50" y1="60" x2="650" y2="60" stroke="#334155" stroke-dasharray="4 4"/>
+
+        <!-- Left Rigid Wall Clamp -->
+        <rect x="40" y="30" width="30" height="110" fill="url(#clampGrad)" rx="4"/>
+        <line x1="30" y1="30" x2="70" y2="30" stroke="#64748b" stroke-width="3"/>
+        <line x1="30" y1="140" x2="70" y2="140" stroke="#64748b" stroke-width="3"/>
+        <circle cx="55" cy="50" r="4" fill="#94a3b8"/>
+        <circle cx="55" cy="120" r="4" fill="#94a3b8"/>
+        <text x="55" y="160" text-anchor="middle" fill="#64748b" font-size="11" font-weight="700">দৃঢ় অবলম্বন</text>
+
+        <!-- Animated Heated Metal Rod -->
+        <rect id="metalRod" x="70" y="70" width="400" height="28" fill="url(#rodGrad)" rx="3"/>
+
+        <!-- Flame Indicators -->
+        <g id="burnerFlames">
+          <circle cx="160" cy="115" r="8" fill="#f97316" opacity="0.8"/>
+          <circle cx="260" cy="115" r="8" fill="#f97316" opacity="0.8"/>
+          <circle cx="360" cy="115" r="8" fill="#f97316" opacity="0.8"/>
+        </g>
+        <line x1="120" y1="122" x2="400" y2="122" stroke="#64748b" stroke-width="3"/>
+        <text x="260" y="137" text-anchor="middle" fill="#f97316" font-size="10" font-weight="700">🔥 বার্নার তাপ উৎস</text>
+
+        <!-- Right Dial Gauge Frame -->
+        <g id="gaugeGroup" transform="translate(560, 84)">
+          <circle cx="0" cy="0" r="42" fill="#1e293b" stroke="#cbd5e1" stroke-width="3"/>
+          <circle cx="0" cy="0" r="38" fill="#0f172a"/>
+          <!-- Dial ticks -->
+          <line x1="0" y1="-34" x2="0" y2="-28" stroke="#cbd5e1" stroke-width="2"/>
+          <line x1="34" y1="0" x2="28" y2="0" stroke="#cbd5e1" stroke-width="2"/>
+          <line x1="0" y1="34" x2="0" y2="28" stroke="#cbd5e1" stroke-width="2"/>
+          <line x1="-34" y1="0" x2="-28" y2="0" stroke="#cbd5e1" stroke-width="2"/>
+          <!-- Needle -->
+          <line id="dialNeedle" x1="0" y1="0" x2="0" y2="-28" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="0" cy="0" r="4" fill="#f8fafc"/>
+          <text x="0" y="20" text-anchor="middle" fill="#94a3b8" font-size="8" font-weight="700">মাইক্রোমিটার</text>
+          <text id="gaugeReadoutText" x="0" y="-8" text-anchor="middle" fill="#fb923c" font-size="10" font-weight="800">0.0 mm</text>
+        </g>
+
+        <!-- Rod extension indicator line -->
+        <line id="extLine" x1="470" y1="52" x2="470" y2="114" stroke="#fb923c" stroke-width="2" stroke-dasharray="3 3"/>
+        <line id="origLine" x1="470" y1="52" x2="470" y2="114" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3 3"/>
+        <text id="extDeltaText" x="480" y="62" fill="#fb923c" font-size="11" font-weight="800">+0.00 mm</text>
+      </svg>
+    </div>
+
+    <!-- Material Selector Buttons -->
+    <div class="btn-row">
+      <button class="active" onclick="selectMaterial('copper', 16.7e-6, '#ea580c', '#fdba74', this)">তামা (Copper) · 16.7×10⁻⁶</button>
+      <button onclick="selectMaterial('iron', 12.0e-6, '#64748b', '#94a3b8', this)">লোহা (Iron) · 12.0×10⁻⁶</button>
+      <button onclick="selectMaterial('brass', 19.0e-6, '#ca8a04', '#fde047', this)">পিতল (Brass) · 19.0×10⁻⁶</button>
+      <button onclick="selectMaterial('aluminum', 23.0e-6, '#0284c7', '#38bdf8', this)">অ্যালুমিনিয়াম · 23.0×10⁻⁶</button>
+      <button onclick="selectMaterial('lead', 29.0e-6, '#475569', '#cbd5e1', this)">সীসা (Lead) · 29.0×10⁻⁶</button>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>আদি দৈর্ঘ্য ($L_1$): <span id="l1Val" style="color:#fb923c">10.0 m</span></label>
+        <input id="l1Slide" class="custom-range" type="range" min="1" max="25" step="0.5" value="10" oninput="updateSimulation()">
+      </div>
+      <div class="control-group">
+        <label>তাপমাত্রা বৃদ্ধি ($\Delta T$): <span id="dtVal" style="color:#fb923c">50 °C</span></label>
+        <input id="dtSlide" class="custom-range" type="range" min="0" max="200" step="5" value="50" oninput="updateSimulation()">
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="title">দৈর্ঘ্য বৃদ্ধি (ΔL)</div>
+        <div class="val" id="deltaLCard">8.35 mm</div>
+      </div>
+      <div class="card">
+        <div class="title">চূড়ান্ত দৈর্ঘ্য (L₂)</div>
+        <div class="val" id="l2Card">10.008 m</div>
+      </div>
+      <div class="card">
+        <div class="title">ক্ষেত্র সহগ (β ≈ 2α)</div>
+        <div class="val" id="betaCard">33.4×10⁻⁶</div>
+      </div>
+      <div class="card">
+        <div class="title">আয়তন সহগ (γ ≈ 3α)</div>
+        <div class="val" id="gammaCard">50.1×10⁻⁶</div>
+      </div>
+    </div>
+
+    <div class="readout" id="calcReadout">
+      <strong>গাণিতিক বিশ্লেষণ:</strong><br>
+      সূত্র: <span class="formula-math">\Delta L = L_1 \cdot \alpha \cdot \Delta T</span><br>
+      মান বসিয়ে: <span id="mathSteps">\Delta L = 10\text{ m} \times (16.7 \times 10^{-6}\text{ K}^{-1}) \times 50\text{ K} = 0.00835\text{ m} = 8.35\text{ mm}</span>
+    </div>
+  </div>
+
+  <script>
+    let currentAlpha = 16.7e-6;
+    let currentMatName = 'তামা (Copper)';
+    let baseColor = '#ea580c';
+    let lightColor = '#fdba74';
+
+    function selectMaterial(name, alpha, col1, col2, btn) {
+      document.querySelectorAll('.btn-row button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentAlpha = alpha;
+      baseColor = col1;
+      lightColor = col2;
+
+      // Update rod gradient
+      const stop0 = document.querySelector('#rodGrad stop[offset="0%"]');
+      const stop50 = document.querySelector('#rodGrad stop[offset="50%"]');
+      const stop100 = document.querySelector('#rodGrad stop[offset="100%"]');
+      if (stop0 && stop50 && stop100) {
+        stop0.setAttribute('stop-color', lightColor);
+        stop50.setAttribute('stop-color', baseColor);
+        stop100.setAttribute('stop-color', baseColor);
+      }
+
+      updateSimulation();
+    }
+
+    function updateSimulation() {
+      const l1 = parseFloat(document.getElementById('l1Slide').value);
+      const dt = parseFloat(document.getElementById('dtSlide').value);
+
+      document.getElementById('l1Val').innerText = l1.toFixed(1) + ' m';
+      document.getElementById('dtVal').innerText = dt.toFixed(0) + ' °C';
+
+      // Delta L in meters
+      const deltaL = l1 * currentAlpha * dt;
+      const deltaLmm = deltaL * 1000;
+      const l2 = l1 + deltaL;
+
+      const beta = currentAlpha * 2;
+      const gamma = currentAlpha * 3;
+
+      document.getElementById('deltaLCard').innerText = deltaLmm.toFixed(2) + ' mm';
+      document.getElementById('l2Card').innerText = l2.toFixed(4) + ' m';
+      document.getElementById('betaCard').innerText = (beta * 1e6).toFixed(1) + '×10⁻⁶';
+      document.getElementById('gammaCard').innerText = (gamma * 1e6).toFixed(1) + '×10⁻⁶';
+
+      // SVG Visual Updates
+      // Base rod width proportional to L1 (scale: 1m = 14px, starting at width 140 to 450)
+      const baseWidth = 120 + (l1 / 25) * 320;
+      // Visual extension exaggerated for clear visibility (scaled up by factor of 3)
+      const visualDelta = Math.min(60, deltaLmm * 3);
+      const totalWidth = baseWidth + visualDelta;
+
+      const metalRod = document.getElementById('metalRod');
+      metalRod.setAttribute('width', totalWidth);
+
+      // Shift gauge & extension line
+      const origLine = document.getElementById('origLine');
+      const extLine = document.getElementById('extLine');
+      const extDeltaText = document.getElementById('extDeltaText');
+      const gaugeGroup = document.getElementById('gaugeGroup');
+
+      origLine.setAttribute('x1', 70 + baseWidth);
+      origLine.setAttribute('x2', 70 + baseWidth);
+
+      extLine.setAttribute('x1', 70 + totalWidth);
+      extLine.setAttribute('x2', 70 + totalWidth);
+
+      extDeltaText.setAttribute('x', 70 + totalWidth + 8);
+      extDeltaText.innerText = '+' + deltaLmm.toFixed(2) + ' mm';
+
+      gaugeGroup.setAttribute('transform', `translate(${Math.min(640, 70 + totalWidth + 55)}, 84)`);
+
+      // Needle rotation angle (0 to 360 deg)
+      const angle = (deltaLmm * 28) % 360;
+      const dialNeedle = document.getElementById('dialNeedle');
+      dialNeedle.setAttribute('transform', `rotate(${angle}, 0, 0)`);
+
+      document.getElementById('gaugeReadoutText').innerText = deltaLmm.toFixed(2) + ' mm';
+
+      // Burner flame size and opacity
+      const flames = document.querySelectorAll('#burnerFlames circle');
+      flames.forEach(f => {
+        const r = 4 + (dt / 200) * 8;
+        f.setAttribute('r', r);
+        f.setAttribute('opacity', dt === 0 ? '0.1' : (0.4 + (dt / 200) * 0.5));
+      });
+
+      // Math steps
+      document.getElementById('mathSteps').innerHTML =
+        `\\Delta L = ${l1.toFixed(1)}\\text{ m} \\times (${(currentAlpha * 1e6).toFixed(1)} \\times 10^{-6}\\text{ K}^{-1}) \\times ${dt.toFixed(0)}\\text{ K} = ${deltaL.toExponential(3)}\\text{ m} = ${deltaLmm.toFixed(2)}\\text{ mm}`;
+    }
+
+    // Initialize
+    updateSimulation();
+  </script>
+</body>
+</html>

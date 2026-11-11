@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>পদার্থবিজ্ঞান · অধ্যায় ৩: বল | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- KaTeX for crisp mathematical formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+  <style>
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(125deg, #0f766e 0%, #0d9488 58%, #2dd4bf 100%);
+      color: #fff;
+      border-radius: 24px;
+      padding: clamp(26px, 5vw, 46px);
+      margin: 26px 0 20px;
+      box-shadow: 0 16px 36px rgba(15, 118, 110, 0.25);
+    }
+    .hero:after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      right: -70px;
+      top: -110px;
+      box-shadow: 0 0 0 28px rgba(255, 255, 255, 0.08), 0 0 0 58px rgba(255, 255, 255, 0.04);
+    }
+    .hero > * {
+      position: relative;
+      z-index: 1;
+    }
+    .hero .badge {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.35);
+      color: #fff;
+    }
+    .hero h1 {
+      font-size: clamp(30px, 5.6vw, 46px);
+      line-height: 1.28;
+      margin: 15px 0 8px;
+      max-width: 700px;
+    }
+    .hero p {
+      color: #ccfbf1;
+      margin: 0;
+      max-width: 640px;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .hero .button {
+      background: #fff;
+      color: #0f766e;
+      font-weight: 800;
+    }
+    .hero .button:hover {
+      background: #f0fdfa;
+      color: #115e59;
+    }
+    .hero .button.secondary {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.5);
+      color: #fff;
+    }
+    .hero .button.secondary:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 18px 0 32px;
+    }
+    .stat {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 18px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .stat strong {
+      display: block;
+      font-size: 20px;
+      line-height: 1.3;
+      color: #0f766e;
+    }
+    .stat span {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .roadmap-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 15px;
+      margin: 32px 0 14px;
+    }
+    .roadmap-head h2 {
+      font-size: 23px;
+      margin: 0;
+      line-height: 1.35;
+      color: #1e293b;
+    }
+    .roadmap-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .roadmap {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .route-card {
+      display: grid;
+      grid-template-columns: 52px 1fr 24px;
+      gap: 14px;
+      align-items: start;
+      min-height: 156px;
+      padding: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      color: var(--ink);
+      text-decoration: none;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+      transition: transform 0.16s, border-color 0.16s, box-shadow 0.16s;
+    }
+    .route-card:hover {
+      transform: translateY(-2px);
+      border-color: #5eead4;
+      box-shadow: 0 10px 24px rgba(15, 118, 110, 0.12);
+      text-decoration: none;
+    }
+    .route-no {
+      width: 48px;
+      height: 48px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: #ccfbf1;
+      color: #0f766e;
+      font-weight: 900;
+      font-size: 14px;
+    }
+    .route-title {
+      font-size: 16px;
+      line-height: 1.4;
+      font-weight: 800;
+      margin: 1px 0 3px;
+      color: #1e293b;
+    }
+    .route-en {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+    .route-sub {
+      color: #475569;
+      font-size: 12px;
+      line-height: 1.65;
+      display: block;
+    }
+    .route-open {
+      color: #0d9488;
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .group-label {
+      grid-column: 1 / -1;
+      margin: 14px 2px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #475569;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .group-label:after {
+      content: "";
+      height: 1px;
+      background: var(--line);
+      flex: 1;
+    }
+    .source-card {
+      margin: 32px 0 20px;
+      padding: 22px;
+      border: 1px solid #99f6e4;
+      border-radius: 20px;
+      background: linear-gradient(110deg, #f0fdfa, #fff 75%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .source-card h2 {
+      font-size: 18px;
+      line-height: 1.4;
+      margin: 0 0 4px;
+      color: #134e4a;
+    }
+    .source-card p {
+      font-size: 13px;
+      color: #475569;
+      margin: 0;
+    }
+    .source-card .button {
+      flex: none;
+      background: #0f766e;
+      color: #fff;
+    }
+    .source-card .button:hover {
+      background: #115e59;
+    }
+    .source-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin: 12px 2px 0;
+    }
+    @media (max-width: 720px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 650px) {
+      .roadmap { grid-template-columns: 1fr; }
+      .route-card { min-height: 0; }
+      .source-card { align-items: flex-start; flex-direction: column; }
+      .source-card .button { width: 100%; text-align: center; }
+      .roadmap-head { align-items: flex-start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">SSC · পদার্থবিজ্ঞান অধ্যায় ৩</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <span class="badge">অধ্যায় ৩ · বল</span>
+      <h1>বল (Force)</h1>
+      <p>জড়তা, নিউটনের গতিসূত্র, ভরবেগ সংরক্ষণ, সংঘর্ষ এবং ঘর্ষণ—বল কীভাবে বস্তুর গতি নিয়ন্ত্রণ করে তা বিশদ তত্ত্ব, গাণিতিক সমাধান ও বাস্তব উদাহরণ সহযোগে শেখো।</p>
+      <div class="hero-actions">
+        <a class="button" href="section-01.html">প্রথম পাঠ শুরু করো →</a>
+        <a class="button secondary" href="chapter-source.html">মূল বইয়ের ৩৬ পৃষ্ঠা ↗</a>
+      </div>
+    </section>
+
+    <section class="stats" aria-label="অধ্যায়ের প্রধান পরিসংখ্যান">
+      <div class="stat">
+        <strong>১০টি</strong>
+        <span>বইয়ের মূল বিষয়ভিত্তিক পাঠ</span>
+      </div>
+      <div class="stat">
+        <strong>২০+</strong>
+        <span>গাণিতিক সমাধান ও বাস্তব উদাহরণ</span>
+      </div>
+      <div class="stat">
+        <strong>৩টি</strong>
+        <span>ইন্টারেক্টিভ সিমুলেশন ল্যাব</span>
+      </div>
+      <div class="stat">
+        <strong>১০০%</strong>
+        <span>এনসিটিবি ২০২৬ পাঠ্যক্রম</span>
+      </div>
+    </section>
+
+    <div class="roadmap-head">
+      <div>
+        <h2>বইয়ের ধারায় বিষয়সূচি</h2>
+        <p>অধ্যায়ের ১০টি পাঠ ক্রমানুসারে সাজানো হয়েছে। প্রতিটি পাঠে রয়েছে স্পষ্ট ব্যাখ্যা, সূত্র, উদাহরণ ও কুইজ।</p>
+      </div>
+    </div>
+
+    <section class="roadmap" aria-label="অধ্যায় ৩ এর দশটি পাঠ">
+      <div class="group-label">জড়তা ও প্রকৃতির মৌলিক বল</div>
+
+      <a class="route-card" href="section-01.html">
+        <span class="route-no">3.1</span>
+        <span>
+          <span class="route-title">জড়তা ও বলের ধারণা</span>
+          <small class="route-en">Inertia and the Concept of Force</small>
+          <span class="route-sub">স্থিতিজড়তা ও গতিজড়তা · নিউটনের প্রথম গতিসূত্র · ভর জড়তার পরিমাপক · বলের সংজ্ঞা ও একক</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-02.html">
+        <span class="route-no">3.2</span>
+        <span>
+          <span class="route-title">মৌলিক বলের প্রকৃতি</span>
+          <small class="route-en">Fundamental Forces</small>
+          <span class="route-sub">মহাকর্ষ বল · দুর্বল নিউক্লীয় বল · তাড়িতচৌম্বক বল · সবল নিউক্লীয় বল · আপেক্ষিক সবলতা ও পাল্লা</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <div class="group-label">বলের প্রকারভেদ ও বেগের রূপান্তর</div>
+
+      <a class="route-card" href="section-03.html">
+        <span class="route-no">3.3</span>
+        <span>
+          <span class="route-title">সাম্য ও অসাম্য বল</span>
+          <small class="route-en">Balanced and Unbalanced Forces</small>
+          <span class="route-sub">লব্ধি বল ($\sum F$) নির্ণয় · বলের সাম্যাবস্থা · ত্বরণ সৃষ্টিতে অসাম্য বলের অপরিহার্য ভূমিকা</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-04.html">
+        <span class="route-no">3.4</span>
+        <span>
+          <span class="route-title">বেগের ওপর বলের প্রভাব</span>
+          <small class="route-en">How Force Changes Velocity</small>
+          <span class="route-sub">বেগের মান ও দিক পরিবর্তন · ত্বরণ ও মন্দন · বৃত্তাকার গতি ও কেন্দ্রমুখী বল ($F_c = \frac{mv^2}{r}$)</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <div class="group-label">নিউটনের গতিসূত্র ও গতিবিজ্ঞান</div>
+
+      <a class="route-card" href="section-05.html">
+        <span class="route-no">3.5</span>
+        <span>
+          <span class="route-title">নিউটনের দ্বিতীয় সূত্র ও বল পরিমাপ</span>
+          <small class="route-en">Newton’s Second Law & Interactive F=ma Lab</small>
+          <span class="route-sub">ভরবেগ ($p = mv$) · $F = ma$ প্রতিপাদন · ⚡ লাইভ ল্যাব ও কুইজ</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-06.html">
+        <span class="route-no">3.6</span>
+        <span>
+          <span class="route-title">ক্রিয়া-প্রতিক্রিয়া: নিউটনের তৃতীয় সূত্র</span>
+          <small class="route-en">Action and Reaction</small>
+          <span class="route-sub">$\vec{F}_{AB} = -\vec{F}_{BA}$ · ভিন্ন বস্তুতে বলের প্রয়োগ · হাঁটা ও সাঁতার · বন্দুকের পশ্চাৎবেগ ও রকেট</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <div class="group-label">সড়ক সুরক্ষা ও ভরবেগ সংরক্ষণ</div>
+
+      <a class="route-card" href="section-07.html">
+        <span class="route-no">3.7</span>
+        <span>
+          <span class="route-title">নিরাপদ ভ্রমণে বল ও গতি</span>
+          <small class="route-en">Forces in Safe Travel</small>
+          <span class="route-sub">প্রতিক্রিয়া দূরত্ব ও ব্রেকিং দূরত্ব ($d = d_r + d_b$) · গতিশক্তি বৃদ্ধি · সিটবেল্ট ও এয়ারব্যাগ সুরক্ষা</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-08.html">
+        <span class="route-no">3.8</span>
+        <span>
+          <span class="route-title">ভরবেগ সংরক্ষণ ও সংঘর্ষ</span>
+          <small class="route-en">Conservation of Momentum & Collision Lab</small>
+          <span class="route-sub">ভরবেগের নিত্যতা সূত্র · স্থিতিস্থাপক বনাম অস্থিতিস্থাপক · ⚡ লাইভ সংঘর্ষ ল্যাব ও কুইজ</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <div class="group-label">ঘর্ষণ বিজ্ঞান ও প্রকৌশল</div>
+
+      <a class="route-card" href="section-09.html">
+        <span class="route-no">3.9</span>
+        <span>
+          <span class="route-title">ঘর্ষণ বলের ধরন ও বৈশিষ্ট্য</span>
+          <small class="route-en">Types and Nature of Friction & Friction Lab</small>
+          <span class="route-sub">আণুবীক্ষণিক কোল্ড ওয়েল্ডিং · স্থিতি ও গতীয় ঘর্ষণ · ⚡ লাইভ ঘর্ষণ ল্যাব ও কুইজ</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+
+      <a class="route-card" href="section-10.html">
+        <span class="route-no">3.10</span>
+        <span>
+          <span class="route-title">ঘর্ষণ, গতি ও ব্যবহার</span>
+          <small class="route-en">Friction: Effects and Uses</small>
+          <span class="route-sub">ঘর্ষণ একটি প্রয়োজনীয় উপদ্রব · ঘর্ষণ বাড়ানো ও কমানোর কৌশল · লুব্রিকেন্ট ও বিয়ারিং · কর্মদক্ষতা</span>
+        </span>
+        <span class="route-open" aria-hidden="true">›</span>
+      </a>
+    </section>
+
+    <section class="source-card">
+      <div>
+        <h2>সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠাগুলো দেখতে চাও?</h2>
+        <p>সংযুক্ত PDF-এর ৩৬টি স্ক্যান করা পৃষ্ঠা একক ফাইলে রাখা আছে; মূল বইয়ের চিত্র ও সারণি সহজে দেখে নিতে পারো।</p>
+      </div>
+      <a class="button" href="chapter-source.html">উৎস অধ্যায় দেখো →</a>
+    </section>
+
+    <p class="source-note">জাতীয় শিক্ষাক্রম ও পাঠ্যপুস্তক বোর্ড (NCTB) অনুমোদিত ৯ম-১০ম শ্রেণির পদার্থবিজ্ঞান পাঠ্যবইয়ের ৩য় অধ্যায় অবলম্বনে প্রস্তুত।</p>
+
+    <footer class="footer">
+      পড়ি (poRi) শিক্ষা প্ল্যাটফর্ম · পদার্থবিজ্ঞান ডিজিটাল সংস্করণ
+    </footer>
+  </main>
+</body>
+</html>

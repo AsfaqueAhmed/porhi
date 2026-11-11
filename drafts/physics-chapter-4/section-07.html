@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৪.৭ ক্ষমতা · অধ্যায় ৪: কাজ, ক্ষমতা ও শক্তি | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- KaTeX for crisp mathematical formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৪ / ৪.৭</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই ৪.৭</span>
+    <h1 class="title">ক্ষমতা <small>(Power)</small></h1>
+    <p class="subtitle">কাজ বা শক্তি রূপান্তরের হার, ওয়াট ও অশ্বক্ষমতা, বল-বেগের সম্পর্ক এবং বাণিজ্যিক বিদ্যুৎ একক কিলোওয়াট-ঘণ্টা (kWh)।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>এই পাঠটি সম্পন্ন করার পর তুমি—</p>
+      <ul>
+        <li>ক্ষমতার বৈজ্ঞানিক সংজ্ঞা ($P = \frac{W}{t}$) ব্যাখ্যা করতে পারবে এবং কাজ ও ক্ষমতার মধ্যকার মৌলিক পার্থক্য অনুধাবন করতে পারবে।</li>
+        <li>বল ও সুষম বেগের সাথে ক্ষমতার সম্পর্ক সমীকরণ $P = Fv$ নিখুঁতভাবে প্রতিপাদন করতে পারবে।</li>
+        <li>ওয়াট, কিলোওয়াট, মেগাওয়াট, অশ্বক্ষমতা ($1\text{ HP} = 746\text{ W}$) এবং বাণিজ্যিক বিদ্যুৎ একক কিলোওয়াট-ঘণ্টা ($\text{kWh}$) প্রয়োগ করে আদর্শ গাণিতিক সমস্যা সমাধান করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>৪.৭ · ক্ষমতার বৈজ্ঞানিক সংজ্ঞা ও সমীকরণ</h2>
+      <p>কোনো কাজ সম্পন্ন করতে কত সময় লাগছে তার ওপর কাজটি কতটা দ্রুত বা ধীরগতিতে হচ্ছে তা নির্ভর করে। পদার্থবিজ্ঞানে—<b>কোনো ব্যক্তি বা যন্ত্রের কাজ করার হার অথবা একক সময়ে শক্তি রূপান্তরের হারকে ক্ষমতা (Power, $P$)</b> বলে।</p>
+      <p>যদি কোনো উৎস বা যন্ত্র $t$ সময়ে $W$ পরিমাণ কাজ সম্পন্ন করে, তবে ঐ যন্ত্রের ক্ষমতা হবে:</p>
+
+      <div class="highlight-box">
+        <b>💡 ক্ষমতার মৌলিক সমীকরণ (Basic Formula of Power):</b>
+        $$P = \frac{W}{t} = \frac{\Delta E}{t}$$
+        অভিকর্ষের বিরুদ্ধে $m$ ভরের বস্তুকে খাড়া $h$ উচ্চতায় $t$ সময়ে তুললে কার্যকর ক্ষমতা:
+        $$P = \frac{mgh}{t}$$
+      </div>
+
+      <h3>বল ও সুষম বেগের সাথে সম্পর্ক ($P = Fv$)</h3>
+      <p>আমরা জানি, বল $F$ এবং বলের অভিমুখে সরণ $s$ হলে কৃতকাজ $W = Fs$। সুতরাং:</p>
+      $$P = \frac{W}{t} = \frac{Fs}{t} = F \cdot \left(\frac{s}{t}\right)$$
+      <p>যেহেতু সুষম দ্রুতি বা বেগ $v = \frac{s}{t}$, তাই আমরা পাই:</p>
+      $$P = Fv$$
+      <p>অর্থাৎ, কোনো ইঞ্জিন যদি $v$ সুষম বেগে চলার সময় $F$ বল প্রয়োগ করে, তবে ইঞ্জিনের তাৎক্ষণিক ক্ষমতা হবে বল ও বেগের গুণফলের সমান।</p>
+
+      <h3>ক্ষমতার একক ও মাত্রা</h3>
+      <div class="grid">
+        <div class="term">
+          <strong>ওয়াট (Watt, $\text{W}$)</strong>
+          <small>প্রতি সেকেন্ডে ১ জুল কাজ করার ক্ষমতাকে <b>১ ওয়াট</b> বলে ($1\text{ W} = 1\text{ J/s}$)। মাত্রা $[P] = [ML^2T^{-3}]$।</small>
+        </div>
+        <div class="term">
+          <strong>অশ্বক্ষমতা (Horsepower, $\text{HP}$)</strong>
+          <small>জেমস ওয়াটের প্রবর্তিত ঐতিহ্যবাহী একক। $1\text{ HP} = 746\text{ W}$। ভারী ইঞ্জিন ও পাম্পের ক্ষমতা এতে প্রকাশ করা হয়।</small>
+        </div>
+        <div class="term">
+          <strong>কিলোওয়াট ও মেগাওয়াট</strong>
+          <small>$1\text{ kW} = 10^3\text{ W} = 1000\text{ W}$ এবং বিদ্যুৎ কেন্দ্রের ক্ষমতা মেগাওয়াটে ($1\text{ MW} = 10^6\text{ W}$) মাপা হয়।</small>
+        </div>
+        <div class="term">
+          <strong>কিলোওয়াট-ঘণ্টা ($\text{kWh}$ / Unit)</strong>
+          <small>১ কিলোওয়াট ক্ষমতার কোনো যন্ত্র এক ঘণ্টা চললে যে পরিমাণ শক্তি ব্যয় করে। $1\text{ kWh} = 3.6 \times 10^6\text{ J}$।</small>
+        </div>
+      </div>
+    </section>
+
+    <div class="note">
+      <h2>🚌 বাস্তব জীবনের আকর্ষণীয় উদাহরণ</h2>
+      <ul>
+        <li><b>সিঁড়ি বেয়ে দ্রুত দৌড়ানো বনাম আস্তে ওঠা:</b> একই ভরের একজন ব্যক্তি সিঁড়ি বেয়ে হেঁটে ছাদে উঠলে অথবা দৌড়ে ছাদে উঠলে উভয় ক্ষেত্রে মোট কৃতকাজ $W = mgh$ সমান থাকে। কিন্তু দৌড়ে উঠলে সময় $t$ কম লাগায় ব্যক্তিটির ক্ষমতা বহুগুণ বেশি প্রদর্শিত হয়।</li>
+        <li><b>পানির পাম্পের ২ এইচপি (2 HP):</b> বাসাবাড়ির পানির মোটরের গায়ে $2\text{ HP}$ লেখা থাকার অর্থ হলো মোটরটি প্রতি সেকেন্ডে প্রায় $2 \times 746\text{ J} = 1492\text{ J}$ শক্তি ব্যয় করার সামর্থ্য রাখে।</li>
+        <li><b>বাসার বিদ্যুৎ বিলের হিসাব:</b> বিদ্যুৎ বিল নির্ধারণে ‘ইউনিট’ বলতে $1\text{ kWh}$ বোঝায়। অর্থাৎ $1000\text{ W}$ এর একটি এসি বা আয়রন ১ ঘণ্টা চললে ঠিক ১ ইউনিট বিদ্যুৎ ব্যয় হয়।</li>
+      </ul>
+    </div>
+
+    <div class="memory">
+      <h2>🧠 মনে রাখার কৌশল: ক্ষমতার ছন্দ</h2>
+      <p>“সময়ের অনুপাতে কাজের হার ক্ষমতা ভাই,<br>
+      ওয়াট এককে শক্তির প্রবাহের হিসাব পাই!<br>
+      ঘোড়ার শক্তিতে ৭৪৬ ওয়াটের প্রমাণ,<br>
+      কিলোওয়াট-ঘণ্টায় চলে বিদ্যুৎ বিলের মান।”</p>
+    </div>
+
+    <div class="worked">
+      <h2>📝 পাঠ্যবইয়ের স্ট্যান্ডার্ড গাণিতিক সমস্যা</h2>
+      <div class="problem">
+        একটি বৈদ্যুতিক পানির পাম্প প্রতি মিনিটে $1500\text{ kg}$ পানি ভূগর্ভস্থ রিজার্ভার থেকে $20\text{ m}$ উঁচুতে থাকা ছাদে তুলতে পারে।<br>
+        (ক) পাম্পটির কার্যকর ক্ষমতা কত ওয়াট ও কিলোওয়াট?<br>
+        (খ) পাম্পটির ক্ষমতা কত অশ্বক্ষমতা (HP)? ($g = 9.8\text{ m/s}^2$)
+      </div>
+      <div class="solution">
+        <b>(ক) কার্যকর ক্ষমতা নির্ণয়:</b><br>
+        পানির ভর $m = 1500\text{ kg}$<br>
+        উচ্চতা $h = 20\text{ m}$<br>
+        সময় $t = 1\text{ মিনিট} = 60\text{ s}$<br>
+        অভিকর্ষজ ত্বরণ $g = 9.8\text{ m/s}^2$<br><br>
+        পাম্প দ্বারা সম্পন্ন কাজ:<br>
+        $$W = mgh = 1500 \times 9.8 \times 20 = 294000\text{ J}$$<br>
+        পাম্পের কার্যকর ক্ষমতা:<br>
+        $$P = \frac{W}{t} = \frac{294000\text{ J}}{60\text{ s}} = 4900\text{ W} = \frac{4900}{1000}\text{ kW} = 4.9\text{ kW}$$<br>
+        <b>(খ) অশ্বক্ষমতায় রূপান্তর:</b><br>
+        আমরা জানি, $1\text{ HP} = 746\text{ W}$।<br>
+        $$P = \frac{4900}{746}\text{ HP} \approx 6.568\text{ HP} \approx 6.57\text{ HP}$$
+        <b>উত্তর:</b> পাম্পটির কার্যকর ক্ষমতা $4900\text{ W}$ (বা $4.9\text{ kW}$) এবং অশ্বক্ষমতায় এর মান প্রায় $6.57\text{ HP}$।
+      </div>
+    </div>
+
+    <details class="check">
+      <summary>প্রশ্ন: একটি $60\text{ W}$ বৈদ্যুতিক ফ্যান প্রতিদিন গড়ে ৫ ঘণ্টা করে চললে ৩০ দিনের এক মাসে কত ইউনিট ($\text{kWh}$) বিদ্যুৎ খরচ হবে?</summary>
+      <p><b>উত্তর:</b><br>
+      ফ্যানের ক্ষমতা $P = 60\text{ W} = \frac{60}{1000}\text{ kW} = 0.06\text{ kW}$<br>
+      এক মাসে মোট চলার সময় $t = 5 \times 30 = 150\text{ ঘণ্টা}$<br>
+      ব্যয়িত বিদ্যুৎ শক্তি $E = P \times t = 0.06\text{ kW} \times 150\text{ h} = 9\text{ kWh} = 9\text{ ইউনিট}$।<br>
+      সুতরাং এক মাসে মোট বিদ্যুৎ শক্তি খরচ হবে ঠিক <b>৯ ইউনিট</b>।</p>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-06.html">← পূর্বের পাঠ: ভর ও শক্তির সম্পর্ক</a>
+      <a class="button" href="section-08.html">পরের পাঠ: কর্মদক্ষতা →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF)</a> · অধ্যায় ৪: কাজ, ক্ষমতা ও শক্তি · পড়ি (poRi)
+    </footer>
+  </main>
+</body>
+</html>

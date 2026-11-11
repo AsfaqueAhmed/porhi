@@ -5,6 +5,9 @@ import { hashPassword } from '../src/modules/auth/password.util';
 import { normalizeBangladeshPhone } from '../src/modules/auth/phone.util';
 import { seedChapter1 } from './seed-chapter-1';
 import { seedChapter2 } from './seed-chapter-2';
+import { seedChapter3 } from './seed-chapter-3';
+import { seedChapter4 } from './seed-chapter-4';
+import { seedChapter6 } from './seed-chapter-6';
 
 export const sscPhysicsSubject = {
   id: 'sub_ssc_physics',
@@ -373,11 +376,16 @@ export async function seed(prisma: PrismaClient) {
   });
 
   // 4. Seed Lesson
-  const sampleSimSrc = path.join(__dirname, 'sample-simulations', 'sound-wave-simulator.html');
+  const sampleSimSrcDir = path.join(__dirname, 'sample-simulations');
   const sampleSimDestDir = path.join(process.cwd(), 'uploads', 'interactive');
-  if (fs.existsSync(sampleSimSrc)) {
+  if (fs.existsSync(sampleSimSrcDir)) {
     fs.mkdirSync(sampleSimDestDir, { recursive: true });
-    fs.copyFileSync(sampleSimSrc, path.join(sampleSimDestDir, 'sound-wave-simulator.html'));
+    const files = fs.readdirSync(sampleSimSrcDir);
+    for (const file of files) {
+      if (file.endsWith('.html')) {
+        fs.copyFileSync(path.join(sampleSimSrcDir, file), path.join(sampleSimDestDir, file));
+      }
+    }
   }
 
   await prisma.lesson.upsert({
@@ -400,6 +408,15 @@ export async function seed(prisma: PrismaClient) {
 
   // 7. Seed Chapter 2 full curriculum and question bank
   await seedChapter2(prisma);
+
+  // 8. Seed Chapter 3 full curriculum and question bank
+  await seedChapter3(prisma);
+
+  // 9. Seed Chapter 4 full curriculum and question bank
+  await seedChapter4(prisma);
+
+  // 10. Seed Chapter 6 full curriculum and question bank
+  await seedChapter6(prisma);
 }
 
 async function main() {

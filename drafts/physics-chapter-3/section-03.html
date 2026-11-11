@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৩.৩ সাম্য ও অসাম্য বল · অধ্যায় ৩: বল | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- KaTeX for crisp mathematical formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৩ / ৩.৩</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই ৩.৩</span>
+    <h1 class="title">সাম্য ও অসাম্য বল <small>(Balanced and Unbalanced Forces)</small></h1>
+    <p class="subtitle">লব্ধি বলের নির্ণয়, বলের সাম্যাবস্থা এবং ত্বরণ সৃষ্টিতে অসাম্য বলের অপরিহার্য ভূমিকা।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>এই পাঠটি সম্পন্ন করার পর তুমি—</p>
+      <ul>
+        <li>একাধিক বলের লব্ধি বল ($\sum \vec{F}$) নির্ণয় করতে পারবে।</li>
+        <li>সাম্য বল ও অসাম্য বলের মধ্যে স্পষ্ট পার্থক্য চিহ্নিত করতে পারবে।</li>
+        <li>লব্ধি বল শূন্য হলে কেন ত্বরণ শূন্য হয় এবং অসাম্য বল কীভাবে বস্তুর গতির অবস্থা পরিবর্তন করে তা গাণিতিকভাবে প্রমাণ করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>৩.৩ · লব্ধি বল ও বলের প্রকারভেদ</h2>
+      <p>বাস্তব জীবনে কোনো বস্তুর ওপর সাধারণত একটিমাত্র বল কাজ করে না; প্রায়শই একই সঙ্গে একাধিক বল বিভিন্ন দিক থেকে ক্রিয়া করে। কোনো বস্তুর ওপর একযোগে একাধিক বল প্রযুক্ত হলে তাদের সম্মিলিত ফলাফলকে যে একক বল দিয়ে প্রকাশ করা যায়, তাকে <b>লব্ধি বল (Resultant Force বা Net Force)</b> বলে।</p>
+
+      <div class="grid">
+        <div class="term">
+          <strong>লব্ধি বল ($\vec{F}_{\text{net}}$)</strong>
+          <small>কোনো বস্তুর ওপর প্রযুক্ত সকল বলের ভেক্টর সমষ্টি: $\vec{F}_{\text{net}} = \sum \vec{F} = \vec{F}_1 + \vec{F}_2 + \dots$</small>
+        </div>
+        <div class="term">
+          <strong>সাম্য বল (Balanced Forces)</strong>
+          <small>যখন প্রযুক্ত বলগুলোর লব্ধি শূন্য হয় ($\sum \vec{F} = 0$)। এতে কোনো ত্বরণ সৃষ্টি হয় না ($a = 0$); বস্তু স্থির বা সমবেগে চলে।</small>
+        </div>
+        <div class="term">
+          <strong>অসাম্য বল (Unbalanced Forces)</strong>
+          <small>যখন প্রযুক্ত বলগুলোর লব্ধি শূন্য নয় ($\sum \vec{F} \neq 0$)। এতে বস্তুর বেগের মান বা দিক পরিবর্তিত হয় এবং ত্বরণ ঘটে।</small>
+        </div>
+        <div class="term">
+          <strong>সাম্যাবস্থা (Equilibrium)</strong>
+          <small>যে অবস্থায় বস্তুর ওপর বাহ্যিক লব্ধি বল ও মোট ঘূর্ণন শূন্য থাকে, ফলে স্থিতি বা সুষম রৈখিক গতি অক্ষুণ্ণ থাকে।</small>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <b>💡 সাম্য ও অসাম্য বলের মূল সমীকরণ:</b><br>
+        • <b>সাম্য বল:</b> $\sum \vec{F} = 0 \implies \vec{a} = 0$ (বেগ অপরিবর্তিত)<br>
+        • <b>অসাম্য বল:</b> $\sum \vec{F} = \vec{F}_{\text{net}} = m\vec{a} \neq 0 \implies \vec{a} = \frac{\vec{F}_{\text{net}}}{m}$ (ত্বরণ সৃষ্টি হবে)
+      </div>
+
+      <h3>সরলরেখায় লব্ধি বল নির্ণয়ের নিয়ম</h3>
+      <p>যদি একই রেখায় দুটি বল $\vec{F}_1$ ও $\vec{F}_2$ কাজ করে:</p>
+      <ul>
+        <li><b>একই দিকে হলে:</b> লব্ধির মান $F_{\text{net}} = F_1 + F_2$ (দিক হবে বলদ্বয়ের দিকে)।</li>
+        <li><b>পরস্পর বিপরীতমুখী হলে:</b> লব্ধির মান $F_{\text{net}} = |F_1 - F_2|$ (দিক হবে বৃহত্তর বলটির দিকে)।</li>
+      </ul>
+    </section>
+
+    <div class="note">
+      <h2>🚌 বাস্তব জীবনের আকর্ষণীয় উদাহরণ</h2>
+      <ul>
+        <li><b>দড়াটানাটানি খেলা (Tug-of-War):</b> উভয় দল সমান জোরে টানলে ($F_1 = F_2$) দড়ির কেন্দ্রবিন্দু স্থির থাকে। এখানে টান বল দুটি সাম্য বল। কোনো দল বেশি টান দিলে লব্ধি বল শূন্য থাকে না, ফলে জয়ী দলের দিকে দড়ি ত্বরিত হয় (অসাম্য বল)।</li>
+        <li><b>আকাশে সুষম বেগে বিমান উড্ডয়ন:</b> একটি বিমান যখন নির্দিষ্ট উচ্চতায় সোজা সমবেগে ওড়ে, তখন ইঞ্জিনের সামনের ধাক্কা (Thrust) সমান হয় বায়ুর বাধার (Drag), এবং ডানার ঊর্ধ্বমুখী উত্তোলন বল (Lift) সমান হয় বিমানের ওজনের (Weight)। ফলে চারটি বল পরস্পরকে সাম্য করে এবং বিমান সমবেগে এগোয়!</li>
+      </ul>
+    </div>
+
+    <div class="memory">
+      <h2>🧠 মনে রাখার কৌশল: সাম্যের সমীকরণ</h2>
+      <p>“লব্ধি যদি শূন্য হয়, ত্বরণের কোনো জন্ম নয়;<br>
+      অসাম্য বল এলে ভাই, ত্বরণ ছাড়া উপায় নাই!”</p>
+    </div>
+
+    <div class="worked">
+      <h2>📝 পাঠ্যবইয়ের স্ট্যান্ডার্ড গাণিতিক সমস্যা</h2>
+      <div class="problem">
+        একটি $10\text{ kg}$ ভরের কাঠের বাক্সকে অনুভূমিক মেঝের ওপর দিয়ে দুজন ব্যক্তি দুই বিপরীত দিকে টানছে। রহিম ডানদিকে $45\text{ N}$ বল এবং করিম বামদিকে $25\text{ N}$ বল প্রয়োগ করছে। মেঝের ঘর্ষণ বল $5\text{ N}$ হলে:<br>
+        ১. এটি কি সাম্য বল নাকি অসাম্য বল?<br>
+        ২. বাক্সের ওপর কার্যকর লব্ধি বল ও ত্বরণ কত হবে?
+      </div>
+      <div class="solution">
+        <b>প্রদত্ত তথ্য:</b><br>
+        বাক্সের ভর $m = 10\text{ kg}$<br>
+        ডানদিকের টান বল $F_1 = +45\text{ N}$ (ডানদিককে ধনাত্মক ধরে)<br>
+        বামদিকের টান বল $F_2 = -25\text{ N}$<br>
+        বাক্সটি ডানদিকে গতিশীল হতে চাইবে, তাই ঘর্ষণ বল গতির বিপরীত অর্থাৎ বামদিকে কাজ করবে: $f = -5\text{ N}$<br><br>
+        <b>১. লব্ধি বল ($\sum F$) নির্ণয়:</b><br>
+        $$\sum F = F_1 + F_2 + f = 45 - 25 - 5 = 15\text{ N}$$
+        লব্ধি বলের দিক হবে বৃহত্তর বলটির দিকে অর্থাৎ ডানদিকে।<br><br>
+        যেহেতু কার্যকর লব্ধি বল শূন্য নয় ($\sum F = 15\text{ N} \neq 0$), তাই এটি একটি <b>অসাম্য বল</b>।<br><br>
+        <b>২. ত্বরণ ($a$) নির্ণয়:</b><br>
+        নিউটনের দ্বিতীয় সূত্র অনুযায়ী:<br>
+        $$a = \frac{\sum F}{m} = \frac{15\text{ N}}{10\text{ kg}} = 1.5\text{ m/s}^2$$
+        <b>উত্তর:</b> এটি অসাম্য বল এবং বাক্সটির ত্বরণ $1.5\text{ m/s}^2$ ডানদিকে।
+      </div>
+    </div>
+
+    <details class="check">
+      <summary>প্রশ্ন: একটি বাস সোজা রাস্তায় $60\text{ km/h}$ সুষম বেগে চলছে। বাসের ওপর কি কোনো অসাম্য বল কাজ করছে?</summary>
+      <p><b>উত্তর:</b> না, কোনো অসাম্য বল কাজ করছে না। যেহেতু বাসটি সমবেগে চলছে, তাই এর ত্বরণ $a = 0$। নিউটনের গতিসূত্রানুসারে ত্বরণ শূন্য হলে লব্ধি বল অবশ্যই শূন্য ($\sum F = 0$)। ইঞ্জিনের বল রাস্তার ঘর্ষণ ও বাতাসের বাধাকে সম্পূর্ণ সাম্য করে রেখেছে।</p>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-02.html">← আগের পাঠ</a>
+      <a class="button" href="section-04.html">পরের পাঠ: বেগের ওপর বলের প্রভাব →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF)</a> · অধ্যায় ৩: বল · পড়ি (poRi)
+    </footer>
+  </main>
+</body>
+</html>

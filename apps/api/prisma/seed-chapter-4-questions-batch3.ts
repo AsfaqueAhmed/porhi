@@ -1,0 +1,688 @@
+import { ContentStatus } from '@prisma/client';
+import { QuestionData } from './seed-chapter-4-questions';
+
+export const chapter4Batch3Questions: QuestionData[] = [
+  // =========================================================================
+  // Topic 4.1: কাজ (Work) [top_ssc_physics_ch4_1] - Batch 3
+  // =========================================================================
+  {
+    id: 'q_ch4_1_mcq_6',
+    topicId: 'top_ssc_physics_ch4_1',
+    type: 'MCQ',
+    stem: 'একজন যাত্রী অনুভূমিকের সাথে $60^\\circ$ কোণে হাতল ধরে $50\\text{ N}$ বল প্রয়োগ করে একটি ট্রলিব্যাগকে অনুভূমিক মেঝেতে $20\\text{ m}$ টেনে নিয়ে গেলেন। কৃতকাজের মান কত?',
+    options: [
+      { id: 'opt_4_1_6a', text: '$500\\text{ J}$', isCorrect: true },
+      { id: 'opt_4_1_6b', text: '$1000\\text{ J}$', isCorrect: false },
+      { id: 'opt_4_1_6c', text: '$866\\text{ J}$', isCorrect: false },
+      { id: 'opt_4_1_6d', text: '$250\\text{ J}$', isCorrect: false },
+    ],
+    explanation: {
+      directAnswer: 'সঠিক উত্তর ক: $500\\text{ J}$।',
+      coreConcept: 'কাজের সমীকরণ $W = Fs \\cos\\theta$। এখানে বল $F$ অনুভূমিকের সাথে $\\theta = 60^\\circ$ কোণে প্রযুক্ত হয়েছে এবং সরণ অনুভূমিক। $\\cos 60^\\circ = 0.5$।',
+      stepDerivation: '$$W = Fs \\cos\\theta = 50 \\times 20 \\times \\cos 60^\\circ = 1000 \\times 0.5 = 500\\text{ J}$$',
+      distractorAnalysis: {
+        opt_4_1_6b: 'কোণ বিবেচনা না করে সরাসরি $Fs = 50 \\times 20 = 1000\\text{ J}$ ধরার ভুল।',
+        opt_4_1_6c: 'কোসাইনের জায়গায় সাইন বিবেচনা করার ভুল ($\\sin 60^\\circ = 0.866$).',
+        opt_4_1_6d: 'ভুল গাণিতিক হিসাব।',
+      },
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 99,
+      },
+      proTipShortcut: '$\\theta = 60^\\circ$ হলে কাজ সাধারণ মানের অর্ধেক: $W = Fs \\times 0.5 = 50 \\times 20 \\times 0.5 = 500\\text{ J}$।',
+    },
+    difficulty: 'MEDIUM',
+    boardSource: 'Dhaka Board 2023',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+  {
+    id: 'q_ch4_1_mcq_7',
+    topicId: 'top_ssc_physics_ch4_1',
+    type: 'MCQ',
+    stem: 'একটি বস্তু সুষম দ্রুতিতে বৃত্তাকার পথে এক পাক সম্পূর্ণ ঘূর্ণন সম্পন্ন করে তার আদি অবস্থানে ফিরে এলে কেন্দ্রমুখী বল দ্বারা কৃতকাজ কত হবে?',
+    options: [
+      { id: 'opt_4_1_7a', text: '$0\\text{ J}$ (শূন্য)', isCorrect: true },
+      { id: 'opt_4_1_7b', text: '$2\\pi r F$', isCorrect: false },
+      { id: 'opt_4_1_7c', text: '$\\frac{mv^2}{r}$', isCorrect: false },
+      { id: 'opt_4_1_7d', text: '$\\pi r^2 F$', isCorrect: false },
+    ],
+    explanation: {
+      directAnswer: 'সঠিক উত্তর ক: $0\\text{ J}$ (শূন্য)।',
+      coreConcept: 'দুটি কারণে কাজ শূন্য: (১) কেন্দ্রমুখী বল সর্বদা গতির দিকের ওপর লম্ব ($90^\\circ$), ফলে প্রতি মুহূর্তে কাজ শূন্য। (২) এক পূর্ণ ঘূর্ণনে আদি ও শেষ অবস্থান এক হওয়ায় মোট সরণ শূন্য ($s = 0$)।',
+      stepDerivation: 'তাৎক্ষণিক কাজ: $dW = F ds \\cos 90^\\circ = 0$। মোট পূর্ণ ঘূর্ণনে সরণ $\\vec{s} = 0 \\implies W = 0$।',
+      distractorAnalysis: {
+        opt_4_1_7b: 'এটি পরিধির দূরত্ব দিয়ে বল গুণ করার ভুল।',
+        opt_4_1_7c: 'এটি কেন্দ্রমুখী বলের মান, কাজের মান নয়।',
+        opt_4_1_7d: 'ক্ষেত্রফলের সাথে বলের গুণফলগত ভুল।',
+      },
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 100,
+      },
+      proTipShortcut: 'বৃত্তাকার পথে কেন্দ্রমুখী বল দ্বারা কৃতকাজ সর্বদা শূন্য (Zero)।',
+    },
+    difficulty: 'EASY',
+    boardSource: 'Rajshahi Board 2024',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+
+  // =========================================================================
+  // Topic 4.2: শক্তি ও শক্তির রূপ [top_ssc_physics_ch4_2] - Batch 3
+  // =========================================================================
+  {
+    id: 'q_ch4_2_mcq_6',
+    topicId: 'top_ssc_physics_ch4_2',
+    type: 'MCQ',
+    stem: 'একটি বৈদ্যুতিক ফ্যান চালু করলে তড়িৎ শক্তি প্রধানত কোন শক্তিতে রূপান্তরিত হয়?',
+    options: [
+      { id: 'opt_4_2_6a', text: 'যান্ত্রিক শক্তিতে (ঘূর্ণন গতিশক্তি)', isCorrect: true },
+      { id: 'opt_4_2_6b', text: 'আলোক শক্তিতে', isCorrect: false },
+      { id: 'opt_4_2_6c', text: 'রাসায়নিক শক্তিতে', isCorrect: false },
+      { id: 'opt_4_2_6d', text: 'পারমাণবিক শক্তিতে', isCorrect: false },
+    ],
+    explanation: {
+      directAnswer: 'সঠিক উত্তর ক: যান্ত্রিক শক্তিতে (ঘূর্ণন গতিশক্তি)।',
+      coreConcept: 'বৈদ্যুতিক মোটরে তাড়িতচৌম্বক আবেশ নীতির সাহায্যে তড়িৎ শক্তিকে আর্মেচারের ঘূর্ণন যান্ত্রিক শক্তিতে রূপান্তর করা হয়, যা ফ্যানের পাখাকে ঘোরায়। কিছু শক্তি তাপে ও শব্দে অপচয় হয়।',
+      stepDerivation: 'তড়িৎ শক্তি $\\implies$ মোটরের ঘূর্ণন যান্ত্রিক শক্তি (কার্যকর) + তাপ শক্তি ও শব্দ শক্তি (অপচয়)।',
+      distractorAnalysis: {
+        opt_4_2_6b: 'ফ্যানে কোনো আলো উৎপন্ন হয় না।',
+        opt_4_2_6c: 'ফ্যান কোনো রাসায়নিক শক্তি তৈরি করে না।',
+        opt_4_2_6d: 'পারমাণবিক শক্তির সাথে ফ্যানের কোনো সম্পর্ক নেই।',
+      },
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 106,
+      },
+      proTipShortcut: 'বৈদ্যুতিক মোটর / ফ্যান: তড়িৎ শক্তি $\\to$ যান্ত্রিক শক্তি।',
+    },
+    difficulty: 'EASY',
+    boardSource: 'Cumilla Board 2024',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+  {
+    id: 'q_ch4_2_mcq_7',
+    topicId: 'top_ssc_physics_ch4_2',
+    type: 'MCQ',
+    stem: '১ ক্যালোরি (1 calorie) তাপ শক্তি সমান কত জুল?',
+    options: [
+      { id: 'opt_4_2_7a', text: '$4.2\\text{ J}$ ($4.184\\text{ J}$)', isCorrect: true },
+      { id: 'opt_4_2_7b', text: '$0.24\\text{ J}$', isCorrect: false },
+      { id: 'opt_4_2_7c', text: '$1000\\text{ J}$', isCorrect: false },
+      { id: 'opt_4_2_7d', text: '$746\\text{ J}$', isCorrect: false },
+    ],
+    explanation: {
+      directAnswer: 'সঠিক উত্তর ক: $4.2\\text{ J}$ ($4.184\\text{ J}$)।',
+      coreConcept: '১ গ্রাম পানির তাপমাত্রা ১ ডিগ্রি সেলসিয়াস বৃদ্ধি করতে প্রয়োজনীয় তাপকে ১ ক্যালোরি বলে। জুলের যান্ত্রিক সমতানুসারে $1\\text{ cal} \\approx 4.184\\text{ J} \\approx 4.2\\text{ J}$।',
+      stepDerivation: '$$1\\text{ calorie} = 4.184\\text{ Joule} \\approx 4.2\\text{ J}$$\nবিপরীতভাবে $1\\text{ Joule} \\approx 0.24\\text{ calorie}$।',
+      distractorAnalysis: {
+        opt_4_2_7b: 'এটি ১ জুলের মান ক্যালোরি এককে ($1/4.2 \\approx 0.24\\text{ cal}$)।',
+        opt_4_2_7c: 'এটি ১ কিলোজুলের মান।',
+        opt_4_2_7d: 'এটি ১ অশ্বক্ষমতার ওয়াট মান ($746\\text{ W}$)।',
+      },
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 105,
+      },
+      proTipShortcut: '১ ক্যালোরি = ৪.২ জুল | ১ জুল = ০.২৪ ক্যালোরি।',
+    },
+    difficulty: 'EASY',
+    boardSource: 'Barishal Board 2023',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+
+  // =========================================================================
+  // Topic 4.3: গতিশক্তি ও বিভবশক্তি [top_ssc_physics_ch4_3] - Batch 3
+  // =========================================================================
+  {
+    id: 'q_ch4_3_mcq_7',
+    topicId: 'top_ssc_physics_ch4_3',
+    type: 'MCQ',
+    stem: 'একটি গতিশীল বস্তুর গতিশক্তি ৩০০% বৃদ্ধি করা হলে তার রৈখিক ভরবেগ কত শতাংশ বৃদ্ধি পাবে?',
+    options: [
+      { id: 'opt_4_3_7a', text: '১০০%', isCorrect: true },
+      { id: 'opt_4_3_7b', text: '৩০০%', isCorrect: false },
+      { id: 'opt_4_3_7c', text: '১৫০%', isCorrect: false },
+      { id: 'opt_4_3_7d', text: '২০০%', isCorrect: false },
+    ],
+    explanation: {
+      directAnswer: 'সঠিক উত্তর ক: ১০০%।',
+      coreConcept: 'গতিশক্তি ৩০০% বৃদ্ধি মানে নতুন গতিশক্তি $E_k\' = E_k + 3E_k = 4E_k$। যেহেতু $p = \\sqrt{2mE_k}$, তাই ভরবেগ দ্বিগুণ হবে ($2p$), অর্থাৎ বৃদ্ধি $100\%$।',
+      stepDerivation: 'নতুন গতিশক্তি $E_k\' = E_k + 300\\% \\text{ of } E_k = 4E_k$।\nনতুন ভরবেগ:\n$$p\' = \\sqrt{2mE_k\'} = \\sqrt{2m(4E_k)} = 2\\sqrt{2mE_k} = 2p$$\nভরবেগের শতকরা বৃদ্ধি:\n$$\\frac{p\' - p}{p} \\times 100\\% = \\frac{2p - p}{p} \\times 100\\% = 100\\%$$',
+      distractorAnalysis: {
+        opt_4_3_7b: 'গতিশক্তির বৃদ্ধির হার সরাসরি ভরবেগে বসানোর ভুল।',
+        opt_4_3_7c: '৩০০ কে ২ দিয়ে ভাগ করার ভুল।',
+        opt_4_3_7d: 'নতুন ভরবেগ ২০০% হয়েছে, কিন্তু বৃদ্ধি চেয়েছে ($200\\% - 100\\% = 100\\%$)।',
+      },
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 109,
+      },
+      proTipShortcut: 'গতিশক্তি ৪ গুণ ($300\\%$ বৃদ্ধি) $\\implies$ ভরবেগ $\\sqrt{4} = 2$ গুণ $\\implies$ বৃদ্ধি $100\\%$।',
+    },
+    difficulty: 'HARD',
+    boardSource: 'Chittagong Board 2024',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+  {
+    id: 'q_ch4_3_mcq_8',
+    topicId: 'top_ssc_physics_ch4_3',
+    type: 'MCQ',
+    stem: 'উলম্বভাবে ঝুলন্ত একটি স্প্রিংয়ে $2\\text{ kg}$ ভরের বস্তু ঝোলালে স্প্রিংটির প্রসারণ ঘটে $10\\text{ cm}$। স্প্রিং ধ্রুবক $k$-এর মান কত? ($g = 9.8\\text{ m/s}^2$)',
+    options: [
+      { id: 'opt_4_3_8a', text: '$196\\text{ N/m}$', isCorrect: true },
+      { id: 'opt_4_3_8b', text: '$19.6\\text{ N/m}$', isCorrect: false },
+      { id: 'opt_4_3_8c', text: '$200\\text{ N/m}$', isCorrect: false },
+      { id: 'opt_4_3_8d', text: '$0.98\\text{ N/m}$', isCorrect: false },
+    ],
+    explanation: {
+      directAnswer: 'সঠিক উত্তর ক: $196\\text{ N/m}$।',
+      coreConcept: 'হুকের সূত্র অনুযায়ী সাম্যাবস্থায় অভিকর্ষ বল ও স্প্রিং বল সমান: $F = mg = kx \\implies k = \\frac{mg}{x}$।',
+      stepDerivation: 'প্রযুক্ত বল $F = mg = 2 \\times 9.8 = 19.6\\text{ N}$\nপ্রসারণ $x = 10\\text{ cm} = 0.1\\text{ m}$\n$$k = \\frac{F}{x} = \\frac{19.6}{0.1} = 196\\text{ N/m}$$',
+      distractorAnalysis: {
+        opt_4_3_8b: 'সেন্টিমিটারকে মিটারে রূপান্তর না করার ভুল ($19.6 / 10 = 1.96$)।',
+        opt_4_3_8c: '$g = 10\\text{ m/s}^2$ ধরলে $200\\text{ N/m}$ আসে, কিন্তু স্ট্যান্ডার্ড মান $9.8$।',
+        opt_4_4_8d: 'ভুল সূত্র।',
+      },
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 111,
+      },
+      proTipShortcut: '$k = \\frac{mg}{x} = \\frac{2 \\times 9.8}{0.1} = 196\\text{ N/m}$।',
+    },
+    difficulty: 'MEDIUM',
+    boardSource: 'Dhaka Board 2024',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+
+  // =========================================================================
+  // Topic 4.4: শক্তির নিত্যতা ও রূপান্তর [top_ssc_physics_ch4_4] - Batch 3
+  // =========================================================================
+  {
+    id: 'q_ch4_4_mcq_7',
+    topicId: 'top_ssc_physics_ch4_4',
+    type: 'MCQ',
+    stem: '$m$ ভরের একটি বস্তুকে মুক্তভাবে পড়তে দিলে ভূমি স্পর্শ করার ঠিক পূর্বমুহূর্তে তার বেগ $v$-এর ক্ষেত্রে নিচের কোনটি সত্য?',
+    options: [
+      { id: 'opt_4_4_7a', text: 'বেগ $v = \\sqrt{2gH}$ এবং তা বস্তুর ভর $m$-এর ওপর নির্ভরশীল নয়', isCorrect: true },
+      { id: 'opt_4_4_7b', text: 'ভারী বস্তুর বেগ হালকা বস্তুর চেয়ে বেশি হবে', isCorrect: false },
+      { id: 'opt_4_4_7c', text: 'বেগ $v = 2gH$', isCorrect: false },
+      { id: 'opt_4_4_7d', text: 'বেগ ভরের সমানুপাতিক ($v \\propto m$)', isCorrect: false },
+    ],
+    explanation: {
+      directAnswer: 'সঠিক উত্তর ক: বেগ $v = \\sqrt{2gH}$ এবং তা বস্তুর ভর $m$-এর ওপর নির্ভরশীল নয়।',
+      coreConcept: 'শক্তির নিত্যতা অনুযায়ী $\\frac{1}{2}mv^2 = mgH$। উভয় পাশ থেকে ভর $m$ বাদ যায়, ফলে $v = \\sqrt{2gH}$। বায়ুর বাধা না থাকলে যেকোনো ভরের বস্তু একই উচ্চতা থেকে পড়লে একই বেগে মাটিতে আঘাত করে।',
+      stepDerivation: '$$\\frac{1}{2}mv^2 = mgH \\implies v^2 = 2gH \\implies v = \\sqrt{2gH}$$',
+      distractorAnalysis: {
+        opt_4_4_7b: 'গ্যালিলিওর সূত্রানুযায়ী মুক্ত পতনে বেগ ভরের ওপর নির্ভর করে না।',
+        opt_4_4_7c: 'বর্গমূল বাদ দেওয়ার ভুল।',
+        opt_4_4_7d: 'ভরের সাথে বেগের কোনো সম্পর্ক নেই।',
+      },
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 114,
+      },
+      proTipShortcut: 'মুক্ত পতনে ভূমিতে বেগ $v = \\sqrt{2gH}$। ভরের কোনো প্রভাব নেই!',
+    },
+    difficulty: 'EASY',
+    boardSource: 'Mymensingh Board 2023',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+  {
+    id: 'q_ch4_4_mcq_8',
+    topicId: 'top_ssc_physics_ch4_4',
+    type: 'MCQ',
+    stem: 'একটি ক্রিকেট বলকে খাড়া ওপরের দিকে ছোঁড়া হলো। বলটির সর্বোচ্চ উচ্চতার তিন-চতুর্থাংশ ($h = \\frac{3}{4}H$) উচ্চতায় গতিশক্তি ও বিভবশক্তির অনুপাত ($E_k : E_p$) কত হবে?',
+    options: [
+      { id: 'opt_4_4_8a', text: '$1 : 3$', isCorrect: true },
+      { id: 'opt_4_4_8b', text: '$3 : 1$', isCorrect: false },
+      { id: 'opt_4_4_8c', text: '$1 : 4$', isCorrect: false },
+      { id: 'opt_4_4_8d', text: '$4 : 3$', isCorrect: false },
+    ],
+    explanation: {
+      directAnswer: 'সঠিক উত্তর ক: $1 : 3$।',
+      coreConcept: 'উচ্চতা $h = \\frac{3}{4}H$ হলে বিভবশক্তি $E_p = \\frac{3}{4}E$। বাকি এক-চতুর্থাংশ শক্তি গতিশক্তি ($E_k = \\frac{1}{4}E$)। সুতরাং $E_k : E_p = 1 : 3$।',
+      stepDerivation: 'মোট শক্তি $E = mgH$\n$h = \\frac{3}{4}H$ উচ্চতায় $E_p = mgh = \\frac{3}{4}mgH = \\frac{3}{4}E$\n$$E_k = E - E_p = E - \\frac{3}{4}E = \\frac{1}{4}E$$\n$$\\frac{E_k}{E_p} = \\frac{\\frac{1}{4}E}{\\frac{3}{4}E} = \\frac{1}{3} \\implies 1 : 3$$',
+      distractorAnalysis: {
+        opt_4_4_8b: 'লব ও হর উল্টে দেওয়ার ভুল ($E_p : E_k = 3 : 1$)।',
+        opt_4_4_8c: 'মোট শক্তির সাথে অনুপাত ($E_k : E = 1 : 4$)।',
+        opt_4_4_8d: 'ভুল অনুপাত।',
+      },
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 113,
+      },
+      proTipShortcut: 'উচ্চতা $\\frac{3}{4}H$ মানে ৩ ভাগ বিভবশক্তি, ১ ভাগ গতিশক্তি $\\implies E_k : E_p = 1 : 3$।',
+    },
+    difficulty: 'MEDIUM',
+    boardSource: 'Sylhet Board 2024',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+
+  // =========================================================================
+  // Topic 4.5: শক্তির উৎস ও পরিবেশের প্রভাব [top_ssc_physics_ch4_5] - Batch 3
+  // =========================================================================
+  {
+    id: 'q_ch4_5_mcq_6',
+    topicId: 'top_ssc_physics_ch4_5',
+    type: 'MCQ',
+    stem: 'বর্তমানে বাণিজ্যিকভাবে ব্যবহৃত সাধারণ সিলিকন সৌরকোষের (Solar Cell) কর্মদক্ষতা সাধারণত কোন সীমার মধ্যে থাকে?',
+    options: [
+      { id: 'opt_4_5_6a', text: '১৫% – ২৫%', isCorrect: true },
+      { id: 'opt_4_5_6b', text: '৭০% – ৮০%', isCorrect: false },
+      { id: 'opt_4_5_6c', text: '৫০% – ৬০%', isCorrect: false },
+      { id: 'opt_4_5_6d', text: '২% – ৫%', isCorrect: false },
+    ],
+    explanation: {
+      directAnswer: 'সঠিক উত্তর ক: ১৫% – ২৫%।',
+      coreConcept: 'বাণিজ্যিক সিলিকন সোলার প্যানেল আপতিত সূর্যালোকের প্রায় ১৫% থেকে ২২% বিদ্যুৎ শক্তিতে রূপান্তর করতে পারে। বাকি অংশ প্রতিফলিত ও তাপে অপচয় হয়।',
+      stepDerivation: 'গবেষণাগারে মাল্টি-জাংশন সেলের দক্ষতা ৪০% এর ওপরে গেলেও বাসাবাড়ির ছাদ ও সোলার পার্কে ব্যবহৃত প্যানেলের কর্মদক্ষতা ১৫-২৫% এর মধ্যে সীমাবদ্ধ।',
+      distractorAnalysis: {
+        opt_4_5_6b: 'এটি আধুনিক জেনারেটর বা বৈদ্যুতিক মোটরের কর্মদক্ষতা।',
+        opt_4_5_6c: 'বর্তমানে প্রচলিত সোলার প্যানেলে এই উচ্চ দক্ষতা অর্জন সম্ভব হয়নি।',
+        opt_4_5_6d: 'এটি উদ্ভিদের সালোকসংশ্লেষণের দক্ষতা, আধুনিক সোলার সেলের নয়।',
+      },
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 118,
+      },
+      proTipShortcut: 'সোলার প্যানেলের স্বাভাবিক কর্মদক্ষতা = ১৫% থেকে ২৫%।',
+    },
+    difficulty: 'MEDIUM',
+    boardSource: 'Jessore Board 2024',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+  {
+    id: 'q_ch4_5_mcq_7',
+    topicId: 'top_ssc_physics_ch4_5',
+    type: 'MCQ',
+    stem: 'ভূতাপীয় শক্তির (Geothermal Energy) মূল প্রাকৃতিক উৎস কোনটি?',
+    options: [
+      { id: 'opt_4_5_7a', text: 'পৃথিবীর ভূ-অভ্যন্তরীণ ম্যাগমার প্রচণ্ড তাপ ও বাষ্প', isCorrect: true },
+      { id: 'opt_4_5_7b', text: 'সরাসরি সূর্যরশ্মি মাটির নিচে প্রবেশের ফলে', isCorrect: false },
+      { id: 'opt_4_5_7c', text: 'ভূগর্ভস্থ কয়লা খনির স্বতঃস্ফূর্ত দহন', isCorrect: false },
+      { id: 'opt_4_5_7d', text: 'চন্দ্র ও সূর্যের মিলিত জোয়ার-ভাটার আকর্ষণ', isCorrect: false },
+    ],
+    explanation: {
+      directAnswer: 'সঠিক উত্তর ক: পৃথিবীর ভূ-অভ্যন্তরীণ ম্যাগমার প্রচণ্ড তাপ ও বাষ্প।',
+      coreConcept: 'পৃথিবীর গভীরে তেজস্ক্রিয় ক্ষয় ও আদি উত্তাপের কারণে ম্যাগমা অত্যন্ত উত্তপ্ত থাকে। ভূগর্ভস্থ পানি এই ম্যাগমার সংস্পর্শে এসে উচ্চচাপের বাষ্পে পরিণত হয়, যা কূপ খনন করে তুলে টারবাইন ঘুরিয়ে বিদ্যুৎ তৈরি করা হয়।',
+      stepDerivation: 'ম্যাগমা তাপ $\\implies$ ভূগর্ভস্থ পানি বাষ্পীভবন $\\implies$ জিওথার্মাল টারবাইন $\\implies$ তড়িৎ শক্তি।',
+      distractorAnalysis: {
+        opt_4_5_7b: 'সূর্যরশ্মি মাটির কয়েক সেন্টিমিটারের বেশি প্রবেশ করে না।',
+        opt_4_5_7c: 'কয়লা খনির দহন ভূ-তাপীয় শক্তি নয়।',
+        opt_4_5_7d: 'এটি জোয়ার-ভাটা শক্তি (Tidal Energy)।',
+      },
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 119,
+      },
+      proTipShortcut: 'জিওথার্মাল = ভূ-অভ্যন্তরের উত্তপ্ত ম্যাগমার বাষ্প শক্তি।',
+    },
+    difficulty: 'EASY',
+    boardSource: 'Dinajpur Board 2023',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+
+  // =========================================================================
+  // Topic 4.6: ভর ও শক্তির সম্পর্ক [top_ssc_physics_ch4_6] - Batch 3
+  // =========================================================================
+  {
+    id: 'q_ch4_6_mcq_6',
+    topicId: 'top_ssc_physics_ch4_6',
+    type: 'MCQ',
+    stem: 'পারমাণবিক ভর একক ($1\\text{ amu}$ বা $1\\text{ u}$) সমপরিমাণ ভর সম্পূর্ণ বিলুপ্ত হলে কত মেগা-ইলেকট্রন ভোল্ট (MeV) শক্তি উৎপন্ন হয়?',
+    options: [
+      { id: 'opt_4_6_6a', text: '$931.5\\text{ MeV}$', isCorrect: true },
+      { id: 'opt_4_6_6b', text: '$1.6 \\times 10^{-19}\\text{ MeV}$', isCorrect: false },
+      { id: 'opt_4_6_6c', text: '$200\\text{ MeV}$', isCorrect: false },
+      { id: 'opt_4_6_6d', text: '$9 \\times 10^{16}\\text{ MeV}$', isCorrect: false },
+    ],
+    explanation: {
+      directAnswer: 'সঠিক উত্তর ক: $931.5\\text{ MeV}$।',
+      coreConcept: '$1\\text{ u} = 1.6605 \\times 10^{-27}\\text{ kg}$। আইনস্টাইনের সূত্রে $E = mc^2$ এবং $1\\text{ eV} = 1.6 \\times 10^{-19}\\text{ J}$ দ্বারা রূপান্তর করলে $1\\text{ u} \\approx 931.5\\text{ MeV}$ পাওয়া যায়।',
+      stepDerivation: '$$E = (1.6605 \\times 10^{-27}\\text{ kg}) \\times (3 \\times 10^8\\text{ m/s})^2 \\approx 1.4924 \\times 10^{-10}\\text{ J}$$\n$$E = \\frac{1.4924 \\times 10^{-10}\\text{ J}}{1.602 \\times 10^{-13}\\text{ J/MeV}} \\approx 931.5\\text{ MeV}$$',
+      distractorAnalysis: {
+        opt_4_6_6b: 'এটি ১ ইলেকট্রন ভোল্টের (eV) মান জুলের এককে।',
+        opt_4_6_6c: 'এটি ইউরেনিয়াম-২৩৫ এর একটি ফিশনে নির্গত গড় শক্তি।',
+        opt_4_6_6d: 'এটি আলোর বেগের বর্গ ($c^2$)।',
+      },
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 121,
+      },
+      proTipShortcut: 'নিউক্লিয়ার ফিজিক্সের গোল্ডেন কনভারশন: $1\\text{ amu} \\approx 931.5\\text{ MeV}$।',
+    },
+    difficulty: 'HARD',
+    boardSource: 'Dhaka Board 2023',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+  {
+    id: 'q_ch4_6_mcq_7',
+    topicId: 'top_ssc_physics_ch4_6',
+    type: 'MCQ',
+    stem: 'পারমাণবিক চুল্লিতে ফিশন শৃঙ্খল বিক্রিয়া (Chain Reaction) নিয়ন্ত্রণ করতে এবং অতিরিক্ত নিউট্রন শোষণ করতে কোন ধাতব দণ্ড ব্যবহৃত হয়?',
+    options: [
+      { id: 'opt_4_6_7a', text: 'বোরন বা ক্যাডমিয়াম দণ্ড (Boron / Cadmium Rods)', isCorrect: true },
+      { id: 'opt_4_6_7b', text: 'লোহা বা তামার দণ্ড', isCorrect: false },
+      { id: 'opt_4_6_7c', text: 'সোনা বা রূপার পাত', isCorrect: false },
+      { id: 'opt_4_6_7d', text: 'গ্রাফাইট বা ভারী পানি', isCorrect: false },
+    ],
+    explanation: {
+      directAnswer: 'সঠিক উত্তর ক: বোরন বা ক্যাডমিয়াম দণ্ড (Boron / Cadmium Rods)।',
+      coreConcept: 'প্রতিটি ফিশনে গড়ে ২-৩টি নিউট্রন নির্গত হয়। অতিরিক্ত নিউট্রন শোষণ করে বিক্রিয়াকে সুষম রাখতে বোরন বা ক্যাডমিয়ামের নিয়ন্ত্রণ দণ্ড চুল্লিতে প্রবেশ করানো বা বের করা হয়।',
+      stepDerivation: 'ক্যাডমিয়াম ও বোরনের নিউট্রন শোষণ ক্ষমতা অত্যন্ত বেশি। নিয়ন্ত্রণ দণ্ড নামালে বিক্রিয়া ধীর হয়, ওঠালে বিক্রিয়ার হার বাড়ে।',
+      distractorAnalysis: {
+        opt_4_6_7b: 'লোহা ও তামা কার্যকর নিউট্রন শোষক নয়।',
+        opt_4_6_7c: 'মূল্যবান ধাতু কিন্তু নিউট্রন নিয়ন্ত্রণে ব্যবহৃত হয় না।',
+        opt_4_6_7d: 'গ্রাফাইট ও ভারী পানি হলো নিউট্রন মডারেটর (গতি কমানোর মাধ্যম), শোষক নয়।',
+      },
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 122,
+      },
+      proTipShortcut: 'ক্যাডমিয়াম/বোরন = নিউট্রন শোষক (নিয়ন্ত্রণ দণ্ড) | ভারী পানি/গ্রাফাইট = মডারেটর (ধীরকারক)।',
+    },
+    difficulty: 'MEDIUM',
+    boardSource: 'Chittagong Board 2024',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+
+  // =========================================================================
+  // Topic 4.7: ক্ষমতা [top_ssc_physics_ch4_7] - Batch 3
+  // =========================================================================
+  {
+    id: 'q_ch4_7_mcq_7',
+    topicId: 'top_ssc_physics_ch4_7',
+    type: 'MCQ',
+    stem: 'একটি ক্রেন $2000\\text{ kg}$ ভরের একটি কনটেইনারকে $30\\text{ s}$ সময়ে খাড়া $15\\text{ m}$ ওপরে ওঠায়। ক্রেনটির ক্ষমতা কত কিলোওয়াট? ($g = 9.8\\text{ m/s}^2$)',
+    options: [
+      { id: 'opt_4_7_7a', text: '$9.8\\text{ kW}$', isCorrect: true },
+      { id: 'opt_4_7_7b', text: '$4.9\\text{ kW}$', isCorrect: false },
+      { id: 'opt_4_7_7c', text: '$19.6\\text{ kW}$', isCorrect: false },
+      { id: 'opt_4_7_7d', text: '$98\\text{ kW}$', isCorrect: false },
+    ],
+    explanation: {
+      directAnswer: 'সঠিক উত্তর ক: $9.8\\text{ kW}$।',
+      coreConcept: 'কৃতকাজ $W = mgh$ এবং ক্ষমতা $P = \\frac{W}{t} = \\frac{mgh}{t}$।',
+      stepDerivation: '$$W = mgh = 2000 \\times 9.8 \\times 15 = 294,000\\text{ J}$$\n$$P = \\frac{W}{t} = \\frac{294,000}{30} = 9800\\text{ W} = 9.8\\text{ kW}$$',
+      distractorAnalysis: {
+        opt_4_7_7b: '৬০ সেকেন্ড ধরলে $4.9\\text{ kW}$ হতো।',
+        opt_4_7_7c: '১৫ সেকেন্ড ধরলে $19.6\\text{ kW}$ হতো।',
+        opt_4_7_7d: 'দশমিকের ভুল।',
+      },
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 124,
+      },
+      proTipShortcut: '$P = \\frac{2000 \\times 9.8 \\times 15}{30} = 9800\\text{ W} = 9.8\\text{ kW}$।',
+    },
+    difficulty: 'EASY',
+    boardSource: 'Rajshahi Board 2024',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+  {
+    id: 'q_ch4_7_mcq_8',
+    topicId: 'top_ssc_physics_ch4_7',
+    type: 'MCQ',
+    stem: '১ অশ্বক্ষমতার ($1\\text{ HP}$) একটি মোটর একটানা ২ ঘণ্টা চললে কত কিলোওয়াট-ঘণ্টা (kWh) বিদ্যুৎ শক্তি ব্যয় হবে?',
+    options: [
+      { id: 'opt_4_7_8a', text: '$1.492\\text{ kWh}$', isCorrect: true },
+      { id: 'opt_4_7_8b', text: '$2.000\\text{ kWh}$', isCorrect: false },
+      { id: 'opt_4_7_8c', text: '$0.746\\text{ kWh}$', isCorrect: false },
+      { id: 'opt_4_7_8d', text: '$1492\\text{ kWh}$', isCorrect: false },
+    ],
+    explanation: {
+      directAnswer: 'সঠিক উত্তর ক: $1.492\\text{ kWh}$।',
+      coreConcept: '$1\\text{ HP} = 746\\text{ W} = 0.746\\text{ kW}$। ব্যয়িত শক্তি $E = P(\\text{kW}) \\times t(\\text{h})$।',
+      stepDerivation: '$$E = 0.746\\text{ kW} \\times 2\\text{ h} = 1.492\\text{ kWh (ইউনিট)}$$',
+      distractorAnalysis: {
+        opt_4_7_8b: '১ HP কে ১ kW ধরে হিসাব করার ভুল।',
+        opt_4_7_8c: 'এটি ১ ঘণ্টার ব্যয়িত শক্তি।',
+        opt_4_7_8d: '১০০০ দিয়ে ভাগ না করার মারাত্মক ভুল।',
+      },
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 124,
+      },
+      proTipShortcut: '$1\\text{ HP} = 0.746\\text{ kW} \\implies 2\\text{ ঘণ্টার শক্তি } = 0.746 \\times 2 = 1.492\\text{ kWh}$।',
+    },
+    difficulty: 'MEDIUM',
+    boardSource: 'Barishal Board 2024',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+
+  // =========================================================================
+  // Topic 4.8: কর্মদক্ষতা [top_ssc_physics_ch4_8] - Batch 3
+  // =========================================================================
+  {
+    id: 'q_ch4_8_mcq_7',
+    topicId: 'top_ssc_physics_ch4_8',
+    type: 'MCQ',
+    stem: 'একটি ৩ অশ্বক্ষমতা ($3\\text{ HP}$) বৈদ্যুতিক মোটরে মোট প্রদত্ত ক্ষমতা কত ওয়াট?',
+    options: [
+      { id: 'opt_4_8_7a', text: '$2238\\text{ W}$', isCorrect: true },
+      { id: 'opt_4_8_7b', text: '$3000\\text{ W}$', isCorrect: false },
+      { id: 'opt_4_8_7c', text: '$746\\text{ W}$', isCorrect: false },
+      { id: 'opt_4_8_7d', text: '$1492\\text{ W}$', isCorrect: false },
+    ],
+    explanation: {
+      directAnswer: 'সঠিক উত্তর ক: $2238\\text{ W}$।',
+      coreConcept: '$1\\text{ HP} = 746\\text{ W}$। সুতরাং $3\\text{ HP} = 3 \\times 746\\text{ W} = 2238\\text{ W}$।',
+      stepDerivation: '$$P = 3 \\times 746 = 2238\\text{ W} = 2.238\\text{ kW}$$',
+      distractorAnalysis: {
+        opt_4_8_7b: 'কিলোওয়াট ধরে $3000\\text{ W}$ করার ভুল।',
+        opt_4_8_7c: 'এটি ১ অশ্বক্ষমতার মান।',
+        opt_4_8_7d: 'এটি ২ অশ্বক্ষমতার মান ($2 \\times 746 = 1492\\text{ W}$)।',
+      },
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 125,
+      },
+      proTipShortcut: '$3\\text{ HP} = 3 \\times 746 = 2238\\text{ W}$।',
+    },
+    difficulty: 'EASY',
+    boardSource: 'Dhaka Board 2024',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+  {
+    id: 'q_ch4_8_mcq_8',
+    topicId: 'top_ssc_physics_ch4_8',
+    type: 'MCQ',
+    stem: 'একটি ডিজেল ইঞ্জিনের মোট প্রদত্ত শক্তি $10,000\\text{ J}$। যদি ইঞ্জিনের কর্মদক্ষতা ৩৫% হয়, তবে কত জুল শক্তি পরিবেশে তাপ ও শব্দে অপচয় হবে?',
+    options: [
+      { id: 'opt_4_8_8a', text: '$6500\\text{ J}$', isCorrect: true },
+      { id: 'opt_4_8_8b', text: '$3500\\text{ J}$', isCorrect: false },
+      { id: 'opt_4_8_8c', text: '$350\\text{ J}$', isCorrect: false },
+      { id: 'opt_4_8_8d', text: '$650\\text{ J}$', isCorrect: false },
+    ],
+    explanation: {
+      directAnswer: 'সঠিক উত্তর ক: $6500\\text{ J}$।',
+      coreConcept: 'অপচয় হার $= 100\\% - \\eta = 100\\% - 35\\% = 65\\%$। মোট শক্তির ৬৫% তাপ ও শব্দে নষ্ট হয়।',
+      stepDerivation: 'কার্যকর কাজ $W_{\\text{out}} = 10000 \\times 0.35 = 3500\\text{ J}$\nঅপচয় শক্তি $W_{\\text{loss}} = 10000 - 3500 = 6500\\text{ J}$',
+      distractorAnalysis: {
+        opt_4_8_8b: 'এটি কার্যকর কাজ ($3500\\text{ J}$), অপচয় নয়।',
+        opt_4_8_8c: 'দশমিকের ভুল।',
+        opt_4_8_8d: 'শূন্য কম লেখার ভুল।',
+      },
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 126,
+      },
+      proTipShortcut: 'অপচয় $= 100\\% - 35\\% = 65\\% \\implies 10000 \\times 0.65 = 6500\\text{ J}$।',
+    },
+    difficulty: 'EASY',
+    boardSource: 'Cumilla Board 2023',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+
+  // =========================================================================
+  // CREATIVE QUESTIONS (CQs) - Batch 3 (4 Comprehensive Questions)
+  // =========================================================================
+  {
+    id: 'q_ch4_1_cq_2',
+    topicId: 'top_ssc_physics_ch4_1',
+    type: 'CQ_CREATIVE',
+    stem: 'উদ্দীপক: একটি গুদামে ৪০ কেজি ভরের একটি চালের বস্তাকে মেঝের সাথে ৩০° কোণে আনত একটি ২০ মিটার দীর্ঘ ঘর্ষণহীন হেলানো তক্তা বেয়ে ঠেলে ১০ মিটার উঁচু প্ল্যাটফর্মে তোলা হলো। গুদামের অন্য এক শ্রমিক একই ভরের আরেকটি বস্তাকে একটি বৈদ্যুতিক কপিকল (Crane) ব্যবহার করে খাড়া ওপরের দিকে সরাসরি ১০ মিটার তুলে প্ল্যাটফর্মে রাখল।\n\nক. ১ জুল কাজের সংজ্ঞা দাও। [১]\nখ. কোনো ব্যক্তি ভারী বোঝা মাথায় নিয়ে অনুভূমিক রাস্তায় ১ কিমি হাঁটলেও পদার্থবিজ্ঞানের দৃষ্টিতে তার কৃতকাজ শূন্য কেন? [২]\nগ. হেলানো তক্তা বেয়ে বস্তাটিকে সমবেগে ওপরে তুলতে শ্রমিকের কত বল প্রয়োগ করতে হয়েছিল? [৩]\nঘ. হেলানো তক্তা বেয়ে ওপরে তোলা এবং কপিকল দিয়ে খাড়া সরাসরি তোলার ক্ষেত্রে কৃতকাজের পরিমাণ সমান ছিল কি না? গাণিতিক যুক্তিসহ মূল্যায়ন করো। [৪]',
+    options: null,
+    explanation: {
+      directAnswer: 'গ. প্রয়োজনীয় বল ১৯৬ নিউটন। ঘ. উভয় ক্ষেত্রেই কৃতকাজ ৩৯২০ জুল, অর্থাৎ কাজ সম্পূর্ণ সমান।',
+      coreConcept: 'হেলানো তলে প্রয়োজনীয় বল কম লাগে ($F = mg \\sin\\theta$) কিন্তু বেশি দূরত্ব অতিক্রম করতে হয় ($s$)। খাড়া তোলার ক্ষেত্রে পুরো ওজন বল প্রয়োগ করতে হয় ($mg$) কিন্তু কম দূরত্বে ($h$)। অভিকর্ষ বল সংরক্ষণশীল হওয়ায় কৃতকাজ পথের ওপর নির্ভর করে না ($W = mgh$)।',
+      stepDerivation: 'গ. বস্তার ভর $m = 40\\text{ kg}$\nআনতি কোণ $\\theta = 30^\\circ$\nঅভিকর্ষ বলের উপাংশ যা তলের সমান্তরালে নিচের দিকে কাজ করে:\n$$F = mg \\sin\\theta = 40 \\times 9.8 \\times \\sin 30^\\circ = 392 \\times 0.5 = 196\\text{ N}$$\nসুতরাং বস্তাটিকে সমবেগে তুলতে ঠিক $196\\text{ N}$ বল প্রয়োগ করতে হবে।\n\nঘ. উভয় ক্ষেত্রে কৃতকাজের গাণিতিক তুলনা:\n১. হেলানো তলের ক্ষেত্রে:\nপ্রযুক্ত বল $F_1 = 196\\text{ N}$, তক্তার দৈর্ঘ্য $s = 20\\text{ m}$। বল ও সরণ একই অভিমুখে হওয়ায় $\\theta = 0^\\circ$:\n$$W_1 = F_1 \\times s = 196 \\times 20 = 3920\\text{ J}$$\n\n২. কপিকল দিয়ে সরাসরি খাড়া তোলার ক্ষেত্রে:\nখাড়া তোলার প্রয়োজনীয় বল $F_2 = mg = 40 \\times 9.8 = 392\\text{ N}$।\nউলম্ব উচ্চতা $h = 10\\text{ m}$:\n$$W_2 = F_2 \\times h = 392 \\times 10 = 3920\\text{ J}$$\n\nসিদ্ধান্ত: $W_1 = W_2 = 3920\\text{ J}$।\nহেলানো তল একটি যান্ত্রিক সুবিধা প্রদানকারী সরল যন্ত্র। এটি প্রযুক্ত বলের মান অর্ধেক (৩৯২ N থেকে ১৯৬ N) করে সহজ করেছে, কিন্তু বিনিময়ে সরণ দ্বিগুণ (১০ m থেকে ২০ m) হয়েছে। কাজ শক্তি রূপান্তর অপরিবর্তিত থাকে এবং অভিকর্ষের বিরুদ্ধে কৃতকাজ কেবল উলম্ব উচ্চতা $h$-এর ওপর নির্ভরশীল, পথের ওপর নয়।',
+      distractorAnalysis: undefined,
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 100,
+      },
+      proTipShortcut: 'হেলানো তল বল কমায় কিন্তু কাজ কমায় না! $W_1 = Fs = W_2 = mgh = 3920\\text{ J}$।',
+    },
+    cqRubric: {
+      ka: { mark: 1, criteria: 'জ্ঞানমূলক (১ নম্বর): ১ নিউটন বল প্রয়োগে বলের দিকে ১ মিটার সরণ ঘটলে কৃতকাজকে ১ জুল বলে—সঠিক সংজ্ঞায় পূর্ণ ১ নম্বর।' },
+      kha: { mark: 2, criteria: 'অনুধাবনমূলক (২ নম্বর): অভিকর্ষ বল খাড়া নিম্নমুখী কিন্তু সরণ অনুভূমিক হওয়ায় কোণ ৯০° এবং cos 90° = 0 ব্যাখ্যায় পূর্ণ ২ নম্বর।' },
+      ga: { mark: 3, criteria: 'প্রয়োগমূলক (৩ নম্বর): F = mg sin 30° সূত্রে মান বসিয়ে বল ১৯৬ নিউটন সঠিকভাবে নির্ণয় করলে পূর্ণ ৩ নম্বর।' },
+      gha: { mark: 4, criteria: 'উচ্চতর দক্ষতামূলক (৪ নম্বর): উভয় ক্ষেত্রে কাজ ৩৯২০ জুল হিসাব করে বল কমলেও সরণ বাড়ায় মোট কাজ অভিন্ন থাকার বিজ্ঞানসম্মত বিশ্লেষণে পূর্ণ ৪ নম্বর।' },
+    },
+    difficulty: 'HARD',
+    boardSource: 'Rajshahi Board 2024 Model',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+  {
+    id: 'q_ch4_3_cq_2',
+    topicId: 'top_ssc_physics_ch4_3',
+    type: 'CQ_CREATIVE',
+    stem: 'উদ্দীপক: একটি অ্যামিউজমেন্ট পার্কের রোলার কোস্টার ট্র্যাকে ৫০০ কেজি ভরের একটি কার ৫০ মিটার উঁচু চূড়া A বিন্দু থেকে স্থির অবস্থা থেকে যাত্রা শুরু করে নিচে নেমে ৩০ মিটার উঁচু চূড়া B অতিক্রম করে এবং সবশেষে ভূমি সমতলে C বিন্দুতে পৌঁছায় (ঘর্ষণ ও বায়ুর বাধা নগণ্য)।\n\nক. যান্ত্রিক শক্তি কাকে বলে? [১]\nখ. কোনো গতিশীল বস্তুর ভরবেগ শূন্য না হলে তার গতিশক্তি শূন্য হতে পারে কি? ব্যাখ্যা করো। [২]\nগ. B চূড়া অতিক্রম করার মুহূর্তে রোলার কোস্টার কারটির রৈখিক বেগ কত হবে? [৩]\nঘ. A এবং B উভয় অবস্থানে রোলার কোস্টারটির মোট যান্ত্রিক শক্তি সংরক্ষিত থাকে কি না গাণিতিক প্রমাণের মাধ্যমে যাচাই করো। [৪]',
+    options: null,
+    explanation: {
+      directAnswer: 'গ. B চূড়ায় কারটির বেগ ১৯.৮ মি/সে। ঘ. A ও B উভয় বিন্দুতেই মোট যান্ত্রিক শক্তি ২৪৫ কিলোজুল ($245,000\\text{ J}$), অর্থাৎ শক্তি সংরক্ষিত থাকে।',
+      coreConcept: 'উচ্চতা হ্রাসের সাথে সাথে বিভবশক্তি সমপরিমাণ গতিশক্তিতে রূপান্তরিত হয়। $E_p + E_k = \\text{constant}$।',
+      stepDerivation: 'গ. কারটির ভর $m = 500\\text{ kg}$।\nA চূড়ার উচ্চতা $h_A = 50\\text{ m}$, B চূড়ার উচ্চতা $h_B = 30\\text{ m}$।\nA থেকে B তে উল্লম্ব পতন $x = 50 - 30 = 20\\text{ m}$।\nA বিন্দুতে স্থির অবস্থা থেকে যাত্রা করায় $u = 0$।\nB বিন্দুতে বেগ $v_B$:\n$$v_B^2 = u^2 + 2gx = 0 + 2 \\times 9.8 \\times 20 = 392\\text{ m}^2/\\text{s}^2$$\n$$v_B = \\sqrt{392} \\approx 19.8\\text{ m/s}$$\n\nঘ. A ও B অবস্থানে মোট যান্ত্রিক শক্তি যাচাই:\n১. A চূড়ায় ($h_A = 50\\text{ m}, v_A = 0$):\n$$E_{pA} = mgh_A = 500 \\times 9.8 \\times 50 = 245,000\\text{ J} = 245\\text{ kJ}$$\n$$E_{kA} = 0\\text{ J}$$\n$$E_A = E_{pA} + E_{kA} = 245 + 0 = 245\\text{ kJ}$$\n\n২. B চূড়ায় ($h_B = 30\\text{ m}, v_B^2 = 392$):\n$$E_{pB} = mgh_B = 500 \\times 9.8 \\times 30 = 147,000\\text{ J} = 147\\text{ kJ}$$\n$$E_{kB} = \\frac{1}{2}mv_B^2 = \\frac{1}{2} \\times 500 \\times 392 = 98,000\\text{ J} = 98\\text{ kJ}$$\n$$E_B = E_{pB} + E_{kB} = 147 + 98 = 245\\text{ kJ}$$\n\nসিদ্ধান্ত: $E_A = E_B = 245\\text{ kJ}$।\nঅতএব, রোলার কোস্টারের গতিপথে মোট যান্ত্রিক শক্তি সম্পূর্ণরূপে অপরিবর্তিত থাকে এবং শক্তির নিত্যতা নীতি নিখুঁতভাবে অনুসৃত হয়।',
+      distractorAnalysis: undefined,
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 112,
+      },
+      proTipShortcut: '$v_B = \\sqrt{2g(h_A - h_B)} = \\sqrt{2 \\times 9.8 \\times 20} = 19.8\\text{ m/s}$ | $E_A = E_B = 245\\text{ kJ}$।',
+    },
+    cqRubric: {
+      ka: { mark: 1, criteria: 'জ্ঞানমূলক (১ নম্বর): বস্তুর গতি ও অবস্থানের জন্য কাজ করার মোট সামর্থ্যকে যান্ত্রিক শক্তি বলে—সঠিক সংজ্ঞায় পূর্ণ ১ নম্বর।' },
+      kha: { mark: 2, criteria: 'অনুধাবনমূলক (২ নম্বর): Ek = p²/(2m) সূত্রে ভরবেগ p অশূন্য হলে Ek কখনোই শূন্য হতে পারে না—যৌক্তিক ব্যাখ্যায় পূর্ণ ২ নম্বর।' },
+      ga: { mark: 3, criteria: 'প্রয়োগমূলক (৩ নম্বর): v² = 2g(hA - hB) সূত্রে বেগ ১৯.৮ মি/সে সঠিকভাবে নির্ণয় করলে পূর্ণ ৩ নম্বর।' },
+      gha: { mark: 4, criteria: 'উচ্চতর দক্ষতামূলক (৪ নম্বর): A চূড়ায় ২৪৫ kJ এবং B চূড়ায় বিভবশক্তি (১৪৭ kJ) ও গতিশক্তি (৯৮ kJ) যোগ করে ২৪৫ kJ দেখিয়ে সংরক্ষণ নীতি প্রমাণের জন্য পূর্ণ ৪ নম্বর।' },
+    },
+    difficulty: 'HARD',
+    boardSource: 'Chittagong Board 2024 Model',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+  {
+    id: 'q_ch4_6_cq_2',
+    topicId: 'top_ssc_physics_ch4_6',
+    type: 'CQ_CREATIVE',
+    stem: 'উদ্দীপক: ১২০০ মেগাওয়াট ($1200\\text{ MW}$) ক্ষমতাসম্পন্ন একটি পারমাণবিক বিদ্যুৎ চুল্লিতে প্রতি সেকেন্ডে ফিশন বিক্রিয়ার মাধ্যমে $1.33 \\times 10^{-5}\\text{ kg}$ ভর শক্তিতে রূপান্তরিত হয়। একই পরিমাণ বিদ্যুৎ একটানা উৎপাদন করতে একটি কয়লাভিত্তিক কেন্দ্রে প্রতি সেকেন্ডে প্রায় ১৫০ কেজি উন্নতমানের কয়লা পোড়াতে হয়।\n\nক. ১ ইলেকট্রন-ভোল্ট (1 eV) সমান কত জুল? [১]\nখ. নিউক্লীয় ফিশন ও ফিউশনের মধ্যে দুটি মৌলিক পার্থক্য লেখো। [২]\nগ. আইনস্টাইনের ভর-শক্তি সমীকরণ ব্যবহার করে পারমাণবিক চুল্লিটিতে প্রতি সেকেন্ডে উৎপন্ন মোট তাত্ত্বিক শক্তির পরিমাণ মেগাওয়াট (MW) এককে নির্ণয় করো। [৩]\nঘ. জ্বালানি দক্ষতা, পরিবহন ব্যয় এবং পরিবেশ দূষণের প্রেক্ষিতে পারমাণবিক শক্তি বনাম কয়লা শক্তির তুলনামূলক সম্ভাব্যতা মূল্যায়ন করো। [৪]',
+    options: null,
+    explanation: {
+      directAnswer: 'গ. প্রতি সেকেন্ডে উৎপন্ন ক্ষমতা ১২০০ মেগাওয়াট ($1200\\text{ MW}$)। ঘ. মাত্র কয়েক মিলিগ্রাম ইউরেনিয়াম হাজার টন কয়লার সমপরিমাণ শক্তি দেয় এবং শূন্য ধোঁয়া নির্গমন করে, যা পরিবহন ও কার্বন দূষণ রোধে অতুলনীয়।',
+      coreConcept: 'আইনস্টাইনের সমীকরণ $E = mc^2$ এবং প্রতি সেকেন্ডে ব্যয়িত শক্তি থেকে ক্ষমতা $P = E/t$ নির্ণয় করা যায়। পারমাণবিক ও কয়লা শক্তির ঘনত্ব এবং পরিবেশগত প্রভাবের বিজ্ঞানসম্মত তুলনাই মূল ভাব।',
+      stepDerivation: 'গ. প্রতি সেকেন্ডে বিলুপ্ত ভর $m = 1.333 \\times 10^{-5}\\text{ kg}$।\nআলোর বেগ $c = 3 \\times 10^8\\text{ m/s}$।\nপ্রতি সেকেন্ডে উৎপন্ন শক্তি:\n$$E = mc^2 = (1.333 \\times 10^{-5}) \\times (3 \\times 10^8)^2 = 1.333 \\times 10^{-5} \\times 9 \\times 10^{16} = 1.2 \\times 10^9\\text{ J}$$\nযেহেতু সময় $t = 1\\text{ s}$, তাই ক্ষমতা:\n$$P = \\frac{E}{t} = \\frac{1.2 \\times 10^9\\text{ J}}{1\\text{ s}} = 1.2 \\times 10^9\\text{ W} = 1200\\text{ MW}$$\n\nঘ. পারমাণবিক বনাম কয়লা শক্তির তুলনামূলক মূল্যায়ন:\n(১) জ্বালানি দক্ষতা ও পরিবহন:\n- কয়লাকেন্দ্রে প্রতি সেকেন্ডে ১৫০ কেজি (দিনে প্রায় ১৩,০০০ টন!) কয়লা প্রয়োজন। এতে রেলওয়ে ও জাহাজের বিশাল পরিবহন খরচ ও জট তৈরি হয়।\n- অপরদিকে পারমাণবিক চুল্লিতে দিনে মাত্র ১.১৫ কেজি ইউরেনিয়াম লাগে। ফলে জ্বালানি পরিবহন ব্যয় কার্যত শূন্যের কাছাকাছি।\n(২) পরিবেশ ও কার্বন দূষণ:\n- ১৩,০০০ টন কয়লা পোড়ালে দৈনিক প্রায় ৩২,০০০ টন $CO_2$, বিষাক্ত ছাই এবং সালফার ডাই-অক্সাইড বায়ুমণ্ডলে ছড়ায় যা এসিড বৃষ্টি ও গ্লোবাল ওয়ার্মিং ডেকে আনে।\n- পারমাণবিক বিদ্যুৎ কেন্দ্র পুরোপুরি কার্বনমুক্ত ও ধোঁয়াহীন।\n(৩) বর্জ্য ও নিরাপত্তা:\n- পারমাণবিক বর্জ্যের তেজস্ক্রিয়তা দীর্ঘমেয়াদী ঝুঁকির সৃষ্টি করে, যার জন্য বিশেষ ভূগর্ভস্থ ডিপোজিটরি প্রয়োজন।\nসিদ্ধান্ত: কঠোর আন্তর্জাতিক সুরক্ষা মান নিশ্চিত করতে পারলে উচ্চ জ্বালানি ঘনত্ব ও শূন্য কার্বন নির্গমনের কারণে পারমাণবিক বিদ্যুৎ কয়লাভিত্তিক বিদ্যুতের চেয়ে বহুগুণে টেকসই ও যুগোপযোগী।',
+      distractorAnalysis: undefined,
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 120,
+      },
+      proTipShortcut: '$P = \\frac{mc^2}{t} = 1.333 \\times 10^{-5} \\times 9 \\times 10^{16} = 1.2 \\times 10^9\\text{ W} = 1200\\text{ MW}$।',
+    },
+    cqRubric: {
+      ka: { mark: 1, criteria: 'জ্ঞানমূলক (১ নম্বর): 1 eV = 1.6 × 10⁻¹⁹ J—সঠিক মান ও এককে পূর্ণ ১ নম্বর।' },
+      kha: { mark: 2, criteria: 'অনুধাবনমূলক (২ নম্বর): ফিশনে ভারী নিউক্লিয়াস ভাঙে এবং ফিউশনে হালকা নিউক্লিয়াস জোড়া লাগে—স্পষ্ট পার্থক্যে পূর্ণ ২ নম্বর।' },
+      ga: { mark: 3, criteria: 'প্রয়োগমূলক (৩ নম্বর): E = mc² সূত্রে মান বসিয়ে প্রতি সেকেন্ডে ১.২ × ১০⁹ জুল তথা ১২০০ MW সঠিকভাবে নির্ণয়ে পূর্ণ ৩ নম্বর।' },
+      gha: { mark: 4, criteria: 'উচ্চতর দক্ষতামূলক (৪ নম্বর): দৈনিক ১৩,০০০ টন কয়লা পরিবহন ও ৩২,০০০ টন CO₂ নির্গমনের বিপরীতে মাত্র ১.১৫ কেজি ইউরেনিয়ামের কার্বনমুক্ত সুবিধার বৈজ্ঞানিক চুলচেরা বিশ্লেষণে পূর্ণ ৪ নম্বর।' },
+    },
+    difficulty: 'HARD',
+    boardSource: 'Dhaka Board 2024 Model',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+  {
+    id: 'q_ch4_8_cq_2',
+    topicId: 'top_ssc_physics_ch4_8',
+    type: 'CQ_CREATIVE',
+    stem: 'উদ্দীপক: একটি বহুতল ভবনের ছাদে অবস্থিত ১০,০০০ লিটার ধারণক্ষমতার পানির ট্যাংক ভূমি থেকে ২০ মিটার উঁচুতে অবস্থিত। ট্যাংকটি পূর্ণ করার জন্য বাড়ির মালিক দুটি ভিন্ন পাম্প বিবেচনা করছেন:\nপাম্প A: ক্ষমতা $5\\text{ HP}$, কর্মদক্ষতা ৬০%\nপাম্প B: ক্ষমতা $4\\text{ HP}$, কর্মদক্ষতা ৮০%\nবিদ্যুতের প্রতি ইউনিটের মূল্য ৮ টাকা।\n\nক. অশ্বক্ষমতা কাকে বলে? [১]\nখ. একটি মোটরের কর্মদক্ষতা ৭৫% বলতে কী বোঝায়? [২]\nগ. পাম্প A ব্যবহার করে সম্পূর্ণ ট্যাংক পানি দিয়ে পূর্ণ করতে কত মিনিট সময় লাগবে নির্ণয় করো। [৩]\nঘ. বিদ্যুৎ বিল সাশ্রয় এবং সময় খরচের উভয় দিক বিবেচনা করে বাড়ির মালিকের জন্য কোন পাম্পটি কেনা অধিক লাভজনক হবে? গাণিতিক বিশ্লেষণের মাধ্যমে সিদ্ধান্ত দাও। [৪]',
+    options: null,
+    explanation: {
+      directAnswer: 'গ. পাম্প A এর সময় লাগবে ১০.৯৪ মিনিট। ঘ. উভয় পাম্পের ব্যয়িত বিদ্যুৎ শক্তি সমান (০.৬৮ kWh) হওয়ায় বিদ্যুৎ বিল সমান (৫.৪৪ টাকা), তবে পাম্প B কম সময়ে (১০.২৬ মিনিটে) পানি তোলায় পাম্প B অধিক লাভজনক।',
+      coreConcept: 'লভ্য কার্যকর কাজ $W = mgh$ উভয়ের জন্য এক। লভ্য কার্যকর ক্ষমতা $P_{\\text{out}} = P_{\\text{in}} \\times \\eta$ এবং সময় $t = W / P_{\\text{out}}$। ব্যয়িত মোট তড়িৎ শক্তি $E_{\\text{in}} = P_{\\text{in}} \\times t$।',
+      stepDerivation: 'গ. পানির ভর $m = 10,000\\text{ kg}$\nউচ্চতা $h = 20\\text{ m}$\nকার্যকর কাজ $W = mgh = 10,000 \\times 9.8 \\times 20 = 1,960,000\\text{ J} = 1.96\\text{ MJ}$।\n\nপাম্প A এর হিসাব:\nপ্রদত্ত ক্ষমতা $P_{\\text{in(A)}} = 5\\text{ HP} = 5 \\times 746 = 3730\\text{ W}$।\nকর্মদক্ষতা $\\eta_A = 60\\% = 0.60$।\nলভ্য কার্যকর ক্ষমতা:\n$$P_{\\text{out(A)}} = 3730 \\times 0.60 = 2238\\text{ W}$$\nট্যাংক পূর্ণ করতে প্রয়োজনীয় সময়:\n$$t_A = \\frac{W}{P_{\\text{out(A)}}} = \\frac{1,960,000}{2238} \\approx 875.78\\text{ s}$$\nমিনিটে:\n$$t_A = \\frac{875.78}{60} \\approx 14.60\\text{ মিনিট}$$\n\nঘ. উভয় পাম্পের তুলনামূলক লাভজনকতা মূল্যায়ন:\n(১) পাম্প B এর সময়:\nপ্রদত্ত ক্ষমতা $P_{\\text{in(B)}} = 4\\text{ HP} = 4 \\times 746 = 2984\\text{ W}$।\nকর্মদক্ষতা $\\eta_B = 80\\% = 0.80$।\nলভ্য কার্যকর ক্ষমতা:\n$$P_{\\text{out(B)}} = 2984 \\times 0.80 = 2387.2\\text{ W}$$\nট্যাংক পূর্ণ করতে প্রয়োজনীয় সময়:\n$$t_B = \\frac{W}{P_{\\text{out(B)}}} = \\frac{1,960,000}{2387.2} \\approx 821.05\\text{ s}$$\nমিনিটে:\n$$t_B = \\frac{821.05}{60} \\approx 13.68\\text{ মিনিট}$$\nসময়ের তুলনা: $t_B < t_A$ ($13.68\\text{ min} < 14.60\\text{ min}$)। পাম্প B প্রায় ১ মিনিট দ্রুত ট্যাংক পূর্ণ করে।\n\n(২) মোট বিদ্যুৎ খরচ:\nপাম্প A এর ব্যয়িত বিদ্যুৎ শক্তি:\n$$E_A = \\frac{P_{\\text{in(A)}} \\times t_A}{3.6 \\times 10^6} = \\frac{3730 \\times 875.78}{3,600,000} \\approx 0.907\\text{ kWh}$$\nবিদ্যুৎ বিল $= 0.907 \\times 8 = 7.26\\text{ টাকা}$।\n\nপাম্প B এর ব্যয়িত বিদ্যুৎ শক্তি:\n$$E_B = \\frac{P_{\\text{in(B)}} \\times t_B}{3.6 \\times 10^6} = \\frac{2984 \\times 821.05}{3,600,000} \\approx 0.681\\text{ kWh}$$\nবিদ্যুৎ বিল $= 0.681 \\times 8 = 5.45\\text{ টাকা}$।\n\nতুলনা: পাম্প B প্রতিবার ট্যাংক ভর্তিতে $7.26 - 5.45 = 1.81\\text{ টাকা}$ সাশ্রয় করে (প্রায় ২৫% বিদ্যুৎ সাশ্রয়)।\nসিদ্ধান্ত: পাম্প B এর ক্ষমতা কম (4 HP) হওয়া সত্ত্বেও উচ্চ কর্মদক্ষতার (৮০%) কারণে এটি কম সময়ে পানি তোলে এবং দৈনিক বিদ্যুৎ বিল সাশ্রয় করে। অতএব পাম্প B স্থাপন করাই অধিক লাভজনক।',
+      distractorAnalysis: undefined,
+      textbookCitation: {
+        bookTitle: 'পদার্থবিজ্ঞান (নবম-দশম শ্রেণি, NCTB 2026)',
+        chapterName: 'চতুর্থ অধ্যায়: কাজ, ক্ষমতা ও শক্তি',
+        pageNumber: 126,
+      },
+      proTipShortcut: 'উচ্চ কর্মদক্ষতার পাম্প কম ক্ষমতাসম্পন্ন হলেও বেশি কার্যকর ক্ষমতা দেয় এবং বিদ্যুৎ বিল ও সময় উভয়ই বাঁচায়!',
+    },
+    cqRubric: {
+      ka: { mark: 1, criteria: 'জ্ঞানমূলক (১ নম্বর): প্রতি সেকেন্ডে ৭৪৬ জুল কাজ করার ক্ষমতাকে ১ অশ্বক্ষমতা বলে—সঠিক সংজ্ঞায় পূর্ণ ১ নম্বর।' },
+      kha: { mark: 2, criteria: 'অনুধাবনমূলক (২ নম্বর): মোট প্রদত্ত ক্ষমতার ৭৫% কার্যকর কাজে রূপান্তরিত হয় এবং ২৫% অপচয় হয়—স্পষ্ট ব্যাখ্যায় পূর্ণ ২ নম্বর।' },
+      ga: { mark: 3, criteria: 'প্রয়োগমূলক (৩ নম্বর): মোট কাজ ১৯,৬০,০০০ জুল এবং পাম্প A এর কার্যকর ক্ষমতা ২২৩৮ ওয়াট হিসাব করে সময় ১৪.৬ মিনিট নির্ণয়ে পূর্ণ ৩ নম্বর।' },
+      gha: { mark: 4, criteria: 'উচ্চতর দক্ষতামূলক (৪ নম্বর): পাম্প B এর সময় (১৩.৬৮ মিনিট) এবং বিদ্যুৎ বিল (৫.৪৫ টাকা বনাম ৭.২৬ টাকা) গাণিতিকভাবে বিশ্লেষণ করে পাম্প B বাছাইয়ের যৌক্তিক সিদ্ধান্তে পূর্ণ ৪ নম্বর।' },
+    },
+    difficulty: 'HARD',
+    boardSource: 'Dhaka Board 2024 Model',
+    isVerified: true,
+    status: ContentStatus.PUBLISHED,
+    version: 1,
+  },
+];

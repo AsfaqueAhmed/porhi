@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৩.৫ নিউটনের দ্বিতীয় সূত্র ও বল পরিমাপ · অধ্যায় ৩: বল | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- KaTeX for crisp mathematical formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৩ / ৩.৫</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই ৩.৫</span>
+    <h1 class="title">নিউটনের দ্বিতীয় সূত্র ও বল পরিমাপ <small>(Newton’s Second Law)</small></h1>
+    <p class="subtitle">ভরবেগ, নিউটনের দ্বিতীয় গতিসূত্র থেকে $F = ma$ সমীকরণ প্রতিপাদন এবং বলের ঘাতের ভৌত তাৎপর্য।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>এই পাঠটি সম্পন্ন করার পর তুমি—</p>
+      <ul>
+        <li>ভরবেগ ($p = mv$) সংজ্ঞায়িত করতে পারবে এবং এর একক ও মাত্রা নির্ণয় করতে পারবে।</li>
+        <li>নিউটনের দ্বিতীয় গতিসূত্র বিবৃত করে $F = ma$ সমীকরণটি যথাযথভাবে প্রতিপাদন করতে পারবে।</li>
+        <li>বলের ঘাত ($J = F \Delta t$) এবং ভরবেগের পরিবর্তনের সম্পর্ক ব্যবহার করে বাস্তব সমস্যা সমাধান করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <!-- Interactive Simulation Card -->
+    <div class="lab-iframe-card">
+      <div class="lab-iframe-header">
+        <div class="lab-iframe-title">
+          <span>⚡ লাইভ সিমুলেশন ল্যাব: নিউটনের দ্বিতীয় সূত্র ($F = ma$)</span>
+        </div>
+        <span class="badge" style="background:#1e1b4b;border-color:#4338ca;color:#c7d2fe">কুইজ মোড অন্তর্ভুক্ত</span>
+      </div>
+      <iframe class="lab-iframe" src="../../apps/api/uploads/interactive/force-second-law-lab.html" title="Newton's Second Law Simulator"></iframe>
+    </div>
+
+    <section class="section">
+      <h2>৩.৫ · ভরবেগ ও বলের পরিমাণগত সম্পর্ক</h2>
+      <p>একটি হালকা সাইকেল আর একটি ভারী লরি একই বেগে চললে লরিটিকে থামাতে অনেক বেশি বল প্রয়োগ করতে হয়। কারণ লরির ভর বেশি হওয়ায় তার গতির পরিমাণও বেশি। গতিশীল বস্তুর ভর ও বেগের সমন্বয়ে যে ধর্মের উদ্ভব হয় তাকে <b>ভরবেগ (Linear Momentum)</b> বলে।</p>
+
+      <div class="grid">
+        <div class="term">
+          <strong>ভরবেগ ($p$)</strong>
+          <small>ভর ও বেগের গুণফল: $p = mv$। একক $\text{kg}\cdot\text{m/s}$ বা $\text{N}\cdot\text{s}$, মাত্রা $[MLT^{-1}]$। এটি একটি ভেক্টর রাশি।</small>
+        </div>
+        <div class="term">
+          <strong>১ নিউটন বলের সংজ্ঞা</strong>
+          <small>যে পরিমাণ বল $1\text{ kg}$ ভরের কোনো বস্তুর ওপর প্রযুক্ত হয়ে $1\text{ m/s}^2$ ত্বরণ সৃষ্টি করে, তাকে $1\text{ N}$ বলে।</small>
+        </div>
+        <div class="term">
+          <strong>বলের ঘাত ($J$)</strong>
+          <small>কোনো বল ও তার ক্রিয়াকালের গুণফল: $J = F \cdot \Delta t = \Delta p$ (ভরবেগের পরিবর্তন)। একক $\text{N}\cdot\text{s}$।</small>
+        </div>
+        <div class="term">
+          <strong>প্রযুক্ত বল ($F$)</strong>
+          <small>সময়ের সাপেক্ষে ভরবেগের পরিবর্তনের হার: $F = \frac{\Delta p}{\Delta t} = ma$। মাত্রা $[MLT^{-2}]$।</small>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <b>💡 নিউটনের দ্বিতীয় গতিসূত্র (Newton’s Second Law of Motion):</b><br>
+        কোনো বস্তুর ভরবেগের পরিবর্তনের হার তার ওপর প্রযুক্ত লব্ধি বলের সমানুপাতিক এবং বল যেদিকে ক্রিয়া করে ভরবেগের পরিবর্তনও সেদিকে ঘটে।
+      </div>
+
+      <h3>$F = ma$ সমীকরণের বিজ্ঞানসম্মত প্রতিপাদন</h3>
+      <p>মনে করি, $m$ ভরের একটি বস্তু $u$ আদিবেগ নিয়ে সোজা সরলরেখায় চলছে। বস্তুর ওপর গতির দিকে $F$ ধ্রুব বল $t$ সময় ধরে কাজ করায় শেষ বেগ হলো $v$।</p>
+      <ol>
+        <li>বস্তুটির আদি ভরবেগ, $p_i = mu$</li>
+        <li>$t$ সময় পর শেষ ভরবেগ, $p_f = mv$</li>
+        <li>$t$ সময়ে ভরবেগের মোট পরিবর্তন $= mv - mu$</li>
+        <li>সুতরাং, ভরবেগের পরিবর্তনের হার $= \frac{mv - mu}{t} = m\left(\frac{v - u}{t}\right)$</li>
+      </ol>
+      <p>আমরা জানি, বেগের পরিবর্তনের হারকে ত্বরণ বলে, অর্থাৎ $a = \frac{v - u}{t}$। অতএব, ভরবেগের পরিবর্তনের হার $= ma$।</p>
+      <p>নিউটনের দ্বিতীয় সূত্রানুসারে:</p>
+      $$F \propto ma \implies F = k \cdot ma$$
+      <p>যেখানে $k$ একটি সমানুপাতিক ধ্রুবক। আন্তর্জাতিক (SI) এককে ১ নিউটন বলের সংজ্ঞা এমনভাবে নির্ধারণ করা হয়েছে যাতে $1\text{ kg}$ ভরে $1\text{ m/s}^2$ ত্বরণ সৃষ্টি করতে $1\text{ N}$ বল লাগে ($m = 1\text{ kg}$, $a = 1\text{ m/s}^2$ হলে $F = 1\text{ N}$)। এতে $k = 1$ পাওয়া যায়।</p>
+      <div class="formula">$$F = ma$$</div>
+    </section>
+
+    <div class="note">
+      <h2>🚌 বাস্তব জীবনের আকর্ষণীয় উদাহরণ: ক্যাচ ধরার কৌশল</h2>
+      <p>ক্রিকেট খেলায় দ্রুতগতির বল লুফে নেওয়ার সময় ফিল্ডাররা বল ধরার সাথে সাথে হাত দুটিকে পেছন দিকে টেনে নেন। কেন? কারণ বলটিকে থামাতে তার ভরবেগ শূন্য করতেই হবে ($\Delta p$ নির্দিষ্ট)। হাত পেছনে টানলে বল থামার সময় ($\Delta t$) বেড়ে যায়। সমীকরণ $F = \frac{\Delta p}{\Delta t}$ অনুযায়ী সময় বাড়লে হাতের ওপর প্রযুক্ত বলের তীব্রতা অনেক হ্রাস পায়, ফলে হাতে কোনো আঘাত লাগে না!</p>
+    </div>
+
+    <div class="memory">
+      <h2>🧠 মনে রাখার কৌশল: $F = ma$</h2>
+      <p>“ভর আর বেগে ভরবেগ পাই, পরিবর্তনের হারে বল জানাই;<br>
+      $F = ma$ নিউটনের দান, গতিবিদ্যার শ্রেষ্ঠ সম্মান!”</p>
+    </div>
+
+    <div class="worked">
+      <h2>📝 পাঠ্যবইয়ের স্ট্যান্ডার্ড গাণিতিক সমস্যা</h2>
+      <div class="problem">
+        একটি $1200\text{ kg}$ ভরের প্রাইভেট কার $72\text{ km/h}$ বেগে সোজা রাস্তায় চলছিল। চালক হঠাৎ ব্রেক চেপে $5\text{ s}$-এর মধ্যে গাড়িটিকে সম্পূর্ণ থামিয়ে দিলেন।<br>
+        ১. গাড়িটির আদি ভরবেগ কত ছিল?<br>
+        ২. ব্রেক দ্বারা গাড়ির ওপর প্রযুক্ত গড় প্রতিরোধকারী বল নির্ণয় করো।
+      </div>
+      <div class="solution">
+        <b>প্রদত্ত তথ্য:</b><br>
+        গাড়ির ভর $m = 1200\text{ kg}$<br>
+        আদিবেগ $u = 72\text{ km/h} = \frac{72 \times 1000\text{ m}}{3600\text{ s}} = 20\text{ m/s}$<br>
+        শেষ বেগ $v = 0\text{ m/s}$ (যেহেতু গাড়িটি থেমে গেছে)<br>
+        সময় $t = 5\text{ s}$<br><br>
+        <b>১. আদি ভরবেগ ($p_i$) নির্ণয়:</b><br>
+        $$p_i = mu = 1200\text{ kg} \times 20\text{ m/s} = 24000\text{ kg}\cdot\text{m/s}$$<br>
+        <b>২. ত্বরণ ও বল নির্ণয়:</b><br>
+        গাড়ির ত্বরণ $a = \frac{v - u}{t} = \frac{0 - 20}{5} = -4\text{ m/s}^2$<br>
+        এখানে ঋণাত্মক চিহ্ন দ্বারা মন্দন বোঝানো হয়েছে।<br>
+        অতএব, প্রযুক্ত বল:<br>
+        $$F = ma = 1200\text{ kg} \times (-4\text{ m/s}^2) = -4800\text{ N}$$
+        <b>উত্তর:</b> গাড়িটির আদি ভরবেগ $24000\text{ kg}\cdot\text{m/s}$ এবং ব্রেক দ্বারা প্রযুক্ত প্রতিরোধকারী বলের মান $4800\text{ N}$ (গতির বিপরীতমুখী)।
+      </div>
+    </div>
+
+    <details class="check">
+      <summary>প্রশ্ন: একই বেগে ধেয়ে আসা একটি টেনিস বল ও একটি ক্রিকেট বলের মধ্যে কোনটি থামানো বেশি কঠিন এবং কেন?</summary>
+      <p><b>উত্তর:</b> ক্রিকেট বল থামানো বেশি কঠিন। কারণ উভয়ের বেগ ($v$) একই হলেও ক্রিকেট বলের ভর ($m$) টেনিস বলের চেয়ে অনেক বেশি। ফলে ক্রিকেট বলের ভরবেগ ($p = mv$) বেশি হওয়ায় তাকে থামাতে অনেক বেশি বল বা বেশি সময় প্রয়োজন হয়।</p>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-04.html">← আগের পাঠ</a>
+      <a class="button" href="section-06.html">পরের পাঠ: ক্রিয়া-প্রতিক্রিয়া: নিউটনের তৃতীয় সূত্র →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF)</a> · অধ্যায় ৩: বল · পড়ি (poRi)
+    </footer>
+  </main>
+</body>
+</html>

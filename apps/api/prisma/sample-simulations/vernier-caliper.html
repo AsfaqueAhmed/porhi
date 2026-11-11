@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ভার্নিয়ার স্লাইড ক্যালিপার্স ল্যাব</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #0f172a; color: #f8fafc; padding: 14px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    .container { max-width: 720px; width: 100%; display: flex; flex-direction: column; gap: 12px; }
+    header { text-align: center; }
+    h1 { font-size: 1.15rem; color: #38bdf8; margin-bottom: 3px; }
+    p { font-size: 0.8rem; color: #94a3b8; }
+    .canvas-wrap { background: #1e293b; border-radius: 12px; border: 1px solid #334155; overflow: hidden; width: 100%; position: relative; }
+    svg { display: block; width: 100%; height: 200px; }
+    .controls { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+    label { font-size: 0.75rem; color: #cbd5e1; display: flex; justify-content: space-between; font-weight: 700; }
+    .custom-range {
+      -webkit-appearance: none; appearance: none; width: 100%; height: 8px; border-radius: 999px; outline: none;
+      background: linear-gradient(90deg, #38bdf8 var(--fill, 30%), #334155 var(--fill, 30%)); cursor: pointer;
+    }
+    .custom-range::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #38bdf8; border: 2px solid #fff; cursor: pointer;
+    }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 8px; text-align: center; }
+    .card .title { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; }
+    .card .val { font-size: 1.05rem; font-weight: 800; color: #38bdf8; }
+    .card.highlight { border-color: #38bdf8; background: #0c4a6e; }
+    .card.highlight .val { color: #fff; }
+    .readout { background: #1e293b; border-left: 3px solid #38bdf8; padding: 8px 12px; border-radius: 0 8px 8px 0; font-size: 0.8rem; color: #cbd5e1; }
+    .btn-row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+    button { padding: 4px 10px; border-radius: 6px; border: 1px solid #475569; background: #334155; color: #fff; font-size: 0.75rem; font-weight: 700; cursor: pointer; }
+    button:hover { background: #475569; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔬 স্লাইড ক্যালিপার্স ও ভার্নিয়ার স্কেল ল্যাব</h1>
+      <p>চোয়াল ফাঁক করে যেকোনো বস্তুর ব্যাস নিখুঁত মিলিমিটার ভগ্নাংশে পাঠ করো।</p>
+    </header>
+
+    <div class="canvas-wrap">
+      <svg id="caliperSvg" viewBox="0 0 700 200"></svg>
+    </div>
+
+    <div class="controls">
+      <label>চোয়াল অবস্থান: <span id="jawDisp" style="color:#38bdf8">1.87 cm</span></label>
+      <input id="jawSlide" class="custom-range" type="range" min="0" max="600" value="187" step="1" oninput="onJaw(this.value)">
+      <div class="btn-row">
+        <button onclick="setVal(187)">মার্বেল (1.87 cm)</button>
+        <button onclick="setVal(324)">সিলিন্ডার (3.24 cm)</button>
+        <button onclick="setVal(85)">মুদ্রা (0.85 cm)</button>
+        <button onclick="setVal(103)">বইয়ের পাঠ (1.03 cm)</button>
+        <button onclick="setVal(0)">চোয়াল বন্ধ (0.00 cm)</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card"><div class="title">মূল স্কেল (M)</div><div class="val" id="mVal">1.8 cm</div></div>
+      <div class="card"><div class="title">সমাপতন (V)</div><div class="val" id="vVal">7</div></div>
+      <div class="card"><div class="title">ধ্রুবক (VC)</div><div class="val">0.01 cm</div></div>
+      <div class="card highlight"><div class="title">মোট দৈর্ঘ্য (L)</div><div class="val" id="lVal">1.87 cm</div></div>
+    </div>
+
+    <div class="readout" id="readout">
+      মোট দৈর্ঘ্য $L = M + (V \times VC) = 1.8\text{ cm} + (7 \times 0.01\text{ cm}) = 1.87\text{ cm}$
+    </div>
+  </div>
+
+  <script>
+    let rawMm = 18.7; // mm (1.87 cm)
+
+    function render() {
+      const svg = document.getElementById('caliperSvg');
+      const startX = 60;
+      const jawGap = rawMm * 7;
+      const sliderX = startX + jawGap;
+
+      let html = `
+        <!-- Main Beam (Fixed Scale) -->
+        <rect x="20" y="40" width="660" height="45" fill="#e2e8f0" stroke="#475569" stroke-width="2"/>
+        <!-- Fixed Jaw -->
+        <path d="M 60 40 L 60 160 L 40 160 L 40 85 L 20 85 L 20 40 Z" fill="#cbd5e1" stroke="#475569" stroke-width="2"/>
+      `;
+
+      // Main scale ticks (mm)
+      for (let i = 0; i <= 60; i++) {
+        const x = startX + i * 7;
+        const h = i % 10 === 0 ? 18 : (i % 5 === 0 ? 12 : 7);
+        html += `<line x1="${x}" y1="85" x2="${x}" y2="${85 - h}" stroke="#1e293b" stroke-width="${i % 10 === 0 ? 1.5 : 1}"/>`;
+        if (i % 10 === 0 && i / 10 <= 6) {
+          html += `<text x="${x}" y="60" fill="#1e293b" font-size="10" font-weight="700" text-anchor="middle">${i / 10}</text>`;
+        }
+      }
+
+      // Measured Object (Marble/Sphere)
+      if (rawMm > 1) {
+        html += `
+          <circle cx="${startX + jawGap / 2}" cy="120" r="${Math.min(jawGap / 2, 28)}" fill="#0284c7" stroke="#0369a1" stroke-width="2"/>
+          <text x="${startX + jawGap / 2}" y="124" fill="#ffffff" font-size="9" font-weight="800" text-anchor="middle">${(rawMm / 10).toFixed(2)}cm</text>
+        `;
+      }
+
+      // Sliding Jaw
+      html += `
+        <g transform="translate(${sliderX}, 0)">
+          <!-- Sliding Body -->
+          <rect x="-10" y="32" width="100" height="60" fill="#94a3b8" stroke="#334155" stroke-width="2" rx="4" fill-opacity="0.9"/>
+          <!-- Moving Jaw -->
+          <path d="M 0 85 L 0 160 L 20 160 L 20 92 L 90 92 L 90 85 Z" fill="#cbd5e1" stroke="#334155" stroke-width="2"/>
+          <!-- Window for Vernier Scale -->
+          <rect x="5" y="65" width="75" height="24" fill="#f8fafc" stroke="#475569" stroke-width="1"/>
+      `;
+
+      // Vernier ticks (10 divisions = 9mm)
+      const vStep = 6.3; // 9 * 7 / 10 = 6.3px
+      for (let j = 0; j <= 10; j++) {
+        const vx = 7 + j * vStep;
+        const vh = j % 5 === 0 ? 14 : 9;
+        html += `<line x1="${vx}" y1="89" x2="${vx}" y2="${89 - vh}" stroke="#dc2626" stroke-width="1.2"/>`;
+        if (j === 0 || j === 5 || j === 10) {
+          html += `<text x="${vx}" y="74" fill="#dc2626" font-size="8" font-weight="800" text-anchor="middle">${j}</text>`;
+        }
+      }
+
+      html += `</g>`;
+      svg.innerHTML = html;
+    }
+
+    function update() {
+      const cm = rawMm / 10;
+      const M = Math.floor(rawMm) / 10;
+      const V = Math.round((cm - M) * 100);
+
+      document.getElementById('jawDisp').innerText = cm.toFixed(2) + ' cm';
+      document.getElementById('mVal').innerText = M.toFixed(1) + ' cm';
+      document.getElementById('vVal').innerText = V;
+      document.getElementById('lVal').innerText = cm.toFixed(2) + ' cm';
+      document.getElementById('jawSlide').style.setProperty('--fill', (cm / 6 * 100) + '%');
+
+      document.getElementById('readout').innerText = 
+        `মোট দৈর্ঘ্য L = M + (V × VC) = ${M.toFixed(1)} cm + (${V} × 0.01 cm) = ${cm.toFixed(2)} cm`;
+
+      render();
+    }
+
+    function onJaw(val) {
+      rawMm = parseFloat(val) / 10;
+      update();
+    }
+
+    function setVal(v) {
+      document.getElementById('jawSlide').value = v;
+      onJaw(v);
+    }
+
+    update();
+  </script>
+</body>
+</html>

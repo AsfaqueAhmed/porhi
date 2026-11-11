@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৩.৮ ভরবেগ সংরক্ষণ ও সংঘর্ষ · অধ্যায় ৩: বল | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- KaTeX for crisp mathematical formulas -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৩ / ৩.৮</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই ৩.৮</span>
+    <h1 class="title">ভরবেগ সংরক্ষণ ও সংঘর্ষ <small>(Conservation of Momentum and Collisions)</small></h1>
+    <p class="subtitle">রৈখিক ভরবেগের নিত্যতা সূত্র, নিউটনের তৃতীয় সূত্র থেকে প্রতিপাদন এবং সংঘর্ষে মিলিত বেগের বিশ্লেষণ।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>এই পাঠটি সম্পন্ন করার পর তুমি—</p>
+      <ul>
+        <li>রৈখিক ভরবেগের সংরক্ষণ সূত্রটি নির্ভুলভাবে বিবৃত ও ব্যাখ্যা করতে পারবে।</li>
+        <li>নিউটনের তৃতীয় গতিসূত্র ব্যবহার করে ভরবেগ সংরক্ষণ সূত্র প্রতিপাদন করতে পারবে।</li>
+        <li>স্থিতিস্থাপক ও অস্থিতিস্থাপক সংঘর্ষের পার্থক্য চিহ্নিত করে মিলিত বস্তুর বেগ ($V$) নির্ণয় করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <!-- Interactive Simulation Card -->
+    <div class="lab-iframe-card">
+      <div class="lab-iframe-header">
+        <div class="lab-iframe-title">
+          <span>💥 লাইভ সিমুলেশন ল্যাব: ভরবেগ সংরক্ষণ ও দ্বৈত কার সংঘর্ষ</span>
+        </div>
+        <span class="badge" style="background:#1e1b4b;border-color:#4338ca;color:#c7d2fe">কুইজ মোড অন্তর্ভুক্ত</span>
+      </div>
+      <iframe class="lab-iframe" src="../../apps/api/uploads/interactive/collision-momentum-lab.html" title="Momentum Conservation Simulator"></iframe>
+    </div>
+
+    <section class="section">
+      <h2>৩.৮ · ভরবেগের নিত্যতা ও সংঘর্ষের নিয়ম</h2>
+      <p>পদার্থবিজ্ঞানের সর্বজনীন মৌলিক নীতিগুলোর মধ্যে একটি হলো <b>ভরবেগের সংরক্ষণ সূত্র (Law of Conservation of Momentum)</b>। বাইরে থেকে কোনো লব্ধি বল কাজ না করলে কোনো ব্যবস্থার (System) মোট ভরবেগ কখনো পরিবর্তিত হয় না; সংঘর্ষের পূর্বে ও পরে মোট ভরবেগ সর্বদা সমান থাকে।</p>
+
+      <div class="grid">
+        <div class="term">
+          <strong>ভরবেগের সংরক্ষণ নীতি</strong>
+          <small>বাহ্যিক বল শূন্য হলে মোট ভরবেগ অপরিবর্তিত থাকে: $m_1 u_1 + m_2 u_2 = m_1 v_1 + m_2 v_2$</small>
+        </div>
+        <div class="term">
+          <strong>সংঘর্ষ (Collision)</strong>
+          <small>দুটি গতিশীল বস্তুর পরস্পরের ওপর অতি অল্প সময়ের জন্য তীব্র বল প্রয়োগ করে গতির পরিবর্তন ঘটানো।</small>
+        </div>
+        <div class="term">
+          <strong>স্থিতিস্থাপক সংঘর্ষ</strong>
+          <small>যে সংঘর্ষে ভরবেগ এবং গতিশক্তি ($E_k$) উভয়ই অপরিবর্তিত থাকে। যেমন: পরমাণুর কণিকাসমূহের সংঘর্ষ।</small>
+        </div>
+        <div class="term">
+          <strong>মিলিত বেগ ($V$)</strong>
+          <small>সংঘর্ষের পর বস্তুদুটি একসাথে জুড়ে গিয়ে যে অভিন্ন বেগে চলে: $V = \frac{m_1 u_1 + m_2 u_2}{m_1 + m_2}$</small>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <b>💡 রৈখিক ভরবেগের সংরক্ষণ সূত্রের মূল সমীকরণ:</b>
+        $$m_1 u_1 + m_2 u_2 = m_1 v_1 + m_2 v_2$$
+        যদি সংঘর্ষের পর বস্তুদুটি আটকে গিয়ে মিলিত বেগে চলে:
+        $$m_1 u_1 + m_2 u_2 = (m_1 + m_2)V$$
+      </div>
+
+      <h3>নিউটনের তৃতীয় সূত্র থেকে ভরবেগ সংরক্ষণ সূত্রের প্রতিপাদন</h3>
+      <p>মনে করি, $m_1$ ও $m_2$ ভরের দুটি বস্তু যথাক্রমে $u_1$ ও $u_2$ বেগ নিয়ে একই সরলরেখায় চলছে ($u_1 > u_2$)। একসময় তাদের মধ্যে $t$ সময় ধরে সংঘর্ষ ঘটল।</p>
+      <ol>
+        <li>সংঘর্ষকালে $m_1$ বস্তু $m_2$-এর ওপর $F_1$ ক্রিয়া বল প্রয়োগ করলে, নিউটনের তৃতীয় সূত্রানুযায়ী $m_2$ বস্তুও $m_1$-এর ওপর সমান ও বিপরীত প্রতিক্রিয়া বল $F_2$ দেয়:
+        $$F_1 = -F_2$$</li>
+        <li>নিউটনের দ্বিতীয় সূত্রানুযায়ী $F = ma$ বসিয়ে পাই:
+        $$m_1 a_1 = -m_2 a_2$$</li>
+        <li>ত্বরণের মান $a_1 = \frac{v_1 - u_1}{t}$ এবং $a_2 = \frac{v_2 - u_2}{t}$ বসিয়ে পাই:
+        $$m_1 \left(\frac{v_1 - u_1}{t}\right) = -m_2 \left(\frac{v_2 - u_2}{t}\right)$$</li>
+        <li>উভয়পাশ থেকে সংঘর্ষের সময় $t$ বর্জন করে গুণ করলে পাই:
+        $$m_1 v_1 - m_1 u_1 = -m_2 v_2 + m_2 u_2$$</li>
+        <li>পক্ষান্তর করে আদি ও শেষ ভরবেগ আলাদা করলে পাওয়া যায়:
+        $$m_1 u_1 + m_2 u_2 = m_1 v_1 + m_2 v_2$$</li>
+      </ol>
+      <p>অর্থাৎ, <b>সংঘর্ষের পূর্বের মোট ভরবেগ = সংঘর্ষের পরের মোট ভরবেগ</b>। প্রমাণিত হলো ভরবেগের সংরক্ষণ সূত্র!</p>
+    </section>
+
+    <div class="note">
+      <h2>🚌 বাস্তব জীবনের আকর্ষণীয় উদাহরণ</h2>
+      <p>বিলিয়ার্ড খেলায় কিউ-বল দিয়ে স্থির অপর একটি সমান ভরের বলকে সোজা ধাক্কা দিলে কিউ-বলটি সম্পূর্ণ থেমে যায় এবং আঘাতপ্রাপ্ত বলটি কিউ-বলের সমান বেগে চলতে শুরু করে। এখানে কিউ-বল তার সমস্ত ভরবেগ দ্বিতীয় বলটিতে হস্তান্তর করে দেয়!</p>
+    </div>
+
+    <div class="memory">
+      <h2>🧠 মনে রাখার কৌশল: ভরবেগের খেলা</h2>
+      <p>“বাইরে থেকে না এলে বল, সংরক্ষিত ভরবেগের ফল;<br>
+      শুরুর যোগ আর শেষের যোগ, সমান রবে নেই বিয়োগ!”</p>
+    </div>
+
+    <div class="worked">
+      <h2>📝 পাঠ্যবইয়ের স্ট্যান্ডার্ড গাণিতিক সমস্যা</h2>
+      <div class="problem">
+        একটি $800\text{ kg}$ ভরের প্রাইভেট কার $20\text{ m/s}$ বেগে সোজা রাস্তায় যাওয়ার সময় সামনে স্থির দাঁড়িয়ে থাকা একটি $1200\text{ kg}$ ভরের পিকআপ ভ্যানকে সজোরে ধাক্কা দিল। সংঘর্ষের পর গাড়ি দুটি পরস্পর আটকে গিয়ে একটি একক বস্তু হিসেবে একই দিকে চলতে লাগল।<br>
+        ১. গাড়ি দুটির সংঘর্ষের পূর্বের মোট ভরবেগ কত?<br>
+        ২. গাড়ি দুটির মিলিত শেষ বেগ ($V$) নির্ণয় করো।
+      </div>
+      <div class="solution">
+        <b>প্রদত্ত তথ্য:</b><br>
+        প্রাইভেট কারের ভর $m_1 = 800\text{ kg}$, আদিবেগ $u_1 = 20\text{ m/s}$<br>
+        পিকআপ ভ্যানের ভর $m_2 = 1200\text{ kg}$, আদিবেগ $u_2 = 0\text{ m/s}$ (স্থির দাঁড়িয়ে থাকায়)<br><br>
+        <b>১. সংঘর্ষের পূর্বের মোট আদি ভরবেগ ($P_i$) নির্ণয়:</b><br>
+        $$P_i = m_1 u_1 + m_2 u_2 = (800 \times 20) + (1200 \times 0) = 16000 + 0 = 16000\text{ kg}\cdot\text{m/s}$$<br>
+        <b>২. মিলিত শেষ বেগ ($V$) নির্ণয়:</b><br>
+        ভরবেগের সংরক্ষণ সূত্র অনুযায়ী:<br>
+        $$(m_1 + m_2)V = m_1 u_1 + m_2 u_2$$
+        $$(800 + 1200)V = 16000 \implies 2000 \cdot V = 16000$$
+        $$V = \frac{16000}{2000} = 8\text{ m/s}$$
+        <b>উত্তর:</b> গাড়ি দুটির মোট আদি ভরবেগ $16000\text{ kg}\cdot\text{m/s}$ এবং সংঘর্ষের পর তাদের মিলিত বেগ হবে $8\text{ m/s}$ (প্রাইভেট কারের আদি গতির দিকে)।
+      </div>
+    </div>
+
+    <details class="check">
+      <summary>প্রশ্ন: বাস্তব জীবনের সাধারণ সড়ক দুর্ঘটনায় সংঘর্ষের পর মোট গতিশক্তি কমে যায় কেন? এই হারিয়ে যাওয়া শক্তি কোথায় যায়?</summary>
+      <p><b>উত্তর:</b> কারণ বাস্তব জীবনের বেশিরভাগ সংঘর্ষই অস্থিতিস্থাপক (Inelastic)। সংঘর্ষের সময় বস্তুর গতিশক্তির একটি উল্লেখযোগ্য অংশ ধাতব বডির বিকৃতি (দুমড়ে-মুচড়ে যাওয়া), শব্দ শক্তি এবং ঘর্ষণজনিত তাপ শক্তিতে রূপান্তরিত হয়ে যায়। তবে মোট শক্তি এবং মোট ভরবেগ সর্বদা সম্পূর্ণ সংরক্ষিত থাকে।</p>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-07.html">← আগের পাঠ</a>
+      <a class="button" href="section-09.html">পরের পাঠ: ঘর্ষণ বলের ধরন ও বৈশিষ্ট্য →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF)</a> · অধ্যায় ৩: বল · পড়ি (poRi)
+    </footer>
+  </main>
+</body>
+</html>

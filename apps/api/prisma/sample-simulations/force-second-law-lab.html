@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>নিউটনের দ্বিতীয় সূত্র ও বল পরিমাপ ল্যাব</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #0f172a; color: #f8fafc; padding: 14px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    .container { max-width: 720px; width: 100%; display: flex; flex-direction: column; gap: 12px; }
+    header { text-align: center; }
+    h1 { font-size: 1.15rem; color: #38bdf8; margin-bottom: 3px; }
+    p { font-size: 0.8rem; color: #94a3b8; }
+    .canvas-wrap { background: #1e293b; border-radius: 12px; border: 1px solid #334155; overflow: hidden; width: 100%; position: relative; }
+    svg { display: block; width: 100%; height: 180px; }
+    .controls { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 12px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .control-group { display: flex; flex-direction: column; gap: 4px; }
+    label { font-size: 0.75rem; color: #cbd5e1; display: flex; justify-content: space-between; font-weight: 700; }
+    .custom-range {
+      -webkit-appearance: none; appearance: none; width: 100%; height: 8px; border-radius: 999px; outline: none;
+      background: linear-gradient(90deg, #38bdf8 var(--fill, 50%), #334155 var(--fill, 50%)); cursor: pointer;
+    }
+    .custom-range::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #38bdf8; border: 2px solid #fff; cursor: pointer;
+    }
+    .btn-row { display: flex; gap: 8px; justify-content: center; }
+    button { padding: 6px 14px; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #fff; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
+    button.primary { background: #0284c7; border-color: #0284c7; }
+    button:hover { filter: brightness(1.15); }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 8px; text-align: center; }
+    .card .title { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; }
+    .card .val { font-size: 1.05rem; font-weight: 800; color: #38bdf8; }
+    .readout { background: #1e293b; border-left: 3px solid #38bdf8; padding: 8px 12px; border-radius: 0 8px 8px 0; font-size: 0.8rem; color: #cbd5e1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚡ নিউটনের দ্বিতীয় সূত্র ($F = ma$) ল্যাব</h1>
+      <p>প্রযুক্ত বল ($F$) ও ভর ($m$) নিয়ন্ত্রণ করে ত্বরণ ($a = \frac{F}{m}$) ও বেগ পরিবর্তন পর্যবেক্ষণ করো।</p>
+    </header>
+
+    <div class="canvas-wrap">
+      <svg id="forceSvg" viewBox="0 0 700 180"></svg>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>প্রযুক্ত বল (F): <span id="fDisp" style="color:#38bdf8">+25.0 N</span></label>
+        <input id="fSlide" class="custom-range" type="range" min="-50" max="50" value="25" step="1" oninput="onF(this.value)">
+      </div>
+      <div class="control-group">
+        <label>গাড়ির ভর (m): <span id="mDisp" style="color:#38bdf8">5.0 kg</span></label>
+        <input id="mSlide" class="custom-range" type="range" min="1" max="20" value="5" step="0.5" oninput="onM(this.value)">
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="primary" id="playBtn" onclick="togglePlay()">▶️ অ্যানিমেশন শুরু</button>
+      <button onclick="resetSim()">🔄 রিসেট</button>
+    </div>
+
+    <div class="grid">
+      <div class="card"><div class="title">প্রযুক্ত বল (F)</div><div class="val" id="dispF">+25.0 N</div></div>
+      <div class="card"><div class="title">ভর (m)</div><div class="val" id="dispM">5.0 kg</div></div>
+      <div class="card"><div class="title">তাৎক্ষণিক বেগ (v)</div><div class="val" id="dispV">0.00 m/s</div></div>
+      <div class="card"><div class="title">ত্বরণ (a = F/m)</div><div class="val" id="dispA">+5.00 m/s²</div></div>
+    </div>
+
+    <div class="readout" id="mathReadout">
+      ত্বরণ $a = \frac{F}{m} = \frac{+25.0\text{ N}}{5.0\text{ kg}} = +5.00\text{ m/s}^2$
+    </div>
+  </div>
+
+  <script>
+    let F = 25.0, m = 5.0, v = 0.0, posX = 80;
+    let running = false, lastTs = 0;
+
+    function render() {
+      const svg = document.getElementById('forceSvg');
+      const a = F / m;
+      const w = 70 + m * 2;
+      const cy = 120 - 32;
+
+      let html = `
+        <rect x="0" y="120" width="700" height="60" fill="#334155"/>
+        <line x1="0" y1="120" x2="700" y2="120" stroke="#0284c7" stroke-width="3"/>
+      `;
+      for (let x = 40; x <= 660; x += 50) {
+        const d = Math.round((x - 40) / 12);
+        html += `<line x1="${x}" y1="120" x2="${x}" y2="126" stroke="#94a3b8" stroke-width="1.5"/>
+                 <text x="${x}" y="140" fill="#94a3b8" font-size="9" text-anchor="middle">${d}m</text>`;
+      }
+
+      // Cart
+      html += `
+        <rect x="${posX}" y="${cy}" width="${w}" height="32" rx="6" fill="#0284c7" stroke="#0369a1" stroke-width="2"/>
+        <circle cx="${posX + 15}" cy="120" r="7" fill="#64748b" stroke="#0f172a" stroke-width="2"/>
+        <circle cx="${posX + w - 15}" cy="120" r="7" fill="#64748b" stroke="#0f172a" stroke-width="2"/>
+        <text x="${posX + w / 2}" y="${cy + 20}" fill="#ffffff" font-size="11" font-weight="800" text-anchor="middle">${m.toFixed(1)}kg</text>
+      `;
+
+      // Force Vector
+      if (Math.abs(F) > 0.5) {
+        const arrowLen = F * 1.5;
+        const startX = F > 0 ? posX + w : posX;
+        const endX = startX + arrowLen;
+        const dir = F > 0 ? 1 : -1;
+        html += `
+          <line x1="${startX}" y1="${cy + 16}" x2="${endX}" y2="${cy + 16}" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+          <polygon points="${endX},${cy + 16} ${endX - dir * 7},${cy + 12} ${endX - dir * 7},${cy + 20}" fill="#22c55e"/>
+          <text x="${endX + dir * 10}" y="${cy + 19}" fill="#22c55e" font-size="10" font-weight="700" text-anchor="${dir > 0 ? 'start' : 'end'}">F = ${F > 0 ? '+' : ''}${F.toFixed(0)}N</text>
+        `;
+      }
+
+      svg.innerHTML = html;
+    }
+
+    function update() {
+      const a = F / m;
+      document.getElementById('fDisp').innerText = (F > 0 ? '+' : '') + F.toFixed(1) + ' N';
+      document.getElementById('mDisp').innerText = m.toFixed(1) + ' kg';
+      document.getElementById('dispF').innerText = (F > 0 ? '+' : '') + F.toFixed(1) + ' N';
+      document.getElementById('dispM').innerText = m.toFixed(1) + ' kg';
+      document.getElementById('dispV').innerText = v.toFixed(2) + ' m/s';
+      document.getElementById('dispA').innerText = (a > 0 ? '+' : '') + a.toFixed(2) + ' m/s²';
+
+      document.getElementById('fSlide').style.setProperty('--fill', (((F - (-50)) / 100) * 100) + '%');
+      document.getElementById('mSlide').style.setProperty('--fill', (((m - 1) / 19) * 100) + '%');
+
+      document.getElementById('mathReadout').innerText = 
+        `নিউটনের ২য় সূত্র: a = F / m = ${F.toFixed(1)} N / ${m.toFixed(1)} kg = ${a.toFixed(2)} m/s² | তাৎক্ষণিক বেগ v = ${v.toFixed(2)} m/s`;
+
+      render();
+    }
+
+    function onF(val) { F = parseFloat(val); update(); }
+    function onM(val) { m = parseFloat(val); update(); }
+
+    function togglePlay() {
+      running = !running;
+      const btn = document.getElementById('playBtn');
+      if (running) {
+        btn.innerText = '⏸️ বিরতি';
+        lastTs = performance.now();
+        requestAnimationFrame(loop);
+      } else {
+        btn.innerText = '▶️ অ্যানিমেশন শুরু';
+      }
+    }
+
+    function resetSim() {
+      running = false;
+      document.getElementById('playBtn').innerText = '▶️ অ্যানিমেশন শুরু';
+      v = 0.0; posX = 80;
+      update();
+    }
+
+    function loop(ts) {
+      if (!running) return;
+      const dt = Math.min((ts - lastTs) / 1000, 0.05);
+      lastTs = ts;
+
+      const a = F / m;
+      v += a * dt;
+      posX += v * dt * 25;
+
+      if (posX > 580) posX = 40;
+      if (posX < 20) { posX = 20; v = 0; }
+
+      update();
+      if (running) requestAnimationFrame(loop);
+    }
+
+    update();
+  </script>
+</body>
+</html>
