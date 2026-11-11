@@ -187,6 +187,49 @@ describe('StudentService', () => {
       expect(overview.recentExams).toHaveLength(1);
       expect(overview.streakDays).toBeGreaterThanOrEqual(1);
     });
+
+    it('returns streakDays=0 when latest study date is older than yesterday and accuracy=0 when weak topic has no attempts in topicMastery', async () => {
+      const oldDate = '2025-01-01T10:00:00.000Z';
+      prisma.subject.findUnique.mockResolvedValue({ id: 'sub_1', code: 'ssc_physics' });
+      prisma.chapter.findMany.mockResolvedValue([
+        {
+          id: 'chap_1',
+          orderIndex: 1,
+          titleBangla: 'ভৌত রাশি ও পরিমাপ',
+          topics: [{ id: 'top_1', orderIndex: 1, titleBangla: '১.১ পদার্থবিজ্ঞান' }],
+        },
+      ]);
+      prisma.eventLog.findMany.mockResolvedValue([
+        {
+          id: 'ev_old',
+          userId: 'user-1',
+          eventType: 'LESSON_OPEN',
+          payload: { topicId: 'top_1' },
+          timestamp: new Date(oldDate),
+        },
+      ]);
+      prisma.revisionMistake.findMany.mockResolvedValue([
+        {
+          id: 'rm_old',
+          questionId: 'q_old',
+          attemptCount: 1,
+          resolved: false,
+          updatedAt: new Date(oldDate),
+          question: {
+            id: 'q_old',
+            topicId: 'top_1',
+            stem: 'প্রশ্ন',
+            options: [],
+          },
+        },
+      ]);
+      prisma.examSession.findMany.mockResolvedValue([]);
+
+      const overview = await studentService.getOverview('sub_1', 'user-1');
+
+      expect(overview.streakDays).toBe(0);
+      expect(overview.weakTopics[0].accuracy).toBe(0);
+    });
   });
 
   describe('markLessonComplete & resolveMistake', () => {

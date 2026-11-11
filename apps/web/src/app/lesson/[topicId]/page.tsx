@@ -228,6 +228,12 @@ export default function LessonPage() {
               }
             : null
         );
+        const selectedOptText =
+          quickQuestion.options?.find((o) => o.id === optId)?.text || optId;
+        const correctOptText =
+          quickQuestion.options?.find((o) => o.id === res.correctOptionId || o.isCorrect)?.text ||
+          res.correctOptionId;
+
         recordPracticeAttempt({
           questionId: quickQuestion.id,
           stemBangla: quickQuestion.stem,
@@ -235,8 +241,8 @@ export default function LessonPage() {
           topicTitle: lesson.titleBangla,
           chapterId,
           chapterTitle,
-          selectedKey: optId,
-          correctKey: res.correctOptionId,
+          selectedKey: selectedOptText,
+          correctKey: correctOptText,
           explanationBangla: res.explanation?.directAnswer || res.explanation?.coreConcept,
           isCorrect: res.isCorrect,
         });
@@ -252,8 +258,8 @@ export default function LessonPage() {
         topicTitle: lesson.titleBangla,
         chapterId,
         chapterTitle,
-        selectedKey: optId,
-        correctKey: correctOpt?.id || optId,
+        selectedKey: localOpt?.text || optId,
+        correctKey: correctOpt?.text || optId,
         isCorrect: Boolean(localOpt?.isCorrect),
       });
     }

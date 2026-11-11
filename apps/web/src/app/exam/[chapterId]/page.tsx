@@ -153,6 +153,7 @@ export default function ExamRunnerPage() {
     questions.forEach((q) => {
       const chosen = answers[q.id];
       if (!chosen) return;
+      const chosenOpt = q.options?.find((o) => o.id === chosen);
       const correctOpt = q.options?.find((o) => o.isCorrect);
       const isRight = chosen === correctOpt?.id;
       const h = findTopicHierarchy(q.topicId || chapterId);
@@ -163,8 +164,8 @@ export default function ExamRunnerPage() {
         topicTitle: h.topicTitle,
         chapterId,
         chapterTitle,
-        selectedKey: chosen,
-        correctKey: correctOpt?.id || chosen,
+        selectedKey: chosenOpt?.text || chosen,
+        correctKey: correctOpt?.text || chosen,
         explanationBangla: q.explanation?.directAnswer || q.explanation?.coreConcept,
         isCorrect: isRight,
       });

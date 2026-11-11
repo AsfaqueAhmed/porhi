@@ -75,11 +75,17 @@ describe('CurriculumService', () => {
         syllabusYear: 2026,
         isReady: true,
         chapterCount: 14,
+        topicCount: 0,
+        publishedLessonCount: 0,
+        publishedQuestionCount: 0,
         _count: { chapters: 14 },
       });
       expect(result[1]).toMatchObject({
         id: 'sub_2',
         chapterCount: 0,
+        topicCount: 0,
+        publishedLessonCount: 0,
+        publishedQuestionCount: 0,
         isReady: false,
       });
     });

@@ -65,8 +65,24 @@ export interface LastVisitedTopic {
 }
 
 export interface ServerOverviewPayload {
+  subjectId?: string;
+  curriculumTotals?: {
+    totalChapters: number;
+    totalTopics: number;
+    totalPublishedLessons: number;
+    totalPublishedQuestions: number;
+  };
+  completedTopicIds?: string[];
   streakDays?: number;
+  studyDates?: string[];
   activityDays?: string[];
+  lastStudiedTopic?: {
+    topicId: string;
+    topicTitle: string;
+    chapterId: string;
+    chapterTitle: string;
+    timestamp: string;
+  } | null;
   lastActivity?: {
     topicId: string;
     topicTitle: string;
@@ -74,6 +90,12 @@ export interface ServerOverviewPayload {
     chapterTitle: string;
     timestamp: string;
   } | null;
+  practiceStats?: {
+    totalAttempts: number;
+    correctAttempts: number;
+    accuracyPercent: number;
+    topicMastery: Record<string, { attempts: number; correct: number; accuracy: number }>;
+  };
   topicStats?: Record<
     string,
     {
@@ -84,6 +106,19 @@ export interface ServerOverviewPayload {
       status: string;
     }
   >;
+  dueMistakes?: Array<{
+    id?: string;
+    questionId: string;
+    attemptCount?: number;
+    updatedAt?: string;
+    topicId: string;
+    topicTitle: string;
+    chapterId: string;
+    chapterTitle: string;
+    stem: string;
+    correctOptionText: string;
+    conceptNote?: string;
+  }>;
   unresolvedMistakes?: Array<{
     questionId: string;
     stemBangla: string;
@@ -97,7 +132,12 @@ export interface ServerOverviewPayload {
     wrongCount: number;
     lastWrongAt: string;
   }>;
-  recentExams?: ExamHistoryItem[];
+  recentExams?: Array<
+    ExamHistoryItem & {
+      sessionId?: string;
+      completedAt?: string | null;
+    }
+  >;
 }
 
 interface UserState {
@@ -344,7 +384,28 @@ export const useUserStore = create<UserState>()(
           if (!overview) return state;
 
           const mergedCompleted = new Set(state.completedTopics);
+          if (Array.isArray(overview.completedTopicIds)) {
+            for (const tId of overview.completedTopicIds) {
+              mergedCompleted.add(tId);
+            }
+          }
+
           const mergedMastery: Record<string, TopicMasteryStats> = { ...state.topicMastery };
+
+          if (overview.practiceStats?.topicMastery) {
+            for (const [topicId, stats] of Object.entries(overview.practiceStats.topicMastery)) {
+              if (stats.attempts > 0) {
+                const local = mergedMastery[topicId];
+                if (!local || stats.attempts >= local.attempted) {
+                  mergedMastery[topicId] = {
+                    attempted: stats.attempts,
+                    correct: stats.correct,
+                    lastPracticedAt: local?.lastPracticedAt || new Date().toISOString(),
+                  };
+                }
+              }
+            }
+          }
 
           if (overview.topicStats) {
             for (const [topicId, stats] of Object.entries(overview.topicStats)) {
@@ -365,6 +426,27 @@ export const useUserStore = create<UserState>()(
           }
 
           const mergedMistakes = [...state.savedMistakes];
+          if (Array.isArray(overview.dueMistakes)) {
+            for (const dm of overview.dueMistakes) {
+              const idx = mergedMistakes.findIndex((m) => m.questionId === dm.questionId);
+              if (idx === -1) {
+                mergedMistakes.push({
+                  questionId: dm.questionId,
+                  stemBangla: dm.stem,
+                  topicId: dm.topicId,
+                  topicTitle: dm.topicTitle,
+                  chapterId: dm.chapterId,
+                  chapterTitle: dm.chapterTitle,
+                  selectedKey: 'পূর্বে ভুল উত্তর',
+                  correctKey: dm.correctOptionText,
+                  explanationBangla: dm.conceptNote,
+                  wrongCount: dm.attemptCount || 1,
+                  resolved: false,
+                  lastWrongAt: dm.updatedAt || new Date().toISOString(),
+                });
+              }
+            }
+          }
           if (Array.isArray(overview.unresolvedMistakes)) {
             for (const srvMistake of overview.unresolvedMistakes) {
               const idx = mergedMistakes.findIndex((m) => m.questionId === srvMistake.questionId);
@@ -380,27 +462,47 @@ export const useUserStore = create<UserState>()(
           const mergedExams = [...state.examHistory];
           if (Array.isArray(overview.recentExams)) {
             for (const srvExam of overview.recentExams) {
-              if (!mergedExams.some((e) => e.examSessionId === srvExam.examSessionId)) {
-                mergedExams.push(srvExam);
+              const sessionId = srvExam.examSessionId || srvExam.sessionId || '';
+              if (sessionId && !mergedExams.some((e) => e.examSessionId === sessionId)) {
+                const totalQ = srvExam.totalQuestions || 1;
+                const score = srvExam.score ?? 0;
+                mergedExams.push({
+                  examSessionId: sessionId,
+                  chapterId: srvExam.chapterId || 'chap_ssc_physics_ch1',
+                  chapterTitle: srvExam.chapterTitle || 'অধ্যায় মডেল টেস্ট',
+                  score,
+                  totalQuestions: srvExam.totalQuestions ?? 0,
+                  accuracyPercent:
+                    typeof srvExam.accuracyPercent === 'number'
+                      ? srvExam.accuracyPercent
+                      : Math.round((score / totalQ) * 100),
+                  submittedAt:
+                    srvExam.submittedAt || srvExam.completedAt || new Date().toISOString(),
+                });
               }
             }
           }
 
           const mergedStudyDates = Array.from(
-            new Set([...state.studyDates, ...(overview.activityDays || [])])
+            new Set([
+              ...state.studyDates,
+              ...(overview.studyDates || []),
+              ...(overview.activityDays || []),
+            ])
           )
             .sort()
             .slice(-30);
 
+          const serverLastTopic = overview.lastStudiedTopic || overview.lastActivity;
           const lastVisitedTopic =
             state.lastVisitedTopic ||
-            (overview.lastActivity
+            (serverLastTopic
               ? {
-                  topicId: overview.lastActivity.topicId,
-                  topicTitle: overview.lastActivity.topicTitle,
-                  chapterId: overview.lastActivity.chapterId,
-                  chapterTitle: overview.lastActivity.chapterTitle,
-                  visitedAt: overview.lastActivity.timestamp,
+                  topicId: serverLastTopic.topicId,
+                  topicTitle: serverLastTopic.topicTitle,
+                  chapterId: serverLastTopic.chapterId,
+                  chapterTitle: serverLastTopic.chapterTitle,
+                  visitedAt: serverLastTopic.timestamp,
                 }
               : null);
 

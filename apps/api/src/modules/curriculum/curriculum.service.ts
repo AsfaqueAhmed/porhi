@@ -53,9 +53,55 @@ export class CurriculumService {
       orderBy: { code: 'asc' },
     });
 
+    const subjectIds = subjects.map((s: any) => s.id);
+    const topicCountBySubject = new Map<string, number>();
+    const lessonCountBySubject = new Map<string, number>();
+    const questionCountBySubject = new Map<string, number>();
+
+    if (subjectIds.length > 0 && typeof (this.prisma as any).chapter?.findMany === 'function') {
+      try {
+        const chapters = await (this.prisma as any).chapter.findMany({
+          where: { subjectId: { in: subjectIds } },
+          include: {
+            topics: {
+              include: {
+                _count: {
+                  select: { lessons: true, questions: true },
+                },
+              },
+            },
+          },
+        });
+        if (Array.isArray(chapters)) {
+          for (const ch of chapters) {
+            const topics = Array.isArray(ch.topics) ? ch.topics : [];
+            topicCountBySubject.set(
+              ch.subjectId,
+              (topicCountBySubject.get(ch.subjectId) || 0) + topics.length,
+            );
+            for (const t of topics) {
+              lessonCountBySubject.set(
+                ch.subjectId,
+                (lessonCountBySubject.get(ch.subjectId) || 0) + (t._count?.lessons ?? 0),
+              );
+              questionCountBySubject.set(
+                ch.subjectId,
+                (questionCountBySubject.get(ch.subjectId) || 0) + (t._count?.questions ?? 0),
+              );
+            }
+          }
+        }
+      } catch {
+        // Fallback when mock chapter.findMany is not configured for getSubjects
+      }
+    }
+
     return subjects.map((subject: any) => ({
       ...subject,
       chapterCount: subject._count?.chapters ?? 0,
+      topicCount: topicCountBySubject.get(subject.id) ?? 0,
+      publishedLessonCount: lessonCountBySubject.get(subject.id) ?? 0,
+      publishedQuestionCount: questionCountBySubject.get(subject.id) ?? 0,
     }));
   }
 

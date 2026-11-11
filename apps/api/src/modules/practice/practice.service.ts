@@ -177,6 +177,7 @@ export class PracticeService {
             },
             data: {
               resolved: true,
+              attemptCount: { increment: 1 },
             },
           })
           .catch(() => {});

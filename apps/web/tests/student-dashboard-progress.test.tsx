@@ -85,28 +85,64 @@ describe('DashboardPage & ProgressPage Dynamic Analytics', () => {
     );
   });
 
-  it('hydrates DashboardPage from GET /student/overview when server responds', async () => {
+  it('hydrates DashboardPage from GET /student/overview when server responds with StudentOverviewResponse', async () => {
     vi.mocked(apiClient.get).mockResolvedValueOnce({
-      streakDays: 5,
-      activityDays: ['2026-11-12'],
-      lastActivity: {
+      subjectId: 'sub_ssc_physics',
+      curriculumTotals: {
+        totalChapters: 12,
+        totalTopics: 81,
+        totalPublishedLessons: 81,
+        totalPublishedQuestions: 400,
+      },
+      completedTopicIds: ['top_ssc_physics_ch1_1'],
+      lastStudiedTopic: {
         topicId: 'top_ssc_physics_ch2_7',
         topicTitle: '২.৭ গতির সমীকরণ (Equations of Motion)',
         chapterId: 'chap_ssc_physics_ch2',
         chapterTitle: 'দ্বিতীয় অধ্যায়: গতি (Motion)',
         timestamp: '2026-11-12T00:00:00.000Z',
       },
-      topicStats: {
-        top_ssc_physics_ch1_1: {
-          completedLesson: true,
-          attempted: 4,
-          correct: 4,
-          accuracyPercent: 100,
-          status: 'MASTERED',
+      practiceStats: {
+        totalAttempts: 4,
+        correctAttempts: 4,
+        accuracyPercent: 100,
+        topicMastery: {
+          top_ssc_physics_ch1_1: {
+            attempts: 4,
+            correct: 4,
+            accuracy: 100,
+          },
         },
       },
-      unresolvedMistakes: [],
-      recentExams: [],
+      streakDays: 5,
+      studyDates: ['2026-11-12'],
+      dueMistakes: [
+        {
+          id: 'rm_1',
+          questionId: 'q_srv_1',
+          attemptCount: 2,
+          updatedAt: '2026-11-12T00:00:00.000Z',
+          topicId: 'top_ssc_physics_ch3_5',
+          topicTitle: '৩.৫ নিউটনের দ্বিতীয় সূত্র ও বল পরিমাপ',
+          chapterId: 'chap_ssc_physics_ch3',
+          chapterTitle: 'তৃতীয় অধ্যায়: বল (Force)',
+          stem: 'বলের মাত্রা সমীকরণ কোনটি?',
+          correctOptionText: '$[MLT^{-2}]$',
+          conceptNote: 'বল = ভর × ত্বরণ।',
+        },
+      ],
+      weakTopics: [],
+      recentExams: [
+        {
+          sessionId: 'sess_srv_1',
+          chapterId: 'chap_ssc_physics_ch1',
+          subjectId: 'sub_ssc_physics',
+          score: 8,
+          totalQuestions: 10,
+          durationSeconds: 450,
+          completedAt: '2026-11-12T00:00:00.000Z',
+        },
+      ],
     });
 
     render(<DashboardPage />);
@@ -118,6 +154,13 @@ describe('DashboardPage & ProgressPage Dynamic Analytics', () => {
 
     const continueBtn = screen.getByRole('link', { name: /পড়া চালিয়ে যান/i });
     expect(continueBtn.getAttribute('href')).toBe('/lesson/top_ssc_physics_ch2_7');
+
+    // Verify store hydrated completedTopicIds, topicMastery, dueMistakes, and recentExams from StudentOverviewResponse
+    const state = useUserStore.getState();
+    expect(state.completedTopics).toContain('top_ssc_physics_ch1_1');
+    expect(state.topicMastery['top_ssc_physics_ch1_1']?.attempted).toBe(4);
+    expect(state.savedMistakes.some((m) => m.questionId === 'q_srv_1' && m.correctKey === '$[MLT^{-2}]$')).toBe(true);
+    expect(state.examHistory.some((e) => e.examSessionId === 'sess_srv_1')).toBe(true);
   });
 
   it('renders dynamic ProgressPage metrics, Chapter Mastery Matrix, Weak Topics, and resolves mistakes in Mistake Notebook', async () => {

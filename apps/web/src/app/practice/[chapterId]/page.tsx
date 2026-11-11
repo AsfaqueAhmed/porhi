@@ -230,6 +230,12 @@ export default function PracticeRunnerPage() {
       // Offline fallback: keep local questions
     }
 
+    const selectedOptText =
+      currentQ.options?.find((o) => o.id === optId)?.text || optId;
+    const correctOptText =
+      currentQ.options?.find((o) => o.id === correctOptionIdResult || o.isCorrect)?.text ||
+      correctOptionIdResult;
+
     recordPracticeAttempt({
       questionId: currentQ.id,
       stemBangla: currentQ.stem,
@@ -237,8 +243,8 @@ export default function PracticeRunnerPage() {
       topicTitle: hierarchy.topicTitle,
       chapterId,
       chapterTitle: resolvedChapter?.titleBangla || hierarchy.chapterTitle,
-      selectedKey: optId,
-      correctKey: correctOptionIdResult,
+      selectedKey: selectedOptText,
+      correctKey: correctOptText,
       explanationBangla: explanationResult?.directAnswer || explanationResult?.coreConcept,
       isCorrect: isCorrectResult,
     });

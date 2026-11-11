@@ -155,6 +155,8 @@ describe('PracticeRunnerPage - Topic-only Practice Filtering & Smart Runner', ()
 
     await waitFor(() => {
       expect(useUserStore.getState().savedMistakes.length).toBe(1);
+      expect(useUserStore.getState().savedMistakes[0].selectedKey).toBe('৪টি');
+      expect(useUserStore.getState().savedMistakes[0].correctKey).toBe('২টি');
       expect(screen.getByText(/অনুশীলন সারসংক্ষেপ/i)).toBeDefined();
       expect(screen.getByRole('button', { name: /ভুল প্রশ্নগুলো আবার অনুশীলন করো/i })).toBeDefined();
     });

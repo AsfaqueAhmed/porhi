@@ -199,6 +199,7 @@ describe('PracticeService', () => {
         },
         data: {
           resolved: true,
+          attemptCount: { increment: 1 },
         },
       });
 

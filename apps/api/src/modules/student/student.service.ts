@@ -74,7 +74,7 @@ function calculateConsecutiveStreak(dateStrings: string[]): number {
   const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
 
   if (uniqueDates[0] !== todayStr && uniqueDates[0] !== yesterday) {
-    return 1;
+    return 0;
   }
 
   let streak = 1;
@@ -363,7 +363,7 @@ export class StudentService {
         const meta = topicMap.get(tId);
         const mastery = topicMastery[tId];
         const mCount = mistakeCountByTopic.get(tId) || 0;
-        const acc = mastery ? mastery.accuracy : 45;
+        const acc = mastery ? mastery.accuracy : 0;
         return {
           topicId: tId,
           topicTitle: meta?.topicTitle || 'টপিক অনুশীলন',

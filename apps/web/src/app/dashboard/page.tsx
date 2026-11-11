@@ -136,7 +136,7 @@ export default function DashboardPage() {
 
   // 7-day activity strip
   const last7Days = useMemo(() => {
-    const days: Array<{ iso: string; labelBn: string; labelEn: string; active: boolean }> = [];
+    const days: Array<{ iso: string; labelBn: string; labelEn: string; active: boolean; isToday: boolean }> = [];
     const bnDayNames = ['রবি', 'সোম', 'মঙ্গল', 'বুধ', 'বৃহঃ', 'শুক্র', 'শনি'];
     const enDayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     const today = new Date();
@@ -149,7 +149,8 @@ export default function DashboardPage() {
         iso,
         labelBn: bnDayNames[dow],
         labelEn: enDayNames[dow],
-        active: studyDates.includes(iso) || i === 0,
+        active: studyDates.includes(iso),
+        isToday: i === 0,
       });
     }
     return days;
@@ -215,6 +216,8 @@ export default function DashboardPage() {
                 className={`px-2 py-1 rounded-lg text-[10px] font-bold flex flex-col items-center ${
                   d.active
                     ? 'bg-emerald-400/20 border border-emerald-300/40 text-emerald-200'
+                    : d.isToday
+                    ? 'bg-white/10 border border-indigo-300/60 text-white'
                     : 'bg-white/5 border border-white/10 text-indigo-200/70'
                 }`}
               >
