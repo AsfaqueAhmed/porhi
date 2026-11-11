@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৭.১ সরল স্পন্দন গতি · অধ্যায় ৭: তরঙ্গ ও শব্দ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <style>
+    .shm-stage {
+      border: 1px solid #dbe3f2;
+      border-radius: 14px;
+      background: #f8fbff;
+      padding: 10px;
+      overflow: hidden;
+    }
+    .shm-stage svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .shm-control-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 750;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৭ / ৭.১</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই · section ৭.১</span>
+    <h1 class="title">সরল স্পন্দন গতি <small>(Simple Harmonic Motion)</small></h1>
+    <p class="subtitle">পর্যায়বৃত্ত ও স্পন্দন গতি, সাম্যাবস্থা, পুনঃস্থাপন বল, বিস্তার, পর্যায়কাল, কম্পাঙ্ক এবং স্প্রিং ও সরল দোলকের গাণিতিক বিশ্লেষণ।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>এই পাঠটি সম্পন্ন করার পর তুমি—</p>
+      <ul>
+        <li>পর্যায়বৃত্ত গতি, স্পন্দন গতি ও সরল স্পন্দন গতির (SHM) মধ্যে সম্পর্ক ও পার্থক্য ব্যাখ্যা করতে পারবে।</li>
+        <li>পুনঃস্থাপন বলের সমীকরণ $F = -kx$ এবং ত্বরণ $a \propto -x$ শর্তের ভৌত অর্থ বিশ্লেষণ করতে পারবে।</li>
+        <li>বিস্তার ($A$), পর্যায়কাল ($T$), কম্পাঙ্ক ($f$) ও দশা (Phase) সংজ্ঞায়িত করে $f = \frac{1}{T}$ সম্পর্ক ব্যবহার করতে পারবে।</li>
+        <li>স্প্রিং-ভর ব্যবস্থা ($T = 2\pi\sqrt{\frac{m}{k}}$) ও সরল দোলকের ($T = 2\pi\sqrt{\frac{\ell}{g}}$) গাণিতিক সমস্যা ও সেকেন্ড দোলকের হিসাব সমাধান করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>১. পর্যায়বৃত্ত গতি থেকে সরল স্পন্দন গতি</h2>
+      <p>প্রকৃতিতে অনেক বস্তু নির্দিষ্ট সময় পরপর একই পথে আবর্তন বা দোলন করে।</p>
+      <ul>
+        <li><strong>পর্যায়বৃত্ত গতি (Periodic Motion):</strong> কোনো গতিশীল বস্তু যদি নির্দিষ্ট সময় পরপর তার গতিপথের কোনো নির্দিষ্ট বিন্দুকে একই দিক থেকে অতিক্রম করে, তাকে পর্যায়বৃত্ত গতি বলে (যেমন ঘড়ির কাঁটা, সূর্যের চারদিকে পৃথিবীর গতি)।</li>
+        <li><strong>স্পন্দন গতি (Oscillatory Motion):</strong> কোনো পর্যায়বৃত্ত গতিসম্পন্ন বস্তু যদি পর্যায়কালের অর্ধেক সময় একদিকে এবং বাকি অর্ধেক সময় তার বিপরীত দিকে চলে, তবে তাকে স্পন্দন বা দোলন গতি বলে (যেমন দোলনার গতি, সুরশলাকার কম্পন)।</li>
+        <li><strong>সরল স্পন্দন গতি (Simple Harmonic Motion - SHM):</strong> এটি স্পন্দন গতির সবচেয়ে সরল ও মৌলিক রূপ। যখন কোনো স্পন্দনশীল বস্তুর ওপর ক্রিয়াশীল <strong>পুনঃস্থাপন বল (Restoring Force)</strong> এবং ত্বরণ সাম্যাবস্থা থেকে সরণের সমানুপাতিক এবং বিপরীতমুখী হয়, তখন তাকে সরল স্পন্দন গতি বলে।</li>
+      </ul>
+
+      <div class="formula">
+        $$F = -kx \implies a = -\frac{k}{m}x \quad \text{অর্থাৎ} \quad a \propto -x$$
+      </div>
+      <p>এখানে $k$ হলো বল ধ্রুবক বা স্প্রিং ধ্রুবক ($\text{N/m}$) এবং $x$ হলো সাম্যাবস্থা থেকে সরণ ($\text{m}$)। ঋণাত্মক ($-$) চিহ্ন নির্দেশ করে যে পুনঃস্থাপন বল ও ত্বরণ সর্বদা সরণের বিপরীত দিকে অর্থাৎ <strong>সাম্যাবস্থার দিকে</strong> ক্রিয়া করে।</p>
+
+      <div class="highlight-box">
+        <strong>💡 মূল সত্য:</strong> সরল স্পন্দন গতিসম্পন্ন কণার বেগ সাম্যাবস্থায় ($x = 0$) <strong>সর্বোচ্চ</strong> এবং ত্বরণ শূন্য। অপরদিকে, প্রান্তবিন্দুতে ($x = \pm A$) বেগ শূন্য কিন্তু পুনঃস্থাপন বল ও ত্বরণ <strong>সর্বোচ্চ</strong> হয়।
+      </div>
+
+      <h3>সরল স্পন্দনের মৌলিক রাশিসমূহ</h3>
+      <div class="grid">
+        <div class="term">
+          <strong>সাম্যাবস্থা (Equilibrium)</strong>
+          <small>যে অবস্থানে বস্তুর ওপর নিট বল শূন্য ($F = 0$) থাকে এবং বস্তুটি স্থির থাকতে চায়।</small>
+        </div>
+        <div class="term">
+          <strong>বিস্তার ($A$)</strong>
+          <small>সাম্যাবস্থা থেকে যেকোনো একদিকে বস্তুর সর্বোচ্চ সরণ। SI একক মিটার ($\text{m}$)।</small>
+        </div>
+        <div class="term">
+          <strong>পর্যায়কাল বা দোলনকাল ($T$)</strong>
+          <small>একটি পূর্ণ স্পন্দন সম্পন্ন করতে যে সময় লাগে। SI একক সেকেন্ড ($\text{s}$)।</small>
+        </div>
+        <div class="term">
+          <strong>কম্পাঙ্ক ($f$)</strong>
+          <small>প্রতি সেকেন্ডে সম্পন্ন পূর্ণ স্পন্দনের সংখ্যা। $f = \frac{1}{T}$, একক হার্জ ($\text{Hz}$ বা $\text{s}^{-1}$)।</small>
+        </div>
+        <div class="term">
+          <strong>পূর্ণ স্পন্দন</strong>
+          <small>কোনো বিন্দু থেকে যাত্রা শুরু করে গতিপথ ঘুরে একই দিক থেকে পুনরায় ওই বিন্দুতে ফিরে আসা।</small>
+        </div>
+        <div class="term">
+          <strong>দশা (Phase)</strong>
+          <small>কোনো নির্দিষ্ট মুহূর্তে স্পন্দনশীল কণার অবস্থান ও গতির দিকের সামগ্রিক অবস্থা।</small>
+        </div>
+      </div>
+
+      <h3>২. স্প্রিং-ভর ব্যবস্থা ও সরল দোলকের দোলনকাল</h3>
+      <p>দুটি আদর্শ সরল স্পন্দন ব্যবস্থার দোলনকালের সমীকরণ নিচে দেওয়া হলো (ঘর্ষণ ও বাতাসের বাধা উপেক্ষা করে):</p>
+      <div class="formula">
+        $$\text{স্প্রিং-ভর ব্যবস্থা:} \quad T = 2\pi\sqrt{\frac{m}{k}} \qquad | \qquad \text{সরল দোলক:} \quad T = 2\pi\sqrt{\frac{\ell}{g}}$$
+      </div>
+      <ul>
+        <li><strong>স্প্রিং-ভর ব্যবস্থা:</strong> ভর $m$ যত বেশি হবে, জড়তার কারণে দোলন তত ধীর হবে ($T \propto \sqrt{m}$)। আর স্প্রিং যত শক্ত ($k$ বেশি) হবে, দোলন তত দ্রুত হবে ($T \propto \frac{1}{\sqrt{k}}$)।</li>
+        <li><strong>সরল দোলক (Simple Pendulum):</strong> ছোট কোণীয় বিস্তারে ($\theta \le 4^\circ$) সরল দোলকের দোলনকাল কার্যকর দৈর্ঘ্য $\ell$-এর বর্গমূলের সমানুপাতিক ($T \propto \sqrt{\ell}$) এবং অভিকর্ষজ ত্বরণ $g$-এর বর্গমূলের ব্যস্তানুপাতিক ($T \propto \frac{1}{\sqrt{g}}$)।</li>
+        <li><strong>ভরের ওপর অনির্ভরতা:</strong> ববের ভর বা উপাদানের ওপর সরল দোলকের দোলনকাল নির্ভর করে না (যতক্ষণ কার্যকর দৈর্ঘ্য $\ell$ অপরিবর্তিত থাকে)।</li>
+        <li><strong>সেকেন্ড দোলক (Second Pendulum):</strong> যে সরল দোলকের দোলনকাল ঠিক $2\text{ s}$ (অর্থাৎ এক প্রান্ত থেকে অন্য প্রান্তে এক অর্ধ-দোলন দিতে $1\text{ s}$ সময় নেয়), তাকে সেকেন্ড দোলক বলে।</li>
+      </ul>
+    </section>
+
+    <section class="lab" id="shm-inline-lab">
+      <div class="lab-head">
+        <div>
+          <h2>🧪 সরল দোলক ও স্প্রিং SHM ল্যাব</h2>
+          <p style="margin:0;font-size:13px;color:var(--muted)">দোলকের দৈর্ঘ্য $\ell$, অভিকর্ষজ ত্বরণ $g$ অথবা স্প্রিং ধ্রুবক $k$ পরিবর্তন করে দোলনকাল ও কম্পাঙ্ক পর্যবেক্ষণ করো।</p>
+        </div>
+        <span class="lab-tag">সিমুলেশন ৭.১</span>
+      </div>
+
+      <div class="preset-row">
+        <button type="button" class="preset-btn active" onclick="setShmMode('pendulum', this)">সরল দোলক (Pendulum)</button>
+        <button type="button" class="preset-btn" onclick="setShmMode('spring', this)">স্প্রিং-ভর (Spring)</button>
+        <button type="button" class="preset-btn" onclick="applyShmPreset(0.993, 9.8, this)">সেকেন্ড দোলক ($T \approx 2\text{ s}$)</button>
+        <button type="button" class="preset-btn" onclick="applyShmPreset(1.0, 1.63, this)">চাঁদে দোলক ($g = 1.63$)</button>
+      </div>
+
+      <div class="shm-stage">
+        <svg id="shmSvg" viewBox="0 0 680 210" role="img" aria-label="সরল দোলক ও স্প্রিংয়ের সরল স্পন্দন গতি">
+          <rect x="0" y="0" width="680" height="210" fill="#f8fbff"/>
+          <!-- Pendulum group -->
+          <g id="pendulumGroup">
+            <rect x="240" y="14" width="200" height="10" rx="4" fill="#334155"/>
+            <line x1="340" y1="24" x2="340" y2="195" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1.5"/>
+            <line id="pendString" x1="340" y1="24" x2="340" y2="155" stroke="#475569" stroke-width="2.5"/>
+            <circle id="pendBob" cx="340" cy="155" r="16" fill="#4f46e5" stroke="#312e81" stroke-width="2"/>
+            <text x="24" y="34" font-size="13" fill="#475569" font-weight="700">সাম্যাবস্থা (x = 0)</text>
+            <text id="pendPhaseLabel" x="450" y="34" font-size="13" fill="#4338ca" font-weight="700">দোলন চলমান</text>
+          </g>
+          <!-- Spring group -->
+          <g id="springGroup" class="hidden">
+            <rect x="250" y="14" width="180" height="10" rx="4" fill="#334155"/>
+            <path id="springCoil" d="" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linejoin="round"/>
+            <rect id="springMassBox" x="312" y="120" width="56" height="44" rx="8" fill="#6366f1" stroke="#312e81" stroke-width="2"/>
+            <text id="springMassTxt" x="340" y="147" text-anchor="middle" fill="#fff" font-size="13" font-weight="800">1.0 kg</text>
+            <line x1="210" y1="142" x2="470" y2="142" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1.5"/>
+            <text x="20" y="146" font-size="12" fill="#64748b" font-weight="700">সাম্যাবস্থা</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="lab-controls" id="pendControls">
+        <div class="control-group">
+          <div class="shm-control-label"><span>দোলকের দৈর্ঘ্য ($\ell$)</span><b id="valLen">1.00 m</b></div>
+          <input class="range" id="inLen" type="range" min="0.25" max="2.50" step="0.01" value="1.00">
+        </div>
+        <div class="control-group">
+          <div class="shm-control-label"><span>অভিকর্ষজ ত্বরণ ($g$)</span><b id="valG">9.80 m/s²</b></div>
+          <input class="range" id="inG" type="range" min="1.6" max="15.0" step="0.05" value="9.80">
+        </div>
+      </div>
+
+      <div class="lab-controls hidden" id="springControls">
+        <div class="control-group">
+          <div class="shm-control-label"><span>ভর ($m$)</span><b id="valMass">1.0 kg</b></div>
+          <input class="range" id="inMass" type="range" min="0.2" max="5.0" step="0.1" value="1.0">
+        </div>
+        <div class="control-group">
+          <div class="shm-control-label"><span>স্প্রিং ধ্রুবক ($k$)</span><b id="valK">40 N/m</b></div>
+          <input class="range" id="inK" type="range" min="10" max="120" step="2" value="40">
+        </div>
+      </div>
+
+      <div class="calc-breakdown">
+        <div class="calc-box">
+          <div class="label">দোলনকাল ($T$)</div>
+          <div class="val" id="resT">2.01 s</div>
+        </div>
+        <div class="calc-box">
+          <div class="label">কম্পাঙ্ক ($f = 1/T$)</div>
+          <div class="val" id="resF">0.50 Hz</div>
+        </div>
+        <div class="calc-box">
+          <div class="label">অর্ধ-দোলন ($T/2$)</div>
+          <div class="val" id="resHalf">1.00 s</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="note">
+      <h2>🕰️ দোলক ঘড়ি পাহাড়ে বা গ্রীষ্মকালে কেন ধীরে চলে?</h2>
+      <p>১. <strong>পাহাড়ের চূড়ায়:</strong> ভূপৃষ্ঠ থেকে ওপরে উঠলে $g$-এর মান কমে যায়। যেহেতু $T = 2\pi\sqrt{\frac{\ell}{g}}$, তাই $g$ কমলে দোলনকাল $T$ বেড়ে যায়। প্রতিটি দোলনে বেশি সময় নেওয়ায় ঘড়িটি <strong>ধীরে চলে (সময় হারায়)</strong>।</p>
+      <p>২. <strong>গ্রীষ্মকালে:</strong> তাপমাত্রা বাড়লে ধাতব পেন্ডুলামের দৈর্ঘ্য $\ell$ সামান্য প্রসারিত হয়। ফলে $T$ বেড়ে যায় এবং ঘড়ি ধীরে চলে।</p>
+    </div>
+
+    <section class="worked">
+      <h2>📐 গাণিতিক সমস্যা ও সমাধান</h2>
+      <div class="problem">
+        <strong>সমস্যা ১:</strong> ভূপৃষ্ঠে ($g = 9.8\text{ m/s}^2$) একটি সেকেন্ড দোলকের কার্যকর দৈর্ঘ্য কত?
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> সেকেন্ড দোলকের দোলনকাল $T = 2\text{ s}$।</p>
+        $$T = 2\pi\sqrt{\frac{\ell}{g}} \implies \ell = \frac{gT^2}{4\pi^2} = \frac{9.8 \times 2^2}{4 \times (3.1416)^2} = \frac{39.2}{39.478} \approx 0.993\text{ m}$$
+        <p><strong>উত্তর:</strong> $0.993\text{ m}$ (প্রায় $99.3\text{ cm}$)।</p>
+      </div>
+
+      <div class="problem">
+        <strong>সমস্যা ২:</strong> একটি স্প্রিংয়ের নিচে $0.5\text{ kg}$ ভর ঝোলালে স্প্রিংটি $10\text{ cm}$ প্রসারিত হয়। ভরটিকে টেনে ছেড়ে দিলে এর দোলনকাল ও কম্পাঙ্ক কত হবে? ($g = 9.8\text{ m/s}^2$)
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> দেওয়া আছে, $m = 0.5\text{ kg}$, $x = 10\text{ cm} = 0.1\text{ m}$।</p>
+        <p>সাম্যাবস্থায়, $k x = mg \implies k = \frac{mg}{x} = \frac{0.5 \times 9.8}{0.1} = 49\text{ N/m}$।</p>
+        $$T = 2\pi\sqrt{\frac{m}{k}} = 2\pi\sqrt{\frac{0.5}{49}} \approx 0.635\text{ s}$$
+        $$f = \frac{1}{T} = \frac{1}{0.635} \approx 1.57\text{ Hz}$$
+        <p><strong>উত্তর:</strong> দোলনকাল $0.635\text{ s}$ এবং কম্পাঙ্ক $1.57\text{ Hz}$।</p>
+      </div>
+
+      <div class="problem">
+        <strong>সমস্যা ৩:</strong> ভূপৃষ্ঠে একটি সরল দোলকের দোলনকাল $2\text{ s}$। দোলকটিকে চাঁদে নিয়ে গেলে দোলনকাল কত হবে? (পৃথিবীতে $g_e = 9.8\text{ m/s}^2$ এবং চাঁদে $g_m = \frac{g_e}{6}$)।
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> যেহেতু দৈর্ঘ্য $\ell$ স্থির, তাই $\frac{T_m}{T_e} = \sqrt{\frac{g_e}{g_m}} = \sqrt{6} \approx 2.449$।</p>
+        $$T_m = 2 \times 2.449 \approx 4.90\text{ s}$$
+        <p><strong>উত্তর:</strong> চাঁদে দোলনকাল হবে প্রায় $4.90\text{ s}$।</p>
+      </div>
+    </section>
+
+    <section class="memory">
+      <h2>🧠 মনে রাখার কৌশল</h2>
+      <p>“স্প্রিংয়ে $m$ ওপরে থাকে, নিচে থাকে $k$; দোলকের বেলায় $\ell$ ওপরে, নিচে বসবে $g$! দোলনকাল আর কম্পাঙ্ক রয় উল্টো রথে ভাই, $T$ বাড়লে $f$ কমে যায়—এই সূত্রটাই চাই!”</p>
+    </section>
+
+    <section class="section">
+      <h2>নিজেকে যাচাই করো</h2>
+      <details class="check">
+        <summary>১. একটি দোলক $2\text{ s}$-এ একটি পূর্ণ স্পন্দন সম্পন্ন করে। এর কম্পাঙ্ক কত?</summary>
+        <p>$f = \frac{1}{T} = \frac{1}{2} = 0.5\text{ Hz}$।</p>
+      </details>
+      <details class="check">
+        <summary>২. সরল দোলকের ববের ভর দ্বিগুণ করলে দোলনকালের কী পরিবর্তন হবে?</summary>
+        <p>দোলনকাল অপরিবর্তিত থাকবে, কারণ $T = 2\pi\sqrt{\frac{\ell}{g}}$ সমীকরণটি ববের ভরের ওপর নির্ভর করে না (কার্যকর দৈর্ঘ্য অপরিবর্তিত থাকলে)।</p>
+      </details>
+      <details class="check">
+        <summary>৩. সরল স্পন্দন গতির কোন অবস্থানে বেগ শূন্য কিন্তু ত্বরণ সর্বোচ্চ?</summary>
+        <p>সর্বোচ্চ বিস্তারের অবস্থানে ($x = \pm A$) বস্তুটি ক্ষণিকের জন্য থেমে যায় বলে বেগ শূন্য হয়, কিন্তু পুনঃস্থাপন বল ও ত্বরণ সর্বোচ্চ থাকে।</p>
+      </details>
+      <details class="check">
+        <summary>৪. একটি সরল দোলকের দৈর্ঘ্য $4$ গুণ বাড়ালে দোলনকাল কত গুণ হবে?</summary>
+        <p>$T \propto \sqrt{\ell}$ হওয়ায় দৈর্ঘ্য $4$ গুণ করলে দোলনকাল $\sqrt{4} = 2$ গুণ হবে।</p>
+      </details>
+    </section>
+
+    <nav class="nav">
+      <a class="button secondary" href="index.html">← অধ্যায়ের সূচি</a>
+      <a class="button" href="section-02.html">পরের পাঠ: ৭.২ তরঙ্গ →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">PDF-এর সম্পূর্ণ মূল পৃষ্ঠা</a> · পদার্থবিজ্ঞান অধ্যায় ৭
+    </footer>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+
+    let shmMode = 'pendulum';
+    let shmTime = 0;
+
+    const inLen = document.getElementById('inLen');
+    const inG = document.getElementById('inG');
+    const inMass = document.getElementById('inMass');
+    const inK = document.getElementById('inK');
+
+    function setShmMode(mode, btn) {
+      shmMode = mode;
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      document.getElementById('pendulumGroup').classList.toggle('hidden', mode !== 'pendulum');
+      document.getElementById('pendControls').classList.toggle('hidden', mode !== 'pendulum');
+      document.getElementById('springGroup').classList.toggle('hidden', mode !== 'spring');
+      document.getElementById('springControls').classList.toggle('hidden', mode !== 'spring');
+      updateShmMetrics();
+    }
+
+    function applyShmPreset(len, g, btn) {
+      setShmMode('pendulum', btn);
+      inLen.value = len;
+      inG.value = g;
+      updateShmMetrics();
+    }
+
+    function getPeriod() {
+      if (shmMode === 'pendulum') {
+        const L = Math.max(0.1, parseFloat(inLen.value));
+        const g = Math.max(0.5, parseFloat(inG.value));
+        return 2 * Math.PI * Math.sqrt(L / g);
+      } else {
+        const m = Math.max(0.1, parseFloat(inMass.value));
+        const k = Math.max(1, parseFloat(inK.value));
+        return 2 * Math.PI * Math.sqrt(m / k);
+      }
+    }
+
+    function updateShmMetrics() {
+      const L = parseFloat(inLen.value);
+      const g = parseFloat(inG.value);
+      const m = parseFloat(inMass.value);
+      const k = parseFloat(inK.value);
+      document.getElementById('valLen').textContent = L.toFixed(2) + ' m';
+      document.getElementById('valG').textContent = g.toFixed(2) + ' m/s²';
+      document.getElementById('valMass').textContent = m.toFixed(1) + ' kg';
+      document.getElementById('valK').textContent = k.toFixed(0) + ' N/m';
+
+      const T = getPeriod();
+      const f = 1 / T;
+      document.getElementById('resT').textContent = T.toFixed(2) + ' s';
+      document.getElementById('resF').textContent = f.toFixed(2) + ' Hz';
+      document.getElementById('resHalf').textContent = (T / 2).toFixed(2) + ' s';
+      document.getElementById('springMassTxt').textContent = m.toFixed(1) + ' kg';
+    }
+
+    function drawSpringPath(yEnd) {
+      const xC = 340, yStart = 24, coils = 10;
+      const step = (yEnd - yStart - 16) / coils;
+      let d = `M ${xC} ${yStart} L ${xC} ${yStart + 8}`;
+      for (let i = 0; i < coils; i++) {
+        const y1 = yStart + 8 + i * step + step * 0.25;
+        const y2 = yStart + 8 + i * step + step * 0.75;
+        const dx = (i % 2 === 0) ? 16 : -16;
+        d += ` L ${xC + dx} ${y1.toFixed(1)} L ${xC - dx} ${y2.toFixed(1)}`;
+      }
+      d += ` L ${xC} ${yEnd}`;
+      return d;
+    }
+
+    let lastTs = performance.now();
+    function animateShm(ts) {
+      const dt = Math.min(0.05, (ts - lastTs) / 1000);
+      lastTs = ts;
+      const T = getPeriod();
+      const omega = (2 * Math.PI) / T;
+      shmTime += dt;
+
+      if (shmMode === 'pendulum') {
+        const L = parseFloat(inLen.value);
+        const pxLen = 70 + (L / 2.5) * 95;
+        const maxTheta = 0.36;
+        const theta = maxTheta * Math.cos(omega * shmTime);
+        const cx = 340 + pxLen * Math.sin(theta);
+        const cy = 24 + pxLen * Math.cos(theta);
+        document.getElementById('pendString').setAttribute('x2', cx.toFixed(1));
+        document.getElementById('pendString').setAttribute('y2', cy.toFixed(1));
+        document.getElementById('pendBob').setAttribute('cx', cx.toFixed(1));
+        document.getElementById('pendBob').setAttribute('cy', cy.toFixed(1));
+      } else {
+        const disp = 36 * Math.cos(omega * shmTime);
+        const boxY = 120 + disp;
+        document.getElementById('springCoil').setAttribute('d', drawSpringPath(boxY));
+        document.getElementById('springMassBox').setAttribute('y', boxY.toFixed(1));
+        document.getElementById('springMassTxt').setAttribute('y', (boxY + 27).toFixed(1));
+      }
+      requestAnimationFrame(animateShm);
+    }
+
+    [inLen, inG, inMass, inK].forEach(el => el.addEventListener('input', updateShmMetrics));
+    updateShmMetrics();
+    requestAnimationFrame(animateShm);
+  </script>
+</body>
+</html>

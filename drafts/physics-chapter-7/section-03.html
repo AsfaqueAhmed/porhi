@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৭.৩ শব্দ তরঙ্গ · অধ্যায় ৭: তরঙ্গ ও শব্দ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <style>
+    .subnav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 14px 0 20px;
+    }
+    .subnav a {
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 99px;
+      color: #334155;
+    }
+    .subnav a:hover {
+      background: #eef2ff;
+      border-color: #a5b4fc;
+      color: #3730a3;
+      text-decoration: none;
+    }
+    .echo-stage {
+      border: 1px solid #dbe3f2;
+      border-radius: 14px;
+      background: #f8fbff;
+      padding: 10px;
+      overflow: hidden;
+    }
+    .echo-stage svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .echo-ctrl-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 750;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+    .echo-status {
+      margin-top: 12px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+    }
+    .echo-status.ok {
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #065f46;
+    }
+    .echo-status.fail {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৭ / ৭.৩</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই · section ৭.৩</span>
+    <h1 class="title">শব্দ তরঙ্গ <small>(Sound Wave)</small></h1>
+    <p class="subtitle">শব্দের উৎপত্তি ও শ্রাব্যতার পাল্লা, প্রতিধ্বনি, মাধ্যম ও তাপমাত্রাভেদে শব্দের বেগ, ব্যবহার, সুরযুক্ত শব্দ ও শব্দদূষণ।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>এই পাঠটি সম্পন্ন করার পর তুমি—</p>
+      <ul>
+        <li>শব্দ কীভাবে কম্পন থেকে সৃষ্টি হয় এবং বায়ুতে অনুদৈর্ঘ্য যান্ত্রিক তরঙ্গ হিসেবে সঞ্চালিত হয় তা ব্যাখ্যা করতে পারবে।</li>
+        <li>মানুষের শ্রাব্যতার পাল্লা ($20\text{ Hz}\text{–}20,000\text{ Hz}$), ইনফ্রাসাউন্ড ও আল্ট্রাসাউন্ডের ব্যবহার চিনতে পারবে।</li>
+        <li>প্রতিধ্বনির শর্ত ($t \ge 0.1\text{ s}$) ও সূত্র ($d = \frac{vt}{2}$) প্রয়োগ করে প্রতিফলক ও কূপের গভীরতা নির্ণয় করতে পারবে।</li>
+        <li>তাপমাত্রা ও মাধ্যমের প্রকৃতির ওপর শব্দের বেগের নির্ভরতা ($v \propto \sqrt{T}$) এবং সুরযুক্ত শব্দের বৈশিষ্ট্য ও শব্দদূষণ প্রতিকার বিশ্লেষণ করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>৭.৩ · শব্দ তরঙ্গের প্রকৃতি ও শ্রাব্যতার পাল্লা</h2>
+      <p>যেকোনো বস্তুর <strong>কম্পন</strong> থেকেই শব্দ উৎপন্ন হয়। উৎস কাঁপলে সংলগ্ন মাধ্যমের কণাগুলোতে সংকোচন ও প্রসারণের সৃষ্টি হয় এবং <strong>অনুদৈর্ঘ্য যান্ত্রিক তরঙ্গ</strong> আকারে শব্দ আমাদের কানে পৌঁছায়। বেল-জার পরীক্ষার মাধ্যমে প্রমাণিত হয় যে <strong>শূন্যস্থানে শব্দ চলতে পারে না</strong>; শব্দ সঞ্চালনের জন্য কঠিন, তরল বা বায়বীয় মাধ্যম অপরিহার্য।</p>
+      <ul>
+        <li><strong>শ্রাব্য শব্দ (Audible Sound):</strong> $20\text{ Hz}$ থেকে $20,000\text{ Hz}$ ($20\text{ kHz}$) কম্পাঙ্কের শব্দ মানুষ শুনতে পায়।</li>
+        <li><strong>শব্দেতর বা ইনফ্রাসাউন্ড (Infrasound):</strong> কম্পাঙ্ক $20\text{ Hz}$-এর কম (যেমন ভূমিকম্প তরঙ্গ, হাতি ও তিমির যোগাযোগ)।</li>
+        <li><strong>শব্দোত্তর বা আল্ট্রাসাউন্ড (Ultrasound):</strong> কম্পাঙ্ক $20,000\text{ Hz}$-এর বেশি (যেমন বাদুড়, ডলফিন, আল্ট্রাসনোগ্রাফি)।</li>
+      </ul>
+
+      <div class="subnav">
+        <a href="#sub-7-3-1">৭.৩.১ প্রতিধ্বনি</a>
+        <a href="#sub-7-3-2">৭.৩.২ শব্দের বেগ</a>
+        <a href="#sub-7-3-3">৭.৩.৩ ব্যবহার</a>
+        <a href="#sub-7-3-4">৭.৩.৪ সুরযুক্ত শব্দ</a>
+        <a href="#sub-7-3-5">৭.৩.৫ শব্দদূষণ</a>
+      </div>
+
+      <h3 id="sub-7-3-1">৭.৩.১ · প্রতিধ্বনি (Echo)</h3>
+      <p>কোনো উৎস থেকে সৃষ্ট শব্দ দূরবর্তী কোনো প্রতিফলক (যেমন পাহাড়, উঁচু দেয়াল, কূপের পানিতল) থেকে প্রতিফলিত হয়ে মূল শব্দ থেকে আলাদাভাবে কানে ফিরে এলে তাকে <strong>প্রতিধ্বনি</strong> বলে।</p>
+      <p>আমাদের মস্তিষ্কে কোনো শব্দের অনুভূতি প্রায় <strong>$0.1\text{ s}$</strong> (শব্দানুভূতির স্থায়িত্বকাল বা Persistence of Hearing) পর্যন্ত স্থায়ী থাকে। তাই স্পষ্ট প্রতিধ্বনি শুনতে হলে প্রতিফলিত শব্দকে কমপক্ষে $0.1\text{ s}$ বা তার বেশি সময় পর কানে ফিরতে হবে।</p>
+      <div class="formula">
+        $$2d = v t \implies \boxed{d = \frac{v t}{2}}$$
+      </div>
+      <p>$0^\circ\text{C}$ তাপমাত্রায় বায়ুতে শব্দের বেগ $v \approx 330\text{ m/s}$ ধরলে প্রতিধ্বনি শোনার ন্যূনতম দূরত্ব $d_{\min} = \frac{330 \times 0.1}{2} = 16.5\text{ m}$। কক্ষ তাপমাত্রায় ($20^\circ\text{C}\text{–}25^\circ\text{C}$, $v \approx 343\text{–}345\text{ m/s}$) এই ন্যূনতম দূরত্ব প্রায় $17.2\text{ m}$ হয়।</p>
+
+      <h3 id="sub-7-3-2">৭.৩.২ · মাধ্যমে শব্দের বেগের পার্থক্য</h3>
+      <p>শব্দের বেগ মাধ্যমের স্থিতিস্থাপকতা ও ঘনত্বের ওপর নির্ভর করে। সাধারণভাবে <strong>কঠিনে সবচেয়ে বেশি, তরলে মধ্যম এবং গ্যাসে সবচেয়ে কম:</strong> $v_{\text{কঠিন}} > v_{\text{তরল}} > v_{\text{গ্যাস}}$।</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>মাধ্যম</th>
+              <th>শব্দের বেগ (প্রায়)</th>
+              <th>বৈশিষ্ট্য ও মন্তব্য</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>বায়ু ($0^\circ\text{C}$)</td>
+              <td>$330\text{ m/s}$</td>
+              <td>পাঠ্যবইয়ের আদর্শ হিসাবের মান</td>
+            </tr>
+            <tr>
+              <td>বায়ু ($20^\circ\text{C}$)</td>
+              <td>$343\text{ m/s}$</td>
+              <td>প্রতি $1^\circ\text{C}$ তাপমাত্রা বৃদ্ধিতে বেগ প্রায় $0.6\text{ m/s}$ বাড়ে</td>
+            </tr>
+            <tr>
+              <td>পানি ($25^\circ\text{C}$)</td>
+              <td>$1493\text{ m/s}$</td>
+              <td>বায়ুর চেয়ে প্রায় ৪.৫ গুণ বেশি দ্রুত</td>
+            </tr>
+            <tr>
+              <td>লোহা ($20^\circ\text{C}$)</td>
+              <td>$5130\text{ m/s}$</td>
+              <td>উচ্চ স্থিতিস্থাপকতার কারণে বায়ুর চেয়ে ~১৫ গুণ দ্রুত</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>তাপমাত্রার প্রভাব:</strong> গ্যাসীয় মাধ্যমে শব্দের বেগ পরম তাপমাত্রার (কেলভিন স্কেলে $T = \theta + 273$) বর্গমূলের সমানুপাতিক:</p>
+      <div class="formula">
+        $$v \propto \sqrt{T} \implies \frac{v_1}{v_2} = \sqrt{\frac{T_1}{T_2}} \qquad \text{এবং} \qquad v_\theta \approx v_0 + 0.6\theta$$
+      </div>
+      <p><strong>আর্দ্রতার প্রভাব:</strong> জলীয় বাষ্পযুক্ত আর্দ্র বায়ুর ঘনত্ব শুষ্ক বায়ুর চেয়ে কম হওয়ায় <strong>বর্ষাকালে বা আর্দ্র বায়ুতে শব্দের বেগ বেশি</strong> হয় ($v \propto \frac{1}{\sqrt{\rho}}$)। চাপের পরিবর্তনে তাপমাত্রা স্থির থাকলে গ্যাসে শব্দের বেগ অপরিবর্তিত থাকে।</p>
+
+      <h3 id="sub-7-3-3">৭.৩.৩ · শব্দের ব্যবহার</h3>
+      <ul>
+        <li><strong>আল্ট্রাসনোগ্রাফি:</strong> $1\text{–}10\text{ MHz}$ কম্পাঙ্কের আল্ট্রাসাউন্ড প্রতিফলন ব্যবহার করে শরীরের অভ্যন্তরীণ অঙ্গ বা ভ্রূণের ত্রিমাত্রিক প্রতিবিম্ব তৈরি করা হয়।</li>
+        <li><strong>আল্ট্রাসাউন্ড ক্লিনার:</strong> তরলে অতি-উচ্চ কম্পাঙ্কের কম্পন ঘটিয়ে সূক্ষ্ম ইলেকট্রনিক্স বা গহনার ময়লা পরিষ্কার করা হয়।</li>
+        <li><strong>ভূকম্পীয় জরিপ ও SONAR:</strong> ভূগর্ভের তেল-গ্যাস অনুসন্ধান এবং সমুদ্রের গভীরতা নির্ণয়ে ($d = \frac{vt}{2}$) শব্দ তরঙ্গের প্রতিধ্বনি ব্যবহৃত হয়।</li>
+        <li><strong>প্রাণীর ইকোলোকেশন:</strong> বাদুড় ও ডলফিন উচ্চ কম্পাঙ্কের আল্ট্রাসাউন্ড ছুড়ে প্রতিধ্বনি শুনে অন্ধকারে পথ চলে ও শিকার ধরে।</li>
+      </ul>
+
+      <h3 id="sub-7-3-4">৭.৩.৪ · সুরযুক্ত শব্দ ও বাদ্যযন্ত্র</h3>
+      <p>নিয়মিত ও পর্যাবৃত্ত কম্পন থেকে সৃষ্ট শ্রুতিমধুর শব্দকে <strong>সুরযুক্ত শব্দ (Musical Sound)</strong> বলে, আর অনিয়মিত কম্পনের বিরক্তিকর শব্দকে <strong>কোলাহল বা নয়েজ (Noise)</strong> বলে।</p>
+      <p>সুরযুক্ত শব্দের তিনটি মৌলিক বৈশিষ্ট্য রয়েছে:</p>
+      <div class="grid">
+        <div class="term">
+          <strong>১. প্রাবল্য বা তীব্রতা (Intensity)</strong>
+          <small>শব্দ কতটা জোরে শোনা যায়; এটি তরঙ্গের বিস্তারের বর্গের সমানুপাতিক ($I \propto A^2$)।</small>
+        </div>
+        <div class="term">
+          <strong>২. তীক্ষ্ণতা (Pitch)</strong>
+          <small>শব্দ কতটা চড়া (তীক্ষ্ণ) বা গম্ভীর (মোটা); এটি কম্পাঙ্কের ($f$) ওপর নির্ভর করে।</small>
+        </div>
+        <div class="term">
+          <strong>৩. গুণ বা জাতি (Timbre / Quality)</strong>
+          <small>একই প্রাবল্য ও তীক্ষ্ণতার বাঁশি ও বেহালার শব্দ আলাদা চেনার বৈশিষ্ট্য; এটি উপসুরের ওপর নির্ভর করে।</small>
+        </div>
+      </div>
+      <p><strong>বাদ্যযন্ত্রের শ্রেণিবিভাগ:</strong> (ক) <em>তার-যুক্ত:</em> একতারা, বেহালা, সেতার, গিটার; (খ) <em>বায়ুপ্রবাহ:</em> বাঁশি, হারমোনিয়াম, সানাই; (গ) <em>আঘাত বা চর্মবাদ্য:</em> ঢোল, তবলা, মৃদঙ্গ।</p>
+
+      <h3 id="sub-7-3-5">৭.৩.৫ · শব্দদূষণ ও প্রতিকার</h3>
+      <p>শব্দের তীব্রতার মাত্রা <strong>ডেসিবেল ($\text{dB}$)</strong> এককে মাপা হয়। বিশ্ব স্বাস্থ্য সংস্থার মতে, $60\text{ dB}$-এর বেশি শব্দ সাময়িক ও $85\text{–}90\text{ dB}$-এর ওপর দীর্ঘস্থায়ী শব্দ স্থায়ী বধিরতা ও উচ্চ রক্তচাপ সৃষ্টি করতে পারে।</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>শব্দের উৎস</th>
+              <th>আনুমানিক মাত্রা ($\text{dB}$)</th>
+              <th>শব্দের উৎস</th>
+              <th>আনুমানিক মাত্রা ($\text{dB}$)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>স্বাভাবিক কথাবার্তা</td>
+              <td>$40\text{–}60\text{ dB}$</td>
+              <td>ব্যস্ত যানজট / বাসের হর্ন</td>
+              <td>$80\text{–}90\text{ dB}$</td>
+            </tr>
+            <tr>
+              <td>টেলিভিশন / ঘরের শব্দ</td>
+              <td>$50\text{–}60\text{ dB}$</td>
+              <td>মাইক বা কনসার্ট</td>
+              <td>$100\text{–}115\text{ dB}$</td>
+            </tr>
+            <tr>
+              <td>গাড়ির সাধারণ চলাচল</td>
+              <td>$60\text{–}80\text{ dB}$</td>
+              <td>জেট ইঞ্জিন / উড়োজাহাজ</td>
+              <td>$110\text{–}140\text{ dB}$</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p><strong>প্রতিকার:</strong> হাসপাতাল ও শিক্ষাপ্রতিষ্ঠানের সামনে হর্ন না বাজানো, হাইড্রোলিক হর্ন ও উচ্চ শব্দে মাইক নিয়ন্ত্রণ, কারখানায় সাইলেন্সার ব্যবহার এবং রাস্তার পাশে গাছ লাগানো।</p>
+    </section>
+
+    <section class="lab" id="echo-inline-lab">
+      <div class="lab-head">
+        <div>
+          <h2>🧪 প্রতিধ্বনি ও শব্দের বেগ ল্যাব</h2>
+          <p style="margin:0;font-size:13px;color:var(--muted)">মাধ্যম, তাপমাত্রা ও প্রতিফলকের দূরত্ব পরিবর্তন করে প্রতিধ্বনি শোনার শর্ত ($t \ge 0.1\text{ s}$) পরীক্ষা করো।</p>
+        </div>
+        <span class="lab-tag">সিমুলেশন ৭.৩</span>
+      </div>
+
+      <div class="preset-row">
+        <button type="button" class="preset-btn active" onclick="setEchoMedium('air', this)">বায়ু ($v_0 = 330\text{ m/s}$)</button>
+        <button type="button" class="preset-btn" onclick="setEchoMedium('water', this)">পানি ($v = 1493\text{ m/s}$)</button>
+        <button type="button" class="preset-btn" onclick="setEchoMedium('iron', this)">লোহা ($v = 5130\text{ m/s}$)</button>
+        <button type="button" class="preset-btn" onclick="triggerEchoPulse()">🔊 শব্দ ছুড়ে দেখো</button>
+      </div>
+
+      <div class="echo-stage">
+        <svg id="echoSvg" viewBox="0 0 680 155" role="img" aria-label="শব্দ তরঙ্গের প্রতিফলন ও প্রতিধ্বনি">
+          <rect x="0" y="0" width="680" height="155" fill="#f8fbff"/>
+          <circle cx="64" cy="82" r="22" fill="#4f46e5"/>
+          <text x="64" y="87" text-anchor="middle" fill="#fff" font-size="12" font-weight="800">উৎস</text>
+          <rect id="wallRect" x="590" y="20" width="22" height="118" rx="4" fill="#334155"/>
+          <text id="wallTxt" x="601" y="150" text-anchor="middle" fill="#334155" font-size="11" font-weight="700">প্রতিফলক</text>
+          <line x1="90" y1="82" x2="588" y2="82" stroke="#cbd5e1" stroke-dasharray="4 4" stroke-width="1.5"/>
+          <circle id="pulseCircle" cx="95" cy="82" r="9" fill="#0ea5e9" opacity="0"/>
+          <text id="distLabel" x="340" y="34" text-anchor="middle" fill="#3730a3" font-size="13" font-weight="800">দূরত্ব d = 25 m</text>
+        </svg>
+      </div>
+
+      <div class="lab-controls">
+        <div class="control-group">
+          <div class="echo-ctrl-label"><span>বায়ুর তাপমাত্রা ($\theta$)</span><b id="valTemp">25 °C</b></div>
+          <input class="range" id="inTemp" type="range" min="0" max="45" step="1" value="25">
+        </div>
+        <div class="control-group">
+          <div class="echo-ctrl-label"><span>প্রতিফলকের দূরত্ব ($d$)</span><b id="valDist">25 m</b></div>
+          <input class="range" id="inDist" type="range" min="5" max="100" step="1" value="25">
+        </div>
+      </div>
+
+      <div class="calc-breakdown">
+        <div class="calc-box">
+          <div class="label">শব্দের বেগ ($v$)</div>
+          <div class="val" id="resSpeed">345.0 m/s</div>
+        </div>
+        <div class="calc-box">
+          <div class="label">ফিরতি সময় ($t = 2d/v$)</div>
+          <div class="val" id="resTime">0.145 s</div>
+        </div>
+        <div class="calc-box">
+          <div class="label">ন্যূনতম দূরত্ব ($d_{\min}$)</div>
+          <div class="val" id="resMinD">17.25 m</div>
+        </div>
+      </div>
+
+      <div class="echo-status ok" id="echoVerdict">✅ স্পষ্ট প্রতিধ্বনি শোনা যাবে ($t \ge 0.1\text{ s}$ এবং $d \ge d_{\min}$)</div>
+    </section>
+
+    <div class="note">
+      <h2>🦇 বাদুড়, ডলফিন ও কূপে পাথর ফেলা</h2>
+      <p>বাদুড় ও ডলফিন $20\text{ kHz}$-এর বেশি কম্পাঙ্কের আল্ট্রাসাউন্ড ছুড়ে প্রতিধ্বনি শুনে পথ চলে। আর কূপে পাথর ফেলে দিলে শব্দ শুনতে লাগা মোট সময় = পাথর পড়ার সময় ($t_1 = \sqrt{\frac{2h}{g}}$) + শব্দ ওপরে ওঠার সময় ($t_2 = \frac{h}{v}$)।</p>
+    </div>
+
+    <div class="highlight-box">
+      <strong>💡 মনে রাখো:</strong> বায়ুতে প্রতি $1^\circ\text{C}$ তাপমাত্রা বাড়লে শব্দের বেগ প্রায় $0.6\text{ m/s}$ করে বাড়ে। আর স্থির তাপমাত্রায় চাপ বদলালেও গ্যাসে শব্দের বেগ বদলায় না!
+    </div>
+
+    <section class="worked">
+      <h2>📐 গাণিতিক সমস্যা ও সমাধান</h2>
+      <div class="problem">
+        <strong>সমস্যা ১:</strong> কোনো একটি স্থানে বায়ুর তাপমাত্রা $30^\circ\text{C}$। ওই স্থানে দাঁড়িয়ে একটি পাহাড়ের দিকে তালি বাজানোর $0.4\text{ s}$ পর প্রতিধ্বনি শোনা গেল। পাহাড়টির দূরত্ব কত? ($0^\circ\text{C}$-এ শব্দের বেগ $330\text{ m/s}$)।
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> এখানে, $\theta_1 = 0^\circ\text{C} = 273\text{ K}$, $\theta_2 = 30^\circ\text{C} = 303\text{ K}$, $v_1 = 330\text{ m/s}$।</p>
+        $$v_2 = v_1 \sqrt{\frac{T_2}{T_1}} = 330 \times \sqrt{\frac{303}{273}} \approx 347.66\text{ m/s}$$
+        $$d = \frac{v_2 t}{2} = \frac{347.66 \times 0.4}{2} \approx 69.53\text{ m}$$
+        <p><strong>উত্তর:</strong> পাহাড়টির দূরত্ব প্রায় $69.53\text{ m}$।</p>
+      </div>
+
+      <div class="problem">
+        <strong>সমস্যা ২:</strong> $25^\circ\text{C}$ তাপমাত্রায় একজন শ্রোতা একটি প্রতিফলক থেকে $17\text{ m}$ দূরে দাঁড়িয়ে শব্দ করলে সে কি প্রতিধ্বনি শুনতে পাবে? ($v_{25} = 345\text{ m/s}$)।
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> প্রতিধ্বনি ফেরার সময়:</p>
+        $$t = \frac{2d}{v} = \frac{2 \times 17}{345} \approx 0.0985\text{ s}$$
+        <p>যেহেতু $0.0985\text{ s} < 0.1\text{ s}$ (ন্যূনতম প্রয়োজনীয় দূরত্ব $\frac{345 \times 0.1}{2} = 17.25\text{ m}$), তাই আলাদা <strong>প্রতিধ্বনি শোনা যাবে না</strong>।</p>
+      </div>
+
+      <div class="problem">
+        <strong>সমস্যা ৩:</strong> কোন তাপমাত্রায় বায়ুতে শব্দের বেগ $0^\circ\text{C}$ তাপমাত্রার বেগের দ্বিগুণ হবে?
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> ধরি, $T_1 = 273\text{ K}$ এবং $v_2 = 2v_1$।</p>
+        $$\frac{v_2}{v_1} = \sqrt{\frac{T_2}{T_1}} \implies 2 = \sqrt{\frac{T_2}{273}} \implies T_2 = 4 \times 273 = 1092\text{ K}$$
+        $$\theta_2 = 1092 - 273 = 819^\circ\text{C}$$
+        <p><strong>উত্তর:</strong> $819^\circ\text{C}$ তাপমাত্রায়।</p>
+      </div>
+    </section>
+
+    <section class="memory">
+      <h2>🧠 মনে রাখার কৌশল</h2>
+      <p>“এক-দশমাংশ সেকেন্ডে কান ধরে রাখে রেশ, আসা-যাওয়ায় $2d$ হলে প্রতিধ্বনি বেশ! তাপ বাড়লে বেগ বাড়ে রুট-টি-র তালে, ২০ থেকে ২০ হাজার শ্রবণসীমা মেলে!”</p>
+    </section>
+
+    <section class="section">
+      <h2>নিজেকে যাচাই করো</h2>
+      <details class="check">
+        <summary>১. শব্দের প্রতিধ্বনি $0.2\text{ s}$ পরে শোনা গেল। বায়ুতে বেগ $330\text{ m/s}$ হলে প্রতিফলক কত দূরে?</summary>
+        <p>$d = \frac{vt}{2} = \frac{330 \times 0.2}{2} = 33\text{ m}$।</p>
+      </details>
+      <details class="check">
+        <summary>২. মানুষের শ্রাব্যতার পাল্লার চেয়ে বেশি কম্পাঙ্কের শব্দকে কী বলে?</summary>
+        <p>শব্দোত্তর শব্দ বা আল্ট্রাসাউন্ড ($> 20,000\text{ Hz}$)।</p>
+      </details>
+      <details class="check">
+        <summary>৩. টিউনিং ফর্কের শব্দ ও বাঁশির শব্দের মধ্যে কী পার্থক্য?</summary>
+        <p>টিউনিং ফর্ক একটি বিশুদ্ধ একক কম্পাঙ্কের সুর তৈরি করে, কিন্তু বাঁশির শব্দে মূল সুরের সাথে একাধিক উপসুর মিশে নিজস্ব গুণ বা জাতি (Timbre) তৈরি করে।</p>
+      </details>
+      <details class="check">
+        <summary>৪. শীতকালের চেয়ে বর্ষাকালে শব্দ দ্রুত শোনা যায় কেন?</summary>
+        <p>বর্ষাকালে বায়ুতে জলীয় বাষ্প বেশি থাকায় আর্দ্র বায়ুর ঘনত্ব শুষ্ক বায়ুর চেয়ে কমে যায়; ফলে $v \propto \frac{1}{\sqrt{\rho}}$ অনুযায়ী শব্দের বেগ বাড়ে।</p>
+      </details>
+    </section>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-02.html">← ৭.২ তরঙ্গ</a>
+      <a class="button" href="index.html">অধ্যায়ের সূচিতে ফিরে যাও →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">PDF-এর সম্পূর্ণ মূল পৃষ্ঠা</a> · পদার্থবিজ্ঞান অধ্যায় ৭
+    </footer>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+
+    let echoMedium = 'air';
+    const inTemp = document.getElementById('inTemp');
+    const inDist = document.getElementById('inDist');
+
+    function setEchoMedium(med, btn) {
+      echoMedium = med;
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      inTemp.disabled = (med !== 'air');
+      updateEcho();
+    }
+
+    function getSoundSpeed() {
+      const temp = parseFloat(inTemp.value);
+      if (echoMedium === 'air') return 330 * Math.sqrt((temp + 273) / 273);
+      if (echoMedium === 'water') return 1493;
+      return 5130;
+    }
+
+    function updateEcho() {
+      const temp = parseFloat(inTemp.value);
+      const d = parseFloat(inDist.value);
+      const v = getSoundSpeed();
+      const t = (2 * d) / v;
+      const dMin = (v * 0.1) / 2;
+
+      document.getElementById('valTemp').textContent = echoMedium === 'air' ? `${temp} °C` : 'স্থির (~25 °C)';
+      document.getElementById('valDist').textContent = `${d} m`;
+      document.getElementById('resSpeed').textContent = `${v.toFixed(1)} m/s`;
+      document.getElementById('resTime').textContent = `${t.toFixed(3)} s`;
+      document.getElementById('resMinD').textContent = `${dMin.toFixed(2)} m`;
+      document.getElementById('distLabel').textContent = `দূরত্ব d = ${d} m`;
+
+      const wallX = 160 + (d / 100) * 440;
+      document.getElementById('wallRect').setAttribute('x', wallX.toFixed(0));
+      document.getElementById('wallTxt').setAttribute('x', (wallX + 11).toFixed(0));
+
+      const verdict = document.getElementById('echoVerdict');
+      if (t >= 0.1) {
+        verdict.className = 'echo-status ok';
+        verdict.textContent = `✅ স্পষ্ট প্রতিধ্বনি শোনা যাবে (সময় ${t.toFixed(3)} s ≥ 0.100 s)`;
+      } else {
+        verdict.className = 'echo-status fail';
+        verdict.textContent = `❌ আলাদা প্রতিধ্বনি শোনা যাবে না (সময় ${t.toFixed(3)} s < 0.100 s; ন্যূনতম ${dMin.toFixed(2)} m দরকার)`;
+      }
+    }
+
+    let pulseAnimId = null;
+    function triggerEchoPulse() {
+      if (pulseAnimId) cancelAnimationFrame(pulseAnimId);
+      const wallX = parseFloat(document.getElementById('wallRect').getAttribute('x'));
+      const startX = 95;
+      const pulse = document.getElementById('pulseCircle');
+      pulse.setAttribute('opacity', '0.9');
+      const startTs = performance.now();
+      const duration = 1200;
+
+      function step(ts) {
+        const p = Math.min(1, (ts - startTs) / duration);
+        let x;
+        if (p < 0.5) {
+          pulse.setAttribute('fill', '#0ea5e9');
+          x = startX + (wallX - startX) * (p * 2);
+        } else {
+          pulse.setAttribute('fill', '#4f46e5');
+          x = wallX - (wallX - startX) * ((p - 0.5) * 2);
+        }
+        pulse.setAttribute('cx', x.toFixed(1));
+        if (p < 1) {
+          pulseAnimId = requestAnimationFrame(step);
+        } else {
+          pulse.setAttribute('opacity', '0');
+        }
+      }
+      pulseAnimId = requestAnimationFrame(step);
+    }
+
+    inTemp.addEventListener('input', updateEcho);
+    inDist.addEventListener('input', updateEcho);
+    updateEcho();
+  </script>
+</body>
+</html>

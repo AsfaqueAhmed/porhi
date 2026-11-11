@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>পদার্থবিজ্ঞান · অধ্যায় ৭: তরঙ্গ ও শব্দ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+  <style>
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(125deg, #312e81 0%, #4f46e5 56%, #7c3aed 100%);
+      color: #fff;
+      border-radius: 24px;
+      padding: clamp(26px, 5vw, 46px);
+      margin: 26px 0 20px;
+      box-shadow: 0 16px 36px rgba(49, 46, 129, 0.25);
+    }
+    .hero:after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      right: -70px;
+      top: -110px;
+      box-shadow: 0 0 0 28px rgba(255, 255, 255, 0.08), 0 0 0 58px rgba(255, 255, 255, 0.04);
+    }
+    .hero > * {
+      position: relative;
+      z-index: 1;
+    }
+    .hero .badge {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.35);
+      color: #fff;
+    }
+    .hero h1 {
+      font-size: clamp(30px, 5.6vw, 46px);
+      line-height: 1.28;
+      margin: 15px 0 8px;
+      max-width: 720px;
+    }
+    .hero p {
+      color: #e0e7ff;
+      margin: 0;
+      max-width: 680px;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .hero .button {
+      background: #fff;
+      color: #3730a3;
+      font-weight: 800;
+    }
+    .hero .button:hover {
+      background: #eef2ff;
+      color: #312e81;
+    }
+    .hero .button.secondary {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.5);
+      color: #fff;
+    }
+    .hero .button.secondary:hover {
+      background: rgba(255, 255, 255, 0.22);
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 18px 0 32px;
+    }
+    .stat {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 18px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .stat strong {
+      display: block;
+      font-size: 20px;
+      line-height: 1.3;
+      color: #3730a3;
+    }
+    .stat span {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 600;
+    }
+    .roadmap-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 15px;
+      margin: 32px 0 14px;
+    }
+    .roadmap-head h2 {
+      font-size: 23px;
+      margin: 0;
+      line-height: 1.35;
+      color: #1e293b;
+    }
+    .roadmap-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .roadmap {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    .route-card {
+      display: grid;
+      grid-template-columns: 60px 1fr 24px;
+      gap: 16px;
+      align-items: start;
+      padding: 20px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      color: var(--ink);
+      text-decoration: none;
+      transition: all 0.18s ease;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+    }
+    .route-card:hover {
+      border-color: #a5b4fc;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(79, 70, 229, 0.08);
+      text-decoration: none;
+    }
+    .route-no {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      border-radius: 15px;
+      background: #eef2ff;
+      color: #4338ca;
+      font-weight: 900;
+      font-size: 17px;
+    }
+    .route-title {
+      font-weight: 800;
+      color: #1e293b;
+      font-size: 17px;
+      line-height: 1.4;
+      display: inline-block;
+    }
+    .route-en {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin: 3px 0 7px;
+      font-weight: 600;
+    }
+    .route-sub {
+      display: block;
+      color: #475569;
+      font-size: 14px;
+      line-height: 1.65;
+    }
+    .route-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      align-items: center;
+    }
+    .route-formula {
+      display: inline-block;
+      padding: 3px 9px;
+      background: #f5f3ff;
+      border: 1px solid #ddd6fe;
+      border-radius: 7px;
+      color: #5b21b6;
+      font-size: 12px;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+    }
+    .lab-indicator {
+      display: inline-block;
+      background: #eef2ff;
+      color: #4338ca;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid #c7d2fe;
+    }
+    .sub-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 10px;
+    }
+    .sub-links a {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 99px;
+      padding: 4px 11px;
+      font-size: 12px;
+      font-weight: 650;
+      color: #334155;
+    }
+    .sub-links a:hover {
+      background: #eef2ff;
+      border-color: #a5b4fc;
+      color: #3730a3;
+      text-decoration: none;
+    }
+    .source-card {
+      margin: 34px 0 20px;
+      padding: 24px;
+      border: 1px solid #c7d2fe;
+      border-radius: 20px;
+      background: linear-gradient(110deg, #eef2ff 0%, #ffffff 75%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.05);
+    }
+    .source-card h2 {
+      margin: 0 0 6px;
+      font-size: 18px;
+      color: #312e81;
+    }
+    .source-card p {
+      font-size: 14px;
+      color: #475569;
+      margin: 0;
+      line-height: 1.6;
+    }
+    .source-card .button {
+      background: #4f46e5;
+      color: #fff;
+      font-weight: 750;
+      white-space: nowrap;
+    }
+    .source-card .button:hover {
+      background: #4338ca;
+    }
+    @media (max-width: 720px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .source-card { flex-direction: column; align-items: flex-start; }
+      .source-card .button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">SSC · পদার্থবিজ্ঞান অধ্যায় ৭</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <span class="badge">এনসিটিবি পাঠ্যবই · অধ্যায় ৭</span>
+      <h1>তরঙ্গ ও শব্দ <small style="font-size:0.55em;font-weight:500;opacity:0.9">(Waves and Sound)</small></h1>
+      <p>স্পন্দন গতি থেকে তরঙ্গ, আর তরঙ্গ থেকে প্রতিধ্বনি ও সুর—সরল দোলকের দোলনকাল, তরঙ্গের প্রকারভেদ ও সমীকরণ ($v = f\lambda$), প্রতিধ্বনির গাণিতিক সমস্যা এবং ইন্টারেক্টিভ সিমুলেশন ল্যাবে পুরো অধ্যায় ধাপে ধাপে আয়ত্ত করো।</p>
+      <div class="hero-actions">
+        <a class="button" href="section-01.html">প্রথম পাঠ শুরু করো →</a>
+        <a class="button secondary" href="chapter-source.html">মূল PDF-এর পৃষ্ঠা ↗</a>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="stat"><strong>৩টি মূল পাঠ</strong><span>৭.১, ৭.২ ও ৭.৩ বিষয়ক্রম</span></div>
+      <div class="stat"><strong>৮টি উপবিভাগ</strong><span>৭.২.১–৭.২.৩ ও ৭.৩.১–৭.৩.৫</span></div>
+      <div class="stat"><strong>৩টি ইন্টারেক্টিভ ল্যাব</strong><span>দোলক, তরঙ্গ ও প্রতিধ্বনি সিমুলেটর</span></div>
+      <div class="stat"><strong>২৫ মূল PDF পৃষ্ঠা</strong><span>সরাসরি রেফারেন্স সংযুক্ত</span></div>
+    </section>
+
+    <div class="roadmap-head">
+      <div>
+        <h2>বইয়ের section-ক্রমে পাঠ্যসূচি</h2>
+        <p>প্রতিটি পাঠে রয়েছে শিখনফল, KaTeX সমীকরণ, গাণিতিক উদাহরণ, মনে রাখার কৌশল ও যাচাই প্রশ্ন।</p>
+      </div>
+    </div>
+
+    <section class="roadmap" aria-label="অধ্যায়ের তিনটি মূল section">
+      <div class="route-card">
+        <span class="route-no">৭.১</span>
+        <div>
+          <a class="route-title" href="section-01.html">সরল স্পন্দন গতি</a>
+          <span class="route-en">Simple Harmonic Motion (SHM)</span>
+          <span class="route-sub">পর্যায়বৃত্ত ও স্পন্দন গতি, সাম্যাবস্থা ও পুনঃস্থাপন বল ($F = -kx$), বিস্তার, পর্যায়কাল ও কম্পাঙ্ক, দশা, স্প্রিং-ভর ব্যবস্থা এবং সরল দোলকের দোলনকাল ও সেকেন্ড দোলক।</span>
+          <div class="route-meta">
+            <span class="route-formula">$T = 2\pi\sqrt{\ell/g}$ · $T = 2\pi\sqrt{m/k}$</span>
+            <span class="lab-indicator">🧪 সরল দোলক ও স্প্রিং ল্যাব</span>
+          </div>
+        </div>
+        <a href="section-01.html" aria-label="৭.১ পাঠে যাও" style="font-size:24px;color:#4f46e5;font-weight:700">›</a>
+      </div>
+
+      <div class="route-card">
+        <span class="route-no">৭.২</span>
+        <div>
+          <a class="route-title" href="section-02.html">তরঙ্গ</a>
+          <span class="route-en">Waves: Properties, Types &amp; Wave Equation</span>
+          <span class="route-sub">তরঙ্গের শক্তি সঞ্চালন ও বৈশিষ্ট্য, যান্ত্রিক বনাম তড়িৎচুম্বকীয় তরঙ্গ, অনুপ্রস্থ ও অনুদৈর্ঘ্য তরঙ্গের তুলনা এবং তরঙ্গ-সংশ্লিষ্ট রাশিসমূহ ($A, \lambda, T, f, v$)।</span>
+          <div class="sub-links">
+            <a href="section-02.html#sub-7-2-1">৭.২.১ তরঙ্গের বৈশিষ্ট্য</a>
+            <a href="section-02.html#sub-7-2-2">৭.২.২ তরঙ্গের প্রকারভেদ</a>
+            <a href="section-02.html#sub-7-2-3">৭.২.৩ তরঙ্গ-সংশ্লিষ্ট রাশি</a>
+          </div>
+          <div class="route-meta">
+            <span class="route-formula">$v = f\lambda = \lambda/T$ · $I \propto A^2$</span>
+            <span class="lab-indicator">🧪 ইন্টারেক্টিভ তরঙ্গ ল্যাব</span>
+          </div>
+        </div>
+        <a href="section-02.html" aria-label="৭.২ পাঠে যাও" style="font-size:24px;color:#4f46e5;font-weight:700">›</a>
+      </div>
+
+      <div class="route-card">
+        <span class="route-no">৭.৩</span>
+        <div>
+          <a class="route-title" href="section-03.html">শব্দ তরঙ্গ</a>
+          <span class="route-en">Sound Wave, Echo, Musical Sound &amp; Noise Pollution</span>
+          <span class="route-sub">শব্দের উৎপত্তি ও শ্রাব্যতার পাল্লা ($20\text{ Hz}\text{–}20\text{ kHz}$), প্রতিধ্বনি ও ন্যূনতম দূরত্ব, মাধ্যম ও তাপমাত্রাভেদে শব্দের বেগ, আল্ট্রাসাউন্ড ও সোনার, সুরযুক্ত শব্দের বৈশিষ্ট্য এবং শব্দদূষণ।</span>
+          <div class="sub-links">
+            <a href="section-03.html#sub-7-3-1">৭.৩.১ প্রতিধ্বনি</a>
+            <a href="section-03.html#sub-7-3-2">৭.৩.২ শব্দের বেগের পার্থক্য</a>
+            <a href="section-03.html#sub-7-3-3">৭.৩.৩ শব্দের ব্যবহার</a>
+            <a href="section-03.html#sub-7-3-4">৭.৩.৪ সুরযুক্ত শব্দ</a>
+            <a href="section-03.html#sub-7-3-5">৭.৩.৫ শব্দদূষণ</a>
+          </div>
+          <div class="route-meta">
+            <span class="route-formula">$d = \frac{vt}{2}$ · $\frac{v_1}{v_2} = \sqrt{\frac{T_1}{T_2}}$</span>
+            <span class="lab-indicator">🧪 প্রতিধ্বনি ও শব্দের বেগ ল্যাব</span>
+          </div>
+        </div>
+        <a href="section-03.html" aria-label="৭.৩ পাঠে যাও" style="font-size:24px;color:#4f46e5;font-weight:700">›</a>
+      </div>
+    </section>
+
+    <section class="source-card">
+      <div>
+        <h2>মূল এনসিটিবি অধ্যায় ও পৃষ্ঠা রেফারেন্স</h2>
+        <p>মূল পাঠ্যবইয়ের ২৫টি স্ক্যানকৃত পৃষ্ঠা (১–২৪ পৃষ্ঠা অধ্যায় ৭, ২৫তম পৃষ্ঠা অধ্যায় ৮-এর প্রচ্ছদ) সংযুক্ত source HTML-এ রাখা আছে।</p>
+      </div>
+      <a class="button" href="chapter-source.html">সম্পূর্ণ PDF source →</a>
+    </section>
+
+    <footer class="footer">পড়ি (poRi) · পদার্থবিজ্ঞান ডিজিটাল পাঠ · অধ্যায় ৭ (তরঙ্গ ও শব্দ)</footer>
+  </main>
+</body>
+</html>

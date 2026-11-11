@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>প্রতিধ্বনি ও শব্দের বেগ সিমুলেশন ল্যাব</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-card: #ffffff;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #64748b;
+      --pori-indigo: #4f46e5;
+      --pori-indigo-hover: #4338ca;
+      --pori-indigo-soft: #eef2ff;
+      --pori-indigo-border: #c7d2fe;
+      --pori-indigo-ink: #3730a3;
+    }
+    body { background: var(--pori-bg); color: var(--pori-ink); padding: 12px 14px; margin: 0; }
+    .container { max-width: 860px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+    header { text-align: center; }
+    header h1 { font-size: 1.18rem; font-weight: 800; color: var(--pori-heading); margin-bottom: 4px; }
+    header p { font-size: 0.82rem; color: var(--pori-muted); line-height: 1.5; }
+    .canvas-wrap { background: #0f172a; border: 1px solid var(--pori-border); border-radius: 14px; overflow: hidden; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08); }
+    svg { display: block; width: 100%; height: 180px; }
+    .btn-row { display: flex; flex-wrap: nowrap; gap: 8px; justify-content: safe center; overflow-x: auto; padding: 2px 2px 6px; }
+    .btn-row > * { flex: 0 0 auto; white-space: nowrap; }
+    button { background: #ffffff; color: #334155; border: 1px solid var(--pori-border); border-radius: 10px; padding: 7px 13px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.15s ease; }
+    button:hover { background: var(--pori-indigo-soft); color: var(--pori-indigo-hover); border-color: #a5b4fc; }
+    button.active { background: var(--pori-indigo); color: #ffffff; border-color: var(--pori-indigo); box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25); }
+    .controls { background: var(--pori-card); border: 1px solid var(--pori-border-soft); border-radius: 14px; padding: 12px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .control-group { display: flex; flex-direction: column; gap: 6px; }
+    label { font-size: 0.78rem; font-weight: 750; color: #334155; display: flex; justify-content: space-between; }
+    label b { color: var(--pori-indigo); font-weight: 800; }
+    input[type="range"].custom-range {
+      -webkit-appearance: none; appearance: none; width: 100%; height: 16px; border-radius: 999px; outline: none;
+      border: 2px solid #e2e8f0;
+      box-shadow: inset 0 2px 3px rgba(15, 23, 42, 0.72), 0 1px 3px rgba(15, 23, 42, 0.10);
+      cursor: pointer; background-color: #232732;
+      background-image:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.24) 0%, rgba(255, 255, 255, 0.12) 28%, rgba(0, 0, 0, 0.26) 100%),
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0px, rgba(255, 255, 255, 0.16) 1.5px, transparent 1.5px, transparent 4px),
+        linear-gradient(180deg, #818cf8 0%, #6366f1 32%, #4f46e5 74%, #3730a3 100%),
+        linear-gradient(180deg, #1b1e26 0%, #2a2f3a 45%, #20242d 100%);
+      background-size: 100% 100%, calc(11px + (100% - 22px) * var(--p, 0.5)) 100%, calc(11px + (100% - 22px) * var(--p, 0.5)) 100%, 100% 100%;
+      background-repeat: no-repeat;
+    }
+    input[type="range"].custom-range::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 22px; height: 10px; border-radius: 999px;
+      background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 78%, #cbd5e1 100%);
+      border: 1px solid #f1f5f9; box-shadow: 0 0 0 1px #4f46e5, 0 1px 2px rgba(15, 23, 42, 0.40); cursor: grab;
+    }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .card { background: var(--pori-card); border: 1px solid var(--pori-border-soft); border-radius: 12px; padding: 10px 8px; text-align: center; }
+    .card .title { font-size: 0.68rem; color: var(--pori-muted); font-weight: 700; margin-bottom: 3px; }
+    .card .val { font-size: 1.05rem; font-weight: 800; color: var(--pori-indigo); }
+    .readout { padding: 10px 14px; border-radius: 10px; font-size: 0.84rem; font-weight: 700; text-align: center; }
+    .readout.ok { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+    .readout.fail { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+    @media (max-width: 600px) {
+      .controls { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>প্রতিধ্বনি ও শব্দের বেগ সিমুলেশন ল্যাব</h1>
+      <p>তাপমাত্রা, মাধ্যম এবং প্রতিফলকের দূরত্ব পরিবর্তন করে প্রতিধ্বনির শর্ত ($t \ge 0.1\text{ s}$) ও $d = \frac{vt}{2}$ সূত্র যাচাই করো</p>
+    </header>
+
+    <div class="btn-row">
+      <button type="button" class="active" onclick="setMedium('air', this)">বায়ু (Air)</button>
+      <button type="button" onclick="setMedium('water', this)">পানি (Water)</button>
+      <button type="button" onclick="setMedium('iron', this)">লোহা (Iron)</button>
+      <button type="button" onclick="firePulse()">🔊 শব্দ পালস ছুড়ুন</button>
+    </div>
+
+    <div class="canvas-wrap">
+      <svg id="echoSvg" viewBox="0 0 720 180">
+        <circle cx="66" cy="95" r="24" fill="#4f46e5" stroke="#a5b4fc" stroke-width="2"/>
+        <text x="66" y="100" text-anchor="middle" fill="#fff" font-size="12" font-weight="800">উৎস</text>
+        <line x1="94" y1="95" x2="640" y2="95" stroke="#334155" stroke-dasharray="5 4" stroke-width="1.5"/>
+        <rect id="wallBox" x="580" y="24" width="24" height="134" rx="5" fill="#94a3b8"/>
+        <text id="wallLabel" x="592" y="172" text-anchor="middle" fill="#cbd5e1" font-size="11" font-weight="700">প্রতিফলক</text>
+        <circle id="pulseDot" cx="96" cy="95" r="10" fill="#38bdf8" opacity="0"/>
+        <text id="svgDist" x="360" y="34" text-anchor="middle" fill="#38bdf8" font-size="13" font-weight="800">দূরত্ব d = 25 m</text>
+      </svg>
+    </div>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>বায়ুর তাপমাত্রা (θ) <b id="lblTemp">25 °C</b></label>
+        <input class="custom-range" id="inTemp" type="range" min="0" max="50" step="1" value="25">
+      </div>
+      <div class="control-group">
+        <label>প্রতিফলকের দূরত্ব (d) <b id="lblDist">25 m</b></label>
+        <input class="custom-range" id="inDist" type="range" min="5" max="120" step="1" value="25">
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card"><div class="title">শব্দের বেগ (v)</div><div class="val" id="outV">344.8 m/s</div></div>
+      <div class="card"><div class="title">ফিরতি সময় (t)</div><div class="val" id="outT">0.145 s</div></div>
+      <div class="card"><div class="title">ন্যূনতম দূরত্ব (d_min)</div><div class="val" id="outMin">17.24 m</div></div>
+      <div class="card"><div class="title">মোট অতিক্রান্ত পথ (2d)</div><div class="val" id="outPath">50 m</div></div>
+    </div>
+
+    <div class="readout ok" id="verdictBox">✅ স্পষ্ট প্রতিধ্বনি শোনা যাবে (t ≥ 0.1 s)</div>
+  </div>
+
+  <script>
+    let medium = 'air';
+    const inTemp = document.getElementById('inTemp');
+    const inDist = document.getElementById('inDist');
+
+    function setMedium(m, btn) {
+      medium = m;
+      document.querySelectorAll('.btn-row button').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      inTemp.disabled = (m !== 'air');
+      updateSim();
+    }
+
+    function speedForMedium(tempC) {
+      if (medium === 'air') return 330 * Math.sqrt((tempC + 273) / 273);
+      if (medium === 'water') return 1493;
+      return 5130;
+    }
+
+    function updateSim() {
+      const temp = parseFloat(inTemp.value);
+      const d = parseFloat(inDist.value);
+      const v = speedForMedium(temp);
+      const t = (2 * d) / v;
+      const dMin = (v * 0.1) / 2;
+
+      document.getElementById('lblTemp').textContent = medium === 'air' ? `${temp} °C` : 'স্থির';
+      document.getElementById('lblDist').textContent = `${d} m`;
+      document.getElementById('outV').textContent = `${v.toFixed(1)} m/s`;
+      document.getElementById('outT').textContent = `${t.toFixed(3)} s`;
+      document.getElementById('outMin').textContent = `${dMin.toFixed(2)} m`;
+      document.getElementById('outPath').textContent = `${2 * d} m`;
+      document.getElementById('svgDist').textContent = `দূরত্ব d = ${d} m`;
+
+      const wallX = 160 + (d / 120) * 480;
+      document.getElementById('wallBox').setAttribute('x', wallX.toFixed(0));
+      document.getElementById('wallLabel').setAttribute('x', (wallX + 12).toFixed(0));
+
+      const box = document.getElementById('verdictBox');
+      if (t >= 0.1) {
+        box.className = 'readout ok';
+        box.textContent = `✅ স্পষ্ট প্রতিধ্বনি শোনা যাবে (ফিরতি সময় ${t.toFixed(3)} s ≥ 0.100 s)`;
+      } else {
+        box.className = 'readout fail';
+        box.textContent = `❌ প্রতিধ্বনি আলাদা শোনা যাবে না (ফিরতি সময় ${t.toFixed(3)} s < 0.100 s; ন্যূনতম দূরত্ব ${dMin.toFixed(2)} m)`;
+      }
+    }
+
+    let animId = null;
+    function firePulse() {
+      if (animId) cancelAnimationFrame(animId);
+      const dot = document.getElementById('pulseDot');
+      const wallX = parseFloat(document.getElementById('wallBox').getAttribute('x'));
+      const startX = 96;
+      dot.setAttribute('opacity', '0.95');
+      const t0 = performance.now();
+      const dur = 1100;
+      function frame(now) {
+        const p = Math.min(1, (now - t0) / dur);
+        if (p < 0.5) {
+          dot.setAttribute('fill', '#38bdf8');
+          dot.setAttribute('cx', (startX + (wallX - startX) * p * 2).toFixed(1));
+        } else {
+          dot.setAttribute('fill', '#818cf8');
+          dot.setAttribute('cx', (wallX - (wallX - startX) * (p - 0.5) * 2).toFixed(1));
+        }
+        if (p < 1) animId = requestAnimationFrame(frame);
+        else dot.setAttribute('opacity', '0');
+      }
+      animId = requestAnimationFrame(frame);
+    }
+
+    inTemp.addEventListener('input', updateSim);
+    inDist.addEventListener('input', updateSim);
+    updateSim();
+  </script>
+
+  <!-- PORI UNIFIED RANGE SYNC -->
+  <script>
+    (function () {
+      function syncRangeFill(el) {
+        if (!el || el.type !== 'range') return;
+        var min = parseFloat(el.min), max = parseFloat(el.max), val = parseFloat(el.value);
+        if (Number.isNaN(min)) min = 0;
+        if (Number.isNaN(max)) max = 100;
+        if (Number.isNaN(val)) val = min;
+        var ratio = max === min ? 0 : Math.max(0, Math.min(1, (val - min) / (max - min)));
+        var pctStr = (ratio * 100).toFixed(2) + '%';
+        el.style.setProperty('--p', ratio.toFixed(4));
+        el.style.setProperty('--fill', pctStr);
+        el.style.setProperty('--fill-pct', pctStr);
+      }
+      function syncAllRanges() { document.querySelectorAll('input[type="range"]').forEach(syncRangeFill); }
+      document.addEventListener('input', e => { if (e.target && e.target.type === 'range') syncRangeFill(e.target); }, true);
+      document.addEventListener('click', () => setTimeout(syncAllRanges, 0), true);
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncAllRanges);
+      else syncAllRanges();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৭.২ তরঙ্গ · অধ্যায় ৭: তরঙ্গ ও শব্দ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <style>
+    .subnav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 14px 0 20px;
+    }
+    .subnav a {
+      font-size: 13px;
+      font-weight: 700;
+      padding: 6px 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 99px;
+      color: #334155;
+    }
+    .subnav a:hover {
+      background: #eef2ff;
+      border-color: #a5b4fc;
+      color: #3730a3;
+      text-decoration: none;
+    }
+    .wave-wrap {
+      overflow-x: auto;
+      border: 1px solid #dbe3f2;
+      border-radius: 14px;
+      background: #f8fbff;
+      padding: 10px;
+    }
+    .wave-wrap svg {
+      display: block;
+      width: 100%;
+      min-width: 500px;
+      height: auto;
+    }
+    .wave-ctrl-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 750;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৭ / ৭.২</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই · section ৭.২</span>
+    <h1 class="title">তরঙ্গ <small>(Waves)</small></h1>
+    <p class="subtitle">তরঙ্গ কীভাবে মাধ্যমের কণা স্থানান্তর না করে শক্তি বহন করে, অনুপ্রস্থ ও অনুদৈর্ঘ্য তরঙ্গের পার্থক্য এবং তরঙ্গ সমীকরণ $v = f\lambda$।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <p>এই পাঠটি সম্পন্ন করার পর তুমি—</p>
+      <ul>
+        <li>তরঙ্গের মৌলিক বৈশিষ্ট্য এবং যান্ত্রিক বনাম তড়িৎচুম্বকীয় তরঙ্গের পার্থক্য ব্যাখ্যা করতে পারবে।</li>
+        <li>অনুপ্রস্থ তরঙ্গ (শীর্ষ ও পাদ) ও অনুদৈর্ঘ্য তরঙ্গ (সংকোচন ও প্রসারণ) শনাক্ত ও তুলনা করতে পারবে।</li>
+        <li>তরঙ্গদৈর্ঘ্য ($\lambda$), কম্পাঙ্ক ($f$), পর্যায়কাল ($T$), বিস্তার ($A$) এবং তরঙ্গবেগ ($v$) সংজ্ঞায়িত করতে পারবে।</li>
+        <li>তরঙ্গবেগের সমীকরণ $v = f\lambda = \frac{\lambda}{T}$ প্রতিপাদন করে বিভিন্ন মাধ্যমে তরঙ্গদৈর্ঘ্য পরিবর্তনের হিসাব করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>৭.২ · তরঙ্গের ধারণা (Concept of Waves)</h2>
+      <p>স্থির পুকুরে একটি ঢিল ছুড়লে পানির উপরিভাগে বৃত্তাকার ঢেউ চারদিকে ছড়িয়ে পড়ে। পানির ওপর একটি কাগজের নৌকা রাখলে দেখা যাবে, ঢেউ এগিয়ে গেলেও নৌকাটি নিজের জায়গায় ওপর-নিচে দুলছে, কিন্তু ঢেউয়ের সাথে তীরে ভেসে যাচ্ছে না।</p>
+      <p><strong>সংজ্ঞা:</strong> যে পর্যায়বৃত্ত আন্দোলন কোনো জড় মাধ্যমের এক স্থান থেকে অন্য স্থানে <strong>শক্তি ও ভরবেগ সঞ্চালিত করে</strong> কিন্তু মাধ্যমের কণাগুলোকে স্থায়ীভাবে স্থানান্তরিত করে না, তাকে <strong>তরঙ্গ (Wave)</strong> বলে।</p>
+      <ul>
+        <li><strong>যান্ত্রিক তরঙ্গ (Mechanical Wave):</strong> যে তরঙ্গ সঞ্চালনের জন্য কঠিন, তরল বা বায়বীয় জড় মাধ্যম অপরিহার্য (যেমন: শব্দ তরঙ্গ, পানির ঢেউ, স্প্রিংয়ের তরঙ্গ)।</li>
+        <li><strong>তড়িৎচুম্বকীয় তরঙ্গ (Electromagnetic Wave):</strong> যে তরঙ্গ মাধ্যম ছাড়াই শূন্যস্থানেও চলতে পারে (যেমন: আলো, বেতার তরঙ্গ, এক্স-রে)।</li>
+      </ul>
+
+      <div class="subnav">
+        <a href="#sub-7-2-1">৭.২.১ তরঙ্গের বৈশিষ্ট্য</a>
+        <a href="#sub-7-2-2">৭.২.২ তরঙ্গের প্রকারভেদ</a>
+        <a href="#sub-7-2-3">৭.২.৩ তরঙ্গ-সংশ্লিষ্ট রাশি</a>
+      </div>
+
+      <h3 id="sub-7-2-1">৭.২.১ · তরঙ্গের বৈশিষ্ট্য</h3>
+      <ul>
+        <li>মাধ্যমের কণাগুলোর পর্যায়বৃত্ত স্পন্দন গতির ফলে তরঙ্গ উৎপন্ন হয়; কণাগুলো নিজ নিজ সাম্যাবস্থার দুই পাশে স্পন্দিত হয় মাত্র, স্থানান্তরিত হয় না।</li>
+        <li>তরঙ্গ এক স্থান থেকে অন্য স্থানে <strong>শক্তি</strong> বহন করে। তরঙ্গের তীব্রতা ($I$) বিস্তারের বর্গের সমানুপাতিক: $I \propto A^2$।</li>
+        <li>তরঙ্গের বেগ কেবল মাধ্যমের প্রকৃতি (স্থিতিস্থাপকতা, ঘনত্ব ও তাপমাত্রা)-এর ওপর নির্ভর করে; মাধ্যমের কণার স্পন্দন বেগের ওপর নয়।</li>
+        <li>তরঙ্গের প্রতিফলন, প্রতিসরণ ও উপরিপাতন (Superposition) ঘটে।</li>
+      </ul>
+
+      <h3 id="sub-7-2-2">৭.২.২ · তরঙ্গের প্রকারভেদ</h3>
+      <p>মাধ্যমের কণাগুলোর স্পন্দনের দিকের ওপর ভিত্তি করে যান্ত্রিক তরঙ্গ প্রধানত দুই প্রকার:</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>বৈশিষ্ট্য</th>
+              <th>অনুপ্রস্থ তরঙ্গ (Transverse Wave)</th>
+              <th>অনুদৈর্ঘ্য তরঙ্গ (Longitudinal Wave)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>কণার স্পন্দনের দিক</strong></td>
+              <td>তরঙ্গ প্রবাহের দিকের সাথে <strong>সমকোণে (লম্বভাবে)</strong> স্পন্দিত হয়।</td>
+              <td>তরঙ্গ প্রবাহের দিকের সাথে <strong>সমান্তরালে (একই রেখায়)</strong> স্পন্দিত হয়।</td>
+            </tr>
+            <tr>
+              <td><strong>গঠনের উপাদান</strong></td>
+              <td>তরঙ্গশীর্ষ বা চূড়া (Crest) ও তরঙ্গপাদ বা খাঁজ (Trough) তৈরি করে।</td>
+              <td>সংকোচন (Compression) ও প্রসারণ (Rarefaction) তৈরি করে।</td>
+            </tr>
+            <tr>
+              <td><strong>তরঙ্গদৈর্ঘ্য ($\lambda$)</strong></td>
+              <td>পরপর দুটি তরঙ্গশীর্ষ বা দুটি তরঙ্গপাদের মধ্যবর্তী দূরত্ব।</td>
+              <td>পরপর দুটি সংকোচন কেন্দ্র বা দুটি প্রসারণ কেন্দ্রের মধ্যবর্তী দূরত্ব।</td>
+            </tr>
+            <tr>
+              <td><strong>মাধ্যম</strong></td>
+              <td>কঠিন ও তরলের মুক্ততলে সৃষ্টি হয় (বায়ুতে সচরাচর নয়)।</td>
+              <td>কঠিন, তরল ও বায়বীয়—সব মাধ্যমেই সৃষ্টি হয়।</td>
+            </tr>
+            <tr>
+              <td><strong>উদাহরণ</strong></td>
+              <td>টানটান দড়িতে সৃষ্ট তরঙ্গ, পানির ঢেউ, আলো (তড়িৎচুম্বকীয়)।</td>
+              <td>বায়ুতে শব্দ তরঙ্গ, স্প্রিংয়ের সংকোচন-প্রসারণ তরঙ্গ।</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="sub-7-2-3">৭.২.৩ · তরঙ্গ-সংশ্লিষ্ট রাশি ও সমীকরণ</h3>
+      <div class="grid">
+        <div class="term">
+          <strong>তরঙ্গদৈর্ঘ্য ($\lambda$)</strong>
+          <small>একই দশাসম্পন্ন পরপর দুটি কণার মধ্যবর্তী দূরত্ব, বা একটি পূর্ণ স্পন্দনে তরঙ্গ যে দূরত্ব অতিক্রম করে। একক: $\text{m}$।</small>
+        </div>
+        <div class="term">
+          <strong>কম্পাঙ্ক ($f$)</strong>
+          <small>এক সেকেন্ডে কোনো বিন্দুর মধ্য দিয়ে অতিক্রান্ত পূর্ণ তরঙ্গের সংখ্যা। একক: $\text{Hz}$।</small>
+        </div>
+        <div class="term">
+          <strong>পর্যায়কাল ($T$)</strong>
+          <small>একটি পূর্ণ তরঙ্গ সৃষ্টি হতে বা কণার একটি পূর্ণ স্পন্দনে লাগা সময়। $T = \frac{1}{f}$, একক: $\text{s}$।</small>
+        </div>
+        <div class="term">
+          <strong>বিস্তার ($A$)</strong>
+          <small>সাম্যাবস্থা থেকে কণার যেকোনো একদিকে সর্বোচ্চ সরণ। একক: $\text{m}$।</small>
+        </div>
+        <div class="term">
+          <strong>তরঙ্গবেগ ($v$)</strong>
+          <small>নির্দিষ্ট দিকে এক সেকেন্ডে তরঙ্গ যে দূরত্ব অতিক্রম করে। একক: $\text{m/s}$।</small>
+        </div>
+      </div>
+
+      <h3>তরঙ্গবেগের সমীকরণ প্রতিপাদন ($v = f\lambda$)</h3>
+      <p>আমরা জানি, একটি পূর্ণ কম্পনের সময়কাল $T$ সেকেন্ডে তরঙ্গটি ঠিক একটি তরঙ্গদৈর্ঘ্য $\lambda$ দূরত্ব অতিক্রম করে। সুতরাং এক সেকেন্ডে তরঙ্গ অতিক্রম করে $\frac{\lambda}{T}$ দূরত্ব।</p>
+      <div class="formula">
+        $$v = \frac{\lambda}{T} \implies \text{যেহেতু } f = \frac{1}{T}, \text{ তাই } \boxed{v = f\lambda}$$
+      </div>
+
+      <div class="highlight-box">
+        <strong>💡 গুরুত্বপূর্ণ নিয়ম:</strong> একই উৎসের তরঙ্গ এক মাধ্যম থেকে অন্য মাধ্যমে প্রবেশ করলে তার <strong>কম্পাঙ্ক ($f$) অপরিবর্তিত থাকে</strong> (কারণ কম্পাঙ্ক কেবল উৎসের ওপর নির্ভর করে)। কিন্তু মাধ্যম বদলালে তরঙ্গবেগ ($v$) ও তরঙ্গদৈর্ঘ্য ($\lambda$) পরিবর্তিত হয়: $\frac{v_1}{v_2} = \frac{\lambda_1}{\lambda_2}$।
+      </div>
+    </section>
+
+    <section class="lab" id="wave-inline-lab">
+      <div class="lab-head">
+        <div>
+          <h2>🧪 ইন্টারেক্টিভ তরঙ্গ সিমুলেটর ল্যাব</h2>
+          <p style="margin:0;font-size:13px;color:var(--muted)">অনুপ্রস্থ ও অনুদৈর্ঘ্য তরঙ্গের বিস্তার $A$, কম্পাঙ্ক $f$ ও তরঙ্গদৈর্ঘ্য $\lambda$ বদলে বেগের পরিবর্তন দেখো।</p>
+        </div>
+        <span class="lab-tag">সিমুলেশন ৭.২</span>
+      </div>
+
+      <div class="preset-row">
+        <button type="button" class="preset-btn active" onclick="setWaveType('transverse', this)">অনুপ্রস্থ তরঙ্গ (Transverse)</button>
+        <button type="button" class="preset-btn" onclick="setWaveType('longitudinal', this)">অনুদৈর্ঘ্য তরঙ্গ (Longitudinal)</button>
+        <button type="button" class="preset-btn" onclick="applyWavePreset(3, 4, 2, this)">উচ্চ কম্পাঙ্ক ($f = 4\text{ Hz}$)</button>
+        <button type="button" class="preset-btn" onclick="applyWavePreset(2, 2, 4, this)">দীর্ঘ তরঙ্গদৈর্ঘ্য ($\lambda = 4\text{ m}$)</button>
+      </div>
+
+      <div class="wave-wrap">
+        <svg id="waveSvg" viewBox="0 0 700 220" role="img" aria-label="তরঙ্গের গতিশীল চিত্র">
+          <rect x="0" y="0" width="700" height="220" fill="#f8fbff"/>
+          <g id="transverseGroup">
+            <line x1="50" y1="108" x2="660" y2="108" stroke="#94a3b8" stroke-dasharray="5 4" stroke-width="1.5"/>
+            <path id="wavePath" d="" fill="none" stroke="#4f46e5" stroke-width="4" stroke-linecap="round"/>
+            <line id="ampLine" x1="80" y1="108" x2="80" y2="68" stroke="#e11d48" stroke-width="2.5"/>
+            <text id="ampText" x="88" y="64" fill="#be123c" font-size="13" font-weight="750">A = 2 cm</text>
+            <line id="lambdaLine" x1="50" y1="184" x2="294" y2="184" stroke="#0f766e" stroke-width="2.5"/>
+            <text id="lambdaText" x="172" y="206" text-anchor="middle" fill="#0f766e" font-size="13" font-weight="750">λ = 2 m</text>
+            <text x="20" y="26" fill="#475569" font-size="12" font-weight="700">বিচ্যুতি</text>
+            <text x="660" y="132" text-anchor="end" fill="#475569" font-size="12" font-weight="700">দূরত্ব →</text>
+          </g>
+          <g id="longitudinalGroup" class="hidden"></g>
+        </svg>
+      </div>
+
+      <div class="lab-controls">
+        <div class="control-group">
+          <div class="wave-ctrl-label"><span>বিস্তার ($A$)</span><b id="ampLabel">2 cm</b></div>
+          <input class="range" id="amp" type="range" min="1" max="4" step="0.5" value="2">
+        </div>
+        <div class="control-group">
+          <div class="wave-ctrl-label"><span>কম্পাঙ্ক ($f$)</span><b id="freqLabel">2 Hz</b></div>
+          <input class="range" id="freq" type="range" min="1" max="5" step="0.5" value="2">
+        </div>
+        <div class="control-group" style="grid-column:1 / -1">
+          <div class="wave-ctrl-label"><span>তরঙ্গদৈর্ঘ্য ($\lambda$)</span><b id="lambdaLabel">2 m</b></div>
+          <input class="range" id="lambda" type="range" min="1" max="5" step="0.5" value="2">
+        </div>
+      </div>
+
+      <div class="calc-breakdown">
+        <div class="calc-box">
+          <div class="label">তরঙ্গবেগ ($v = f\lambda$)</div>
+          <div class="val" id="resV">4.0 m/s</div>
+        </div>
+        <div class="calc-box">
+          <div class="label">পর্যায়কাল ($T = 1/f$)</div>
+          <div class="val" id="resWaveT">0.50 s</div>
+        </div>
+        <div class="calc-box">
+          <div class="label">আপেক্ষিক শক্তি ($\propto A^2$)</div>
+          <div class="val" id="resEnergy">4×</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="note">
+      <h2>🌊 পুকুরের ঢেউ ও ভাসমান কচুরিপানা</h2>
+      <p>যদি পানির ওপর ভাসমান একটি কচুরিপানা $2\text{ s}$-এ $4$ বার ওঠানামা করে এবং পরপর দুটি ঢেউয়ের চূড়ার দূরত্ব $0.5\text{ m}$ হয়, তবে কচুরিপানাটির স্পন্দন থেকেই তরঙ্গের কম্পাঙ্ক ($f = 4/2 = 2\text{ Hz}$), তরঙ্গদৈর্ঘ্য ($\lambda = 0.5\text{ m}$) ও ঢেউয়ের বেগ ($v = 2 \times 0.5 = 1\text{ m/s}$) নির্ণয় করা যায়!</p>
+    </div>
+
+    <section class="worked">
+      <h2>📐 গাণিতিক সমস্যা ও সমাধান</h2>
+      <div class="problem">
+        <strong>সমস্যা ১:</strong> কোনো বস্তু বাতাসে $170\text{ Hz}$ কম্পাঙ্কের শব্দ তৈরি করছে এবং বাতাসে শব্দের বেগ $340\text{ m/s}$। তরঙ্গটির তরঙ্গদৈর্ঘ্য ও পর্যায়কাল কত?
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> দেওয়া আছে, $f = 170\text{ Hz}$, $v = 340\text{ m/s}$।</p>
+        $$\lambda = \frac{v}{f} = \frac{340}{170} = 2\text{ m}$$
+        $$T = \frac{1}{f} = \frac{1}{170} \approx 0.00588\text{ s}$$
+        <p><strong>উত্তর:</strong> তরঙ্গদৈর্ঘ্য $2\text{ m}$ এবং পর্যায়কাল $5.88 \times 10^{-3}\text{ s}$।</p>
+      </div>
+
+      <div class="problem">
+        <strong>সমস্যা ২:</strong> বাতাসে একটি শব্দের তরঙ্গদৈর্ঘ্য $0.68\text{ m}$ এবং বেগ $340\text{ m/s}$। তরঙ্গটি পানিতে প্রবেশ করলে পানিতে এর তরঙ্গদৈর্ঘ্য কত হবে? (পানিতে শব্দের বেগ $1493\text{ m/s}$)।
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> মাধ্যম পরিবর্তন হলেও কম্পাঙ্ক $f$ স্থির থাকে।</p>
+        $$f = \frac{v_{\text{air}}}{\lambda_{\text{air}}} = \frac{340}{0.68} = 500\text{ Hz}$$
+        $$\lambda_{\text{water}} = \frac{v_{\text{water}}}{f} = \frac{1493}{500} = 2.986\text{ m}$$
+        <p><strong>উত্তর:</strong> পানিতে তরঙ্গদৈর্ঘ্য $2.986\text{ m}$ (প্রায় $2.99\text{ m}$)।</p>
+      </div>
+
+      <div class="problem">
+        <strong>সমস্যা ৩:</strong> কোনো একটি তরঙ্গের বেগ $300\text{ m/s}$। তরঙ্গটির $20$টি পূর্ণ তরঙ্গদৈর্ঘ্যের মোট দূরত্ব $15\text{ m}$ হলে কম্পাঙ্ক কত?
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> $20\lambda = 15\text{ m} \implies \lambda = \frac{15}{20} = 0.75\text{ m}$।</p>
+        $$f = \frac{v}{\lambda} = \frac{300}{0.75} = 400\text{ Hz}$$
+        <p><strong>উত্তর:</strong> কম্পাঙ্ক $400\text{ Hz}$।</p>
+      </div>
+    </section>
+
+    <section class="memory">
+      <h2>🧠 মনে রাখার কৌশল</h2>
+      <p>“অনুপ্রস্থ চলে লম্ব হয়ে, শীর্ষ আর পাদ তালে; অনুদৈর্ঘ্যে সংকোচন-প্রসারণ একই রেখায় ঢালে! মাধ্যম গেলে বেগ-দৈর্ঘ্য বদলায় সমান তালে, কম্পাঙ্ক কভু বদলায় না ভাই কোনো কালে!”</p>
+    </section>
+
+    <section class="section">
+      <h2>নিজেকে যাচাই করো</h2>
+      <details class="check">
+        <summary>১. একটি তরঙ্গের কম্পাঙ্ক $5\text{ Hz}$ এবং তরঙ্গদৈর্ঘ্য $2\text{ m}$। তরঙ্গবেগ কত?</summary>
+        <p>$v = f\lambda = 5 \times 2 = 10\text{ m/s}$।</p>
+      </details>
+      <details class="check">
+        <summary>২. অনুপ্রস্থ ও অনুদৈর্ঘ্য তরঙ্গের মূল পার্থক্য কী?</summary>
+        <p>অনুপ্রস্থ তরঙ্গে মাধ্যমের কণাগুলো তরঙ্গ প্রবাহের দিকের সাথে লম্বভাবে স্পন্দিত হয় (শীর্ষ ও পাদ তৈরি করে), আর অনুদৈর্ঘ্য তরঙ্গে কণাগুলো তরঙ্গ প্রবাহের সমান্তরালে স্পন্দিত হয় (সংকোচন ও প্রসারণ তৈরি করে)।</p>
+      </details>
+      <details class="check">
+        <summary>৩. একটি তরঙ্গ বায়ু থেকে লোহায় প্রবেশ করলে কোন রাশিটি অপরিবর্তিত থাকে?</summary>
+        <p>কম্পাঙ্ক ($f$) এবং পর্যায়কাল ($T$) অপরিবর্তিত থাকে, কারণ এগুলো কেবল উৎসের বৈশিষ্ট্যের ওপর নির্ভর করে।</p>
+      </details>
+      <details class="check">
+        <summary>৪. তরঙ্গের বিস্তার ৩ গুণ করলে বহনকৃত শক্তির হার (তীব্রতা) কত গুণ হবে?</summary>
+        <p>$I \propto A^2$ হওয়ায় বিস্তার ৩ গুণ করলে তীব্রতা $3^2 = 9$ গুণ হবে।</p>
+      </details>
+    </section>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-01.html">← ৭.১ সরল স্পন্দন গতি</a>
+      <a class="button" href="section-03.html">পরের পাঠ: ৭.৩ শব্দ তরঙ্গ →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html">PDF-এর সম্পূর্ণ মূল পৃষ্ঠা</a> · পদার্থবিজ্ঞান অধ্যায় ৭
+    </footer>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+
+    const ampEl = document.getElementById('amp');
+    const freqEl = document.getElementById('freq');
+    const lamEl = document.getElementById('lambda');
+    let waveType = 'transverse';
+    let phase = 0;
+
+    function setWaveType(type, btn) {
+      waveType = type;
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      document.getElementById('transverseGroup').classList.toggle('hidden', type !== 'transverse');
+      document.getElementById('longitudinalGroup').classList.toggle('hidden', type !== 'longitudinal');
+    }
+
+    function applyWavePreset(A, f, lam, btn) {
+      setWaveType('transverse', btn);
+      ampEl.value = A;
+      freqEl.value = f;
+      lamEl.value = lam;
+      updateWaveReadout();
+    }
+
+    function updateWaveReadout() {
+      const A = parseFloat(ampEl.value);
+      const f = parseFloat(freqEl.value);
+      const lam = parseFloat(lamEl.value);
+      const v = f * lam;
+      const T = 1 / f;
+      document.getElementById('ampLabel').textContent = A + ' cm';
+      document.getElementById('freqLabel').textContent = f + ' Hz';
+      document.getElementById('lambdaLabel').textContent = lam + ' m';
+      document.getElementById('resV').textContent = v.toFixed(1) + ' m/s';
+      document.getElementById('resWaveT').textContent = T.toFixed(2) + ' s';
+      document.getElementById('resEnergy').textContent = (A * A).toFixed(1) + '×';
+    }
+
+    function buildLongitudinalDots() {
+      const g = document.getElementById('longitudinalGroup');
+      g.innerHTML = '';
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 34; c++) {
+          const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          dot.setAttribute('r', '4');
+          dot.setAttribute('cy', String(56 + r * 34));
+          dot.setAttribute('fill', '#4f46e5');
+          dot.dataset.baseX = String(50 + c * 18);
+          g.appendChild(dot);
+        }
+      }
+      const lbl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      lbl.setAttribute('x', '350');
+      lbl.setAttribute('y', '204');
+      lbl.setAttribute('text-anchor', 'middle');
+      lbl.setAttribute('fill', '#3730a3');
+      lbl.setAttribute('font-size', '13');
+      lbl.setAttribute('font-weight', '750');
+      lbl.textContent = 'সংকোচন (Compression) ও প্রসারণ (Rarefaction)';
+      g.appendChild(lbl);
+    }
+
+    buildLongitudinalDots();
+
+    let lastWaveTs = performance.now();
+    function renderWaveFrame(ts) {
+      const dt = Math.min(0.05, (ts - lastWaveTs) / 1000);
+      lastWaveTs = ts;
+      const A = parseFloat(ampEl.value);
+      const f = parseFloat(freqEl.value);
+      const lam = parseFloat(lamEl.value);
+      phase += dt * f * 2.2;
+
+      const x0 = 50, width = 610, center = 108;
+      const pxPerCycle = Math.max(90, lam * 75);
+      const ampPx = A * 16;
+
+      if (waveType === 'transverse') {
+        const pts = [];
+        for (let i = 0; i <= 140; i++) {
+          const x = x0 + (width * i) / 140;
+          const y = center - ampPx * Math.sin((2 * Math.PI * (x - x0)) / pxPerCycle - phase);
+          pts.push(`${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y.toFixed(1)}`);
+        }
+        document.getElementById('wavePath').setAttribute('d', pts.join(' '));
+        document.getElementById('ampLine').setAttribute('y2', String(center - ampPx));
+        document.getElementById('ampText').setAttribute('y', String(center - ampPx - 6));
+        document.getElementById('ampText').textContent = `A = ${A} cm`;
+        const lamEnd = Math.min(655, x0 + pxPerCycle);
+        document.getElementById('lambdaLine').setAttribute('x1', String(x0));
+        document.getElementById('lambdaLine').setAttribute('x2', String(lamEnd));
+        document.getElementById('lambdaText').setAttribute('x', String((x0 + lamEnd) / 2));
+        document.getElementById('lambdaText').textContent = `λ = ${lam} m`;
+      } else {
+        const dots = document.querySelectorAll('#longitudinalGroup circle');
+        dots.forEach(dot => {
+          const bx = parseFloat(dot.dataset.baseX);
+          const dx = (A * 3.8) * Math.sin((2 * Math.PI * (bx - 50)) / pxPerCycle - phase);
+          dot.setAttribute('cx', (bx + dx).toFixed(1));
+        });
+      }
+      requestAnimationFrame(renderWaveFrame);
+    }
+
+    [ampEl, freqEl, lamEl].forEach(el => el.addEventListener('input', updateWaveReadout));
+    updateWaveReadout();
+    requestAnimationFrame(renderWaveFrame);
+  </script>
+</body>
+</html>

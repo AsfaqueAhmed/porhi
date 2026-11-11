@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>সরল স্পন্দন গতি ও দোলক সিমুলেশন ল্যাব</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-card: #ffffff;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #64748b;
+      --pori-indigo: #4f46e5;
+      --pori-indigo-hover: #4338ca;
+      --pori-indigo-soft: #eef2ff;
+      --pori-indigo-border: #c7d2fe;
+      --pori-indigo-ink: #3730a3;
+    }
+    body {
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      padding: 12px 14px;
+      margin: 0;
+    }
+    .container {
+      max-width: 860px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    header { text-align: center; }
+    header h1 { font-size: 1.18rem; font-weight: 800; color: var(--pori-heading); margin-bottom: 4px; }
+    header p { font-size: 0.82rem; color: var(--pori-muted); line-height: 1.5; }
+    .canvas-wrap {
+      background: #0f172a;
+      border: 1px solid var(--pori-border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+    }
+    svg { display: block; width: 100%; height: 220px; }
+    .btn-row {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      justify-content: safe center;
+      overflow-x: auto;
+      padding: 2px 2px 6px;
+    }
+    .btn-row > * { flex: 0 0 auto; white-space: nowrap; }
+    button {
+      background: #ffffff;
+      color: #334155;
+      border: 1px solid var(--pori-border);
+      border-radius: 10px;
+      padding: 7px 13px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    button:hover { background: var(--pori-indigo-soft); color: var(--pori-indigo-hover); border-color: #a5b4fc; }
+    button.active {
+      background: var(--pori-indigo);
+      color: #ffffff;
+      border-color: var(--pori-indigo);
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+    }
+    .controls {
+      background: var(--pori-card);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .control-group { display: flex; flex-direction: column; gap: 6px; }
+    label {
+      font-size: 0.78rem;
+      font-weight: 750;
+      color: #334155;
+      display: flex;
+      justify-content: space-between;
+    }
+    label b { color: var(--pori-indigo); font-weight: 800; }
+    input[type="range"].custom-range {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 16px;
+      border-radius: 999px;
+      outline: none;
+      border: 2px solid #e2e8f0;
+      box-shadow: inset 0 2px 3px rgba(15, 23, 42, 0.72), 0 1px 3px rgba(15, 23, 42, 0.10);
+      cursor: pointer;
+      background-color: #232732;
+      background-image:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.24) 0%, rgba(255, 255, 255, 0.12) 28%, rgba(0, 0, 0, 0.26) 100%),
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0px, rgba(255, 255, 255, 0.16) 1.5px, transparent 1.5px, transparent 4px),
+        linear-gradient(180deg, #818cf8 0%, #6366f1 32%, #4f46e5 74%, #3730a3 100%),
+        linear-gradient(180deg, #1b1e26 0%, #2a2f3a 45%, #20242d 100%);
+      background-size: 100% 100%, calc(11px + (100% - 22px) * var(--p, 0.5)) 100%, calc(11px + (100% - 22px) * var(--p, 0.5)) 100%, 100% 100%;
+      background-repeat: no-repeat;
+    }
+    input[type="range"].custom-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 10px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 78%, #cbd5e1 100%);
+      border: 1px solid #f1f5f9;
+      box-shadow: 0 0 0 1px #4f46e5, 0 1px 2px rgba(15, 23, 42, 0.40);
+      cursor: grab;
+    }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .card {
+      background: var(--pori-card);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 12px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .card .title { font-size: 0.68rem; color: var(--pori-muted); font-weight: 700; margin-bottom: 3px; }
+    .card .val { font-size: 1.05rem; font-weight: 800; color: var(--pori-indigo); }
+    .readout {
+      background: var(--pori-indigo-soft);
+      border: 1px solid var(--pori-indigo-border);
+      border-left: 4px solid var(--pori-indigo);
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      color: var(--pori-indigo-ink);
+      line-height: 1.55;
+    }
+    .hidden { display: none !important; }
+    @media (max-width: 600px) {
+      .controls { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>সরল স্পন্দন গতি ও দোলক সিমুলেশন ল্যাব</h1>
+      <p>দোলকের দৈর্ঘ্য ($\ell$), অভিকর্ষজ ত্বরণ ($g$), ভর ($m$) এবং স্প্রিং ধ্রুবক ($k$) বদলে দোলনকাল ও কৌণিক কম্পাঙ্ক পরীক্ষা করো</p>
+    </header>
+
+    <div class="btn-row">
+      <button type="button" class="active" onclick="setMode('pendulum', this)">সরল দোলক (Pendulum)</button>
+      <button type="button" onclick="setMode('spring', this)">স্প্রিং-ভর (Spring)</button>
+      <button type="button" onclick="applyPreset(0.993, 9.8, this)">সেকেন্ড দোলক (T ≈ 2 s)</button>
+      <button type="button" onclick="applyPreset(1.0, 1.63, this)">চাঁদ (g = 1.63)</button>
+      <button type="button" onclick="togglePause()" id="pauseBtn">⏸️ বিরতি</button>
+    </div>
+
+    <div class="canvas-wrap">
+      <svg id="simSvg" viewBox="0 0 720 220">
+        <g id="pendulumView">
+          <rect x="250" y="14" width="220" height="10" rx="4" fill="#64748b"/>
+          <line x1="360" y1="24" x2="360" y2="205" stroke="#334155" stroke-dasharray="5 4" stroke-width="1.5"/>
+          <line id="pendLine" x1="360" y1="24" x2="360" y2="165" stroke="#cbd5e1" stroke-width="2.5"/>
+          <circle id="pendBob" cx="360" cy="165" r="16" fill="#6366f1" stroke="#a5b4fc" stroke-width="2.5"/>
+          <text x="20" y="34" fill="#94a3b8" font-size="12" font-weight="700">সাম্যাবস্থা x = 0</text>
+          <text id="pendAngleTxt" x="560" y="34" fill="#38bdf8" font-size="12" font-weight="700">θ = 0.0°</text>
+        </g>
+        <g id="springView" class="hidden">
+          <rect x="260" y="14" width="200" height="10" rx="4" fill="#64748b"/>
+          <line x1="200" y1="145" x2="520" y2="145" stroke="#334155" stroke-dasharray="5 4" stroke-width="1.5"/>
+          <path id="coilPath" d="" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linejoin="round"/>
+          <rect id="massRect" x="330" y="122" width="60" height="46" rx="8" fill="#6366f1" stroke="#a5b4fc" stroke-width="2"/>
+          <text id="massRectTxt" x="360" y="150" text-anchor="middle" fill="#fff" font-size="13" font-weight="800">1.0 kg</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="controls" id="pendCtrl">
+      <div class="control-group">
+        <label>কার্যকর দৈর্ঘ্য (ℓ) <b id="lblL">1.00 m</b></label>
+        <input class="custom-range" id="inL" type="range" min="0.25" max="2.50" step="0.01" value="1.00">
+      </div>
+      <div class="control-group">
+        <label>অভিকর্ষজ ত্বরণ (g) <b id="lblG">9.80 m/s²</b></label>
+        <input class="custom-range" id="inG" type="range" min="1.6" max="15.0" step="0.05" value="9.80">
+      </div>
+    </div>
+
+    <div class="controls hidden" id="springCtrl">
+      <div class="control-group">
+        <label>বস্তুর ভর (m) <b id="lblM">1.0 kg</b></label>
+        <input class="custom-range" id="inM" type="range" min="0.2" max="5.0" step="0.1" value="1.0">
+      </div>
+      <div class="control-group">
+        <label>স্প্রিং ধ্রুবক (k) <b id="lblK">40 N/m</b></label>
+        <input class="custom-range" id="inK" type="range" min="10" max="120" step="2" value="40">
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card"><div class="title">দোলনকাল (T)</div><div class="val" id="outT">2.01 s</div></div>
+      <div class="card"><div class="title">কম্পাঙ্ক (f)</div><div class="val" id="outF">0.50 Hz</div></div>
+      <div class="card"><div class="title">কৌণিক বেগ (ω)</div><div class="val" id="outW">3.13 rad/s</div></div>
+      <div class="card"><div class="title">অর্ধ-দোলন (T/2)</div><div class="val" id="outHalf">1.00 s</div></div>
+    </div>
+
+    <div class="readout" id="formulaReadout">
+      T = 2π√(ℓ/g) = 2π√(1.00 / 9.80) = 2.01 s · কম্পাঙ্ক f = 1/T = 0.50 Hz
+    </div>
+  </div>
+
+  <script>
+    let mode = 'pendulum';
+    let paused = false;
+    let simTime = 0;
+
+    const inL = document.getElementById('inL');
+    const inG = document.getElementById('inG');
+    const inM = document.getElementById('inM');
+    const inK = document.getElementById('inK');
+
+    function setMode(m, btn) {
+      mode = m;
+      document.querySelectorAll('.btn-row button').forEach(b => {
+        if (b.id !== 'pauseBtn') b.classList.remove('active');
+      });
+      if (btn) btn.classList.add('active');
+      document.getElementById('pendulumView').classList.toggle('hidden', m !== 'pendulum');
+      document.getElementById('pendCtrl').classList.toggle('hidden', m !== 'pendulum');
+      document.getElementById('springView').classList.toggle('hidden', m !== 'spring');
+      document.getElementById('springCtrl').classList.toggle('hidden', m !== 'spring');
+      updateMetrics();
+    }
+
+    function applyPreset(L, g, btn) {
+      setMode('pendulum', btn);
+      inL.value = L;
+      inG.value = g;
+      updateMetrics();
+    }
+
+    function togglePause() {
+      paused = !paused;
+      document.getElementById('pauseBtn').textContent = paused ? '▶️ চালু' : '⏸️ বিরতি';
+    }
+
+    function getPeriod() {
+      if (mode === 'pendulum') {
+        return 2 * Math.PI * Math.sqrt(Math.max(0.1, parseFloat(inL.value)) / Math.max(0.5, parseFloat(inG.value)));
+      }
+      return 2 * Math.PI * Math.sqrt(Math.max(0.1, parseFloat(inM.value)) / Math.max(1, parseFloat(inK.value)));
+    }
+
+    function updateMetrics() {
+      const L = parseFloat(inL.value), g = parseFloat(inG.value);
+      const m = parseFloat(inM.value), k = parseFloat(inK.value);
+      document.getElementById('lblL').textContent = L.toFixed(2) + ' m';
+      document.getElementById('lblG').textContent = g.toFixed(2) + ' m/s²';
+      document.getElementById('lblM').textContent = m.toFixed(1) + ' kg';
+      document.getElementById('lblK').textContent = k.toFixed(0) + ' N/m';
+
+      const T = getPeriod();
+      const f = 1 / T;
+      const w = (2 * Math.PI) / T;
+      document.getElementById('outT').textContent = T.toFixed(2) + ' s';
+      document.getElementById('outF').textContent = f.toFixed(2) + ' Hz';
+      document.getElementById('outW').textContent = w.toFixed(2) + ' rad/s';
+      document.getElementById('outHalf').textContent = (T / 2).toFixed(2) + ' s';
+      document.getElementById('massRectTxt').textContent = m.toFixed(1) + ' kg';
+
+      document.getElementById('formulaReadout').textContent = mode === 'pendulum'
+        ? `T = 2π√(ℓ/g) = 2π√(${L.toFixed(2)} / ${g.toFixed(2)}) = ${T.toFixed(2)} s · f = ${f.toFixed(2)} Hz`
+        : `T = 2π√(m/k) = 2π√(${m.toFixed(1)} / ${k.toFixed(0)}) = ${T.toFixed(2)} s · f = ${f.toFixed(2)} Hz`;
+    }
+
+    function buildCoil(yEnd) {
+      const x = 360, y0 = 24, coils = 10, step = (yEnd - y0 - 16) / coils;
+      let d = `M ${x} ${y0} L ${x} ${y0 + 8}`;
+      for (let i = 0; i < coils; i++) {
+        const y1 = y0 + 8 + i * step + step * 0.25;
+        const y2 = y0 + 8 + i * step + step * 0.75;
+        const dx = i % 2 === 0 ? 18 : -18;
+        d += ` L ${x + dx} ${y1.toFixed(1)} L ${x - dx} ${y2.toFixed(1)}`;
+      }
+      return d + ` L ${x} ${yEnd}`;
+    }
+
+    let last = performance.now();
+    function tick(ts) {
+      const dt = Math.min(0.05, (ts - last) / 1000);
+      last = ts;
+      const T = getPeriod();
+      const omega = (2 * Math.PI) / T;
+      if (!paused) simTime += dt;
+
+      if (mode === 'pendulum') {
+        const L = parseFloat(inL.value);
+        const pxLen = 70 + (L / 2.5) * 100;
+        const theta = 0.36 * Math.cos(omega * simTime);
+        const cx = 360 + pxLen * Math.sin(theta);
+        const cy = 24 + pxLen * Math.cos(theta);
+        document.getElementById('pendLine').setAttribute('x2', cx.toFixed(1));
+        document.getElementById('pendLine').setAttribute('y2', cy.toFixed(1));
+        document.getElementById('pendBob').setAttribute('cx', cx.toFixed(1));
+        document.getElementById('pendBob').setAttribute('cy', cy.toFixed(1));
+        document.getElementById('pendAngleTxt').textContent = `θ = ${(theta * 180 / Math.PI).toFixed(1)}°`;
+      } else {
+        const boxY = 122 + 38 * Math.cos(omega * simTime);
+        document.getElementById('coilPath').setAttribute('d', buildCoil(boxY));
+        document.getElementById('massRect').setAttribute('y', boxY.toFixed(1));
+        document.getElementById('massRectTxt').setAttribute('y', (boxY + 28).toFixed(1));
+      }
+      requestAnimationFrame(tick);
+    }
+
+    [inL, inG, inM, inK].forEach(el => el.addEventListener('input', updateMetrics));
+    updateMetrics();
+    requestAnimationFrame(tick);
+  </script>
+
+  <!-- PORI UNIFIED RANGE SYNC -->
+  <script>
+    (function () {
+      function syncRangeFill(el) {
+        if (!el || el.type !== 'range') return;
+        var min = parseFloat(el.min), max = parseFloat(el.max), val = parseFloat(el.value);
+        if (Number.isNaN(min)) min = 0;
+        if (Number.isNaN(max)) max = 100;
+        if (Number.isNaN(val)) val = min;
+        var ratio = max === min ? 0 : Math.max(0, Math.min(1, (val - min) / (max - min)));
+        var pctStr = (ratio * 100).toFixed(2) + '%';
+        el.style.setProperty('--p', ratio.toFixed(4));
+        el.style.setProperty('--fill', pctStr);
+        el.style.setProperty('--fill-pct', pctStr);
+      }
+      function syncAllRanges() { document.querySelectorAll('input[type="range"]').forEach(syncRangeFill); }
+      document.addEventListener('input', e => { if (e.target && e.target.type === 'range') syncRangeFill(e.target); }, true);
+      document.addEventListener('click', () => setTimeout(syncAllRanges, 0), true);
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncAllRanges);
+      else syncAllRanges();
+    })();
+  </script>
+</body>
+</html>
