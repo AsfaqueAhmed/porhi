@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>হুকের সূত্র ও স্থিতিস্থাপকতা সিমুলেশন ল্যাব</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 760px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    header {
+      text-align: center;
+    }
+    h1 {
+      font-size: 1.18rem;
+      color: #818cf8;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    p {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      line-height: 1.5;
+    }
+    .mat-btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+    .mat-btn-row-label {
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-right: 4px;
+    }
+    button {
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid #475569;
+      background: #334155;
+      color: #f1f5f9;
+      font-size: 0.74rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    button:hover {
+      filter: brightness(1.15);
+      border-color: #818cf8;
+    }
+    button.active {
+      background: #4338ca;
+      border-color: #818cf8;
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(129, 140, 248, 0.4);
+    }
+    .mat-indicator {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .canvas-wrap {
+      background: #1e293b;
+      border-radius: 12px;
+      border: 1px solid #334155;
+      overflow: hidden;
+      width: 100%;
+      position: relative;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .controls {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    label {
+      font-size: 0.74rem;
+      color: #cbd5e1;
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+    }
+    .val-badge {
+      color: #818cf8;
+      font-weight: 800;
+    }
+    .custom-range {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      outline: none;
+      background: linear-gradient(90deg, #818cf8 var(--fill, 50%), #334155 var(--fill, 50%));
+      cursor: pointer;
+    }
+    .custom-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #818cf8;
+      border: 2px solid #ffffff;
+      cursor: pointer;
+      box-shadow: 0 0 8px rgba(129, 140, 248, 0.5);
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+    }
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 8px 6px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .card .title {
+      font-size: 0.62rem;
+      color: #94a3b8;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 3px;
+    }
+    .card .val {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #818cf8;
+    }
+    .card.highlight {
+      border-color: #10b981;
+      background: #064e3b;
+    }
+    .card.highlight .val {
+      color: #6ee7b7;
+    }
+    .card.accent {
+      border-color: #6366f1;
+      background: #1e1b4b;
+    }
+    .card.accent .val {
+      color: #c7d2fe;
+    }
+    .card.warm {
+      border-color: #f59e0b;
+      background: #451a03;
+    }
+    .card.warm .val {
+      color: #fde68a;
+    }
+    .readout {
+      background: #1e293b;
+      border-left: 3px solid #818cf8;
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+    @media (max-width: 680px) {
+      .controls { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 440px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🔬 হুকের সূত্র ও স্থিতিস্থাপকতা সিমুলেশন ল্যাব</h1>
+      <p>ঝুলন্ত বল (F), স্প্রিং ধ্রুবক (k), তারের দৈর্ঘ্য (L) ও ব্যাসার্ধ (r) পরিবর্তন করে স্প্রিং ও ধাতব তারের প্রসারণ, পীড়ন, বিকৃতি ও সঞ্চিত শক্তি বাস্তব সময়ে পর্যবেক্ষণ করো।</p>
+    </header>
+
+    <!-- Material Preset Selectors -->
+    <div class="mat-btn-row">
+      <span class="mat-btn-row-label">ধাতু নির্বাচন (Material):</span>
+      <button type="button" class="active" id="btnSteel" onclick="setMaterial('steel', 2.0e11, '#94a3b8', this)">
+        <span class="mat-indicator" style="background:#94a3b8;"></span> ইস্পাত (Steel · Y = 2.0×10¹¹ Pa)
+      </button>
+      <button type="button" id="btnCopper" onclick="setMaterial('copper', 1.1e11, '#ea580c', this)">
+        <span class="mat-indicator" style="background:#ea580c;"></span> তামা (Copper · Y = 1.1×10¹¹ Pa)
+      </button>
+      <button type="button" id="btnAlum" onclick="setMaterial('alum', 7.0e10, '#38bdf8', this)">
+        <span class="mat-indicator" style="background:#38bdf8;"></span> অ্যালুমিনিয়াম (Aluminum · Y = 7.0×10¹⁰ Pa)
+      </button>
+      <button type="button" id="animBtn" onclick="toggleOscillation()">▶️ স্প্রিং দোলন</button>
+    </div>
+
+    <!-- Canvas SVG Wrap -->
+    <div class="canvas-wrap">
+      <svg id="hookeSvg" viewBox="0 0 760 380">
+        <defs>
+          <pattern id="hatchSupport" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+            <line x1="0" y1="0" x2="0" y2="10" stroke="#475569" stroke-width="2.5"/>
+          </pattern>
+          <linearGradient id="weightGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#334155"/>
+            <stop offset="30%" stop-color="#64748b"/>
+            <stop offset="70%" stop-color="#475569"/>
+            <stop offset="100%" stop-color="#1e293b"/>
+          </linearGradient>
+          <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+            <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+          </filter>
+          <marker id="arrowDownRed" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+            <polygon points="1,1 7,4 1,7" fill="#ef4444"/>
+          </marker>
+          <marker id="arrowUpGreen" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto">
+            <polygon points="1,1 7,4 1,7" fill="#10b981"/>
+          </marker>
+        </defs>
+
+        <!-- Background Container -->
+        <rect x="0" y="0" width="760" height="380" fill="#0b1329" rx="14"/>
+
+        <!-- Top Rigid Ceiling -->
+        <rect x="20" y="16" width="720" height="18" fill="url(#hatchSupport)" stroke="#475569" stroke-width="1.5" rx="3"/>
+        <line x1="20" y1="34" x2="740" y2="34" stroke="#64748b" stroke-width="2.5"/>
+
+        <!-- SECTION HEADERS -->
+        <text x="210" y="56" font-size="13.5" font-weight="800" fill="#e2e8f0" text-anchor="middle">১. স্প্রিং ও হুকের সূত্র (F = kx)</text>
+        <text x="560" y="56" font-size="13.5" font-weight="800" fill="#e2e8f0" text-anchor="middle">২. ধাতব তার ও প্রসারণ (ΔL = FL / AY)</text>
+
+        <!-- VERTICAL DIVIDER -->
+        <line x1="395" y1="46" x2="395" y2="365" stroke="#334155" stroke-width="1.5" stroke-dasharray="6,4"/>
+
+        <!-- ===== LEFT SIDE: SPRING SYSTEM ===== -->
+        <!-- Top Support Clamp -->
+        <rect x="195" y="34" width="30" height="10" fill="#475569" rx="2"/>
+        <circle cx="210" cy="48" r="4" fill="#64748b"/>
+
+        <!-- Vertical Measuring Ruler -->
+        <g transform="translate(70, 70)">
+          <rect x="0" y="0" width="28" height="270" fill="#1e293b" stroke="#334155" stroke-width="1.5" rx="4"/>
+          <!-- Major Ruler Ticks & Numbers -->
+          <line x1="18" y1="10" x2="28" y2="10" stroke="#64748b" stroke-width="1.5"/>
+          <text x="14" y="13" font-size="9" font-weight="700" fill="#94a3b8" text-anchor="end">0</text>
+          <line x1="18" y1="60" x2="28" y2="60" stroke="#64748b" stroke-width="1.5"/>
+          <text x="14" y="63" font-size="9" font-weight="700" fill="#94a3b8" text-anchor="end">50</text>
+          <line x1="18" y1="110" x2="28" y2="110" stroke="#64748b" stroke-width="1.5"/>
+          <text x="14" y="113" font-size="9" font-weight="700" fill="#94a3b8" text-anchor="end">100</text>
+          <line x1="18" y1="160" x2="28" y2="160" stroke="#64748b" stroke-width="1.5"/>
+          <text x="14" y="163" font-size="9" font-weight="700" fill="#94a3b8" text-anchor="end">150</text>
+          <line x1="18" y1="210" x2="28" y2="210" stroke="#64748b" stroke-width="1.5"/>
+          <text x="14" y="213" font-size="9" font-weight="700" fill="#94a3b8" text-anchor="end">200</text>
+          <line x1="18" y1="260" x2="28" y2="260" stroke="#64748b" stroke-width="1.5"/>
+          <text x="14" y="263" font-size="9" font-weight="700" fill="#94a3b8" text-anchor="end">250</text>
+          <!-- Minor Ticks -->
+          <line x1="22" y1="35" x2="28" y2="35" stroke="#475569" stroke-width="1"/>
+          <line x1="22" y1="85" x2="28" y2="85" stroke="#475569" stroke-width="1"/>
+          <line x1="22" y1="135" x2="28" y2="135" stroke="#475569" stroke-width="1"/>
+          <line x1="22" y1="185" x2="28" y2="185" stroke="#475569" stroke-width="1"/>
+          <line x1="22" y1="235" x2="28" y2="235" stroke="#475569" stroke-width="1"/>
+          <text x="14" y="280" font-size="8.5" font-weight="800" fill="#38bdf8" text-anchor="middle">cm</text>
+        </g>
+
+        <!-- Spring Equilibrium Reference Line -->
+        <line x1="98" y1="80" x2="285" y2="80" stroke="#64748b" stroke-width="1" stroke-dasharray="3,3"/>
+        <text x="290" y="83" font-size="10" font-weight="700" fill="#94a3b8">সাম্যাবস্থা (x = 0)</text>
+
+        <!-- DYNAMIC HELICAL SPRING PATH -->
+        <path id="svgSpring" d="M 210 48 Q 228 55, 210 62 Q 192 69, 210 76" fill="none" stroke="#818cf8" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+
+        <!-- Spring Bottom Hook & Pointer -->
+        <g id="springHanger" transform="translate(0, 0)">
+          <!-- Extension Indicator dashed line to ruler -->
+          <line id="springPointerLine" x1="98" y1="130" x2="210" y2="130" stroke="#ef4444" stroke-width="1.5" stroke-dasharray="2,2"/>
+          <polygon id="springPointerArrow" points="98,130 106,126 106,134" fill="#ef4444"/>
+
+          <!-- Connecting Hook -->
+          <path d="M 210 0 L 210 16 A 6 6 0 0 1 204 22 L 200 22 A 6 6 0 0 0 206 32 L 210 32 L 210 40" fill="none" stroke="#64748b" stroke-width="3" stroke-linecap="round"/>
+
+          <!-- Suspended Weight -->
+          <g id="springWeight" filter="url(#softShadow)">
+            <rect x="175" y="40" width="70" height="34" rx="6" fill="url(#weightGrad)" stroke="#475569" stroke-width="1.5"/>
+            <text id="txtSpringWeight" x="210" y="61" font-size="11.5" font-weight="800" fill="#ffffff" text-anchor="middle">50 N</text>
+          </g>
+
+          <!-- Force Vector Arrows -->
+          <!-- Restoring force arrow pointing up -->
+          <line id="vecSpringUp" x1="256" y1="40" x2="256" y2="10" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrowUpGreen)"/>
+          <text id="txtSpringUp" x="264" y="24" font-size="10" font-weight="800" fill="#10b981">Fₛ</text>
+          <!-- Applied Gravity force arrow pointing down -->
+          <line id="vecSpringDown" x1="256" y1="40" x2="256" y2="72" stroke="#ef4444" stroke-width="2.5" marker-end="url(#arrowDownRed)"/>
+          <text id="txtSpringDown" x="264" y="64" font-size="10" font-weight="800" fill="#ef4444">F</text>
+        </g>
+
+        <!-- Spring Displacement Delta Badge -->
+        <rect id="badgeXBox" x="270" y="105" width="105" height="26" rx="6" fill="#1e1b4b" stroke="#6366f1" stroke-width="1"/>
+        <text id="badgeXText" x="322" y="122" font-size="11" font-weight="800" fill="#c7d2fe" text-anchor="middle">x = 100.0 cm</text>
+
+        <!-- ===== RIGHT SIDE: WIRE SYSTEM ===== -->
+        <!-- Top Wire Clamp -->
+        <rect x="545" y="34" width="30" height="12" fill="#475569" rx="2"/>
+        <circle cx="560" cy="46" r="4.5" fill="#334155" stroke="#94a3b8" stroke-width="1.5"/>
+
+        <!-- Dynamic Hanging Wire -->
+        <line id="svgWire" x1="560" y1="46" x2="560" y2="220" stroke="#94a3b8" stroke-width="3" stroke-linecap="round"/>
+
+        <!-- Wire Hanging Weight & Fixture -->
+        <g id="wireHanger" transform="translate(0, 0)">
+          <!-- Chuck / Collet -->
+          <rect x="552" y="220" width="16" height="12" fill="#475569" rx="2"/>
+          <line x1="560" y1="232" x2="560" y2="242" stroke="#64748b" stroke-width="2.5"/>
+
+          <!-- Suspended Weight Discs -->
+          <g id="wireWeight" filter="url(#softShadow)">
+            <rect x="525" y="242" width="70" height="34" rx="6" fill="url(#weightGrad)" stroke="#475569" stroke-width="1.5"/>
+            <text id="txtWireWeight" x="560" y="263" font-size="11.5" font-weight="800" fill="#ffffff" text-anchor="middle">50 N</text>
+          </g>
+
+          <!-- Force Vector Arrows for Wire -->
+          <line id="vecWireUp" x1="606" y1="242" x2="606" y2="212" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrowUpGreen)"/>
+          <text id="txtWireUp" x="614" y="226" font-size="10" font-weight="800" fill="#10b981">T</text>
+          <line id="vecWireDown" x1="606" y1="242" x2="606" y2="274" stroke="#ef4444" stroke-width="2.5" marker-end="url(#arrowDownRed)"/>
+          <text id="txtWireDown" x="614" y="266" font-size="10" font-weight="800" fill="#ef4444">F</text>
+        </g>
+
+        <!-- INSET: HIGH-PRECISION DIGITAL MICROMETER / GAUGE -->
+        <g transform="translate(635, 75)" filter="url(#softShadow)">
+          <rect x="0" y="0" width="112" height="115" rx="10" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+          <rect x="0" y="0" width="112" height="24" rx="10" fill="#0f172a"/>
+          <text x="56" y="16" font-size="9.5" font-weight="800" fill="#cbd5e1" text-anchor="middle">🔬 প্রসারণ পরিমাপক</text>
+
+          <!-- Digital Readout Box -->
+          <rect x="10" y="32" width="92" height="30" rx="6" fill="#020617" stroke="#1e293b"/>
+          <text id="txtGaugeVal" x="56" y="52" font-size="13" font-weight="900" fill="#38bdf8" text-anchor="middle">0.159 mm</text>
+
+          <!-- Micro Strain indicator -->
+          <text x="56" y="76" font-size="8.5" font-weight="700" fill="#94a3b8" text-anchor="middle">বিকৃতি (Strain):</text>
+          <text id="txtGaugeStrain" x="56" y="90" font-size="9.5" font-weight="800" fill="#2dd4bf" text-anchor="middle">7.96 × 10⁻⁵</text>
+          <text id="txtGaugeStatus" x="56" y="105" font-size="8" font-weight="800" fill="#34d399" text-anchor="middle">✓ সীমার ভেতর</text>
+        </g>
+
+        <!-- INSET: WIRE SPECS ANNOTATION -->
+        <g transform="translate(415, 75)">
+          <rect x="0" y="0" width="110" height="95" rx="8" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+          <text x="10" y="18" font-size="10" font-weight="800" fill="#e2e8f0">তারের বিবরণ:</text>
+          <text id="txtSpecMat" x="10" y="36" font-size="9" font-weight="700" fill="#94a3b8">• ধাতু: ইস্পাত</text>
+          <text id="txtSpecLen" x="10" y="52" font-size="9" font-weight="700" fill="#94a3b8">• দৈর্ঘ্য: L = 2.0 m</text>
+          <text id="txtSpecRad" x="10" y="68" font-size="9" font-weight="700" fill="#94a3b8">• ব্যাসার্ধ: r = 1.0 mm</text>
+          <text id="txtSpecArea" x="10" y="84" font-size="9" font-weight="700" fill="#38bdf8">• ক্ষেত্রফল: 3.14 mm²</text>
+        </g>
+      </svg>
+    </div>
+
+    <!-- Controls Panel -->
+    <div class="controls">
+      <!-- Slider 1: Force F -->
+      <div class="control-group">
+        <label>
+          <span>ঝুলন্ত বল (F): <b id="lblF" class="val-badge">50 N</b></span>
+          <span style="font-size:11px;color:#94a3b8">ভর: <span id="lblMass">5.1 kg</span></span>
+        </label>
+        <input id="rngF" class="custom-range" type="range" min="0" max="100" value="50" step="5" oninput="onFChange(this.value)">
+      </div>
+
+      <!-- Slider 2: Spring Constant k -->
+      <div class="control-group">
+        <label>
+          <span>স্প্রিং ধ্রুবক (k): <b id="lblK" class="val-badge" style="color:#2dd4bf">50 N/m</b></span>
+          <span style="font-size:11px;color:#94a3b8">২০ - ২০০ N/m</span>
+        </label>
+        <input id="rngK" class="custom-range" type="range" min="20" max="200" value="50" step="5" oninput="onKChange(this.value)">
+      </div>
+
+      <!-- Slider 3: Wire Length L -->
+      <div class="control-group">
+        <label>
+          <span>তারের দৈর্ঘ্য (L): <b id="lblL" class="val-badge" style="color:#fde68a">2.0 m</b></span>
+          <span style="font-size:11px;color:#94a3b8">১.০ - ৫.০ m</span>
+        </label>
+        <input id="rngL" class="custom-range" type="range" min="1.0" max="5.0" value="2.0" step="0.5" oninput="onLChange(this.value)">
+      </div>
+
+      <!-- Slider 4: Wire Radius r -->
+      <div class="control-group">
+        <label>
+          <span>তারের ব্যাসার্ধ (r): <b id="lblR" class="val-badge" style="color:#c7d2fe">1.0 mm</b></span>
+          <span style="font-size:11px;color:#94a3b8">০.৫ - ২.০ mm</span>
+        </label>
+        <input id="rngR" class="custom-range" type="range" min="0.5" max="2.0" value="1.0" step="0.1" oninput="onRChange(this.value)">
+      </div>
+    </div>
+
+    <!-- Live Calculation Cards -->
+    <div class="grid">
+      <div class="card accent">
+        <div class="title">প্রযুক্ত বল (F)</div>
+        <div class="val" id="cardF">50 N</div>
+      </div>
+      <div class="card">
+        <div class="title">স্প্রিং প্রসারণ (x)</div>
+        <div class="val" id="cardX">100.0 cm</div>
+      </div>
+      <div class="card">
+        <div class="title">বিভব শক্তি (E_p)</div>
+        <div class="val" id="cardEp">25.00 J</div>
+      </div>
+      <div class="card highlight">
+        <div class="title">দৈর্ঘ্য পীড়ন (Stress)</div>
+        <div class="val" id="cardStress">15.92 MPa</div>
+      </div>
+      <div class="card highlight">
+        <div class="title">দৈর্ঘ্য বিকৃতি (Strain)</div>
+        <div class="val" id="cardStrain">7.96 × 10⁻⁵</div>
+      </div>
+      <div class="card warm">
+        <div class="title">তারের বৃদ্ধি (ΔL)</div>
+        <div class="val" id="cardDeltaL">0.159 mm</div>
+      </div>
+    </div>
+
+    <!-- Live Insight Banner -->
+    <div class="readout" id="labInsight">
+      💡 <b>ল্যাব পর্যবেক্ষণ:</b> <span id="insightText">বর্তমানে ৫০ N বল প্রয়োগে স্প্রিংটির প্রসারণ ১০০.০ সেমি এবং ইস্পাতের তারটির প্রসারণ ০.১৫৯ মিমি। ইস্পাতের ইয়ংয়ের গুণাঙ্ক (2.0×10¹¹ Pa) অনেক বেশি হওয়ায় একই বলে তারটির বিকৃতি অতীব সূক্ষ্ম কিন্তু বিশাল অভ্যন্তরীণ পীড়ন তৈরি করে!</span>
+    </div>
+  </div>
+
+  <!-- Interactive Simulation Engine -->
+  <script>
+    // State variables
+    let currentF = 50;   // Newtons
+    let currentK = 50;   // N/m
+    let currentL = 2.0;  // meters
+    let currentR = 1.0;  // mm
+    let currentMat = 'steel';
+    let currentY = 2.0e11; // Pa
+    let currentMatColor = '#94a3b8';
+
+    let oscRunning = false;
+    let oscTimer = null;
+    let oscAngle = 0;
+
+    function setRangeFill(id, val, min, max) {
+      const el = document.getElementById(id);
+      if (el) {
+        const pct = ((val - min) / (max - min)) * 100;
+        el.style.setProperty('--fill', pct + '%');
+      }
+    }
+
+    function setMaterial(matName, Yval, colorCode, btnElement) {
+      currentMat = matName;
+      currentY = Yval;
+      currentMatColor = colorCode;
+
+      // Update button active states
+      document.querySelectorAll('.mat-btn-row button').forEach(btn => {
+        if (btn.id !== 'animBtn') btn.classList.remove('active');
+      });
+      if (btnElement) {
+        btnElement.classList.add('active');
+      }
+
+      // Update wire appearance
+      const wire = document.getElementById('svgWire');
+      if (wire) {
+        wire.setAttribute('stroke', colorCode);
+      }
+
+      const matBengali = {
+        'steel': 'ইস্পাত',
+        'copper': 'তামা',
+        'alum': 'অ্যালুমিনিয়াম'
+      };
+      const specMat = document.getElementById('txtSpecMat');
+      if (specMat) {
+        specMat.textContent = `• ধাতু: ${matBengali[matName] || matName}`;
+      }
+
+      updateLab();
+    }
+
+    function onFChange(val) {
+      currentF = parseFloat(val);
+      document.getElementById('lblF').textContent = currentF + ' N';
+      document.getElementById('lblMass').textContent = (currentF / 9.8).toFixed(1) + ' kg';
+      setRangeFill('rngF', currentF, 0, 100);
+      updateLab();
+    }
+
+    function onKChange(val) {
+      currentK = parseFloat(val);
+      document.getElementById('lblK').textContent = currentK + ' N/m';
+      setRangeFill('rngK', currentK, 20, 200);
+      updateLab();
+    }
+
+    function onLChange(val) {
+      currentL = parseFloat(val);
+      document.getElementById('lblL').textContent = currentL.toFixed(1) + ' m';
+      document.getElementById('txtSpecLen').textContent = `• দৈর্ঘ্য: L = ${currentL.toFixed(1)} m`;
+      setRangeFill('rngL', currentL, 1.0, 5.0);
+      updateLab();
+    }
+
+    function onRChange(val) {
+      currentR = parseFloat(val);
+      document.getElementById('lblR').textContent = currentR.toFixed(1) + ' mm';
+      document.getElementById('txtSpecRad').textContent = `• ব্যাসার্ধ: r = ${currentR.toFixed(1)} mm`;
+      setRangeFill('rngR', currentR, 0.5, 2.0);
+      updateLab();
+    }
+
+    // Dynamic Helical Spring Path Generator using smooth bezier coils
+    function generateSpringD(startX, startY, endY, coils, radius) {
+      let d = `M ${startX} ${startY}`;
+      const totalLen = Math.max(30, endY - startY);
+      const turns = coils;
+      const step = totalLen / (turns * 2);
+      for (let i = 0; i < turns; i++) {
+        const topY = startY + (2 * i + 0.5) * step;
+        const midY = startY + (2 * i + 1.0) * step;
+        const botY = startY + (2 * i + 1.5) * step;
+        const endYStep = startY + (2 * i + 2.0) * step;
+        d += ` Q ${startX + radius} ${topY}, ${startX} ${midY} Q ${startX - radius} ${botY}, ${startX} ${endYStep}`;
+      }
+      return d;
+    }
+
+    function updateLab() {
+      // 1. Calculations for Spring
+      const xMeters = currentK > 0 ? (currentF / currentK) : 0;
+      const xCm = xMeters * 100; // cm
+      const Ep = 0.5 * currentK * (xMeters * xMeters); // Joules
+
+      // 2. Calculations for Wire
+      const rMeters = currentR * 1e-3;
+      const areaM2 = Math.PI * rMeters * rMeters;
+      const areaMm2 = areaM2 * 1e6;
+      const stressPa = areaM2 > 0 ? (currentF / areaM2) : 0;
+      const stressMPa = stressPa / 1e6;
+      const strain = currentY > 0 ? (stressPa / currentY) : 0;
+      const deltaLMeters = strain * currentL;
+      const deltaLMm = deltaLMeters * 1000;
+
+      // 3. Update Text & Cards
+      document.getElementById('cardF').textContent = currentF + ' N';
+      document.getElementById('cardX').textContent = xCm.toFixed(1) + ' cm';
+      document.getElementById('cardEp').textContent = Ep.toFixed(2) + ' J';
+      document.getElementById('cardStress').textContent = stressMPa.toFixed(2) + ' MPa';
+
+      // Scientific formatting for Strain
+      let strainExp = 0;
+      let strainBase = 0;
+      if (strain > 0) {
+        const expStr = strain.toExponential(2);
+        const parts = expStr.split('e');
+        strainBase = parts[0];
+        strainExp = parts[1];
+      }
+      document.getElementById('cardStrain').textContent = strain > 0 ? `${strainBase} × 10${strainExp}` : '0';
+      document.getElementById('cardDeltaL').textContent = deltaLMm.toFixed(3) + ' mm';
+
+      // Micrometer inset values
+      document.getElementById('txtGaugeVal').textContent = deltaLMm.toFixed(3) + ' mm';
+      document.getElementById('txtGaugeStrain').textContent = strain > 0 ? `${strainBase} × 10${strainExp}` : '0';
+      document.getElementById('txtSpecArea').textContent = `• ক্ষেত্রফল: ${areaMm2.toFixed(2)} mm²`;
+
+      // 4. Update SVG Visual Elements
+      const springVisualExtension = Math.min(170, (xCm / 100) * 60);
+      const springEndY = 80 + springVisualExtension;
+
+      const springPath = document.getElementById('svgSpring');
+      if (springPath) {
+        springPath.setAttribute('d', generateSpringD(210, 48, springEndY, 8, 18));
+      }
+
+      const springHanger = document.getElementById('springHanger');
+      if (springHanger) {
+        springHanger.setAttribute('transform', `translate(0, ${springEndY - 48})`);
+      }
+
+      const pointerLine = document.getElementById('springPointerLine');
+      if (pointerLine) {
+        pointerLine.setAttribute('y1', springEndY + 32);
+        pointerLine.setAttribute('y2', springEndY + 32);
+      }
+      const pointerArrow = document.getElementById('springPointerArrow');
+      if (pointerArrow) {
+        const py = springEndY + 32;
+        pointerArrow.setAttribute('points', `98,${py} 106,${py - 4} 106,${py + 4}`);
+      }
+
+      const badgeXText = document.getElementById('badgeXText');
+      if (badgeXText) {
+        badgeXText.textContent = `x = ${xCm.toFixed(1)} cm`;
+        const badgeXBox = document.getElementById('badgeXBox');
+        if (badgeXBox) {
+          const badgeY = Math.min(270, Math.max(90, 80 + springVisualExtension / 2));
+          badgeXBox.setAttribute('y', badgeY);
+          badgeXText.setAttribute('y', badgeY + 17);
+        }
+      }
+
+      const txtSpringWeight = document.getElementById('txtSpringWeight');
+      if (txtSpringWeight) {
+        txtSpringWeight.textContent = currentF + ' N';
+      }
+      const txtWireWeight = document.getElementById('txtWireWeight');
+      if (txtWireWeight) {
+        txtWireWeight.textContent = currentF + ' N';
+      }
+
+      // Vector arrows length scaling
+      const vecUp = document.getElementById('vecSpringUp');
+      const vecDown = document.getElementById('vecSpringDown');
+      const vecWireUp = document.getElementById('vecWireUp');
+      const vecWireDown = document.getElementById('vecWireDown');
+      const vecLen = Math.min(45, Math.max(10, currentF * 0.4));
+
+      if (vecUp) vecUp.setAttribute('y2', (40 - vecLen));
+      if (vecDown) vecDown.setAttribute('y2', (40 + vecLen));
+      if (vecWireUp) vecWireUp.setAttribute('y2', (242 - vecLen));
+      if (vecWireDown) vecWireDown.setAttribute('y2', (242 + vecLen));
+
+      // Wire SVG elements
+      const wire = document.getElementById('svgWire');
+      const wireVisualExt = Math.min(25, deltaLMm * 20);
+      const wireEndY = 220 + wireVisualExt;
+
+      if (wire) {
+        wire.setAttribute('y2', wireEndY);
+        wire.setAttribute('stroke-width', Math.max(1.5, currentR * 2.6));
+      }
+
+      const wireHanger = document.getElementById('wireHanger');
+      if (wireHanger) {
+        wireHanger.setAttribute('transform', `translate(0, ${wireVisualExt})`);
+      }
+
+      // 5. Update Dynamic Insight Banner
+      const matNames = {'steel': 'ইস্পাত', 'copper': 'তামা', 'alum': 'অ্যালুমিনিয়াম'};
+      const matBengali = matNames[currentMat] || 'ধাতু';
+      const insightText = document.getElementById('insightText');
+      if (insightText) {
+        insightText.textContent = `বর্তমানে ${currentF} N বল প্রয়োগে স্প্রিংটির প্রসারণ ${xCm.toFixed(1)} সেমি (সঞ্চিত বিভব শক্তি ${Ep.toFixed(2)} J) এবং ${currentL.toFixed(1)} m দীর্ঘ ${matBengali} তারটির প্রসারণ ${deltaLMm.toFixed(3)} মিমি (পীড়ন ${stressMPa.toFixed(2)} MPa)। ${matBengali}র ইয়ং গুণাঙ্ক বেশি হওয়ায় একই বলে স্প্রিংয়ের তুলনায় তারের দৈর্ঘ্য বিকৃতি অতীব সূক্ষ্ম কিন্তু বিশাল অভ্যন্তরীণ পীড়ন তৈরি করে!`;
+      }
+    }
+
+    function toggleOscillation() {
+      const btn = document.getElementById('animBtn');
+      if (oscRunning) {
+        clearInterval(oscTimer);
+        oscTimer = null;
+        oscRunning = false;
+        btn.textContent = '▶️ স্প্রিং দোলন';
+      } else {
+        oscRunning = true;
+        btn.textContent = '⏸️ বিরতি দিন';
+        const baseF = currentF;
+        oscTimer = setInterval(() => {
+          oscAngle += 0.15;
+          const delta = Math.sin(oscAngle) * 20;
+          currentF = Math.max(5, Math.min(95, baseF + delta));
+          document.getElementById('rngF').value = Math.round(currentF);
+          document.getElementById('lblF').textContent = Math.round(currentF) + ' N';
+          document.getElementById('lblMass').textContent = (currentF / 9.8).toFixed(1) + ' kg';
+          setRangeFill('rngF', currentF, 0, 100);
+          updateLab();
+        }, 35);
+      }
+    }
+
+    // Initialize on DOM load
+    document.addEventListener("DOMContentLoaded", function() {
+      setRangeFill('rngF', currentF, 0, 100);
+      setRangeFill('rngK', currentK, 20, 200);
+      setRangeFill('rngL', currentL, 1.0, 5.0);
+      setRangeFill('rngR', currentR, 0.5, 2.0);
+      updateLab();
+    });
+  </script>
+</body>
+</html>
