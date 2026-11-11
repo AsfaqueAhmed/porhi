@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
@@ -12,6 +12,7 @@ import {
   RotateCcw,
   Trophy,
   Save,
+  BarChart3,
 } from 'lucide-react';
 import { LatexRenderer } from '@/components/math/latex-renderer';
 import { apiClient } from '@/lib/api-client';
@@ -19,6 +20,7 @@ import { useUserStore } from '@/store/user-store';
 import { QuestionDTO, QuestionType, ContentStatus } from '@pori/shared';
 import { toBanglaDigits } from '@/lib/formatters';
 import { useLanguageStore } from '@/store/language-store';
+import { DEFAULT_CHAPTERS, findTopicHierarchy } from '@/lib/curriculum-data';
 import { ExamPageSkeleton } from '@/components/ui/shimmer';
 
 const EXAM_QUESTIONS: QuestionDTO[] = [
@@ -83,9 +85,12 @@ const EXAM_QUESTIONS: QuestionDTO[] = [
 
 export default function ExamRunnerPage() {
   const params = useParams();
-  const chapterId = (params?.chapterId as string) || 'ch-motion';
-  const activeSubject = useUserStore((s) => s.activeSubject);
+  const chapterId = (params?.chapterId as string) || 'chap_ssc_physics_ch2';
+  const { activeSubject, recordExamCompletion, recordPracticeAttempt } = useUserStore();
   const { tr, language } = useLanguageStore();
+
+  const resolvedChapter = DEFAULT_CHAPTERS.find((c) => c.id === chapterId);
+  const chapterTitle = resolvedChapter?.titleBangla || 'দ্বিতীয় অধ্যায়: গতি (Motion)';
 
   const [questions, setQuestions] = useState<QuestionDTO[]>(EXAM_QUESTIONS);
   const [isLoading, setIsLoading] = useState(true);
@@ -116,7 +121,6 @@ export default function ExamRunnerPage() {
           setQuestions(res.questions);
         }
       } catch {
-        // Fallback local session
         setSessionId('local_sess_' + Date.now());
       } finally {
         setIsLoading(false);
@@ -127,6 +131,45 @@ export default function ExamRunnerPage() {
 
   const handleSubmitExam = useCallback(async () => {
     setIsSubmitted(true);
+
+    const correct = questions.filter((q) => {
+      const chosen = answers[q.id];
+      return q.options?.find((o) => o.id === chosen)?.isCorrect;
+    }).length;
+    const total = questions.length || 1;
+    const accuracyPercent = Math.round((correct / total) * 100);
+
+    recordExamCompletion({
+      examSessionId: sessionId || 'local_sess_' + Date.now(),
+      chapterId,
+      chapterTitle,
+      score: correct,
+      totalQuestions: questions.length,
+      accuracyPercent,
+      submittedAt: new Date().toISOString(),
+    });
+
+    // Also record attempts for answered questions in learning store
+    questions.forEach((q) => {
+      const chosen = answers[q.id];
+      if (!chosen) return;
+      const correctOpt = q.options?.find((o) => o.isCorrect);
+      const isRight = chosen === correctOpt?.id;
+      const h = findTopicHierarchy(q.topicId || chapterId);
+      recordPracticeAttempt({
+        questionId: q.id,
+        stemBangla: q.stem,
+        topicId: q.topicId || h.topicId,
+        topicTitle: h.topicTitle,
+        chapterId,
+        chapterTitle,
+        selectedKey: chosen,
+        correctKey: correctOpt?.id || chosen,
+        explanationBangla: q.explanation?.directAnswer || q.explanation?.coreConcept,
+        isCorrect: isRight,
+      });
+    });
+
     if (sessionId && !sessionId.startsWith('local_sess_')) {
       try {
         const formattedAnswers = Object.entries(answers).map(([questionId, selectedOptionId]) => ({
@@ -139,7 +182,7 @@ export default function ExamRunnerPage() {
         // Offline submission
       }
     }
-  }, [sessionId, answers]);
+  }, [sessionId, answers, questions, chapterId, chapterTitle, recordExamCompletion, recordPracticeAttempt]);
 
   // Countdown Timer: pure decrements
   useEffect(() => {
@@ -193,18 +236,42 @@ export default function ExamRunnerPage() {
     setFlagged((prev) => ({ ...prev, [qId]: !prev[qId] }));
   };
 
+  const currentQ = questions[currentIndex] || questions[0];
+
+  // Keyboard shortcuts during exam
+  useEffect(() => {
+    if (isSubmitted || !currentQ) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const tagName = (e.target as HTMLElement)?.tagName;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tagName)) return;
+
+      if (['1', '2', '3', '4'].includes(e.key)) {
+        const idx = Number(e.key) - 1;
+        const opt = currentQ.options?.[idx];
+        if (opt) handleSelectOption(currentQ.id, opt.id);
+      } else if (e.key.toLowerCase() === 'f') {
+        toggleFlag(currentQ.id);
+      } else if (e.key === 'ArrowRight' && currentIndex < questions.length - 1) {
+        setCurrentIndex((prev) => prev + 1);
+      } else if (e.key === 'ArrowLeft' && currentIndex > 0) {
+        setCurrentIndex((prev) => prev - 1);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isSubmitted, currentQ, currentIndex, questions.length]);
+
   // Format time mm:ss
   const formatTimer = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     const minsStr = mins.toString().padStart(2, '0');
     const secsStr = secs.toString().padStart(2, '0');
-    return language === 'bn' 
+    return language === 'bn'
       ? `${toBanglaDigits(minsStr)}:${toBanglaDigits(secsStr)}`
       : `${minsStr}:${secsStr}`;
   };
 
-  const currentQ = questions[currentIndex] || questions[0];
   const answeredCount = Object.keys(answers).length;
   const flaggedCount = Object.values(flagged).filter(Boolean).length;
 
@@ -215,7 +282,29 @@ export default function ExamRunnerPage() {
   }).length;
   const incorrectCount = answeredCount - correctCount;
   const skippedCount = questions.length - answeredCount;
-  const scorePercent = Math.round((correctCount / questions.length) * 100);
+  const scorePercent = questions.length > 0 ? Math.round((correctCount / questions.length) * 100) : 0;
+
+  // Topic-wise breakdown for result sheet
+  const topicBreakdown = useMemo(() => {
+    const map: Record<string, { topicTitle: string; total: number; correct: number }> = {};
+    for (const q of questions) {
+      const tId = q.topicId || chapterId;
+      const h = findTopicHierarchy(tId);
+      if (!map[tId]) {
+        map[tId] = { topicTitle: h.topicTitle, total: 0, correct: 0 };
+      }
+      map[tId].total += 1;
+      const chosen = answers[q.id];
+      if (q.options?.find((o) => o.id === chosen)?.isCorrect) {
+        map[tId].correct += 1;
+      }
+    }
+    return Object.entries(map).map(([tId, info]) => ({
+      topicId: tId,
+      ...info,
+      pct: info.total > 0 ? Math.round((info.correct / info.total) * 100) : 0,
+    }));
+  }, [questions, answers, chapterId]);
 
   if (isLoading) {
     return <ExamPageSkeleton />;
@@ -232,7 +321,7 @@ export default function ExamRunnerPage() {
 
           <div>
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              {tr('মডেল টেস্ট ফলাফল শিট', 'Model Test Result Sheet')}
+              {tr('মডেল টেস্ট ফলাফল শিট', 'Model Test Result Sheet')} • {chapterTitle}
             </span>
             <h1 className="text-2xl md:text-3xl font-extrabold text-slate-900 mt-1">
               {tr('তোমার অর্জিত স্কোর: ', 'Your Score: ')}
@@ -261,7 +350,7 @@ export default function ExamRunnerPage() {
             </div>
           </div>
 
-          <div className="flex justify-center gap-3 pt-3">
+          <div className="flex flex-wrap justify-center gap-3 pt-3">
             <button
               onClick={() => {
                 setAnswers({});
@@ -275,6 +364,16 @@ export default function ExamRunnerPage() {
               <RotateCcw className="w-4 h-4" />
               <span>{tr('পুনরায় পরীক্ষা দাও', 'Retake Exam')}</span>
             </button>
+
+            {incorrectCount > 0 && (
+              <Link
+                href={`/practice/${chapterId}?mode=mistakes`}
+                className="inline-flex items-center gap-2 px-4 py-2 text-sm font-bold text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-xl transition-colors"
+              >
+                <span>{tr('ভুল হওয়া প্রশ্নগুলো প্র্যাকটিস করো', 'Practice Missed Questions')}</span>
+              </Link>
+            )}
+
             <Link
               href="/progress"
               className="inline-flex items-center gap-2 px-5 py-2 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors shadow"
@@ -284,6 +383,38 @@ export default function ExamRunnerPage() {
             </Link>
           </div>
         </div>
+
+        {/* Topic-wise Performance Breakdown */}
+        {topicBreakdown.length > 0 && (
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+            <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-indigo-600" />
+              <span>{tr('টপিকভিত্তিক ফলাফল বিশ্লেষণ', 'Topic-wise Performance Breakdown')}</span>
+            </h2>
+            <div className="space-y-3">
+              {topicBreakdown.map((tb) => (
+                <div key={tb.topicId} className="space-y-1">
+                  <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
+                    <span>{tb.topicTitle}</span>
+                    <span>
+                      {language === 'bn'
+                        ? `${toBanglaDigits(tb.correct)}/${toBanglaDigits(tb.total)} (${toBanglaDigits(tb.pct)}%)`
+                        : `${tb.correct}/${tb.total} (${tb.pct}%)`}
+                    </span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${
+                        tb.pct >= 70 ? 'bg-emerald-500' : tb.pct >= 40 ? 'bg-amber-500' : 'bg-rose-500'
+                      }`}
+                      style={{ width: `${tb.pct}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Question Review List */}
         <div className="space-y-4">
@@ -367,7 +498,9 @@ export default function ExamRunnerPage() {
             <Clock className="w-5 h-5" />
           </div>
           <div>
-            <div className="text-xs text-slate-500 font-medium">{tr('অবশিষ্ট সময়', 'Time Remaining')}</div>
+            <div className="text-xs text-slate-500 font-medium">
+              {chapterTitle} • {tr('অবশিষ্ট সময়', 'Time Remaining')}
+            </div>
             <div
               className={`text-lg font-black font-mono ${
                 timeLeft < 180 ? 'text-rose-600 animate-pulse' : 'text-slate-900'

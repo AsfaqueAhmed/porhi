@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import LessonPage from '../src/app/lesson/[topicId]/page';
 import { apiClient } from '../src/lib/api-client';
+import { useUserStore } from '../src/store/user-store';
 import { ContentStatus, QuestionType } from '@pori/shared';
 
 let mockTopicParam = 'top_ssc_physics_ch1_1';
@@ -76,6 +77,15 @@ describe('LessonPage - MCQ অনুশীলন and Navigation', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockTopicParam = 'top_ssc_physics_ch1_1';
+    useUserStore.setState({
+      completedTopics: [],
+      lastVisitedTopic: null,
+      topicMastery: {},
+      savedMistakes: [],
+      bookmarks: [],
+      lessonNotes: {},
+      studyDates: [],
+    });
   });
 
   it('renders correct chapter practice link and curriculum back link for Chapter 1 lesson (never hardcoded ch-motion)', async () => {
@@ -179,5 +189,47 @@ describe('LessonPage - MCQ অনুশীলন and Navigation', () => {
     expect(practiceBtn?.getAttribute('href')).toBe(
       '/practice/chap_ssc_physics_ch2?topicId=top_ssc_physics_ch2_7'
     );
+  });
+
+  it('records lastVisitedTopic, supports marking lesson complete, saving notes, and renders next/prev topic navigation', async () => {
+    mockTopicParam = 'top_ssc_physics_ch1_2';
+
+    vi.mocked(apiClient.get).mockImplementation(async (endpoint: string) => {
+      if (endpoint.startsWith('/lessons/topic/')) {
+        return {
+          ...sampleLessonCh1,
+          topicId: 'top_ssc_physics_ch1_2',
+          titleBangla: '১.২ পদার্থবিজ্ঞানের পরিসর (Scope of Physics)',
+        } as any;
+      }
+      return [] as any;
+    });
+
+    render(<LessonPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('১.২ পদার্থবিজ্ঞানের পরিসর (Scope of Physics)')).toBeDefined();
+    });
+
+    expect(useUserStore.getState().lastVisitedTopic?.topicId).toBe('top_ssc_physics_ch1_2');
+
+    // Previous and Next topic links
+    const prevLink = screen.getByRole('link', { name: /পূর্ববর্তী টপিক/i });
+    const nextLink = screen.getByRole('link', { name: /পরবর্তী টপিক/i });
+    expect(prevLink.getAttribute('href')).toBe('/lesson/top_ssc_physics_ch1_1');
+    expect(nextLink.getAttribute('href')).toBe('/lesson/top_ssc_physics_ch1_3');
+
+    // Mark complete button
+    const completeBtn = screen.getByRole('button', { name: /পাঠ সম্পন্ন করুন/i });
+    fireEvent.click(completeBtn);
+    expect(useUserStore.getState().completedTopics).toContain('top_ssc_physics_ch1_2');
+    expect(screen.getByRole('button', { name: /✓ পাঠ সম্পন্ন/i })).toBeDefined();
+
+    // Open personal note and save
+    const noteBtn = screen.getByRole('button', { name: /আমার নোট/i });
+    fireEvent.click(noteBtn);
+    const noteInput = screen.getByPlaceholderText(/এই পাঠের মূল সূত্র বা নোট লিখে রাখো/i);
+    fireEvent.change(noteInput, { target: { value: 'ক্লাসিক্যাল ও মডার্ন ফিজিক্স' } });
+    expect(useUserStore.getState().lessonNotes['top_ssc_physics_ch1_2']).toBe('ক্লাসিক্যাল ও মডার্ন ফিজিক্স');
   });
 });

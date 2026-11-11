@@ -1,8 +1,9 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import PracticeRunnerPage from '../src/app/practice/[chapterId]/page';
 import { apiClient } from '../src/lib/api-client';
+import { useUserStore } from '../src/store/user-store';
 import { ContentStatus, QuestionType } from '@pori/shared';
 
 let mockSearchParams = new URLSearchParams();
@@ -22,15 +23,15 @@ vi.mock('../src/lib/api-client', () => ({
   },
 }));
 
-describe('PracticeRunnerPage - Topic-only Practice Filtering', () => {
+describe('PracticeRunnerPage - Topic-only Practice Filtering & Smart Runner', () => {
   const qTopic1 = {
     id: 'q_ch1_1_mcq_1',
     topicId: 'top_ssc_physics_ch1_1',
     type: QuestionType.MCQ,
     stem: "গ্রিক শব্দ *'Fusis'* থেকে 'Physics' বা পদার্থবিজ্ঞান শব্দের উৎপত্তি।",
     options: [
-      { id: 'opt_1', text: 'প্রকৃতি (Nature)' },
-      { id: 'opt_2', text: 'শক্তি (Energy)' },
+      { id: 'opt_1', text: 'প্রকৃতি (Nature)', isCorrect: true },
+      { id: 'opt_2', text: 'শক্তি (Energy)', isCorrect: false },
     ],
     difficulty: 'EASY',
     status: ContentStatus.PUBLISHED,
@@ -43,8 +44,8 @@ describe('PracticeRunnerPage - Topic-only Practice Filtering', () => {
     type: QuestionType.MCQ,
     stem: 'পদার্থবিজ্ঞানের মূল পরিসর কয়টি প্রধান শাখায় বিভক্ত?',
     options: [
-      { id: 'opt_3', text: '২টি' },
-      { id: 'opt_4', text: '৪টি' },
+      { id: 'opt_3', text: '২টি', isCorrect: true },
+      { id: 'opt_4', text: '৪টি', isCorrect: false },
     ],
     difficulty: 'MEDIUM',
     status: ContentStatus.PUBLISHED,
@@ -55,6 +56,15 @@ describe('PracticeRunnerPage - Topic-only Practice Filtering', () => {
     vi.clearAllMocks();
     mockParams = { chapterId: 'chap_ssc_physics_ch1' };
     mockSearchParams = new URLSearchParams('topicId=top_ssc_physics_ch1_1');
+    useUserStore.setState({
+      completedTopics: [],
+      lastVisitedTopic: null,
+      topicMastery: {},
+      savedMistakes: [],
+      bookmarks: [],
+      lessonNotes: {},
+      studyDates: [],
+    });
   });
 
   it('fetches and shows ONLY the MCQs for the requested topic when topicId is present in URL', async () => {
@@ -71,9 +81,7 @@ describe('PracticeRunnerPage - Topic-only Practice Filtering', () => {
       expect(apiClient.get).toHaveBeenCalledWith(
         '/practice/chapter/chap_ssc_physics_ch1/questions?topicId=top_ssc_physics_ch1_1'
       );
-      // Question 1 of Topic 1 should be visible
       expect(screen.getByText(/Fusis/i)).toBeDefined();
-      // Total count should only be 1 question
       expect(screen.getByText(/১ \/ ১/)).toBeDefined();
       expect(screen.queryByText(/পদার্থবিজ্ঞানের মূল পরিসর/)).toBeNull();
     });
@@ -107,6 +115,48 @@ describe('PracticeRunnerPage - Topic-only Practice Filtering', () => {
         '/practice/chapter/chap_ssc_physics_ch1/questions'
       );
       expect(screen.getByText(/১ \/ ২/)).toBeDefined();
+    });
+  });
+
+  it('supports difficulty filtering (resets currentIndex to 0), records attempts in store, and shows session summary', async () => {
+    mockSearchParams = new URLSearchParams(); // Full chapter
+
+    vi.mocked(apiClient.get).mockResolvedValueOnce([qTopic1, qTopic2] as any);
+    vi.mocked(apiClient.post).mockResolvedValueOnce({
+      isCorrect: false,
+      correctOptionId: 'opt_3',
+      explanation: {
+        directAnswer: 'সঠিক উত্তর ২টি।',
+        coreConcept: 'ক্লাসিক্যাল ও আধুনিক পদার্থবিজ্ঞান।',
+      },
+    });
+
+    render(<PracticeRunnerPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/১ \/ ২/)).toBeDefined();
+    });
+
+    // Move to question 2 first, then filter by MEDIUM to verify index reset
+    const nextBtn = screen.getByRole('button', { name: /পরবর্তী প্রশ্ন/i });
+    fireEvent.click(nextBtn);
+    expect(screen.getByText(/২ \/ ২/)).toBeDefined();
+
+    const mediumFilterBtn = screen.getByRole('button', { name: /মধ্যম/i });
+    fireEvent.click(mediumFilterBtn);
+
+    // Should now show 1 / 1 (qTopic2) without crashing
+    expect(screen.getByText(/১ \/ ১/)).toBeDefined();
+    expect(screen.getByText(/পদার্থবিজ্ঞানের মূল পরিসর/)).toBeDefined();
+
+    // Select wrong answer on qTopic2
+    const wrongOpt = screen.getByText('৪টি');
+    fireEvent.click(wrongOpt);
+
+    await waitFor(() => {
+      expect(useUserStore.getState().savedMistakes.length).toBe(1);
+      expect(screen.getByText(/অনুশীলন সারসংক্ষেপ/i)).toBeDefined();
+      expect(screen.getByRole('button', { name: /ভুল প্রশ্নগুলো আবার অনুশীলন করো/i })).toBeDefined();
     });
   });
 });

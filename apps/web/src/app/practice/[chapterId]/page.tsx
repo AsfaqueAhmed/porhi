@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
@@ -12,6 +12,9 @@ import {
   ArrowLeft,
   ChevronDown,
   ChevronUp,
+  Bookmark,
+  RotateCcw,
+  Award,
 } from 'lucide-react';
 import { LatexRenderer } from '@/components/math/latex-renderer';
 import { apiClient } from '@/lib/api-client';
@@ -19,6 +22,7 @@ import { QuestionDTO, QuestionType, ContentStatus } from '@pori/shared';
 import { toBanglaDigits } from '@/lib/formatters';
 import { useUserStore } from '@/store/user-store';
 import { useLanguageStore } from '@/store/language-store';
+import { findTopicHierarchy, DEFAULT_CHAPTERS } from '@/lib/curriculum-data';
 import { PracticePageSkeleton } from '@/components/ui/shimmer';
 
 const SAMPLE_QUESTIONS: QuestionDTO[] = [
@@ -99,18 +103,30 @@ $$\\frac{h_2}{h} = \\left(\\frac{6}{3}\\right)^2 = (2)^2 = 4 \\implies h_2 = 4h$
   },
 ];
 
+type DifficultyFilter = 'ALL' | 'EASY' | 'MEDIUM' | 'HARD';
+
 export default function PracticeRunnerPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const chapterId = (params?.chapterId as string) || 'chap_ssc_physics_ch2';
   const topicId = searchParams?.get('topicId') || '';
-  const activeSubject = useUserStore((s) => s.activeSubject);
+  const initialMode = searchParams?.get('mode') === 'mistakes' ? 'MISTAKES' : 'ALL';
+
+  const {
+    activeSubject,
+    bookmarks,
+    savedMistakes,
+    recordPracticeAttempt,
+    toggleBookmark,
+  } = useUserStore();
   const { tr, language } = useLanguageStore();
 
   const [questions, setQuestions] = useState<QuestionDTO[]>(SAMPLE_QUESTIONS);
   const [isLoading, setIsLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
+  const [difficultyFilter, setDifficultyFilter] = useState<DifficultyFilter>('ALL');
+  const [practiceMode, setPracticeMode] = useState<'ALL' | 'MISTAKES'>(initialMode);
   const [openLayers, setOpenLayers] = useState<Record<string, boolean>>({
     direct: true,
     concept: true,
@@ -119,6 +135,9 @@ export default function PracticeRunnerPage() {
     citation: false,
     protip: true,
   });
+
+  const resolvedChapter = DEFAULT_CHAPTERS.find((c) => c.id === chapterId);
+  const chapterTitle = resolvedChapter?.titleBangla || 'অধ্যায় অনুশীলন';
 
   useEffect(() => {
     async function loadQuestions() {
@@ -131,7 +150,6 @@ export default function PracticeRunnerPage() {
           setQuestions(filtered);
         }
       } catch {
-        // Fallback to sample questions filtered by topicId if provided
         if (topicId) {
           const topicFiltered = SAMPLE_QUESTIONS.filter((q) => q.topicId === topicId);
           setQuestions(topicFiltered);
@@ -145,13 +163,37 @@ export default function PracticeRunnerPage() {
     loadQuestions();
   }, [chapterId, topicId]);
 
-  const currentQ = questions[currentIndex] || questions[0];
-  const selectedOptionId = selectedAnswers[currentQ?.id];
+  const activeQuestions = useMemo(() => {
+    return questions.filter((q) => {
+      if (difficultyFilter !== 'ALL' && (q.difficulty || 'MEDIUM') !== difficultyFilter) {
+        return false;
+      }
+      if (practiceMode === 'MISTAKES') {
+        const isLocallyWrongInSession =
+          selectedAnswers[q.id] &&
+          !q.options?.find((o) => o.id === selectedAnswers[q.id])?.isCorrect;
+        const isInSavedMistakes = savedMistakes.some(
+          (m) => m.questionId === q.id && !m.resolved
+        );
+        return Boolean(isLocallyWrongInSession || isInSavedMistakes);
+      }
+      return true;
+    });
+  }, [questions, difficultyFilter, practiceMode, selectedAnswers, savedMistakes]);
+
+  const safeIndex = activeQuestions.length > 0 ? Math.min(currentIndex, activeQuestions.length - 1) : 0;
+  const currentQ = activeQuestions[safeIndex] || activeQuestions[0];
+  const selectedOptionId = currentQ ? selectedAnswers[currentQ.id] : undefined;
   const isAnswered = Boolean(selectedOptionId);
 
   const handleSelectOption = async (optId: string) => {
-    if (isAnswered) return; // Prevent re-selection
+    if (!currentQ || isAnswered) return;
     setSelectedAnswers((prev) => ({ ...prev, [currentQ.id]: optId }));
+
+    const hierarchy = findTopicHierarchy(currentQ.topicId || topicId || chapterId);
+    let isCorrectResult = Boolean(currentQ.options?.find((o) => o.id === optId)?.isCorrect);
+    let correctOptionIdResult = currentQ.options?.find((o) => o.isCorrect)?.id || optId;
+    let explanationResult: any = currentQ.explanation;
 
     try {
       const res = await apiClient.post<{
@@ -163,13 +205,18 @@ export default function PracticeRunnerPage() {
         selectedOptionId: optId,
       });
 
-      if (res?.explanation) {
+      if (res) {
+        isCorrectResult = res.isCorrect;
+        correctOptionIdResult = res.correctOptionId;
+        if (res.explanation) {
+          explanationResult = res.explanation;
+        }
         setQuestions((prev) =>
           prev.map((q) =>
             q.id === currentQ.id
               ? {
                   ...q,
-                  explanation: res.explanation,
+                  explanation: res.explanation || q.explanation,
                   options: q.options?.map((o) => ({
                     ...o,
                     isCorrect: o.id === res.correctOptionId,
@@ -182,18 +229,58 @@ export default function PracticeRunnerPage() {
     } catch {
       // Offline fallback: keep local questions
     }
+
+    recordPracticeAttempt({
+      questionId: currentQ.id,
+      stemBangla: currentQ.stem,
+      topicId: currentQ.topicId || hierarchy.topicId,
+      topicTitle: hierarchy.topicTitle,
+      chapterId,
+      chapterTitle: resolvedChapter?.titleBangla || hierarchy.chapterTitle,
+      selectedKey: optId,
+      correctKey: correctOptionIdResult,
+      explanationBangla: explanationResult?.directAnswer || explanationResult?.coreConcept,
+      isCorrect: isCorrectResult,
+    });
   };
+
+  // Keyboard shortcuts (1-4, Left/Right arrows)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const tagName = (e.target as HTMLElement)?.tagName;
+      if (['INPUT', 'TEXTAREA', 'SELECT'].includes(tagName)) return;
+      if (!currentQ) return;
+
+      if (['1', '2', '3', '4'].includes(e.key) && !isAnswered) {
+        const idx = Number(e.key) - 1;
+        const targetOpt = currentQ.options?.[idx];
+        if (targetOpt) {
+          handleSelectOption(targetOpt.id);
+        }
+      } else if (e.key === 'ArrowRight' && safeIndex < activeQuestions.length - 1) {
+        setCurrentIndex((prev) => Math.min(activeQuestions.length - 1, prev + 1));
+      } else if (e.key === 'ArrowLeft' && safeIndex > 0) {
+        setCurrentIndex((prev) => Math.max(0, prev - 1));
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentQ, isAnswered, safeIndex, activeQuestions.length]);
 
   const toggleLayer = (layer: string) => {
     setOpenLayers((prev) => ({ ...prev, [layer]: !prev[layer] }));
   };
 
-  const correctCount = questions.filter((q) => {
+  const correctCount = activeQuestions.filter((q) => {
     const chosen = selectedAnswers[q.id];
     return q.options?.find((o) => o.id === chosen)?.isCorrect;
   }).length;
 
-  const answeredCount = Object.keys(selectedAnswers).length;
+  const answeredCount = activeQuestions.filter((q) => Boolean(selectedAnswers[q.id])).length;
+  const wrongInSessionCount = answeredCount - correctCount;
+  const isAllActiveAnswered = activeQuestions.length > 0 && answeredCount === activeQuestions.length;
+  const sessionAccuracyPct =
+    answeredCount > 0 ? Math.round((correctCount / answeredCount) * 100) : 0;
 
   if (isLoading) {
     return <PracticePageSkeleton />;
@@ -234,238 +321,417 @@ export default function PracticeRunnerPage() {
     );
   }
 
+  const isQuestionBookmarked = currentQ
+    ? bookmarks.some((b) => b.id === currentQ.id && b.type === 'question')
+    : false;
+
   return (
-    <div className="max-w-3xl mx-auto space-y-6 pb-12">
+    <div className="max-w-3xl mx-auto space-y-5 pb-12">
       {/* Header and Progress */}
-      <div className="flex items-center justify-between border-b border-slate-200 pb-4">
-        <div>
-          <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider">
-            {topicId ? tr('টপিকভিত্তিক MCQ অনুশীলন', 'Topic MCQ Practice') : tr('MCQ অনুশীলন', 'MCQ Practice')}
-          </span>
-          <h1 className="text-xl font-bold text-slate-900">
-            {tr('প্রশ্ন ', 'Question ')}
-            {language === 'bn' ? toBanglaDigits(currentIndex + 1) : currentIndex + 1} / {language === 'bn' ? toBanglaDigits(questions.length) : questions.length}
-          </h1>
+      <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-2xs space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+          <div>
+            <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider">
+              {topicId ? tr('টপিকভিত্তিক MCQ অনুশীলন', 'Topic MCQ Practice') : chapterTitle}
+            </span>
+            <h1 className="text-xl font-bold text-slate-900">
+              {tr('প্রশ্ন ', 'Question ')}
+              {language === 'bn' ? toBanglaDigits(safeIndex + 1) : safeIndex + 1} /{' '}
+              {language === 'bn' ? toBanglaDigits(activeQuestions.length || 1) : activeQuestions.length || 1}
+            </h1>
+          </div>
+
+          {/* Score indicator */}
+          <div className="flex items-center gap-2.5 text-xs font-semibold">
+            <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200">
+              {tr('সঠিক: ', 'Correct: ')}{language === 'bn' ? toBanglaDigits(correctCount) : correctCount}
+            </span>
+            <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full">
+              {tr('সম্পন্ন: ', 'Completed: ')}
+              {language === 'bn' ? toBanglaDigits(answeredCount) : answeredCount}/
+              {language === 'bn' ? toBanglaDigits(activeQuestions.length) : activeQuestions.length}
+            </span>
+          </div>
         </div>
 
-        {/* Score indicator */}
-        <div className="flex items-center gap-3 text-xs font-semibold">
-          <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full border border-emerald-200">
-            {tr('সঠিক: ', 'Correct: ')}{language === 'bn' ? toBanglaDigits(correctCount) : correctCount}
-          </span>
-          <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full">
-            {tr('সম্পন্ন: ', 'Completed: ')}{language === 'bn' ? toBanglaDigits(answeredCount) : answeredCount}/{language === 'bn' ? toBanglaDigits(questions.length) : questions.length}
-          </span>
+        {/* Difficulty & Mistake Filter Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-center gap-1.5">
+            {(
+              [
+                { key: 'ALL', labelBn: 'সব', labelEn: 'All' },
+                { key: 'EASY', labelBn: 'সহজ', labelEn: 'Easy' },
+                { key: 'MEDIUM', labelBn: 'মধ্যম', labelEn: 'Medium' },
+                { key: 'HARD', labelBn: 'কঠিন', labelEn: 'Hard' },
+              ] as const
+            ).map((pill) => (
+              <button
+                key={pill.key}
+                type="button"
+                onClick={() => {
+                  setDifficultyFilter(pill.key);
+                  setCurrentIndex(0);
+                }}
+                className={`px-3 py-1 rounded-xl text-xs font-bold transition-colors cursor-pointer ${
+                  difficultyFilter === pill.key
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                }`}
+              >
+                {tr(pill.labelBn, pill.labelEn)}
+              </button>
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              setPracticeMode((prev) => (prev === 'MISTAKES' ? 'ALL' : 'MISTAKES'));
+              setCurrentIndex(0);
+            }}
+            className={`px-3 py-1 rounded-xl text-xs font-bold border transition-colors cursor-pointer ${
+              practiceMode === 'MISTAKES'
+                ? 'bg-rose-600 text-white border-rose-600'
+                : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+            }`}
+          >
+            {tr('ভুল প্রশ্ন রিভিউ', 'Mistakes Review')}
+          </button>
         </div>
       </div>
 
-      {/* Question Card */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
-        {/* Stem */}
-        <div className="text-lg font-semibold text-slate-900 leading-relaxed">
-          <LatexRenderer content={currentQ?.stem} />
+      {activeQuestions.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-slate-200 p-8 text-center space-y-3">
+          <p className="text-sm font-semibold text-slate-700">
+            {tr('এই ফিল্টারে কোনো প্রশ্ন পাওয়া যায়নি।', 'No questions match the selected filter.')}
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setDifficultyFilter('ALL');
+              setPracticeMode('ALL');
+              setCurrentIndex(0);
+            }}
+            className="px-4 py-2 rounded-xl bg-indigo-600 text-white text-xs font-bold"
+          >
+            {tr('সকল প্রশ্ন দেখাও', 'Show All Questions')}
+          </button>
         </div>
-
-        {/* Options */}
-        <div className="grid grid-cols-1 gap-3">
-          {currentQ?.options?.map((opt, idx) => {
-            const isChosen = selectedOptionId === opt.id;
-            const letters = language === 'bn' ? ['ক', 'খ', 'গ', 'ঘ'] : ['A', 'B', 'C', 'D'];
-            const letter = letters[idx] || String(idx + 1);
-
-            let btnStyle = 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50';
-            if (isAnswered) {
-              if (opt.isCorrect) {
-                btnStyle = 'border-emerald-500 bg-emerald-50 text-emerald-950 font-semibold ring-2 ring-emerald-500/30';
-              } else if (isChosen && !opt.isCorrect) {
-                btnStyle = 'border-rose-400 bg-rose-50 text-rose-950 font-semibold';
-              } else {
-                btnStyle = 'border-slate-200 opacity-60';
-              }
-            }
-
-            return (
-              <button
-                key={opt.id}
-                onClick={() => handleSelectOption(opt.id)}
-                disabled={isAnswered}
-                className={`w-full p-4 rounded-xl border text-left flex items-center justify-between transition-all ${btnStyle}`}
+      ) : (
+        <>
+          {/* Question Card */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6">
+            <div className="flex items-center justify-between gap-2">
+              <span
+                className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                  currentQ?.difficulty === 'EASY'
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    : currentQ?.difficulty === 'HARD'
+                    ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                    : 'bg-amber-50 text-amber-800 border border-amber-200'
+                }`}
               >
-                <div className="flex items-center gap-3">
-                  <span className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">
-                    {letter}
-                  </span>
-                  <div className="text-sm">
-                    <LatexRenderer content={opt.text} />
-                  </div>
-                </div>
+                {currentQ?.difficulty === 'EASY'
+                  ? tr('সহজ', 'Easy')
+                  : currentQ?.difficulty === 'HARD'
+                  ? tr('কঠিন', 'Hard')
+                  : tr('মধ্যম', 'Medium')}
+              </span>
 
-                {isAnswered && (
-                  <div>
-                    {opt.isCorrect && <CheckCircle2 className="w-5 h-5 text-emerald-600" />}
-                    {isChosen && !opt.isCorrect && <XCircle className="w-5 h-5 text-rose-500" />}
+              <button
+                type="button"
+                aria-label="প্রশ্ন বুকমার্ক"
+                onClick={() =>
+                  currentQ &&
+                  toggleBookmark({
+                    id: currentQ.id,
+                    type: 'question',
+                    titleBangla: currentQ.stem.slice(0, 80),
+                    subtitleBangla: chapterTitle,
+                    href: `/practice/${chapterId}${topicId ? `?topicId=${topicId}` : ''}`,
+                  })
+                }
+                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors ${
+                  isQuestionBookmarked
+                    ? 'bg-indigo-50 border-indigo-200 text-indigo-700'
+                    : 'bg-white border-slate-200 text-slate-500 hover:text-indigo-600'
+                }`}
+              >
+                <Bookmark className={`w-3.5 h-3.5 ${isQuestionBookmarked ? 'fill-indigo-600' : ''}`} />
+                <span>{tr('বুকমার্ক', 'Bookmark')}</span>
+              </button>
+            </div>
+
+            {/* Stem */}
+            <div className="text-lg font-semibold text-slate-900 leading-relaxed">
+              <LatexRenderer content={currentQ?.stem} />
+            </div>
+
+            {/* Options */}
+            <div className="grid grid-cols-1 gap-3">
+              {currentQ?.options?.map((opt, idx) => {
+                const isChosen = selectedOptionId === opt.id;
+                const letters = language === 'bn' ? ['ক', 'খ', 'গ', 'ঘ'] : ['A', 'B', 'C', 'D'];
+                const letter = letters[idx] || String(idx + 1);
+
+                let btnStyle = 'border-slate-200 hover:border-indigo-300 hover:bg-slate-50';
+                if (isAnswered) {
+                  if (opt.isCorrect) {
+                    btnStyle = 'border-emerald-500 bg-emerald-50 text-emerald-950 font-semibold ring-2 ring-emerald-500/30';
+                  } else if (isChosen && !opt.isCorrect) {
+                    btnStyle = 'border-rose-400 bg-rose-50 text-rose-950 font-semibold';
+                  } else {
+                    btnStyle = 'border-slate-200 opacity-60';
+                  }
+                }
+
+                return (
+                  <button
+                    key={opt.id}
+                    onClick={() => handleSelectOption(opt.id)}
+                    disabled={isAnswered}
+                    className={`w-full p-4 rounded-xl border text-left flex items-center justify-between transition-all ${btnStyle}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">
+                        {letter}
+                      </span>
+                      <div className="text-sm">
+                        <LatexRenderer content={opt.text} />
+                      </div>
+                    </div>
+
+                    {isAnswered && (
+                      <div>
+                        {opt.isCorrect && <CheckCircle2 className="w-5 h-5 text-emerald-600" />}
+                        {isChosen && !opt.isCorrect && <XCircle className="w-5 h-5 text-rose-500" />}
+                      </div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 6-Layer Instant Explanation Accordion */}
+          {isAnswered && currentQ?.explanation && (
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-0.5">
+              <div className="bg-slate-900 text-white p-4 font-bold text-sm flex items-center gap-2">
+                <Zap className="w-4 h-4 text-amber-400" />
+                <span>{tr('৬-স্তরের তাৎক্ষণিক ব্যাখ্যা ও বিশ্লেষণ', '6-Layer Instant Explanation & Breakdown')}</span>
+              </div>
+
+              {/* Layer 1: Direct Answer */}
+              <div className="border-b border-slate-100">
+                <button
+                  onClick={() => toggleLayer('direct')}
+                  className="w-full p-4 flex items-center justify-between text-left font-bold text-sm text-slate-900 bg-slate-50/50 hover:bg-slate-50"
+                >
+                  <span>{tr('১. সরাসরি উত্তর (Direct Answer)', '1. Direct Answer')}</span>
+                  {openLayers.direct ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                </button>
+                {openLayers.direct && (
+                  <div className="p-4 pt-1 text-sm text-slate-700 font-medium">
+                    <LatexRenderer content={currentQ.explanation.directAnswer} />
                   </div>
                 )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 6-Layer Instant Explanation Accordion */}
-      {isAnswered && currentQ.explanation && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden space-y-0.5">
-          <div className="bg-slate-900 text-white p-4 font-bold text-sm flex items-center gap-2">
-            <Zap className="w-4 h-4 text-amber-400" />
-            <span>{tr('৬-স্তরের তাৎক্ষণিক ব্যাখ্যা ও বিশ্লেষণ', '6-Layer Instant Explanation & Breakdown')}</span>
-          </div>
-
-          {/* Layer 1: Direct Answer */}
-          <div className="border-b border-slate-100">
-            <button
-              onClick={() => toggleLayer('direct')}
-              className="w-full p-4 flex items-center justify-between text-left font-bold text-sm text-slate-900 bg-slate-50/50 hover:bg-slate-50"
-            >
-              <span>{tr('১. সরাসরি উত্তর (Direct Answer)', '1. Direct Answer')}</span>
-              {openLayers.direct ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-            </button>
-            {openLayers.direct && (
-              <div className="p-4 pt-1 text-sm text-slate-700 font-medium">
-                <LatexRenderer content={currentQ.explanation.directAnswer} />
               </div>
-            )}
-          </div>
 
-          {/* Layer 2: Core Concept */}
-          <div className="border-b border-slate-100">
-            <button
-              onClick={() => toggleLayer('concept')}
-              className="w-full p-4 flex items-center justify-between text-left font-bold text-sm text-slate-900 bg-slate-50/50 hover:bg-slate-50"
-            >
-              <span>{tr('২. মূল তত্ত্ব ও কনসেপ্ট (Core Concept)', '2. Core Concept & Theory')}</span>
-              {openLayers.concept ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-            </button>
-            {openLayers.concept && (
-              <div className="p-4 pt-1 text-sm text-slate-700 leading-relaxed">
-                <LatexRenderer content={currentQ.explanation.coreConcept} />
+              {/* Layer 2: Core Concept */}
+              <div className="border-b border-slate-100">
+                <button
+                  onClick={() => toggleLayer('concept')}
+                  className="w-full p-4 flex items-center justify-between text-left font-bold text-sm text-slate-900 bg-slate-50/50 hover:bg-slate-50"
+                >
+                  <span>{tr('২. মূল তত্ত্ব ও কনসেপ্ট (Core Concept)', '2. Core Concept & Theory')}</span>
+                  {openLayers.concept ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                </button>
+                {openLayers.concept && (
+                  <div className="p-4 pt-1 text-sm text-slate-700 leading-relaxed">
+                    <LatexRenderer content={currentQ.explanation.coreConcept} />
+                  </div>
+                )}
               </div>
-            )}
-          </div>
 
-          {/* Layer 3: Step Derivation */}
-          {currentQ.explanation.stepDerivation && (
-            <div className="border-b border-slate-100">
-              <button
-                onClick={() => toggleLayer('derivation')}
-                className="w-full p-4 flex items-center justify-between text-left font-bold text-sm text-slate-900 bg-slate-50/50 hover:bg-slate-50"
-              >
-                <span>{tr('৩. ধাপে ধাপে গাণিতিক প্রতিপাদন (Step Derivation)', '3. Step-by-Step Derivation')}</span>
-                {openLayers.derivation ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-              </button>
-              {openLayers.derivation && (
-                <div className="p-4 pt-1 text-sm text-slate-800">
-                  <LatexRenderer content={currentQ.explanation.stepDerivation} />
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Layer 4: Distractor Analysis */}
-          {currentQ.explanation.distractorAnalysis && (
-            <div className="border-b border-slate-100">
-              <button
-                onClick={() => toggleLayer('distractors')}
-                className="w-full p-4 flex items-center justify-between text-left font-bold text-sm text-slate-900 bg-slate-50/50 hover:bg-slate-50"
-              >
-                <span>{tr('৪. ভুল অপশনগুলোর বিশ্লেষণ (Distractor Analysis)', '4. Distractor Analysis')}</span>
-                {openLayers.distractors ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-              </button>
-              {openLayers.distractors && (
-                <div className="p-4 pt-1 space-y-2 text-xs text-slate-600">
-                  {Object.entries(currentQ.explanation.distractorAnalysis).map(([optKey, desc]) => (
-                    <div key={optKey} className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-                      <span className="font-bold text-rose-600 mr-1.5">{tr('অপশন ', 'Option ')}{optKey}:</span>
-                      <span>{desc}</span>
+              {/* Layer 3: Step Derivation */}
+              {currentQ.explanation.stepDerivation && (
+                <div className="border-b border-slate-100">
+                  <button
+                    onClick={() => toggleLayer('derivation')}
+                    className="w-full p-4 flex items-center justify-between text-left font-bold text-sm text-slate-900 bg-slate-50/50 hover:bg-slate-50"
+                  >
+                    <span>{tr('৩. ধাপে ধাপে গাণিতিক প্রতিপাদন (Step Derivation)', '3. Step-by-Step Derivation')}</span>
+                    {openLayers.derivation ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                  </button>
+                  {openLayers.derivation && (
+                    <div className="p-4 pt-1 text-sm text-slate-800">
+                      <LatexRenderer content={currentQ.explanation.stepDerivation} />
                     </div>
-                  ))}
+                  )}
+                </div>
+              )}
+
+              {/* Layer 4: Distractor Analysis */}
+              {currentQ.explanation.distractorAnalysis && (
+                <div className="border-b border-slate-100">
+                  <button
+                    onClick={() => toggleLayer('distractors')}
+                    className="w-full p-4 flex items-center justify-between text-left font-bold text-sm text-slate-900 bg-slate-50/50 hover:bg-slate-50"
+                  >
+                    <span>{tr('৪. ভুল অপশনগুলোর বিশ্লেষণ (Distractor Analysis)', '4. Distractor Analysis')}</span>
+                    {openLayers.distractors ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                  </button>
+                  {openLayers.distractors && (
+                    <div className="p-4 pt-1 space-y-2 text-xs text-slate-600">
+                      {Object.entries(currentQ.explanation.distractorAnalysis).map(([optKey, desc]) => (
+                        <div key={optKey} className="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
+                          <span className="font-bold text-rose-600 mr-1.5">{tr('অপশন ', 'Option ')}{optKey}:</span>
+                          <span>{desc}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Layer 5: Textbook Citation */}
+              {currentQ.explanation.textbookCitation && (
+                <div className="border-b border-slate-100">
+                  <button
+                    onClick={() => toggleLayer('citation')}
+                    className="w-full p-4 flex items-center justify-between text-left font-bold text-sm text-slate-900 bg-slate-50/50 hover:bg-slate-50"
+                  >
+                    <span>{tr('৫. পাঠ্যবই রেফারেন্স (NCTB Textbook Citation)', '5. NCTB Textbook Citation')}</span>
+                    {openLayers.citation ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
+                  </button>
+                  {openLayers.citation && (
+                    <div className="p-4 pt-1 text-xs text-slate-700 bg-slate-50/50 flex items-center gap-2">
+                      <BookOpen className="w-4 h-4 text-indigo-600" />
+                      <span>
+                        {currentQ.explanation.textbookCitation.bookTitle} •{' '}
+                        {currentQ.explanation.textbookCitation.chapterName}
+                        {currentQ.explanation.textbookCitation.pageNumber &&
+                          ` (${tr('পৃষ্ঠা ', 'Page ')}${language === 'bn' ? toBanglaDigits(currentQ.explanation.textbookCitation.pageNumber) : currentQ.explanation.textbookCitation.pageNumber})`}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Layer 6: Pro Tip / Shortcut */}
+              {currentQ.explanation.proTipShortcut && (
+                <div>
+                  <button
+                    onClick={() => toggleLayer('protip')}
+                    className="w-full p-4 flex items-center justify-between text-left font-bold text-sm text-amber-900 bg-amber-50/50 hover:bg-amber-50"
+                  >
+                    <span>{tr('৬. প্রো-টিপ ও শর্টকাট (Pro Tip & Shortcut)', '6. Pro Tip & Shortcut')}</span>
+                    {openLayers.protip ? <ChevronUp className="w-4 h-4 text-amber-600" /> : <ChevronDown className="w-4 h-4 text-amber-600" />}
+                  </button>
+                  {openLayers.protip && (
+                    <div className="p-4 pt-1 text-xs text-amber-950 font-medium bg-amber-50/30">
+                      <LatexRenderer content={currentQ.explanation.proTipShortcut} />
+                    </div>
+                  )}
                 </div>
               )}
             </div>
           )}
 
-          {/* Layer 5: Textbook Citation */}
-          {currentQ.explanation.textbookCitation && (
-            <div className="border-b border-slate-100">
-              <button
-                onClick={() => toggleLayer('citation')}
-                className="w-full p-4 flex items-center justify-between text-left font-bold text-sm text-slate-900 bg-slate-50/50 hover:bg-slate-50"
-              >
-                <span>{tr('৫. পাঠ্যবই রেফারেন্স (NCTB Textbook Citation)', '5. NCTB Textbook Citation')}</span>
-                {openLayers.citation ? <ChevronUp className="w-4 h-4 text-slate-400" /> : <ChevronDown className="w-4 h-4 text-slate-400" />}
-              </button>
-              {openLayers.citation && (
-                <div className="p-4 pt-1 text-xs text-slate-700 bg-slate-50/50 flex items-center gap-2">
-                  <BookOpen className="w-4 h-4 text-indigo-600" />
-                  <span>
-                    {currentQ.explanation.textbookCitation.bookTitle} •{' '}
-                    {currentQ.explanation.textbookCitation.chapterName}
-                    {currentQ.explanation.textbookCitation.pageNumber &&
-                      ` (${tr('পৃষ্ঠা ', 'Page ')}${language === 'bn' ? toBanglaDigits(currentQ.explanation.textbookCitation.pageNumber) : currentQ.explanation.textbookCitation.pageNumber})`}
-                  </span>
+          {/* Practice Session Summary Card (when all active questions answered) */}
+          {isAllActiveAnswered && (
+            <div className="bg-indigo-50/80 border border-indigo-200 rounded-2xl p-5 sm:p-6 space-y-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center">
+                    <Award className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-extrabold text-slate-900">
+                      {tr('অনুশীলন সারসংক্ষেপ', 'Practice Session Summary')}
+                    </h3>
+                    <p className="text-xs text-slate-600">
+                      {language === 'bn'
+                        ? `সঠিক: ${toBanglaDigits(correctCount)}টি • ভুল: ${toBanglaDigits(wrongInSessionCount)}টি • নির্ভুলতা: ${toBanglaDigits(sessionAccuracyPct)}%`
+                        : `Correct: ${correctCount} • Wrong: ${wrongInSessionCount} • Accuracy: ${sessionAccuracyPct}%`}
+                    </p>
+                  </div>
                 </div>
-              )}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2.5">
+                {wrongInSessionCount > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const wrongIds = new Set(
+                        activeQuestions
+                          .filter(
+                            (q) =>
+                              selectedAnswers[q.id] &&
+                              !q.options?.find((o) => o.id === selectedAnswers[q.id])?.isCorrect
+                          )
+                          .map((q) => q.id)
+                      );
+                      setSelectedAnswers((prev) => {
+                        const next = { ...prev };
+                        for (const id of wrongIds) {
+                          delete next[id];
+                        }
+                        return next;
+                      });
+                      setPracticeMode('MISTAKES');
+                      setCurrentIndex(0);
+                    }}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-colors cursor-pointer"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>{tr('ভুল প্রশ্নগুলো আবার অনুশীলন করো', 'Retry Incorrect Questions')}</span>
+                  </button>
+                )}
+
+                <Link
+                  href={`/exam/${chapterId}`}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition-colors"
+                >
+                  <span>{tr('অধ্যায়ের মডেল টেস্ট দাও', 'Take Chapter Model Test')}</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
             </div>
           )}
 
-          {/* Layer 6: Pro Tip / Shortcut */}
-          {currentQ.explanation.proTipShortcut && (
-            <div>
+          {/* Navigation Buttons */}
+          <div className="flex items-center justify-between pt-2">
+            <button
+              onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
+              disabled={safeIndex === 0}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 disabled:opacity-40 transition-colors shadow-sm"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>{tr('পূর্ববর্তী প্রশ্ন', 'Previous Question')}</span>
+            </button>
+
+            {safeIndex < activeQuestions.length - 1 ? (
               <button
-                onClick={() => toggleLayer('protip')}
-                className="w-full p-4 flex items-center justify-between text-left font-bold text-sm text-amber-900 bg-amber-50/50 hover:bg-amber-50"
+                onClick={() => setCurrentIndex((prev) => prev + 1)}
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors shadow"
               >
-                <span>{tr('৬. প্রো-টিপ ও শর্টকাট (Pro Tip & Shortcut)', '6. Pro Tip & Shortcut')}</span>
-                {openLayers.protip ? <ChevronUp className="w-4 h-4 text-amber-600" /> : <ChevronDown className="w-4 h-4 text-amber-600" />}
+                <span>{tr('পরবর্তী প্রশ্ন', 'Next Question')}</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
-              {openLayers.protip && (
-                <div className="p-4 pt-1 text-xs text-amber-950 font-medium bg-amber-50/30">
-                  <LatexRenderer content={currentQ.explanation.proTipShortcut} />
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+            ) : (
+              <Link
+                href={`/curriculum/${activeSubject?.id || 'sub_ssc_physics'}`}
+                className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors shadow"
+              >
+                <span>{tr('অনুশীলন সম্পন্ন', 'Finish Practice')}</span>
+                <CheckCircle2 className="w-4 h-4" />
+              </Link>
+            )}
+          </div>
+        </>
       )}
-
-      {/* Navigation Buttons */}
-      <div className="flex items-center justify-between pt-2">
-        <button
-          onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
-          disabled={currentIndex === 0}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 disabled:opacity-40 transition-colors shadow-sm"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>{tr('পূর্ববর্তী প্রশ্ন', 'Previous Question')}</span>
-        </button>
-
-        {currentIndex < questions.length - 1 ? (
-          <button
-            onClick={() => setCurrentIndex((prev) => prev + 1)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl transition-colors shadow"
-          >
-            <span>{tr('পরবর্তী প্রশ্ন', 'Next Question')}</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        ) : (
-          <Link
-            href={`/curriculum/${activeSubject?.id || 'sub_ssc_physics'}`}
-            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-colors shadow"
-          >
-            <span>{tr('অনুশীলন সম্পন্ন', 'Finish Practice')}</span>
-            <CheckCircle2 className="w-4 h-4" />
-          </Link>
-        )}
-      </div>
     </div>
   );
 }

@@ -9,10 +9,13 @@ import {
   Lightbulb,
   Calculator,
   ArrowRight,
+  ArrowLeft,
   Bookmark,
   CheckSquare,
   CheckCircle2,
   XCircle,
+  StickyNote,
+  ChevronRight,
 } from 'lucide-react';
 import { LatexRenderer } from '@/components/math/latex-renderer';
 import { RichContentRenderer } from '@/components/content/rich-content-renderer';
@@ -20,7 +23,9 @@ import { InteractiveSimulationRunner } from '@/components/content/interactive-si
 import { apiClient } from '@/lib/api-client';
 import { LessonDTO, ContentStatus, QuestionDTO } from '@pori/shared';
 import { useLanguageStore } from '@/store/language-store';
-import { findTopicHierarchy } from '@/lib/curriculum-data';
+import { useUserStore } from '@/store/user-store';
+import { findTopicHierarchy, findAdjacentTopics } from '@/lib/curriculum-data';
+import { toBanglaDigits } from '@/lib/formatters';
 import { LessonPageSkeleton } from '@/components/ui/shimmer';
 
 const SAMPLE_LESSON: LessonDTO = {
@@ -92,13 +97,30 @@ export default function LessonPage() {
   const params = useParams();
   const topicId = (params?.topicId as string) || 'topic-motion-3';
   const { tr, language } = useLanguageStore();
+  const {
+    completedTopics,
+    bookmarks,
+    lessonNotes,
+    recordLessonVisit,
+    markTopicCompleted,
+    recordPracticeAttempt,
+    toggleBookmark,
+    saveLessonNote,
+  } = useUserStore();
+
   const [lesson, setLesson] = useState<LessonDTO>(SAMPLE_LESSON);
   const [isLoadingLesson, setIsLoadingLesson] = useState(true);
+  const [isNoteOpen, setIsNoteOpen] = useState(false);
 
   const fallbackHierarchy = findTopicHierarchy(topicId);
   const chapterId = lesson?.topic?.chapter?.id || fallbackHierarchy.chapterId;
   const chapterTitle = lesson?.topic?.chapter?.titleBangla || fallbackHierarchy.chapterTitle;
   const subjectId = lesson?.topic?.chapter?.subject?.id || fallbackHierarchy.subjectId;
+  const adjacent = findAdjacentTopics(topicId);
+
+  const isCompleted = completedTopics.includes(topicId);
+  const isBookmarked = bookmarks.some((b) => b.id === topicId && b.type === 'topic');
+  const currentNote = lessonNotes[topicId] || '';
 
   const [quickQuestion, setQuickQuestion] = useState<QuestionDTO | null>(null);
   const [selectedOptId, setSelectedOptId] = useState<string | null>(null);
@@ -115,9 +137,27 @@ export default function LessonPage() {
         const res = await apiClient.get<LessonDTO>(`/lessons/topic/${topicId}`);
         if (res && res.titleBangla) {
           setLesson(res);
+          recordLessonVisit(
+            topicId,
+            res.titleBangla,
+            res?.topic?.chapter?.id || fallbackHierarchy.chapterId,
+            res?.topic?.chapter?.titleBangla || fallbackHierarchy.chapterTitle
+          );
+        } else {
+          recordLessonVisit(
+            topicId,
+            fallbackHierarchy.topicTitle,
+            fallbackHierarchy.chapterId,
+            fallbackHierarchy.chapterTitle
+          );
         }
       } catch {
-        // Keep default sample lesson
+        recordLessonVisit(
+          topicId,
+          fallbackHierarchy.topicTitle,
+          fallbackHierarchy.chapterId,
+          fallbackHierarchy.chapterTitle
+        );
       } finally {
         setIsLoadingLesson(false);
       }
@@ -144,6 +184,18 @@ export default function LessonPage() {
     }
     fetchQuestions();
   }, [chapterId, topicId]);
+
+  const handleMarkComplete = async () => {
+    markTopicCompleted(topicId, lesson.titleBangla, chapterId, chapterTitle);
+    try {
+      await apiClient.post('/student/lesson-complete', {
+        topicId,
+        lessonId: lesson.id,
+      });
+    } catch {
+      // Offline fallback: local store already updated
+    }
+  };
 
   const handleSelectOption = async (optId: string) => {
     if (isAnswered || !quickQuestion) return;
@@ -176,9 +228,34 @@ export default function LessonPage() {
               }
             : null
         );
+        recordPracticeAttempt({
+          questionId: quickQuestion.id,
+          stemBangla: quickQuestion.stem,
+          topicId,
+          topicTitle: lesson.titleBangla,
+          chapterId,
+          chapterTitle,
+          selectedKey: optId,
+          correctKey: res.correctOptionId,
+          explanationBangla: res.explanation?.directAnswer || res.explanation?.coreConcept,
+          isCorrect: res.isCorrect,
+        });
       }
     } catch {
       // Offline fallback
+      const localOpt = quickQuestion.options?.find((o) => o.id === optId);
+      const correctOpt = quickQuestion.options?.find((o) => o.isCorrect);
+      recordPracticeAttempt({
+        questionId: quickQuestion.id,
+        stemBangla: quickQuestion.stem,
+        topicId,
+        topicTitle: lesson.titleBangla,
+        chapterId,
+        chapterTitle,
+        selectedKey: optId,
+        correctKey: correctOpt?.id || optId,
+        isCorrect: Boolean(localOpt?.isCorrect),
+      });
     }
   };
 
@@ -188,15 +265,97 @@ export default function LessonPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6 md:space-y-8 max-w-3xl mx-auto pb-8 sm:pb-10">
-      {/* Title & Metadata */}
-      <div className="space-y-2 sm:space-y-3">
-        <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full">
-          <BookOpen className="w-3.5 h-3.5" />
-          <span>{tr('অধ্যায়ভিত্তিক বিস্তারিত পাঠ', 'Chapter Detailed Lesson')}</span>
+      {/* Breadcrumb & Topic Progress Header */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 shadow-2xs space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-semibold text-slate-500">
+          <div className="flex items-center gap-1.5 min-w-0 truncate">
+            <Link href={`/curriculum/${subjectId}`} className="text-indigo-600 hover:underline truncate">
+              {chapterTitle}
+            </Link>
+            <ChevronRight className="w-3.5 h-3.5 shrink-0" />
+            <span className="text-slate-700 font-bold">
+              {language === 'bn'
+                ? `টপিক ${toBanglaDigits(adjacent.topicIndex)}/${toBanglaDigits(adjacent.totalInChapter)}`
+                : `Topic ${adjacent.topicIndex}/${adjacent.totalInChapter}`}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={handleMarkComplete}
+              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold transition-colors cursor-pointer ${
+                isCompleted
+                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                  : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200'
+              }`}
+            >
+              {isCompleted ? tr('✓ পাঠ সম্পন্ন', '✓ Completed') : tr('পাঠ সম্পন্ন করুন', 'Mark Complete')}
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                toggleBookmark({
+                  id: topicId,
+                  type: 'topic',
+                  titleBangla: lesson.titleBangla,
+                  subtitleBangla: chapterTitle,
+                  href: `/lesson/${topicId}`,
+                })
+              }
+              aria-label="বুকমার্ক"
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border transition-colors cursor-pointer ${
+                isBookmarked
+                  ? 'bg-amber-50 border-amber-300 text-amber-800'
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              <Bookmark className={`w-3.5 h-3.5 ${isBookmarked ? 'fill-amber-500 text-amber-600' : ''}`} />
+              <span>{tr('বুকমার্ক', 'Bookmark')}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsNoteOpen((prev) => !prev)}
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border transition-colors cursor-pointer ${
+                currentNote
+                  ? 'bg-purple-50 border-purple-200 text-purple-800'
+                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              <StickyNote className="w-3.5 h-3.5" />
+              <span>{tr('আমার নোট', 'My Note')}</span>
+            </button>
+          </div>
         </div>
-        <h1 className="text-xl sm:text-2xl md:text-4xl font-extrabold text-slate-900 leading-tight">
-          {lesson.titleBangla}
-        </h1>
+
+        {/* Title & Metadata */}
+        <div className="space-y-2 pt-1">
+          <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full">
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>{tr('অধ্যায়ভিত্তিক বিস্তারিত পাঠ', 'Chapter Detailed Lesson')}</span>
+          </div>
+          <h1 className="text-xl sm:text-2xl md:text-4xl font-extrabold text-slate-900 leading-tight">
+            {lesson.titleBangla}
+          </h1>
+        </div>
+
+        {/* Collapsible Personal Note Scratchpad */}
+        {isNoteOpen && (
+          <div className="pt-2 border-t border-slate-100 space-y-2">
+            <label className="block text-xs font-bold text-slate-700">
+              {tr('ব্যক্তিগত স্টাডি নোট (স্বয়ংক্রিয়ভাবে সংরক্ষিত):', 'Personal Study Note (Auto-saved):')}
+            </label>
+            <textarea
+              rows={3}
+              value={currentNote}
+              onChange={(e) => saveLessonNote(topicId, e.target.value)}
+              placeholder="এই পাঠের মূল সূত্র বা নোট লিখে রাখো..."
+              className="w-full p-3 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+        )}
       </div>
 
       {/* Learning Goal (শিখনফল) */}
@@ -410,6 +569,47 @@ export default function LessonPage() {
                 </p>
               )}
             </div>
+          )}
+        </div>
+      )}
+
+      {/* Previous / Next Topic Sequential Cards */}
+      {(adjacent.prevTopic || adjacent.nextTopic) && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+          {adjacent.prevTopic ? (
+            <Link
+              href={`/lesson/${adjacent.prevTopic.id}`}
+              className="p-4 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 transition-colors flex items-center gap-3 group"
+            >
+              <ArrowLeft className="w-4 h-4 text-slate-400 group-hover:text-indigo-600 shrink-0" />
+              <div className="min-w-0">
+                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wide block">
+                  {tr('পূর্ববর্তী টপিক', 'Previous Topic')}
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-indigo-700 truncate block">
+                  {adjacent.prevTopic.titleBangla}
+                </span>
+              </div>
+            </Link>
+          ) : (
+            <div />
+          )}
+
+          {adjacent.nextTopic && (
+            <Link
+              href={`/lesson/${adjacent.nextTopic.id}`}
+              className="p-4 rounded-xl bg-white border border-slate-200 hover:border-indigo-300 transition-colors flex items-center justify-between gap-3 text-right group"
+            >
+              <div className="min-w-0 flex-1">
+                <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-wide block">
+                  {tr('পরবর্তী টপিক', 'Next Topic')}
+                </span>
+                <span className="text-xs sm:text-sm font-bold text-slate-800 group-hover:text-indigo-700 truncate block">
+                  {adjacent.nextTopic.titleBangla}
+                </span>
+              </div>
+              <ArrowRight className="w-4 h-4 text-indigo-600 shrink-0" />
+            </Link>
           )}
         </div>
       )}
