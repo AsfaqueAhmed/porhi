@@ -111,6 +111,77 @@ export const DEFAULT_CHAPTERS: ChapterItem[] = [
       { id: 'top_ssc_physics_ch6_7', chapterId: 'chap_ssc_physics_ch6', orderIndex: 7, titleBangla: '৬.৭ গলনাঙ্ক ও স্ফুটনাঙ্কের ওপর চাপের প্রভাব (Effect of Pressure on Melting and Boiling Points)' },
     ],
   },
+  {
+    id: 'chap_ssc_physics_ch7',
+    subjectId: 'sub_ssc_physics',
+    orderIndex: 7,
+    titleBangla: 'সপ্তম অধ্যায়: তরঙ্গ ও শব্দ (Waves and Sound)',
+    topics: [
+      { id: 'top_ssc_physics_ch7_1', chapterId: 'chap_ssc_physics_ch7', orderIndex: 1, titleBangla: '৭.১ সরল স্পন্দন গতি (Simple Harmonic Motion & Lab)' },
+      { id: 'top_ssc_physics_ch7_2', chapterId: 'chap_ssc_physics_ch7', orderIndex: 2, titleBangla: '৭.২ তরঙ্গ (Waves & Wave Lab)' },
+      { id: 'top_ssc_physics_ch7_3', chapterId: 'chap_ssc_physics_ch7', orderIndex: 3, titleBangla: '৭.৩ শব্দ তরঙ্গ (Sound Wave, Echo & Lab)' },
+    ],
+  },
+  {
+    id: 'chap_ssc_physics_ch8',
+    subjectId: 'sub_ssc_physics',
+    orderIndex: 8,
+    titleBangla: 'অষ্টম অধ্যায়: আলোর প্রতিফলন (Reflection of Light)',
+    topics: [
+      { id: 'top_ssc_physics_ch8_1', chapterId: 'chap_ssc_physics_ch8', orderIndex: 1, titleBangla: '৮.১–৮.২ আলোর প্রকৃতি ও প্রতিফলন (Nature & Reflection of Light & Lab)' },
+      { id: 'top_ssc_physics_ch8_2', chapterId: 'chap_ssc_physics_ch8', orderIndex: 2, titleBangla: '৮.৩–৮.৪ দর্পণ ও গোলীয় দর্পণের পরিচিতি (Mirrors & Spherical Geometry)' },
+      { id: 'top_ssc_physics_ch8_3', chapterId: 'chap_ssc_physics_ch8', orderIndex: 3, titleBangla: '৮.৫–৮.৬ উত্তল ও অবতল দর্পণ (Spherical Mirrors & Ray Diagram Lab)' },
+      { id: 'top_ssc_physics_ch8_4', chapterId: 'chap_ssc_physics_ch8', orderIndex: 4, titleBangla: '৮.৭–৮.৮ বিবর্ধন ও দর্পণের ব্যবহার (Magnification & Uses of Mirrors)' },
+    ],
+  },
+  {
+    id: 'chap_ssc_physics_ch9',
+    subjectId: 'sub_ssc_physics',
+    orderIndex: 9,
+    titleBangla: 'নবম অধ্যায়: আলোর প্রতিসরণ (Refraction of Light)',
+    topics: [
+      { id: 'top_ssc_physics_ch9_1', chapterId: 'chap_ssc_physics_ch9', orderIndex: 1, titleBangla: '৯.১ আলোর প্রতিসরণ ও স্নেলের সূত্র (Refraction & Snell Lab)' },
+      { id: 'top_ssc_physics_ch9_2', chapterId: 'chap_ssc_physics_ch9', orderIndex: 2, titleBangla: '৯.২ পূর্ণ অভ্যন্তরীণ প্রতিফলন ও সংকট কোণ (Total Internal Reflection)' },
+      { id: 'top_ssc_physics_ch9_3', chapterId: 'chap_ssc_physics_ch9', orderIndex: 3, titleBangla: '৯.৩ লেন্স, রশ্মিচিত্র ও ক্ষমতা (Lenses & Ray Optics Lab)' },
+      { id: 'top_ssc_physics_ch9_4', chapterId: 'chap_ssc_physics_ch9', orderIndex: 4, titleBangla: '৯.৪ চশমার প্রয়োগ ও গাণিতিক সমস্যা (Spectacles & Practice)' },
+    ],
+  },
+  {
+    id: 'chap_ssc_physics_ch10',
+    subjectId: 'sub_ssc_physics',
+    orderIndex: 10,
+    titleBangla: 'দশম অধ্যায়: স্থির বিদ্যুৎ (Static Electricity)',
+    topics: [
+      { id: 'top_ssc_physics_ch10_1', chapterId: 'chap_ssc_physics_ch10', orderIndex: 1, titleBangla: '১০.১–১০.৩ আধান, ঘর্ষণ, আবেশ ও ইলেকট্রোস্কোপ (Charge, Induction & Electroscope)' },
+      { id: 'top_ssc_physics_ch10_2', chapterId: 'chap_ssc_physics_ch10', orderIndex: 2, titleBangla: '১০.৪–১০.৫ বৈদ্যুতিক বল, কুলম্বের সূত্র ও তড়িৎ ক্ষেত্র (Coulomb Law & Electric Field Lab)' },
+      { id: 'top_ssc_physics_ch10_3', chapterId: 'chap_ssc_physics_ch10', orderIndex: 3, titleBangla: '১০.৬–১০.৭ তড়িৎ বিভব, বিভব পার্থক্য ও ধারক (Electric Potential & Capacitor Lab)' },
+      { id: 'top_ssc_physics_ch10_4', chapterId: 'chap_ssc_physics_ch10', orderIndex: 4, titleBangla: '১০.৮ স্থির বিদ্যুতের ব্যবহার ও নিরাপত্তা (Uses of Static Electricity & Safety)' },
+    ],
+  },
+  {
+    id: 'chap_ssc_physics_ch11',
+    subjectId: 'sub_ssc_physics',
+    orderIndex: 11,
+    titleBangla: 'একাদশ অধ্যায়: চল বিদ্যুৎ (Current Electricity)',
+    topics: [
+      { id: 'top_ssc_physics_ch11_1', chapterId: 'chap_ssc_physics_ch11', orderIndex: 1, titleBangla: '১১.১ তড়িৎ প্রবাহ, বিভব পার্থক্য ও তড়িচ্চালক শক্তি (Current, EMF & Potential)' },
+      { id: 'top_ssc_physics_ch11_2', chapterId: 'chap_ssc_physics_ch11', orderIndex: 2, titleBangla: '১১.২ ওহমের সূত্র, রোধ, আপেক্ষিক রোধ ও বর্তনী (Ohm Law & Circuits Lab)' },
+      { id: 'top_ssc_physics_ch11_3', chapterId: 'chap_ssc_physics_ch11', orderIndex: 3, titleBangla: '১১.৩ তড়িৎ ক্ষমতা, জুল তাপ ও বিদ্যুৎ বিল (Electric Power & Billing Lab)' },
+      { id: 'top_ssc_physics_ch11_4', chapterId: 'chap_ssc_physics_ch11', orderIndex: 4, titleBangla: '১১.৪–১১.৬ সরবরাহ, সিস্টেম লস, নিরাপত্তা ও গৃহস্থালি বর্তনী (Grid & Safety)' },
+    ],
+  },
+  {
+    id: 'chap_ssc_physics_ch12',
+    subjectId: 'sub_ssc_physics',
+    orderIndex: 12,
+    titleBangla: 'দ্বাদশ অধ্যায়: বিদ্যুতের চৌম্বক ক্রিয়া (Magnetic Effects of Current)',
+    topics: [
+      { id: 'top_ssc_physics_ch12_1', chapterId: 'chap_ssc_physics_ch12', orderIndex: 1, titleBangla: '১২.১ চুম্বক, চৌম্বক ক্ষেত্র ও বলরেখা (Magnet, Field & Field Lines)' },
+      { id: 'top_ssc_physics_ch12_2', chapterId: 'chap_ssc_physics_ch12', orderIndex: 2, titleBangla: '১২.২.১–১২.২.২ সলিনয়েড ও তড়িৎচুম্বক (Solenoid & Electromagnet)' },
+      { id: 'top_ssc_physics_ch12_3', chapterId: 'chap_ssc_physics_ch12', orderIndex: 3, titleBangla: '১২.২.৩–১২.২.৪ বিদ্যুৎবাহী তারে বল ও DC মোটর (Magnetic Force & DC Motor Lab)' },
+      { id: 'top_ssc_physics_ch12_4', chapterId: 'chap_ssc_physics_ch12', orderIndex: 4, titleBangla: '১২.৩ তড়িৎচৌম্বকীয় আবেশ, জেনারেটর ও ট্রান্সফরমার (Induction, Generator & Transformer Lab)' },
+    ],
+  },
 ];
 
 export interface ResolvedTopicHierarchy {
@@ -184,6 +255,61 @@ export function findTopicHierarchy(topicId: string, customChapters: ChapterItem[
       topicTitle: 'বস্তুর ওপর তাপের প্রভাব',
       chapterId: 'chap_ssc_physics_ch6',
       chapterTitle: 'ষষ্ঠ অধ্যায়: বস্তুর ওপর তাপের প্রভাব',
+      subjectId: 'sub_ssc_physics',
+    };
+  }
+
+  if (topicId.includes('ch7') || topicId.includes('wave') || topicId.includes('sound') || topicId.includes('echo') || topicId.includes('shm') || topicId.includes('pendulum') || topicId.includes('taranga') || topicId.includes('shobdo')) {
+    return {
+      topicId,
+      topicTitle: 'তরঙ্গ ও শব্দ (Waves and Sound)',
+      chapterId: 'chap_ssc_physics_ch7',
+      chapterTitle: 'সপ্তম অধ্যায়: তরঙ্গ ও শব্দ (Waves and Sound)',
+      subjectId: 'sub_ssc_physics',
+    };
+  }
+  if (topicId.includes('ch8') || topicId.includes('reflection') || topicId.includes('mirror') || topicId.includes('light') || topicId.includes('alo') || topicId.includes('dorpon')) {
+    return {
+      topicId,
+      topicTitle: 'আলোর প্রতিফলন (Reflection of Light)',
+      chapterId: 'chap_ssc_physics_ch8',
+      chapterTitle: 'অষ্টম অধ্যায়: আলোর প্রতিফলন (Reflection of Light)',
+      subjectId: 'sub_ssc_physics',
+    };
+  }
+  if (topicId.includes('ch9') || topicId.includes('refract') || topicId.includes('snell') || topicId.includes('lens') || topicId.includes('tir') || topicId.includes('fiber') || topicId.includes('protishoron')) {
+    return {
+      topicId,
+      topicTitle: 'আলোর প্রতিসরণ (Refraction of Light)',
+      chapterId: 'chap_ssc_physics_ch9',
+      chapterTitle: 'নবম অধ্যায়: আলোর প্রতিসরণ (Refraction of Light)',
+      subjectId: 'sub_ssc_physics',
+    };
+  }
+  if (topicId.includes('ch10') || topicId.includes('static') || topicId.includes('coulomb') || topicId.includes('capacitor') || topicId.includes('charge') || topicId.includes('electroscope') || topicId.includes('sthir')) {
+    return {
+      topicId,
+      topicTitle: 'স্থির বিদ্যুৎ (Static Electricity)',
+      chapterId: 'chap_ssc_physics_ch10',
+      chapterTitle: 'দশম অধ্যায়: স্থির বিদ্যুৎ (Static Electricity)',
+      subjectId: 'sub_ssc_physics',
+    };
+  }
+  if (topicId.includes('ch11') || topicId.includes('current') || topicId.includes('ohm') || topicId.includes('circuit') || topicId.includes('resistor') || topicId.includes('fuse') || topicId.includes('kwh') || topicId.includes('chol')) {
+    return {
+      topicId,
+      topicTitle: 'চল বিদ্যুৎ (Current Electricity)',
+      chapterId: 'chap_ssc_physics_ch11',
+      chapterTitle: 'একাদশ অধ্যায়: চল বিদ্যুৎ (Current Electricity)',
+      subjectId: 'sub_ssc_physics',
+    };
+  }
+  if (topicId.includes('ch12') || topicId.includes('magnet') || topicId.includes('solenoid') || topicId.includes('electromagnet') || topicId.includes('motor') || topicId.includes('generator') || topicId.includes('transformer') || topicId.includes('induction') || topicId.includes('chumbok')) {
+    return {
+      topicId,
+      topicTitle: 'বিদ্যুতের চৌম্বক ক্রিয়া (Magnetic Effects of Current)',
+      chapterId: 'chap_ssc_physics_ch12',
+      chapterTitle: 'দ্বাদশ অধ্যায়: বিদ্যুতের চৌম্বক ক্রিয়া (Magnetic Effects of Current)',
       subjectId: 'sub_ssc_physics',
     };
   }

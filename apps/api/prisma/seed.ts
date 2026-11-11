@@ -9,6 +9,12 @@ import { seedChapter3 } from './seed-chapter-3';
 import { seedChapter4 } from './seed-chapter-4';
 import { seedChapter5 } from './seed-chapter-5';
 import { seedChapter6 } from './seed-chapter-6';
+import { seedChapter7 } from './seed-chapter-7';
+import { seedChapter8 } from './seed-chapter-8';
+import { seedChapter9 } from './seed-chapter-9';
+import { seedChapter10 } from './seed-chapter-10';
+import { seedChapter11 } from './seed-chapter-11';
+import { seedChapter12 } from './seed-chapter-12';
 
 export const sscPhysicsSubject = {
   id: 'sub_ssc_physics',
@@ -364,17 +370,34 @@ export async function seed(prisma: PrismaClient) {
     create: chapter2,
   });
 
-  // 3. Seed Topic
-  await prisma.topic.upsert({
-    where: {
-      chapterId_orderIndex: {
-        chapterId: topicMotionEquations.chapterId,
-        orderIndex: topicMotionEquations.orderIndex,
-      },
-    },
-    update: topicMotionEquations,
-    create: topicMotionEquations,
+  // 3. Seed Topic (avoid orderIndex 1 collision with seedChapter2's top_ssc_physics_ch2_1)
+  const existingMotionEqTopic = await prisma.topic.findUnique({
+    where: { id: topicMotionEquations.id },
   });
+  if (existingMotionEqTopic) {
+    await prisma.topic.update({
+      where: { id: topicMotionEquations.id },
+      data: {
+        titleBangla: topicMotionEquations.titleBangla,
+        chapterId: topicMotionEquations.chapterId,
+      },
+    });
+  } else {
+    const slotOneTaken = await prisma.topic.findUnique({
+      where: {
+        chapterId_orderIndex: {
+          chapterId: topicMotionEquations.chapterId,
+          orderIndex: topicMotionEquations.orderIndex,
+        },
+      },
+    });
+    await prisma.topic.create({
+      data: {
+        ...topicMotionEquations,
+        orderIndex: slotOneTaken ? 99 : topicMotionEquations.orderIndex,
+      },
+    });
+  }
 
   // 4. Seed Lesson
   const sampleSimSrcDir = path.join(__dirname, 'sample-simulations');
@@ -421,6 +444,24 @@ export async function seed(prisma: PrismaClient) {
 
   // 11. Seed Chapter 6 full curriculum and question bank
   await seedChapter6(prisma);
+
+  // 12. Seed Chapter 7 full curriculum and question bank
+  await seedChapter7(prisma);
+
+  // 13. Seed Chapter 8 full curriculum and question bank
+  await seedChapter8(prisma);
+
+  // 14. Seed Chapter 9 full curriculum and question bank
+  await seedChapter9(prisma);
+
+  // 15. Seed Chapter 10 full curriculum and question bank
+  await seedChapter10(prisma);
+
+  // 16. Seed Chapter 11 full curriculum and question bank
+  await seedChapter11(prisma);
+
+  // 17. Seed Chapter 12 full curriculum and question bank
+  await seedChapter12(prisma);
 }
 
 async function main() {
