@@ -158,5 +158,45 @@ describe('CurriculumService', () => {
         NotFoundException,
       );
     });
+
+    it('should resolve subject by code alias (e.g. sub-ssc-phy -> ssc_physics) and enrich topic lesson/lab/question counts when included', async () => {
+      prisma.subject.findUnique
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ id: 'sub_1', code: 'ssc_physics', nameBangla: 'পদার্থবিজ্ঞান' });
+
+      prisma.chapter.findMany.mockResolvedValue([
+        {
+          id: 'chap_1',
+          subjectId: 'sub_1',
+          orderIndex: 1,
+          titleBangla: 'ভৌত রাশি ও পরিমাপ',
+          topics: [
+            {
+              id: 'top_1',
+              chapterId: 'chap_1',
+              orderIndex: 1,
+              titleBangla: 'পদার্থবিজ্ঞান',
+              lessons: [{ id: 'les_1', interactiveWidgetUrl: '/labs/vernier.html' }],
+              questions: [
+                { id: 'q_1', type: 'MCQ' },
+                { id: 'q_2', type: 'MCQ' },
+                { id: 'q_3', type: 'CQ_CREATIVE' },
+              ],
+            },
+          ],
+        },
+      ]);
+
+      const result = await curriculumService.getChaptersBySubject('sub-ssc-phy');
+
+      expect(result).toHaveLength(1);
+      expect(result[0].topics[0]).toMatchObject({
+        id: 'top_1',
+        lessonCount: 1,
+        hasInteractiveLab: true,
+        questionCount: 2,
+        cqCount: 1,
+      });
+    });
   });
 });

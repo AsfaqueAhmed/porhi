@@ -17,6 +17,7 @@ describe('PracticeService', () => {
     };
     revisionMistake: {
       upsert: ReturnType<typeof vi.fn>;
+      updateMany: ReturnType<typeof vi.fn>;
     };
     eventLog: {
       create: ReturnType<typeof vi.fn>;
@@ -70,6 +71,7 @@ describe('PracticeService', () => {
       },
       revisionMistake: {
         upsert: vi.fn().mockResolvedValue({ id: 'm_1' }),
+        updateMany: vi.fn().mockResolvedValue({ count: 1 }),
       },
       eventLog: {
         create: vi.fn().mockResolvedValue({ id: 'ev_1' }),
@@ -150,6 +152,28 @@ describe('PracticeService', () => {
       expect(result).toHaveLength(1);
       expect(result[0].topicId).toBe('top_1');
     });
+
+    it('should filter by difficulty and unresolved mistakes when difficulty and mode=mistakes are provided', async () => {
+      prisma.chapter.findUnique.mockResolvedValue({ id: 'chap_1', titleBangla: 'বল' });
+      prisma.question.findMany.mockResolvedValue([sampleQuestion]);
+
+      await practiceService.getChapterQuestions('chap_1', undefined, 'HARD', 'mistakes', 'usr_101');
+
+      expect(prisma.question.findMany).toHaveBeenCalledWith({
+        where: {
+          topic: { chapterId: 'chap_1' },
+          type: 'MCQ',
+          status: ContentStatus.PUBLISHED,
+          difficulty: 'HARD',
+          mistakes: {
+            some: {
+              userId: 'usr_101',
+              resolved: false,
+            },
+          },
+        },
+      });
+    });
   });
 
   describe('submitPractice', () => {
@@ -165,8 +189,18 @@ describe('PracticeService', () => {
       expect(result.correctOptionId).toBe('opt_a');
       expect(result.explanation).toEqual(sampleExplanation);
 
-      // Should NOT record mistake for correct answer
+      // Should NOT record mistake for correct answer, and SHOULD auto-resolve any open mistake
       expect(prisma.revisionMistake.upsert).not.toHaveBeenCalled();
+      expect(prisma.revisionMistake.updateMany).toHaveBeenCalledWith({
+        where: {
+          userId: 'usr_101',
+          questionId: 'q_1',
+          resolved: false,
+        },
+        data: {
+          resolved: true,
+        },
+      });
 
       // Should log PRACTICE_ATTEMPT event
       expect(prisma.eventLog.create).toHaveBeenCalledWith({

@@ -18,7 +18,13 @@ export class PracticeService {
 
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
-  async getChapterQuestions(chapterId: string, topicId?: string) {
+  async getChapterQuestions(
+    chapterId: string,
+    topicId?: string,
+    difficulty?: string,
+    mode?: string,
+    userId?: string,
+  ) {
     let resolvedChapterId = chapterId;
     if (chapterId === 'ch-motion') {
       const motionChapter = await this.prisma.chapter.findFirst?.({
@@ -65,6 +71,22 @@ export class PracticeService {
       where.topicId = topicId.trim();
     } else {
       where.topic = { chapterId: resolvedChapterId };
+    }
+
+    if (difficulty && typeof difficulty === 'string') {
+      const normalizedDiff = difficulty.trim().toUpperCase();
+      if (['EASY', 'MEDIUM', 'HARD'].includes(normalizedDiff)) {
+        where.difficulty = normalizedDiff;
+      }
+    }
+
+    if (mode === 'mistakes' && userId) {
+      where.mistakes = {
+        some: {
+          userId,
+          resolved: false,
+        },
+      };
     }
 
     const questions = await this.prisma.question.findMany({
@@ -145,6 +167,19 @@ export class PracticeService {
             attemptCount: { increment: 1 },
           },
         });
+      } else if (typeof (this.prisma.revisionMistake as any)?.updateMany === 'function') {
+        await (this.prisma.revisionMistake as any)
+          .updateMany({
+            where: {
+              userId,
+              questionId: dto.questionId,
+              resolved: false,
+            },
+            data: {
+              resolved: true,
+            },
+          })
+          .catch(() => {});
       }
 
       await this.prisma.eventLog
