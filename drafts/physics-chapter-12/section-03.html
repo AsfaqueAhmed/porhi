@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>12.3 তড়িৎচৌম্বকীয় আবেশ, জেনারেটর ও ট্রান্সফরমার · অধ্যায় ১২ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+    <span class="crumb">SSC · অধ্যায় ১২ · পাঠ ১২.৩</span>
+  </div>
+</header>
+<main>
+  <span class="badge">বইয়ের section 12.3 · তড়িৎচৌম্বকীয় আবেশ</span>
+  <h1 class="title">তড়িৎচৌম্বকীয় আবেশ, জেনারেটর ও ট্রান্সফরমার</h1>
+  <p class="subtitle">পরিবর্তনশীল চৌম্বক ফ্লাক্স থেকে বিদ্যুৎ উৎপাদন এবং আরোহী-অবরোহী ট্রান্সফরমারের ভোল্টেজ ও প্রবাহ রূপান্তর।</p>
+
+  <section class="goal">
+    <h2>এই পাঠে যা শিখবে</h2>
+    <p>তড়িৎচৌম্বকীয় আবেশের শর্ত, আবিষ্ট ভোল্টেজ বাড়ানোর উপায়, AC ও DC জেনারেটরের পার্থক্য এবং আদর্শ ট্রান্সফরমারের সমীকরণ $\dfrac{V_s}{V_p} = \dfrac{N_s}{N_p} = \dfrac{I_p}{I_s}$ দিয়ে গাণিতিক সমস্যা সমাধান।</p>
+  </section>
+
+  <section class="section">
+    <h2>12.3 · তড়িৎচৌম্বকীয় আবেশ (Electromagnetic Induction)</h2>
+    <p>১৮৩১ সালে বিজ্ঞানী মাইকেল ফ্যারাডে আবিষ্কার করেন যে, কোনো বদ্ধ কুণ্ডলীর মধ্য দিয়ে যাওয়া চৌম্বক বলরেখা বা চৌম্বক ক্ষেত্রের <strong>পরিবর্তন</strong> ঘটলে কুণ্ডলীতে তড়িচ্চালক শক্তি (EMF) এবং তড়িৎ প্রবাহ আবিষ্ট হয়। একে <strong>তড়িৎচৌম্বকীয় আবেশ</strong> বলে।</p>
+    <ul>
+      <li>চুম্বক ও কুণ্ডলীর মধ্যে <strong>আপেক্ষিক গতি</strong> থাকতে হবে; চুম্বক স্থির রাখলে গ্যালভানোমিটারে কোনো বিক্ষেপ দেখা যায় না।</li>
+      <li>আপেক্ষিক গতি যত দ্রুত, কুণ্ডলীর পাকসংখ্যা যত বেশি এবং চুম্বক যত শক্তিশালী হবে, আবিষ্ট প্রবাহ তত বাড়বে।</li>
+    </ul>
+
+    <figure class="visual">
+      <svg viewBox="0 0 700 245" role="img" aria-label="চুম্বক নড়ালে কুণ্ডলীতে আবিষ্ট প্রবাহ">
+        <rect x="90" y="85" width="130" height="70" rx="8" fill="#eef2ff" stroke="#312e81" stroke-width="2.5"/>
+        <path d="M90 85 h65 v70 h-65 z" fill="#ef4444"/>
+        <path d="M155 85 h65 v70 h-65 z" fill="#2563eb"/>
+        <text x="122" y="128" fill="#ffffff" text-anchor="middle" font-size="22" font-weight="800">N</text>
+        <text x="187" y="128" fill="#ffffff" text-anchor="middle" font-size="22" font-weight="800">S</text>
+        <path d="M232 120 H305" stroke="#d97706" stroke-width="4"/>
+        <path d="M275 106 L308 120 L275 134" fill="none" stroke="#d97706" stroke-width="4"/>
+        <g fill="none" stroke="#4f46e5" stroke-width="5">
+          <ellipse cx="360" cy="120" rx="22" ry="48"/>
+          <ellipse cx="380" cy="120" rx="22" ry="48"/>
+          <ellipse cx="400" cy="120" rx="22" ry="48"/>
+        </g>
+        <path d="M422 86 V54 H570 V186 H422 V154" fill="none" stroke="#334155" stroke-width="4"/>
+        <circle cx="570" cy="120" r="26" fill="#fff" stroke="#d97706" stroke-width="4"/>
+        <text x="570" y="127" text-anchor="middle" font-size="20" font-weight="800" fill="#b45309">G</text>
+        <text x="355" y="218" text-anchor="middle" font-size="14" font-weight="700" fill="#475569">চুম্বকের দ্রুত নড়াচড়া → চৌম্বক ক্ষেত্রের পরিবর্তন → গ্যালভানোমিটারে বিক্ষেপ</text>
+      </svg>
+      <figcaption>চুম্বক ও কুণ্ডলীর আপেক্ষিক গতি থাকলে তবেই কুণ্ডলীতে আবিষ্ট প্রবাহ সৃষ্টি হয়।</figcaption>
+    </figure>
+
+    <h3 id="sub-12-3-1">12.3.1 · তড়িৎ জেনারেটর বা ডায়নামো (AC & DC Generator)</h3>
+    <p>যে যন্ত্র <strong>যান্ত্রিক শক্তিকে তড়িৎ শক্তিতে</strong> রূপান্তর করে তাকে জেনারেটর বলে।</p>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>বৈশিষ্ট্য</th>
+            <th>AC জেনারেটর</th>
+            <th>DC জেনারেটর</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>রিং-এর ধরন</td>
+            <td>দুটি পূর্ণ <b>স্লিপ রিং (Slip Rings)</b></td>
+            <td>একটি খণ্ডিত রিং বা <b>কমিউটেটর (Split Ring)</b></td>
+          </tr>
+          <tr>
+            <td>আউটপুট প্রবাহের দিক</td>
+            <td>প্রতি অর্ধ-পাকে দিক পরিবর্তন হয় (পর্যায়বৃত্ত প্রবাহ)</td>
+            <td>বাইরের বর্তনীতে প্রবাহের দিক সর্বদা একই থাকে</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 id="sub-12-3-2">12.3.2 · ট্রান্সফরমার (Transformer)</h3>
+    <p>পারস্পরিক আবেশের (Mutual Induction) নীতিতে তৈরি যে যন্ত্র পরিবর্তনশীল বিভব বা ভোল্টেজকে (AC) বেশি থেকে কম বা কম থেকে বেশি করে, তাকে <strong>ট্রান্সফরমার</strong> বলে। একটি স্তরীকৃত নরম লোহার মজ্জার (Laminated Soft Iron Core) দুই পাশে দুটি কুণ্ডলী পেঁচানো থাকে: <b>প্রাইমারি বা মুখ্য কুণ্ডলী ($N_p$)</b> এবং <b>সেকেন্ডারি বা গৌণ কুণ্ডলী ($N_s$)</b>।</p>
+
+    <div class="formula">$$\frac{V_s}{V_p} = \frac{N_s}{N_p} \quad \text{এবং আদর্শ ট্রান্সফরমারে} \quad V_p I_p = V_s I_s \implies \frac{V_s}{V_p} = \frac{N_s}{N_p} = \frac{I_p}{I_s}$$</div>
+
+    <div class="grid">
+      <div class="term">
+        <strong>আরোহী (Step-Up) ট্রান্সফরমার</strong>
+        <small>$N_s > N_p$ এবং $V_s > V_p$। এটি অল্প ভোল্টেজকে বেশি ভোল্টেজে রূপান্তর করে (প্রবাহ কমে $I_s < I_p$)।</small>
+      </div>
+      <div class="term">
+        <strong>অবরোহী (Step-Down) ট্রান্সফরমার</strong>
+        <small>$N_s < N_p$ এবং $V_s < V_p$। এটি উচ্চ গ্রিড ভোল্টেজ কমিয়ে ব্যবহার উপযোগী করে (মোবাইল চার্জার, পাওয়ার গ্রিড সাবস্টেশন)।</small>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <b>সতর্কতা (অতি গুরুত্বপূর্ণ অনুধাবন প্রশ্ন):</b> ট্রান্সফরমার কেবল <b>AC (পর্যায়বৃত্ত প্রবাহ)</b>-তে কাজ করে। প্রাইমারিতে স্থির <b>DC</b> দিলে কোরে সময়ের সাথে চৌম্বক ক্ষেত্র পরিবর্তিত হয় না, ফলে সেকেন্ডারিতে কোনো বিভব আবিষ্ট হয় না (বরং প্রাইমারি কুণ্ডলী অতিরিক্ত গরম হয়ে পুড়ে যেতে পারে)।
+    </div>
+  </section>
+
+  <section class="lab" id="tx-lab">
+    <div class="lab-head">
+      <div>
+        <h2>ইন্টারেক্টিভ ল্যাব ৩: ট্রান্সফরমার ভোল্টেজ ও প্রবাহ গণক</h2>
+        <p style="margin:0;color:var(--muted);font-size:14px">প্রাইমারি ভোল্টেজ ($V_p$) ও উভয় কুণ্ডলীর পাকসংখ্যা ($N_p, N_s$) বদলে দেখো ট্রান্সফরমারটি আরোহী নাকি অবরোহী।</p>
+      </div>
+      <span class="lab-tag">ইনলাইন ল্যাব · ১২.৩</span>
+    </div>
+
+    <div class="preset-row">
+      <button type="button" class="preset-btn active" data-vp="220" data-np="400" data-ns="800">আরোহী (১:২)</button>
+      <button type="button" class="preset-btn" data-vp="220" data-np="1000" data-ns="50">অবরোহী (২০:১ চার্জার)</button>
+      <button type="button" class="preset-btn" data-vp="110" data-np="200" data-ns="400">১১০ V → ২২০ V</button>
+    </div>
+
+    <div class="lab-controls">
+      <div>
+        <label style="display:flex;justify-content:space-between;font-weight:700;font-size:14px;margin-bottom:6px">
+          <span>প্রাইমারি ভোল্টেজ ($V_p$)</span>
+          <strong id="vpTxt" style="color:#4f46e5">220 V AC</strong>
+        </label>
+        <div class="slider-container">
+          <input type="range" id="vpSlider" class="range" min="12" max="240" step="2" value="220">
+        </div>
+      </div>
+      <div>
+        <label style="display:flex;justify-content:space-between;font-weight:700;font-size:14px;margin-bottom:6px">
+          <span>মুখ্য পাকসংখ্যা ($N_p$)</span>
+          <strong id="npTxt" style="color:#4f46e5">400 পাক</strong>
+        </label>
+        <div class="slider-container">
+          <input type="range" id="npSlider" class="range" min="50" max="1000" step="50" value="400">
+        </div>
+      </div>
+      <div>
+        <label style="display:flex;justify-content:space-between;font-weight:700;font-size:14px;margin-bottom:6px">
+          <span>গৌণ পাকসংখ্যা ($N_s$)</span>
+          <strong id="nsTxt" style="color:#4f46e5">800 পাক</strong>
+        </label>
+        <div class="slider-container">
+          <input type="range" id="nsSlider" class="range" min="50" max="1000" step="50" value="800">
+        </div>
+      </div>
+      <div>
+        <label style="display:flex;justify-content:space-between;font-weight:700;font-size:14px;margin-bottom:6px">
+          <span>প্রাইমারি প্রবাহ ($I_p$)</span>
+          <strong id="ipTxt" style="color:#4f46e5">2.0 A</strong>
+        </label>
+        <div class="slider-container">
+          <input type="range" id="ipSlider" class="range" min="0.5" max="10" step="0.5" value="2.0">
+        </div>
+      </div>
+    </div>
+
+    <div class="calc-breakdown">
+      <div class="calc-box">
+        <div class="label">সেকেন্ডারি ভোল্টেজ (Vs)</div>
+        <div class="val" id="vsBox" style="color:#4f46e5">440.0 V</div>
+      </div>
+      <div class="calc-box">
+        <div class="label">সেকেন্ডারি প্রবাহ (Is)</div>
+        <div class="val" id="isBox">1.00 A</div>
+      </div>
+      <div class="calc-box">
+        <div class="label">ধরন ও রূপান্তর ক্ষমতা</div>
+        <div class="val" id="typeBox">আরোহী (880 W)</div>
+      </div>
+    </div>
+
+    <div class="readout" id="txReadout">আরোহী ট্রান্সফরমার: ভোল্টেজ ২.০০ গুণ বেড়ে ৪৪০.০ V হয়েছে এবং প্রবাহ কমে ১.০০ A হয়েছে।</div>
+  </section>
+
+  <section class="worked">
+    <h2>উদাহরণ: ট্রান্সফরমারের ভোল্টেজ ও প্রবাহ হিসাব</h2>
+    <div class="problem">একটি অবরোহী ট্রান্সফরমারের মুখ্য কুণ্ডলীর পাকসংখ্যা $500$ ও গৌণ কুণ্ডলীর পাকসংখ্যা $100$। মুখ্য কুণ্ডলীতে $220\,\text{V}$ এবং $2\,\text{A}$ প্রবাহ সরবরাহ করলে গৌণ কুণ্ডলীর ভোল্টেজ ও প্রবাহ কত হবে?</div>
+    <div class="solution">
+      ১. ভোল্টেজ নির্ণয়: $\dfrac{V_s}{V_p} = \dfrac{N_s}{N_p} \implies V_s = \dfrac{100}{500} \times 220 = \mathbf{44\,\text{V}}$।<br>
+      ২. প্রবাহ নির্ণয়: $V_p I_p = V_s I_s \implies I_s = \dfrac{220 \times 2}{44} = \mathbf{10\,\text{A}}$। (লক্ষ করো: ভোল্টেজ ৫ গুণ কমায় প্রবাহ ৫ গুণ বেড়েছে!)
+    </div>
+  </section>
+
+  <section class="section" id="summary-formulas">
+    <h2>অধ্যায় ১২-এর মূল সূত্রাবলি একনজরে</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>সূত্র / নীতি</th>
+            <th>গাণিতিক রূপ</th>
+            <th>কী নির্দেশ করে?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>বিদ্যুৎবাহী তারে চৌম্বক বল</td>
+            <td>$F = B I L \sin\theta$</td>
+            <td>লম্ব অবস্থানে ($\theta = 90^\circ$) সর্বোচ্চ বল $F = BIL$।</td>
+          </tr>
+          <tr>
+            <td>ট্রান্সফরমার ভোল্টেজ অনুপাত</td>
+            <td>$\dfrac{V_s}{V_p} = \dfrac{N_s}{N_p}$</td>
+            <td>পাকসংখ্যা যে অনুপাতে বাড়ে/কমে, ভোল্টেজও সেই অনুপাতে বাড়ে/কমে।</td>
+          </tr>
+          <tr>
+            <td>আদর্শ ট্রান্সফরমারের ক্ষমতা</td>
+            <td>$P = V_p I_p = V_s I_s$</td>
+            <td>শক্তির নিত্যতা থেকে $\dfrac{I_p}{I_s} = \dfrac{V_s}{V_p} = \dfrac{N_s}{N_p}$।</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <details class="check">
+    <summary>নিজেকে যাচাই করো: আরোহী ট্রান্সফরমারে প্রবাহ বাড়ে না কমে? কেন?</summary>
+    <p>কমে। কারণ আদর্শ ট্রান্সফরমারে মোট ক্ষমতা ($P = VI$) অপরিবর্তিত থাকে। ভোল্টেজ বাড়লে শক্তি সংরক্ষণের জন্য তড়িৎ প্রবাহ সমানুপাতে কমে যায়।</p>
+  </details>
+
+  <nav class="nav">
+    <a class="button secondary" href="section-02.html">← আগের পাঠ: বিদ্যুতের চৌম্বক ক্রিয়া</a>
+    <a class="button" href="index.html">অধ্যায় সূচিতে ফিরো →</a>
+  </nav>
+  <footer class="footer">পড়ি (poRi) · পদার্থবিজ্ঞান ডিজিটাল পাঠ · অধ্যায় ১২</footer>
+</main>
+
+<script>
+  (function () {
+    const vpEl = document.getElementById('vpSlider');
+    const npEl = document.getElementById('npSlider');
+    const nsEl = document.getElementById('nsSlider');
+    const ipEl = document.getElementById('ipSlider');
+
+    function syncRange(el) {
+      const min = parseFloat(el.min), max = parseFloat(el.max), val = parseFloat(el.value);
+      const pct = ((val - min) / (max - min)) * 100;
+      el.style.setProperty('--fill', pct.toFixed(1) + '%');
+    }
+
+    function update() {
+      [vpEl, npEl, nsEl, ipEl].forEach(syncRange);
+      const Vp = parseFloat(vpEl.value);
+      const Np = Math.max(50, parseFloat(npEl.value));
+      const Ns = Math.max(50, parseFloat(nsEl.value));
+      const Ip = parseFloat(ipEl.value);
+
+      const ratio = Ns / Np;
+      const Vs = Vp * ratio;
+      const Is = (Vp * Ip) / Vs;
+      const P = Vp * Ip;
+
+      document.getElementById('vpTxt').textContent = Vp + ' V AC';
+      document.getElementById('npTxt').textContent = Np + ' পাক';
+      document.getElementById('nsTxt').textContent = Ns + ' পাক';
+      document.getElementById('ipTxt').textContent = Ip.toFixed(1) + ' A';
+
+      document.getElementById('vsBox').textContent = Vs.toFixed(1) + ' V';
+      document.getElementById('isBox').textContent = Is.toFixed(2) + ' A';
+      const kind = Ns > Np ? 'আরোহী' : (Ns < Np ? 'অবরোহী' : 'সমান (১:১)');
+      document.getElementById('typeBox').textContent = `${kind} (${P.toFixed(0)} W)`;
+
+      document.getElementById('txReadout').textContent =
+        `${kind} ট্রান্সফরমার: পাক অনুপাত ${ratio.toFixed(2)}, তাই Vs = ${Vs.toFixed(1)} V ও Is = ${Is.toFixed(2)} A (মোট ক্ষমতা ${P.toFixed(0)} W)।`;
+    }
+
+    document.querySelectorAll('#tx-lab .preset-btn[data-vp]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#tx-lab .preset-btn[data-vp]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        vpEl.value = btn.dataset.vp;
+        npEl.value = btn.dataset.np;
+        nsEl.value = btn.dataset.ns;
+        update();
+      });
+    });
+
+    [vpEl, npEl, nsEl, ipEl].forEach(el => el.addEventListener('input', update));
+    update();
+  })();
+</script>
+</body>
+</html>

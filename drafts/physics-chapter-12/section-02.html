@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>12.2 বিদ্যুতের চৌম্বক ক্রিয়া ও DC মোটর · অধ্যায় ১২ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+    <span class="crumb">SSC · অধ্যায় ১২ · পাঠ ১২.২</span>
+  </div>
+</header>
+<main>
+  <span class="badge">বইয়ের section 12.2 · বিদ্যুতের চৌম্বক ক্রিয়া</span>
+  <h1 class="title">বিদ্যুতের চৌম্বক ক্রিয়া, তড়িৎচুম্বক ও DC মোটর</h1>
+  <p class="subtitle">সলিনয়েড, তড়িৎচুম্বক, চৌম্বক ক্ষেত্রে বিদ্যুৎবাহী তারে বল এবং DC মোটরের ঘূর্ণন প্রক্রিয়া।</p>
+
+  <section class="goal">
+    <h2>এই পাঠে যা শিখবে</h2>
+    <p>তড়িৎপ্রবাহ কীভাবে চৌম্বক ক্ষেত্র তৈরি করে (ডানহস্ত গ্রিপ নিয়ম), সলিনয়েড ও নরম লোহার তড়িৎচুম্বকের শক্তি বাড়ানোর উপায়, ফ্লেমিংয়ের বামহস্ত নিয়মে বলের দিক এবং কমিউটেটরসহ DC মোটরের কার্যপ্রণালি।</p>
+  </section>
+
+  <section class="section">
+    <h2>12.2 · বিদ্যুৎপ্রবাহের চৌম্বক ক্রিয়া (Oersted's Discovery)</h2>
+    <p>১৮২০ সালে বিজ্ঞানী হ্যান্স ক্রিশ্চিয়ান ওয়েরস্টেড প্রমাণ করেন যে, কোনো পরিবাহী তারের মধ্য দিয়ে তড়িৎপ্রবাহ ($I$) চললে তারের চারপাশে সমকেন্দ্রিক বৃত্তাকার <strong>চৌম্বক ক্ষেত্র</strong> সৃষ্টি হয়। প্রবাহ বন্ধ করলে চৌম্বক ক্ষেত্রটিও অদৃশ্য হয়ে যায়।</p>
+
+    <div class="highlight-box">
+      <b>ডানহস্ত গ্রিপ নিয়ম (Right-Hand Grip Rule):</b> তড়িৎবাহী সোজা তারটিকে ডান হাতে এমনভাবে ধরো যেন বৃদ্ধাঙ্গুলি প্রচলিত প্রবাহের ($+$ থেকে $-$) দিক নির্দেশ করে; তাহলে বাকি চার আঙুলের বাঁক চৌম্বক ক্ষেত্রের দিক নির্দেশ করবে। প্রবাহ বাড়লে ক্ষেত্র প্রবল হয়, এবং তার থেকে দূরত্ব বাড়লে ক্ষেত্র দুর্বল হয়।
+    </div>
+
+    <figure class="visual">
+      <svg viewBox="0 0 700 250" role="img" aria-label="বিদ্যুৎবাহী তারের চারপাশে বৃত্তাকার চৌম্বক ক্ষেত্র">
+        <defs>
+          <marker id="arr2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L7,3 z" fill="#4f46e5"/>
+          </marker>
+          <marker id="arrAmber" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L7,3 z" fill="#d97706"/>
+          </marker>
+        </defs>
+        <path d="M350 32 V215" stroke="#334155" stroke-width="11" stroke-linecap="round"/>
+        <path d="M350 185 V55" stroke="#f59e0b" stroke-width="4" marker-end="url(#arrAmber)"/>
+        <g fill="none" stroke="#4f46e5" stroke-width="3.5" marker-end="url(#arr2)">
+          <ellipse cx="350" cy="130" rx="64" ry="30"/>
+          <ellipse cx="350" cy="130" rx="118" ry="56"/>
+          <ellipse cx="350" cy="130" rx="176" ry="82"/>
+        </g>
+        <text x="380" y="64" font-size="18" font-weight="800" fill="#1e293b">তড়িৎ প্রবাহ (I) ↑</text>
+        <text x="350" y="238" text-anchor="middle" font-size="15" font-weight="700" fill="#475569">সোজা তারকে ঘিরে সমকেন্দ্রিক বৃত্তাকার চৌম্বক বলরেখা</text>
+      </svg>
+      <figcaption>ডান হাতের বৃদ্ধাঙ্গুলি প্রবাহের দিকে থাকলে বাঁকানো আঙুলগুলো বৃত্তাকার ক্ষেত্রের দিক নির্দেশ করে।</figcaption>
+    </figure>
+
+    <h3 id="sub-12-2-1">12.2.1 · সলিনয়েড (Solenoid)</h3>
+    <p>অন্তরীত তামার তারকে পেঁচিয়ে স্প্রিং বা চোঙের মতো অনেক পাকের কুণ্ডলী তৈরি করলে তাকে <strong>সলিনয়েড</strong> বলে। এর ভেতর দিয়ে তড়িৎ প্রবাহিত হলে প্রতিটি পাকের চৌম্বক ক্ষেত্র পরস্পরের সাথে যুক্ত হয়ে ভেতরে প্রায় সুষম ও শক্তিশালী চৌম্বক ক্ষেত্র তৈরি করে। বাইরে থেকে সলিনয়েড অবিকল একটি দণ্ড চুম্বকের ($N$ এবং $S$ মেরু) মতো আচরণ করে।</p>
+
+    <h3 id="sub-12-2-2">12.2.2 · তড়িৎচুম্বক (Electromagnet)</h3>
+    <p>সলিনয়েডের ভেতরে একটি <strong>নরম লোহার দণ্ড (Soft Iron Core)</strong> প্রবেশ করিয়ে প্রবাহ চালালে দণ্ডটি শক্তিশালী অস্থায়ী চুম্বকে পরিণত হয়—একে <strong>তড়িৎচুম্বক</strong> বলে। স্টিলের বদলে নরম লোহা ব্যবহারের কারণ হলো প্রবাহ বন্ধ করার সাথে সাথে নরম লোহা দ্রুত চুম্বকত্ব হারায়, কিন্তু স্টিল স্থায়ী চুম্বকে পরিণত হয়।</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>তড়িৎচুম্বকের শক্তি বাড়ানোর উপায়</th>
+            <th>কেন কাজ করে?</th>
+            <th>বাস্তব ব্যবহার</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>কুণ্ডলীর পাকসংখ্যা ($N$) বাড়ানো</td>
+            <td>প্রতিটি পাকের চৌম্বক ক্ষেত্র পরস্পরের সাথে যোগ হয়।</td>
+            <td>ভারী স্ক্র্যাপ লোহা তোলার ক্রেন</td>
+          </tr>
+          <tr>
+            <td>তড়িৎ প্রবাহ ($I$) বৃদ্ধি করা</td>
+            <td>প্রবাহ বাড়লে প্রতি পাকের চৌম্বক ক্ষেত্র আনুপাতিক হারে বাড়ে।</td>
+            <td>বৈদ্যুতিক ঘণ্টা ও রিলে সুইচ</td>
+          </tr>
+          <tr>
+            <td>ভেতরে নরম লোহার কোর ব্যবহার</td>
+            <td>নরম লোহা সহজে প্রবলভাবে চুম্বকিত হয় এবং সুইচ অফে দ্রুত চুম্বকত্ব হারায়।</td>
+            <td>MRI মেশিন, লাউডস্পিকার, দরজার তালা</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="lab" id="solenoid-lab">
+    <div class="lab-head">
+      <div>
+        <h2>ইন্টারেক্টিভ ল্যাব ২: সলিনয়েড ও তড়িৎচুম্বক শক্তি বিশ্লেষক</h2>
+        <p style="margin:0;color:var(--muted);font-size:14px">পাকসংখ্যা ($N$), তড়িৎ প্রবাহ ($I$) ও কোর পদার্থ পরিবর্তন করে তড়িৎচুম্বকের আপেক্ষিক ক্ষেত্র শক্তি দেখো।</p>
+      </div>
+      <span class="lab-tag">ইনলাইন ল্যাব · ১২.২</span>
+    </div>
+
+    <div class="lab-controls">
+      <div>
+        <label style="display:flex;justify-content:space-between;font-weight:700;font-size:14px;margin-bottom:6px">
+          <span>কুণ্ডলীর পাকসংখ্যা ($N$)</span>
+          <strong id="turnVal" style="color:#4f46e5">200 পাক</strong>
+        </label>
+        <div class="slider-container">
+          <input type="range" id="turnRange" class="range" min="50" max="500" step="25" value="200">
+        </div>
+      </div>
+      <div>
+        <label style="display:flex;justify-content:space-between;font-weight:700;font-size:14px;margin-bottom:6px">
+          <span>তড়িৎ প্রবাহ ($I$)</span>
+          <strong id="currVal" style="color:#4f46e5">3.0 A</strong>
+        </label>
+        <div class="slider-container">
+          <input type="range" id="currRange" class="range" min="0.5" max="8.0" step="0.5" value="3.0">
+        </div>
+      </div>
+    </div>
+
+    <div class="preset-row">
+      <button type="button" class="preset-btn" id="coreAirBtn">বায়ু কোর (কয়েল শুধু)</button>
+      <button type="button" class="preset-btn active" id="coreIronBtn">নরম লোহার কোর (শক্তিশালী)</button>
+    </div>
+
+    <div class="calc-breakdown">
+      <div class="calc-box">
+        <div class="label">পাক × প্রবাহ (NI)</div>
+        <div class="val" id="niBox">600 A·turns</div>
+      </div>
+      <div class="calc-box">
+        <div class="label">আপেক্ষিক ক্ষেত্র প্রাবল্য</div>
+        <div class="val" id="bBox" style="color:#4f46e5">উচ্চ (নরম লোহা সহায়তা)</div>
+      </div>
+    </div>
+
+    <div class="readout" id="solReadout">সলিনয়েডের ভেতরে নরম লোহার কোর থাকায় ক্ষেত্র প্রবল হয়েছে এবং N–S মেরু তৈরি হয়েছে।</div>
+  </section>
+
+  <section class="section">
+    <h3 id="sub-12-2-3">12.2.3 · চৌম্বক ক্ষেত্রে বিদ্যুৎবাহী তারের ওপর বল (Magnetic Force on Wire)</h3>
+    <p>চৌম্বক ক্ষেত্রের ($B$) মধ্যে দিয়ে একটি বিদ্যুৎবাহী তার ($I$) রাখলে দুটি চৌম্বক ক্ষেত্রের পারস্পরিক ক্রিয়ায় তারটির ওপর বল ($F = B I L \sin\theta$) ক্রিয়া করে। তার ও চৌম্বক ক্ষেত্র পরস্পর লম্ব ($\theta = 90^\circ$) হলে বল সর্বোচ্চ ($F_{\max} = BIL$) হয় এবং সমান্তরাল ($\theta = 0^\circ$) হলে বল শূন্য হয়।</p>
+
+    <div class="highlight-box">
+      <b>ফ্লেমিংয়ের বামহস্ত নিয়ম (Fleming's Left-Hand Rule):</b> বাম হাতের বৃদ্ধাঙ্গুলি, তর্জনী ও মধ্যমাকে পরস্পর সমকোণে ($90^\circ$) প্রসারিত করলে:
+      <ul style="margin:6px 0 0 18px">
+        <li><b>তর্জনী (Forefinger):</b> চৌম্বক ক্ষেত্রের দিক ($N \to S$)</li>
+        <li><b>মধ্যমা (Middle finger):</b> তড়িৎ প্রবাহের দিক ($+$ থেকে $-$)</li>
+        <li><b>বৃদ্ধাঙ্গুলি (Thumb):</b> তারের ওপর ক্রিয়াশীল <b>বলের বা গতির দিক</b></li>
+      </ul>
+    </div>
+
+    <h3 id="sub-12-2-4">12.2.4 · বৈদ্যুতিক DC মোটর (DC Motor)</h3>
+    <p>বৈদ্যুতিক মোটর হলো এমন একটি যন্ত্র যা <strong>তড়িৎ শক্তিকে যান্ত্রিক শক্তিতে</strong> রূপান্তর করে। একটি আয়তাকার কুণ্ডলীকে $N$ ও $S$ মেরুর মাঝখানে রেখে প্রবাহ চালালে বাম বাহুতে একদিকে ও ডান বাহুতে বিপরীত দিকে বল কাজ করে, ফলে কুণ্ডলীটি ঘুরতে থাকে।</p>
+    <p>প্রতি অর্ধেক ঘূর্ণনের ($180^\circ$) পর কুণ্ডলীর প্রবাহের দিক বদলে একই দিকে ঘূর্ণন বজায় রাখতে <strong>কমিউটেটর (Split-ring Commutator)</strong> এবং ব্রাশ ব্যবহার করা হয়। মোটরের ঘূর্ণন বেগ বাড়াতে: প্রবাহ বাড়ানো, চৌম্বক ক্ষেত্র শক্তিশালী করা, পাকসংখ্যা বাড়ানো এবং নরম লোহার আর্মেচার কোর ব্যবহার করা হয়।</p>
+
+    <figure class="visual">
+      <svg viewBox="0 0 700 245" role="img" aria-label="DC মোটরের কুণ্ডলীতে বিপরীতমুখী বল">
+        <rect x="75" y="65" width="95" height="120" rx="10" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/>
+        <text x="122" y="133" text-anchor="middle" font-size="28" font-weight="800" fill="#1d4ed8">N</text>
+        <rect x="530" y="65" width="95" height="120" rx="10" fill="#fee2e2" stroke="#dc2626" stroke-width="3"/>
+        <text x="578" y="133" text-anchor="middle" font-size="28" font-weight="800" fill="#b91c1c">S</text>
+        <path d="M170 125 H530" stroke="#94a3b8" stroke-width="2" stroke-dasharray="8 6"/>
+        <rect x="290" y="88" width="120" height="74" fill="#fff" stroke="#4f46e5" stroke-width="4.5"/>
+        <path d="M305 130 V65 M395 130 V195" stroke="#f59e0b" stroke-width="4.5"/>
+        <path d="M295 60 L305 42 L315 60 M385 200 L395 218 L405 200" fill="#4f46e5"/>
+        <text x="305" y="34" text-anchor="middle" font-size="13" font-weight="700" fill="#4f46e5">বাম বাহুতে ঊর্ধ্বমুখী বল</text>
+        <text x="350" y="236" text-anchor="middle" font-size="14" font-weight="700" fill="#475569">কুণ্ডলীর দুই পাশে সমান ও বিপরীত বল → দ্বন্দ্ব ও অবিরাম ঘূর্ণন (কমিউটেটর সহ)</text>
+      </svg>
+      <figcaption>চৌম্বক ক্ষেত্রের মধ্যে বিদ্যুৎবাহী কুণ্ডলীর বিপরীত বাহুতে বিপরীত বল কাজ করায় টর্ক তৈরি হয়।</figcaption>
+    </figure>
+  </section>
+
+  <section class="worked">
+    <h2>উদাহরণ: মোটরের ঘূর্ণন দিক ও বলের সূত্র</h2>
+    <div class="problem">$0.5\,\text{T}$ প্রাবল্যের সুষম চৌম্বক ক্ষেত্রে লম্বভাবে স্থাপিত $0.4\,\text{m}$ দীর্ঘ তারের মধ্য দিয়ে $4\,\text{A}$ তড়িৎ প্রবাহিত হলে তারটি কত বল অনুভব করবে?</div>
+    <div class="solution">লম্ব অবস্থানে ($\theta = 90^\circ$), $F = B I L \sin 90^\circ = 0.5 \times 4 \times 0.4 \times 1 =$ <b>$0.8\,\text{N}$</b>।</div>
+  </section>
+
+  <div class="memory">
+    <b>মনে রাখার ছন্দ:</b> ফ্লেমিংয়ের বাম হাত = মোটর (বাম দিকে বল), ফ্লেমিংয়ের ডান হাত = জেনারেটর (আবিষ্ট প্রবাহ)।
+  </div>
+
+  <details class="check">
+    <summary>নিজেকে যাচাই করো: DC মোটরে স্প্লিট-রিং কমিউটেটর না থাকলে কুণ্ডলী কীভাবে নড়ত?</summary>
+    <p>প্রতি অর্ধ-আবর্তনের পর বলের দিক উল্টে যেত; তাই কুণ্ডলীটি একদিকে অবিরাম না ঘুরে উল্লম্ব অবস্থানের আশেপাশে শুধু দুলত ও থেমে যেত।</p>
+  </details>
+
+  <nav class="nav">
+    <a class="button secondary" href="section-01.html">← আগের পাঠ: চুম্বক</a>
+    <a class="button" href="section-03.html">পরের পাঠ: আবেশ ও ট্রান্সফরমার →</a>
+  </nav>
+  <footer class="footer">পড়ি (poRi) · পদার্থবিজ্ঞান ডিজিটাল পাঠ · অধ্যায় ১২</footer>
+</main>
+
+<script>
+  (function () {
+    const tEl = document.getElementById('turnRange');
+    const cEl = document.getElementById('currRange');
+    const airBtn = document.getElementById('coreAirBtn');
+    const ironBtn = document.getElementById('coreIronBtn');
+    let hasIron = true;
+
+    function syncRange(el) {
+      const min = parseFloat(el.min), max = parseFloat(el.max), val = parseFloat(el.value);
+      const pct = ((val - min) / (max - min)) * 100;
+      el.style.setProperty('--fill', pct.toFixed(1) + '%');
+    }
+
+    function update() {
+      syncRange(tEl);
+      syncRange(cEl);
+      const N = parseInt(tEl.value, 10);
+      const I = parseFloat(cEl.value);
+      const NI = N * I;
+      const mult = hasIron ? 50 : 1;
+      const score = NI * mult;
+
+      document.getElementById('turnVal').textContent = N + ' পাক';
+      document.getElementById('currVal').textContent = I.toFixed(1) + ' A';
+      document.getElementById('niBox').textContent = NI.toFixed(0) + ' A·turns';
+      document.getElementById('bBox').textContent = hasIron
+        ? `${(score / 1000).toFixed(1)} k-ইউনিট (অতি প্রবল)`
+        : `${score.toFixed(0)} ইউনিট (দুর্বল বায়ু কোর)`;
+
+      document.getElementById('solReadout').textContent = hasIron
+        ? `N = ${N} পাক এবং I = ${I.toFixed(1)} A প্রবাহের সাথে নরম লোহার কোর থাকায় তড়িৎচুম্বকটি ${score >= 30000 ? 'অত্যন্ত শক্তিশালী' : 'মজবুত'} চুম্বকে পরিণত হয়েছে।`
+        : `বায়ু কোর থাকায় কেবল কয়েলের ক্ষেত্র কাজ করছে (নরম লোহা ঢোকালে ক্ষেত্র বহুগুণ বেড়ে যাবে)।`;
+    }
+
+    airBtn.addEventListener('click', () => {
+      hasIron = false;
+      airBtn.classList.add('active');
+      ironBtn.classList.remove('active');
+      update();
+    });
+    ironBtn.addEventListener('click', () => {
+      hasIron = true;
+      ironBtn.classList.add('active');
+      airBtn.classList.remove('active');
+      update();
+    });
+
+    tEl.addEventListener('input', update);
+    cEl.addEventListener('input', update);
+    update();
+  })();
+</script>
+</body>
+</html>
