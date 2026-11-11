@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>১১.৪ বিদ্যুৎ সরবরাহ, সিস্টেম লস ও লোডশেডিং · অধ্যায় ১১: চল বিদ্যুৎ</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ১১ / ১১.৪</span>
+    </div>
+  </header>
+  <main>
+    <span class="badge">বইয়ের অনুচ্ছেদ ১১.৪ (১১.৪.১–১১.৪.২)</span>
+    <h1 class="title">বিদ্যুৎ সরবরাহ, সিস্টেম লস ও লোডশেডিং</h1>
+    <p class="subtitle">উচ্চ বিভবে বিদ্যুৎ সঞ্চালন · সিস্টেম লস ($P_{\text{loss}} = I^2R$) কমানোর কৌশল · স্টেপ-আপ ও স্টেপ-ডাউন ট্রান্সফরমার · লোডশেডিং।</p>
+
+    <section class="goal">
+      <h2>এই পাঠে শিখবে</h2>
+      <p>বিদ্যুৎকেন্দ্র থেকে দূরের শহরে বিদ্যুৎ পাঠানোর সময় কেন লক্ষ লক্ষ ভোল্টে উন্নীত করা হয়, সিস্টেম লস ($I^2R$) গাণিতিকভাবে কীভাবে কমে এবং চাহিদা ও উৎপাদনের অসামঞ্জস্যে লোডশেডিং কেন ঘটে তা ব্যাখ্যা করতে পারবে।</p>
+    </section>
+
+    <section class="section">
+      <h2>১১.৪ · বিদ্যুৎ সরবরাহ (Electrical Supply)</h2>
+      <p>বিদ্যুৎ উৎপাদন কেন্দ্রে তৈরি হওয়া বিদ্যুৎ অনেক দূরের শহর বা গ্রামে পরিবাহী তারের (সঞ্চালন লাইন) মাধ্যমে পাঠানো হয়। সঞ্চালন লাইনের শুরুতে <strong>স্টেপ-আপ ট্রান্সফরমার</strong> দিয়ে বিভব অনেক বাড়ানো হয় ($132\,\text{kV}$ বা $230\,\text{kV}$), আর গ্রাহকের এলাকায় এসে <strong>স্টেপ-ডাউন ট্রান্সফরমার</strong> দিয়ে বিভব কমিয়ে বাসাবাড়ির ব্যবহারযোগ্য $220\,\text{V}$-এ নামানো হয়।</p>
+
+      <h3 id="sub-11-4-1">১১.৪.১ · বিদ্যুৎ সিস্টেম লস (System Loss)</h3>
+      <p>সঞ্চালন লাইনের তারের নিজস্ব রোধ $R_{\text{line}}$ থাকায় বিদ্যুৎ চলার সময় তারের ভেতর প্রচুর তাপ উৎপন্ন হয়ে শক্তি নষ্ট হয়—একেই <strong>বিদ্যুৎ সিস্টেম লস</strong> বলে। যদি কোনো লাইনে $P$ ক্ষমতা পাঠানো হয়:</p>
+
+      <div class="formula">$$I = \frac{P}{V} \qquad \text{এবং} \qquad P_{\text{loss}} = I^2 R_{\text{line}} = \left(\frac{P}{V}\right)^2 R_{\text{line}}$$</div>
+
+      <div class="highlight-box">
+        <strong>মূল রহস্য:</strong> একই ক্ষমতা $P$ পাঠানোর সময় বিভব $V$-কে <strong>$10$ গুণ বাড়ালে</strong> প্রবাহ $I$ কমে $\dfrac{1}{10}$ ভাগ হয়, আর তারে তাপীয় ক্ষতি $I^2R_{\text{line}}$ কমে $\left(\dfrac{1}{10}\right)^2 = \dfrac{1}{100}$ ভাগ হয়ে যায়! তাই দূরপাল্লার সঞ্চালনে উচ্চ বিভব অত্যন্ত লাভজনক।
+      </div>
+
+      <h3 id="sub-11-4-2">১১.৪.২ · লোডশেডিং (Load Shedding)</h3>
+      <p>কোনো নির্দিষ্ট সময়ে দেশের বা এলাকার মোট বিদ্যুৎ চাহিদা (চাহিদাকৃত লোড) যদি বিদ্যুৎকেন্দ্রগুলোর মোট উৎপাদন ক্ষমতার চেয়ে বেশি হয়ে যায়, তবে পুরো গ্রিডের ভোল্টেজ ও ফ্রিকোয়েন্সি পড়ে গিয়ে গ্রিড ধসে যাওয়ার ঝুঁকি তৈরি হয়। তখন জাতীয় গ্রিডের ভারসাম্য রক্ষার্থে পর্যায়ক্রমে কিছু এলাকায় সাময়িকভাবে বিদ্যুৎ সরবরাহ বন্ধ রাখাকে <strong>লোডশেডিং</strong> বলে।</p>
+
+      <div class="worked">
+        <h2>গাণিতিক উদাহরণ: বিভব বাড়ালে সিস্টেম লস কত কমে?</h2>
+        <div class="problem">একটি বিদ্যুৎকেন্দ্র থেকে $5\,\Omega$ রোধের তার দিয়ে $100\,\text{kW}$ ক্ষমতা সরবরাহ করা হচ্ছে। $500\,\text{V}$ বনাম $10,000\,\text{V}$ বিভবে সঞ্চালন করলে তারে ক্ষমতার অপচয় ($P_{\text{loss}}$) তুলনা করো।</div>
+        <div class="solution">
+          দেওয়া আছে, $P = 100\,\text{kW} = 10^5\,\text{W}$, লাইনের রোধ $R = 5\,\Omega$।<br>
+          ১) $V_1 = 500\,\text{V}$ বিভবে: $I_1 = \dfrac{10^5}{500} = 200\,\text{A} \implies P_{\text{loss1}} = (200)^2 \times 5 = 2,00,000\,\text{W}$ (অসম্ভব ক্ষতি!)<br>
+          ২) $V_2 = 10,000\,\text{V}$ ($20$ গুণ) বিভবে: $I_2 = \dfrac{10^5}{10000} = 10\,\text{A} \implies P_{\text{loss2}} = (10)^2 \times 5 = 500\,\text{W}$।<br>
+          <b>উত্তর:</b> বিভব ২০ গুণ বাড়ানোয় সিস্টেম লস $20^2 = 400$ গুণ কমে মাত্র $500\,\text{W}$ হয়েছে!
+        </div>
+      </div>
+    </section>
+
+    <section class="lab" aria-label="সঞ্চালন বিভব ও সিস্টেম লস ল্যাব">
+      <div class="lab-head">
+        <div>
+          <h2>উচ্চ বিভব সঞ্চালন ও সিস্টেম লস ল্যাব (HTML Lab)</h2>
+          <div style="color:#64748b;font-size:14px">$100\,\text{kW}$ ক্ষমতা ও $4\,\Omega$ তারে বিভব $V$ বদলে সিস্টেম লস কত কমে তা দেখো।</div>
+        </div>
+        <span class="lab-tag">HTML LAB</span>
+      </div>
+
+      <div class="lab-controls">
+        <label>সঞ্চালন বিভব $V$: <b id="txVLbl">11 kV (11,000 V)</b>
+          <input class="range" id="txVInp" type="range" min="1" max="132" step="1" value="11">
+        </label>
+        <label>তারের রোধ $R_{\text{line}}$: <b id="txRLbl">4 Ω</b>
+          <input class="range" id="txRInp" type="range" min="1" max="20" step="1" value="4">
+        </label>
+      </div>
+
+      <svg viewBox="0 0 600 100" style="width:100%;height:auto;border:1px solid #dbe3f2;border-radius:12px;background:#f8fbff;display:block" role="img" aria-label="বিদ্যুৎ সঞ্চালন লাইন">
+        <rect x="20" y="25" width="110" height="50" rx="8" fill="#eef2ff" stroke="#4f46e5" stroke-width="2"/>
+        <text x="75" y="55" text-anchor="middle" font-size="13" font-weight="800" fill="#312e81">বিদ্যুৎকেন্দ্র</text>
+        <line x1="130" y1="50" x2="470" y2="50" stroke="#dc2626" stroke-width="4" stroke-dasharray="8,4"/>
+        <text id="svgTxTxt" x="300" y="36" text-anchor="middle" font-size="13" font-weight="800" fill="#991b1b">সঞ্চালন প্রবাহ I = 9.09 A</text>
+        <rect x="470" y="25" width="110" height="50" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+        <text x="525" y="55" text-anchor="middle" font-size="13" font-weight="800" fill="#065f46">গ্রাহক অঞ্চল</text>
+      </svg>
+
+      <div class="calc-breakdown">
+        <div class="calc-box"><div class="label">প্রবাহ I = P / V</div><div class="val" id="boxTxI">9.09 A</div></div>
+        <div class="calc-box"><div class="label">সিস্টেম লস I²R</div><div class="val" id="boxTxLoss">330.6 W</div></div>
+        <div class="calc-box"><div class="label">শতকরা ক্ষতি (১০০ kW-এ)</div><div class="val" id="boxTxPct">0.33%</div></div>
+      </div>
+
+      <div id="txReadout" class="readout" aria-live="polite">১১ kV বিভবে ১০০ kW পাঠালে মাত্র ০.৩৩% শক্তি তারে তাপ হিসেবে নষ্ট হয়।</div>
+    </section>
+
+    <section class="section">
+      <h2>নিজেকে যাচাই করো</h2>
+      <details class="check">
+        <summary>১. একই ক্ষমতা পাঠাতে সঞ্চালন বিভব ৩ গুণ করলে সিস্টেম লস কত ভাগ কমবে?</summary>
+        <p>$P_{\text{loss}} \propto \dfrac{1}{V^2}$ হওয়ায় বিভব ৩ গুণ করলে সিস্টেম লস $3^2 = 9$ ভাগ কমে যাবে।</p>
+      </details>
+      <details class="check">
+        <summary>২. পিক আওয়ারে লোডশেডিং কমানোর দুটি কার্যকর উপায় বলো।</summary>
+        <p>১) অপ্রয়োজনীয় বাতি-এসি ও ভারী যন্ত্র বন্ধ রাখা (দক্ষ যন্ত্র ব্যবহার); ২) বিদ্যুৎ উৎপাদন ক্ষমতা বাড়ানো ও সঞ্চালন সিস্টেম লস কমানো।</p>
+      </details>
+    </section>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-03.html">← আগের পাঠ: তড়িৎ ক্ষমতা</a>
+      <a class="button" href="section-05.html">পরের পাঠ: নিরাপদ ব্যবহার →</a>
+    </nav>
+    <footer class="footer"><a href="chapter-source.html">PDF-এর সম্পূর্ণ মূল পৃষ্ঠা</a> · অধ্যায় ১১</footer>
+  </main>
+
+  <script>
+    (function(){
+      function syncRangeVisual(el){
+        const min = el.min !== '' ? parseFloat(el.min) : 0;
+        const max = el.max !== '' ? parseFloat(el.max) : 100;
+        const val = parseFloat(el.value);
+        const pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
+        el.style.setProperty('--fill', pct.toFixed(2) + '%');
+        el.style.setProperty('--fill-pct', pct.toFixed(2) + '%');
+      }
+      const vI = document.getElementById('txVInp');
+      const rI = document.getElementById('txRInp');
+      const P_total = 100000; // 100 kW
+      function update(){
+        const kV = Number(vI.value);
+        const V = kV * 1000;
+        const R = Number(rI.value);
+        const I = P_total / V;
+        const loss = I * I * R;
+        const pct = (loss / P_total) * 100;
+        document.getElementById('txVLbl').textContent = kV + ' kV (' + V.toLocaleString() + ' V)';
+        document.getElementById('txRLbl').textContent = R + ' Ω';
+        document.getElementById('svgTxTxt').textContent = 'সঞ্চালন প্রবাহ I = ' + I.toFixed(2) + ' A';
+        document.getElementById('boxTxI').textContent = I.toFixed(2) + ' A';
+        document.getElementById('boxTxLoss').textContent = loss >= 1000 ? (loss/1000).toFixed(2) + ' kW' : loss.toFixed(1) + ' W';
+        document.getElementById('boxTxPct').textContent = pct.toFixed(2) + '%';
+        document.getElementById('txReadout').textContent = `${kV} kV বিভবে ১০০ kW পাঠালে তারে তাপীয় ক্ষতি ${pct.toFixed(2)}% (প্রবাহ মাত্র ${I.toFixed(2)} A)।`;
+        [vI, rI].forEach(syncRangeVisual);
+      }
+      [vI, rI].forEach(el => el.addEventListener('input', update));
+      update();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>১১.৩ তড়িৎ ক্ষমতা, জুলের তাপ ও বিদ্যুৎ বিল · অধ্যায় ১১: চল বিদ্যুৎ</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ১১ / ১১.৩</span>
+    </div>
+  </header>
+  <main>
+    <span class="badge">বইয়ের অনুচ্ছেদ ১১.৩</span>
+    <h1 class="title">তড়িৎ ক্ষমতা, জুলের তাপ ও বিদ্যুৎ বিল</h1>
+    <p class="subtitle">তড়িৎ ক্ষমতা ($P = VI = I^2R = V^2/R$) · জুলের তাপীয় ক্রিয়া ($H = I^2Rt$) · কিলোওয়াট-ঘণ্টা ($1\,\text{kWh} = 3.6 \times 10^6\,\text{J}$) ও বিল হিসাব।</p>
+
+    <section class="goal">
+      <h2>এই পাঠে শিখবে</h2>
+      <p>বৈদ্যুতিক যন্ত্রের গায়ে লেখা রেটিং ($220\,\text{V}-100\,\text{W}$) থেকে রোধ ও সর্বোচ্চ প্রবাহ বের করতে, জুলের তাপীয় ক্রিয়া ব্যাখ্যা করতে এবং দৈনন্দিন ব্যবহারের ওপর ভিত্তি করে মাসিক বিদ্যুৎ বিল ($\text{kWh}$ ইউনিটে) হিসাব করতে পারবে।</p>
+    </section>
+
+    <section class="section">
+      <h2>১১.৩ · তড়িৎ ক্ষমতা (Electric Power)</h2>
+      <p>একক সময়ে যে পরিমাণ বৈদ্যুতিক শক্তি ব্যয় হয় বা অন্য শক্তিতে রূপান্তরিত হয়, তাকে <strong>তড়িৎ ক্ষমতা ($P$)</strong> বলে। এর SI একক <strong>ওয়াট ($\text{W}$)</strong>, যেখানে $1\,\text{W} = 1\,\text{J/s}$।</p>
+
+      <div class="formula">$$P = \frac{W}{t} = VI = I^2R = \frac{V^2}{R}$$</div>
+
+      <div class="grid">
+        <div class="term">
+          <strong>বাতির রেটিং: $220\,\text{V}, 100\,\text{W}$</strong>
+          <small>$220\,\text{V}$ বিভব উৎসে লাগালে বাতিটি প্রতি সেকেন্ডে $100\,\text{J}$ শক্তি ব্যয় করবে। এর রোধ $R = \frac{V^2}{P} = \frac{220^2}{100} = 484\,\Omega$।</small>
+        </div>
+        <div class="term">
+          <strong>জুলের তাপ ($H$)</strong>
+          <small>রোধযুক্ত পরিবাহীতে প্রবাহের ফলে উৎপন্ন তাপ: $$H = VIt = I^2Rt = \frac{V^2}{R}t\quad (\text{জুল})$$</small>
+        </div>
+        <div class="term">
+          <strong>১ ইউনিট ($1\,\text{kWh}$)</strong>
+          <small>$1\,\text{kW}$ ($1000\,\text{W}$) ক্ষমতার একটি যন্ত্র $1\,\text{h}$ চললে ব্যয়িত শক্তি: $$1\,\text{kWh} = 1000\,\text{W} \times 3600\,\text{s} = 3.6 \times 10^6\,\text{J}$$</small>
+        </div>
+      </div>
+
+      <h3>বিদ্যুৎ খরচের ইউনিট ও বিল নির্ণয়ের সূত্র</h3>
+      <div class="formula">$$\text{ব্যয়িত শক্তি (ইউনিট / kWh)} = \frac{\text{ক্ষমতা (W)} \times \text{ঘণ্টা (h)} \times \text{দিন}}{1000}$$</div>
+
+      <div class="worked">
+        <h2>বোর্ড স্টাইলের গাণিতিক উদাহরণ</h2>
+        <div class="problem">একটি বাসায় ৩টি $60\,\text{W}$ বাতি ও ২টি $80\,\text{W}$ পাখা প্রতিদিন $6$ ঘণ্টা করে চলে। প্রতি ইউনিটের মূল্য $7$ টাকা হলে ৩০ দিনের বিদ্যুৎ বিল কত হবে?</div>
+        <div class="solution">
+          ১) মোট ক্ষমতা $P = (3 \times 60) + (2 \times 80) = 180 + 160 = 340\,\text{W}$।<br>
+          ২) মোট সময় $= 6\,\text{h/day} \times 30\,\text{days} = 180\,\text{h}$।<br>
+          ৩) ব্যয়িত শক্তি $= \dfrac{340 \times 180}{1000} = \dfrac{61200}{1000} = 61.2\,\text{kWh}$ (ইউনিট)।<br>
+          ৪) ৩০ দিনের বিল $= 61.2 \times 7 = 428.40$ টাকা।<br>
+          <b>উত্তর:</b> মোট বিল $428.40$ টাকা।
+        </div>
+      </div>
+
+      <div class="memory">
+        <strong>সতর্কতা:</strong> $220\,\text{V}-60\,\text{W}$ ও $220\,\text{V}-100\,\text{W}$ দুটি বাতি সমান্তরালে লাগালে $100\,\text{W}$ বেশি উজ্জ্বল হবে (কারণ এর রোধ কম, তাই $P = V^2/R$ বেশি)। কিন্তু এদেরকে <strong>শ্রেণিতে</strong> লাগালে $60\,\text{W}$ বাতিটির রোধ বেশি হওয়ায় সেটি বেশি উজ্জ্বল জ্বলবে ($P = I^2R$)!
+      </div>
+    </section>
+
+    <section class="lab" aria-label="বিদ্যুৎ বিল ও শক্তি হিসাব ল্যাব">
+      <div class="lab-head">
+        <div>
+          <h2>বাসার বিদ্যুৎ বিল ($\text{kWh}$) ক্যালকুলেটর ল্যাব</h2>
+          <div style="color:#64748b;font-size:14px">যন্ত্রের ক্ষমতা, দৈনিক ব্যবহারের ঘণ্টা ও ইউনিট দর পরিবর্তন করে ৩০ দিনের বিল দেখো।</div>
+        </div>
+        <span class="lab-tag">HTML LAB</span>
+      </div>
+
+      <div class="lab-controls">
+        <label>মোট ক্ষমতা $P$: <b id="pLbl">500 W</b>
+          <input class="range" id="pInp" type="range" min="40" max="2000" step="20" value="500">
+        </label>
+        <label>দৈনিক ব্যবহার $t$: <b id="hLbl">6 ঘণ্টা/দিন</b>
+          <input class="range" id="hInp" type="range" min="1" max="24" step="1" value="6">
+        </label>
+        <label>প্রতি ইউনিট দর: <b id="rLbl">7 টাকা</b>
+          <input class="range" id="rateInp" type="range" min="4" max="15" step="0.5" value="7">
+        </label>
+      </div>
+
+      <div class="calc-breakdown">
+        <div class="calc-box"><div class="label">দৈনিক শক্তি</div><div class="val" id="boxDay">3.00 kWh</div></div>
+        <div class="calc-box"><div class="label">৩০ দিনের ইউনিট</div><div class="val" id="boxMonth">90.0 kWh</div></div>
+        <div class="calc-box"><div class="label">মাসিক বিদ্যুৎ বিল</div><div class="val" id="boxBill">630.0 টাকা</div></div>
+      </div>
+
+      <div id="billReadout" class="readout" aria-live="polite">৫০০ W যন্ত্র দৈনিক ৬ ঘণ্টা চললে ৩০ দিনে ৯০.০ ইউনিট (৬৩০ টাকা) বিল আসবে।</div>
+    </section>
+
+    <section class="section">
+      <h2>নিজেকে যাচাই করো</h2>
+      <details class="check">
+        <summary>১. $1\,\text{kW}$ হিটার $2$ ঘণ্টা চললে কত ইউনিট ও কত জুল শক্তি খরচ হবে?</summary>
+        <p>$1\,\text{kW} \times 2\,\text{h} = 2\,\text{kWh}$ ($2$ ইউনিট) $= 2 \times 3.6 \times 10^6 = 7.2 \times 10^6\,\text{J}$।</p>
+      </details>
+      <details class="check">
+        <summary>২. হিটার বা ইস্ত্রির কয়েল বানাতে তামার পরিবর্তে নাইক্রোম তার ব্যবহার করা হয় কেন?</summary>
+        <p>নাইক্রোমের আপেক্ষিক রোধ অনেক বেশি এবং উচ্চ তাপমাত্রায় এটি সহজে জারিত বা গলে যায় না, ফলে প্রচুর তাপ উৎপন্ন করতে পারে।</p>
+      </details>
+    </section>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-02.html">← আগের পাঠ: ওহমের সূত্র</a>
+      <a class="button" href="section-04.html">পরের পাঠ: বিদ্যুৎ সরবরাহ →</a>
+    </nav>
+    <footer class="footer"><a href="chapter-source.html">PDF-এর সম্পূর্ণ মূল পৃষ্ঠা</a> · অধ্যায় ১১</footer>
+  </main>
+
+  <script>
+    (function(){
+      function syncRangeVisual(el){
+        const min = el.min !== '' ? parseFloat(el.min) : 0;
+        const max = el.max !== '' ? parseFloat(el.max) : 100;
+        const val = parseFloat(el.value);
+        const pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
+        el.style.setProperty('--fill', pct.toFixed(2) + '%');
+        el.style.setProperty('--fill-pct', pct.toFixed(2) + '%');
+      }
+      const pI = document.getElementById('pInp');
+      const hI = document.getElementById('hInp');
+      const rtI = document.getElementById('rateInp');
+      function update(){
+        const P = Number(pI.value);
+        const H = Number(hI.value);
+        const rate = Number(rtI.value);
+        const dayKwh = (P * H) / 1000;
+        const monthKwh = dayKwh * 30;
+        const bill = monthKwh * rate;
+        document.getElementById('pLbl').textContent = P + ' W';
+        document.getElementById('hLbl').textContent = H + ' ঘণ্টা/দিন';
+        document.getElementById('rLbl').textContent = rate.toFixed(1) + ' টাকা';
+        document.getElementById('boxDay').textContent = dayKwh.toFixed(2) + ' kWh';
+        document.getElementById('boxMonth').textContent = monthKwh.toFixed(1) + ' kWh';
+        document.getElementById('boxBill').textContent = bill.toFixed(1) + ' টাকা';
+        document.getElementById('billReadout').textContent = `${P} W যন্ত্র দৈনিক ${H} ঘণ্টা চললে ৩০ দিনে ${monthKwh.toFixed(1)} ইউনিট (${bill.toFixed(1)} টাকা) খরচ হবে।`;
+        [pI, hI, rtI].forEach(syncRangeVisual);
+      }
+      [pI, hI, rtI].forEach(el => el.addEventListener('input', update));
+      update();
+    })();
+  </script>
+</body>
+</html>

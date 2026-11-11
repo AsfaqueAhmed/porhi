@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>৯.২ পূর্ণ অভ্যন্তরীণ প্রতিফলন · অধ্যায় ৯ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false }
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৯ / পাঠ ৯.২</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই ৯.২ • পূর্ণ অভ্যন্তরীণ প্রতিফলন</span>
+    <h1 class="title">সংকট কোণ ও পূর্ণ অভ্যন্তরীণ প্রতিফলন <small>(Total Internal Reflection)</small></h1>
+    <p class="subtitle">
+      আলো ঘন মাধ্যম থেকে হালকা মাধ্যমে বেরোতে গেলে কখন আর প্রতিসরণ হয় না, সংকট কোণ $\theta_c$ কীভাবে নির্ণয় করা হয় এবং মরীচিকা, হীরক ও অপটিক্যাল ফাইবারে এর বিস্ময়কর প্রয়োগ।
+    </p>
+
+    <section class="goal">
+      <h2>🎯 এই পাঠে কী কী শিখবে</h2>
+      <ul>
+        <li>সংকট কোণ বা ক্রান্তি কোণ ($\theta_c$)-এর সংজ্ঞা ও সূত্র $\sin \theta_c = \frac{n_2}{n_1}$।</li>
+        <li>পূর্ণ অভ্যন্তরীণ প্রতিফলনের দুটি অপরিহার্য শর্ত।</li>
+        <li>হীরকের চকমকে ভাব, মরুভূমি ও পিচঢালা রাস্তার মরীচিকা এবং পানির তলদেশ থেকে আকাশ দেখার রহস্য।</li>
+        <li>অপটিক্যাল ফাইবার (টেলিকমিউনিকেশন, এন্ডোস্কোপি) ও সমকোণী প্রতিফলক প্রিজমের কার্যনীতি।</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>১. সংকট কোণ ($\theta_c$) ও পূর্ণ অভ্যন্তরীণ প্রতিফলন</h2>
+      <p>
+        আলোকরশ্মি আলোকীয়ভাবে <strong>ঘন মাধ্যম থেকে হালকা মাধ্যমে</strong> যাওয়ার সময় আপতন কোণ $i$ ক্রমশ বাড়ালে প্রতিসরণ কোণ $r$-ও বাড়তে থাকে ($r > i$)। ঘন মাধ্যমে যে নির্দিষ্ট আপতন কোণের জন্য হালকা মাধ্যমে প্রতিসরণ কোণ ঠিক $90^\circ$ হয় (অর্থাৎ প্রতিসরিত রশ্মি বিভেদতল ঘেঁষে চলে), তাকে প্রথম মাধ্যমের সাপেক্ষে দ্বিতীয় মাধ্যমের <strong>সংকট কোণ বা ক্রান্তি কোণ ($\theta_c$)</strong> বলে।
+      </p>
+
+      <div class="formula">$$\sin \theta_c = \frac{n_2}{n_1} \quad (n_1 > n_2) \qquad \text{এবং হালকা মাধ্যম বায়ু হলে: } \sin \theta_c = \frac{1}{n}$$</div>
+
+      <h3>পূর্ণ অভ্যন্তরীণ প্রতিফলনের ২টি অপরিহার্য শর্ত</h3>
+      <ol>
+        <li>আলোকরশ্মিকে অবশ্যই <strong>ঘন মাধ্যম থেকে হালকা মাধ্যমে</strong> ($n_1 > n_2$) যেতে হবে।</li>
+        <li>ঘন মাধ্যমে আপতন কোণকে অবশ্যই সংকট কোণের চেয়ে বড় হতে হবে ($i > \theta_c$)।</li>
+      </ol>
+
+      <div class="highlight-box">
+        <strong>৩টি অবস্থা এক নজরে:</strong><br />
+        • $i < \theta_c \implies$ সাধারণ প্রতিসরণ ঘটে ($r > i$)।<br />
+        • $i = \theta_c \implies$ প্রতিসরিত রশ্মি বিভেদতল ঘেঁষে চলে ($r = 90^\circ$)।<br />
+        • $i > \theta_c \implies$ সম্পূর্ণ আলো প্রথম মাধ্যমেই ফিরে আসে — <strong>পূর্ণ অভ্যন্তরীণ প্রতিফলন (TIR)</strong>, এখানে প্রায় ১০০% আলো প্রতিফলিত হয়!
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>মাধ্যম (বায়ুর সাপেক্ষে)</th>
+              <th>প্রতিসরণাঙ্ক ($n$)</th>
+              <th>সংকট কোণ ($\theta_c = \sin^{-1}(1/n)$)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>পানি</td><td>$1.33$</td><td>$48.8^\circ$</td></tr>
+            <tr><td>ক্রাউন কাচ</td><td>$1.50$</td><td>$41.8^\circ$</td></tr>
+            <tr><td>ফ্লিন্ট কাচ</td><td>$1.65$</td><td>$37.3^\circ$</td></tr>
+            <tr><td>হীরক (Diamond)</td><td>$2.42$</td><td>$24.4^\circ$ (সবচেয়ে কম!)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>২. প্রাকৃতিক ঘটনা ও প্রযুক্তিগত ব্যবহার</h2>
+      <div class="grid">
+        <div class="term">
+          <strong>মরীচিকা (Mirage)</strong>
+          <small>গরম দিনে মরুভূমি বা পিচঢালা রাস্তার কাছের বায়ু তপ্ত ও হালকা ($n$ কম) হয়, ওপরের বায়ু তুলনামূলক ঘন। ওপর থেকে আসা আলো নিচে প্রতিসরিত হয়ে সংকট কোণ অতিক্রম করলে পূর্ণ অভ্যন্তরীণ প্রতিফলিত হয়ে চোখে পৌঁছায়—ফলে রাস্তা ভেজা বলে ভ্রম হয়।</small>
+        </div>
+        <div class="term">
+          <strong>হীরকের ঔজ্জ্বল্য</strong>
+          <small>হীরকের প্রতিসরণাঙ্ক অনেক বেশি ($2.42$) বলে সংকট কোণ খুব ছোট ($24.4^\circ$)। বিশেষ কোণে কাটা হীরকের ভেতরে প্রবেশ করা আলো বারবার পূর্ণ অভ্যন্তরীণ প্রতিফলিত হয়ে চকচক করে।</small>
+        </div>
+        <div class="term">
+          <strong>অপটিক্যাল ফাইবার</strong>
+          <small>খুব সরু ও নমনীয় কাচ বা প্লাস্টিক তন্তু। এর ভেতরের <strong>কোর (Core)</strong>-এর প্রতিসরণাঙ্ক বাইরের <strong>ক্ল্যাডিং (Cladding)</strong>-এর চেয়ে বেশি। তাই আলো কোরের ভেতর বারবার TIR-এর মাধ্যমে ক্ষয় ছাড়াই হাজার কিলোমিটার দূর পর্যন্ত ডেটা বা ছবি বহন করে।</small>
+        </div>
+        <div class="term">
+          <strong>সমকোণী প্রতিফলক প্রিজম</strong>
+          <small>কাচের সংকট কোণ $\approx 41.8^\circ$। সমকোণী সমদ্বিবাহু প্রিজমের অতিভুজে $45^\circ > 41.8^\circ$ কোণে আলো ফেললে TIR-এর মাধ্যমে রশ্মি $90^\circ$ বা $180^\circ$ ঘুরে যায় (বাইনোকুলার ও উন্নত পেরিস্কোপে ব্যবহৃত)।</small>
+        </div>
+      </div>
+
+      <div class="worked">
+        <h2>🧮 সমাধানকৃত গাণিতিক উদাহরণ</h2>
+        <div class="problem">
+          <b>উদাহরণ ১:</b> কাচের প্রতিসরণাঙ্ক $1.50$ এবং পানির প্রতিসরণাঙ্ক $1.33$। আলো কাচ থেকে পানিতে প্রবেশ করতে চাইলে সংকট কোণ কত হবে?
+        </div>
+        <div class="solution">
+          <b>সমাধান:</b><br />
+          এখানে ঘন মাধ্যম কাচ ($n_1 = 1.50$) এবং হালকা মাধ্যম পানি ($n_2 = 1.33$)।<br />
+          $$\sin \theta_c = \frac{n_2}{n_1} = \frac{1.33}{1.50} = 0.8867 \implies \theta_c = \sin^{-1}(0.8867) \approx \mathbf{62.46^\circ}$$
+        </div>
+      </div>
+
+      <div class="worked">
+        <div class="problem">
+          <b>উদাহরণ ২:</b> একটি স্বচ্ছ মাধ্যমের ভেতর দিয়ে আলোর বেগ $1.8 \times 10^8\text{ m/s}$। মাধ্যমটি থেকে বায়ুতে আলোর সংকট কোণ কত?
+        </div>
+        <div class="solution">
+          <b>সমাধান:</b><br />
+          প্রথমে মাধ্যমের পরম প্রতিসরণাঙ্ক, $n = \frac{c}{v} = \frac{3 \times 10^8}{1.8 \times 10^8} = \frac{5}{3} \approx 1.667$।<br />
+          $$\sin \theta_c = \frac{1}{n} = \frac{3}{5} = 0.60 \implies \theta_c = \sin^{-1}(0.60) \approx \mathbf{36.87^\circ}$$
+        </div>
+      </div>
+
+      <div class="worked">
+        <div class="problem">
+          <b>উদাহরণ ৩:</b> একটি অপটিক্যাল ফাইবারের কোরের প্রতিসরণাঙ্ক $1.60$ এবং ক্ল্যাডিংয়ের প্রতিসরণাঙ্ক $1.44$। কোর-ক্ল্যাডিং বিভেদতলে সংকট কোণ কত?
+        </div>
+        <div class="solution">
+          <b>সমাধান:</b><br />
+          $$\sin \theta_c = \frac{n_{\text{clad}}}{n_{\text{core}}} = \frac{1.44}{1.60} = 0.90 \implies \theta_c = \sin^{-1}(0.90) \approx \mathbf{64.16^\circ}$$
+          অর্থাৎ বিভেদতলে আপতন কোণ $64.16^\circ$-এর বেশি হলেই আলোক-সংকেত কোনো ক্ষয় ছাড়াই সামনে এগোবে।
+        </div>
+      </div>
+
+      <p class="note">মূল বইয়ের সংশ্লিষ্ট স্ক্যান: <a href="chapter-source.html#page-8">পৃষ্ঠা ৮ দেখো</a> · <a href="chapter-source.html#page-13">পৃষ্ঠা ১৩ দেখো</a></p>
+    </section>
+
+    <div class="memory">
+      <h2>💡 মনে রাখার শর্টকাট (Golden Rules)</h2>
+      <ul>
+        <li><strong>শর্ত দুইটি পাকা:</strong> (১) ঘন → হালকা, (২) $i > \theta_c$। বায়ু থেকে কাচে কখনো TIR হয় না!</li>
+        <li><strong>সূত্রের ট্রিক:</strong> $\sin \theta_c$ কখনো $1$-এর বেশি হতে পারে না, তাই ভগ্নাংশের ওপরে সবসময় <strong>ছোট $n$ (হালকা মাধ্যম)</strong> আর নিচে <strong>বড় $n$ (ঘন মাধ্যম)</strong> বসবে!</li>
+        <li><strong>এন্ডোস্কোপি ও ইন্টারনেট:</strong> অপটিক্যাল ফাইবারে TIR-এর সরাসরি ব্যবহার।</li>
+      </ul>
+    </div>
+
+    <details class="check">
+      <summary>✓ নিজেকে যাচাই করো (Self-Check Quiz)</summary>
+      <ol>
+        <li><b>প্রশ্ন:</b> আলো হালকা মাধ্যম থেকে ঘন মাধ্যমে গেলে কি পূর্ণ অভ্যন্তরীণ প্রতিফলন হতে পারে?
+          <br /><i>উত্তর:</i> না; প্রতিসরিত রশ্মি অভিলম্বের দিকে বাঁকে বলে প্রতিসরণ কোণ কখনো $90^\circ$ হতে পারে না।</li>
+        <li><b>প্রশ্ন:</b> অপটিক্যাল ফাইবারের কোর ও ক্ল্যাডিং-এর মধ্যে কার প্রতিসরণাঙ্ক বেশি?
+          <br /><i>উত্তর:</i> ভেতরের কোরের প্রতিসরণাঙ্ক বাইরের ক্ল্যাডিংয়ের চেয়ে বেশি।</li>
+        <li><b>প্রশ্ন:</b> কোনো মাধ্যমের সংকট কোণ $30^\circ$ হলে মাধ্যমটির পরম প্রতিসরণাঙ্ক কত?
+          <br /><i>উত্তর:</i> $n = \frac{1}{\sin 30^\circ} = \frac{1}{0.5} = 2.0$।</li>
+      </ol>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-01.html">← ৯.১ আলোর প্রতিসরণ</a>
+      <a class="button" href="section-03.html">৯.৩ লেন্স ও প্রতিবিম্ব →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html#page-8">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF পৃষ্ঠা ৮–১৪)</a> · অধ্যায় ৯: আলোর প্রতিসরণ · পড়ি (poRi)
+    </footer>
+  </main>
+</body>
+</html>

@@ -96,7 +96,7 @@ export const InteractiveSimulationRunner: React.FC<InteractiveSimulationRunnerPr
       </div>
 
       {/* Sandboxed Interactive Frame */}
-      <div className={`w-full bg-slate-950 relative ${isFullscreen ? 'flex-1 h-full' : 'h-[620px] sm:h-[650px] md:h-[680px]'}`}>
+      <div className={`w-full bg-slate-50 relative ${isFullscreen ? 'flex-1 h-full' : 'h-[620px] sm:h-[650px] md:h-[680px]'}`}>
         <iframe
           key={reloadKey}
           src={resolvedUrl}

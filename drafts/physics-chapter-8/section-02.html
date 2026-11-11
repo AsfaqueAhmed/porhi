@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৮.২ আলোর প্রতিফলন, সূত্র ও ধরন · অধ্যায় ৮ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <style>
+    .opt-stage { border: 1px solid #bfdbfe; border-radius: 14px; background: #0f172a; padding: 10px; overflow: hidden; }
+    .opt-stage svg { display: block; width: 100%; height: auto; }
+    .ctrl-lbl { display: flex; justify-content: space-between; font-size: 13px; font-weight: 750; color: #334155; margin-bottom: 6px; }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৮ / ৮.২</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই · সেকশন ৮.২ · ৮.২.১ · ৮.২.২</span>
+    <h1 class="title">আলোর প্রতিফলন, সূত্র ও ধরন <small>Reflection of Light, Laws of Reflection &amp; Types</small></h1>
+    <p class="subtitle">আলো বিভেদতলে পড়লে কীভাবে প্রতিফলিত হয়, প্রতিফলনের দুটি মৌলিক সূত্র ($\theta_i = \theta_r$), নিয়মিত বনাম ব্যাপ্ত প্রতিফলন ও ইন্টারেক্টিভ ল্যাব।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <ul>
+        <li>বিভেদতলে আলোর প্রতিফলন, প্রতিসরণ ও শোষণের ধারণা ব্যাখ্যা করতে পারবে।</li>
+        <li>আপতিত রশ্মি, আপতন বিন্দু, অভিলম্ব, প্রতিফলিত রশ্মি, আপতন কোণ ($\theta_i$) ও প্রতিফলন কোণ ($\theta_r$) চিহ্নিত করতে পারবে।</li>
+        <li>প্রতিফলনের দুটি সূত্র ($\theta_i = \theta_r$) ও অভিলম্ব আপতন ($\theta_i = 0^\circ$) প্রয়োগ করে গাণিতিক সমস্যা সমাধান করতে পারবে।</li>
+        <li>নিয়মিত প্রতিফলন ও ব্যাপ্ত (অনিয়মিত) প্রতিফলনের পার্থক্য এবং প্রতিদিনের জীবনে এদের ভূমিকা বিশ্লেষণ করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>৮.২ · আলোর প্রতিফলন ও প্রতিফলনের সূত্র</h2>
+      <p>আলো একটি স্বচ্ছ মাধ্যম দিয়ে চলতে চলতে অন্য কোনো মাধ্যমের বিভেদতলে আপতিত হলে তিনটি ঘটনা ঘটতে পারে: একাংশ প্রথম মাধ্যমে ফিরে আসে (<strong>প্রতিফলন</strong>), একাংশ দ্বিতীয় মাধ্যমে প্রবেশ করে (<strong>প্রতিসরণ</strong>) এবং একাংশ তল দ্বারা গৃহীত হয় (<strong>শোষণ</strong>)।</p>
+      <div class="grid">
+        <div class="term"><strong>আপতিত রশ্মি</strong><small>আলোক উৎস থেকে এসে প্রতিফলক পৃষ্ঠে পড়া রশ্মি।</small></div>
+        <div class="term"><strong>আপতন বিন্দু</strong><small>প্রতিফলক পৃষ্ঠের যে বিন্দুতে আপতিত রশ্মি আঘাত করে।</small></div>
+        <div class="term"><strong>অভিলম্ব (Normal)</strong><small>আপতন বিন্দুতে প্রতিফলক পৃষ্ঠের ওপর অঙ্কিত $90^\circ$ লম্ব রেখা।</small></div>
+        <div class="term"><strong>প্রতিফলিত রশ্মি</strong><small>আপতন বিন্দু থেকে দিক পরিবর্তন করে প্রথম মাধ্যমে ফিরে যাওয়া রশ্মি।</small></div>
+      </div>
+
+      <h3>৮.২.১ · প্রতিফলনের দুটি সূত্র</h3>
+      <ol>
+        <li>আপতিত রশ্মি, প্রতিফলিত রশ্মি এবং আপতন বিন্দুতে প্রতিফলকের ওপর অঙ্কিত অভিলম্ব <strong>একই সমতলে</strong> অবস্থান করে।</li>
+        <li><strong>প্রতিফলন কোণ ($\theta_r$)</strong> সর্বদা <strong>আপতন কোণের ($\theta_i$)</strong> সমান হয়।</li>
+      </ol>
+      <div class="formula">$$\theta_i = \theta_r$$</div>
+      <p><strong>মনে রেখো:</strong> আপতন কোণ ও প্রতিফলন কোণ সর্বদা <em>অভিলম্বের সাথে</em> পরিমাপ করা হয়, প্রতিফলক পৃষ্ঠের সাথে নয়! পৃষ্ঠের সাথে আপতিত রশ্মি $\alpha$ কোণ তৈরি করলে আপতন কোণ $\theta_i = 90^\circ - \alpha$। কোনো রশ্মি অভিলম্ব বরাবর ($\theta_i = 0^\circ$) আপতিত হলে তা একই পথে ($\theta_r = 0^\circ$) ফিরে আসে।</p>
+
+      <h3>৮.২.২ · নিয়মিত ও ব্যাপ্ত প্রতিফলন</h3>
+      <ul>
+        <li><strong>নিয়মিত প্রতিফলন (Regular Reflection):</strong> দর্পণের মতো মসৃণ তলে সমান্তরাল রশ্মিগুচ্ছ পড়লে প্রতিফলনের পরও রশ্মিগুলো সমান্তরাল থাকে এবং স্পষ্ট প্রতিবিম্ব সৃষ্টি হয়।</li>
+        <li><strong>ব্যাপ্ত বা অনিয়মিত প্রতিফলন (Diffused Reflection):</strong> কাগজ বা দেয়ালের মতো অমসৃণ তলের ক্ষুদ্র অংশগুলোতে অভিলম্বের দিক ভিন্ন হওয়ায় প্রতিফলিত রশ্মি চারদিকে ছড়িয়ে পড়ে। তবে <em>প্রতিটি বিন্দুতেই</em> $\theta_i = \theta_r$ সূত্রটি মানা হয়; আর এই ব্যাপ্ত প্রতিফলনের কারণেই আমরা ঘরের চারপাশের সব জিনিস দেখতে পাই।</li>
+      </ul>
+    </section>
+
+    <section class="lab" id="reflection-inline-lab">
+      <div class="lab-head">
+        <div>
+          <h2>🧪 আলোর প্রতিফলন ও পৃষ্ঠ ল্যাব</h2>
+          <p style="margin:0;font-size:13px;color:var(--muted)">আপতন কোণ $\theta_i$ ও পৃষ্ঠের ধরন (মসৃণ বনাম অমসৃণ) পরিবর্তন করে রশ্মিচিত্র ও কোণ পর্যবেক্ষণ করো।</p>
+        </div>
+        <span class="lab-tag">সিমুলেশন ৮.১</span>
+      </div>
+
+      <div class="preset-row">
+        <button type="button" class="preset-btn active" onclick="setSurface('smooth', this)">মসৃণ দর্পণ (নিয়মিত)</button>
+        <button type="button" class="preset-btn" onclick="setSurface('rough', this)">অমসৃণ পৃষ্ঠ (ব্যাপ্ত)</button>
+        <button type="button" class="preset-btn" onclick="setAnglePreset(0, this)">অভিলম্ব আপতন ($0^\circ$)</button>
+        <button type="button" class="preset-btn" onclick="setAnglePreset(45, this)">$45^\circ$ আপতন</button>
+      </div>
+
+      <div class="opt-stage">
+        <svg id="refSvg" viewBox="0 0 680 230" role="img" aria-label="আলোর প্রতিফলন রশ্মিচিত্র">
+          <line x1="340" y1="22" x2="340" y2="185" stroke="#94a3b8" stroke-dasharray="5 5" stroke-width="1.5"/>
+          <text x="348" y="34" fill="#cbd5e1" font-size="12" font-weight="700">অভিলম্ব (Normal)</text>
+          <path id="surfacePath" d="M 60 185 L 620 185" stroke="#38bdf8" stroke-width="4" fill="none"/>
+          <rect x="60" y="187" width="560" height="14" fill="#1e293b"/>
+          <g id="raysGroup"></g>
+        </svg>
+      </div>
+
+      <div class="lab-controls">
+        <div class="control-group" style="grid-column:1 / -1">
+          <div class="ctrl-lbl"><span>আপতন কোণ ($\theta_i$)</span><b id="lblThetaI">35°</b></div>
+          <input class="range" id="inThetaI" type="range" min="0" max="80" step="1" value="35">
+        </div>
+      </div>
+
+      <div class="calc-breakdown">
+        <div class="calc-box"><div class="label">আপতন কোণ ($\theta_i$)</div><div class="val" id="outTi">35°</div></div>
+        <div class="calc-box"><div class="label">প্রতিফলন কোণ ($\theta_r$)</div><div class="val" id="outTr">35°</div></div>
+        <div class="calc-box"><div class="label">পৃষ্ঠের সাথে কোণ</div><div class="val" id="outGlance">55°</div></div>
+        <div class="calc-box"><div class="label">রশ্মিদ্বয়ের মধ্যবর্তী কোণ</div><div class="val" id="outTotal">70°</div></div>
+      </div>
+    </section>
+
+    <section class="worked">
+      <h2>📐 গাণিতিক সমস্যা ও সমাধান</h2>
+      <div class="problem">
+        <strong>সমস্যা ১:</strong> একটি আলোকরশ্মি সমতল দর্পণের পৃষ্ঠের সাথে $30^\circ$ কোণে আপতিত হলো। প্রতিফলন কোণ কত এবং আপতিত ও প্রতিফলিত রশ্মির মধ্যবর্তী কোণ কত?
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> অভিলম্ব পৃষ্ঠের সাথে $90^\circ$ কোণে থাকে।</p>
+        $$\theta_i = 90^\circ - 30^\circ = 60^\circ$$
+        <p>প্রতিফলনের সূত্র অনুসারে, $\theta_r = \theta_i = 60^\circ$।</p>
+        <p>আপতিত ও প্রতিফলিত রশ্মির মধ্যবর্তী কোণ $= \theta_i + \theta_r = 60^\circ + 60^\circ = 120^\circ$।</p>
+      </div>
+
+      <div class="problem">
+        <strong>সমস্যা ২:</strong> আপতিত ও প্রতিফলিত রশ্মির মধ্যবর্তী কোণ $84^\circ$ হলে আপতন কোণ কত?
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> যেহেতু $\theta_i = \theta_r$, তাই $\theta_i + \theta_r = 2\theta_i = 84^\circ \implies \theta_i = 42^\circ$।</p>
+      </div>
+
+      <div class="problem">
+        <strong>সমস্যা ৩:</strong> কোনো আলোকরশ্মি সমতল দর্পণের ওপর লম্বভাবে আপতিত হলে বিচ্যুতি কোণ (Angle of Deviation) কত হবে?
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> লম্ব আপতনে $\theta_i = 0^\circ$, ফলে $\theta_r = 0^\circ$ (রশ্মিটি ঠিক উল্টো দিকে ফিরে যায়)। অর্থাৎ আলোকরশ্মি তার মূল গতিপথ থেকে $\delta = 180^\circ - (\theta_i + \theta_r) = 180^\circ$ কোণে ঘুরে গেছে।</p>
+      </div>
+    </section>
+
+    <section class="memory">
+      <h2>🧠 মনে রাখার কৌশল</h2>
+      <p>“কোণ মাপতে হলে আগে আঁকো অভিলম্ব, পৃষ্ঠ থেকে মাপলে অঙ্ক হবে বিলম্ব! আপতন আর প্রতিফলন সমান সর্বক্ষণ, মসৃণ তলে নিয়মিত, অমসৃণে ব্যাপ্ত প্রতিফলন!”</p>
+    </section>
+
+    <section class="section">
+      <h2>নিজেকে যাচাই করো</h2>
+      <details class="check">
+        <summary>১. ব্যাপ্ত প্রতিফলনে কি প্রতিফলনের সূত্র মানা হয়?</summary>
+        <p>হ্যাঁ! অমসৃণ পৃষ্ঠের প্রতিটি ক্ষুদ্র বিন্দুতে $\theta_i = \theta_r$ সূত্রটি নির্ভুলভাবে মানা হয়, কেবল বিন্দুগুলোর অভিলম্বের দিক আলাদা থাকে।</p>
+      </details>
+      <details class="check">
+        <summary>২. একটি রশ্মি দর্পণে $0^\circ$ আপতন কোণে পড়লে প্রতিফলন কোণ কত?</summary>
+        <p>$0^\circ$, এবং রশ্মিটি যে পথে এসেছিল ঠিক সেই পথেই ফিরে যাবে।</p>
+      </details>
+      <details class="check">
+        <summary>৩. আপতিত রশ্মি ও প্রতিফলিত রশ্মি পরস্পরের ওপর লম্ব ($90^\circ$) হলে আপতন কোণ কত?</summary>
+        <p>$2\theta_i = 90^\circ \implies \theta_i = 45^\circ$।</p>
+      </details>
+    </section>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-01.html">← ৮.১ আলোর প্রকৃতি</a>
+      <a class="button" href="section-03.html">পরের পাঠ: ৮.৩ দর্পণ ও সমতল দর্পণ →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html#page-3">মূল বইয়ের পৃষ্ঠা দেখো</a> · পদার্থবিজ্ঞান অধ্যায় ৮
+    </footer>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}],
+          throwOnError: false
+        });
+      }
+    });
+
+    let surface = 'smooth';
+    const inThetaI = document.getElementById('inThetaI');
+
+    function setSurface(s, btn) {
+      surface = s;
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderReflection();
+    }
+
+    function setAnglePreset(deg, btn) {
+      surface = 'smooth';
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      inThetaI.value = deg;
+      renderReflection();
+    }
+
+    function renderReflection() {
+      const ti = parseFloat(inThetaI.value);
+      const tr = ti;
+      document.getElementById('lblThetaI').textContent = ti + '°';
+      document.getElementById('outTi').textContent = ti + '°';
+      document.getElementById('outTr').textContent = tr + '°';
+      document.getElementById('outGlance').textContent = (90 - ti) + '°';
+      document.getElementById('outTotal').textContent = (ti + tr) + '°';
+
+      const surfPath = document.getElementById('surfacePath');
+      if (surface === 'smooth') {
+        surfPath.setAttribute('d', 'M 60 185 L 620 185');
+      } else {
+        let d = 'M 60 185';
+        for (let x = 80; x <= 620; x += 20) {
+          d += ` L ${x - 10} ${x % 40 === 0 ? 178 : 190} L ${x} 185`;
+        }
+        surfPath.setAttribute('d', d);
+      }
+
+      const g = document.getElementById('raysGroup');
+      g.innerHTML = '';
+      const rad = (ti * Math.PI) / 180;
+      const len = 160;
+      const x0 = 340, y0 = 185;
+      const xi = x0 - len * Math.sin(rad);
+      const yi = y0 - len * Math.cos(rad);
+
+      const addLine = (x1, y1, x2, y2, col, w) => {
+        const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        l.setAttribute('x1', x1); l.setAttribute('y1', y1);
+        l.setAttribute('x2', x2); l.setAttribute('y2', y2);
+        l.setAttribute('stroke', col); l.setAttribute('stroke-width', w);
+        g.appendChild(l);
+      };
+
+      addLine(xi, yi, x0, y0, '#fbbf24', 3.5);
+      if (surface === 'smooth') {
+        const xr = x0 + len * Math.sin(rad);
+        const yr = y0 - len * Math.cos(rad);
+        addLine(x0, y0, xr, yr, '#38bdf8', 3.5);
+      } else {
+        [-0.45, -0.15, 0.15, 0.45].forEach(off => {
+          const r = rad + off;
+          addLine(x0, y0, x0 + 145 * Math.sin(r), y0 - 145 * Math.cos(r), '#38bdf8', 2.2);
+        });
+      }
+    }
+
+    inThetaI.addEventListener('input', renderReflection);
+    renderReflection();
+  </script>
+</body>
+</html>

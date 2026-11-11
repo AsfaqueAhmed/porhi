@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৮.৩ দর্পণ, প্রতিবিম্ব ও সমতল দর্পণ · অধ্যায় ৮ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৮ / ৮.৩</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই · সেকশন ৮.৩ · ৮.৩.১</span>
+    <h1 class="title">দর্পণ, প্রতিবিম্ব ও সমতল দর্পণ <small>Mirrors, Real vs Virtual Images &amp; Plane Mirror</small></h1>
+    <p class="subtitle">দর্পণ কী, বাস্তব (সদ্‌) বনাম অবাস্তব (অসদ্‌) প্রতিবিম্বের পার্থক্য এবং সমতল দর্পণে গঠিত প্রতিবিম্বের সব বৈশিষ্ট্য।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <ul>
+        <li>দর্পণের সংজ্ঞা এবং সমতল ও গোলীয় দর্পণের পার্থক্য বলতে পারবে।</li>
+        <li>বাস্তব (সদ্‌) প্রতিবিম্ব ও অবাস্তব (অসদ্‌) প্রতিবিম্বের পার্থক্য উদাহরণসহ ব্যাখ্যা করতে পারবে।</li>
+        <li>সমতল দর্পণে গঠিত প্রতিবিম্বের অবস্থান ($u = v$), আকার ও পার্শ্বীয় পরিবর্তনের কারণ বিশ্লেষণ করতে পারবে।</li>
+        <li>পূর্ণাঙ্গ প্রতিবিম্বের জন্য সমতল দর্পণের ন্যূনতম দৈর্ঘ্য ($H/2$) ও দর্পণ ঘূর্ণনের ($2\theta$) গাণিতিক সমস্যা সমাধান করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>৮.৩ · দর্পণ ও প্রতিবিম্ব (Mirrors and Images)</h2>
+      <p>যে মসৃণ পৃষ্ঠে আলোর নিয়মিত প্রতিফলন ঘটে, তাকে <strong>দর্পণ (Mirror)</strong> বলে। কাচের এক পৃষ্ঠে রূপা বা অ্যালুমিনিয়ামের প্রলেপ (পারা লাগানো) দিয়ে দর্পণ তৈরি করা হয়। প্রতিফলক পৃষ্ঠ সমতল হলে তা <strong>সমতল দর্পণ</strong>, আর গোলকের অংশের মতো বাঁকা হলে তা <strong>গোলীয় দর্পণ</strong>।</p>
+
+      <h3>বাস্তব ও অবাস্তব প্রতিবিম্ব</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>বৈশিষ্ট্য</th><th>বাস্তব বা সদ্‌ প্রতিবিম্ব (Real Image)</th><th>অবাস্তব বা অসদ্‌ প্রতিবিম্ব (Virtual Image)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>গঠন প্রক্রিয়া</strong></td><td>প্রতিফলিত রশ্মিগুলো প্রকৃতপক্ষে কোনো বিন্দুতে মিলিত হয়।</td><td>প্রতিফলিত রশ্মিগুলোকে পেছনে বর্ধিত করলে কোনো বিন্দু থেকে অপসৃত হচ্ছে বলে মনে হয়।</td></tr>
+            <tr><td><strong>পর্দায় ধারণ</strong></td><td>পর্দায় ফেলা যায় (যেমন প্রজেক্টরের পর্দা)।</td><td>পর্দায় ফেলা যায় না, কেবল সরাসরি চোখে দেখা যায়।</td></tr>
+            <tr><td><strong>প্রকৃতি</strong></td><td>বস্তুর সাপেক্ষে সাধারণত <strong>উল্টো</strong> হয়।</td><td>বস্তুর সাপেক্ষে সর্বদা <strong>সোজা</strong> হয়।</td></tr>
+            <tr><td><strong>দর্পণ উদাহরণ</strong></td><td>অবতল দর্পণে (বস্তু ফোকাসের বাইরে থাকলে)।</td><td>সমতল দর্পণ ও উত্তল দর্পণে (সর্বদা)।</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>৮.৩.১ · সমতল দর্পণে প্রতিবিম্বের বৈশিষ্ট্য</h3>
+      <ul>
+        <li>সমতল দর্পণে গঠিত প্রতিবিম্ব সর্বদা <strong>অবাস্তব ও সোজা</strong> হয়।</li>
+        <li>প্রতিবিম্বের আকার বস্তুর আকারের <strong>সমান</strong> ($m = +1$)।</li>
+        <li>দর্পণ থেকে বস্তু যত সামনে থাকে, প্রতিবিম্ব দর্পণের ঠিক তত পেছনে গঠিত হয় ($u = v$)।</li>
+        <li><strong>পার্শ্বীয় পরিবর্তন (Lateral Inversion):</strong> বস্তুর ডান পাশ প্রতিবিম্বে বাম পাশ হিসেবে দেখা যায়। এ কারণেই অ্যাম্বুলেন্সের সামনে <code>AMBULANCE</code> শব্দটি উল্টো করে লেখা থাকে, যাতে সামনের গাড়ির আয়নায় তা সোজা দেখা যায়।</li>
+      </ul>
+
+      <div class="highlight-box">
+        <strong>💡 গুরুত্বপূর্ণ তথ্য:</strong> $H$ উচ্চতার কোনো ব্যক্তি নিজের পূর্ণাঙ্গ প্রতিবিম্ব দেখতে চাইলে সমতল দর্পণের ন্যূনতম দৈর্ঘ্য হতে হবে তার উচ্চতার অর্ধেক অর্থাৎ <strong>$\frac{H}{2}$</strong>। আর আপতিত রশ্মি স্থির রেখে দর্পণটিকে $\theta$ কোণে ঘোরালে প্রতিফলিত রশ্মি <strong>$2\theta$</strong> কোণে ঘুরে যায়।
+      </div>
+    </section>
+
+    <section class="worked">
+      <h2>📐 গাণিতিক সমস্যা ও সমাধান</h2>
+      <div class="problem">
+        <strong>সমস্যা ১:</strong> এক ব্যক্তি সমতল দর্পণ থেকে $2.5\text{ m}$ দূরে দাঁড়িয়ে আছেন। তিনি দর্পণের দিকে $0.5\text{ m}$ এগিয়ে এলে এখন ব্যক্তি ও তাঁর প্রতিবিম্বের মধ্যবর্তী দূরত্ব কত হবে?
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> $0.5\text{ m}$ এগিয়ে আসার পর দর্পণ থেকে ব্যক্তির নতুন দূরত্ব $u = 2.5 - 0.5 = 2.0\text{ m}$।</p>
+        <p>সমতল দর্পণে প্রতিবিম্ব দর্পণের ঠিক পেছনে $v = 2.0\text{ m}$ দূরে থাকবে।</p>
+        <p>সুতরাং ব্যক্তি ও প্রতিবিম্বের মধ্যবর্তী দূরত্ব $= u + v = 2.0 + 2.0 = 4.0\text{ m}$।</p>
+      </div>
+
+      <div class="problem">
+        <strong>সমস্যা ২:</strong> $1.72\text{ m}$ উচ্চতার একজন মানুষ নিজের আপাদমস্তক প্রতিবিম্ব দেখতে চাইলে ন্যূনতম কত দৈর্ঘ্যের সমতল দর্পণ লাগবে?
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> ন্যূনতম দর্পণ দৈর্ঘ্য $= \frac{H}{2} = \frac{1.72}{2} = 0.86\text{ m}$।</p>
+      </div>
+
+      <div class="problem">
+        <strong>সমস্যা ৩:</strong> আপতিত রশ্মির দিক অপরিবর্তিত রেখে একটি সমতল দর্পণকে $15^\circ$ কোণে ঘোরানো হলে প্রতিফলিত রশ্মি কত কোণে ঘুরবে?
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> দর্পণ $\theta$ কোণে ঘুরলে প্রতিফলিত রশ্মি $2\theta$ কোণে ঘোরে। তাই প্রতিফলিত রশ্মি ঘুরবে $2 \times 15^\circ = 30^\circ$।</p>
+      </div>
+    </section>
+
+    <section class="memory">
+      <h2>🧠 মনে রাখার কৌশল</h2>
+      <p>“বাস্তব হলে উল্টো হয়, পর্দায় পড়ে ছবি; অবাস্তব হয় সোজা ও ডান-বাম উল্টো, সমতল আয়নায় দেখি সবি! দর্পণ যত দূর, ছবি তত দূর; আপাদমস্তক দেখতে লাগবে উচ্চতার অর্ধেক আয়না নিশ্চিত!” </p>
+    </section>
+
+    <section class="section">
+      <h2>নিজেকে যাচাই করো</h2>
+      <details class="check">
+        <summary>১. সমতল দর্পণের দিকে তুমি $2\text{ m/s}$ বেগে দৌড়ালে তোমার প্রতিবিম্ব তোমার সাপেক্ষে কত বেগে এগোবে?</summary>
+        <p>$2 + 2 = 4\text{ m/s}$ বেগে (দর্পণের সাপেক্ষে $2\text{ m/s}$, কিন্তু তোমার নিজের সাপেক্ষে দ্বিগুণ বেগে)।</p>
+      </details>
+      <details class="check">
+        <summary>২. সমতল দর্পণের সামনে $35\text{ cm}$ দূরে বস্তু রাখলে বস্তু ও প্রতিবিম্বের মধ্যবর্তী দূরত্ব কত?</summary>
+        <p>$35 + 35 = 70\text{ cm}$।</p>
+      </details>
+      <details class="check">
+        <summary>৩. <code>MAT</code> শব্দটি সমতল দর্পণে প্রতিফলিত হলে অক্ষরগুলো ডান থেকে বামে উল্টো হলেও পড়তে একইরকম লাগে কেন?</summary>
+        <p>কারণ <code>M</code>, <code>A</code>, <code>T</code> প্রতিটি বর্ণ উল্লম্বভাবে প্রতিসম (vertically symmetric), যদিও এদের ক্রম ডান-বাম পাল্টে যায়।</p>
+      </details>
+    </section>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-02.html">← ৮.২ আলোর প্রতিফলন</a>
+      <a class="button" href="section-04.html">পরের পাঠ: ৮.৪ গোলীয় দর্পণের পরিচিতি →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html#page-10">মূল বইয়ের পৃষ্ঠা দেখো</a> · পদার্থবিজ্ঞান অধ্যায় ৮
+    </footer>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</body>
+</html>

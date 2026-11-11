@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>১১.৬ বাসাবাড়িতে তড়িৎ বর্তনীর নকশা · অধ্যায় ১১: চল বিদ্যুৎ</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ১১ / ১১.৬</span>
+    </div>
+  </header>
+  <main>
+    <span class="badge">বইয়ের অনুচ্ছেদ ১১.৬</span>
+    <h1 class="title">বাসাবাড়িতে তড়িৎ বর্তনীর নকশা</h1>
+    <p class="subtitle">লাইভ-নিউট্রাল-আর্থ তারের কাজ · মিটার ও কনজিউমার ইউনিট · সুইচ-ফিউজ লাইভ তারে · সমান্তরাল গৃহস্থালি সংযোগ।</p>
+
+    <section class="goal">
+      <h2>এই পাঠে শিখবে</h2>
+      <p>বাসার বৈদ্যুতিক নকশায় লাইভ, নিউট্রাল ও আর্থ তারের ভূমিকা চিনতে, সুইচ ও ফিউজ লাইভ তারে বসানোর নিরাপত্তা কারণ বুঝতে এবং ঘরের সব যন্ত্র কেন সমান্তরাল সংযোগে রাখা হয় তা ব্যাখ্যা করতে পারবে।</p>
+    </section>
+
+    <section class="section">
+      <h2>১১.৬ · বাসাবাড়িতে তড়িৎ বর্তনীর নকশা (Household Wiring)</h2>
+      <p>বাইরের খুঁটি থেকে মেইন ফিউজ ও বিদ্যুৎ মিটার হয়ে <strong>কনজিউমার ইউনিট (Distribution Box)</strong>-এর মাধ্যমে পুরো বাড়িতে বিদ্যুৎ ছড়িয়ে পড়ে। বাসার প্রতিটি সার্কিটে সাধারণত তিনটি তার থাকে:</p>
+
+      <div class="grid">
+        <div class="term">
+          <strong>লাইভ তার (Live Wire — লাল/বাদামি)</strong>
+          <small>পাওয়ার স্টেশন থেকে $220\,\text{V}$ বিভবে তড়িৎ আনে। সুইচ, ফিউজ ও সার্কিট ব্রেকার সর্বদা এই তারেই যুক্ত থাকে।</small>
+        </div>
+        <div class="term">
+          <strong>নিউট্রাল তার (Neutral Wire — কালো/নীল)</strong>
+          <small>বিদ্যুৎ যন্ত্রের ভেতর দিয়ে কাজ করার পর প্রবাহকে পাওয়ার স্টেশনে ফিরিয়ে দিয়ে বর্তনী সম্পূর্ণ করে ($0\,\text{V}$-এর কাছাকাছি)।</small>
+        </div>
+        <div class="term">
+          <strong>আর্থ তার (Earth Wire — সবুজ/হলুদ-সবুজ)</strong>
+          <small>নিরাপত্তা তার; ত্রুটি হলে ধাতব আবরণ থেকে অতিরিক্ত প্রবাহ সরাসরি মাটিতে পাঠিয়ে ব্যবহারকারীকে শক থেকে বাঁচায়।</small>
+        </div>
+      </div>
+
+      <figure class="visual">
+        <svg viewBox="0 0 780 280" role="img" aria-label="বাসার বর্তনীর সহজ ধারণা চিত্র">
+          <text x="25" y="38" font-size="18" font-weight="800" fill="#1e293b">সরবরাহ (220 V)</text>
+          <text x="24" y="88" font-size="15" font-weight="700" fill="#b91c1c">লাইভ (L)</text>
+          <text x="20" y="182" font-size="15" font-weight="700" fill="#2563eb">নিউট্রাল (N)</text>
+          <text x="24" y="246" font-size="15" font-weight="700" fill="#15803d">আর্থ (E)</text>
+          <path d="M110 82 H200 M255 82 H720" stroke="#b91c1c" stroke-width="5" fill="none"/>
+          <path d="M110 176 H720" stroke="#2563eb" stroke-width="5" fill="none"/>
+          <path d="M200 82 l10 -13 12 26 12 -26 12 26 9 -13" fill="none" stroke="#334155" stroke-width="3"/>
+          <text x="205" y="50" font-size="13" font-weight="700" fill="#334155">মেইন ফিউজ</text>
+          <circle cx="365" cy="82" r="6" fill="#fff" stroke="#b91c1c" stroke-width="3"/>
+          <path d="M365 82 l22 -16" stroke="#334155" stroke-width="3"/>
+          <text x="348" y="50" font-size="13" font-weight="700" fill="#334155">সুইচ</text>
+          <path d="M365 88 V109 M365 145 V176" stroke="#b91c1c" stroke-width="4" fill="none"/>
+          <circle cx="365" cy="127" r="18" fill="#fef3c7" stroke="#d97706" stroke-width="3"/>
+          <path d="M354 127 q11 -16 22 0 q-11 16 -22 0 M360 149 h10" stroke="#92400e" fill="none" stroke-width="2"/>
+          <text x="345" y="211" font-size="14" font-weight="700" fill="#334155">বাতি</text>
+          <path d="M570 82 V109 M570 145 V176" stroke="#b91c1c" stroke-width="4" fill="none"/>
+          <rect x="552" y="109" width="36" height="36" rx="5" fill="#fff" stroke="#334155" stroke-width="3"/>
+          <path d="M560 119 h20 M560 127 h20 M560 135 h20" stroke="#64748b" stroke-width="2"/>
+          <text x="530" y="211" font-size="14" font-weight="700" fill="#334155">ফ্রিজ / সকেট</text>
+          <path d="M110 240 H690 V162" stroke="#15803d" stroke-width="4" fill="none"/>
+          <rect x="670" y="118" width="42" height="44" rx="7" fill="#ecfdf5" stroke="#15803d" stroke-width="3"/>
+          <text x="691" y="144" text-anchor="middle" font-size="11" font-weight="700" fill="#166534">খোলস</text>
+          <text x="410" y="264" font-size="14" font-weight="700" fill="#475569">যন্ত্রগুলো আলাদা শাখায় সমান্তরালে যুক্ত (220 V)</text>
+        </svg>
+        <figcaption>বাসার সমান্তরাল গৃহস্থালি ওয়্যারিং চিত্র: লাইভ তারে ফিউজ ও সুইচ এবং ধাতব খোলসে আর্থিং সংযোগ।</figcaption>
+      </figure>
+
+      <h3>বাসার যন্ত্রপাতি সমান্তরাল সংযোগে লাগানো হয় কেন?</h3>
+      <ol>
+        <li>প্রতিটি যন্ত্র পূর্ণ সরবরাহ বিভব ($220\,\text{V}$) পায়, ফলে সব বাতি ও ফ্যান পূর্ণ ক্ষমতায় কাজ করে।</li>
+        <li>প্রতিটি যন্ত্রের জন্য আলাদা সুইচ থাকে—একটি বাতি বন্ধ করলে বা নষ্ট হলেও বাকিগুলো স্বাভাবিকভাবে চালু থাকে।</li>
+        <li>নতুন যন্ত্র যোগ করলে তুল্য রোধ কমে প্রয়োজনীয় প্রবাহ সরবরাহ সম্ভব হয়।</li>
+      </ol>
+
+      <div class="highlight-box">
+        <strong>আলাদা আলাদা সার্কিট রেটিং:</strong> বাসাবাড়িতে বাতি-পাখার সার্কিটে সাধারণত $5\,\text{A}$ ব্রেকার এবং হিটার, কুকার বা এসির পাওয়ার সকেট সার্কিটে $15\,\text{A}$–$30\,\text{A}$ ব্রেকার ব্যবহৃত হয়।
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>অধ্যায়ের সমাপ্তি ও দ্রুত পুনরালোচনা</h2>
+      <details class="check">
+        <summary>১. সুইচ ভুল করে নিউট্রাল তারে বসালে কী বিপদ হতে পারে?</summary>
+        <p>সুইচ বন্ধ করে বাতি না জ্বললেও হোল্ডার বা যন্ত্রের ভেতরের অংশ উচ্চ বিভবের লাইভ তারের সাথে যুক্তই থেকে যাবে; ফলে স্পর্শ করলে মারাত্মক শক লাগবে।</p>
+      </details>
+      <details class="check">
+        <summary>২. অধ্যায় ১১-এর প্রধান সূত্রগুলো একনজরে:</summary>
+        <ol>
+          <li>তড়িৎ প্রবাহ: $I = \dfrac{Q}{t} \quad (1\,\text{A} = 1\,\text{C/s})$</li>
+          <li>ওহমের সূত্র ও রোধ: $V = IR, \quad R = \rho\dfrac{L}{A}$</li>
+          <li>তুল্য রোধ: $R_s = R_1 + R_2$, $\quad \dfrac{1}{R_p} = \dfrac{1}{R_1} + \dfrac{1}{R_2}$</li>
+          <li>তড়িৎ ক্ষমতা ও শক্তি: $P = VI = I^2R = \dfrac{V^2}{R}$, $\quad 1\,\text{kWh} = 3.6 \times 10^6\,\text{J}$</li>
+        </ol>
+      </details>
+      <p style="margin-top:16px"><a class="button secondary" href="chapter-source.html">মূল পাঠ্যবইয়ের ৩১ পৃষ্ঠায় যাও ↗</a></p>
+    </section>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-05.html">← আগের পাঠ: নিরাপদ ব্যবহার</a>
+      <a class="button" href="index.html">অধ্যায়ের সূচিতে ফিরে যাও →</a>
+    </nav>
+    <footer class="footer"><a href="chapter-source.html">PDF-এর সম্পূর্ণ মূল পৃষ্ঠা</a> · অধ্যায় ১১</footer>
+  </main>
+</body>
+</html>

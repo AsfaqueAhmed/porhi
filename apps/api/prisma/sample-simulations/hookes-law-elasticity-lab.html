@@ -205,6 +205,537 @@
     @media (max-width: 440px) {
       .grid { grid-template-columns: repeat(2, 1fr); }
     }
+
+  
+    /* === PORI UNIFIED SIMULATOR THEME === */
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-card: #ffffff;
+      --pori-panel: #f8fafc;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #64748b;
+      --pori-indigo: #4f46e5;
+      --pori-indigo-hover: #4338ca;
+      --pori-indigo-soft: #eef2ff;
+      --pori-indigo-border: #c7d2fe;
+      --pori-indigo-ink: #3730a3;
+    }
+
+    body {
+      background: var(--pori-bg) !important;
+      color: var(--pori-ink) !important;
+      padding: 12px 14px !important;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif !important;
+      margin: 0 !important;
+    }
+
+    .container,
+    .caliper-card {
+      max-width: 860px !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      margin: 0 auto !important;
+      background: transparent !important;
+      border: none !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 12px !important;
+    }
+
+    header h1,
+    .caliper-card-title {
+      font-size: 1.18rem !important;
+      font-weight: 800 !important;
+      color: var(--pori-heading) !important;
+      margin: 0 0 4px !important;
+    }
+
+    header p,
+    .subtitle,
+    .caliper-card-desc {
+      font-size: 0.82rem !important;
+      color: var(--pori-muted) !important;
+      line-height: 1.55 !important;
+    }
+
+    .badge {
+      background: var(--pori-indigo-soft) !important;
+      color: var(--pori-indigo-ink) !important;
+      border: 1px solid var(--pori-indigo-border) !important;
+      border-radius: 999px !important;
+      font-weight: 750 !important;
+    }
+
+    .canvas-wrap,
+    #waveCanvas {
+      background: #0f172a !important;
+      border: 1px solid var(--pori-border) !important;
+      border-radius: 14px !important;
+      overflow: hidden !important;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08) !important;
+    }
+
+    .caliper-svg-wrap,
+    .zoom-card {
+      background: #ffffff !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-radius: 14px !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+      margin: 0 !important;
+    }
+
+    .controls,
+    .control-panel {
+      background: #ffffff !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-radius: 14px !important;
+      padding: 12px 14px !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+      margin: 0 !important;
+    }
+
+    .control-group {
+      gap: 6px !important;
+    }
+
+    label,
+    .slider-label {
+      font-size: 0.78rem !important;
+      font-weight: 750 !important;
+      color: #334155 !important;
+      margin-bottom: 2px !important;
+    }
+
+    label .val-badge,
+    label span[id],
+    label b[id],
+    .slider-label b {
+      color: var(--pori-indigo) !important;
+      font-weight: 800 !important;
+    }
+
+    .mat-btn-row-label {
+      color: #475569 !important;
+      font-size: 0.78rem !important;
+      font-weight: 750 !important;
+    }
+
+    /* Unified Skeuomorphic Striped Slider in App Indigo Theme */
+    input[type="range"],
+    input[type="range"].custom-range,
+    input[type="range"].range {
+      -webkit-appearance: none !important;
+      appearance: none !important;
+      box-sizing: border-box !important;
+      width: 100% !important;
+      height: 16px !important;
+      padding: 0 !important;
+      border-radius: 999px !important;
+      outline: none !important;
+      border: 2px solid #e2e8f0 !important;
+      box-shadow:
+        inset 0 2px 3px rgba(15, 23, 42, 0.72),
+        inset 0 -1px 1px rgba(255, 255, 255, 0.14),
+        0 1px 0 rgba(255, 255, 255, 0.98),
+        0 1px 3px rgba(15, 23, 42, 0.10) !important;
+      cursor: pointer !important;
+      margin: 0 !important;
+      display: block !important;
+      background-color: #232732 !important;
+      background-image:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.24) 0%, rgba(255, 255, 255, 0.12) 28%, rgba(255, 255, 255, 0.04) 55%, rgba(0, 0, 0, 0.26) 100%),
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0px, rgba(255, 255, 255, 0.16) 1.5px, transparent 1.5px, transparent 4px),
+        linear-gradient(180deg, #818cf8 0%, #6366f1 32%, #4f46e5 74%, #3730a3 100%),
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0px, rgba(255, 255, 255, 0.04) 1.5px, transparent 1.5px, transparent 4px),
+        linear-gradient(180deg, #1b1e26 0%, #2a2f3a 45%, #343a46 75%, #20242d 100%) !important;
+      background-position:
+        0 0,
+        0 0,
+        0 0,
+        0 0,
+        0 0 !important;
+      background-size:
+        100% 100%,
+        calc(11px + (100% - 22px) * var(--p, 0.5)) 100%,
+        calc(11px + (100% - 22px) * var(--p, 0.5)) 100%,
+        100% 100%,
+        100% 100% !important;
+      background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat !important;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track,
+    input[type="range"].custom-range::-webkit-slider-runnable-track,
+    input[type="range"].range::-webkit-slider-runnable-track {
+      height: 12px !important;
+      border-radius: 999px !important;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    input[type="range"]::-webkit-slider-thumb,
+    input[type="range"].custom-range::-webkit-slider-thumb,
+    input[type="range"].range::-webkit-slider-thumb {
+      -webkit-appearance: none !important;
+      appearance: none !important;
+      box-sizing: border-box !important;
+      width: 22px !important;
+      height: 10px !important;
+      margin-top: 1px !important;
+      border-radius: 999px !important;
+      background-color: #e2e8f0 !important;
+      background-image:
+        linear-gradient(90deg,
+          transparent calc(50% - 4px),
+          rgba(100, 116, 139, 0.52) calc(50% - 3.5px), #ffffff calc(50% - 2.5px), transparent calc(50% - 2px),
+          transparent calc(50% - 1px),
+          rgba(100, 116, 139, 0.52) calc(50% - 0.5px), #ffffff calc(50% + 0.5px), transparent calc(50% + 1px),
+          transparent calc(50% + 2px),
+          rgba(100, 116, 139, 0.52) calc(50% + 2.5px), #ffffff calc(50% + 3.5px), transparent calc(50% + 4px)),
+        linear-gradient(180deg, #ffffff 0%, #f8fafc 40%, #e2e8f0 78%, #cbd5e1 100%) !important;
+      background-size: 100% 5px, 100% 100% !important;
+      background-position: center, center !important;
+      background-repeat: no-repeat, no-repeat !important;
+      border: 1px solid #f1f5f9 !important;
+      box-shadow:
+        0 0 0 1px #4f46e5,
+        0 1px 2px rgba(15, 23, 42, 0.40),
+        inset 0 1px 0 #ffffff !important;
+      cursor: grab !important;
+      transition: transform 0.1s ease !important;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:active,
+    input[type="range"].custom-range::-webkit-slider-thumb:active,
+    input[type="range"].range::-webkit-slider-thumb:active {
+      cursor: grabbing !important;
+      transform: scale(1.03);
+    }
+
+    input[type="range"]::-moz-range-thumb,
+    input[type="range"].custom-range::-moz-range-thumb,
+    input[type="range"].range::-moz-range-thumb {
+      box-sizing: border-box !important;
+      width: 22px !important;
+      height: 10px !important;
+      border-radius: 999px !important;
+      background-color: #e2e8f0 !important;
+      background-image:
+        linear-gradient(90deg,
+          transparent calc(50% - 4px),
+          rgba(100, 116, 139, 0.52) calc(50% - 3.5px), #ffffff calc(50% - 2.5px), transparent calc(50% - 2px),
+          transparent calc(50% - 1px),
+          rgba(100, 116, 139, 0.52) calc(50% - 0.5px), #ffffff calc(50% + 0.5px), transparent calc(50% + 1px),
+          transparent calc(50% + 2px),
+          rgba(100, 116, 139, 0.52) calc(50% + 2.5px), #ffffff calc(50% + 3.5px), transparent calc(50% + 4px)),
+        linear-gradient(180deg, #ffffff 0%, #f8fafc 40%, #e2e8f0 78%, #cbd5e1 100%) !important;
+      background-size: 100% 5px, 100% 100% !important;
+      background-position: center, center !important;
+      background-repeat: no-repeat, no-repeat !important;
+      border: 1px solid #f1f5f9 !important;
+      box-shadow:
+        0 0 0 1px #4f46e5,
+        0 1px 2px rgba(15, 23, 42, 0.40),
+        inset 0 1px 0 #ffffff !important;
+      cursor: grab !important;
+    }
+
+    .slider-indicator-dot {
+      background: #4f46e5 !important;
+      box-shadow: 0 0 5px rgba(79, 70, 229, 0.65) !important;
+    }
+
+    /* Unified Buttons & Option Pickers (Horizontally Scrollable Strip) */
+    .btn-row,
+    .preset-row,
+    .mat-btn-row,
+    .fine-tune-btns {
+      display: flex !important;
+      flex-wrap: nowrap !important;
+      gap: 8px !important;
+      justify-content: flex-start !important;
+      justify-content: safe center !important;
+      align-items: center !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      -webkit-overflow-scrolling: touch !important;
+      scrollbar-width: thin !important;
+      scrollbar-color: #cbd5e1 transparent !important;
+      padding: 2px 2px 6px !important;
+      margin: 0 !important;
+    }
+
+    .btn-row::-webkit-scrollbar,
+    .preset-row::-webkit-scrollbar,
+    .mat-btn-row::-webkit-scrollbar,
+    .fine-tune-btns::-webkit-scrollbar {
+      height: 5px;
+    }
+
+    .btn-row::-webkit-scrollbar-thumb,
+    .preset-row::-webkit-scrollbar-thumb,
+    .mat-btn-row::-webkit-scrollbar-thumb,
+    .fine-tune-btns::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 999px;
+    }
+
+    .btn-row > *,
+    .preset-row > *,
+    .mat-btn-row > *,
+    .fine-tune-btns > * {
+      flex: 0 0 auto !important;
+      white-space: nowrap !important;
+    }
+
+    .action-bar .btn-row {
+      width: auto !important;
+      flex: 1 1 auto !important;
+      min-width: 0 !important;
+      justify-content: flex-start !important;
+    }
+
+    .control-row .fine-tune-btns {
+      width: auto !important;
+      flex: 1 1 auto !important;
+      min-width: 0 !important;
+      justify-content: flex-start !important;
+    }
+
+    button,
+    .preset-btn,
+    .action-btn,
+    .btn-step,
+    .mat-btn-row button {
+      background: #ffffff !important;
+      color: #334155 !important;
+      border: 1px solid var(--pori-border) !important;
+      border-radius: 10px !important;
+      padding: 7px 13px !important;
+      font-size: 0.78rem !important;
+      font-weight: 700 !important;
+      cursor: pointer !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 6px !important;
+      line-height: 1.3 !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
+    }
+
+    button:hover,
+    .preset-btn:hover,
+    .action-btn:hover,
+    .btn-step:hover,
+    .mat-btn-row button:hover {
+      background: var(--pori-indigo-soft) !important;
+      color: var(--pori-indigo-hover) !important;
+      border-color: #a5b4fc !important;
+      filter: none !important;
+    }
+
+    button.active,
+    .preset-btn.active,
+    .mat-btn-row button.active {
+      background: var(--pori-indigo) !important;
+      color: #ffffff !important;
+      border-color: var(--pori-indigo) !important;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25) !important;
+    }
+
+    button.primary,
+    .action-btn.primary,
+    .button {
+      background: var(--pori-indigo) !important;
+      color: #ffffff !important;
+      border: 1px solid var(--pori-indigo) !important;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.22) !important;
+    }
+
+    button.primary:hover,
+    .action-btn.primary:hover,
+    .button:hover {
+      background: var(--pori-indigo-hover) !important;
+      border-color: var(--pori-indigo-hover) !important;
+      color: #ffffff !important;
+    }
+
+    #quizToggleBtn,
+    button.quiz-toggle {
+      background: var(--pori-indigo-soft) !important;
+      color: var(--pori-indigo-ink) !important;
+      border-color: var(--pori-indigo-border) !important;
+    }
+
+    button.quiz-toggle.active {
+      background: #fee2e2 !important;
+      color: #991b1b !important;
+      border-color: #fca5a5 !important;
+      box-shadow: none !important;
+    }
+
+    /* Unified Option Picker (<select>) */
+    select,
+    .select-custom {
+      -webkit-appearance: none !important;
+      appearance: none !important;
+      width: 100% !important;
+      background-color: #ffffff !important;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+      background-repeat: no-repeat !important;
+      background-position: right 10px center !important;
+      background-size: 15px !important;
+      color: var(--pori-heading) !important;
+      border: 1px solid var(--pori-border) !important;
+      border-radius: 10px !important;
+      padding: 8px 34px 8px 12px !important;
+      font-size: 0.78rem !important;
+      font-weight: 700 !important;
+      outline: none !important;
+      cursor: pointer !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    }
+
+    select:focus,
+    .select-custom:focus {
+      border-color: var(--pori-indigo) !important;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.14) !important;
+    }
+
+    /* Unified Telemetry Cards */
+    .grid,
+    .calc-grid {
+      gap: 8px !important;
+      margin: 0 !important;
+    }
+
+    .grid .card,
+    .calc-grid .calc-item {
+      background: #ffffff !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-radius: 12px !important;
+      padding: 9px 8px !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+    }
+
+    .grid .card .title,
+    .calc-grid .calc-item .title {
+      color: var(--pori-muted) !important;
+      font-size: 0.66rem !important;
+      font-weight: 800 !important;
+    }
+
+    .grid .card .val,
+    .calc-grid .calc-item .value {
+      color: var(--pori-heading) !important;
+      font-weight: 900 !important;
+    }
+
+    .grid .card.highlight,
+    .grid .card.accent,
+    .calc-grid .calc-item.highlight {
+      background: var(--pori-indigo-soft) !important;
+      border-color: var(--pori-indigo-border) !important;
+    }
+
+    .grid .card.highlight .val,
+    .grid .card.accent .val,
+    .calc-grid .calc-item.highlight .value {
+      color: var(--pori-indigo-ink) !important;
+    }
+
+    .grid .card.warm {
+      background: #fffbeb !important;
+      border-color: #fde68a !important;
+    }
+
+    .grid .card.warm .val {
+      color: #92400e !important;
+    }
+
+    /* Unified Readout / Insight / Quiz / Warning Boxes */
+    .readout,
+    .info-card {
+      background: var(--pori-indigo-soft) !important;
+      border: 1px solid var(--pori-indigo-border) !important;
+      border-left: 4px solid var(--pori-indigo) !important;
+      border-radius: 10px !important;
+      padding: 10px 14px !important;
+      color: #312e81 !important;
+      font-size: 0.82rem !important;
+      font-weight: 650 !important;
+      line-height: 1.55 !important;
+    }
+
+    .readout .formula-math {
+      color: var(--pori-indigo-hover) !important;
+    }
+
+    .readout p {
+      color: #334155 !important;
+    }
+
+    .balance-item {
+      background: #ffffff !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-radius: 10px !important;
+      color: var(--pori-heading) !important;
+    }
+
+    .warn {
+      background: #fef2f2 !important;
+      border: 1px solid #fecaca !important;
+      border-left: 4px solid #dc2626 !important;
+      border-radius: 10px !important;
+      color: #991b1b !important;
+    }
+
+    .quiz-box {
+      background: #fffbeb !important;
+      border: 1px solid #fde68a !important;
+      border-radius: 12px !important;
+      color: #78350f !important;
+      margin: 0 !important;
+    }
+
+    .quiz-prompt {
+      color: #92400e !important;
+    }
+
+    .quiz-input {
+      background: #ffffff !important;
+      border: 1px solid var(--pori-border) !important;
+      color: var(--pori-ink) !important;
+    }
+
+    .chart-box {
+      background: #0f172a !important;
+      border: 1px solid var(--pori-border) !important;
+      border-radius: 12px !important;
+    }
+
+    .eq-card {
+      background: var(--pori-panel) !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-left: 3px solid var(--pori-indigo) !important;
+      color: var(--pori-heading) !important;
+    }
+
+    .eq-card b {
+      color: var(--pori-indigo-hover) !important;
+    }
+    /* === END PORI UNIFIED SIMULATOR THEME === */
+
   </style>
 </head>
 <body>
@@ -715,5 +1246,61 @@
       updateLab();
     });
   </script>
+
+
+  <!-- PORI UNIFIED RANGE SYNC -->
+  <script>
+    (function () {
+      function syncRangeFill(el) {
+        if (!el || el.type !== 'range') return;
+        var min = parseFloat(el.min);
+        var max = parseFloat(el.max);
+        var val = parseFloat(el.value);
+        if (Number.isNaN(min)) min = 0;
+        if (Number.isNaN(max)) max = 100;
+        if (Number.isNaN(val)) val = min;
+        var ratio = max === min ? 0 : (val - min) / (max - min);
+        ratio = Math.max(0, Math.min(1, ratio));
+        var pctStr = (ratio * 100).toFixed(2) + '%';
+        el.style.setProperty('--p', ratio.toFixed(4));
+        el.style.setProperty('--fill', pctStr);
+        el.style.setProperty('--fill-pct', pctStr);
+      }
+
+      function syncAllRanges() {
+        document.querySelectorAll('input[type="range"]').forEach(syncRangeFill);
+      }
+
+      var desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+      if (desc && desc.get && desc.set) {
+        Object.defineProperty(HTMLInputElement.prototype, 'value', {
+          configurable: true,
+          get: function () { return desc.get.call(this); },
+          set: function (v) {
+            desc.set.call(this, v);
+            if (this.type === 'range') syncRangeFill(this);
+          }
+        });
+      }
+
+      document.addEventListener('input', function (e) {
+        if (e.target && e.target.type === 'range') syncRangeFill(e.target);
+      }, true);
+      document.addEventListener('change', function (e) {
+        if (e.target && e.target.type === 'range') syncRangeFill(e.target);
+      }, true);
+      document.addEventListener('click', function () {
+        setTimeout(syncAllRanges, 0);
+      }, true);
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncAllRanges);
+      } else {
+        syncAllRanges();
+      }
+      setTimeout(syncAllRanges, 50);
+    })();
+  </script>
+
 </body>
 </html>

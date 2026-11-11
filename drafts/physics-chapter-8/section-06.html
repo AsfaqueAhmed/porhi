@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৮.৬ অবতল দর্পণ ও দর্পণের সমীকরণ · অধ্যায় ৮ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৮ / ৮.৬</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই · সেকশন ৮.৬</span>
+    <h1 class="title">অবতল দর্পণ (৬ অবস্থান) ও দর্পণের সমীকরণ <small>Concave Mirror Image Formation &amp; Mirror Equation</small></h1>
+    <p class="subtitle">অবতল দর্পণে বস্তুর ৬টি ভিন্ন অবস্থানের জন্য প্রতিবিম্বের অবস্থান, প্রকৃতি ও আকৃতি, দর্পণের সাধারণ সমীকরণ ও বাস্তব-ধনাত্মক চিহ্ন প্রথা।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <ul>
+        <li>অবতল দর্পণের সামনে বস্তুর ৬টি ভিন্ন অবস্থানের জন্য প্রতিবিম্বের অবস্থান, প্রকৃতি (বাস্তব-উল্টো বনাম অবাস্তব-সোজা) ও আকৃতি ব্যাখ্যা করতে পারবে।</li>
+        <li>বস্তুকে মেরু ও ফোকাসের মাঝে ($u &lt; f$) রাখলে কেন বিবর্ধিত অবাস্তব প্রতিবিম্ব গঠিত হয় তা রশ্মিচিত্রসহ বলতে পারবে।</li>
+        <li>দর্পণের সমীকরণ ($\frac{1}{u} + \frac{1}{v} = \frac{1}{f} = \frac{2}{R}$) এবং বাস্তব-ধনাত্মক চিহ্ন প্রথা প্রয়োগ করে গাণিতিক সমস্যা সমাধান করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>৮.৬ · অবতল দর্পণ (Concave Mirror) — ৬টি অবস্থান</h2>
+      <p>অবতল দর্পণ একটি <strong>অভিসারী দর্পণ (Converging Mirror)</strong>। বস্তু কোথায় রাখা হচ্ছে তার ওপর নির্ভর করে এটি বাস্তব-উল্টো, অত্যন্ত বিবর্ধিত, খর্বিত কিংবা অবাস্তব-সোজা সব ধরনের প্রতিবিম্বই তৈরি করতে পারে:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ক্রমিক</th>
+              <th>বস্তুর অবস্থান ($u$)</th>
+              <th>প্রতিবিম্বের অবস্থান ($v$)</th>
+              <th>প্রকৃতি</th>
+              <th>আকৃতি</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>১</td>
+              <td>অসীমে ($u = \infty$)</td>
+              <td>প্রধান ফোকাসে ($v = f$)</td>
+              <td>বাস্তব ও উল্টো</td>
+              <td>অত্যন্ত খর্বিত (বিন্দুবৎ)</td>
+            </tr>
+            <tr>
+              <td>২</td>
+              <td>বক্রতার কেন্দ্র $C$-এর বাইরে ($u &gt; 2f$)</td>
+              <td>$F$ ও $C$-এর মাঝে ($f &lt; v &lt; 2f$)</td>
+              <td>বাস্তব ও উল্টো</td>
+              <td>খর্বিত (ছোট)</td>
+            </tr>
+            <tr>
+              <td>৩</td>
+              <td>বক্রতার কেন্দ্র $C$-তে ($u = 2f$)</td>
+              <td>বক্রতার কেন্দ্র $C$-তে ($v = 2f$)</td>
+              <td>বাস্তব ও উল্টো</td>
+              <td>বস্তুর সমান ($|m| = 1$)</td>
+            </tr>
+            <tr>
+              <td>৪</td>
+              <td>$C$ ও $F$-এর মাঝে ($f &lt; u &lt; 2f$)</td>
+              <td>$C$-এর বাইরে ($v &gt; 2f$)</td>
+              <td>বাস্তব ও উল্টো</td>
+              <td>বিবর্ধিত (বড়)</td>
+            </tr>
+            <tr>
+              <td>৫</td>
+              <td>প্রধান ফোকাস $F$-এ ($u = f$)</td>
+              <td>অসীমে ($v = \infty$)</td>
+              <td>বাস্তব ও উল্টো</td>
+              <td>অত্যন্ত বিবর্ধিত</td>
+            </tr>
+            <tr>
+              <td>৬</td>
+              <td>ফোকাস ও মেরুর মাঝে ($u &lt; f$)</td>
+              <td>দর্পণের পেছনে</td>
+              <td><strong>অবাস্তব ও সোজা</strong></td>
+              <td><strong>বিবর্ধিত (বড়)</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="highlight-box">
+        <strong>দর্পণের সমীকরণ ও চিহ্ন প্রথা (Real-is-Positive):</strong>
+        $$\frac{1}{u} + \frac{1}{v} = \frac{1}{f} = \frac{2}{R}$$
+        <ul style="margin:6px 0 0">
+          <li>বাস্তব দূরত্ব <strong>ধনাত্মক (+)</strong> এবং অবাস্তব দূরত্ব <strong>ঋণাত্মক (−)</strong>।</li>
+          <li>বস্তু সর্বদা বাস্তব, তাই $u &gt; 0$।</li>
+          <li><strong>অবতল দর্পণের</strong> ফোকাস দূরত্ব $f &gt; 0$; <strong>উত্তল দর্পণের</strong> ফোকাস দূরত্ব $f &lt; 0$।</li>
+          <li>হিসাব করে $v &gt; 0$ পেলে প্রতিবিম্ব <strong>বাস্তব</strong> (দর্পণের সামনে), আর $v &lt; 0$ পেলে প্রতিবিম্ব <strong>অবাস্তব</strong> (দর্পণের পেছনে)।</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="lab" id="mirror-inline-lab">
+      <div class="lab-head">
+        <div>
+          <h2>🧪 গোলীয় দর্পণ রশ্মিচিত্র সিমুলেটর</h2>
+          <p style="margin:0;font-size:13px;color:var(--muted)">অবতল দর্পণের ৬টি অবস্থান ও উত্তল দর্পণের রশ্মিচিত্র সরাসরি পরিবর্তন করে দেখো।</p>
+        </div>
+        <span class="lab-tag">সিমুলেশন ৮.২</span>
+      </div>
+
+      <div class="preset-row">
+        <button type="button" class="preset-btn active" data-mode="concave" data-u="34" data-f="12">অবতল: $C$-এর বাইরে</button>
+        <button type="button" class="preset-btn" data-mode="concave" data-u="24" data-f="12">অবতল: $C$-তে</button>
+        <button type="button" class="preset-btn" data-mode="concave" data-u="18" data-f="12">অবতল: $C$ ও $F$-এর মাঝে</button>
+        <button type="button" class="preset-btn" data-mode="concave" data-u="12" data-f="12">অবতল: $F$-এ ($u=f$)</button>
+        <button type="button" class="preset-btn" data-mode="concave" data-u="7" data-f="12">অবতল: $F$ ও $P$-এর মাঝে</button>
+        <button type="button" class="preset-btn" data-mode="convex" data-u="22" data-f="12">উত্তল দর্পণ</button>
+      </div>
+
+      <div class="lab-controls">
+        <div class="control">
+          <label for="simMode" style="display:block;font-size:13px;margin-bottom:6px">দর্পণের ধরন: <strong id="simModeText">অবতল দর্পণ (Concave)</strong></label>
+          <select id="simMode" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid #bfdbfe;background:#fff;font-family:inherit;">
+            <option value="concave">অবতল দর্পণ (Concave, f &gt; 0)</option>
+            <option value="convex">উত্তল দর্পণ (Convex, f &lt; 0)</option>
+          </select>
+        </div>
+        <div class="control">
+          <label for="simU" style="display:block;font-size:13px;margin-bottom:6px">বস্তুর দূরত্ব $u$: <strong id="simUVal">34 cm</strong></label>
+          <input id="simU" class="range" type="range" min="4" max="42" step="1" value="34" />
+        </div>
+        <div class="control" style="grid-column:1 / -1">
+          <label for="simF" style="display:block;font-size:13px;margin-bottom:6px">ফোকাস দূরত্ব $|f|$: <strong id="simFVal">12 cm</strong></label>
+          <input id="simF" class="range" type="range" min="8" max="18" step="1" value="12" />
+        </div>
+      </div>
+
+      <svg id="mirrorInlineSvg" viewBox="0 0 720 290" width="100%" style="background:#ffffff;border:1px solid #dbeafe;border-radius:12px;display:block;" aria-label="গোলীয় দর্পণ রশ্মিচিত্র"></svg>
+
+      <div id="mirrorTelemetry" class="calc-breakdown" style="margin-top:12px;"></div>
+    </section>
+
+    <section class="worked">
+      <h2>📐 গাণিতিক সমস্যা ও সমাধান</h2>
+      <div class="problem">
+        <strong>সমস্যা ১:</strong> একটি অবতল দর্পণের বক্রতার ব্যাসার্ধ $24\text{ cm}$। দর্পণ থেকে $18\text{ cm}$ সামনে একটি বস্তু রাখলে প্রতিবিম্বের অবস্থান ও প্রকৃতি নির্ণয় করো।
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> এখানে, বক্রতার ব্যাসার্ধ $R = +24\text{ cm}$ (অবতল দর্পণ)।</p>
+        <p>$\therefore$ ফোকাস দূরত্ব, $f = \frac{R}{2} = \frac{24}{2} = +12\text{ cm}$ এবং বস্তুর দূরত্ব $u = +18\text{ cm}$।</p>
+        $$\frac{1}{u} + \frac{1}{v} = \frac{1}{f} \implies \frac{1}{v} = \frac{1}{12} - \frac{1}{18} = \frac{3 - 2}{36} = \frac{1}{36} \implies v = +36\text{ cm}$$
+        <p>যেহেতু $v$ ধনাত্মক, তাই প্রতিবিম্ব <strong>দর্পণের সামনে $36\text{ cm}$ দূরে (অর্থাৎ $C$-এর বাইরে) গঠিত হবে</strong> এবং এটি <strong>বাস্তব, উল্টো ও বিবর্ধিত</strong>।</p>
+      </div>
+
+      <div class="problem">
+        <strong>সমস্যা ২:</strong> $10\text{ cm}$ ফোকাস দূরত্বের অবতল দর্পণের সামনে $6\text{ cm}$ দূরে একটি পিন রাখলে প্রতিবিম্ব কোথায় গঠিত হবে?
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> এখানে $f = +10\text{ cm}$ এবং $u = +6\text{ cm}$ (বস্তু মেরু ও ফোকাসের মাঝে)।</p>
+        $$\frac{1}{v} = \frac{1}{10} - \frac{1}{6} = \frac{3 - 5}{30} = -\frac{2}{30} = -\frac{1}{15} \implies v = -15\text{ cm}$$
+        <p>প্রতিবিম্ব <strong>দর্পণের পেছনে $15\text{ cm}$ দূরে</strong> গঠিত হবে এবং এটি <strong>অবাস্তব, সোজা ও বিবর্ধিত</strong>।</p>
+      </div>
+    </section>
+
+    <section class="memory">
+      <h2>🧠 মনে রাখার কৌশল</h2>
+      <p>“অবতল দর্পণের মাইলফলক $C$: $C$-তে রাখলে সমান, $C$-এর বাইরে ছোট আর $C$-এর ভেতরে বড়! আর কেবল মেরু ও ফোকাসের মাঝে ($u &lt; f$) রাখলেই অবতলে মেলে সোজা, অবাস্তব ও বিবর্ধিত ছবি!”</p>
+    </section>
+
+    <section class="section">
+      <h2>নিজেকে যাচাই করো</h2>
+      <details class="check">
+        <summary>১. একটি অবতল দর্পণের ফোকাস দূরত্ব $12\text{ cm}$। লক্ষ্যবস্তুর সমান আকারের বাস্তব প্রতিবিম্ব পেতে বস্তুটিকে কত দূরে রাখতে হবে?</summary>
+        <p>বক্রতার কেন্দ্রে অর্থাৎ $u = 2f = 24\text{ cm}$ দূরে।</p>
+      </details>
+      <details class="check">
+        <summary>২. অবতল দর্পণে $u = f$ হলে প্রতিবিম্ব কোথায় গঠিত হয়?</summary>
+        <p>অসীমে ($v = \infty$), কারণ প্রতিফলিত রশ্মিগুলো পরস্পর সমান্তরাল হয়ে যায়।</p>
+      </details>
+      <details class="check">
+        <summary>৩. অবতল দর্পণে কোন অবস্থানে সোজা ও বড় প্রতিবিম্ব পাওয়া যায়?</summary>
+        <p>মেরু $P$ ও প্রধান ফোকাস $F$-এর মাঝখানে ($u &lt; f$) বস্তু রাখলে।</p>
+      </details>
+    </section>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-05.html">← ৮.৫ প্রতিবিম্ব অঙ্কন ও উত্তল দর্পণ</a>
+      <a class="button" href="section-07.html">পরের পাঠ: ৮.৭ রৈখিক বিবর্ধন →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html#page-21">মূল বইয়ের পৃষ্ঠা দেখো</a> · পদার্থবিজ্ঞান অধ্যায় ৮
+    </footer>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}],
+          throwOnError: false
+        });
+      }
+    });
+
+    (function () {
+      const svg = document.getElementById("mirrorInlineSvg");
+      const simMode = document.getElementById("simMode");
+      const simU = document.getElementById("simU");
+      const simF = document.getElementById("simF");
+      const simModeText = document.getElementById("simModeText");
+      const simUVal = document.getElementById("simUVal");
+      const simFVal = document.getElementById("simFVal");
+      const telemetry = document.getElementById("mirrorTelemetry");
+      const presets = document.querySelectorAll("#mirror-inline-lab .preset-btn");
+
+      const PX_PER_CM = 7.2;
+      const POLE_X = 430;
+      const AXIS_Y = 150;
+      const OBJ_H = 54;
+
+      function line(x1, y1, x2, y2, stroke, width, dash) {
+        return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${stroke}" stroke-width="${width}"${dash ? ` stroke-dasharray="${dash}"` : ""} />`;
+      }
+
+      function render() {
+        const mode = simMode.value;
+        const u = parseFloat(simU.value);
+        const fMag = parseFloat(simF.value);
+        const f = mode === "concave" ? fMag : -fMag;
+
+        simModeText.textContent = mode === "concave" ? "অবতল দর্পণ (Concave)" : "উত্তল দর্পণ (Convex)";
+        simUVal.textContent = `${u} cm`;
+        simFVal.textContent = `${fMag} cm`;
+
+        const uPx = u * PX_PER_CM;
+        const fPx = fMag * PX_PER_CM;
+        const cPx = 2 * fPx;
+
+        const objX = POLE_X - uPx;
+        const objTopY = AXIS_Y - OBJ_H;
+
+        const fx = mode === "concave" ? POLE_X - fPx : POLE_X + fPx;
+        const cx = mode === "concave" ? POLE_X - cPx : POLE_X + cPx;
+
+        const isAtFocal = mode === "concave" && Math.abs(u - fMag) < 0.01;
+        let v = Infinity;
+        let m = 0;
+        let imgX = 0;
+        let imgTopY = AXIS_Y;
+
+        if (!isAtFocal) {
+          v = 1 / (1 / f - 1 / u);
+          m = -v / u;
+          imgX = POLE_X - v * PX_PER_CM;
+          imgTopY = AXIS_Y - OBJ_H * m;
+        }
+
+        const out = [];
+        out.push(line(30, AXIS_Y, 690, AXIS_Y, "#64748b", 1.5, "5 4"));
+
+        if (mode === "concave") {
+          out.push(`<path d="M ${POLE_X - 18} ${AXIS_Y - 105} Q ${POLE_X + 18} ${AXIS_Y} ${POLE_X - 18} ${AXIS_Y + 105}" fill="none" stroke="#1e3a8a" stroke-width="4" stroke-linecap="round"/>`);
+          for (let dy = -92; dy <= 92; dy += 16) {
+            const xEdge = POLE_X - 18 * Math.pow(dy / 105, 2);
+            out.push(line(xEdge + 2, AXIS_Y + dy, xEdge + 10, AXIS_Y + dy - 6, "#94a3b8", 1.4));
+          }
+        } else {
+          out.push(`<path d="M ${POLE_X + 18} ${AXIS_Y - 105} Q ${POLE_X - 18} ${AXIS_Y} ${POLE_X + 18} ${AXIS_Y + 105}" fill="none" stroke="#1e3a8a" stroke-width="4" stroke-linecap="round"/>`);
+          for (let dy = -92; dy <= 92; dy += 16) {
+            const xEdge = POLE_X + 18 * Math.pow(dy / 105, 2);
+            out.push(line(xEdge + 2, AXIS_Y + dy, xEdge + 10, AXIS_Y + dy - 6, "#94a3b8", 1.4));
+          }
+        }
+
+        const pts = [
+          { x: POLE_X, label: "P" },
+          { x: fx, label: "F" },
+          { x: cx, label: "C" }
+        ];
+        pts.forEach((pt) => {
+          out.push(`<circle cx="${pt.x}" cy="${AXIS_Y}" r="3.8" fill="#0f172a"/>`);
+          out.push(`<text x="${pt.x}" y="${AXIS_Y + 18}" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">${pt.label}</text>`);
+        });
+
+        out.push(line(objX, AXIS_Y, objX, objTopY + 8, "#0284c7", 3.5));
+        out.push(`<polygon points="${objX},${objTopY} ${objX - 6},${objTopY + 11} ${objX + 6},${objTopY + 11}" fill="#0284c7"/>`);
+        out.push(`<text x="${objX}" y="${objTopY - 8}" text-anchor="middle" font-size="12" font-weight="700" fill="#0284c7">বস্তু (O)</text>`);
+
+        out.push(line(objX, objTopY, POLE_X, objTopY, "#2563eb", 2.2));
+        if (mode === "concave") {
+          const dx = fx - POLE_X;
+          const dy = AXIS_Y - objTopY;
+          const scale = 3.2;
+          out.push(line(POLE_X, objTopY, POLE_X + dx * scale, objTopY + dy * scale, "#2563eb", 2.2));
+          if (!isAtFocal && v < 0) {
+            out.push(line(POLE_X, objTopY, imgX, imgTopY, "#93c5fd", 1.8, "5 4"));
+          }
+        } else {
+          const dx = POLE_X - fx;
+          const dy = objTopY - AXIS_Y;
+          const scale = 3.0;
+          out.push(line(POLE_X, objTopY, POLE_X + dx * scale, objTopY + dy * scale, "#2563eb", 2.2));
+          out.push(line(POLE_X, objTopY, fx, AXIS_Y, "#93c5fd", 1.8, "5 4"));
+        }
+
+        out.push(line(objX, objTopY, POLE_X, AXIS_Y, "#059669", 2.2));
+        const pDx = POLE_X - objX;
+        const pDy = AXIS_Y - objTopY;
+        out.push(line(POLE_X, AXIS_Y, POLE_X - pDx * 2.5, AXIS_Y + pDy * 2.5, "#059669", 2.2));
+        if (!isAtFocal && v < 0) {
+          out.push(line(POLE_X, AXIS_Y, imgX, imgTopY, "#6ee7b7", 1.8, "5 4"));
+        }
+
+        if (!isAtFocal && imgX > 15 && imgX < 705) {
+          const isVirtual = v < 0;
+          const color = isVirtual ? "#7c3aed" : "#dc2626";
+          const tipDir = imgTopY < AXIS_Y ? 1 : -1;
+          out.push(line(imgX, AXIS_Y, imgX, imgTopY + tipDir * 8, color, 3.2, isVirtual ? "5 3" : ""));
+          out.push(`<polygon points="${imgX},${imgTopY} ${imgX - 5.5},${imgTopY + tipDir * 10} ${imgX + 5.5},${imgTopY + tipDir * 10}" fill="${color}"/>`);
+          out.push(`<text x="${imgX}" y="${imgTopY < AXIS_Y ? imgTopY - 8 : imgTopY + 18}" text-anchor="middle" font-size="12" font-weight="700" fill="${color}">প্রতিবিম্ব (I)</text>`);
+        }
+
+        svg.innerHTML = out.join("");
+
+        let natureText = "";
+        let sizeText = "";
+        let vText = "";
+
+        if (isAtFocal) {
+          vText = "∞ (অসীম)";
+          natureText = "বাস্তব ও উল্টো (সমান্তরাল রশ্মি)";
+          sizeText = "অত্যন্ত বিবর্ধিত";
+        } else {
+          vText = `${v.toFixed(2)} cm (${v > 0 ? "দর্পণের সামনে" : "দর্পণের পেছনে"})`;
+          natureText = v > 0 ? "বাস্তব ও উল্টো (Real & Inverted)" : "অবাস্তব ও সোজা (Virtual & Erect)";
+          const absM = Math.abs(m);
+          if (Math.abs(absM - 1) < 0.03) sizeText = `সমান আকার (|m| = ${absM.toFixed(2)})`;
+          else if (absM > 1) sizeText = `বিবর্ধিত (|m| = ${absM.toFixed(2)})`;
+          else sizeText = `খর্বিত (|m| = ${absM.toFixed(2)})`;
+        }
+
+        telemetry.innerHTML = `
+          <div class="calc-box"><div class="label">প্রতিবিম্বের দূরত্ব (v)</div><div class="val" style="font-size:15px">${vText}</div></div>
+          <div class="calc-box"><div class="label">বিবর্ধন (m = −v/u)</div><div class="val">${isAtFocal ? "∞" : m.toFixed(2)}</div></div>
+          <div class="calc-box"><div class="label">প্রকৃতি</div><div class="val" style="font-size:14px">${natureText}</div></div>
+          <div class="calc-box"><div class="label">আকৃতি</div><div class="val" style="font-size:14px">${sizeText}</div></div>
+        `;
+      }
+
+      simMode.addEventListener("change", render);
+      simU.addEventListener("input", render);
+      simF.addEventListener("input", render);
+
+      presets.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          presets.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          simMode.value = btn.dataset.mode;
+          simU.value = btn.dataset.u;
+          simF.value = btn.dataset.f;
+          render();
+        });
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

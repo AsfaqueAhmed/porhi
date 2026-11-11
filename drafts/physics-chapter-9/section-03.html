@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>৯.৩ লেন্স ও প্রতিবিম্ব · অধ্যায় ৯ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false }
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৯ / পাঠ ৯.৩</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই ৯.৩ • লেন্স ও প্রতিবিম্ব</span>
+    <h1 class="title">লেন্স, রশ্মিচিত্র ও ক্ষমতা <small>(Lenses, Images &amp; Power)</small></h1>
+    <p class="subtitle">
+      উত্তল ও অবতল লেন্সের আলোকীয় ধর্ম, রশ্মিচিত্র অঙ্কনের ৩টি নিয়ম, ৬ অবস্থানে প্রতিবিম্ব গঠন, লেন্সের সমীকরণ এবং ডাইঅপ্টার (Dioptre) এককে লেন্সের ক্ষমতা নির্ণয়।
+    </p>
+
+    <section class="goal">
+      <h2>🎯 এই পাঠে কী কী শিখবে</h2>
+      <ul>
+        <li>উত্তল (অভিসারী) ও অবতল (অপসারী) লেন্সের গঠন ও প্রধান অংশসমূহ ($O, F, 2F$)।</li>
+        <li>পাতলা লেন্সে প্রতিবিম্ব অঙ্কনের ৩টি প্রধান আলোক রশ্মি।</li>
+        <li>উত্তল লেন্সের ৬টি অবস্থান ও অবতল লেন্সের সর্বদা অবাস্তব-খর্বিত প্রতিবিম্বের সারণি।</li>
+        <li>লেন্সের সমীকরণ, বিবর্ধন এবং লেন্সের ক্ষমতা $P = \frac{1}{f}$ (ডাইঅপ্টার) ও সংযুক্ত লেন্সের ক্ষমতা $P = P_1 + P_2$।</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>১. লেন্সের প্রকারভেদ ও মূল পরিচিতি</h2>
+      <p>
+        দুটি গোলীয় পৃষ্ঠ (অথবা একটি গোলীয় ও একটি সমতল পৃষ্ঠ) দ্বারা সীমাবদ্ধ স্বচ্ছ প্রতিসারক মাধ্যমকে <strong>লেন্স (Lens)</strong> বলে। লেন্স প্রধানত দুই প্রকার:
+      </p>
+
+      <div class="grid">
+        <div class="term">
+          <strong>উত্তল বা অভিসারী লেন্স (Convex)</strong>
+          <small>মাঝখান মোটা ও প্রান্ত পাতলা। সমান্তরাল আলোকরশ্মিকে প্রতিসরণের পর অপর পাশের বাস্তব প্রধান ফোকাস $F$-এ অভিসারী করে ($f > 0$)।</small>
+        </div>
+        <div class="term">
+          <strong>অবতল বা অপসারী লেন্স (Concave)</strong>
+          <small>মাঝখান পাতলা ও প্রান্ত মোটা। সমান্তরাল আলোকরশ্মিকে এমনভাবে ছড়িয়ে দেয় যেন তারা বস্তুপাশের ফোকাস থেকে অপসৃত হচ্ছে ($f < 0$)।</small>
+        </div>
+        <div class="term">
+          <strong>আলোককেন্দ্র ($O$)</strong>
+          <small>পাতলা লেন্সের অভ্যন্তরে প্রধান অক্ষের ওপর অবস্থিত এমন একটি বিন্দু যার মধ্য দিয়ে আপতিত রশ্মি দিক পরিবর্তন ছাড়াই সোজা চলে যায়।</small>
+        </div>
+        <div class="term">
+          <strong>প্রধান ফোকাস ($F$) ও দূরত্ব ($f$)</strong>
+          <small>সমান্তরাল রশ্মি প্রতিসরণের পর যে বিন্দুতে মিলিত হয় (উত্তল) বা অপসৃত হচ্ছে মনে হয় (অবতল), এবং $O$ হতে $F$-এর দূরত্বই ফোকাস দূরত্ব $f$।</small>
+        </div>
+      </div>
+
+      <h3>রশ্মিচিত্র অঙ্কনের ৩টি নিয়ম</h3>
+      <ol>
+        <li>প্রধান অক্ষের সমান্তরাল রশ্মি প্রতিসরণের পর উত্তল লেন্সে অপর পাশের প্রধান ফোকাস $F$ দিয়ে যায়; আর অবতল লেন্সে একই পাশের ফোকাস $F$ থেকে আসছে বলে মনে হয়।</li>
+        <li>প্রধান ফোকাস $F$ দিয়ে যাওয়া (উত্তল) বা $F$-মুখী (অবতল) রশ্মি প্রতিসরণের পর প্রধান অক্ষের সমান্তরাল হয়ে যায়।</li>
+        <li>আলোককেন্দ্র $O$ দিয়ে যাওয়া রশ্মি কোনো বিচ্যুতি ছাড়াই সোজা চলে যায়।</li>
+      </ol>
+    </section>
+
+    <section class="section">
+      <h2>২. উত্তল ও অবতল লেন্সে প্রতিবিম্বের অবস্থান ও প্রকৃতি</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>লেন্স ও বস্তুর অবস্থান</th>
+              <th>প্রতিবিম্বের অবস্থান</th>
+              <th>প্রকৃতি</th>
+              <th>আকৃতি ও ব্যবহার</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>উত্তল: অসীমে ($u = \infty$)</td><td>অপর পাশে ফোকাস $F$-এ</td><td>বাস্তব ও উল্টো</td><td>অত্যন্ত খর্বিত (দূরবীক্ষণ যন্ত্র)</td></tr>
+            <tr><td>উত্তল: $2F$-এর বাইরে ($u > 2f$)</td><td>অপর পাশে $F$ ও $2F$-এর মাঝে</td><td>বাস্তব ও উল্টো</td><td>খর্বিত (ক্যামেরা ও মানব চোখ)</td></tr>
+            <tr><td>উত্তল: $2F$-এ ($u = 2f$)</td><td>অপর পাশে $2F$-এ ($v = 2f$)</td><td>বাস্তব ও উল্টো</td><td>লক্ষ্যবস্তুর সমান ($|m| = 1$)</td></tr>
+            <tr><td>উত্তল: $F$ ও $2F$-এর মাঝে</td><td>অপর পাশে $2F$-এর বাইরে</td><td>বাস্তব ও উল্টো</td><td>বিবর্ধিত (প্রজেক্টর)</td></tr>
+            <tr><td>উত্তল: ফোকাস $F$-এ ($u = f$)</td><td>অসীমে ($v = \infty$)</td><td>বাস্তব ও উল্টো</td><td>অত্যন্ত বিবর্ধিত (স্পটলাইট)</td></tr>
+            <tr><td>উত্তল: $O$ ও $F$-এর মাঝে ($u < f$)</td><td>বস্তুর পাশেই পেছনে</td><td><strong>অবাস্তব ও সোজা</strong></td><td><strong>বিবর্ধিত (আতশি কাচ / ম্যাগনিফায়ার)</strong></td></tr>
+            <tr><td><strong>অবতল লেন্স (যেকোনো সসীম $u$)</strong></td><td><strong>বস্তুর পাশেই $O$ ও $F$-এর মাঝে</strong></td><td><strong>সর্বদা অবাস্তব ও সোজা</strong></td><td><strong>সর্বদা খর্বিত (মায়োপিয়ার চশমা)</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>লেন্সের সমীকরণ, বিবর্ধন ও ক্ষমতা</h3>
+      <div class="formula">$$\frac{1}{u} + \frac{1}{v} = \frac{1}{f} \quad (\text{বাস্তব-ধনাত্মক প্রথা}) \qquad |m| = \frac{h_i}{h_o} = \frac{|v|}{u}$$</div>
+      <div class="highlight-box">
+        <strong>লেন্সের ক্ষমতা (Power of a Lens):</strong> কোনো লেন্সের অভিসারী বা অপসারী করার সামর্থ্যকে এর ক্ষমতা বলে। ফোকাস দূরত্ব $f$ <strong>মিটার (m)</strong> এককে হলে ক্ষমতা:
+        $$P = \frac{1}{f\text{ (metre)}} = \frac{100}{f\text{ (cm)}}$$
+        • ক্ষমতার SI একক <strong>ডাইঅপ্টার ($\text{dioptre}$ বা $\text{D}$ বা $\text{m}^{-1}$)</strong>।<br />
+        • উত্তল লেন্সের ক্ষমতা <strong>ধনাত্মক ($+$)</strong> এবং অবতল লেন্সের ক্ষমতা <strong>ঋণাত্মক ($-$)</strong>।<br />
+        • দুটি পাতলা লেন্স পরস্পরের সংস্পর্শে রাখলে তুল্য ক্ষমতা $P = P_1 + P_2$ এবং তুল্য ফোকাস দূরত্ব $\frac{1}{f} = \frac{1}{f_1} + \frac{1}{f_2}$।
+      </div>
+    </section>
+
+    <section class="lab" id="lens-inline-lab">
+      <div class="lab-head">
+        <div>
+          <span class="lab-tag">Interactive Lens Lab</span>
+          <h2>পাতলা লেন্স রশ্মিচিত্র ও ক্ষমতা সিমুলেটর</h2>
+        </div>
+        <div class="preset-row">
+          <button type="button" class="preset-btn active" data-type="convex" data-u="32" data-f="12">উত্তল: 2F-এর বাইরে</button>
+          <button type="button" class="preset-btn" data-type="convex" data-u="24" data-f="12">উত্তল: 2F-এ</button>
+          <button type="button" class="preset-btn" data-type="convex" data-u="18" data-f="12">উত্তল: F ও 2F-এর মাঝে</button>
+          <button type="button" class="preset-btn" data-type="convex" data-u="12" data-f="12">উত্তল: F-এ (u=f)</button>
+          <button type="button" class="preset-btn" data-type="convex" data-u="7" data-f="12">উত্তল: O ও F-এর মাঝে</button>
+          <button type="button" class="preset-btn" data-type="concave" data-u="22" data-f="12">অবতল লেন্স</button>
+        </div>
+      </div>
+
+      <div class="lab-controls">
+        <div>
+          <label for="lensMode">লেন্সের ধরন:</label>
+          <select id="lensMode" style="width:100%;padding:8px 10px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;font-family:inherit;">
+            <option value="convex">উত্তল লেন্স (Convex, f &gt; 0)</option>
+            <option value="concave">অবতল লেন্স (Concave, f &lt; 0)</option>
+          </select>
+        </div>
+        <div>
+          <label for="lensU">বস্তুর দূরত্ব ($u$): <strong id="lensUVal">32 cm</strong> &nbsp;|&nbsp; ফোকাস $|f|$: <strong id="lensFVal">12 cm</strong></label>
+          <input id="lensU" class="range" type="range" min="4" max="42" step="1" value="32" />
+          <input id="lensF" class="range" type="range" min="8" max="20" step="1" value="12" style="margin-top:8px;" />
+        </div>
+      </div>
+
+      <svg id="lensInlineSvg" viewBox="0 0 720 290" width="100%" style="background:#ffffff;border:1px solid #cbd5e1;border-radius:12px;display:block;" aria-label="পাতলা লেন্সের রশ্মিচিত্র"></svg>
+
+      <div id="lensTelemetry" class="calc-breakdown"></div>
+    </section>
+
+    <section class="section">
+      <h2>সমাধানকৃত গাণিতিক উদাহরণ</h2>
+
+      <div class="worked">
+        <h2>🧮 সমাধানকৃত উদাহরণ</h2>
+        <div class="problem">
+          <b>উদাহরণ ১:</b> একটি উত্তল লেন্সের ফোকাস দূরত্ব $+0.25\text{ m}$। লেন্সটির ক্ষমতা কত?
+        </div>
+        <div class="solution">
+          <b>সমাধান:</b><br />
+          $f = +0.25\text{ m}$<br />
+          $$\therefore P = \frac{1}{f} = \frac{1}{+0.25} = \mathbf{+4\text{ D}}$$
+        </div>
+      </div>
+
+      <div class="worked">
+        <div class="problem">
+          <b>উদাহরণ ২:</b> $15\text{ cm}$ ফোকাস দূরত্বের একটি উত্তল লেন্স থেকে $30\text{ cm}$ সামনে একটি বস্তু রাখা হলো। প্রতিবিম্বের অবস্থান, বিবর্ধন ও প্রকৃতি নির্ণয় করো।
+        </div>
+        <div class="solution">
+          <b>সমাধান:</b><br />
+          বাস্তব-ধনাত্মক প্রথায় $f = +15\text{ cm}$, $u = +30\text{ cm}$।<br />
+          $$\frac{1}{v} = \frac{1}{15} - \frac{1}{30} = \frac{1}{30} \implies v = \mathbf{+30\text{ cm}}$$
+          রৈখিক বিবর্ধন $|m| = \frac{30}{30} = \mathbf{1}$। প্রতিবিম্বটি লেন্সের অপর পাশে $30\text{ cm}$ দূরে ($2F$-এ) গঠিত হবে, আকারে বস্তুর সমান এবং <strong>বাস্তব ও উল্টো</strong>।
+        </div>
+      </div>
+
+      <div class="worked">
+        <div class="problem">
+          <b>উদাহরণ ৩:</b> $20\text{ cm}$ ফোকাস দূরত্বের একটি অবতল লেন্সের সামনে $20\text{ cm}$ দূরে বস্তু রাখলে প্রতিবিম্ব কোথায় গঠিত হবে এবং ক্ষমতা কত?
+        </div>
+        <div class="solution">
+          <b>সমাধান:</b><br />
+          অবতল লেন্সে $f = -20\text{ cm} = -0.20\text{ m}$, $u = +20\text{ cm}$।<br />
+          $$\frac{1}{v} = \frac{1}{-20} - \frac{1}{20} = -\frac{2}{20} = -\frac{1}{10} \implies v = \mathbf{-10\text{ cm}}$$
+          অর্থাৎ প্রতিবিম্ব বস্তুর পাশেই লেন্স থেকে $10\text{ cm}$ দূরে গঠিত হবে (অবাস্তব, সোজা ও অর্ধেক ছোট)।<br />
+          ক্ষমতা $P = \frac{1}{-0.20} = \mathbf{-5\text{ D}}$।
+        </div>
+      </div>
+
+      <p class="note">মূল বইয়ের সংশ্লিষ্ট স্ক্যান: <a href="chapter-source.html#page-15">পৃষ্ঠা ১৫ দেখো</a> · <a href="chapter-source.html#page-27">পৃষ্ঠা ২৭ দেখো</a></p>
+    </section>
+
+    <div class="memory">
+      <h2>💡 মনে রাখার শর্টকাট (Golden Rules)</h2>
+      <ul>
+        <li><strong>উত্তল লেন্স ≈ অবতল দর্পণ:</strong> একইভাবে ৬টি কেস—$2F$-এ সমান, $F$-এ অসীম, আর $O$ ও $F$-এর মাঝে রাখলে বড়-সোজা অবাস্তব ছবি (ম্যাগনিফায়ার)!</li>
+        <li><strong>অবতল লেন্স ≈ উত্তল দর্পণ:</strong> বস্তু যেখানেই থাকুক, প্রতিবিম্ব সর্বদা <em>অবাস্তব, সোজা ও খর্বিত</em> ($O$ ও $F$-এর মাঝে)।</li>
+        <li><strong>ডাইঅপ্টার ফাঁদ:</strong> $P = 1/f$ বসাতে ফোকাস দূরত্ব $f$ অবশ্যই <strong>মিটারে</strong> নিতে হবে, অথবা সরাসরি $P = 100 / f(\text{cm})$!</li>
+      </ul>
+    </div>
+
+    <details class="check">
+      <summary>✓ নিজেকে যাচাই করো (Self-Check Quiz)</summary>
+      <ol>
+        <li><b>প্রশ্ন:</b> একটি লেন্সের ক্ষমতা $-2.5\text{ D}$। লেন্সটি কী ধরনের এবং ফোকাস দূরত্ব কত?
+          <br /><i>উত্তর:</i> ঋণাত্মক ক্ষমতার কারণে অবতল লেন্স; $f = \frac{1}{-2.5} = -0.4\text{ m} = -40\text{ cm}$।</li>
+        <li><b>প্রশ্ন:</b> $+4\text{ D}$ এবং $-1.5\text{ D}$ ক্ষমতার দুটি লেন্স সংস্পর্শে রাখলে তুল্য ক্ষমতা কত হবে?
+          <br /><i>উত্তর:</i> $P = P_1 + P_2 = +4 + (-1.5) = +2.5\text{ D}$ (উত্তল লেন্সের মতো কাজ করবে)।</li>
+        <li><b>প্রশ্ন:</b> আতশি কাচ হিসেবে উত্তল লেন্সের সামনে বস্তুকে কোথায় রাখা হয়?
+          <br /><i>উত্তর:</i> আলোককেন্দ্র $O$ ও প্রধান ফোকাস $F$-এর মাঝে ($u < f$)।</li>
+      </ol>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-02.html">← ৯.২ পূর্ণ অভ্যন্তরীণ প্রতিফলন</a>
+      <a class="button" href="section-04.html">৯.৪ চশমার প্রয়োগ ও অনুশীলন →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html#page-15">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF পৃষ্ঠা ১৫–২৭)</a> · অধ্যায় ৯: আলোর প্রতিসরণ · পড়ি (poRi)
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      const svg = document.getElementById("lensInlineSvg");
+      const lensMode = document.getElementById("lensMode");
+      const lensU = document.getElementById("lensU");
+      const lensF = document.getElementById("lensF");
+      const lensUVal = document.getElementById("lensUVal");
+      const lensFVal = document.getElementById("lensFVal");
+      const telemetry = document.getElementById("lensTelemetry");
+      const presets = document.querySelectorAll("#lens-inline-lab .preset-btn");
+
+      const PX_CM = 7.2;
+      const CX = 360;
+      const AXIS_Y = 148;
+      const OBJ_H = 50;
+
+      function line(x1, y1, x2, y2, stroke, width, dash) {
+        return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${stroke}" stroke-width="${width}"${dash ? ` stroke-dasharray="${dash}"` : ""} />`;
+      }
+
+      function render() {
+        const mode = lensMode.value;
+        const u = parseFloat(lensU.value);
+        const fMag = parseFloat(lensF.value);
+        const f = mode === "convex" ? fMag : -fMag;
+
+        lensUVal.textContent = `${u} cm`;
+        lensFVal.textContent = `${fMag} cm`;
+
+        const fPx = fMag * PX_CM;
+        const objX = CX - u * PX_CM;
+        const objTopY = AXIS_Y - OBJ_H;
+
+        const isAtFocal = mode === "convex" && Math.abs(u - fMag) < 0.01;
+        let v = Infinity;
+        let magSigned = 0;
+        let imgX = 0;
+        let imgTopY = AXIS_Y;
+
+        if (!isAtFocal) {
+          // Real-is-Positive: 1/u + 1/v = 1/f; positive v is real (right side CX + v*PX_CM), negative v is virtual (left side CX + v*PX_CM wait: left side means CX - |v|*PX_CM, which equals CX + v*PX_CM!)
+          v = 1 / (1 / f - 1 / u);
+          magSigned = -v / u; // negative means inverted (below axis), positive means erect (above axis)
+          imgX = CX + v * PX_CM;
+          imgTopY = AXIS_Y - OBJ_H * magSigned;
+        }
+
+        const out = [];
+        // Principal axis
+        out.push(line(20, AXIS_Y, 700, AXIS_Y, "#64748b", 1.5, "5 4"));
+        // Vertical center plane
+        out.push(line(CX, 22, CX, 274, "#94a3b8", 1.2, "3 3"));
+
+        // Draw Lens shape
+        if (mode === "convex") {
+          out.push(`<path d="M ${CX} 32 Q ${CX + 26} ${AXIS_Y} ${CX} 264 Q ${CX - 26} ${AXIS_Y} ${CX} 32 Z" fill="#dbeafe" fill-opacity="0.65" stroke="#2563eb" stroke-width="2.6"/>`);
+        } else {
+          out.push(`<path d="M ${CX - 16} 32 Q ${CX - 3} ${AXIS_Y} ${CX - 16} 264 L ${CX + 16} 264 Q ${CX + 3} ${AXIS_Y} ${CX + 16} 32 Z" fill="#e0f2fe" fill-opacity="0.7" stroke="#0284c7" stroke-width="2.6"/>`);
+        }
+
+        // Markers O, F, 2F on both sides
+        [
+          { x: CX, label: "O" },
+          { x: CX - fPx, label: "F₁" },
+          { x: CX - 2 * fPx, label: "2F₁" },
+          { x: CX + fPx, label: "F₂" },
+          { x: CX + 2 * fPx, label: "2F₂" }
+        ].forEach((pt) => {
+          out.push(`<circle cx="${pt.x}" cy="${AXIS_Y}" r="3.5" fill="#0f172a"/>`);
+          out.push(`<text x="${pt.x}" y="${AXIS_Y + 18}" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0f172a">${pt.label}</text>`);
+        });
+
+        // Object arrow
+        out.push(line(objX, AXIS_Y, objX, objTopY + 8, "#0284c7", 3.5));
+        out.push(`<polygon points="${objX},${objTopY} ${objX - 5.5},${objTopY + 10} ${objX + 5.5},${objTopY + 10}" fill="#0284c7"/>`);
+        out.push(`<text x="${objX}" y="${objTopY - 7}" text-anchor="middle" font-size="11.5" font-weight="700" fill="#0369a1">বস্তু</text>`);
+
+        // Ray 1: Parallel to axis from object top -> hits lens at (CX, objTopY)
+        out.push(line(objX, objTopY, CX, objTopY, "#2563eb", 2.2));
+        if (mode === "convex") {
+          const dx = (CX + fPx) - CX;
+          const dy = AXIS_Y - objTopY;
+          out.push(line(CX, objTopY, CX + dx * 3.0, objTopY + dy * 3.0, "#2563eb", 2.2));
+          if (!isAtFocal && v < 0) {
+            out.push(line(CX, objTopY, imgX, imgTopY, "#93c5fd", 1.7, "5 4"));
+          }
+        } else {
+          // Concave diverges as if from left focus (CX - fPx, AXIS_Y)
+          const dx = CX - (CX - fPx);
+          const dy = objTopY - AXIS_Y;
+          out.push(line(CX, objTopY, CX + dx * 2.8, objTopY + dy * 2.8, "#2563eb", 2.2));
+          out.push(line(CX - fPx, AXIS_Y, CX, objTopY, "#93c5fd", 1.7, "5 4"));
+        }
+
+        // Ray 2: Optical center O ray (straight line through (CX, AXIS_Y))
+        const oDx = CX - objX;
+        const oDy = AXIS_Y - objTopY;
+        out.push(line(objX, objTopY, CX + oDx * 2.8, AXIS_Y + oDy * 2.8, "#059669", 2.2));
+        if (!isAtFocal && v < 0) {
+          out.push(line(imgX, imgTopY, objX, objTopY, "#6ee7b7", 1.7, "5 4"));
+        }
+
+        // Image arrow
+        if (!isAtFocal && imgX > 15 && imgX < 705) {
+          const isVirtual = v < 0;
+          const color = isVirtual ? "#7c3aed" : "#dc2626";
+          const tipDir = imgTopY < AXIS_Y ? 1 : -1;
+          const cy = Math.max(18, Math.min(272, imgTopY));
+          out.push(line(imgX, AXIS_Y, imgX, cy + tipDir * 8, color, 3.2, isVirtual ? "5 3" : ""));
+          out.push(`<polygon points="${imgX},${cy} ${imgX - 5.5},${cy + tipDir * 10} ${imgX + 5.5},${cy + tipDir * 10}" fill="${color}"/>`);
+          out.push(`<text x="${imgX}" y="${cy < AXIS_Y ? cy - 7 : cy + 17}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${color}">প্রতিবিম্ব</text>`);
+        }
+
+        svg.innerHTML = out.join("");
+
+        const powerD = (100 / f).toFixed(2);
+        let vText = "";
+        let natureText = "";
+        let magText = "";
+
+        if (isAtFocal) {
+          vText = "∞ (অসীম)";
+          magText = "∞";
+          natureText = "বাস্তব ও উল্টো (সমান্তরাল রশ্মি)";
+        } else {
+          vText = `${Math.abs(v).toFixed(1)} cm (${v > 0 ? "অপর পাশে" : "বস্তু পাশে"})`;
+          magText = `${magSigned.toFixed(2)} (|m|=${Math.abs(magSigned).toFixed(2)})`;
+          natureText = v > 0 ? "বাস্তব ও উল্টো" : "অবাস্তব ও সোজা";
+        }
+
+        telemetry.innerHTML = `
+          <div class="calc-box"><div class="label">প্রতিবিম্ব দূরত্ব (v)</div><div class="val">${vText}</div></div>
+          <div class="calc-box"><div class="label">বিবর্ধন (m)</div><div class="val">${magText}</div></div>
+          <div class="calc-box"><div class="label">লেন্সের ক্ষমতা (P)</div><div class="val">${powerD > 0 ? "+" : ""}${powerD} D</div></div>
+          <div class="calc-box"><div class="label">প্রকৃতি</div><div class="val">${natureText}</div></div>
+        `;
+      }
+
+      lensMode.addEventListener("change", render);
+      lensU.addEventListener("input", render);
+      lensF.addEventListener("input", render);
+
+      presets.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          presets.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          lensMode.value = btn.dataset.type;
+          lensU.value = btn.dataset.u;
+          lensF.value = btn.dataset.f;
+          render();
+        });
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

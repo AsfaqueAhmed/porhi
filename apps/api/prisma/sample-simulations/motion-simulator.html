@@ -3,161 +3,1274 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>গতির সমীকরণ ও কার কন্ট্রোল সিমুলেটর</title>
+  <title>গতির সমীকরণ ও কার কন্ট্রোল ল্যাব (Equations of Motion Simulator)</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
-    body { background: #0f172a; color: #f8fafc; padding: 14px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-    .container { max-width: 720px; width: 100%; display: flex; flex-direction: column; gap: 12px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+    body {
+      background: #0f172a;
+      color: #f8fafc;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      max-width: 860px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
+    }
     header { text-align: center; }
-    h1 { font-size: 1.15rem; color: #38bdf8; margin-bottom: 3px; }
-    p { font-size: 0.8rem; color: #94a3b8; }
-    .canvas-wrap { background: #1e293b; border-radius: 12px; border: 1px solid #334155; overflow: hidden; width: 100%; position: relative; }
-    svg { display: block; width: 100%; height: 180px; }
-    .controls { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 12px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .control-group { display: flex; flex-direction: column; gap: 4px; }
-    label { font-size: 0.75rem; color: #cbd5e1; display: flex; justify-content: space-between; font-weight: 700; }
+    h1 {
+      font-size: 1.15rem;
+      color: #38bdf8;
+      margin-bottom: 3px;
+      font-weight: 800;
+    }
+    .subtitle { font-size: 0.8rem; color: #94a3b8; }
+
+    .preset-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      align-items: center;
+    }
+    .preset-btn {
+      padding: 5px 11px;
+      border-radius: 999px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #cbd5e1;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .preset-btn:hover, .preset-btn.active {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #fff;
+    }
+
+    .canvas-wrap {
+      background: #1e293b;
+      border-radius: 14px;
+      border: 1px solid #334155;
+      overflow: hidden;
+      width: 100%;
+    }
+    #roadSvg { display: block; width: 100%; height: auto; aspect-ratio: 660 / 175; }
+
+    .controls {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 12px 15px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .control-group { display: flex; flex-direction: column; gap: 5px; }
+    label {
+      font-size: 0.76rem;
+      color: #cbd5e1;
+      display: flex;
+      justify-content: space-between;
+      font-weight: 700;
+    }
     .custom-range {
-      -webkit-appearance: none; appearance: none; width: 100%; height: 8px; border-radius: 999px; outline: none;
-      background: linear-gradient(90deg, #38bdf8 var(--fill, 50%), #334155 var(--fill, 50%)); cursor: pointer;
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      outline: none;
+      border: 1px solid #0f172a;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.85), inset 0 -1px 1px rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      background:
+        linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(255,255,255,0.12) 100%),
+        repeating-linear-gradient(135deg, #38bdf8 0px, #38bdf8 4px, #0284c7 4px, #0284c7 8px) 0 0 / var(--fill, 50%) 100% no-repeat,
+        repeating-linear-gradient(135deg, #2a2e39 0px, #2a2e39 4px, #1a1e27 4px, #1a1e27 8px);
     }
     .custom-range::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%; background: #38bdf8; border: 2px solid #fff; cursor: pointer;
+      -webkit-appearance: none;
+      width: 22px;
+      height: 15px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 65%, #64748b 100%);
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 1.5px 4px rgba(0,0,0,0.7);
+      cursor: grab;
     }
-    .btn-row { display: flex; gap: 8px; justify-content: center; }
-    button { padding: 6px 14px; border-radius: 8px; border: 1px solid #475569; background: #334155; color: #fff; font-size: 0.8rem; font-weight: 700; cursor: pointer; }
-    button.primary { background: #0284c7; border-color: #0284c7; }
-    button:hover { filter: brightness(1.15); }
-    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .card { background: #1e293b; border: 1px solid #334155; border-radius: 10px; padding: 8px; text-align: center; }
-    .card .title { font-size: 0.65rem; color: #94a3b8; text-transform: uppercase; }
-    .card .val { font-size: 1.05rem; font-weight: 800; color: #38bdf8; }
-    .readout { background: #1e293b; border-left: 3px solid #38bdf8; padding: 8px 12px; border-radius: 0 8px 8px 0; font-size: 0.8rem; color: #cbd5e1; }
+    .custom-range::-moz-range-thumb {
+      width: 22px;
+      height: 15px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 65%, #64748b 100%);
+      border: 1px solid #e2e8f0;
+      cursor: grab;
+    }
+
+    .action-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    button.action-btn {
+      padding: 7px 14px;
+      border-radius: 9px;
+      border: 1px solid #475569;
+      background: #334155;
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: filter 0.15s, background 0.15s;
+    }
+    button.action-btn.primary { background: #0284c7; border-color: #38bdf8; }
+    button.action-btn.quiz-toggle { background: #312e81; border-color: #6366f1; color: #e0e7ff; }
+    button.action-btn.quiz-toggle.active { background: #7f1d1d; border-color: #f87171; color: #fee2e2; }
+    button.action-btn:hover { filter: brightness(1.15); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .card {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 11px;
+      padding: 8px 10px;
+      text-align: center;
+    }
+    .card .title { font-size: 0.68rem; color: #94a3b8; font-weight: 700; }
+    .card .val { font-size: 1.05rem; font-weight: 800; color: #38bdf8; margin-top: 2px; }
+    .card.accent { border-color: #6366f1; background: #1e1b4b; }
+    .card.accent .val { color: #a5b4fc; }
+
+    .charts-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .chart-box {
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .chart-title {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: #cbd5e1;
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .chart-svg { display: block; width: 100%; height: auto; aspect-ratio: 360 / 135; }
+
+    .eq-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .eq-card {
+      background: #172033;
+      border: 1px solid #334155;
+      border-left: 3px solid #38bdf8;
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 0.76rem;
+      color: #e2e8f0;
+      line-height: 1.45;
+    }
+    .eq-card b { color: #7dd3fc; }
+
+    .quiz-box {
+      display: none;
+      background: #1e1b4b;
+      border: 1px solid #6366f1;
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .quiz-box.active { display: block; }
+    .quiz-prompt { font-size: 0.85rem; font-weight: 750; color: #fde68a; margin-bottom: 9px; line-height: 1.5; }
+    .quiz-input-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .quiz-input {
+      padding: 7px 12px;
+      border-radius: 8px;
+      border: 1px solid #4f46e5;
+      background: #0f172a;
+      color: #fff;
+      font-size: 0.85rem;
+      width: 140px;
+      outline: none;
+    }
+    .quiz-feedback { font-size: 0.8rem; font-weight: 700; margin-top: 8px; line-height: 1.5; }
+
+    @media (max-width: 640px) {
+      .controls { grid-template-columns: 1fr; gap: 10px; }
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .charts-row { grid-template-columns: 1fr; }
+      .eq-grid { grid-template-columns: 1fr; }
+    }
+
+  
+    /* === PORI UNIFIED SIMULATOR THEME === */
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-card: #ffffff;
+      --pori-panel: #f8fafc;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #64748b;
+      --pori-indigo: #4f46e5;
+      --pori-indigo-hover: #4338ca;
+      --pori-indigo-soft: #eef2ff;
+      --pori-indigo-border: #c7d2fe;
+      --pori-indigo-ink: #3730a3;
+    }
+
+    body {
+      background: var(--pori-bg) !important;
+      color: var(--pori-ink) !important;
+      padding: 12px 14px !important;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif !important;
+      margin: 0 !important;
+    }
+
+    .container,
+    .caliper-card {
+      max-width: 860px !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      margin: 0 auto !important;
+      background: transparent !important;
+      border: none !important;
+      border-radius: 0 !important;
+      padding: 0 !important;
+      box-shadow: none !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 12px !important;
+    }
+
+    header h1,
+    .caliper-card-title {
+      font-size: 1.18rem !important;
+      font-weight: 800 !important;
+      color: var(--pori-heading) !important;
+      margin: 0 0 4px !important;
+    }
+
+    header p,
+    .subtitle,
+    .caliper-card-desc {
+      font-size: 0.82rem !important;
+      color: var(--pori-muted) !important;
+      line-height: 1.55 !important;
+    }
+
+    .badge {
+      background: var(--pori-indigo-soft) !important;
+      color: var(--pori-indigo-ink) !important;
+      border: 1px solid var(--pori-indigo-border) !important;
+      border-radius: 999px !important;
+      font-weight: 750 !important;
+    }
+
+    .canvas-wrap,
+    #waveCanvas {
+      background: #0f172a !important;
+      border: 1px solid var(--pori-border) !important;
+      border-radius: 14px !important;
+      overflow: hidden !important;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08) !important;
+    }
+
+    .caliper-svg-wrap,
+    .zoom-card {
+      background: #ffffff !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-radius: 14px !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+      margin: 0 !important;
+    }
+
+    .controls,
+    .control-panel {
+      background: #ffffff !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-radius: 14px !important;
+      padding: 12px 14px !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+      margin: 0 !important;
+    }
+
+    .control-group {
+      gap: 6px !important;
+    }
+
+    label,
+    .slider-label {
+      font-size: 0.78rem !important;
+      font-weight: 750 !important;
+      color: #334155 !important;
+      margin-bottom: 2px !important;
+    }
+
+    label .val-badge,
+    label span[id],
+    label b[id],
+    .slider-label b {
+      color: var(--pori-indigo) !important;
+      font-weight: 800 !important;
+    }
+
+    .mat-btn-row-label {
+      color: #475569 !important;
+      font-size: 0.78rem !important;
+      font-weight: 750 !important;
+    }
+
+    /* Unified Skeuomorphic Striped Slider in App Indigo Theme */
+    input[type="range"],
+    input[type="range"].custom-range,
+    input[type="range"].range {
+      -webkit-appearance: none !important;
+      appearance: none !important;
+      box-sizing: border-box !important;
+      width: 100% !important;
+      height: 16px !important;
+      padding: 0 !important;
+      border-radius: 999px !important;
+      outline: none !important;
+      border: 2px solid #e2e8f0 !important;
+      box-shadow:
+        inset 0 2px 3px rgba(15, 23, 42, 0.72),
+        inset 0 -1px 1px rgba(255, 255, 255, 0.14),
+        0 1px 0 rgba(255, 255, 255, 0.98),
+        0 1px 3px rgba(15, 23, 42, 0.10) !important;
+      cursor: pointer !important;
+      margin: 0 !important;
+      display: block !important;
+      background-color: #232732 !important;
+      background-image:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.24) 0%, rgba(255, 255, 255, 0.12) 28%, rgba(255, 255, 255, 0.04) 55%, rgba(0, 0, 0, 0.26) 100%),
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0px, rgba(255, 255, 255, 0.16) 1.5px, transparent 1.5px, transparent 4px),
+        linear-gradient(180deg, #818cf8 0%, #6366f1 32%, #4f46e5 74%, #3730a3 100%),
+        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0px, rgba(255, 255, 255, 0.04) 1.5px, transparent 1.5px, transparent 4px),
+        linear-gradient(180deg, #1b1e26 0%, #2a2f3a 45%, #343a46 75%, #20242d 100%) !important;
+      background-position:
+        0 0,
+        0 0,
+        0 0,
+        0 0,
+        0 0 !important;
+      background-size:
+        100% 100%,
+        calc(11px + (100% - 22px) * var(--p, 0.5)) 100%,
+        calc(11px + (100% - 22px) * var(--p, 0.5)) 100%,
+        100% 100%,
+        100% 100% !important;
+      background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat !important;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track,
+    input[type="range"].custom-range::-webkit-slider-runnable-track,
+    input[type="range"].range::-webkit-slider-runnable-track {
+      height: 12px !important;
+      border-radius: 999px !important;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+    }
+
+    input[type="range"]::-webkit-slider-thumb,
+    input[type="range"].custom-range::-webkit-slider-thumb,
+    input[type="range"].range::-webkit-slider-thumb {
+      -webkit-appearance: none !important;
+      appearance: none !important;
+      box-sizing: border-box !important;
+      width: 22px !important;
+      height: 10px !important;
+      margin-top: 1px !important;
+      border-radius: 999px !important;
+      background-color: #e2e8f0 !important;
+      background-image:
+        linear-gradient(90deg,
+          transparent calc(50% - 4px),
+          rgba(100, 116, 139, 0.52) calc(50% - 3.5px), #ffffff calc(50% - 2.5px), transparent calc(50% - 2px),
+          transparent calc(50% - 1px),
+          rgba(100, 116, 139, 0.52) calc(50% - 0.5px), #ffffff calc(50% + 0.5px), transparent calc(50% + 1px),
+          transparent calc(50% + 2px),
+          rgba(100, 116, 139, 0.52) calc(50% + 2.5px), #ffffff calc(50% + 3.5px), transparent calc(50% + 4px)),
+        linear-gradient(180deg, #ffffff 0%, #f8fafc 40%, #e2e8f0 78%, #cbd5e1 100%) !important;
+      background-size: 100% 5px, 100% 100% !important;
+      background-position: center, center !important;
+      background-repeat: no-repeat, no-repeat !important;
+      border: 1px solid #f1f5f9 !important;
+      box-shadow:
+        0 0 0 1px #4f46e5,
+        0 1px 2px rgba(15, 23, 42, 0.40),
+        inset 0 1px 0 #ffffff !important;
+      cursor: grab !important;
+      transition: transform 0.1s ease !important;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:active,
+    input[type="range"].custom-range::-webkit-slider-thumb:active,
+    input[type="range"].range::-webkit-slider-thumb:active {
+      cursor: grabbing !important;
+      transform: scale(1.03);
+    }
+
+    input[type="range"]::-moz-range-thumb,
+    input[type="range"].custom-range::-moz-range-thumb,
+    input[type="range"].range::-moz-range-thumb {
+      box-sizing: border-box !important;
+      width: 22px !important;
+      height: 10px !important;
+      border-radius: 999px !important;
+      background-color: #e2e8f0 !important;
+      background-image:
+        linear-gradient(90deg,
+          transparent calc(50% - 4px),
+          rgba(100, 116, 139, 0.52) calc(50% - 3.5px), #ffffff calc(50% - 2.5px), transparent calc(50% - 2px),
+          transparent calc(50% - 1px),
+          rgba(100, 116, 139, 0.52) calc(50% - 0.5px), #ffffff calc(50% + 0.5px), transparent calc(50% + 1px),
+          transparent calc(50% + 2px),
+          rgba(100, 116, 139, 0.52) calc(50% + 2.5px), #ffffff calc(50% + 3.5px), transparent calc(50% + 4px)),
+        linear-gradient(180deg, #ffffff 0%, #f8fafc 40%, #e2e8f0 78%, #cbd5e1 100%) !important;
+      background-size: 100% 5px, 100% 100% !important;
+      background-position: center, center !important;
+      background-repeat: no-repeat, no-repeat !important;
+      border: 1px solid #f1f5f9 !important;
+      box-shadow:
+        0 0 0 1px #4f46e5,
+        0 1px 2px rgba(15, 23, 42, 0.40),
+        inset 0 1px 0 #ffffff !important;
+      cursor: grab !important;
+    }
+
+    .slider-indicator-dot {
+      background: #4f46e5 !important;
+      box-shadow: 0 0 5px rgba(79, 70, 229, 0.65) !important;
+    }
+
+    /* Unified Buttons & Option Pickers (Horizontally Scrollable Strip) */
+    .btn-row,
+    .preset-row,
+    .mat-btn-row,
+    .fine-tune-btns {
+      display: flex !important;
+      flex-wrap: nowrap !important;
+      gap: 8px !important;
+      justify-content: flex-start !important;
+      justify-content: safe center !important;
+      align-items: center !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      overflow-x: auto !important;
+      overflow-y: hidden !important;
+      -webkit-overflow-scrolling: touch !important;
+      scrollbar-width: thin !important;
+      scrollbar-color: #cbd5e1 transparent !important;
+      padding: 2px 2px 6px !important;
+      margin: 0 !important;
+    }
+
+    .btn-row::-webkit-scrollbar,
+    .preset-row::-webkit-scrollbar,
+    .mat-btn-row::-webkit-scrollbar,
+    .fine-tune-btns::-webkit-scrollbar {
+      height: 5px;
+    }
+
+    .btn-row::-webkit-scrollbar-thumb,
+    .preset-row::-webkit-scrollbar-thumb,
+    .mat-btn-row::-webkit-scrollbar-thumb,
+    .fine-tune-btns::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 999px;
+    }
+
+    .btn-row > *,
+    .preset-row > *,
+    .mat-btn-row > *,
+    .fine-tune-btns > * {
+      flex: 0 0 auto !important;
+      white-space: nowrap !important;
+    }
+
+    .action-bar .btn-row {
+      width: auto !important;
+      flex: 1 1 auto !important;
+      min-width: 0 !important;
+      justify-content: flex-start !important;
+    }
+
+    .control-row .fine-tune-btns {
+      width: auto !important;
+      flex: 1 1 auto !important;
+      min-width: 0 !important;
+      justify-content: flex-start !important;
+    }
+
+    button,
+    .preset-btn,
+    .action-btn,
+    .btn-step,
+    .mat-btn-row button {
+      background: #ffffff !important;
+      color: #334155 !important;
+      border: 1px solid var(--pori-border) !important;
+      border-radius: 10px !important;
+      padding: 7px 13px !important;
+      font-size: 0.78rem !important;
+      font-weight: 700 !important;
+      cursor: pointer !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 6px !important;
+      line-height: 1.3 !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
+    }
+
+    button:hover,
+    .preset-btn:hover,
+    .action-btn:hover,
+    .btn-step:hover,
+    .mat-btn-row button:hover {
+      background: var(--pori-indigo-soft) !important;
+      color: var(--pori-indigo-hover) !important;
+      border-color: #a5b4fc !important;
+      filter: none !important;
+    }
+
+    button.active,
+    .preset-btn.active,
+    .mat-btn-row button.active {
+      background: var(--pori-indigo) !important;
+      color: #ffffff !important;
+      border-color: var(--pori-indigo) !important;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25) !important;
+    }
+
+    button.primary,
+    .action-btn.primary,
+    .button {
+      background: var(--pori-indigo) !important;
+      color: #ffffff !important;
+      border: 1px solid var(--pori-indigo) !important;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.22) !important;
+    }
+
+    button.primary:hover,
+    .action-btn.primary:hover,
+    .button:hover {
+      background: var(--pori-indigo-hover) !important;
+      border-color: var(--pori-indigo-hover) !important;
+      color: #ffffff !important;
+    }
+
+    #quizToggleBtn,
+    button.quiz-toggle {
+      background: var(--pori-indigo-soft) !important;
+      color: var(--pori-indigo-ink) !important;
+      border-color: var(--pori-indigo-border) !important;
+    }
+
+    button.quiz-toggle.active {
+      background: #fee2e2 !important;
+      color: #991b1b !important;
+      border-color: #fca5a5 !important;
+      box-shadow: none !important;
+    }
+
+    /* Unified Option Picker (<select>) */
+    select,
+    .select-custom {
+      -webkit-appearance: none !important;
+      appearance: none !important;
+      width: 100% !important;
+      background-color: #ffffff !important;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+      background-repeat: no-repeat !important;
+      background-position: right 10px center !important;
+      background-size: 15px !important;
+      color: var(--pori-heading) !important;
+      border: 1px solid var(--pori-border) !important;
+      border-radius: 10px !important;
+      padding: 8px 34px 8px 12px !important;
+      font-size: 0.78rem !important;
+      font-weight: 700 !important;
+      outline: none !important;
+      cursor: pointer !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+    }
+
+    select:focus,
+    .select-custom:focus {
+      border-color: var(--pori-indigo) !important;
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.14) !important;
+    }
+
+    /* Unified Telemetry Cards */
+    .grid,
+    .calc-grid {
+      gap: 8px !important;
+      margin: 0 !important;
+    }
+
+    .grid .card,
+    .calc-grid .calc-item {
+      background: #ffffff !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-radius: 12px !important;
+      padding: 9px 8px !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+    }
+
+    .grid .card .title,
+    .calc-grid .calc-item .title {
+      color: var(--pori-muted) !important;
+      font-size: 0.66rem !important;
+      font-weight: 800 !important;
+    }
+
+    .grid .card .val,
+    .calc-grid .calc-item .value {
+      color: var(--pori-heading) !important;
+      font-weight: 900 !important;
+    }
+
+    .grid .card.highlight,
+    .grid .card.accent,
+    .calc-grid .calc-item.highlight {
+      background: var(--pori-indigo-soft) !important;
+      border-color: var(--pori-indigo-border) !important;
+    }
+
+    .grid .card.highlight .val,
+    .grid .card.accent .val,
+    .calc-grid .calc-item.highlight .value {
+      color: var(--pori-indigo-ink) !important;
+    }
+
+    .grid .card.warm {
+      background: #fffbeb !important;
+      border-color: #fde68a !important;
+    }
+
+    .grid .card.warm .val {
+      color: #92400e !important;
+    }
+
+    /* Unified Readout / Insight / Quiz / Warning Boxes */
+    .readout,
+    .info-card {
+      background: var(--pori-indigo-soft) !important;
+      border: 1px solid var(--pori-indigo-border) !important;
+      border-left: 4px solid var(--pori-indigo) !important;
+      border-radius: 10px !important;
+      padding: 10px 14px !important;
+      color: #312e81 !important;
+      font-size: 0.82rem !important;
+      font-weight: 650 !important;
+      line-height: 1.55 !important;
+    }
+
+    .readout .formula-math {
+      color: var(--pori-indigo-hover) !important;
+    }
+
+    .readout p {
+      color: #334155 !important;
+    }
+
+    .balance-item {
+      background: #ffffff !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-radius: 10px !important;
+      color: var(--pori-heading) !important;
+    }
+
+    .warn {
+      background: #fef2f2 !important;
+      border: 1px solid #fecaca !important;
+      border-left: 4px solid #dc2626 !important;
+      border-radius: 10px !important;
+      color: #991b1b !important;
+    }
+
+    .quiz-box {
+      background: #fffbeb !important;
+      border: 1px solid #fde68a !important;
+      border-radius: 12px !important;
+      color: #78350f !important;
+      margin: 0 !important;
+    }
+
+    .quiz-prompt {
+      color: #92400e !important;
+    }
+
+    .quiz-input {
+      background: #ffffff !important;
+      border: 1px solid var(--pori-border) !important;
+      color: var(--pori-ink) !important;
+    }
+
+    .chart-box {
+      background: #0f172a !important;
+      border: 1px solid var(--pori-border) !important;
+      border-radius: 12px !important;
+    }
+
+    .eq-card {
+      background: var(--pori-panel) !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-left: 3px solid var(--pori-indigo) !important;
+      color: var(--pori-heading) !important;
+    }
+
+    .eq-card b {
+      color: var(--pori-indigo-hover) !important;
+    }
+    /* === END PORI UNIFIED SIMULATOR THEME === */
+
   </style>
 </head>
 <body>
   <div class="container">
     <header>
       <h1>⚡ গতির সমীকরণ ও কার কন্ট্রোল ল্যাব</h1>
-      <p>আদিবেগ ($u$) ও ত্বরণ ($a$) নির্ধারণ করে গাড়ি চালাও; সরণ ($s = ut + \frac{1}{2}at^2$) ও বেগ ($v = u + at$) পর্যবেক্ষণ করো।</p>
+      <p class="subtitle">আদিবেগ (u), ত্বরণ (a) ও সময় (t) পরিবর্তন করে গাড়ির গতি, v–t ও s–t লেখচিত্র এবং ৪টি সমীকরণ যাচাই করো।</p>
     </header>
 
+    <div class="preset-row">
+      <button class="preset-btn active" onclick="applyPreset(0, 2, 5, this)">🚂 বইয়ের ট্রেন (u=0, a=2, t=5s)</button>
+      <button class="preset-btn" onclick="applyPreset(4, 2, 6, this)">🚗 সুষম ত্বরণ (u=4, a=2)</button>
+      <button class="preset-btn" onclick="applyPreset(20, -4, 5, this)">🛑 ব্রেকিং/মন্দন (u=20, a=-4)</button>
+      <button class="preset-btn" onclick="applyPreset(10, 0, 6, this)">➡️ সমবেগ (u=10, a=0)</button>
+    </div>
+
     <div class="canvas-wrap">
-      <svg id="roadSvg" viewBox="0 0 700 180"></svg>
+      <svg id="roadSvg" viewBox="0 0 660 175" role="img" aria-label="গাড়ির গতির অ্যানিমেশন"></svg>
     </div>
 
     <div class="controls">
       <div class="control-group">
         <label>আদিবেগ (u): <span id="uDisp" style="color:#38bdf8">0.0 m/s</span></label>
-        <input id="uSlide" class="custom-range" type="range" min="0" max="20" value="0" step="1" oninput="onU(this.value)">
+        <input id="uSlide" class="custom-range" type="range" min="0" max="20" value="0" step="1" oninput="onParamChange()">
       </div>
       <div class="control-group">
         <label>ত্বরণ (a): <span id="aDisp" style="color:#38bdf8">+2.0 m/s²</span></label>
-        <input id="aSlide" class="custom-range" type="range" min="-5" max="5" value="2" step="0.5" oninput="onA(this.value)">
+        <input id="aSlide" class="custom-range" type="range" min="-5" max="5" value="2" step="0.5" oninput="onParamChange()">
+      </div>
+      <div class="control-group">
+        <label>মোট সময়সীমা (T): <span id="tMaxDisp" style="color:#38bdf8">5.0 s</span></label>
+        <input id="tMaxSlide" class="custom-range" type="range" min="2" max="10" value="5" step="1" oninput="onParamChange()">
       </div>
     </div>
 
-    <div class="btn-row">
-      <button class="primary" id="playBtn" onclick="togglePlay()">▶️ যাত্রা শুরু</button>
-      <button onclick="resetSim()">🔄 রিসেট</button>
+    <div class="action-bar">
+      <div class="btn-row">
+        <button class="action-btn primary" id="playBtn" onclick="togglePlay()">▶️ যাত্রা শুরু</button>
+        <button class="action-btn" onclick="stepSim(0.5)">⏭️ +0.5 s ধাপ</button>
+        <button class="action-btn" onclick="resetSim()">🔄 রিসেট</button>
+      </div>
+      <button class="action-btn quiz-toggle" id="quizBtn" onclick="toggleQuizMode()">🎯 কুইজ মোড চালু করো</button>
+    </div>
+
+    <div class="quiz-box" id="quizBox">
+      <div class="quiz-prompt" id="quizPrompt"></div>
+      <div class="quiz-input-row">
+        <input class="quiz-input" id="quizAnswer" type="number" step="any" placeholder="উত্তর লিখো..." onkeydown="if(event.key==='Enter') checkQuizAnswer()">
+        <button class="action-btn primary" onclick="checkQuizAnswer()">যাচাই করো</button>
+        <button class="action-btn" onclick="generateQuiz()">🔄 নতুন প্রশ্ন</button>
+      </div>
+      <div class="quiz-feedback" id="quizFeedback"></div>
     </div>
 
     <div class="grid">
       <div class="card"><div class="title">অতিবাহিত সময় (t)</div><div class="val" id="tVal">0.00 s</div></div>
       <div class="card"><div class="title">তাৎক্ষণিক বেগ (v)</div><div class="val" id="vVal">0.00 m/s</div></div>
-      <div class="card"><div class="title">মোট সরণ (s)</div><div class="val" id="sVal">0.00 m</div></div>
+      <div class="card accent"><div class="title">মোট সরণ (s)</div><div class="val" id="sVal">0.00 m</div></div>
       <div class="card"><div class="title">ত্বরণ (a)</div><div class="val" id="dispA">+2.00 m/s²</div></div>
     </div>
 
-    <div class="readout" id="mathReadout">
-      সমীকরণ: $v = u + at = 0 + 2 \times 0 = 0\text{ m/s}$, সরণ $s = ut + \frac{1}{2}at^2 = 0\text{ m}$
+    <div class="charts-row">
+      <div class="chart-box">
+        <div class="chart-title">
+          <span>📈 বেগ বনাম সময় (v–t লেখচিত্র)</span>
+          <span style="color:#38bdf8">ছায়াযুক্ত ক্ষেত্রফল = সরণ (s)</span>
+        </div>
+        <svg id="vtSvg" class="chart-svg" viewBox="0 0 360 135"></svg>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">
+          <span>📊 সরণ বনাম সময় (s–t লেখচিত্র)</span>
+          <span style="color:#a5b4fc">s = ut + ½at²</span>
+        </div>
+        <svg id="stSvg" class="chart-svg" viewBox="0 0 360 135"></svg>
+      </div>
+    </div>
+
+    <div class="eq-grid" id="eqGrid">
+      <div class="eq-card" id="eq1"></div>
+      <div class="eq-card" id="eq2"></div>
+      <div class="eq-card" id="eq3"></div>
+      <div class="eq-card" id="eq4"></div>
     </div>
   </div>
 
   <script>
-    let u = 0.0, a = 2.0, t = 0.0, v = 0.0, s = 0.0;
-    let running = false, lastTs = 0, carX = 40;
+    let u = 0, a = 2, tMax = 5;
+    let t = 0, v = 0, s = 0;
+    let running = false, lastTs = 0;
+    let quizActive = false, quizProblem = null;
 
-    function render() {
-      const svg = document.getElementById('roadSvg');
-      let html = `
-        <rect x="0" y="120" width="700" height="60" fill="#334155"/>
-        <line x1="0" y1="120" x2="700" y2="120" stroke="#0284c7" stroke-width="3"/>
-      `;
-      for (let x = 40; x <= 660; x += 50) {
-        const m = Math.round((x - 40) / 6);
-        html += `<line x1="${x}" y1="120" x2="${x}" y2="126" stroke="#94a3b8" stroke-width="1.5"/>
-                 <text x="${x}" y="140" fill="#94a3b8" font-size="9" text-anchor="middle">${m}m</text>`;
+    function computeState(timeSec) {
+      let effectiveT = timeSec;
+      let stoppedEarly = false;
+      if (a < 0) {
+        const stopT = -u / a;
+        if (timeSec >= stopT) {
+          effectiveT = Math.max(0, stopT);
+          stoppedEarly = true;
+        }
       }
-      // Car
-      const cy = 120 - 32;
-      html += `
-        <rect x="${carX}" y="${cy}" width="65" height="30" rx="6" fill="#38bdf8" stroke="#0284c7" stroke-width="2"/>
-        <rect x="${carX + 15}" y="${cy - 12}" width="35" height="15" rx="3" fill="#0284c7"/>
-        <circle cx="${carX + 16}" cy="120" r="7" fill="#64748b" stroke="#0f172a" stroke-width="2"/>
-        <circle cx="${carX + 49}" cy="120" r="7" fill="#64748b" stroke="#0f172a" stroke-width="2"/>
-        <text x="${carX + 32}" y="${cy + 18}" fill="#0f172a" font-size="10" font-weight="800" text-anchor="middle">${v.toFixed(1)}m/s</text>
+      const curV = Math.max(0, u + a * effectiveT);
+      const curS = Math.max(0, u * effectiveT + 0.5 * a * effectiveT * effectiveT);
+      return { curV, curS, effectiveT, stoppedEarly };
+    }
+
+    function getTrackMaxMeters() {
+      const endState = computeState(tMax);
+      return Math.max(25, Math.ceil(endState.curS / 10) * 10 + 10);
+    }
+
+    function applyPreset(newU, newA, newTMax, btn) {
+      if (quizActive) toggleQuizMode();
+      document.getElementById('uSlide').value = newU;
+      document.getElementById('aSlide').value = newA;
+      document.getElementById('tMaxSlide').value = newTMax;
+      document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      onParamChange(true);
+    }
+
+    function onParamChange(keepPreset) {
+      if (!keepPreset) {
+        document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+      }
+      u = parseFloat(document.getElementById('uSlide').value);
+      a = parseFloat(document.getElementById('aSlide').value);
+      tMax = parseFloat(document.getElementById('tMaxSlide').value);
+      resetSim();
+    }
+
+    function updateSliderFills() {
+      const uEl = document.getElementById('uSlide');
+      const aEl = document.getElementById('aSlide');
+      const tEl = document.getElementById('tMaxSlide');
+      uEl.style.setProperty('--fill', (u / 20 * 100) + '%');
+      aEl.style.setProperty('--fill', (((a + 5) / 10) * 100) + '%');
+      tEl.style.setProperty('--fill', (((tMax - 2) / 8) * 100) + '%');
+    }
+
+    function renderRoad(trackMax) {
+      const svg = document.getElementById('roadSvg');
+      const padLeft = 52, padRight = 612;
+      const spanPx = padRight - padLeft;
+      const pxPerM = spanPx / trackMax;
+
+      const roadY = 118;
+      const carX = padLeft + Math.min(s, trackMax) * pxPerM;
+
+      // Sky gradient & grid
+      let html = `
+        <defs>
+          <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#0b1324"/>
+            <stop offset="100%" stop-color="#1e293b"/>
+          </linearGradient>
+          <linearGradient id="carBody" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stop-color="#0284c7"/>
+            <stop offset="100%" stop-color="#38bdf8"/>
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="660" height="${roadY}" fill="url(#skyGrad)"/>
+        <rect x="0" y="${roadY}" width="660" height="57" fill="#334155"/>
+        <line x1="0" y1="${roadY}" x2="660" y2="${roadY}" stroke="#38bdf8" stroke-width="2.5"/>
+        <line x1="0" y1="${roadY + 24}" x2="660" y2="${roadY + 24}" stroke="#94a3b8" stroke-width="2" stroke-dasharray="16 14" opacity="0.5"/>
       `;
+
+      // Distance scale ticks
+      const stepM = trackMax <= 50 ? 5 : (trackMax <= 120 ? 10 : 25);
+      for (let m = 0; m <= trackMax; m += stepM) {
+        const x = padLeft + m * pxPerM;
+        html += `
+          <line x1="${x}" y1="${roadY}" x2="${x}" y2="${roadY + 9}" stroke="#cbd5e1" stroke-width="1.5"/>
+          <text x="${x}" y="${roadY + 43}" fill="#cbd5e1" font-size="14" font-weight="700" text-anchor="middle">${m} m</text>
+        `;
+      }
+
+      // 1-second strobe breadcrumb markers showing s proportional to t^2
+      const maxWholeSec = Math.floor(t);
+      for (let sec = 1; sec <= maxWholeSec; sec++) {
+        const st = computeState(sec);
+        const mx = padLeft + Math.min(st.curS, trackMax) * pxPerM;
+        html += `
+          <circle cx="${mx}" cy="${roadY - 4}" r="3.5" fill="#fbbf24" opacity="0.85"/>
+          <text x="${mx}" y="${roadY - 13}" fill="#fde68a" font-size="13" font-weight="700" text-anchor="middle">${sec}s</text>
+        `;
+      }
+
+      // Car drawing
+      const wheelRot = (s * 45) % 360;
+      const cy = roadY - 34;
+      html += `
+        <g transform="translate(${carX - 30}, 0)">
+          <!-- Shadow -->
+          <ellipse cx="32" cy="${roadY + 1}" rx="30" ry="4" fill="rgba(0,0,0,0.45)"/>
+          <!-- Body -->
+          <path d="M 4 ${cy + 14} L 14 ${cy + 2} L 46 ${cy + 2} L 58 ${cy + 14} L 64 ${cy + 16} L 64 ${cy + 28} L 0 ${cy + 28} L 0 ${cy + 16} Z" fill="url(#carBody)" stroke="#e0f2fe" stroke-width="1.5"/>
+          <!-- Window -->
+          <path d="M 16 ${cy + 4} L 43 ${cy + 4} L 52 ${cy + 14} L 10 ${cy + 14} Z" fill="#0f172a" opacity="0.85"/>
+          <!-- Headlight beam -->
+          <polygon points="64,${cy + 18} 96,${cy + 10} 96,${cy + 28}" fill="rgba(253, 224, 71, 0.25)"/>
+          <!-- Wheels -->
+          <g transform="translate(15, ${roadY - 4}) rotate(${wheelRot})">
+            <circle r="8" fill="#0f172a" stroke="#94a3b8" stroke-width="2.5"/>
+            <line x1="-5" y1="0" x2="5" y2="0" stroke="#cbd5e1" stroke-width="1.5"/>
+            <line x1="0" y1="-5" x2="0" y2="5" stroke="#cbd5e1" stroke-width="1.5"/>
+          </g>
+          <g transform="translate(49, ${roadY - 4}) rotate(${wheelRot})">
+            <circle r="8" fill="#0f172a" stroke="#94a3b8" stroke-width="2.5"/>
+            <line x1="-5" y1="0" x2="5" y2="0" stroke="#cbd5e1" stroke-width="1.5"/>
+            <line x1="0" y1="-5" x2="0" y2="5" stroke="#cbd5e1" stroke-width="1.5"/>
+          </g>
+          <!-- Velocity vector arrow -->
+          ${v > 0.2 ? `
+            <line x1="32" y1="${cy - 10}" x2="${32 + Math.min(75, v * 2.4)}" y2="${cy - 10}" stroke="#34d399" stroke-width="3"/>
+            <polygon points="${32 + Math.min(75, v * 2.4) + 7},${cy - 10} ${32 + Math.min(75, v * 2.4) - 1},${cy - 15} ${32 + Math.min(75, v * 2.4) - 1},${cy - 5}" fill="#34d399"/>
+            <text x="32" y="${cy - 18}" fill="#6ee7b7" font-size="14.5" font-weight="800" text-anchor="middle">v = ${v.toFixed(1)} m/s</text>
+          ` : `
+            <text x="32" y="${cy - 12}" fill="#94a3b8" font-size="14.5" font-weight="800" text-anchor="middle">স্থির (v = 0)</text>
+          `}
+        </g>
+      `;
+
+      // Acceleration indicator badge top-right
+      const aColor = a > 0 ? '#38bdf8' : (a < 0 ? '#f87171' : '#94a3b8');
+      const aLabel = a > 0 ? `ত্বরণ a = +${a.toFixed(1)} m/s² →` : (a < 0 ? `← মন্দন a = ${a.toFixed(1)} m/s²` : 'সমবেগ (a = 0)');
+      html += `
+        <rect x="430" y="9" width="218" height="30" rx="6" fill="rgba(15,23,42,0.85)" stroke="${aColor}" stroke-width="1"/>
+        <text x="539" y="29" fill="${aColor}" font-size="15" font-weight="800" text-anchor="middle">${aLabel}</text>
+      `;
+
       svg.innerHTML = html;
     }
 
-    function update() {
-      v = Math.max(0, u + a * t);
-      s = u * t + 0.5 * a * t * t;
-      if (s < 0) s = 0;
-      carX = 40 + (s % 100) * 6;
+    function renderCharts(trackMax) {
+      // v-t chart
+      const vtSvg = document.getElementById('vtSvg');
+      const padL = 38, padR = 345, padT = 12, padB = 112;
+      const w = padR - padL, h = padB - padT;
 
-      document.getElementById('uDisp').innerText = u.toFixed(1) + ' m/s';
-      document.getElementById('aDisp').innerText = (a > 0 ? '+' : '') + a.toFixed(1) + ' m/s²';
-      document.getElementById('tVal').innerText = t.toFixed(2) + ' s';
-      document.getElementById('vVal').innerText = v.toFixed(2) + ' m/s';
-      document.getElementById('sVal').innerText = s.toFixed(2) + ' m';
-      document.getElementById('dispA').innerText = (a > 0 ? '+' : '') + a.toFixed(2) + ' m/s²';
+      const maxV = Math.max(20, u, computeState(tMax).curV) * 1.15;
+      const toX = (time) => padL + (time / tMax) * w;
+      const toY_v = (vel) => padB - (vel / maxV) * h;
 
-      document.getElementById('uSlide').style.setProperty('--fill', (u / 20 * 100) + '%');
-      document.getElementById('aSlide').style.setProperty('--fill', (((a - (-5)) / 10) * 100) + '%');
+      let vtPoints = [];
+      let areaPoints = [`${toX(0)},${padB}`];
+      const steps = 40;
+      for (let i = 0; i <= steps; i++) {
+        const ti = (t * i) / steps;
+        const st = computeState(ti);
+        const px = toX(ti).toFixed(1);
+        const py = toY_v(st.curV).toFixed(1);
+        vtPoints.push(`${px},${py}`);
+        areaPoints.push(`${px},${py}`);
+      }
+      areaPoints.push(`${toX(t).toFixed(1)},${padB}`);
 
-      document.getElementById('mathReadout').innerText = 
-        `সমীকরণ: v = u + at = ${u.toFixed(1)} + (${a.toFixed(1)} × ${t.toFixed(1)}) = ${v.toFixed(1)} m/s | s = ut + ½at² = ${s.toFixed(1)} m`;
+      // Dashed reference full curve up to tMax
+      let fullVt = [];
+      for (let i = 0; i <= 20; i++) {
+        const ti = (tMax * i) / 20;
+        fullVt.push(`${toX(ti).toFixed(1)},${toY_v(computeState(ti).curV).toFixed(1)}`);
+      }
 
-      render();
+      vtSvg.innerHTML = `
+        <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padB}" stroke="#64748b" stroke-width="1.5"/>
+        <line x1="${padL}" y1="${padB}" x2="${padR}" y2="${padB}" stroke="#64748b" stroke-width="1.5"/>
+        <text x="${padL - 5}" y="${padT + 9}" fill="#94a3b8" font-size="12" font-weight="600" text-anchor="end">${Math.round(maxV)}</text>
+        <text x="${padL - 5}" y="${padB}" fill="#94a3b8" font-size="12" font-weight="600" text-anchor="end">0</text>
+        <text x="${padR}" y="${padB + 16}" fill="#94a3b8" font-size="12" font-weight="600" text-anchor="end">${tMax}s</text>
+        <text x="${padL}" y="${padB + 16}" fill="#94a3b8" font-size="12" font-weight="600">0s</text>
+        <polyline points="${fullVt.join(' ')}" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <polygon points="${areaPoints.join(' ')}" fill="rgba(56, 189, 248, 0.22)"/>
+        <polyline points="${vtPoints.join(' ')}" fill="none" stroke="#38bdf8" stroke-width="2.5"/>
+        <circle cx="${toX(t)}" cy="${toY_v(v)}" r="4" fill="#fff" stroke="#38bdf8" stroke-width="2"/>
+      `;
+
+      // s-t chart
+      const stSvg = document.getElementById('stSvg');
+      const maxS = Math.max(trackMax, 10);
+      const toY_s = (dist) => padB - (Math.min(dist, maxS) / maxS) * h;
+
+      let stPoints = [];
+      for (let i = 0; i <= steps; i++) {
+        const ti = (t * i) / steps;
+        const st = computeState(ti);
+        stPoints.push(`${toX(ti).toFixed(1)},${toY_s(st.curS).toFixed(1)}`);
+      }
+      let fullSt = [];
+      for (let i = 0; i <= 20; i++) {
+        const ti = (tMax * i) / 20;
+        fullSt.push(`${toX(ti).toFixed(1)},${toY_s(computeState(ti).curS).toFixed(1)}`);
+      }
+
+      stSvg.innerHTML = `
+        <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padB}" stroke="#64748b" stroke-width="1.5"/>
+        <line x1="${padL}" y1="${padB}" x2="${padR}" y2="${padB}" stroke="#64748b" stroke-width="1.5"/>
+        <text x="${padL - 5}" y="${padT + 9}" fill="#94a3b8" font-size="12" font-weight="600" text-anchor="end">${Math.round(maxS)}m</text>
+        <text x="${padL - 5}" y="${padB}" fill="#94a3b8" font-size="12" font-weight="600" text-anchor="end">0</text>
+        <text x="${padR}" y="${padB + 16}" fill="#94a3b8" font-size="12" font-weight="600" text-anchor="end">${tMax}s</text>
+        <text x="${padL}" y="${padB + 16}" fill="#94a3b8" font-size="12" font-weight="600">0s</text>
+        <polyline points="${fullSt.join(' ')}" fill="none" stroke="#475569" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <polyline points="${stPoints.join(' ')}" fill="none" stroke="#818cf8" stroke-width="2.5"/>
+        <circle cx="${toX(t)}" cy="${toY_s(s)}" r="4" fill="#fff" stroke="#818cf8" stroke-width="2"/>
+      `;
     }
 
-    function onU(val) { u = parseFloat(val); resetSim(); }
-    function onA(val) { a = parseFloat(val); resetSim(); }
+    function updateEquations(effT) {
+      document.getElementById('eq1').innerHTML =
+        `<b>১. v = u + at</b><br>${u.toFixed(1)} + (${a.toFixed(1)} × ${effT.toFixed(2)}) = <b>${v.toFixed(2)} m/s</b>`;
+      document.getElementById('eq2').innerHTML =
+        `<b>২. s = ½(u + v)t</b><br>½(${u.toFixed(1)} + ${v.toFixed(2)}) × ${effT.toFixed(2)} = <b>${s.toFixed(2)} m</b>`;
+      document.getElementById('eq3').innerHTML =
+        `<b>৩. s = ut + ½at²</b><br>(${u.toFixed(1)}×${effT.toFixed(2)}) + ½(${a.toFixed(1)})(${effT.toFixed(2)})² = <b>${s.toFixed(2)} m</b>`;
+      document.getElementById('eq4').innerHTML =
+        `<b>৪. v² = u² + 2as</b><br>${(u * u).toFixed(1)} + 2(${a.toFixed(1)})(${s.toFixed(2)}) = ${(v * v).toFixed(1)} ⇒ v = <b>${v.toFixed(2)} m/s</b>`;
+    }
+
+    function updateAll() {
+      const st = computeState(t);
+      v = st.curV;
+      s = st.curS;
+      const trackMax = getTrackMaxMeters();
+
+      document.getElementById('uDisp').textContent = u.toFixed(1) + ' m/s';
+      document.getElementById('aDisp').textContent = (a > 0 ? '+' : '') + a.toFixed(1) + ' m/s²';
+      document.getElementById('tMaxDisp').textContent = tMax.toFixed(1) + ' s';
+
+      document.getElementById('tVal').textContent = t.toFixed(2) + ' s';
+      document.getElementById('vVal').textContent = v.toFixed(2) + ' m/s';
+      document.getElementById('sVal').textContent = s.toFixed(2) + ' m';
+      document.getElementById('dispA').textContent = (a > 0 ? '+' : '') + a.toFixed(2) + ' m/s²';
+
+      updateSliderFills();
+      renderRoad(trackMax);
+      renderCharts(trackMax);
+      updateEquations(st.effectiveT);
+    }
 
     function togglePlay() {
+      if (t >= tMax) {
+        t = 0;
+      }
       running = !running;
       const btn = document.getElementById('playBtn');
       if (running) {
-        btn.innerText = '⏸️ বিরতি';
+        btn.textContent = '⏸️ বিরতি';
         lastTs = performance.now();
         requestAnimationFrame(loop);
       } else {
-        btn.innerText = '▶️ যাত্রা শুরু';
+        btn.textContent = '▶️ যাত্রা শুরু';
       }
+    }
+
+    function stepSim(dt) {
+      running = false;
+      document.getElementById('playBtn').textContent = '▶️ যাত্রা শুরু';
+      t = Math.min(tMax, Math.round((t + dt) * 100) / 100);
+      updateAll();
     }
 
     function resetSim() {
       running = false;
-      document.getElementById('playBtn').innerText = '▶️ যাত্রা শুরু';
-      t = 0.0; v = u; s = 0.0; carX = 40;
-      update();
+      document.getElementById('playBtn').textContent = '▶️ যাত্রা শুরু';
+      t = 0;
+      updateAll();
     }
 
     function loop(ts) {
       if (!running) return;
       const dt = Math.min((ts - lastTs) / 1000, 0.05);
       lastTs = ts;
-      t += dt;
-      if (a < 0 && u + a * t <= 0) {
+      t = Math.min(tMax, t + dt);
+
+      const st = computeState(t);
+      if (t >= tMax || st.stoppedEarly) {
         running = false;
-        document.getElementById('playBtn').innerText = '▶️ যাত্রা শুরু';
+        document.getElementById('playBtn').textContent = '▶️ আবার চালাও';
       }
-      update();
+      updateAll();
       if (running) requestAnimationFrame(loop);
     }
 
-    update();
+    function toggleQuizMode() {
+      quizActive = !quizActive;
+      const box = document.getElementById('quizBox');
+      const btn = document.getElementById('quizBtn');
+      if (quizActive) {
+        box.classList.add('active');
+        btn.classList.add('active');
+        btn.textContent = '❌ কুইজ বন্ধ করো';
+        generateQuiz();
+      } else {
+        box.classList.remove('active');
+        btn.classList.remove('active');
+        btn.textContent = '🎯 কুইজ মোড চালু করো';
+      }
+    }
+
+    function generateQuiz() {
+      const scenarios = [
+        { u: 0, a: 2, t: 4, ask: 's' },
+        { u: 2, a: 3, t: 4, ask: 'v' },
+        { u: 5, a: 2, t: 5, ask: 's' },
+        { u: 16, a: -2, t: 5, ask: 'v' },
+        { u: 10, a: 2, t: 6, ask: 's' },
+        { u: 0, a: 4, t: 3, ask: 'v' },
+      ];
+      const pick = scenarios[Math.floor(Math.random() * scenarios.length)];
+      const randExtra = Math.floor(Math.random() * 2);
+      const qU = pick.u + randExtra * 2;
+      const qA = pick.a;
+      const qT = pick.t;
+
+      quizProblem = { u: qU, a: qA, t: qT, ask: pick.ask };
+      document.getElementById('uSlide').value = qU;
+      document.getElementById('aSlide').value = qA;
+      document.getElementById('tMaxSlide').value = qT;
+      u = qU; a = qA; tMax = qT;
+      resetSim();
+
+      const promptEl = document.getElementById('quizPrompt');
+      if (pick.ask === 'v') {
+        quizProblem.expected = Math.max(0, qU + qA * qT);
+        promptEl.innerHTML = `🎯 কুইজ: একটি গাড়ি <b>u = ${qU} m/s</b> আদিবেগে ও <b>a = ${qA} m/s²</b> ত্বরণে <b>t = ${qT} s</b> চললে শেষ বেগ <b>v</b> (m/s) কত হবে?`;
+      } else {
+        quizProblem.expected = qU * qT + 0.5 * qA * qT * qT;
+        promptEl.innerHTML = `🎯 কুইজ: একটি গাড়ি <b>u = ${qU} m/s</b> আদিবেগে ও <b>a = ${qA} m/s²</b> ত্বরণে <b>t = ${qT} s</b> চললে মোট সরণ <b>s</b> (m) কত হবে?`;
+      }
+
+      document.getElementById('quizAnswer').value = '';
+      document.getElementById('quizFeedback').innerHTML = '';
+    }
+
+    function checkQuizAnswer() {
+      if (!quizProblem) return;
+      const val = parseFloat(document.getElementById('quizAnswer').value);
+      const fb = document.getElementById('quizFeedback');
+      if (Number.isNaN(val)) {
+        fb.innerHTML = '<span style="color:#fbbf24">দয়া করে একটি সংখ্যা লিখো।</span>';
+        return;
+      }
+
+      const exp = quizProblem.expected;
+      const unit = quizProblem.ask === 'v' ? 'm/s' : 'm';
+      if (Math.abs(val - exp) <= 0.2) {
+        fb.innerHTML = `<span style="color:#34d399">🎉 সঠিক উত্তর! (${exp.toFixed(1)} ${unit}) — নিচে গাড়িটি চালিয়ে প্রমাণ দেখানো হচ্ছে!</span>`;
+        t = 0;
+        running = true;
+        document.getElementById('playBtn').textContent = '⏸️ বিরতি';
+        lastTs = performance.now();
+        requestAnimationFrame(loop);
+      } else {
+        const hint = quizProblem.ask === 'v'
+          ? 'সূত্র: v = u + at ব্যবহার করো।'
+          : 'সূত্র: s = ut + ½at² ব্যবহার করো।';
+        fb.innerHTML = `<span style="color:#f87171">❌ উত্তর মেলেনি। ${hint}</span>`;
+      }
+    }
+
+    updateAll();
   </script>
+
+
+  <!-- PORI UNIFIED RANGE SYNC -->
+  <script>
+    (function () {
+      function syncRangeFill(el) {
+        if (!el || el.type !== 'range') return;
+        var min = parseFloat(el.min);
+        var max = parseFloat(el.max);
+        var val = parseFloat(el.value);
+        if (Number.isNaN(min)) min = 0;
+        if (Number.isNaN(max)) max = 100;
+        if (Number.isNaN(val)) val = min;
+        var ratio = max === min ? 0 : (val - min) / (max - min);
+        ratio = Math.max(0, Math.min(1, ratio));
+        var pctStr = (ratio * 100).toFixed(2) + '%';
+        el.style.setProperty('--p', ratio.toFixed(4));
+        el.style.setProperty('--fill', pctStr);
+        el.style.setProperty('--fill-pct', pctStr);
+      }
+
+      function syncAllRanges() {
+        document.querySelectorAll('input[type="range"]').forEach(syncRangeFill);
+      }
+
+      var desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+      if (desc && desc.get && desc.set) {
+        Object.defineProperty(HTMLInputElement.prototype, 'value', {
+          configurable: true,
+          get: function () { return desc.get.call(this); },
+          set: function (v) {
+            desc.set.call(this, v);
+            if (this.type === 'range') syncRangeFill(this);
+          }
+        });
+      }
+
+      document.addEventListener('input', function (e) {
+        if (e.target && e.target.type === 'range') syncRangeFill(e.target);
+      }, true);
+      document.addEventListener('change', function (e) {
+        if (e.target && e.target.type === 'range') syncRangeFill(e.target);
+      }, true);
+      document.addEventListener('click', function () {
+        setTimeout(syncAllRanges, 0);
+      }, true);
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncAllRanges);
+      } else {
+        syncAllRanges();
+      }
+      setTimeout(syncAllRanges, 50);
+    })();
+  </script>
+
 </body>
 </html>

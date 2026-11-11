@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>১০.৪ বৈদ্যুতিক বল (কুলম্বের সূত্র) · অধ্যায় ১০: স্থির বিদ্যুৎ</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+  <style>
+    .force-diagram{overflow:auto;border:1px solid #dbe3f2;border-radius:12px;background:#f8fbff;padding:8px}
+    .force-diagram svg{display:block;width:100%;min-width:500px;height:auto}
+    .force-diagram text{font:15px system-ui,sans-serif;fill:#334155}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ১০ / ১০.৪</span>
+    </div>
+  </header>
+  <main>
+    <span class="badge">বইয়ের অনুচ্ছেদ ১০.৪</span>
+    <h1 class="title">বৈদ্যুতিক বল ও কুলম্বের সূত্র</h1>
+    <p class="subtitle">চার্লস অগাস্টিন ডি কুলম্বের সূত্র ($F = k\frac{|q_1 q_2|}{r^2}$) · বিপরীত বর্গীয় সম্পর্ক · মাধ্যমের পরাবৈদ্যুতিক ধ্রুবক ও গাণিতিক সমস্যা।</p>
+
+    <section class="goal">
+      <h2>এই পাঠে শিখবে</h2>
+      <p>দুটি বিন্দু আধানের মধ্যকার কুলম্বীয় আকর্ষণ বা বিকর্ষণ বলের মান নির্ণয় করতে, দূরত্ব ও আধান পরিবর্তনে বল কত গুণ হয় তা হিসাব করতে এবং আধানের চিহ্ন থেকে বলের দিক নির্ধারণ করতে পারবে।</p>
+    </section>
+
+    <section class="section">
+      <h2>১০.৪ · বৈদ্যুতিক বল (Electric Force)</h2>
+      <p>১৭৮৫ সালে ফরাসি পদার্থবিজ্ঞানী <strong>চার্লস অগাস্টিন ডি কুলম্ব</strong> দুটি স্থির বিন্দু আধানের মধ্যকার আকর্ষণ বা বিকর্ষণ বল পরিমাপের সূত্র আবিষ্কার করেন।</p>
+
+      <div class="highlight-box">
+        <strong>কুলম্বের সূত্র:</strong> নির্দিষ্ট মাধ্যমে দুটি বিন্দু আধানের মধ্যে ক্রিয়াশীল আকর্ষণ বা বিকর্ষণ বলের মান আধান দুটির মানের গুণফলের <strong>সমানুপাতিক</strong>, এদের মধ্যবর্তী দূরত্বের বর্গের <strong>ব্যস্তানুপাতিক</strong> এবং এই বল আধান দুটির সংযোজক সরলরেখা বরাবর ক্রিয়া করে।
+      </div>
+
+      <div class="formula">$$F = k\frac{|q_1 q_2|}{r^2} = \frac{1}{4\pi\varepsilon_0}\frac{|q_1 q_2|}{r^2}$$
+        <div style="font-size:14px;color:#475569;margin-top:6px">যেখানে শূন্যস্থান বা বায়ু মাধ্যমে কুলম্বের ধ্রুবক $k \approx 9 \times 10^9\,\text{N}\cdot\text{m}^2/\text{C}^2$ (বা $8.988 \times 10^9$)</div>
+      </div>
+
+      <div class="grid">
+        <div class="term">
+          <strong>আধানের সাথে সম্পর্ক</strong>
+          <small>$F \propto |q_1 q_2|$। যেকোনো একটি আধান দ্বিগুণ করলে বলও দ্বিগুণ হয়; উভয়কে দ্বিগুণ করলে বল ৪ গুণ হয়।</small>
+        </div>
+        <div class="term">
+          <strong>দূরত্বের বিপরীত বর্গীয় সূত্র</strong>
+          <small>$F \propto \dfrac{1}{r^2}$। দূরত্ব দ্বিগুণ করলে বল $\dfrac{1}{4}$ গুণ হয়; দূরত্ব অর্ধেক করলে বল ৪ গুণ বেড়ে যায়।</small>
+        </div>
+        <div class="term">
+          <strong>মাধ্যমের প্রভাব ($\kappa$)</strong>
+          <small>পরাবৈদ্যুতিক ধ্রুবক $\kappa$ বিশিষ্ট মাধ্যমে রাখলে বল কমে যায়: $F_m = \dfrac{F_{\text{air}}}{\kappa}$। যেমন পানির $\kappa \approx 80$।</small>
+        </div>
+      </div>
+
+      <div class="worked">
+        <h2>বোর্ড স্টাইলের গাণিতিক উদাহরণ</h2>
+        <div class="problem">শূন্যস্থানে $+2\,\mu\text{C}$ এবং $-3\,\mu\text{C}$ মানের দুটি বিন্দু আধান পরস্পর থেকে $30\,\text{cm}$ দূরে অবস্থিত। এদের মধ্যকার বৈদ্যুতিক বলের মান ও প্রকৃতি নির্ণয় করো।</div>
+        <div class="solution">
+          দেওয়া আছে,<br>
+          $q_1 = +2\,\mu\text{C} = 2 \times 10^{-6}\,\text{C}$, &nbsp; $|q_2| = |-3\,\mu\text{C}| = 3 \times 10^{-6}\,\text{C}$<br>
+          দূরত্ব $r = 30\,\text{cm} = 0.30\,\text{m}$, &nbsp; $k = 9 \times 10^9\,\text{N}\cdot\text{m}^2/\text{C}^2$<br>
+          $$F = \frac{9 \times 10^9 \times (2 \times 10^{-6}) \times (3 \times 10^{-6})}{(0.30)^2} = \frac{0.054}{0.09} = 0.60\,\text{N}$$
+          <b>উত্তর:</b> বলের মান $0.60\,\text{N}$ এবং আধান দুটি বিপরীতধর্মী হওয়ায় বলটি <b>আকর্ষণমূলক</b>।
+        </div>
+      </div>
+
+      <div class="memory">
+        <strong>এককের সতর্কতা:</strong> পরীক্ষার প্রশ্নে প্রায়ই আধান $\mu\text{C}$ ($10^{-6}\,\text{C}$) ও দূরত্ব $\text{cm}$ ($10^{-2}\,\text{m}$)-এ দেওয়া থাকে। সূত্রে বসানোর আগে অবশ্যই SI একক $\text{C}$ ও $\text{m}$-এ রূপান্তর করবে এবং মান নির্ণয়ের সময় চিহ্নের পরম মান ব্যবহার করবে।
+      </div>
+    </section>
+
+    <section class="lab" aria-label="কুলম্বের সূত্রের ইন্টারেক্টিভ হিসাব">
+      <div class="lab-head">
+        <div>
+          <h2>কুলম্ব বল নিজে হিসাব করো (Interactive Lab)</h2>
+          <div style="color:#64748b;font-size:14px">আধান, চিহ্ন ও দূরত্ব বদলে নিউটনের তৃতীয় সূত্রের মতো সমান ও বিপরীতমুখী বল দেখো।</div>
+        </div>
+        <span class="lab-tag">HTML LAB</span>
+      </div>
+
+      <div class="preset-row">
+        <button class="preset-btn active" data-q1="2" data-q2="3" data-r="30" data-rel="opposite">বইয়ের উদাহরণ (+২, −৩, ৩০ cm)</button>
+        <button class="preset-btn" data-q1="4" data-q2="4" data-r="20" data-rel="same">সমবিকর্ষণ (+৪, +৪, ২০ cm)</button>
+        <button class="preset-btn" data-q1="2" data-q2="3" data-r="60" data-rel="opposite">দূরত্ব দ্বিগুণ (+২, −৩, ৬০ cm)</button>
+      </div>
+
+      <div class="lab-controls">
+        <label>প্রথম আধান $|q_1|$: <b id="q1Label">2 μC</b>
+          <input class="range" id="q1" type="range" min="1" max="10" value="2">
+        </label>
+        <label>দ্বিতীয় আধান $|q_2|$: <b id="q2Label">3 μC</b>
+          <input class="range" id="q2" type="range" min="1" max="10" value="3">
+        </label>
+        <label>দূরত্ব $r$: <b id="rLabel">30 cm</b>
+          <input class="range" id="dist" type="range" min="10" max="100" step="5" value="30">
+        </label>
+        <label>আধানের সম্পর্ক:
+          <select id="relation" style="width:100%;padding:8px 10px;border-radius:10px;border:1px solid #cbd5e1;margin-top:4px;font-weight:700">
+            <option value="opposite">বিপরীত চিহ্ন (+, −) · আকর্ষণ</option>
+            <option value="same">একই চিহ্ন (+, +) · বিকর্ষণ</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="force-diagram">
+        <svg viewBox="0 0 620 150" role="img" aria-label="দুটি আধানের পারস্পরিক বল">
+          <defs>
+            <marker id="arr" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto">
+              <path d="M0,0 L0,6 L7,3 z" fill="#4f46e5"/>
+            </marker>
+          </defs>
+          <line id="distLine" x1="150" y1="75" x2="470" y2="75" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,4"/>
+          <circle id="charge1" cx="150" cy="75" r="32" fill="#fee2e2" stroke="#e11d48" stroke-width="2.5"/>
+          <circle id="charge2" cx="470" cy="75" r="32" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+          <text id="chargeText1" x="150" y="80" text-anchor="middle" font-weight="800">+2 μC</text>
+          <text id="chargeText2" x="470" y="80" text-anchor="middle" font-weight="800">−3 μC</text>
+          <line id="forceArrow1" x1="192" y1="42" x2="242" y2="42" stroke="#4f46e5" stroke-width="3.5" marker-end="url(#arr)"/>
+          <line id="forceArrow2" x1="428" y1="108" x2="378" y2="108" stroke="#4f46e5" stroke-width="3.5" marker-end="url(#arr)"/>
+          <text id="forceKind" x="310" y="28" text-anchor="middle" font-weight="800">আকর্ষণ বল</text>
+          <text id="distSvgTxt" x="310" y="135" text-anchor="middle">r = 0.30 m</text>
+        </svg>
+      </div>
+
+      <div class="calc-breakdown">
+        <div class="calc-box"><div class="label">আধানের গুণফল</div><div class="val" id="boxProd">6.0 × 10⁻¹² C²</div></div>
+        <div class="calc-box"><div class="label">দূরত্ব (SI)</div><div class="val" id="boxR">0.30 m</div></div>
+        <div class="calc-box"><div class="label">কুলম্ব বল F</div><div class="val" id="boxF">0.600 N</div></div>
+      </div>
+
+      <div id="forceReadout" class="readout" aria-live="polite">F = 0.600 N · আকর্ষণ</div>
+    </section>
+
+    <section class="section">
+      <h2>নিজেকে যাচাই করো</h2>
+      <details class="check">
+        <summary>১. দুটি আধানের মধ্যবর্তী দূরত্ব তিন গুণ করলে বৈদ্যুতিক বল কত গুণ হবে?</summary>
+        <p>$F \propto \dfrac{1}{r^2}$ হওয়ায় দূরত্ব ৩ গুণ হলে বল আগের $\dfrac{1}{3^2} = \dfrac{1}{9}$ ভাগ হয়ে যাবে।</p>
+      </details>
+      <details class="check">
+        <summary>২. $+10\,\mu\text{C}$ ও $+1\,\mu\text{C}$ দুটি আধান পরস্পরের ওপর বল প্রয়োগ করলে কোনটির ওপর বেশি বল কাজ করবে?</summary>
+        <p>উভয়ের ওপর <strong>সমান</strong> বল কাজ করবে ($F_{12} = F_{21}$), কারণ কুলম্বীয় বল আধান দুটির গুণফলের ওপর নির্ভর করে এবং নিউটনের তৃতীয় সূত্র মেনে চলে।</p>
+      </details>
+    </section>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-03.html">← আগের পাঠ: বৈদ্যুতিক আবেশ</a>
+      <a class="button" href="section-05.html">পরের পাঠ: তড়িৎ ক্ষেত্র →</a>
+    </nav>
+    <footer class="footer"><a href="chapter-source.html">PDF-এর সম্পূর্ণ মূল পৃষ্ঠা</a> · অধ্যায় ১০</footer>
+  </main>
+
+  <script>
+    (function(){
+      function syncRangeVisual(el){
+        const min = el.min !== '' ? parseFloat(el.min) : 0;
+        const max = el.max !== '' ? parseFloat(el.max) : 100;
+        const val = parseFloat(el.value);
+        const pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
+        el.style.setProperty('--fill', pct.toFixed(2) + '%');
+        el.style.setProperty('--fill-pct', pct.toFixed(2) + '%');
+      }
+
+      const q1 = document.getElementById('q1');
+      const q2 = document.getElementById('q2');
+      const dist = document.getElementById('dist');
+      const relation = document.getElementById('relation');
+
+      function updateForce(){
+        const a = Math.max(1, Number(q1.value));
+        const b = Math.max(1, Number(q2.value));
+        const cm = Math.max(10, Number(dist.value));
+        const r = cm / 100;
+        const kind = relation.value;
+        const f = (9e9 * (a * 1e-6) * (b * 1e-6)) / (r * r);
+
+        document.getElementById('q1Label').textContent = a + ' μC';
+        document.getElementById('q2Label').textContent = b + ' μC';
+        document.getElementById('rLabel').textContent = cm + ' cm';
+
+        const x1 = 310 - (70 + cm * 1.5);
+        const x2 = 310 + (70 + cm * 1.5);
+        document.getElementById('charge1').setAttribute('cx', x1);
+        document.getElementById('charge2').setAttribute('cx', x2);
+        document.getElementById('chargeText1').setAttribute('x', x1);
+        document.getElementById('chargeText2').setAttribute('x', x2);
+        document.getElementById('distLine').setAttribute('x1', x1);
+        document.getElementById('distLine').setAttribute('x2', x2);
+
+        const c2El = document.getElementById('charge2');
+        if(kind === 'opposite'){
+          c2El.setAttribute('fill', '#dbeafe');
+          c2El.setAttribute('stroke', '#2563eb');
+        } else {
+          c2El.setAttribute('fill', '#fee2e2');
+          c2El.setAttribute('stroke', '#e11d48');
+        }
+
+        document.getElementById('chargeText1').textContent = '+' + a + ' μC';
+        document.getElementById('chargeText2').textContent = (kind === 'opposite' ? '−' : '+') + b + ' μC';
+        document.getElementById('forceKind').textContent = kind === 'opposite' ? 'আকর্ষণ বল (বিপরীত আধান)' : 'বিকর্ষণ বল (সমআধান)';
+        document.getElementById('distSvgTxt').textContent = 'r = ' + r.toFixed(2) + ' m';
+
+        const arrowLen = Math.min(75, Math.max(25, 20 + Math.log10(f + 1) * 32));
+        const l1 = document.getElementById('forceArrow1');
+        const l2 = document.getElementById('forceArrow2');
+        if(kind === 'opposite'){
+          l1.setAttribute('x1', x1 + 36); l1.setAttribute('x2', x1 + 36 + arrowLen);
+          l2.setAttribute('x1', x2 - 36); l2.setAttribute('x2', x2 - 36 - arrowLen);
+        } else {
+          l1.setAttribute('x1', x1 - 36); l1.setAttribute('x2', x1 - 36 - arrowLen);
+          l2.setAttribute('x1', x2 + 36); l2.setAttribute('x2', x2 + 36 + arrowLen);
+        }
+
+        document.getElementById('boxProd').textContent = (a * b) + '.0 × 10⁻¹² C²';
+        document.getElementById('boxR').textContent = r.toFixed(2) + ' m';
+        document.getElementById('boxF').textContent = f.toPrecision(3) + ' N';
+        document.getElementById('forceReadout').textContent = 'F = ' + f.toPrecision(3) + ' N · ' + (kind === 'opposite' ? 'আকর্ষণ' : 'বিকর্ষণ');
+
+        [q1, q2, dist].forEach(syncRangeVisual);
+      }
+
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          q1.value = btn.dataset.q1;
+          q2.value = btn.dataset.q2;
+          dist.value = btn.dataset.r;
+          relation.value = btn.dataset.rel;
+          updateForce();
+        });
+      });
+
+      [q1, q2, dist].forEach(el => el.addEventListener('input', updateForce));
+      relation.addEventListener('change', updateForce);
+      updateForce();
+    })();
+  </script>
+</body>
+</html>

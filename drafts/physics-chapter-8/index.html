@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>পদার্থবিজ্ঞান · অধ্যায় ৮: আলোর প্রতিফলন | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+  <style>
+    .hero {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(125deg, #1e3a8a 0%, #2563eb 58%, #38bdf8 100%);
+      color: #fff;
+      border-radius: 24px;
+      padding: clamp(26px, 5vw, 46px);
+      margin: 26px 0 20px;
+      box-shadow: 0 16px 36px rgba(30, 58, 138, 0.25);
+    }
+    .hero:after {
+      content: "";
+      position: absolute;
+      width: 260px;
+      height: 260px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      right: -70px;
+      top: -110px;
+      box-shadow: 0 0 0 28px rgba(255, 255, 255, 0.08), 0 0 0 58px rgba(255, 255, 255, 0.04);
+    }
+    .hero > * { position: relative; z-index: 1; }
+    .hero .badge { background: rgba(255, 255, 255, 0.18); border-color: rgba(255, 255, 255, 0.35); color: #fff; }
+    .hero h1 { font-size: clamp(30px, 5.6vw, 46px); line-height: 1.28; margin: 15px 0 8px; }
+    .hero p { color: #dbeafe; margin: 0; max-width: 680px; font-size: 16px; line-height: 1.65; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px; }
+    .hero .button { background: #fff; color: #1e3a8a; font-weight: 800; }
+    .hero .button:hover { background: #eff6ff; }
+    .hero .button.secondary { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.5); color: #fff; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 18px 0 32px;
+    }
+    .stat {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px 18px;
+    }
+    .stat strong { display: block; font-size: 20px; color: var(--deep); }
+    .stat span { font-size: 12px; color: var(--muted); font-weight: 600; }
+    .roadmap { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .route-card {
+      display: grid;
+      grid-template-columns: 56px 1fr 20px;
+      gap: 14px;
+      align-items: start;
+      padding: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      color: #1e293b;
+      text-decoration: none;
+      transition: all 0.18s ease;
+    }
+    .route-card:hover {
+      border-color: #93c5fd;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.08);
+      text-decoration: none;
+    }
+    .route-no {
+      width: 52px;
+      height: 52px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: var(--pale);
+      color: var(--deep);
+      font-weight: 900;
+      font-size: 15px;
+    }
+    .route-title { font-weight: 800; color: var(--ink); font-size: 16px; line-height: 1.4; display: block; }
+    .route-en { display: block; color: var(--muted); font-size: 12px; margin: 2px 0 6px; font-weight: 600; }
+    .route-sub { display: block; color: #475569; font-size: 13px; line-height: 1.6; }
+    .route-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .route-formula {
+      padding: 2px 8px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      color: #1e3a8a;
+      font-size: 12px;
+    }
+    .lab-indicator {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+    }
+    .source-card {
+      margin: 34px 0 20px;
+      padding: 24px;
+      border: 1px solid #bfdbfe;
+      border-radius: 20px;
+      background: linear-gradient(110deg, #eff6ff 0%, #ffffff 75%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .source-card h2 { margin: 0 0 6px; font-size: 18px; color: var(--deep); }
+    .source-card p { margin: 0; font-size: 14px; color: #475569; }
+    @media (max-width: 720px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .roadmap { grid-template-columns: 1fr; }
+      .source-card { flex-direction: column; align-items: flex-start; }
+      .source-card .button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">SSC · পদার্থবিজ্ঞান অধ্যায় ৮</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <span class="badge">এনসিটিবি পাঠ্যবই · অধ্যায় ৮</span>
+      <h1>আলোর প্রতিফলন <small style="font-size:0.55em;font-weight:500;opacity:0.9">(Reflection of Light)</small></h1>
+      <p>দৃশ্যমান বর্ণালি ও প্রতিফলনের সূত্র থেকে শুরু করে সমতল ও গোলীয় দর্পণে রশ্মিচিত্র, দর্পণ সমীকরণ ($\frac{1}{u} + \frac{1}{v} = \frac{1}{f}$), বিবর্ধন এবং দৈনন্দিন জীবনে দর্পণের প্রয়োগ—প্রতিটি টপিক আলাদা পাঠে ও ইন্টারেক্টিভ অপটিক্স ল্যাবসহ শেখো।</p>
+      <div class="hero-actions">
+        <a class="button" href="section-01.html">প্রথম পাঠ শুরু করো →</a>
+        <a class="button secondary" href="chapter-source.html">মূল বইয়ের ৩১ পৃষ্ঠা ↗</a>
+      </div>
+    </section>
+
+    <section class="stats">
+      <div class="stat"><strong>৮টি একক পাঠ</strong><span>৮.১–৮.৮ প্রতিটি টপিক আলাদা</span></div>
+      <div class="stat"><strong>২টি অপটিক্স ল্যাব</strong><span>প্রতিফলন ও গোলীয় দর্পণ রশ্মিচিত্র</span></div>
+      <div class="stat"><strong>২০+ গাণিতিক উদাহরণ</strong><span>বোর্ড পরীক্ষার উপযোগী সমাধান</span></div>
+      <div class="stat"><strong>৩১ মূল PDF পৃষ্ঠা</strong><span>সরাসরি রেফারেন্স সংযুক্ত</span></div>
+    </section>
+
+    <h2>বিষয়সূচি (বইয়ের ৮.১–৮.৮ ধারাবাহিকতা)</h2>
+    <p class="subtitle">প্রতিটি টপিকে রয়েছে স্বতন্ত্র শিখনফল, KaTeX সমীকরণ, রশ্মিচিত্রের নিয়ম, গাণিতিক সমাধান, মনে রাখার কৌশল ও যাচাই প্রশ্ন।</p>
+
+    <section class="roadmap">
+      <a class="route-card" href="section-01.html">
+        <span class="route-no">৮.১</span>
+        <span>
+          <span class="route-title">আলোর প্রকৃতি ও তড়িৎচুম্বকীয় বর্ণালি</span>
+          <span class="route-en">Nature of Light &amp; EM Spectrum</span>
+          <span class="route-sub">তড়িৎচুম্বকীয় তরঙ্গ হিসেবে আলো, শূন্যস্থানে আলোর বেগ, দৃশ্যমান বর্ণালি ($400\text{–}700\text{ nm}$) এবং রং দেখার কৌশল।</span>
+          <span class="route-meta">
+            <span class="route-formula">$c = f\lambda = 3 \times 10^8\text{ m/s}$</span>
+          </span>
+        </span>
+        <span style="font-size:22px;color:#2563eb;font-weight:700">›</span>
+      </a>
+
+      <a class="route-card" href="section-02.html">
+        <span class="route-no">৮.২</span>
+        <span>
+          <span class="route-title">আলোর প্রতিফলন, সূত্র ও ধরন</span>
+          <span class="route-en">Reflection of Light, Laws &amp; Types</span>
+          <span class="route-sub">প্রতিফলনের দুই সূত্র ($\theta_i = \theta_r$), অভিলম্ব আপতন এবং নিয়মিত বনাম ব্যাপ্ত প্রতিফলন।</span>
+          <span class="route-meta">
+            <span class="route-formula">$\theta_i = \theta_r$</span>
+            <span class="lab-indicator">🧪 প্রতিফলন ল্যাব</span>
+          </span>
+        </span>
+        <span style="font-size:22px;color:#2563eb;font-weight:700">›</span>
+      </a>
+
+      <a class="route-card" href="section-03.html">
+        <span class="route-no">৮.৩</span>
+        <span>
+          <span class="route-title">দর্পণ, প্রতিবিম্ব ও সমতল দর্পণ</span>
+          <span class="route-en">Mirrors, Images &amp; Plane Mirror</span>
+          <span class="route-sub">বাস্তব ও অবাস্তব প্রতিবিম্বের পার্থক্য, সমতল দর্পণের বৈশিষ্ট্য, পার্শ্বীয় পরিবর্তন এবং ন্যূনতম দৈর্ঘ্য ($H/2$)।</span>
+          <span class="route-meta">
+            <span class="route-formula">$u = v,\; L_{\min} = H/2$</span>
+          </span>
+        </span>
+        <span style="font-size:22px;color:#2563eb;font-weight:700">›</span>
+      </a>
+
+      <a class="route-card" href="section-04.html">
+        <span class="route-no">৮.৪</span>
+        <span>
+          <span class="route-title">গোলীয় দর্পণের পরিচিতি ও জ্যামিতি</span>
+          <span class="route-en">Spherical Mirror Geometry</span>
+          <span class="route-sub">উত্তল ও অবতল দর্পণের মেরু ($P$), বক্রতার কেন্দ্র ($C$), বক্রতার ব্যাসার্ধ ($R$), প্রধান ফোকাস ($F$) ও ফোকাস দূরত্ব।</span>
+          <span class="route-meta">
+            <span class="route-formula">$f = R/2$</span>
+          </span>
+        </span>
+        <span style="font-size:22px;color:#2563eb;font-weight:700">›</span>
+      </a>
+
+      <a class="route-card" href="section-05.html">
+        <span class="route-no">৮.৫</span>
+        <span>
+          <span class="route-title">প্রতিবিম্ব অঙ্কন ও উত্তল দর্পণ</span>
+          <span class="route-en">Ray Diagram Rules &amp; Convex Mirror</span>
+          <span class="route-sub">গোলীয় দর্পণে প্রতিবিম্ব অঙ্কনের ৩টি প্রধান রশ্মির নিয়ম এবং উত্তল দর্পণে সর্বদা অবাস্তব, সোজা ও খর্বিত প্রতিবিম্ব গঠন।</span>
+          <span class="route-meta">
+            <span class="route-formula">$P$ ও $F$-এর মাঝে</span>
+          </span>
+        </span>
+        <span style="font-size:22px;color:#2563eb;font-weight:700">›</span>
+      </a>
+
+      <a class="route-card" href="section-06.html">
+        <span class="route-no">৮.৬</span>
+        <span>
+          <span class="route-title">অবতল দর্পণ ও দর্পণের সমীকরণ</span>
+          <span class="route-en">Concave Mirror 6 Cases &amp; Mirror Equation</span>
+          <span class="route-sub">অবতল দর্পণে বস্তুর ৬টি অবস্থানের প্রতিবিম্ব, বাস্তব-ধনাত্মক চিহ্ন প্রথা এবং দর্পণের সমীকরণ প্রয়োগ।</span>
+          <span class="route-meta">
+            <span class="route-formula">$\frac{1}{u} + \frac{1}{v} = \frac{1}{f}$</span>
+            <span class="lab-indicator">🧪 রশ্মিচিত্র ল্যাব</span>
+          </span>
+        </span>
+        <span style="font-size:22px;color:#2563eb;font-weight:700">›</span>
+      </a>
+
+      <a class="route-card" href="section-07.html">
+        <span class="route-no">৮.৭</span>
+        <span>
+          <span class="route-title">রৈখিক বিবর্ধন</span>
+          <span class="route-en">Linear Magnification</span>
+          <span class="route-sub">বিবর্ধনের সূত্র $m = \frac{h_i}{h_o} = -\frac{v}{u}$, $|m|$-এর মান ও চিহ্ন দেখে প্রতিবিম্বের আকার ও প্রকৃতি নির্ণয়।</span>
+          <span class="route-meta">
+            <span class="route-formula">$m = \frac{h_i}{h_o} = -\frac{v}{u}$</span>
+          </span>
+        </span>
+        <span style="font-size:22px;color:#2563eb;font-weight:700">›</span>
+      </a>
+
+      <a class="route-card" href="section-08.html">
+        <span class="route-no">৮.৮</span>
+        <span>
+          <span class="route-title">সমতল, উত্তল ও অবতল দর্পণের ব্যবহার</span>
+          <span class="route-en">Uses of Plane, Convex &amp; Concave Mirrors</span>
+          <span class="route-sub">পেরিস্কোপ, গাড়ির রিয়ার-ভিউ মিরর, পাহাড়ি বাঁক, দন্ত চিকিৎসা, শেভিং মিরর, হেডলাইট ও সৌরচুল্লির বৈজ্ঞানিক ব্যাখ্যা।</span>
+          <span class="route-meta">
+            <span class="route-formula">ব্যবহারিক অপটিক্স</span>
+          </span>
+        </span>
+        <span style="font-size:22px;color:#2563eb;font-weight:700">›</span>
+      </a>
+    </section>
+
+    <section class="source-card">
+      <div>
+        <h2>মূল বইয়ের ৩১টি স্ক্যানকৃত পৃষ্ঠা</h2>
+        <p>এনসিটিবি পাঠ্যবইয়ের সম্পূর্ণ অধ্যায় ৮ মূল ক্রমে সংরক্ষিত রয়েছে।</p>
+      </div>
+      <a class="button" href="chapter-source.html">সম্পূর্ণ মূল অধ্যায় দেখো →</a>
+    </section>
+
+    <footer class="footer">পড়ি (poRi) · পদার্থবিজ্ঞান ডিজিটাল পাঠ · অধ্যায় ৮ (আলোর প্রতিফলন)</footer>
+  </main>
+</body>
+</html>

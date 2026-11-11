@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৮.৫ প্রতিবিম্ব অঙ্কন ও উত্তল দর্পণ · অধ্যায় ৮ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৮ / ৮.৫</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই · সেকশন ৮.৫</span>
+    <h1 class="title">প্রতিবিম্ব অঙ্কন ও উত্তল দর্পণ <small>Ray Diagram Rules &amp; Convex Mirror</small></h1>
+    <p class="subtitle">গোলীয় দর্পণে প্রতিবিম্ব অঙ্কনের ৩টি আদর্শ আলোক রশ্মির নিয়ম এবং উত্তল দর্পণে কীভাবে সর্বদা অবাস্তব, সোজা ও খর্বিত প্রতিবিম্ব গঠিত হয়।</p>
+
+    <section class="goal">
+      <h2>🎯 শিখনফল</h2>
+      <ul>
+        <li>গোলীয় দর্পণে প্রতিবিম্ব অঙ্কনের ৩টি প্রধান রশ্মির গতিপথ বর্ণনা ও অঙ্কন করতে পারবে।</li>
+        <li>প্রতিবিম্বের অবস্থান নির্ণয়ের জন্য কেন কমপক্ষে ২টি প্রতিফলিত রশ্মির ছেদবিন্দু প্রয়োজন তা ব্যাখ্যা করতে পারবে।</li>
+        <li>উত্তল দর্পণে যেকোনো অবস্থানের বস্তুর জন্য প্রতিবিম্বের অবস্থান ($P$ ও $F$-এর মাঝে), প্রকৃতি (অবাস্তব ও সোজা) এবং আকৃতি (খর্বিত) নির্ণয় করতে পারবে।</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>৮.৫ · প্রতিবিম্ব অঙ্কনের ৩টি প্রধান রশ্মি</h2>
+      <p>গোলীয় দর্পণে একটি বিন্দুর প্রতিবিম্ব আঁকার জন্য লক্ষ্যবস্তুর শীর্ষ থেকে অসংখ্য রশ্মি বের হয়, কিন্তু নিচের ৩টির মধ্য থেকে যেকোনো <strong>২টি সুবিধাজনক রশ্মি</strong> আঁকলেই প্রতিফলিত রশ্মিদ্বয়ের ছেদবিন্দু থেকে প্রতিবিম্বের অবস্থান ও আকার পাওয়া যায়:</p>
+
+      <div class="grid">
+        <div class="term">
+          <strong>১. সমান্তরাল রশ্মি → ফোকাস</strong>
+          <small>প্রধান অক্ষের সমান্তরাল কোনো রশ্মি দর্পণে আপতিত হয়ে প্রতিফলনের পর অবতল দর্পণে প্রধান ফোকাস $F$ দিয়ে যায়, আর উত্তল দর্পণে $F$ থেকে অপসৃত হচ্ছে বলে মনে হয়।</small>
+        </div>
+        <div class="term">
+          <strong>২. ফোকাস রশ্মি → সমান্তরাল</strong>
+          <small>প্রধান ফোকাস $F$ দিয়ে যাওয়া (অবতল) বা $F$-মুখী (উত্তল) কোনো রশ্মি প্রতিফলনের পর প্রধান অক্ষের সমান্তরাল হয়ে ফিরে যায়।</small>
+        </div>
+        <div class="term">
+          <strong>৩. বক্রতার কেন্দ্র রশ্মি → একই পথে ফেরে</strong>
+          <small>বক্রতার কেন্দ্র $C$ বরাবর আপতিত রশ্মি দর্পণে লম্বভাবে পড়ে ($\theta_i = 0^\circ$), তাই প্রতিফলনের পর ঠিক একই পথে ফিরে যায়।</small>
+        </div>
+      </div>
+
+      <h3>উত্তল দর্পণ (Convex Mirror) — সর্বদা একটি ফলাফল</h3>
+      <p>উত্তল দর্পণ একটি <strong>অপসারী দর্পণ (Diverging Mirror)</strong>। এর প্রতিফলক পৃষ্ঠ বাইরের দিকে উঁচু থাকে এবং এর ফোকাস $F$ ও বক্রতার কেন্দ্র $C$ দর্পণের পেছনে অবস্থিত।</p>
+      <div class="highlight-box">
+        <strong>উত্তল দর্পণের স্বর্ণনিয়ম:</strong>
+        <p style="margin:6px 0 4px">দর্পণের সামনে বস্তু অসীম ছাড়া যেকোনো সসীম দূরত্বে রাখা হোক না কেন, প্রতিবিম্ব সর্বদা:</p>
+        <ul style="margin:4px 0 0">
+          <li><strong>অবস্থান:</strong> দর্পণের পেছনে মেরু $P$ ও প্রধান ফোকাস $F$-এর মাঝখানে।</li>
+          <li><strong>প্রকৃতি:</strong> অবাস্তব ও সোজা (Virtual and Erect)।</li>
+          <li><strong>আকৃতি:</strong> লক্ষ্যবস্তুর চেয়ে ছোট বা খর্বিত (Diminished, $|m| &lt; 1$)।</li>
+        </ul>
+      </div>
+      <p>বস্তু দর্পণের যত কাছে আসে, প্রতিবিম্ব $F$ থেকে সরে $P$-এর দিকে এগিয়ে আসে এবং আকারে একটু বড় হয় — তবে কখনোই লক্ষ্যবস্তুর সমান বা বড় হয় না। (বস্তু অসীমে থাকলে প্রতিবিম্ব ঠিক ফোকাস $F$-এ অত্যন্ত খর্বিত বিন্দুবৎ হয়।)</p>
+    </section>
+
+    <div class="note">
+      <h2>⚠️ সাধারণ ভুল থেকে সাবধান</h2>
+      <p>অনেকে ভাবেন $u = |f|$ হলে উত্তল দর্পণেও প্রতিবিম্ব অসীমে হবে! আসলে উত্তল দর্পণের ফোকাস দূরত্ব ঋণাত্মক ($f &lt; 0$) এবং বস্তু থাকে দর্পণের সামনে ($u &gt; 0$)। তাই $u = |f|$ হলেও প্রতিবিম্ব অসীমে যায় না — বরং $v = -|f|/2$ দূরত্বে দর্পণের পেছনে $P$ ও $F$-এর ঠিক মাঝখানে গঠিত হয়।</p>
+    </div>
+
+    <section class="worked">
+      <h2>📐 গাণিতিক সমস্যা ও সমাধান</h2>
+      <div class="problem">
+        <strong>সমস্যা ১:</strong> $15\text{ cm}$ ফোকাস দূরত্ববিশিষ্ট একটি উত্তল দর্পণের সামনে $30\text{ cm}$ দূরে একটি বস্তু রাখা আছে। প্রতিবিম্বের অবস্থান ও প্রকৃতি নির্ণয় করো।
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> উত্তল দর্পণের ফোকাস অবাস্তব, তাই $f = -15\text{ cm}$। বস্তুর দূরত্ব $u = +30\text{ cm}$।</p>
+        $$\frac{1}{v} = \frac{1}{f} - \frac{1}{u} = \frac{1}{-15} - \frac{1}{30} = \frac{-2 - 1}{30} = -\frac{3}{30} = -\frac{1}{10}$$
+        $$\therefore v = -10\text{ cm}$$
+        <p>ঋণাত্মক চিহ্ন নির্দেশ করে প্রতিবিম্ব <strong>দর্পণের পেছনে $10\text{ cm}$ দূরে (মেরু ও ফোকাসের মাঝে)</strong> গঠিত হয়েছে এবং এটি <strong>অবাস্তব, সোজা ও খর্বিত</strong>।</p>
+      </div>
+
+      <div class="problem">
+        <strong>সমস্যা ২:</strong> $20\text{ cm}$ বক্রতার ব্যাসার্ধের একটি উত্তল দর্পণ থেকে $10\text{ cm}$ সামনে একটি বস্তু রাখলে প্রতিবিম্ব কোথায় গঠিত হবে?
+      </div>
+      <div class="solution">
+        <p><strong>সমাধান:</strong> উত্তল দর্পণের ফোকাস দূরত্ব $f = -\frac{R}{2} = -\frac{20}{2} = -10\text{ cm}$ এবং $u = +10\text{ cm}$।</p>
+        $$\frac{1}{v} = \frac{1}{-10} - \frac{1}{10} = -\frac{2}{10} = -\frac{1}{5} \implies v = -5\text{ cm}$$
+        <p>অর্থাৎ প্রতিবিম্ব দর্পণের পেছনে $5\text{ cm}$ দূরে ($P$ ও $F$-এর ঠিক মধ্যবিন্দুতে) গঠিত হবে।</p>
+      </div>
+    </section>
+
+    <section class="memory">
+      <h2>🧠 মনে রাখার কৌশল</h2>
+      <p>“সমান্তরাল এলে ফোকাসে যায়, ফোকাস হয়ে এলে সমান্তরাল রয়; বক্রতার কেন্দ্রের রশ্মি একই পথে ফেরে—এই ৩ রশ্মির যেকোনো ২টিতে ছবি মেলে! আর উত্তল দর্পণ = চিরকাল সোজা, অবাস্তব আর ছোট, $P$ ও $F$-এর মাঝেতে ছবি থাকে জোট!”</p>
+    </section>
+
+    <section class="section">
+      <h2>নিজেকে যাচাই করো</h2>
+      <details class="check">
+        <summary>১. কোন দর্পণে বস্তু যেকোনো সসীম অবস্থানে থাকলেই সর্বদা লক্ষ্যবস্তুর চেয়ে ছোট ও সোজা প্রতিবিম্ব গঠিত হয়?</summary>
+        <p>উত্তল দর্পণে (Convex Mirror)।</p>
+      </details>
+      <details class="check">
+        <summary>২. উত্তল দর্পণে সসীম দূরত্বের কোনো বস্তুর প্রতিবিম্ব দর্পণের পেছনে সর্বোচ্চ কত দূর পর্যন্ত গঠিত হতে পারে?</summary>
+        <p>মেরু $P$ থেকে প্রধান ফোকাস $F$ পর্যন্ত অর্থাৎ $f$-এর চেয়ে কম দূরত্বে (বস্তু অসীমে পৌঁছালে তবেই প্রতিবিম্ব $F$-এ যায়)।</p>
+      </details>
+      <details class="check">
+        <summary>৩. বক্রতার কেন্দ্র $C$ অভিমুখে আপতিত রশ্মি প্রতিফলনের পর কোন পথে যায়?</summary>
+        <p>দর্পণে লম্বভাবে আপতিত হওয়ায় ($\theta_i = 0^\circ$) এটি ঠিক একই পথে বিপরীত দিকে ফিরে যায়।</p>
+      </details>
+    </section>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-04.html">← ৮.৪ গোলীয় দর্পণের পরিচিতি</a>
+      <a class="button" href="section-06.html">পরের পাঠ: ৮.৬ অবতল দর্পণ ও সমীকরণ →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html#page-19">মূল বইয়ের পৃষ্ঠা দেখো</a> · পদার্থবিজ্ঞান অধ্যায় ৮
+    </footer>
+  </main>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</body>
+</html>

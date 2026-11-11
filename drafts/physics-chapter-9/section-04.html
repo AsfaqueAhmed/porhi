@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>৯.৪ চশমার প্রয়োগ ও অনুশীলন · অধ্যায় ৯ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false }
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৯ / পাঠ ৯.৪</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">অধ্যায় ৯ · প্রয়োগ ও বোর্ড অনুশীলন</span>
+    <h1 class="title">চশমার প্রয়োগ, লেন্স শনাক্তকরণ ও গাণিতিক সমস্যা</h1>
+    <p class="subtitle">
+      লেন্সের ক্ষমতা ব্যবহার করে চোখের ত্রুটি সংশোধন, স্পর্শ ছাড়াই লেন্স চেনার কৌশল এবং পাঠ্যবইয়ের সৃজনশীল প্রশ্ন (`-2 D` চশমা) ও অধ্যায়ের সম্পূর্ণ ফর্মুলা ঝালাই।
+    </p>
+
+    <section class="goal">
+      <h2>🎯 এই পাঠ শেষে যা যা পারবে</h2>
+      <ul>
+        <li>চশমার ক্ষমতার চিহ্ন ($-D$ বনাম $+D$) দেখে চোখের ত্রুটি (হ্রস্বদৃষ্টি / দীর্ঘদৃষ্টি) ও লেন্সের প্রকৃতি নির্ণয় করতে।</li>
+        <li>স্পর্শ না করেই লেখা বা আঙুলের প্রতিবিম্ব দেখে উত্তল, অবতল ও সমতল কাচ শনাক্ত করতে।</li>
+        <li>বাস্তব-ধনাত্মক প্রথা ও কার্তেসীয় চিহ্ন-রীতির সম্পর্ক বুঝে পাঠ্যবইয়ের `-2 D` সৃজনশীল সমস্যাসহ সব গাণিতিক অঙ্ক নির্ভুলভাবে সমাধান করতে।</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>১. চোখের ত্রুটিতে চশমার লেন্সের ব্যবহার</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>চোখের ত্রুটি</th>
+              <th>সমস্যা কী হয়?</th>
+              <th>ব্যবহৃত চশমা ও ক্ষমতা</th>
+              <th>কার্যপ্রণালি</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>হ্রস্বদৃষ্টি (Myopia / Near-sightedness)</strong></td>
+              <td>কাছের জিনিস স্পষ্ট দেখে, দূরের বোর্ড বা বস্তু ঝাপসা দেখে। প্রতিবিম্ব রেটিনার <em>সামনে</em> গঠিত হয়।</td>
+              <td><strong>অবতল লেন্স ($P < 0$, যেমন $-2\text{ D}$)</strong></td>
+              <td>দূরের সমান্তরাল রশ্মিকে সামান্য অপসারিত করে ঠিক রেটিনার ওপর ফোকাস করে।</td>
+            </tr>
+            <tr>
+              <td><strong>দীর্ঘদৃষ্টি (Hypermetropia / Far-sightedness)</strong></td>
+              <td>দূরের জিনিস স্পষ্ট দেখে, কাছের বই পড়তে কষ্ট হয়। প্রতিবিম্ব রেটিনার <em>পেছনে</em> গঠিত হয়।</td>
+              <td><strong>উত্তল লেন্স ($P > 0$, যেমন $+2\text{ D}$)</strong></td>
+              <td>কাছের বস্তু থেকে আসা রশ্মিকে আগেই কিছুটা অভিসারী করে রেটিনায় ফেলে।</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>২. স্পর্শ না করে কীভাবে একটি লেন্স শনাক্ত করা যায়?</h3>
+      <div class="grid">
+        <div class="term">
+          <strong>উত্তল লেন্স</strong>
+          <small>বইয়ের ছাপানো লেখার খুব কাছে ($u < f$) ধরলে অক্ষরগুলো সোজা ও <strong>স্বাভাবিকের চেয়ে বড়</strong> দেখায়।</small>
+        </div>
+        <div class="term">
+          <strong>অবতল লেন্স</strong>
+          <small>যেকোনো দূরত্বে লেখার ওপর ধরলে অক্ষরগুলো সর্বদা সোজা ও <strong>স্বাভাবিকের চেয়ে ছোট</strong> দেখায়।</small>
+        </div>
+        <div class="term">
+          <strong>সমতল কাচের পাত</strong>
+          <small>লেখার ওপর ধরলে অক্ষরের আকারের কোনো পরিবর্তন হয় না (সমান থাকে)।</small>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <strong>চিহ্ন-রীতির দুটি পদ্ধতি (সাবধানতা!):</strong><br />
+        • <strong>বাস্তব-ধনাত্মক প্রথা (SSC পরীক্ষায় বহুল ব্যবহৃত):</strong> $\frac{1}{u} + \frac{1}{v} = \frac{1}{f}$, যেখানে বাস্তব বস্তু/প্রতিবিম্ব $(+)$ এবং অবাস্তব $(-)$।<br />
+        • <strong>কার্তেসীয় প্রথা (New Cartesian):</strong> $\frac{1}{v} - \frac{1}{u} = \frac{1}{f}$, যেখানে আলোককেন্দ্রের বাম দিকের দূরত্ব $(u)$ ঋণাত্মক ও ডান দিক ধনাত্মক।<br />
+        <em>উভয় প্রথাতেই উত্তর একদম এক আসে—কেবল একটি প্রথা বেছে নিয়ে শুরু থেকে শেষ পর্যন্ত অটল থাকতে হবে!</em>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>৩. পাঠ্যবইয়ের সৃজনশীল ও গাণিতিক সমাধান</h2>
+
+      <div class="worked">
+        <h2>🧮 সমাধানকৃত উদাহরণ</h2>
+        <div class="problem">
+          <b>উদাহরণ ১ (পাঠ্যবই পৃষ্ঠা ২৯-এর শিউলির সমস্যা):</b> দশম শ্রেণির ছাত্রী শিউলি শ্রেণিকক্ষে ব্ল্যাকবোর্ডের লেখা স্পষ্ট দেখতে পায় না। ডাক্তার তাকে $-2\text{ D}$ ক্ষমতার চশমা দিলেন। সে ওই লেন্স থেকে $1\text{ m}$ সামনে রাখা একটি বস্তুর প্রতিবিম্ব কোথায় গঠিত হবে ও কেমন হবে তা নির্ণয় করতে চায়।
+        </div>
+        <div class="solution">
+          <b>সমাধান:</b><br />
+          ১. চশমার ক্ষমতা $P = -2\text{ D}$ (ঋণাত্মক), তাই লেন্সটি <strong>অবতল (Concave)</strong> এবং শিউলির ত্রুটি হলো <strong>হ্রস্বদৃষ্টি (Myopia)</strong>।<br />
+          ২. ফোকাস দূরত্ব: $f = \frac{1}{P} = \frac{1}{-2} = -0.5\text{ m}$।<br />
+          ৩. বাস্তব-ধনাত্মক প্রথায় $u = +1\text{ m}$, $f = -0.5\text{ m}$:<br />
+          $$\frac{1}{v} = \frac{1}{f} - \frac{1}{u} = \frac{1}{-0.5} - \frac{1}{1} = -2 - 1 = -3 \implies v = -\frac{1}{3}\text{ m} \approx \mathbf{-0.33\text{ m}}$$
+          (কার্তেসীয় প্রথায় $u = -1\text{ m}$ বসালেও $\frac{1}{v} = -2 + (-1) = -3 \implies v = -0.33\text{ m}$।)<br />
+          <strong>সিদ্ধান্ত:</strong> প্রতিবিম্বটি লেন্সের যে পাশে বস্তু আছে সেই পাশেই প্রায় $0.33\text{ m}$ দূরে গঠিত হবে এবং এটি <strong>অবাস্তব, সোজা ও লক্ষ্যবস্তুর চেয়ে ৩ গুণ ছোট</strong>।
+        </div>
+      </div>
+
+      <div class="worked">
+        <div class="problem">
+          <b>উদাহরণ ২:</b> $+4\text{ D}$ ও $-2\text{ D}$ ক্ষমতার দুটি পাতলা লেন্স পরস্পরের সংস্পর্শে রাখা হলো। তুল্য লেন্সটির ফোকাস দূরত্ব ও প্রকৃতি কী হবে?
+        </div>
+        <div class="solution">
+          <b>সমাধান:</b><br />
+          তুল্য ক্ষমতা: $P = P_1 + P_2 = +4 + (-2) = +2\text{ D}$।<br />
+          ফোকাস দূরত্ব: $f = \frac{1}{P} = \frac{1}{+2} = +0.5\text{ m} = \mathbf{+50\text{ cm}}$।<br />
+          ক্ষমতা ও ফোকাস দূরত্ব ধনাত্মক হওয়ায় যুক্ত লেন্সটি একটি <strong>উত্তল (অভিসারী) লেন্স</strong> হিসেবে কাজ করবে।
+        </div>
+      </div>
+
+      <div class="worked">
+        <div class="problem">
+          <b>উদাহরণ ৩:</b> একজন দীর্ঘদৃষ্টিসম্পন্ন ব্যক্তি $50\text{ cm}$ থেকে কাছের বস্তু স্পষ্ট দেখতে পান না। তিনি $25\text{ cm}$ দূরত্বে রেখে বই পড়তে চাইলে কত ক্ষমতার চশমা ব্যবহার করতে হবে?
+        </div>
+        <div class="solution">
+          <b>সমাধান:</b><br />
+          ব্যক্তি $u = 25\text{ cm} = 0.25\text{ m}$ দূরের বইয়ের অবাস্তব প্রতিবিম্ব নিজের নিকটবিন্দু $v = -50\text{ cm} = -0.50\text{ m}$ দূরত্বে দেখতে চান।<br />
+          $$\frac{1}{f} = \frac{1}{u} + \frac{1}{v} = \frac{1}{0.25} + \frac{1}{-0.50} = 4 - 2 = \mathbf{+2\text{ D}}$$
+          অতএব তাঁকে <strong>$+2\text{ D}$ ক্ষমতার উত্তল লেন্সের</strong> চশমা ব্যবহার করতে হবে।
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>৪. এক নজরে অধ্যায় ৯-এর সকল সূত্র</h2>
+      <div class="formula">
+        $$n = \frac{c}{v} \quad \cdot \quad n_1 \sin i = n_2 \sin r \quad \cdot \quad \sin \theta_c = \frac{n_2}{n_1} \quad \cdot \quad \frac{1}{u} + \frac{1}{v} = \frac{1}{f} \quad \cdot \quad P = \frac{1}{f(\text{m})} = P_1 + P_2$$
+      </div>
+      <p class="note">মূল বইয়ের নমুনা সৃজনশীল প্রশ্ন: <a href="chapter-source.html#page-29">পৃষ্ঠা ২৯ দেখো</a>।</p>
+    </section>
+
+    <div class="memory">
+      <h2>💡 পরীক্ষার আগে কুইক রিক্যাপ</h2>
+      <ul>
+        <li><strong>মাইনাস পাওয়ার = মাইনাস লেন্স:</strong> $-D$ (অবতল লেন্স) দেয় হ্রস্বদৃষ্টিতে (দূরের লেখা দেখতে কষ্ট); $+D$ (উত্তল লেন্স) দেয় দীর্ঘদৃষ্টিতে।</li>
+        <li><strong>হীরক চকচকে:</strong> ছোট সংকট কোণ ($24.4^\circ$) এবং বেশি প্রতিসরণাঙ্ক ($2.42$)-এর কারণে বারবার TIR।</li>
+        <li><strong>সংযুক্ত লেন্স:</strong> ক্ষমতাগুলো স্রেফ বীজগাণিতিকভাবে যোগ করো ($P = P_1 + P_2$)।</li>
+      </ul>
+    </div>
+
+    <details class="check">
+      <summary>✓ নিজেকে যাচাই করো (Self-Check Quiz)</summary>
+      <ol>
+        <li><b>প্রশ্ন:</b> ডাক্তার যদি কাউকে $+1.5\text{ D}$ ক্ষমতার চশমা দেন, তবে তাঁর চোখে কোন ত্রুটি রয়েছে?
+          <br /><i>উত্তর:</i> দীর্ঘদৃষ্টি (Hypermetropia); এটি সংশোধনে উত্তল লেন্স ব্যবহৃত হয়।</li>
+        <li><b>প্রশ্ন:</b> কাচের সাপেক্ষে বায়ুর প্রতিসরণাঙ্ক $2/3$ হলে কাচ-বায়ু সংকট কোণ $\theta_c$-এর $\sin \theta_c$ মান কত?
+          <br /><i>উত্তর:</i> $\sin \theta_c = 2/3 \approx 0.667 \implies \theta_c \approx 41.8^\circ$।</li>
+        <li><b>প্রশ্ন:</b> কোনো উত্তল লেন্সের অর্ধেক কালো কাগজ দিয়ে ঢেকে দিলে প্রতিবিম্ব কি অর্ধেক হবে?
+          <br /><i>উত্তর:</i> না, সম্পূর্ণ প্রতিবিম্বই গঠিত হবে, তবে উজ্জ্বলতা কমে যাবে।</li>
+      </ol>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-03.html">← ৯.৩ লেন্স ও প্রতিবিম্ব</a>
+      <a class="button" href="index.html">অধ্যায়ের সূচিতে ফিরে যাও ✓</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html#page-27">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF পৃষ্ঠা ২৭–২৯)</a> · অধ্যায় ৯: আলোর প্রতিসরণ · পড়ি (poRi)
+    </footer>
+  </main>
+</body>
+</html>

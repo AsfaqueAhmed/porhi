@@ -145,7 +145,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_35',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'MCQ',
     stem: 'চৌম্বক ক্ষেত্রে স্থাপিত বিদ্যুৎবাহী তারের ওপর ক্রিয়াশীল বলের দিক নির্ণয়ের সূত্র কোনটি?',
     options: [
@@ -167,7 +167,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_36',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'MCQ',
     stem: 'ফ্লেমিংয়ের বামহস্ত নিয়মে তর্জনী, মধ্যমা ও বৃদ্ধাঙ্গুলি যথাক্রমে কোন তিনটিকে নির্দেশ করে?',
     options: [
@@ -188,7 +188,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_37',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'MCQ',
     stem: 'সুষম চৌম্বক ক্ষেত্রের ($B$) সমান্তরালে ($\theta = 0^\circ$) একটি বিদ্যুৎবাহী তার রাখলে তারটির ওপর কত বল ক্রিয়া করবে?',
     options: [
@@ -208,7 +208,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_38',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'MCQ',
     stem: '$0.4\\,\\text{T}$ চৌম্বক ক্ষেত্রে লম্বভাবে স্থাপিত $0.5\\,\\text{m}$ দীর্ঘ তারে $5\\,\\text{A}$ তড়িৎ প্রবাহ চললে তারের ওপর ক্রিয়াশীল বল কত?',
     options: [
@@ -229,7 +229,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_39',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'MCQ',
     stem: 'বৈদ্যুতিক মোটর (Electric Motor) কোন শক্তির কোন রূপান্তর ঘটায়?',
     options: [
@@ -251,7 +251,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_40',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'MCQ',
     stem: 'DC মোটরের স্প্লিট-রিং কমিউটেটরের (Split-ring Commutator) প্রধান কাজ কী?',
     options: [
@@ -272,7 +272,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_41',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'MCQ',
     stem: 'একটি তারে প্রবাহ চলছে এবং সেটি $N$ থেকে $S$ মেরুমুখী চৌম্বক ক্ষেত্রে রাখা আছে। যদি প্রবাহের দিক এবং চৌম্বক ক্ষেত্রের মেরু দুটিই এক সাথে উল্টে দেওয়া হয়, তবে তারটির ওপর বলের দিক কেমন হবে?',
     options: [
@@ -292,7 +292,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_42',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'MCQ',
     stem: 'একটি DC মোটরের ঘূর্ণন বেগ (Speed) বৃদ্ধি করার উপায় কোনগুলো?',
     options: [
@@ -313,7 +313,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_43',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'MCQ',
     stem: 'DC মোটরে ব্রাশ (Carbon Brush) ও কমিউটেটরের কাজ কী?',
     options: [
@@ -333,7 +333,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_44',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'MCQ',
     stem: 'অ্যামিটার, ভোল্টমিটার ও বৈদ্যুতিক পাখা কোন নীতির ওপর ভিত্তি করে কাজ করে?',
     options: [
@@ -353,7 +353,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_45',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'MCQ',
     stem: 'যখন একটি চৌম্বক ক্ষেত্রের মধ্যে অনুভূমিক কুণ্ডলী ঘুরে উল্লম্ব অবস্থানে ($90^\\circ$) আসে, তখন ব্রাশ ও কমিউটেটরের মধ্যে কী ঘটে?',
     options: [
@@ -373,7 +373,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_46',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'MCQ',
     stem: 'লাউডস্পিকারে বৈদ্যুতিক সংকেত কীভাবে শব্দ তরঙ্গে পরিণত হয়?',
     options: [
@@ -393,7 +393,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_47',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'MCQ',
     stem: 'তড়িৎচুম্বকের কোরের ওপর নরম লোহা ব্যবহার করে প্রবল মোটর আর্মেচার বানানোর কারণ কী?',
     options: [
@@ -413,7 +413,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_48',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'MCQ',
     stem: 'চৌম্বক ক্ষেত্রের দিক দক্ষিণ থেকে উত্তরে এবং একটি তারে প্রবাহ পূর্ব থেকে পশ্চিমে হলে তারটির ওপর বল কোন দিকে ক্রিয়া করবে?',
     options: [
@@ -433,7 +433,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_49',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'MCQ',
     stem: 'একটি $20\\,\\text{cm}$ দৈর্ঘ্যের তারের ওপর $0.5\\,\\text{T}$ চৌম্বক ক্ষেত্রে লম্বভাবে $0.2\\,\\text{N}$ বল কাজ করলে তারটির প্রবাহ কত?',
     options: [
@@ -454,7 +454,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_50',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'MCQ',
     stem: 'AC মোটর ও DC মোটরের মধ্যে কাঠামোগত মূল পার্থক্য কী?',
     options: [
@@ -474,7 +474,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_51',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'CQ_CREATIVE',
     stem: 'নাহিদ শক্তিশালী দুই চুম্বক মেরু $N$ (বাম দিকে) ও $S$ (ডান দিকে)-এর মাঝখানে একটি অনুভূমিক তামার দণ্ড ঝুলিয়ে তাতে প্রবাহ চালালো। সুইচ অন করার সাথে সাথে তামার দণ্ডটি উপরের দিকে ছিটকে সরে গেল।',
     options: null,
@@ -496,7 +496,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_52',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'CQ_CREATIVE',
     stem: 'একটি ক্ষুদ্র খেলনা গাড়ির DC মোটরে $N$ ও $S$ মেরুর মাঝে $100$ পাকের একটি কুণ্ডলী আছে এবং এটি $6\\,\\text{V}$ ব্যাটারিতে চলে। দেখা গেল গাড়িটি বেশি ওজন নিয়ে ধীর গতিতে চলে, এবং মেরু দুটি উল্টে দিলে গাড়িটি পেছনের দিকে চলতে শুরু করে।',
     options: null,
@@ -539,7 +539,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
   },
   {
     id: 'q_12_54',
-    topicId: 'top_ssc_physics_ch12_3',
+    topicId: 'top_ssc_physics_ch12_2',
     type: 'CQ_CREATIVE',
     stem: 'সুষম $0.6\\,\\text{T}$ চৌম্বক ক্ষেত্রের মধ্যে $25\\,\\text{cm}$ দৈর্ঘ্যের একটি সোজা তার রাখা আছে। তারটির মধ্য দিয়ে $4\\,\\text{A}$ তড়িৎ প্রবাহিত হচ্ছে। প্রথম ক্ষেত্রে তারটি ক্ষেত্রের সাথে $90^\\circ$ কোণে এবং দ্বিতীয় ক্ষেত্রে ক্ষেত্রের সাথে $30^\\circ$ কোণে অবস্থিত।',
     options: null,

@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>৯.১ আলোর প্রতিসরণ ও স্নেলের সূত্র · অধ্যায় ৯ | পড়ি</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (window.renderMathInElement) {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: "$$", right: "$$", display: true },
+            { left: "$", right: "$", display: false }
+          ],
+          throwOnError: false
+        });
+      }
+    });
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ৯ / পাঠ ৯.১</span>
+    </div>
+  </header>
+
+  <main>
+    <span class="badge">এনসিটিবি পাঠ্যবই ৯.১ • আলোর প্রতিসরণ</span>
+    <h1 class="title">আলোর প্রতিসরণ ও স্নেলের সূত্র <small>(Refraction of Light)</small></h1>
+    <p class="subtitle">
+      আলো এক স্বচ্ছ মাধ্যম থেকে অন্য স্বচ্ছ মাধ্যমে প্রবেশ করলে তার বেগ ও দিক কীভাবে পরিবর্তিত হয়, পরম প্রতিসরণাঙ্ক কী এবং স্নেলের সূত্র ($n_1 \sin i = n_2 \sin r$) দিয়ে রশ্মির বাঁক নির্ণয়।
+    </p>
+
+    <section class="goal">
+      <h2>🎯 এই পাঠে কী কী শিখবে</h2>
+      <ul>
+        <li>আলোর প্রতিসরণের সংজ্ঞা ও দুটি মৌলিক সূত্র।</li>
+        <li><strong>ভর-ঘনত্ব</strong> ও <strong>আলোকীয় ঘনত্ব</strong>-এর পার্থক্য (কেন পানির চেয়ে হালকা কেরোসিনের আলোকীয় ঘনত্ব বেশি)।</li>
+        <li>পরম প্রতিসরণাঙ্ক ($n = \frac{c}{v}$) এবং স্নেলের সূত্র ($n_1 \sin i = n_2 \sin r$) ব্যবহার করে গাণিতিক সমাধান।</li>
+        <li>সমান্তরাল কাচফলকে পার্শ্বীয় সরণ এবং প্রকৃত বনাম আপাত গভীরতা।</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>১. আলোর প্রতিসরণ ও মূল রাশিসমূহ</h2>
+      <p>
+        আলোকরশ্মি এক স্বচ্ছ সমসত্ত্ব মাধ্যম থেকে অন্য স্বচ্ছ সমসত্ত্ব মাধ্যমে <strong>তির্যকভাবে (obliquely)</strong> প্রবেশ করলে দুই মাধ্যমের বিভেদতলে আলোর বেগ পরিবর্তনের কারণে রশ্মির দিক পরিবর্তন হয়। আলোকরশ্মির এই দিক পরিবর্তনের ঘটনাকে <strong>আলোর প্রতিসরণ (Refraction of Light)</strong> বলে।
+      </p>
+
+      <div class="grid">
+        <div class="term">
+          <strong>আপতন কোণ ($i$)</strong>
+          <small>আপতিত রশ্মি ও আপতন বিন্দুতে অঙ্কিত অভিলম্বের মধ্যবর্তী কোণ।</small>
+        </div>
+        <div class="term">
+          <strong>প্রতিসরণ কোণ ($r$)</strong>
+          <small>প্রতিসরিত রশ্মি ও অভিলম্বের মধ্যবর্তী কোণ।</small>
+        </div>
+        <div class="term">
+          <strong>অভিলম্ব</strong>
+          <small>আপতন বিন্দুতে দুই মাধ্যমের বিভেদতলের ওপর অঙ্কিত লম্ব রেখা; সকল কোণ এখান থেকেই মাপতে হয়।</small>
+        </div>
+        <div class="term">
+          <strong>বিচ্যুতি কোণ ($\delta$)</strong>
+          <small>আপতিত রশ্মির মূল দিক ও প্রতিসরিত রশ্মির মধ্যবর্তী কোণ: $\delta = |i - r|$।</small>
+        </div>
+      </div>
+
+      <h3>আলোকীয় ঘনত্ব ও রশ্মির দিক পরিবর্তন</h3>
+      <ul>
+        <li><strong>হালকা → ঘন মাধ্যমে:</strong> আলোর বেগ কমে যায় এবং প্রতিসরিত রশ্মি <strong>অভিলম্বের দিকে বেঁকে যায়</strong> ($r < i$)।</li>
+        <li><strong>ঘন → হালকা মাধ্যমে:</strong> আলোর বেগ বেড়ে যায় এবং প্রতিসরিত রশ্মি <strong>অভিলম্ব থেকে দূরে সরে যায়</strong> ($r > i$)।</li>
+        <li><strong>লম্ব আপতন ($i = 0^\circ$):</strong> বিভেদতলে রশ্মি লম্বভাবে পড়লে দিক পরিবর্তিত হয় না ($r = 0^\circ$), তবে আলোর বেগ ও তরঙ্গদৈর্ঘ্য ঠিকই পরিবর্তিত হয়।</li>
+      </ul>
+
+      <div class="highlight-box">
+        <strong>গুরুত্বপূর্ণ পার্থক্য:</strong> পদার্থবিজ্ঞানে "ঘন" বা "হালকা" বলতে <strong>আলোকীয় ঘনত্ব (Optical Density)</strong> বোঝায়, সাধারণ ভর-ঘনত্ব নয়। যেমন: কেরোসিনের ভর-ঘনত্ব পানির চেয়ে কম, কিন্তু কেরোসিনের প্রতিসরণাঙ্ক ($n \approx 1.44$) পানির ($n = 1.33$) চেয়ে বেশি—তাই পানি থেকে কেরোসিনে আলো গেলে অভিলম্বের দিকে বাঁকে।
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>২. প্রতিসরণাঙ্ক ও স্নেলের সূত্র (Snell's Law)</h2>
+      <p>
+        শূন্য মাধ্যমে আলোর বেগ $c = 3 \times 10^8\text{ m/s}$ এবং কোনো নির্দিষ্ট মাধ্যমে আলোর বেগ $v$ হলে ওই মাধ্যমের <strong>পরম প্রতিসরণাঙ্ক ($n$ বা $\mu$)</strong> হবে:
+      </p>
+      <div class="formula">$$n = \frac{c}{v} = \frac{\lambda_0}{\lambda}$$</div>
+      <p>প্রতিসরণের দুটি সূত্রের দ্বিতীয়টিই বিজ্ঞানী স্নেলের সূত্র নামে পরিচিত:</p>
+      <div class="formula">$$n_1 \sin i = n_2 \sin r \quad \Longleftrightarrow \quad {}_1n_2 = \frac{n_2}{n_1} = \frac{\sin i}{\sin r} = \frac{v_1}{v_2}$$</div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>স্বচ্ছ মাধ্যম</th>
+              <th>প্রতিসরণাঙ্ক ($n$)</th>
+              <th>মাধ্যমে আলোর বেগ ($v = c/n$)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>শূন্যস্থল / বায়ু</td><td>$1.00$</td><td>$3.00 \times 10^8\text{ m/s}$</td></tr>
+            <tr><td>পানি</td><td>$1.33$</td><td>$2.26 \times 10^8\text{ m/s}$</td></tr>
+            <tr><td>গ্লিসারিন</td><td>$1.47$</td><td>$2.04 \times 10^8\text{ m/s}$</td></tr>
+            <tr><td>ক্রাউন কাচ</td><td>$1.50$</td><td>$2.00 \times 10^8\text{ m/s}$</td></tr>
+            <tr><td>হীরক (Diamond)</td><td>$2.42$</td><td>$1.24 \times 10^8\text{ m/s}$</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>সমান্তরাল কাচফলক ও আপাত গভীরতা</h3>
+      <ul>
+        <li><strong>সমান্তরাল কাচের পাত:</strong> রশ্মি প্রবেশ ও নির্গমনের সময় বিপরীতভাবে সমান কোণে বাঁকে বলে নির্গত রশ্মি আপতিত রশ্মির <strong>সমান্তরাল</strong> থাকে, তবে পাশে কিছুটা সরে যায় (পার্শ্বীয় সরণ)।</li>
+        <li><strong>প্রকৃত ও আপাত গভীরতা:</strong> ঘন মাধ্যমের কোনো বস্তুকে ওপরে হালকা মাধ্যম (বায়ু) থেকে দেখলে বস্তুটি ওপরের দিকে উঠে এসেছে বলে মনে হয়:
+          $$n = \frac{\text{প্রকৃত গভীরতা}}{\text{আপাত গভীরতা}}$$
+        </li>
+      </ul>
+    </section>
+
+    <section class="lab" id="snell-inline-lab">
+      <div class="lab-head">
+        <div>
+          <span class="lab-tag">Interactive Refraction Lab</span>
+          <h2>স্নেলের সূত্র ও প্রতিসরণ সিমুলেটর</h2>
+        </div>
+        <div class="preset-row">
+          <button type="button" class="preset-btn active" data-n1="1.00" data-n2="1.33" data-i="40">বায়ু → পানি</button>
+          <button type="button" class="preset-btn" data-n1="1.00" data-n2="1.50" data-i="45">বায়ু → কাচ</button>
+          <button type="button" class="preset-btn" data-n1="1.00" data-n2="2.42" data-i="50">বায়ু → হীরক</button>
+          <button type="button" class="preset-btn" data-n1="1.50" data-n2="1.00" data-i="30">কাচ → বায়ু (প্রতিসরণ)</button>
+          <button type="button" class="preset-btn" data-n1="1.50" data-n2="1.00" data-i="52">কাচ → বায়ু (TIR!)</button>
+        </div>
+      </div>
+
+      <div class="lab-controls">
+        <div>
+          <label for="inI">আপতন কোণ ($i$): <strong id="lblI">40°</strong></label>
+          <input id="inI" class="range" type="range" min="0" max="80" step="1" value="40" />
+        </div>
+        <div>
+          <label for="inN2">দ্বিতীয় মাধ্যম ($n_2$): <strong id="lblN2">1.33</strong> &nbsp;|&nbsp; $n_1$: <strong id="lblN1">1.00</strong></label>
+          <input id="inN2" class="range" type="range" min="1.00" max="2.42" step="0.01" value="1.33" />
+        </div>
+      </div>
+
+      <svg id="snellInlineSvg" viewBox="0 0 660 270" width="100%" style="background:#ffffff;border:1px solid #cbd5e1;border-radius:12px;display:block;" aria-label="স্নেলের সূত্রের প্রতিসরণ চিত্র"></svg>
+
+      <div id="snellTelemetry" class="calc-breakdown"></div>
+    </section>
+
+    <section class="section">
+      <h2>সমাধানকৃত গাণিতিক উদাহরণ</h2>
+
+      <div class="worked">
+        <h2>🧮 সমাধানকৃত উদাহরণ</h2>
+        <div class="problem">
+          <b>উদাহরণ ১:</b> পানির প্রতিসরণাঙ্ক $1.33$ এবং শূন্যস্থানে আলোর বেগ $3 \times 10^8\text{ m/s}$ হলে পানিতে আলোর বেগ কত?
+        </div>
+        <div class="solution">
+          <b>সমাধান:</b><br />
+          আমরা জানি, $n = \frac{c}{v}$<br />
+          $$\therefore v = \frac{c}{n} = \frac{3 \times 10^8}{1.33} \approx \mathbf{2.26 \times 10^8\text{ m/s}}$$
+        </div>
+      </div>
+
+      <div class="worked">
+        <div class="problem">
+          <b>উদাহরণ ২:</b> বায়ু থেকে একটি আলোকরশ্মি $45^\circ$ আপতন কোণে একটি কাচফলকে প্রবেশ করে $28.1^\circ$ কোণে প্রতিসরিত হলো। কাচের প্রতিসরণাঙ্ক কত?
+        </div>
+        <div class="solution">
+          <b>সমাধান:</b><br />
+          স্নেলের সূত্র অনুযায়ী ($n_{\text{air}} = 1$):
+          $$n = \frac{\sin i}{\sin r} = \frac{\sin 45^\circ}{\sin 28.1^\circ} = \frac{0.7071}{0.4710} \approx \mathbf{1.50}$$
+        </div>
+      </div>
+
+      <div class="worked">
+        <div class="problem">
+          <b>উদাহরণ ৩:</b> একটি সুইমিং পুলের প্রকৃত গভীরতা $2.66\text{ m}$। ওপর থেকে সোজা নিচে তাকালে পুলের তলদেশ কত গভীরে মনে হবে? ($n_w = 1.33$)
+        </div>
+        <div class="solution">
+          <b>সমাধান:</b><br />
+          $$n_w = \frac{\text{প্রকৃত গভীরতা}}{\text{আপাত গভীরতা}} \implies \text{আপাত গভীরতা} = \frac{2.66}{1.33} = \mathbf{2.00\text{ m}}$$
+          অর্থাৎ তলদেশ $0.66\text{ m}$ ওপরে উঠে এসেছে বলে মনে হবে।
+        </div>
+      </div>
+
+      <p class="note">মূল বইয়ের সংশ্লিষ্ট স্ক্যান: <a href="chapter-source.html#page-3">পৃষ্ঠা ৩ দেখো</a> · <a href="chapter-source.html#page-7">পৃষ্ঠা ৭ দেখো</a></p>
+    </section>
+
+    <div class="memory">
+      <h2>💡 মনে রাখার শর্টকাট (Golden Rules)</h2>
+      <ul>
+        <li><strong>হালকা → ঘন = অভিলম্বের দিকে</strong> ($v$ কমে, $\lambda$ কমে, $r < i$, কম্পাঙ্ক $f$ অপরিবর্তিত)।</li>
+        <li><strong>ঘন → হালকা = অভিলম্ব থেকে দূরে</strong> ($v$ বাড়ে, $\lambda$ বাড়ে, $r > i$)।</li>
+        <li><strong>চিরস্থায়ী অনুপাত:</strong> $n_1 \sin i = n_2 \sin r \iff n_1 v_1 = n_2 v_2$।</li>
+      </ul>
+    </div>
+
+    <details class="check">
+      <summary>✓ নিজেকে যাচাই করো (Self-Check Quiz)</summary>
+      <ol>
+        <li><b>প্রশ্ন:</b> বায়ু থেকে কাচে আলো প্রবেশ করলে কোন রাশিটি অপরিবর্তিত থাকে?
+          <br /><i>উত্তর:</i> আলোর কম্পাঙ্ক ($f$); বেগ ও তরঙ্গদৈর্ঘ্য উভয়ই কমে যায়।</li>
+        <li><b>প্রশ্ন:</b> হীরকে আলোর বেগ কত? ($n = 2.42$)
+          <br /><i>উত্তর:</i> $v = \frac{3 \times 10^8}{2.42} \approx 1.24 \times 10^8\text{ m/s}$।</li>
+        <li><b>প্রশ্ন:</b> আলোকরশ্মি বিভেদতলে লম্বভাবে ($i = 0^\circ$) আপতিত হলে প্রতিসরণ কোণ কত?
+          <br /><i>উত্তর:</i> $r = 0^\circ$ (দিক পরিবর্তিত হয় না, তবে বেগ পরিবর্তিত হয়)।</li>
+      </ol>
+    </details>
+
+    <nav class="nav">
+      <a class="button secondary" href="index.html">← অধ্যায়ের সূচি</a>
+      <a class="button" href="section-02.html">৯.২ পূর্ণ অভ্যন্তরীণ প্রতিফলন →</a>
+    </nav>
+
+    <footer class="footer">
+      <a href="chapter-source.html#page-3">সম্পূর্ণ অধ্যায়ের মূল পৃষ্ঠা (PDF পৃষ্ঠা ১–৭)</a> · অধ্যায় ৯: আলোর প্রতিসরণ · পড়ি (poRi)
+    </footer>
+  </main>
+
+  <script>
+    (function () {
+      const svg = document.getElementById("snellInlineSvg");
+      const inI = document.getElementById("inI");
+      const inN2 = document.getElementById("inN2");
+      const lblI = document.getElementById("lblI");
+      const lblN1 = document.getElementById("lblN1");
+      const lblN2 = document.getElementById("lblN2");
+      const telemetry = document.getElementById("snellTelemetry");
+      const presets = document.querySelectorAll("#snell-inline-lab .preset-btn");
+
+      let n1 = 1.00;
+      const CX = 330;
+      const CY = 135;
+      const R = 120;
+
+      function rad(d) { return (d * Math.PI) / 180; }
+      function deg(r) { return (r * 180) / Math.PI; }
+
+      function render() {
+        const iDeg = parseFloat(inI.value);
+        const n2 = parseFloat(inN2.value);
+        lblI.textContent = `${iDeg}°`;
+        lblN1.textContent = n1.toFixed(2);
+        lblN2.textContent = n2.toFixed(2);
+
+        const sinR = (n1 * Math.sin(rad(iDeg))) / n2;
+        const isTIR = sinR > 1.0;
+        const isCritical = !isTIR && Math.abs(sinR - 1.0) < 0.005;
+
+        const out = [];
+        // Media backgrounds
+        out.push(`<rect x="0" y="0" width="660" height="${CY}" fill="${n1 > 1.05 ? "#e0f2fe" : "#f8fafc"}"/>`);
+        out.push(`<rect x="0" y="${CY}" width="660" height="${270 - CY}" fill="${n2 > 1.05 ? "#bae6fd" : "#f1f5f9"}"/>`);
+        out.push(`<line x1="0" y1="${CY}" x2="660" y2="${CY}" stroke="#0284c7" stroke-width="2"/>`);
+        // Normal
+        out.push(`<line x1="${CX}" y1="12" x2="${CX}" y2="258" stroke="#64748b" stroke-width="1.6" stroke-dasharray="5 4"/>`);
+
+        out.push(`<text x="16" y="26" font-size="12" font-weight="700" fill="#0f172a">মাধ্যম ১: n₁ = ${n1.toFixed(2)}</text>`);
+        out.push(`<text x="16" y="${CY + 22}" font-size="12" font-weight="700" fill="#0c4a6e">মাধ্যম ২: n₂ = ${n2.toFixed(2)}</text>`);
+
+        // Incident ray
+        const ix = CX - R * Math.sin(rad(iDeg));
+        const iy = CY - R * Math.cos(rad(iDeg));
+        out.push(`<line x1="${ix.toFixed(1)}" y1="${iy.toFixed(1)}" x2="${CX}" y2="${CY}" stroke="#2563eb" stroke-width="3.2" stroke-linecap="round"/>`);
+
+        let rText = "";
+        let devText = "";
+        let critText = n1 > n2 ? `${deg(Math.asin(n2 / n1)).toFixed(1)}°` : "প্রযোজ্য নয় (n₁ ≤ n₂)";
+
+        if (isTIR) {
+          // Total internal reflection ray back into medium 1
+          const rx = CX + R * Math.sin(rad(iDeg));
+          const ry = CY - R * Math.cos(rad(iDeg));
+          out.push(`<line x1="${CX}" y1="${CY}" x2="${rx.toFixed(1)}" y2="${ry.toFixed(1)}" stroke="#dc2626" stroke-width="3.2" stroke-linecap="round"/>`);
+          out.push(`<text x="${rx - 8}" y="${ry + 18}" font-size="12" font-weight="800" fill="#b91c1c">পূর্ণ অভ্যন্তরীণ প্রতিফলন!</text>`);
+          rText = "TIR (কোনো প্রতিসরণ নেই)";
+          devText = `${(180 - 2 * iDeg).toFixed(0)}° (প্রতিফলিত)`;
+        } else {
+          const rDeg = deg(Math.asin(Math.min(1, sinR)));
+          const rx = CX + R * Math.sin(rad(rDeg));
+          const ry = CY + R * Math.cos(rad(rDeg));
+          out.push(`<line x1="${CX}" y1="${CY}" x2="${rx.toFixed(1)}" y2="${ry.toFixed(1)}" stroke="#059669" stroke-width="3.2" stroke-linecap="round"/>`);
+          rText = `${rDeg.toFixed(1)}°`;
+          devText = `${Math.abs(iDeg - rDeg).toFixed(1)}°`;
+        }
+
+        out.push(`<circle cx="${CX}" cy="${CY}" r="4.5" fill="#0f172a"/>`);
+        svg.innerHTML = out.join("");
+
+        const v2 = (3.0 / n2).toFixed(2);
+        telemetry.innerHTML = `
+          <div class="calc-box"><div class="label">প্রতিসরণ কোণ (r)</div><div class="val">${rText}</div></div>
+          <div class="calc-box"><div class="label">সংকট কোণ (θc)</div><div class="val">${critText}</div></div>
+          <div class="calc-box"><div class="label">রশ্মির বিচ্যুতি</div><div class="val">${devText}</div></div>
+          <div class="calc-box"><div class="label">মাধ্যম ২-এ বেগ (v₂)</div><div class="val">${v2}×10⁸ m/s</div></div>
+        `;
+      }
+
+      inI.addEventListener("input", render);
+      inN2.addEventListener("input", render);
+
+      presets.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          presets.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          n1 = parseFloat(btn.dataset.n1);
+          inN2.value = btn.dataset.n2;
+          inI.value = btn.dataset.i;
+          render();
+        });
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

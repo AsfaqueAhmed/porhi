@@ -33,17 +33,22 @@ async function upsertTopicAndLesson(
     create: { id: topicId, chapterId, orderIndex, titleBangla },
   });
 
+  const normalizedLessonData = {
+    ...lessonData,
+    interactiveWidgetUrl: lessonData.interactiveWidgetUrl ?? null,
+  };
+
   await prisma.lesson.upsert({
     where: { id: lessonId },
     update: {
       topicId,
-      ...lessonData,
+      ...normalizedLessonData,
       version: 1,
     },
     create: {
       id: lessonId,
       topicId,
-      ...lessonData,
+      ...normalizedLessonData,
       version: 1,
     },
   });
@@ -102,28 +107,30 @@ export async function seedChapter12(prisma: PrismaClient) {
     'top_ssc_physics_ch12_2',
     chapter12.id,
     2,
-    '১২.২.১–১২.২.২ সলিনয়েড ও তড়িৎচুম্বক (Solenoid & Electromagnet)',
+    '১২.২ বিদ্যুতের চৌম্বক ক্রিয়া, তড়িৎচুম্বক ও DC মোটর (Electromagnetism & DC Motor Lab)',
     'les_ssc_physics_ch12_2',
     {
-      titleBangla: 'ওয়েরস্টেডের পরীক্ষা, ডানহস্ত গ্রিপ নিয়ম, সলিনয়েড ও তড়িৎচুম্বক',
-      learningGoal: 'বিদ্যুৎপ্রবাহের ফলে সৃষ্ট চৌম্বক ক্ষেত্রের দিক নির্ণয় (ডানহস্ত গ্রিপ নিয়ম) এবং নরম লোহার কোর ব্যবহার করে শক্তিশালী তড়িৎচুম্বক তৈরির কৌশল বর্ণনা করতে পারবে।',
-      explanation: `### ১. ওয়েরস্টেডের পরীক্ষা ও ডানহস্ত নিয়ম
-- তড়িৎবাহী সোজা তারের চারপাশে সমকেন্দ্রিক বৃত্তাকার চৌম্বক ক্ষেত্র তৈরি হয়।
-- ডান হাতের বৃদ্ধাঙ্গুলি প্রবাহের দিকে রাখলে বাঁকানো আঙুলগুলো বলরেখার দিক নির্দেশ করে।
+      titleBangla: 'ওয়েরস্টেডের পরীক্ষা, সলিনয়েড, তড়িৎচুম্বক, তারে বল ও DC মোটর',
+      learningGoal: 'ডানহস্ত গ্রিপ নিয়মে প্রবাহজনিত চৌম্বক ক্ষেত্রের দিক, সলিনয়েড ও নরম লোহার তড়িৎচুম্বকের শক্তি বৃদ্ধির উপায়, ফ্লেমিংয়ের বামহস্ত নিয়মে তারের বল ($F = BIL\\sin\\theta$) এবং কমিউটেটরসহ DC মোটরের ঘূর্ণন ব্যাখ্যা করতে পারবে।',
+      explanation: `### ১. ওয়েরস্টেডের পরীক্ষা, সলিনয়েড ও তড়িৎচুম্বক (১২.২.১–১২.২.২)
+- তড়িৎবাহী সোজা তারের চারপাশে সমকেন্দ্রিক বৃত্তাকার চৌম্বক ক্ষেত্র তৈরি হয় (ডানহস্ত গ্রিপ নিয়ম)।
+- অনেক পাকের কুণ্ডলীকে **সলিনয়েড** বলে; এর ভেতর **নরম লোহার কোর** ঢোকালে প্রবল অস্থায়ী **তড়িৎচুম্বক** তৈরি হয়। পাকসংখ্যা ($N$) বা প্রবাহ ($I$) বাড়ালে চুম্বকত্ব বাড়ে।
 
-### ২. সলিনয়েড ও তড়িৎচুম্বক
-- অনেক পাকের কুণ্ডলীকে **সলিনয়েড** বলে; এর ভেতর **নরম লোহার কোর** ঢোকালে প্রবল অস্থায়ী **তড়িৎচুম্বক** তৈরি হয়।
-- পাকসংখ্যা ($N$) বাড়ালে, প্রবাহ ($I$) বাড়ালে এবং নরম লোহার কোর দিলে চুম্বকত্ব বহুগুণ বাড়ে।`,
+### ২. বিদ্যুৎবাহী তারে বল ও DC মোটর (১২.২.৩–১২.২.৪)
+- চৌম্বক ক্ষেত্রে ($B$) রাখা $L$ দৈর্ঘ্যের তারে $I$ প্রবাহ চললে ক্রিয়াশীল বল: $$F = B I L \\sin\\theta$$
+- ফ্লেমিংয়ের বামহস্ত নিয়মে তর্জনী ($N \\to S$), মধ্যমা (প্রবাহ) ও বৃদ্ধাঙ্গুলি (বল) পরস্পর সমকোণে থাকে।
+- **DC মোটর** তড়িৎ শক্তিকে যান্ত্রিক শক্তিতে রূপান্তর করে এবং **স্প্লিট-রিং কমিউটেটর** প্রতি $180^\\circ$ ঘূর্ণনের পর প্রবাহ উল্টে দিয়ে একমুখী অবিরাম ঘূর্ণন বজায় রাখে।`,
       interactiveWidgetUrl: '/uploads/interactive/electromagnet-motor-lab.html',
       importantTerms: [
-        { termBangla: 'সলিনয়েড', termEnglish: 'Solenoid', definition: 'তারকে স্প্রিংয়ের মতো বহু পাকে পেঁচিয়ে তৈরি কুণ্ডলী যার চৌম্বক ক্ষেত্র দণ্ড চুম্বকের মতো।' },
-        { termBangla: 'তড়িৎচুম্বক', termEnglish: 'Electromagnet', definition: 'সলিনয়েডের ভেতরে নরম লোহার কোর প্রবেশ করিয়ে তৈরি নিয়ন্ত্রণযোগ্য অস্থায়ী চুম্বক।' },
+        { termBangla: 'সলিনয়েড ও তড়িৎচুম্বক', termEnglish: 'Solenoid & Electromagnet', definition: 'বহু পাকের তারের কুণ্ডলী (সলিনয়েড) এবং এর ভেতর নরম লোহার কোর বসিয়ে তৈরি নিয়ন্ত্রণযোগ্য অস্থায়ী চুম্বক।' },
+        { termBangla: 'ফ্লেমিংয়ের বামহস্ত নিয়ম', termEnglish: "Fleming's Left-Hand Rule", definition: 'চৌম্বক ক্ষেত্রে তড়িৎবাহী তারের ওপর ক্রিয়াশীল বল বা গতির দিক নির্ণয়ের নিয়ম।' },
+        { termBangla: 'কমিউটেটর', termEnglish: 'Split-Ring Commutator', definition: 'DC মোটরে প্রতি অর্ধ-আবর্তনে কুণ্ডলীর প্রবাহের দিক পরিবর্তনকারী খণ্ডিত তামার রিং।' },
       ],
       workedExample: {
-        problem: 'বৈদ্যুতিক ঘণ্টা ও স্ক্র্যাপ ক্রেনে স্টিলের বদলে নরম লোহার কোর ব্যবহার করা হয় কেন?',
-        stepByStepSolution: 'কারণ সুইচ বন্ধ করার সাথে সাথেই নরম লোহা তার চুম্বকত্ব দ্রুত হারিয়ে ফেলে; স্টিল ব্যবহার করলে তা স্থায়ী চুম্বকে পরিণত হয়ে যেত এবং লোহা ছাড়ত না।',
+        problem: '$0.6\\,\\text{T}$ চৌম্বক ক্ষেত্রে লম্বভাবে স্থাপিত $0.5\\,\\text{m}$ দীর্ঘ তারে $4\\,\\text{A}$ প্রবাহ চললে বল কত?',
+        stepByStepSolution: '$F = BIL\\sin 90^\\circ = 0.6 \\times 4 \\times 0.5 \\times 1 = 1.2\\,\\text{N}$।',
       },
-      memoryAid: 'তড়িৎচুম্বক শক্তির ৩ চাবি: বেশি পাক (N), বেশি প্রবাহ (I), আর ভেতরে নরম লোহা (Soft Iron)!',
+      memoryAid: 'তড়িৎচুম্বক শক্তির ৩ চাবি: বেশি পাক (N), বেশি প্রবাহ (I), নরম লোহা। আর বাম হাত = মোটর (বিদ্যুৎ থেকে বল)!',
       status: ContentStatus.PUBLISHED,
     },
   );
@@ -133,52 +140,22 @@ export async function seedChapter12(prisma: PrismaClient) {
     'top_ssc_physics_ch12_3',
     chapter12.id,
     3,
-    '১২.২.৩–১২.২.৪ বিদ্যুৎবাহী তারে বল ও DC মোটর (Magnetic Force & DC Motor Lab)',
-    'les_ssc_physics_ch12_3',
-    {
-      titleBangla: 'চৌম্বক ক্ষেত্রে বিদ্যুৎবাহী তারে বল, ফ্লেমিংয়ের বামহস্ত নিয়ম ও DC মোটর',
-      learningGoal: 'ফ্লেমিংয়ের বামহস্ত নিয়মে তারের ওপর ক্রিয়াশীল বলের ($F = BIL\\sin\\theta$) দিক নির্ণয় এবং কমিউটেটরসহ DC মোটরের অবিরাম ঘূর্ণন ব্যাখ্যা করতে পারবে।',
-      explanation: `### ১. তারের ওপর বল ও ফ্লেমিংয়ের বামহস্ত নিয়ম
-- চৌম্বক ক্ষেত্রে ($B$) রাখা $L$ দৈর্ঘ্যের তারে $I$ প্রবাহ চললে ক্রিয়াশীল বল: $$F = B I L \\sin\\theta$$
-- বাম হাতের তর্জনী (ক্ষেত্র $N \\to S$), মধ্যমা (প্রবাহ) ও বৃদ্ধাঙ্গুলি (বল) পরস্পর সমকোণে থাকলে বলের দিক পাওয়া যায়।
-
-### ২. DC মোটর ও কমিউটেটর
-- মোটর **তড়িৎ শক্তিকে যান্ত্রিক শক্তিতে** রূপান্তর করে।
-- **স্প্লিট-রিং কমিউটেটর** প্রতি $180^\\circ$ ঘূর্ণনের পর কুণ্ডলীর প্রবাহ উল্টে দেয় বলেই আর্মেচার একই দিকে অবিরাম ঘুরতে থাকে।`,
-      interactiveWidgetUrl: '/uploads/interactive/electromagnet-motor-lab.html',
-      importantTerms: [
-        { termBangla: 'ফ্লেমিংয়ের বামহস্ত নিয়ম', termEnglish: "Fleming's Left-Hand Rule", definition: 'চৌম্বক ক্ষেত্রে তড়িৎবাহী তারের ওপর ক্রিয়াশীল বল বা গতির দিক নির্ণয়ের নিয়ম।' },
-        { termBangla: 'কমিউটেটর', termEnglish: 'Split-Ring Commutator', definition: 'DC মোটরে প্রতি অর্ধ-আবর্তনে কুণ্ডলীর প্রবাহের দিক পরিবর্তনকারী খণ্ডিত তামার রিং।' },
-      ],
-      workedExample: {
-        problem: '$0.6\\,\\text{T}$ চৌম্বক ক্ষেত্রে লম্বভাবে স্থাপিত $0.5\\,\\text{m}$ দীর্ঘ তারে $4\\,\\text{A}$ প্রবাহ চললে বল কত?',
-        stepByStepSolution: '$F = BIL\\sin 90^\\circ = 0.6 \\times 4 \\times 0.5 \\times 1 = 1.2\\,\\text{N}$।',
-      },
-      memoryAid: 'বাম হাত = মোটর (বিদ্যুৎ থেকে বল); ডান হাত = জেনারেটর (ঘূর্ণন থেকে বিদ্যুৎ)!',
-      status: ContentStatus.PUBLISHED,
-    },
-  );
-
-  await upsertTopicAndLesson(
-    prisma,
-    'top_ssc_physics_ch12_4',
-    chapter12.id,
-    4,
     '১২.৩ তড়িৎচৌম্বকীয় আবেশ, জেনারেটর ও ট্রান্সফরমার (Induction, Generator & Transformer Lab)',
-    'les_ssc_physics_ch12_4',
+    'les_ssc_physics_ch12_3',
     {
       titleBangla: 'ফ্যারাডের তড়িৎচৌম্বকীয় আবেশ, জেনারেটর ও আরোহী-অবরোহী ট্রান্সফরমার',
       learningGoal: 'চৌম্বক ফ্লাক্স পরিবর্তনের মাধ্যমে আবিষ্ট তড়িৎপ্রবাহ (আবেশ), AC/DC জেনারেটর এবং আদর্শ ট্রান্সফরমারের সমীকরণ ($V_s/V_p = N_s/N_p = I_p/I_s$) প্রয়োগ করতে পারবে।',
-      explanation: `### ১. তড়িৎচৌম্বকীয় আবেশ ও জেনারেটর
+      explanation: `### ১. তড়িৎচৌম্বকীয় আবেশ ও জেনারেটর (১২.৩.১)
 - কুণ্ডলী ও চুম্বকের আপেক্ষিক গতিতে চৌম্বক ফ্লাক্স বদলালে কুণ্ডলীতে ভোল্টেজ ও প্রবাহ আবিষ্ট হয় (ফ্যারাডে, ১৮৩১)।
 - জেনারেটর **যান্ত্রিক শক্তিকে তড়িৎ শক্তিতে** রূপান্তর করে (AC জেনারেটরে স্লিপ রিং, DC জেনারেটরে কমিউটেটর)।
 
-### ২. ট্রান্সফরমার (Transformer)
+### ২. ট্রান্সফরমার (১২.৩.২)
 - পারস্পরিক আবেশের নীতিতে কেবল **AC** ভোল্টেজ বাড়ায় (আরোহী: $N_s > N_p$) বা কমায় (অবরোহী: $N_s < N_p$): $$\\frac{V_s}{V_p} = \\frac{N_s}{N_p} = \\frac{I_p}{I_s}$$
 - শক্তির নিত্যতা থেকে আদর্শ ট্রান্সফরমারে ইনপুট ও আউটপুট ক্ষমতা সমান থাকে ($V_p I_p = V_s I_s$)।`,
       interactiveWidgetUrl: '/uploads/interactive/induction-transformer-lab.html',
       importantTerms: [
         { termBangla: 'তড়িৎচৌম্বকীয় আবেশ', termEnglish: 'Electromagnetic Induction', definition: 'পরিবর্তনশীল চৌম্বক ক্ষেত্র দ্বারা কুণ্ডলীতে বিভব ও প্রবাহ সৃষ্টি হওয়ার ঘটনা।' },
+        { termBangla: 'জেনারেটর', termEnglish: 'AC / DC Generator', definition: 'যান্ত্রিক শক্তিকে তড়িৎ শক্তিতে রূপান্তরকারী যন্ত্র (AC-তে স্লিপ রিং, DC-তে কমিউটেটর)।' },
         { termBangla: 'ট্রান্সফরমার', termEnglish: 'Transformer', definition: 'AC ভোল্টেজকে প্রয়োজনমতো বৃদ্ধি (আরোহী) বা হ্রাস (অবরোহী) করার যন্ত্র।' },
       ],
       workedExample: {
@@ -222,6 +199,26 @@ export async function seedChapter12(prisma: PrismaClient) {
       },
     });
   }
+
+  const activeTopicIds = [
+    'top_ssc_physics_ch12_1',
+    'top_ssc_physics_ch12_2',
+    'top_ssc_physics_ch12_3',
+  ];
+
+  await prisma.lesson.deleteMany({
+    where: {
+      topic: { chapterId: chapter12.id },
+      topicId: { notIn: activeTopicIds },
+    },
+  });
+
+  await prisma.topic.deleteMany({
+    where: {
+      chapterId: chapter12.id,
+      id: { notIn: activeTopicIds },
+    },
+  });
 
   console.log(`✅ Chapter 12 seeded (${chapter12AllQuestions.length} verified questions).`);
 }

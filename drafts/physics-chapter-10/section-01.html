@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>১০.১ আধান বা চার্জ · অধ্যায় ১০: স্থির বিদ্যুৎ</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ১০ / ১০.১</span>
+    </div>
+  </header>
+  <main>
+    <span class="badge">বইয়ের অনুচ্ছেদ ১০.১</span>
+    <h1 class="title">আধান বা চার্জ (Electric Charge)</h1>
+    <p class="subtitle">পরমাণুতে প্রোটন-ইলেকট্রনের গঠন · মৌলিক আধান $e$ ও আধানের কোয়ান্টায়ন ($Q = ne$) · পরিবাহী ও অন্তরক।</p>
+
+    <section class="goal">
+      <h2>এই পাঠে শিখবে</h2>
+      <p>পরমাণুর ভেতর আধান কোথায় থাকে, ধনাত্মক ও ঋণাত্মক আধানের উৎপত্তি কী, আধানের কোয়ান্টায়ন ($Q = ne$) দিয়ে ইলেকট্রন সংখ্যা গণনা এবং পরিবাহী ও অন্তরকের পার্থক্য ব্যাখ্যা করতে পারবে।</p>
+    </section>
+
+    <section class="section">
+      <h2>১০.১ · আধান বা চার্জ (Charge)</h2>
+      <p>শীতের দিনে শুকনো চুলে প্লাস্টিকের চিরুনি ঘষার পর ছোট কাগজের টুকরো আকৃষ্ট হওয়া বা আকাশে মেঘের গর্জনসহ বজ্রপাত—সবকিছুর মূলেই রয়েছে পদার্থের একটি মৌলিক বৈশিষ্ট্য, যার নাম <strong>বৈদ্যুতিক আধান বা চার্জ ($q$ বা $Q$)</strong>। আধানের SI একক হলো <strong>কুলম্ব ($\text{C}$)</strong>।</p>
+
+      <div class="grid">
+        <div class="term">
+          <strong>প্রোটন ($p^+$)</strong>
+          <small>পরমাণুর নিউক্লিয়াসে আবদ্ধ থাকে; ধনাত্মক আধান $+e = +1.6 \times 10^{-19}\,\text{C}$। ভর বেশি বলে ঘর্ষণে স্থানান্তরিত হয় না।</small>
+        </div>
+        <div class="term">
+          <strong>ইলেকট্রন ($e^-$)</strong>
+          <small>নিউক্লিয়াসের বাইরে কক্ষপথে ঘোরে; ঋণাত্মক আধান $-e = -1.6 \times 10^{-19}\,\text{C}$। বাইরের স্তরের ইলেকট্রন সহজে স্থানান্তরিত হয়।</small>
+        </div>
+        <div class="term">
+          <strong>নিউট্রন ($n^0$)</strong>
+          <small>নিউক্লিয়াসে থাকে; এর কোনো বৈদ্যুতিক আধান নেই, অর্থাৎ তড়িৎ নিরপেক্ষ ($0\,\text{C}$)।</small>
+        </div>
+      </div>
+
+      <div class="formula">$$e = 1.6 \times 10^{-19}\,\text{C} \qquad \text{এবং} \qquad 1\,\text{C} \approx 6.25 \times 10^{18}\text{টি ইলেকট্রন}$$</div>
+
+      <p>স্বাভাবিক অবস্থায় প্রতিটি পরমাণুতে প্রোটন এবং ইলেকট্রনের সংখ্যা সমান থাকে, তাই মোট আধান শূন্য হয়—অর্থাৎ পদার্থ তড়িৎ নিরপেক্ষ। কোনো বস্তুতে ইলেকট্রন বাইরে থেকে এলে ঋণাত্মক আধানের আধিক্য ঘটে এবং বস্তুটি <strong>ঋণাত্মক চার্জযুক্ত</strong> হয়। আবার ইলেকট্রন চলে গেলে প্রোটনের তুলনায় ইলেকট্রন কমে যায় বলে বস্তুটি <strong>ধনাত্মক চার্জযুক্ত</strong> হয়।</p>
+
+      <div class="highlight-box">
+        <strong>আধানের দুটি মৌলিক নীতি:</strong>
+        <ul>
+          <li><strong>আধানের নিত্যতা (Conservation of Charge):</strong> আধান সৃষ্টি বা ধ্বংস করা যায় না; শুধু এক বস্তু থেকে অন্য বস্তুতে স্থানান্তরিত হয়। সমগ্র বিচ্ছিন্ন ব্যবস্থার মোট আধান সর্বদা ধ্রুবক থাকে।</li>
+          <li><strong>আধানের কোয়ান্টায়ন (Quantization of Charge):</strong> প্রকৃতিতে যেকোনো মুক্ত আধান মৌলিক আধান $e$-এর পূর্ণসংখ্যা গুণিতক: $$Q = \pm ne \quad (n = 1, 2, 3, \dots)$$</li>
+        </ul>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>বস্তুর অবস্থা</th>
+              <th>কণা স্থানান্তরের ঘটনা</th>
+              <th>নিট আধানের চিহ্ন</th>
+              <th>মন্তব্য</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>তড়িৎ নিরপেক্ষ</td>
+              <td>প্রোটন সংখ্যা $=$ ইলেকট্রন সংখ্যা</td>
+              <td>$Q = 0$</td>
+              <td>কোনো অতিরিক্ত ইলেকট্রন নেই</td>
+            </tr>
+            <tr>
+              <td>ধনাত্মক চার্জিত ($+$)</td>
+              <td>$n$ টি ইলেকট্রন হারিয়েছে</td>
+              <td>$Q = +ne$</td>
+              <td>ভর সামান্য কমে যায়</td>
+            </tr>
+            <tr>
+              <td>ঋণাত্মক চার্জিত ($-$)</td>
+              <td>$n$ টি অতিরিক্ত ইলেকট্রন পেয়েছে</td>
+              <td>$Q = -ne$</td>
+              <td>ভর সামান্য বেড়ে যায়</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>পরিবাহী, অপরিবাহী (অন্তরক) ও অর্ধপরিবাহী</h3>
+      <p>সমান আধান বিপরীত আচরণ করে না—<strong>সমধর্মী আধান পরস্পরকে বিকর্ষণ</strong> করে এবং <strong>বিপরীতধর্মী আধান পরস্পরকে আকর্ষণ</strong> করে। পদার্থের ভেতর মুক্ত ইলেকট্রনের উপস্থিতির ওপর ভিত্তি করে বস্তুকে তিন ভাগে ভাগ করা হয়:</p>
+      <ul>
+        <li><strong>সুপরিবাহী (Conductors):</strong> যাদের পরমাণুর সর্ববহিঃস্থ ইলেকট্রন হালকাভাবে বাঁধা থাকায় সহজে চলাচল করতে পারে (যেমন: তামা, রুপা, অ্যালুমিনিয়াম, গ্রাফাইট, মানবদেহ, ভেজা মাটি)।</li>
+        <li><strong>অপরিবাহী বা অন্তরক (Insulators):</strong> যাদের ইলেকট্রন নিউক্লিয়াসে দৃঢ়ভাবে বাঁধা থাকে, ফলে আধান এক স্থান থেকে অন্য স্থানে চলতে পারে না (যেমন: প্লাস্টিক, কাচ, শুকনো কাঠ, রাবার, সিরামিক, পলিথিন)।</li>
+        <li><strong>অর্ধপরিবাহী (Semiconductors):</strong> বিশেষ শর্তে (তাপমাত্রা বা ভেজাল মিশিয়ে) পরিবাহিতা নিয়ন্ত্রণ করা যায় (যেমন: সিলিকন, জার্মেনিয়াম)।</li>
+      </ul>
+
+      <div class="worked">
+        <h2>গাণিতিক উদাহরণ: ১ কুলম্ব আধানে ইলেকট্রন সংখ্যা</h2>
+        <div class="problem">কোনো পরিবাহীতে $-1\,\text{C}$ আধান তৈরি করতে হলে বাইরে থেকে কতটি অতিরিক্ত ইলেকট্রন সরবরাহ করতে হবে?</div>
+        <div class="solution">
+          দেওয়া আছে, মোট আধান $Q = 1\,\text{C}$ এবং একটি ইলেকট্রনের আধানের মান $e = 1.6 \times 10^{-19}\,\text{C}$।<br>
+          কোয়ান্টায়নের সূত্র অনুযায়ী, $Q = ne \implies n = \dfrac{Q}{e}$<br>
+          $$n = \frac{1\,\text{C}}{1.6 \times 10^{-19}\,\text{C}} = 6.25 \times 10^{18}\text{ টি}$$
+          <b>উত্তর:</b> $6.25 \times 10^{18}$ টি ইলেকট্রন সরবরাহ করতে হবে।
+        </div>
+      </div>
+
+      <div class="memory">
+        <strong>মনে রাখার কৌশল:</strong> কখনোই ভাববে না ধনাত্মক আধান হওয়া মানে প্রোটন বাইরে থেকে এসেছে! কঠিন বস্তুতে ধনাত্মক চার্জের উৎপত্তি সর্বদা <strong>ইলেকট্রন হারানোর</strong> কারণে ঘটে, আর ঋণাত্মক চার্জ হয় <strong>ইলেকট্রন গ্রহণের</strong> কারণে।
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>নিজেকে যাচাই করো</h2>
+      <details class="check">
+        <summary>১. কোনো নিরপেক্ষ পরমাণু একটি ইলেকট্রন হারালে তার নিট আধান কত হবে?</summary>
+        <p>প্রোটনের সংখ্যা ইলেকট্রনের চেয়ে ১ বেশি হবে, তাই পরমাণুটি $+1.6 \times 10^{-19}\,\text{C}$ ধনাত্মক আধানযুক্ত হবে।</p>
+      </details>
+      <details class="check">
+        <summary>২. কোনো বস্তুতে কি $2.5 \times 10^{-19}\,\text{C}$ আধান থাকা সম্ভব?</summary>
+        <p>না। কারণ $n = Q/e = (2.5 \times 10^{-19}) / (1.6 \times 10^{-19}) = 1.5625$, যা পূর্ণসংখ্যা নয়। আধান সবসময় $e$-এর পূর্ণসংখ্যা গুণিতক হয়।</p>
+      </details>
+      <details class="check">
+        <summary>৩. একটি ইলেকট্রন ও একটি প্রোটনের আধানের পার্থক্য কী?</summary>
+        <p>উভয়ের আধানের মান সমান ($1.6 \times 10^{-19}\,\text{C}$), কেবল চিহ্ন বিপরীত (ইলেকট্রন $-e$, প্রোটন $+e$)। তবে প্রোটনের ভর ইলেকট্রনের প্রায় ১৮৩৬ গুণ বেশি।</p>
+      </details>
+    </section>
+
+    <nav class="nav">
+      <a class="button secondary" href="index.html">← অধ্যায়ের সূচি</a>
+      <a class="button" href="section-02.html">পরের পাঠ: ঘর্ষণে স্থির বিদ্যুৎ তৈরি →</a>
+    </nav>
+    <footer class="footer"><a href="chapter-source.html">PDF-এর সম্পূর্ণ মূল পৃষ্ঠা</a> · অধ্যায় ১০</footer>
+  </main>
+</body>
+</html>

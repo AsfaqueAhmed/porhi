@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>১০.৫ তড়িৎ ক্ষেত্র · অধ্যায় ১০: স্থির বিদ্যুৎ</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+  <style>
+    .field-svg{width:100%;height:auto;border:1px solid #dbe3f2;border-radius:14px;background:#f8fbff;display:block}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ১০ / ১০.৫</span>
+    </div>
+  </header>
+  <main>
+    <span class="badge">বইয়ের অনুচ্ছেদ ১০.৫</span>
+    <h1 class="title">তড়িৎ ক্ষেত্র ও তড়িৎ বলরেখা</h1>
+    <p class="subtitle">তড়িৎ ক্ষেত্র প্রাবল্য ($E = F/q$) · বিন্দু আধানের ক্ষেত্র ($E = k|Q|/r^2$) · তড়িৎ বলরেখার বৈশিষ্ট্য ও দিক।</p>
+
+    <section class="goal">
+      <h2>এই পাঠে শিখবে</h2>
+      <p>কোনো আধানের চারপাশে তড়িৎ ক্ষেত্র কীভাবে সৃষ্টি হয়, প্রতি একক ধনাত্মক আধানের ওপর বল হিসেবে তড়িৎ তীব্রতা ($E$) হিসাব করতে এবং বলরেখার চিত্র থেকে ক্ষেত্রের দিক ও শক্তি তুলনা করতে পারবে।</p>
+    </section>
+
+    <section class="section">
+      <h2>১০.৫ · তড়িৎ ক্ষেত্র (Electric Field)</h2>
+      <p>একটি স্থির আধান $Q$ তার চারপাশের স্থানে এমন একটি প্রভাব বিস্তার করে, যার ভেতরে অন্য কোনো আধান $q$ আনলে সেটি বৈদ্যুতিক বল অনুভব করে। কোনো আধানের চারপাশের যতটুকু অঞ্চলজুড়ে এর প্রভাব বিদ্যমান থাকে, তাকে ওই আধানের <strong>তড়িৎ ক্ষেত্র (Electric Field)</strong> বলে।</p>
+
+      <p>তড়িৎ ক্ষেত্রের কোনো বিন্দুতে $+1\,\text{C}$ (অর্থাৎ একক ধনাত্মক) আধান স্থাপন করলে সেটি যে বল অনুভব করে, তাকে ওই বিন্দুর <strong>তড়িৎ ক্ষেত্র বা তড়িৎ প্রাবল্য ($\vec{E}$)</strong> বলে। কোনো বিন্দুতে $q$ আধানের ওপর $F$ বল ক্রিয়া করলে:</p>
+
+      <div class="formula">$$E = \frac{F}{q} \qquad \implies \qquad F = qE$$</div>
+      <p>এবং $Q$ মানের একটি বিন্দু আধান থেকে $r$ দূরে শূন্যস্থানে তড়িৎ প্রাবল্যের মান:</p>
+      <div class="formula">$$E = k\frac{|Q|}{r^2} = \frac{1}{4\pi\varepsilon_0}\frac{|Q|}{r^2}$$</div>
+
+      <div class="grid">
+        <div class="term">
+          <strong>রাশি ও একক</strong>
+          <small>তড়িৎ প্রাবল্য একটি <strong>ভেক্টর রাশি</strong>। এর SI একক নিউটন/কুলম্ব ($\text{N/C}$) বা $\text{V/m}$।</small>
+        </div>
+        <div class="term">
+          <strong>ধনাত্মক ও ঋণাত্মক আধানের দিক</strong>
+          <small>ধনাত্মক আধান ($+$) থেকে প্রাবল্য বাইরের দিকে (radially outward) এবং ঋণাত্মক আধানের ($-$) দিকে ভেতরের দিকে (radially inward) কাজ করে।</small>
+        </div>
+        <div class="term">
+          <strong>পরীক্ষণ আধানের ওপর বল</strong>
+          <small>ধনাত্মক আধান $+q$ ক্ষেত্রের <strong>দিকেই</strong> বল পায়; ঋণাত্মক আধান $-q$ ক্ষেত্রের <strong>বিপরীত দিকে</strong> বল পায়।</small>
+        </div>
+      </div>
+
+      <h3>তড়িৎ বলরেখা (Electric Field Lines) পড়ার নিয়ম</h3>
+      <ul>
+        <li>তড়িৎ বলরেখা হলো এমন কিছু কাল্পনিক বক্ররেখা, যার কোনো বিন্দুতে অঙ্কিত স্পর্শক ওই বিন্দুতে তড়িৎ ক্ষেত্রের দিক নির্দেশ করে।</li>
+        <li>ধনাত্মক আধান থেকে বলরেখা উৎপন্ন হয়ে বাইরের দিকে যায় এবং ঋণাত্মক আধানে গিয়ে শেষ হয়।</li>
+        <li>যে স্থানে বলরেখাগুলো খুব ঘনসন্নিবিষ্ট, সেখানে ক্ষেত্র <strong>বেশি শক্তিশালী</strong>; যেখানে ফাঁকা ফাঁকা, সেখানে ক্ষেত্র দুর্বল।</li>
+        <li><strong>দুটি বলরেখা কখনোই পরস্পরকে ছেদ করে না:</strong> কারণ ছেদ করলে ছেদবিন্দুতে দুটি স্পর্শক অর্থাৎ তড়িৎ ক্ষেত্রের দুটি দিক হতো, যা অসম্ভব।</li>
+      </ul>
+
+      <div class="worked">
+        <h2>গাণিতিক উদাহরণ: প্রাবল্য ও বল নির্ণয়</h2>
+        <div class="problem">শূন্যস্থানে অবস্থিত $+4\,\mu\text{C}$ আধান থেকে $20\,\text{cm}$ দূরে কোনো বিন্দুতে তড়িৎ প্রাবল্য $E$ কত? ওই বিন্দুতে $-2\,\mu\text{C}$ আধান রাখলে কত বল অনুভব করবে?</div>
+        <div class="solution">
+          দেওয়া আছে, $Q = +4 \times 10^{-6}\,\text{C}$, দূরত্ব $r = 20\,\text{cm} = 0.20\,\text{m}$।<br>
+          ১) তড়িৎ প্রাবল্য,
+          $$E = k\frac{|Q|}{r^2} = \frac{9 \times 10^9 \times 4 \times 10^{-6}}{(0.20)^2} = \frac{36000}{0.04} = 9.0 \times 10^5\,\text{N/C}$$
+          (দিক: $+4\,\mu\text{C}$ থেকে বাইরের দিকে)<br>
+          ২) $-2\,\mu\text{C}$ আধানের ওপর বলের মান,
+          $$F = |q|E = (2 \times 10^{-6}) \times (9.0 \times 10^5) = 1.8\,\text{N}$$
+          <b>উত্তর:</b> প্রাবল্য $9.0 \times 10^5\,\text{N/C}$ এবং বল $1.8\,\text{N}$ ($Q$-এর দিকে আকর্ষণমূলক)।
+        </div>
+      </div>
+    </section>
+
+    <section class="lab" aria-label="তড়িৎ ক্ষেত্র ও বলরেখা ল্যাব">
+      <div class="lab-head">
+        <div>
+          <h2>তড়িৎ ক্ষেত্র প্রাবল্য ও বলরেখা এক্সপ্লোরার</h2>
+          <div style="color:#64748b;font-size:14px">উৎস আধান $Q$ ও পরীক্ষণ দূরত্ব $r$ পরিবর্তন করে বলরেখার দিক ও প্রাবল্যের মান দেখো।</div>
+        </div>
+        <span class="lab-tag">HTML LAB</span>
+      </div>
+
+      <div class="lab-controls">
+        <label>উৎস আধান $Q$: <b id="qSrcLbl">+4 μC</b>
+          <input class="range" id="qSrc" type="range" min="-8" max="8" step="1" value="4">
+        </label>
+        <label>পরীক্ষণ দূরত্ব $r$: <b id="rFieldLbl">20 cm</b>
+          <input class="range" id="rField" type="range" min="10" max="80" step="5" value="20">
+        </label>
+      </div>
+
+      <svg class="field-svg" viewBox="0 0 600 200" role="img" aria-label="বিন্দু আধানের তড়িৎ বলরেখা">
+        <defs>
+          <marker id="fArrOut" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L7,3 z" fill="#dc2626"/>
+          </marker>
+          <marker id="fArrIn" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L7,3 z" fill="#2563eb"/>
+          </marker>
+        </defs>
+        <g id="fieldLinesGroup"></g>
+        <circle id="srcDot" cx="220" cy="100" r="24" fill="#fee2e2" stroke="#dc2626" stroke-width="2.5"/>
+        <text id="srcDotTxt" x="220" y="105" text-anchor="middle" font-size="13" font-weight="800" fill="#991b1b">+4 μC</text>
+        <circle id="probeDot" cx="380" cy="100" r="7" fill="#4f46e5"/>
+        <text id="probeTxt" x="380" y="124" text-anchor="middle" font-size="12" font-weight="700" fill="#312e81">P (r = 0.20 m)</text>
+      </svg>
+
+      <div id="fieldReadout" class="readout" style="margin-top:14px" aria-live="polite">E = 9.00 × 10⁵ N/C · উৎস আধান থেকে বাইরের দিকে</div>
+    </section>
+
+    <section class="section">
+      <h2>নিজেকে যাচাই করো</h2>
+      <details class="check">
+        <summary>১. একটি $2\,\text{C}$ আধান তড়িৎ ক্ষেত্রের কোনো বিন্দুতে $6\,\text{N}$ বল পেলে ওই বিন্দুতে প্রাবল্য কত?</summary>
+        <p>$E = \dfrac{F}{q} = \dfrac{6\,\text{N}}{2\,\text{C}} = 3\,\text{N/C}$।</p>
+      </details>
+      <details class="check">
+        <summary>২. দুটি তড়িৎ বলরেখা পরস্পরকে ছেদ করতে পারে না কেন?</summary>
+        <p>ছেদবিন্দুতে দুটি আলাদা স্পর্শক আঁকা যেত, যার অর্থ একই বিন্দুতে তড়িৎ ক্ষেত্রের দুটি ভিন্ন দিক থাকা—যা ভৌতভাবে অসম্ভব।</p>
+      </details>
+    </section>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-04.html">← আগের পাঠ: বৈদ্যুতিক বল</a>
+      <a class="button" href="section-06.html">পরের পাঠ: তড়িৎ বিভব →</a>
+    </nav>
+    <footer class="footer"><a href="chapter-source.html">PDF-এর সম্পূর্ণ মূল পৃষ্ঠা</a> · অধ্যায় ১০</footer>
+  </main>
+
+  <script>
+    (function(){
+      function syncRangeVisual(el){
+        const min = el.min !== '' ? parseFloat(el.min) : 0;
+        const max = el.max !== '' ? parseFloat(el.max) : 100;
+        const val = parseFloat(el.value);
+        const pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
+        el.style.setProperty('--fill', pct.toFixed(2) + '%');
+        el.style.setProperty('--fill-pct', pct.toFixed(2) + '%');
+      }
+
+      const qSrc = document.getElementById('qSrc');
+      const rField = document.getElementById('rField');
+      const g = document.getElementById('fieldLinesGroup');
+
+      function update(){
+        let q = Number(qSrc.value);
+        if(q === 0){ q = 1; qSrc.value = 1; }
+        const cm = Math.max(10, Number(rField.value));
+        const r = cm / 100;
+        const E = (9e9 * Math.abs(q) * 1e-6) / (r * r);
+        const isPos = q > 0;
+
+        document.getElementById('qSrcLbl').textContent = (isPos ? '+' : '−') + Math.abs(q) + ' μC';
+        document.getElementById('rFieldLbl').textContent = cm + ' cm';
+
+        const dot = document.getElementById('srcDot');
+        dot.setAttribute('fill', isPos ? '#fee2e2' : '#dbeafe');
+        dot.setAttribute('stroke', isPos ? '#dc2626' : '#2563eb');
+        const txt = document.getElementById('srcDotTxt');
+        txt.setAttribute('fill', isPos ? '#991b1b' : '#1e40af');
+        txt.textContent = (isPos ? '+' : '−') + Math.abs(q) + ' μC';
+
+        const px = 220 + cm * 3.8;
+        document.getElementById('probeDot').setAttribute('cx', px);
+        document.getElementById('probeTxt').setAttribute('x', px);
+        document.getElementById('probeTxt').textContent = 'P (r = ' + r.toFixed(2) + ' m)';
+
+        // Draw 8 radial field lines
+        let html = '';
+        const angles = [0, 45, 90, 135, 180, 225, 270, 315];
+        angles.forEach(deg => {
+          const rad = deg * Math.PI / 180;
+          const r1 = 28, r2 = 86;
+          const xStart = 220 + (isPos ? r1 : r2) * Math.cos(rad);
+          const yStart = 100 + (isPos ? r1 : r2) * Math.sin(rad);
+          const xEnd = 220 + (isPos ? r2 : r1) * Math.cos(rad);
+          const yEnd = 100 + (isPos ? r2 : r1) * Math.sin(rad);
+          const stroke = isPos ? '#dc2626' : '#2563eb';
+          const marker = isPos ? 'url(#fArrOut)' : 'url(#fArrIn)';
+          html += `<line x1="${xStart.toFixed(1)}" y1="${yStart.toFixed(1)}" x2="${xEnd.toFixed(1)}" y2="${yEnd.toFixed(1)}" stroke="${stroke}" stroke-width="2" marker-end="${marker}" opacity="0.72"/>`;
+        });
+        g.innerHTML = html;
+
+        document.getElementById('fieldReadout').textContent = 'E = ' + E.toExponential(2) + ' N/C · দিক: ' + (isPos ? 'আধান থেকে বাইরের দিকে' : 'আধানের কেন্দ্রের দিকে');
+        [qSrc, rField].forEach(syncRangeVisual);
+      }
+
+      [qSrc, rField].forEach(el => el.addEventListener('input', update));
+      update();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>১১.২ ওহমের সূত্র, রোধ ও বর্তনী বিশ্লেষণ · অধ্যায় ১১: চল বিদ্যুৎ</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ১১ / ১১.২</span>
+    </div>
+  </header>
+  <main>
+    <span class="badge">বইয়ের অনুচ্ছেদ ১১.২ (১১.২.১–১১.২.৩)</span>
+    <h1 class="title">ওহমের সূত্র, রোধ ও বর্তনী বিশ্লেষণ</h1>
+    <p class="subtitle">ওহমের সূত্র ($V = IR$) · আপেক্ষিক রোধ ($R = \rho L/A$) · শ্রেণি ও সমান্তরাল সংযোগের তুল্য রোধ ও প্রবাহ বণ্টন।</p>
+
+    <section class="goal">
+      <h2>এই পাঠে শিখবে</h2>
+      <p>ওহমের সূত্র প্রয়োগ করতে, তারের দৈর্ঘ্য ও প্রস্থচ্ছেদের ক্ষেত্রফলের সাথে রোধের সম্পর্ক হিসাব করতে এবং শ্রেণি ($R_s$) ও সমান্তরাল ($R_p$) বর্তনীর তুল্য রোধ, শাখা প্রবাহ ও বিভব পতন নির্ণয় করতে পারবে।</p>
+    </section>
+
+    <section class="section">
+      <h2>১১.২ · বিভব পার্থক্য এবং তড়িৎপ্রবাহের মধ্যে সম্পর্ক</h2>
+
+      <h3 id="sub-11-2-1">১১.২.১ · ওহমের সূত্র (Ohm's Law)</h3>
+      <p>তাপমাত্রা স্থির থাকলে কোনো পরিবাহীর মধ্য দিয়ে প্রবাহিত তড়িৎ প্রবাহ $I$, পরিবাহীর দুই প্রান্তের বিভব পার্থক্য $V$-এর <strong>সমানুপাতিক</strong>:</p>
+      <div class="formula">$$I \propto V \implies V = IR \qquad \text{অথবা} \qquad I = \frac{V}{R}$$</div>
+      <p>এখানে $R$ হলো পরিবাহীর <strong>রোধ (Resistance)</strong>, যার SI একক ওহম ($\Omega$)। কোনো পরিবাহীর দুই প্রান্তে $1\,\text{V}$ বিভব পার্থক্য প্রয়োগ করলে যদি $1\,\text{A}$ প্রবাহ চলে, তবে এর রোধ $1\,\Omega$।</p>
+
+      <h3 id="sub-11-2-2">১১.২.২ · রোধ ও আপেক্ষিক রোধ (Resistance &amp; Resistivity)</h3>
+      <p>নির্দিষ্ট তাপমাত্রায় কোনো পরিবাহী তারের রোধ তার দৈর্ঘ্যের ($L$) সমানুপাতিক এবং প্রস্থচ্ছেদের ক্ষেত্রফলের ($A = \pi r^2$) ব্যস্তানুপাতিক:</p>
+      <div class="formula">$$R = \rho\frac{L}{A}$$</div>
+      <p>এখানে $\rho$ (রো) হলো উপাদানের <strong>আপেক্ষিক রোধ (Resistivity)</strong>, যার একক $\Omega\cdot\text{m}$। তারকে টেনে লম্বা করে দৈর্ঘ্য $n$ গুণ করলে প্রস্থচ্ছেদ $1/n$ গুণ হয়, ফলে নতুন রোধ $R' = n^2 R$ হয়ে যায়!</p>
+
+      <h3 id="sub-11-2-3">১১.২.৩ · শ্রেণি ও সমান্তরাল বর্তনী বিশ্লেষণ</h3>
+      <figure class="visual">
+        <svg viewBox="0 0 720 210" role="img" aria-label="শ্রেণি ও সমান্তরাল রোধের তুলনা">
+          <rect x="10" y="10" width="335" height="185" rx="18" fill="#fff" stroke="#cbd5e1"/>
+          <text x="28" y="42" font-size="18" font-weight="800" fill="#1e293b">শ্রেণি সংযোগ (Series)</text>
+          <path d="M35 100 H100 M145 100 H205 M250 100 H315 M315 100 V160 H35 V100" fill="none" stroke="#334155" stroke-width="4"/>
+          <path d="M100 100 l10 -14 12 28 12 -28 11 28" fill="none" stroke="#4f46e5" stroke-width="3.5"/>
+          <path d="M205 100 l10 -14 12 28 12 -28 11 28" fill="none" stroke="#4f46e5" stroke-width="3.5"/>
+          <text x="115" y="75" font-size="15" font-weight="700" fill="#334155">R₁</text>
+          <text x="220" y="75" font-size="15" font-weight="700" fill="#334155">R₂</text>
+          <text x="80" y="182" font-size="14" font-weight="700" fill="#475569">একই প্রবাহ I · V = V₁ + V₂</text>
+
+          <rect x="375" y="10" width="335" height="185" rx="18" fill="#fff" stroke="#cbd5e1"/>
+          <text x="393" y="42" font-size="18" font-weight="800" fill="#1e293b">সমান্তরাল সংযোগ (Parallel)</text>
+          <path d="M400 75 H675 M400 160 H675 M400 75 V160 M675 75 V160 M525 75 V95 M525 140 V160 M605 75 V95 M605 140 V160" fill="none" stroke="#334155" stroke-width="4"/>
+          <path d="M525 95 l-12 8 24 10 -24 10 12 17 M605 95 l-12 8 24 10 -24 10 12 17" fill="none" stroke="#4f46e5" stroke-width="3.5"/>
+          <text x="515" y="90" font-size="14" font-weight="700" fill="#334155">R₁</text>
+          <text x="595" y="90" font-size="14" font-weight="700" fill="#334155">R₂</text>
+          <text x="455" y="182" font-size="14" font-weight="700" fill="#475569">একই বিভব V · I = I₁ + I₂</text>
+        </svg>
+        <figcaption>শ্রেণি সংযোগে প্রতিটি রোধে একই প্রবাহ যায়; সমান্তরাল সংযোগে প্রতিটি শাখায় একই বিভব থাকে।</figcaption>
+      </figure>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>সংযোগের ধরন</th>
+              <th>তুল্য রোধের সূত্র</th>
+              <th>প্রবাহ ও বিভবের নিয়ম</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>শ্রেণি সংযোগ (Series)</td>
+              <td>$$R_s = R_1 + R_2 + \dots + R_n$$</td>
+              <td>সব রোধে একই প্রবাহ $I$, কিন্তু বিভব ভাগ হয় ($V = V_1 + V_2$)</td>
+            </tr>
+            <tr>
+              <td>সমান্তরাল সংযোগ (Parallel)</td>
+              <td>$$\frac{1}{R_p} = \frac{1}{R_1} + \frac{1}{R_2} + \dots \implies R_p = \frac{R_1 R_2}{R_1 + R_2}$$</td>
+              <td>সব শাখায় একই বিভব $V$, কিন্তু প্রবাহ ভাগ হয় ($I = I_1 + I_2$)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="worked">
+        <h2>বোর্ড স্টাইলের গাণিতিক উদাহরণ</h2>
+        <div class="problem">$3\,\Omega$ এবং $6\,\Omega$ দুটি রোধকে সমান্তরালে যুক্ত করে তার সাথে শ্রেণিতে $2\,\Omega$ একটি রোধ ও $12\,\text{V}$ ব্যাটারি লাগানো হলো। মোট প্রবাহ এবং $6\,\Omega$ রোধের ভেতরের প্রবাহ কত?</div>
+        <div class="solution">
+          ১) সমান্তরাল তুল্য রোধ, $R_p = \dfrac{3 \times 6}{3 + 6} = \dfrac{18}{9} = 2\,\Omega$।<br>
+          ২) মোট তুল্য রোধ, $R_{\text{eq}} = R_p + 2\,\Omega = 2 + 2 = 4\,\Omega$।<br>
+          ৩) মোট প্রবাহ, $I = \dfrac{V}{R_{\text{eq}}} = \dfrac{12}{4} = 3\,\text{A}$।<br>
+          ৪) সমান্তরাল অংশের দুই প্রান্তে বিভব পার্থক্য, $V_p = I R_p = 3 \times 2 = 6\,\text{V}$।<br>
+          ৫) অতএব $6\,\Omega$ রোধে প্রবাহ, $I_2 = \dfrac{V_p}{6} = \dfrac{6}{6} = 1\,\text{A}$।<br>
+          <b>উত্তর:</b> মোট প্রবাহ $3\,\text{A}$ এবং $6\,\Omega$ রোধে প্রবাহ $1\,\text{A}$।
+        </div>
+      </div>
+    </section>
+
+    <section class="lab" aria-label="শ্রেণি ও সমান্তরাল বর্তনী ল্যাব">
+      <div class="lab-head">
+        <div>
+          <h2>ওহমের সূত্র ও শ্রেণি/সমান্তরাল বর্তনী ল্যাব</h2>
+          <div style="color:#64748b;font-size:14px">সংযোগের ধরন, বিভব $V$ এবং রোধ $R_1, R_2$ বদলে তুল্য রোধ ও প্রবাহ পর্যবেক্ষণ করো।</div>
+        </div>
+        <span class="lab-tag">HTML LAB</span>
+      </div>
+
+      <div class="preset-row">
+        <button class="preset-btn active" data-mode="series">শ্রেণি সংযোগ (Series)</button>
+        <button class="preset-btn" data-mode="parallel">সমান্তরাল সংযোগ (Parallel)</button>
+      </div>
+
+      <div class="lab-controls">
+        <label>ব্যাটারি বিভব $V$: <b id="vLbl">12 V</b>
+          <input class="range" id="vInp" type="range" min="3" max="24" step="1" value="12">
+        </label>
+        <label>প্রথম রোধ $R_1$: <b id="r1Lbl">3 Ω</b>
+          <input class="range" id="r1Inp" type="range" min="1" max="20" step="1" value="3">
+        </label>
+        <label>দ্বিতীয় রোধ $R_2$: <b id="r2Lbl">6 Ω</b>
+          <input class="range" id="r2Inp" type="range" min="1" max="20" step="1" value="6">
+        </label>
+      </div>
+
+      <div class="calc-breakdown">
+        <div class="calc-box"><div class="label">তুল্য রোধ Req</div><div class="val" id="boxReq">9.00 Ω</div></div>
+        <div class="calc-box"><div class="label">মোট প্রবাহ I</div><div class="val" id="boxI">1.33 A</div></div>
+        <div class="calc-box"><div class="label" id="subLbl1">V₁ (R₁-এ বিভব)</div><div class="val" id="boxSub1">4.00 V</div></div>
+        <div class="calc-box"><div class="label" id="subLbl2">V₂ (R₂-এ বিভব)</div><div class="val" id="boxSub2">8.00 V</div></div>
+      </div>
+
+      <div id="cktReadout" class="readout" aria-live="polite">শ্রেণি সংযোগে মোট রোধ Req = 9.00 Ω এবং মোট প্রবাহ I = 1.33 A।</div>
+    </section>
+
+    <section class="section">
+      <h2>নিজেকে যাচাই করো</h2>
+      <details class="check">
+        <summary>১. $12\,\text{V}$ ব্যাটারির সাথে $4\,\Omega$ রোধ যোগ করলে প্রবাহ কত?</summary>
+        <p>$I = \dfrac{V}{R} = \dfrac{12}{4} = 3\,\text{A}$।</p>
+      </details>
+      <details class="check">
+        <summary>২. সমান্তরাল সংযোগে তুল্য রোধ প্রতিটি আলাদা রোধের চেয়ে কম হয় কেন?</summary>
+        <p>কারণ বিদ্যুৎ চলার জন্য একাধিক সমান্তরাল পথ খুলে যায় (কার্যকর প্রস্থচ্ছেদের ক্ষেত্রফল বাড়ে), তাই প্রবাহ সহজ হয় এবং রোধ কমে।</p>
+      </details>
+    </section>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-01.html">← আগের পাঠ: বিদ্যুৎপ্রবাহ</a>
+      <a class="button" href="section-03.html">পরের পাঠ: তড়িৎ ক্ষমতা →</a>
+    </nav>
+    <footer class="footer"><a href="chapter-source.html">PDF-এর সম্পূর্ণ মূল পৃষ্ঠা</a> · অধ্যায় ১১</footer>
+  </main>
+
+  <script>
+    (function(){
+      function syncRangeVisual(el){
+        const min = el.min !== '' ? parseFloat(el.min) : 0;
+        const max = el.max !== '' ? parseFloat(el.max) : 100;
+        const val = parseFloat(el.value);
+        const pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
+        el.style.setProperty('--fill', pct.toFixed(2) + '%');
+        el.style.setProperty('--fill-pct', pct.toFixed(2) + '%');
+      }
+      let mode = 'series';
+      const vI = document.getElementById('vInp');
+      const r1I = document.getElementById('r1Inp');
+      const r2I = document.getElementById('r2Inp');
+      function update(){
+        const V = Number(vI.value);
+        const R1 = Math.max(1, Number(r1I.value));
+        const R2 = Math.max(1, Number(r2I.value));
+        document.getElementById('vLbl').textContent = V + ' V';
+        document.getElementById('r1Lbl').textContent = R1 + ' Ω';
+        document.getElementById('r2Lbl').textContent = R2 + ' Ω';
+
+        if(mode === 'series'){
+          const Req = R1 + R2;
+          const I = V / Req;
+          document.getElementById('boxReq').textContent = Req.toFixed(2) + ' Ω';
+          document.getElementById('boxI').textContent = I.toFixed(2) + ' A';
+          document.getElementById('subLbl1').textContent = 'V₁ (R₁-এ বিভব)';
+          document.getElementById('subLbl2').textContent = 'V₂ (R₂-এ বিভব)';
+          document.getElementById('boxSub1').textContent = (I * R1).toFixed(2) + ' V';
+          document.getElementById('boxSub2').textContent = (I * R2).toFixed(2) + ' V';
+          document.getElementById('cktReadout').textContent = `শ্রেণি সংযোগ: Req = ${Req.toFixed(2)} Ω, মোট প্রবাহ I = ${I.toFixed(2)} A`;
+        } else {
+          const Req = (R1 * R2) / (R1 + R2);
+          const I = V / Req;
+          document.getElementById('boxReq').textContent = Req.toFixed(2) + ' Ω';
+          document.getElementById('boxI').textContent = I.toFixed(2) + ' A';
+          document.getElementById('subLbl1').textContent = 'I₁ (R₁ শাখায়)';
+          document.getElementById('subLbl2').textContent = 'I₂ (R₂ শাখায়)';
+          document.getElementById('boxSub1').textContent = (V / R1).toFixed(2) + ' A';
+          document.getElementById('boxSub2').textContent = (V / R2).toFixed(2) + ' A';
+          document.getElementById('cktReadout').textContent = `সমান্তরাল সংযোগ: Req = ${Req.toFixed(2)} Ω, মোট প্রবাহ I = ${I.toFixed(2)} A`;
+        }
+        [vI, r1I, r2I].forEach(syncRangeVisual);
+      }
+      document.querySelectorAll('.preset-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          mode = btn.dataset.mode;
+          update();
+        });
+      });
+      [vI, r1I, r2I].forEach(el => el.addEventListener('input', update));
+      update();
+    })();
+  </script>
+</body>
+</html>

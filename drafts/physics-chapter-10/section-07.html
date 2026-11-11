@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>১০.৭ ধারক ও সঞ্চিত শক্তি · অধ্যায় ১০: স্থির বিদ্যুৎ</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+  <style>
+    .cap-svg{width:100%;height:auto;border:1px solid #dbe3f2;border-radius:14px;background:#f8fbff;display:block}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ১০ / ১০.৭</span>
+    </div>
+  </header>
+  <main>
+    <span class="badge">বইয়ের অনুচ্ছেদ ১০.৭</span>
+    <h1 class="title">ধারক (Capacitor) ও সঞ্চিত শক্তি</h1>
+    <p class="subtitle">ধারকত্ব ($C = Q/V$) · ফ্যারাড ও উপ-একক ($\mu\text{F}, \text{pF}$) · সমান্তরাল পাত ধারক ও সঞ্চিত শক্তি ($U = \frac{1}{2}CV^2$)।</p>
+
+    <section class="goal">
+      <h2>এই পাঠে শিখবে</h2>
+      <p>ধারকের গঠন ও কাজ ব্যাখ্যা করতে, ধারকত্বের সূত্র $C = Q/V$ দিয়ে আধান ও বিভব হিসাব করতে এবং ধারকে সঞ্চিত বৈদ্যুতিক শক্তির তিনটি রূপ ($U = \frac{1}{2}CV^2 = \frac{1}{2}QV = \frac{Q^2}{2C}$) প্রয়োগ করতে পারবে।</p>
+    </section>
+
+    <section class="section">
+      <h2>১০.৭ · ধারক (Capacitor)</h2>
+      <p><strong>ধারক (Capacitor)</strong> হলো এমন একটি বৈদ্যুতিক যন্ত্র বা ব্যবস্থা যা তড়িৎ আধান এবং বৈদ্যুতিক শক্তি সাময়িকভাবে সঞ্চয় করে রাখে। সাধারণ একটি সমান্তরাল পাত ধারকে দুটি পরিবাহী ধাতব পাতের মাঝে একটি পাতলা অন্তরক বা পরাবৈদ্যুতিক মাধ্যম (Dielectric, যেমন কাগজ, অভ্র, প্লাস্টিক বা বায়ু) থাকে।</p>
+
+      <p>ধারকের দুই পাতে $V$ বিভব পার্থক্য প্রয়োগ করলে এক পাতে $+Q$ এবং অন্য পাতে $-Q$ আধান সঞ্চিত হয়। সঞ্চিত আধান $Q$, প্রযুক্ত বিভব পার্থক্য $V$-এর সমানুপাতিক:</p>
+
+      <div class="formula">$$Q \propto V \implies Q = CV \qquad \text{অর্থাৎ} \qquad C = \frac{Q}{V}$$</div>
+
+      <div class="grid">
+        <div class="term">
+          <strong>ধারকত্বের একক (ফ্যারাড)</strong>
+          <small>ধারকত্ব $C$-এর SI একক <strong>ফ্যারাড ($\text{F}$)</strong>। $1\,\text{F} = 1\,\text{C/V}$। এটি অনেক বড় একক হওয়ায় বাস্তবে $1\,\mu\text{F} = 10^{-6}\,\text{F}$, $1\,\text{nF} = 10^{-9}\,\text{F}$ ও $1\,\text{pF} = 10^{-12}\,\text{F}$ ব্যবহৃত হয়।</small>
+        </div>
+        <div class="term">
+          <strong>ধারকত্বের নির্ভরশীলতা</strong>
+          <small>সমান্তরাল পাত ধারকের ক্ষেত্রে $C = \kappa\varepsilon_0 \dfrac{A}{d}$। অর্থাৎ পাতের ক্ষেত্রফল $A$ বাড়লে ও পরাবৈদ্যুতিক ধ্রুবক $\kappa$ বাড়লে $C$ বাড়ে, এবং পাতের দূরত্ব $d$ কমলে $C$ বাড়ে।</small>
+        </div>
+        <div class="term">
+          <strong>সঞ্চিত বৈদ্যুতিক শক্তি ($U$)</strong>
+          <small>চার্জিংয়ের সময় বিভব $0$ থেকে $V$-তে বাড়তে থাকে বলে গড় বিভব $\frac{1}{2}V$, তাই: $$U = \frac{1}{2}QV = \frac{1}{2}CV^2 = \frac{Q^2}{2C}$$</small>
+        </div>
+      </div>
+
+      <div class="worked">
+        <h2>পাঠ্যবইয়ের উদাহরণ</h2>
+        <div class="problem">একটি $20\,\mu\text{F}$ ধারকের দুই প্রান্তে $10\,\text{V}$ বিভব পার্থক্য দেওয়া হলো। ধারকে সঞ্চিত আধান ও শক্তির পরিমাণ নির্ণয় করো।</div>
+        <div class="solution">
+          দেওয়া আছে, $C = 20\,\mu\text{F} = 20 \times 10^{-6}\,\text{F}$, বিভব $V = 10\,\text{V}$।<br>
+          ১) সঞ্চিত আধান, $Q = CV = (20 \times 10^{-6}) \times 10 = 2 \times 10^{-4}\,\text{C} = 200\,\mu\text{C}$<br>
+          ২) সঞ্চিত শক্তি,
+          $$U = \frac{1}{2}CV^2 = \frac{1}{2} \times (20 \times 10^{-6}) \times (10)^2 = 1.0 \times 10^{-3}\,\text{J} = 1\,\text{mJ}$$
+          <b>উত্তর:</b> সঞ্চিত আধান $200\,\mu\text{C}$ এবং শক্তি $0.001\,\text{J}$।
+        </div>
+      </div>
+
+      <div class="note">
+        <strong>বাস্তব জীবনে ধারকের ব্যবহার:</strong> ক্যামেরার ফ্ল্যাশ লাইট মুহূর্তের মধ্যে উজ্জ্বল আলো দিতে ধারকে জমা হওয়া শক্তি একবারে ছেড়ে দেয়। এছাড়া বৈদ্যুতিক পাখার স্টার্টিং কয়েলে, রেডিও টিউনিং সার্কিটে ও পাওয়ার সাপ্লাইয়ের ভোল্টেজ মসৃণ রাখতে ধারক অপরিহার্য।
+      </div>
+    </section>
+
+    <section class="lab" aria-label="ধারক শক্তি ও আধান এক্সপ্লোরার">
+      <div class="lab-head">
+        <div>
+          <h2>ধারক আধান ও শক্তি এক্সপ্লোরার (HTML Lab)</h2>
+          <div style="color:#64748b;font-size:14px">ধারকত্ব $C$ ও বিভব $V$ বদলে সঞ্চিত আধান $Q = CV$ ও শক্তি $U = \frac{1}{2}CV^2$ পর্যবেক্ষণ করো।</div>
+        </div>
+        <span class="lab-tag">HTML LAB</span>
+      </div>
+
+      <div class="lab-controls">
+        <label>ধারকত্ব $C$: <b id="capCLbl">20 μF</b>
+          <input class="range" id="capC" type="range" min="5" max="100" step="5" value="20">
+        </label>
+        <label>প্রযুক্ত বিভব $V$: <b id="capVLbl">10 V</b>
+          <input class="range" id="capV" type="range" min="2" max="24" step="1" value="10">
+        </label>
+      </div>
+
+      <svg class="cap-svg" viewBox="0 0 600 180" role="img" aria-label="সমান্তরাল পাত ধারক">
+        <!-- Left & right plates -->
+        <rect x="240" y="30" width="14" height="120" rx="3" fill="#dc2626"/>
+        <rect x="346" y="30" width="14" height="120" rx="3" fill="#2563eb"/>
+        <!-- Connecting wires -->
+        <line x1="120" y1="90" x2="240" y2="90" stroke="#64748b" stroke-width="3"/>
+        <line x1="360" y1="90" x2="480" y2="90" stroke="#64748b" stroke-width="3"/>
+        <!-- Battery symbol -->
+        <text x="120" y="75" text-anchor="middle" font-size="13" font-weight="800" fill="#dc2626">+V</text>
+        <text x="480" y="75" text-anchor="middle" font-size="13" font-weight="800" fill="#2563eb">0 V</text>
+        <!-- Plate charges -->
+        <g id="plateCharges"></g>
+        <text id="plateEnergyTxt" x="300" y="168" text-anchor="middle" font-size="13" font-weight="700" fill="#312e81">সঞ্চিত শক্তি U = 1.00 mJ</text>
+      </svg>
+
+      <div class="calc-breakdown">
+        <div class="calc-box"><div class="label">সঞ্চিত আধান Q = CV</div><div class="val" id="boxCapQ">200 μC</div></div>
+        <div class="calc-box"><div class="label">বিভব V</div><div class="val" id="boxCapV">10 V</div></div>
+        <div class="calc-box"><div class="label">সঞ্চিত শক্তি U</div><div class="val" id="boxCapU">1.00 mJ</div></div>
+      </div>
+
+      <div id="capReadout" class="readout" aria-live="polite">Q = 200 μC · U = 1.00 mJ</div>
+    </section>
+
+    <section class="section">
+      <h2>নিজেকে যাচাই করো</h2>
+      <details class="check">
+        <summary>১. একটি ধারকে $2\,\text{C}$ আধান দিলে বিভব $4\,\text{V}$ হয়। ধারকত্ব কত?</summary>
+        <p>$C = \dfrac{Q}{V} = \dfrac{2}{4} = 0.5\,\text{F}$।</p>
+      </details>
+      <details class="check">
+        <summary>২. ধারকত্ব স্থির রেখে বিভব ৩ গুণ করলে সঞ্চিত শক্তি কত গুণ হবে?</summary>
+        <p>$U = \dfrac{1}{2}CV^2$, অর্থাৎ $U \propto V^2$। তাই বিভব ৩ গুণ হলে শক্তি $3^2 = 9$ গুণ হবে।</p>
+      </details>
+    </section>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-06.html">← আগের পাঠ: তড়িৎ বিভব</a>
+      <a class="button" href="section-08.html">পরের পাঠ: স্থির বিদ্যুতের ব্যবহার →</a>
+    </nav>
+    <footer class="footer"><a href="chapter-source.html">PDF-এর সম্পূর্ণ মূল পৃষ্ঠা</a> · অধ্যায় ১০</footer>
+  </main>
+
+  <script>
+    (function(){
+      function syncRangeVisual(el){
+        const min = el.min !== '' ? parseFloat(el.min) : 0;
+        const max = el.max !== '' ? parseFloat(el.max) : 100;
+        const val = parseFloat(el.value);
+        const pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
+        el.style.setProperty('--fill', pct.toFixed(2) + '%');
+        el.style.setProperty('--fill-pct', pct.toFixed(2) + '%');
+      }
+
+      const capC = document.getElementById('capC');
+      const capV = document.getElementById('capV');
+      const chargesG = document.getElementById('plateCharges');
+
+      function update(){
+        const C = Number(capC.value);
+        const V = Number(capV.value);
+        const Q = C * V; // uC
+        const U_mJ = 0.5 * C * 1e-6 * V * V * 1e3; // mJ
+
+        document.getElementById('capCLbl').textContent = C + ' μF';
+        document.getElementById('capVLbl').textContent = V + ' V';
+        document.getElementById('boxCapQ').textContent = Q.toFixed(0) + ' μC';
+        document.getElementById('boxCapV').textContent = V + ' V';
+        document.getElementById('boxCapU').textContent = U_mJ.toFixed(2) + ' mJ';
+        document.getElementById('plateEnergyTxt').textContent = 'পাতের ভেতর সুষম তড়িৎ ক্ষেত্র · শক্তি U = ' + U_mJ.toFixed(2) + ' mJ';
+        document.getElementById('capReadout').textContent = 'Q = ' + Q.toFixed(0) + ' μC · U = ' + U_mJ.toFixed(2) + ' mJ';
+
+        const count = Math.min(7, Math.max(2, Math.round(Q / 350)));
+        let html = '';
+        for(let i = 0; i < count; i++){
+          const y = 45 + (i * 90) / Math.max(1, count - 1);
+          html += `<text x="226" y="${y.toFixed(1)}" font-size="14" font-weight="800" fill="#dc2626">+</text>`;
+          html += `<text x="366" y="${y.toFixed(1)}" font-size="14" font-weight="800" fill="#2563eb">−</text>`;
+          html += `<line x1="262" y1="${(y - 4).toFixed(1)}" x2="338" y2="${(y - 4).toFixed(1)}" stroke="#818cf8" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+        }
+        chargesG.innerHTML = html;
+
+        [capC, capV].forEach(syncRangeVisual);
+      }
+
+      [capC, capV].forEach(el => el.addEventListener('input', update));
+      update();
+    })();
+  </script>
+</body>
+</html>

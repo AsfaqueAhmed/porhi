@@ -4,7 +4,7 @@ import type { QuestionData } from './seed-chapter-7-questions';
 export const chapter12QuestionsBatch3: QuestionData[] = [
   {
     id: 'q_12_55',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'তড়িৎচৌম্বকীয় আবেশ (Electromagnetic Induction) আবিষ্কার করেন কোন বিজ্ঞানী?',
     options: [
@@ -26,7 +26,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_56',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'একটি দণ্ড চুম্বককে কুণ্ডলীর ভেতরে প্রবেশ করিয়ে স্থির অবস্থায় ধরে রাখলে গ্যালভানোমিটারের কাঁটায় কী দেখা যাবে?',
     options: [
@@ -47,7 +47,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_57',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'তড়িৎচৌম্বকীয় আবেশে কুণ্ডলীতে আবিষ্ট প্রবাহের মান বাড়ানোর উপায় কোনটি?',
     options: [
@@ -67,7 +67,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_58',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'জেনারেটর বা ডায়নামো (Generator) কোন শক্তিকে কোন শক্তিতে রূপান্তর করে?',
     options: [
@@ -89,7 +89,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_59',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'AC জেনারেটর এবং DC জেনারেটরের মধ্যে মূল কাঠামোগত পার্থক্য কী?',
     options: [
@@ -110,7 +110,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_60',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'বাংলাদেশে বাসাবাড়িতে সরবরাহকৃত AC বিদ্যুতের কম্পাঙ্ক (Frequency) কত?',
     options: [
@@ -130,7 +130,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_61',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'ট্রান্সফরমার (Transformer) কোন নীতির ওপর ভিত্তি করে কাজ করে?',
     options: [
@@ -152,7 +152,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_62',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'ট্রান্সফরমার কেবল কোন ধরনের তড়িৎ প্রবাহে কাজ করে?',
     options: [
@@ -173,7 +173,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_63',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'আরোহী ট্রান্সফরমার (Step-Up Transformer)-এর ক্ষেত্রে নিচের কোন সম্পর্কটি সঠিক?',
     options: [
@@ -193,7 +193,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_64',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'একটি ট্রান্সফরমারের মুখ্য কুণ্ডলীর পাকসংখ্যা $200$ এবং গৌণ কুণ্ডলীর পাকসংখ্যা $1000$। মুখ্য কুণ্ডলীতে $220\\,\\text{V}$ AC দিলে গৌণ কুণ্ডলীর ভোল্টেজ কত হবে?',
     options: [
@@ -215,7 +215,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_65',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'মোবাইল ফোনের চার্জার বা ল্যাপটপের অ্যাডাপ্টরে $220\\,\\text{V}$ AC থেকে $5\\,\\text{V}$ বা $12\\,\\text{V}$ তৈরি করতে কোন ধরনের ট্রান্সফরমার ব্যবহৃত হয়?',
     options: [
@@ -235,7 +235,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_66',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'একটি আদর্শ ট্রান্সফরমারে ইনপুট ক্ষমতা ও আউটপুট ক্ষমতার সম্পর্ক কী?',
     options: [
@@ -256,7 +256,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_67',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'একটি আদর্শ অবরোহী ট্রান্সফরমার $220\\,\\text{V}$ থেকে $11\\,\\text{V}$ উৎপন্ন করে। গৌণ কুণ্ডলীতে $4\\,\\text{A}$ প্রবাহ চললে মুখ্য কুণ্ডলীর প্রবাহ কত?',
     options: [
@@ -277,7 +277,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_68',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'পাওয়ার স্টেশন থেকে দূরবর্তী শহরে বিদ্যুৎ পাঠাতে প্রথমে আরোহী ট্রান্সফরমার দিয়ে ভোল্টেজ অনেক বাড়ানো হয় কেন?',
     options: [
@@ -298,7 +298,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_69',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'ট্রান্সফরমারের মজ্জা বা কোরটি নিরেট লোহার বদলে পাতলা পাত দিয়ে স্তরীকৃত (Laminated) করে তৈরি করা হয় কেন?',
     options: [
@@ -318,7 +318,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_70',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'একটি ট্রান্সফরমারের মুখ্য ও গৌণ কুণ্ডলীর পাকসংখ্যার অনুপাত $N_p : N_s = 1 : 4$। মুখ্য কুণ্ডলীতে $5\\,\\text{A}$ প্রবাহ দিলে আদর্শ ট্রান্সফরমারের গৌণ কুণ্ডলীর প্রবাহ কত?',
     options: [
@@ -339,7 +339,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_71',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'কোনো চুম্বককে একবার কুণ্ডলীর ভেতরে প্রবেশ করালে এবং পরের মুহূর্তে দ্রুত টেনে বের করলে গ্যালভানোমিটারে কেমন বিক্ষেপ হবে?',
     options: [
@@ -359,7 +359,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_72',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'একটি ট্রান্সফরমারের প্রাইমারি কুণ্ডলীতে $12\\,\\text{V}$ ব্যাটারি (স্থির DC) সংযুক্ত করা হলো। $N_p = 100$ এবং $N_s = 500$ হলে সেকেন্ডারি কুণ্ডলীতে নিরবচ্ছিন্ন আউটপুট ভোল্টেজ কত পাওয়া যাবে?',
     options: [
@@ -380,7 +380,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_73',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'আরোহী ট্রান্সফরমারের গৌণ কুণ্ডলীর তারের তুলনায় মুখ্য কুণ্ডলীর তার সাধারণত কেমন হয়?',
     options: [
@@ -400,7 +400,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_74',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'কোন যন্ত্র দুটি প্রায় একই মৌলিক কাঠামো (চুম্বক ক্ষেত্র + ঘূর্ণায়মান কুণ্ডলী) ধারণ করলেও একটি অপরটির বিপরীত কাজ করে?',
     options: [
@@ -420,7 +420,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_75',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'একটি ট্রান্সফরমারে $V_p = 200\\,\\text{V}$, $N_p = 400$ এবং গৌণ কুণ্ডলীতে $40\\,\\Omega$ লোডের সাথে $V_s = 100\\,\\text{V}$ পাওয়া যায়। গৌণ ও মুখ্য প্রবাহ কত?',
     options: [
@@ -441,7 +441,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_76',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'MCQ',
     stem: 'স্লাইড বা সাইকেলের চাকার সাথে যুক্ত ডায়নামোতে আলো জ্বলার উজ্জ্বলতা সাইকেল জোরে চালালে বেড়ে যায় কেন?',
     options: [
@@ -461,7 +461,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_77',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'CQ_CREATIVE',
     stem: 'একটি আদর্শ ট্রান্সফরমারের মুখ্য কুণ্ডলীর পাকসংখ্যা $600$ এবং গৌণ কুণ্ডলীর পাকসংখ্যা $150$। মুখ্য কুণ্ডলীতে $220\\,\\text{V}$ AC ও $1.5\\,\\text{A}$ তড়িৎ সরবরাহ করা হলো।',
     options: null,
@@ -483,7 +483,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_78',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'CQ_CREATIVE',
     stem: 'ল্যাবরেটরিতে জারিফ $500$ পাকের একটি কুণ্ডলীর সাথে গ্যালভানোমিটার যুক্ত করে একটি শক্তিশালী চুম্বক দ্রুত কুণ্ডলীর ভেতরে ঢোকাল। কাঁটা ডানে সরে গেল। এরপর চুম্বকটি ভেতরে কিছুক্ষণ স্থির রেখে আবার দ্রুত টেনে বের করল।',
     options: null,
@@ -505,7 +505,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_79',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'CQ_CREATIVE',
     stem: 'একটি বিদ্যুৎকেন্দ্র থেকে $10\\,\\text{kV}$ ও $50\\,\\text{A}$ ক্ষমতার বিদ্যুৎ $100\\,\\text{km}$ দূরের শহরে পাঠাতে হবে। সঞ্চালন তারের মোট রোধ $20\\,\\Omega$। প্রকৌশলীগণ সরাসরি $10\\,\\text{kV}$-এ না পাঠিয়ে একটি আরোহী ট্রান্সফরমার ($N_p : N_s = 1 : 10$) ব্যবহার করে $100\\,\\text{kV}$ ভোল্টেজে প্রেরণ করলেন।',
     options: null,
@@ -527,7 +527,7 @@ export const chapter12QuestionsBatch3: QuestionData[] = [
   },
   {
     id: 'q_12_80',
-    topicId: 'top_ssc_physics_ch12_4',
+    topicId: 'top_ssc_physics_ch12_3',
     type: 'CQ_CREATIVE',
     stem: 'তুলি দুটি ট্রান্সফরমার $P$ ও $Q$ নিয়ে কাজ করছে। $P$-এর মুখ্য ও গৌণ পাক যথাক্রমে $300$ ও $1200$ এবং ইনপুট $100\\,\\text{V}$ AC। $Q$-এর মুখ্য ও গৌণ পাক যথাক্রমে $1000$ ও $200$ এবং তুলি $P$-এর আউটপুট ভোল্টেজকে সরাসরি $Q$-এর মুখ্য কুণ্ডলীতে সরবরাহ করল।',
     options: null,

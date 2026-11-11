@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>পাতলা লেন্স, রশ্মিচিত্র ও ক্ষমতা ল্যাব | poRi</title>
+  <style>
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-indigo: #4f46e5;
+      --pori-indigo-hover: #4338ca;
+      --pori-indigo-soft: #eef2ff;
+      --pori-indigo-border: #c7d2fe;
+      --pori-indigo-ink: #3730a3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 18px;
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+
+    .app {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--pori-indigo-ink);
+      background: var(--pori-indigo-soft);
+      border: 1px solid var(--pori-indigo-border);
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-bottom: 6px;
+    }
+
+    h1 { margin: 0; font-size: 1.35rem; color: var(--pori-heading); }
+    .sub { margin: 4px 0 0; font-size: 0.88rem; color: var(--pori-muted); }
+
+    .preset-row { display: flex; gap: 7px; flex-wrap: wrap; }
+    button.preset {
+      border: 1px solid var(--pori-border);
+      background: #ffffff;
+      color: var(--pori-heading);
+      border-radius: 999px;
+      padding: 6px 11px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    button.preset.active {
+      background: var(--pori-indigo);
+      border-color: var(--pori-indigo);
+      color: #ffffff;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 315px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 840px) { .layout { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .ctrl { margin-bottom: 14px; }
+    .ctrl:last-child { margin-bottom: 0; }
+    .ctrl label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--pori-heading);
+      margin-bottom: 6px;
+    }
+    .ctrl label span.val { color: var(--pori-indigo); font-variant-numeric: tabular-nums; }
+
+    .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .seg button {
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--pori-border);
+      background: #ffffff;
+      color: var(--pori-heading);
+      font-weight: 700;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .seg button.active {
+      background: var(--pori-indigo-soft);
+      border-color: var(--pori-indigo);
+      color: var(--pori-indigo-ink);
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--pori-indigo) var(--fill, 50%), #e2e8f0 var(--fill, 50%));
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--pori-indigo);
+      border: 2px solid #ffffff;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
+    }
+
+    .stage {
+      background: #ffffff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 10px;
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    @media (max-width: 640px) { .calc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+    .calc-item {
+      background: #ffffff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .calc-item.highlight {
+      background: var(--pori-indigo-soft);
+      border-color: var(--pori-indigo-border);
+    }
+    .calc-item .title { font-size: 0.72rem; font-weight: 800; color: var(--pori-muted); margin-bottom: 4px; }
+    .calc-item .value { font-size: 1rem; font-weight: 900; color: var(--pori-heading); font-variant-numeric: tabular-nums; }
+    .calc-item.highlight .value { color: var(--pori-indigo-ink); }
+
+    .readout {
+      margin-top: 12px;
+      background: var(--pori-indigo-soft);
+      border: 1px solid var(--pori-indigo-border);
+      border-left: 4px solid var(--pori-indigo);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.84rem;
+      color: #312e81;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="head">
+      <div>
+        <div class="eyebrow">PORI UNIFIED SIMULATOR THEME • SSC পদার্থবিজ্ঞান অধ্যায় ৯</div>
+        <h1>পাতলা লেন্স, রশ্মিচিত্র ও ডাইঅপ্টার ক্ষমতা ল্যাব</h1>
+        <p class="sub">উত্তল ও অবতল লেন্সে বস্তুর দূরত্ব ($u$), ফোকাস দূরত্ব ($f$) ও উচ্চতা ($h_o$) বদলে প্রতিবিম্বের অবস্থান ($v$), বিবর্ধন ($m$) ও ক্ষমতা ($P = 1/f$) পর্যবেক্ষণ করো।</p>
+      </div>
+      <div class="preset-row">
+        <button class="preset active" data-type="convex" data-u="32" data-f="12">উত্তল: 2F-এর বাইরে</button>
+        <button class="preset" data-type="convex" data-u="24" data-f="12">উত্তল: 2F-এ</button>
+        <button class="preset" data-type="convex" data-u="18" data-f="12">উত্তল: F ও 2F-এর মাঝে</button>
+        <button class="preset" data-type="convex" data-u="12" data-f="12">উত্তল: F-এ (u=f)</button>
+        <button class="preset" data-type="convex" data-u="7" data-f="12">উত্তল: আতশি কাচ</button>
+        <button class="preset" data-type="concave" data-u="22" data-f="12">অবতল: মায়োপিয়া চশমা</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="panel">
+        <div class="ctrl">
+          <label>লেন্সের প্রকৃতি</label>
+          <div class="seg">
+            <button type="button" id="btnConvex" class="active">উত্তল (f &gt; 0)</button>
+            <button type="button" id="btnConcave">অবতল (f &lt; 0)</button>
+          </div>
+        </div>
+
+        <div class="ctrl">
+          <label for="uSlider">বস্তুর দূরত্ব (u) <span class="val" id="uOut">32 cm</span></label>
+          <input id="uSlider" type="range" min="4" max="42" step="1" value="32" />
+        </div>
+
+        <div class="ctrl">
+          <label for="fSlider">ফোকাস দূরত্ব |f| <span class="val" id="fOut">12 cm</span></label>
+          <input id="fSlider" type="range" min="8" max="20" step="1" value="12" />
+        </div>
+
+        <div class="ctrl">
+          <label for="hSlider">বস্তুর উচ্চতা (h₀) <span class="val" id="hOut">4 cm</span></label>
+          <input id="hSlider" type="range" min="2" max="7" step="0.5" value="4" />
+        </div>
+
+        <div class="readout" id="formulaBox"></div>
+      </div>
+
+      <div>
+        <div class="stage">
+          <svg id="lensSvg" viewBox="0 0 720 330" width="100%" aria-label="পাতলা লেন্সের রশ্মিচিত্র"></svg>
+        </div>
+
+        <div class="calc-grid">
+          <div class="calc-item highlight">
+            <div class="title">প্রতিবিম্বের দূরত্ব (v)</div>
+            <div class="value" id="valV">—</div>
+          </div>
+          <div class="calc-item highlight">
+            <div class="title">লেন্সের ক্ষমতা (P = 1/f)</div>
+            <div class="value" id="valP">—</div>
+          </div>
+          <div class="calc-item">
+            <div class="title">বিবর্ধন (m) ও উচ্চতা (hᵢ)</div>
+            <div class="value" id="valM">—</div>
+          </div>
+          <div class="calc-item">
+            <div class="title">প্রকৃতি ও আকার</div>
+            <div class="value" id="valNature">—</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const svg = document.getElementById("lensSvg");
+      const btnConvex = document.getElementById("btnConvex");
+      const btnConcave = document.getElementById("btnConcave");
+      const uSlider = document.getElementById("uSlider");
+      const fSlider = document.getElementById("fSlider");
+      const hSlider = document.getElementById("hSlider");
+      const uOut = document.getElementById("uOut");
+      const fOut = document.getElementById("fOut");
+      const hOut = document.getElementById("hOut");
+      const valV = document.getElementById("valV");
+      const valP = document.getElementById("valP");
+      const valM = document.getElementById("valM");
+      const valNature = document.getElementById("valNature");
+      const formulaBox = document.getElementById("formulaBox");
+      const presets = document.querySelectorAll(".preset");
+
+      let mode = "convex";
+      const PX_CM = 7.4;
+      const PX_H = 11.5;
+      const CX = 360;
+      const AXIS_Y = 165;
+
+      function line(x1, y1, x2, y2, stroke, width, dash) {
+        return `<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="${stroke}" stroke-width="${width}"${dash ? ` stroke-dasharray="${dash}"` : ""} />`;
+      }
+
+      function render() {
+        const u = parseFloat(uSlider.value);
+        const fMag = parseFloat(fSlider.value);
+        const h0 = parseFloat(hSlider.value);
+        const f = mode === "convex" ? fMag : -fMag;
+
+        uOut.textContent = `${u} cm`;
+        fOut.textContent = `${fMag} cm`;
+        hOut.textContent = `${h0} cm`;
+
+        const objH = h0 * PX_H;
+        const fPx = fMag * PX_CM;
+        const objX = CX - u * PX_CM;
+        const objTopY = AXIS_Y - objH;
+
+        const isAtFocal = mode === "convex" && Math.abs(u - fMag) < 0.01;
+        let v = Infinity;
+        let m = 0;
+        let imgX = 0;
+        let imgTopY = AXIS_Y;
+
+        if (!isAtFocal) {
+          v = 1 / (1 / f - 1 / u);
+          m = -v / u;
+          imgX = CX + v * PX_CM;
+          imgTopY = AXIS_Y - objH * m;
+        }
+
+        const out = [];
+        out.push(line(20, AXIS_Y, 700, AXIS_Y, "#64748b", 1.6, "6 4"));
+        out.push(line(CX, 22, CX, 308, "#94a3b8", 1.2, "3 3"));
+
+        if (mode === "convex") {
+          out.push(`<path d="M ${CX} 28 Q ${CX + 28} ${AXIS_Y} ${CX} 302 Q ${CX - 28} ${AXIS_Y} ${CX} 28 Z" fill="#dbeafe" fill-opacity="0.65" stroke="#2563eb" stroke-width="2.8"/>`);
+        } else {
+          out.push(`<path d="M ${CX - 18} 28 Q ${CX - 3} ${AXIS_Y} ${CX - 18} 302 L ${CX + 18} 302 Q ${CX + 3} ${AXIS_Y} ${CX + 18} 28 Z" fill="#e0f2fe" fill-opacity="0.72" stroke="#0284c7" stroke-width="2.8"/>`);
+        }
+
+        [
+          { x: CX, label: "O" },
+          { x: CX - fPx, label: "F₁" },
+          { x: CX - 2 * fPx, label: "2F₁" },
+          { x: CX + fPx, label: "F₂" },
+          { x: CX + 2 * fPx, label: "2F₂" }
+        ].forEach((pt) => {
+          out.push(`<circle cx="${pt.x}" cy="${AXIS_Y}" r="3.8" fill="#0f172a"/>`);
+          out.push(`<text x="${pt.x}" y="${AXIS_Y + 19}" text-anchor="middle" font-size="12" font-weight="800" fill="#0f172a">${pt.label}</text>`);
+        });
+
+        // Object arrow
+        out.push(line(objX, AXIS_Y, objX, objTopY + 8, "#2563eb", 3.6));
+        out.push(`<polygon points="${objX},${objTopY} ${objX - 6},${objTopY + 11} ${objX + 6},${objTopY + 11}" fill="#2563eb"/>`);
+        out.push(`<text x="${objX}" y="${objTopY - 8}" text-anchor="middle" font-size="12" font-weight="800" fill="#1d4ed8">বস্তু (${h0} cm)</text>`);
+
+        // Ray 1: Parallel to axis -> focal ray
+        out.push(line(objX, objTopY, CX, objTopY, "#4f46e5", 2.3));
+        if (mode === "convex") {
+          const dx = (CX + fPx) - CX;
+          const dy = AXIS_Y - objTopY;
+          out.push(line(CX, objTopY, CX + dx * 3.1, objTopY + dy * 3.1, "#4f46e5", 2.3));
+          if (!isAtFocal && v < 0) {
+            out.push(line(CX, objTopY, imgX, imgTopY, "#a5b4fc", 1.8, "5 4"));
+          }
+        } else {
+          const dx = CX - (CX - fPx);
+          const dy = objTopY - AXIS_Y;
+          out.push(line(CX, objTopY, CX + dx * 2.9, objTopY + dy * 2.9, "#4f46e5", 2.3));
+          out.push(line(CX - fPx, AXIS_Y, CX, objTopY, "#a5b4fc", 1.8, "5 4"));
+        }
+
+        // Ray 2: Through optical center O
+        const oDx = CX - objX;
+        const oDy = AXIS_Y - objTopY;
+        out.push(line(objX, objTopY, CX + oDx * 2.9, AXIS_Y + oDy * 2.9, "#059669", 2.3));
+        if (!isAtFocal && v < 0) {
+          out.push(line(imgX, imgTopY, objX, objTopY, "#6ee7b7", 1.8, "5 4"));
+        }
+
+        // Image arrow
+        if (!isAtFocal && imgX > 14 && imgX < 706) {
+          const isVirtual = v < 0;
+          const color = isVirtual ? "#7c3aed" : "#dc2626";
+          const tipDir = imgTopY < AXIS_Y ? 1 : -1;
+          const cy = Math.max(20, Math.min(310, imgTopY));
+          out.push(line(imgX, AXIS_Y, imgX, cy + tipDir * 8, color, 3.4, isVirtual ? "5 3" : ""));
+          out.push(`<polygon points="${imgX},${cy} ${imgX - 6},${cy + tipDir * 10} ${imgX + 6},${cy + tipDir * 10}" fill="${color}"/>`);
+          out.push(`<text x="${imgX}" y="${cy < AXIS_Y ? cy - 8 : cy + 18}" text-anchor="middle" font-size="12" font-weight="800" fill="${color}">প্রতিবিম্ব</text>`);
+        }
+
+        svg.innerHTML = out.join("");
+
+        const power = 100 / f;
+        valP.textContent = `${power > 0 ? "+" : ""}${power.toFixed(2)} D`;
+
+        if (isAtFocal) {
+          valV.textContent = "∞ (অসীম)";
+          valM.textContent = "∞";
+          valNature.textContent = "বাস্তব, উল্টো";
+          formulaBox.innerHTML = `1/${u} + 1/v = 1/${f} &rArr; <strong>v = &infin;</strong> (রশ্মিগুচ্ছ সমান্তরাল হয়)।`;
+        } else {
+          const hi = m * h0;
+          valV.textContent = `${v.toFixed(2)} cm`;
+          valM.textContent = `${m.toFixed(2)} (${Math.abs(hi).toFixed(1)} cm)`;
+          const absM = Math.abs(m);
+          const sizeWord = Math.abs(absM - 1) < 0.03 ? "সমান" : (absM > 1 ? "বিবর্ধিত" : "খর্বিত");
+          const natureWord = v > 0 ? "বাস্তব ও উল্টো" : "অবাস্তব ও সোজা";
+          valNature.textContent = `${natureWord} (${sizeWord})`;
+          formulaBox.innerHTML = `1/v = 1/(${f}) - 1/(${u}) &rArr; <strong>v = ${v.toFixed(2)} cm</strong> (${v > 0 ? "অপর পাশে" : "বস্তু পাশে"}), বিবর্ধন <strong>m = ${m.toFixed(2)}</strong>।`;
+        }
+      }
+
+      btnConvex.addEventListener("click", () => {
+        mode = "convex";
+        btnConvex.classList.add("active");
+        btnConcave.classList.remove("active");
+        render();
+      });
+
+      btnConcave.addEventListener("click", () => {
+        mode = "concave";
+        btnConcave.classList.add("active");
+        btnConvex.classList.remove("active");
+        render();
+      });
+
+      uSlider.addEventListener("input", render);
+      fSlider.addEventListener("input", render);
+      hSlider.addEventListener("input", render);
+
+      presets.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          presets.forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          mode = btn.dataset.type;
+          btnConvex.classList.toggle("active", mode === "convex");
+          btnConcave.classList.toggle("active", mode === "concave");
+          uSlider.value = btn.dataset.u;
+          fSlider.value = btn.dataset.f;
+          render();
+        });
+      });
+
+      render();
+    })();
+  </script>
+
+  <!-- PORI UNIFIED RANGE SYNC -->
+  <script>
+    (function () {
+      function syncRangeFill(el) {
+        if (!el || el.type !== 'range') return;
+        var min = parseFloat(el.min);
+        var max = parseFloat(el.max);
+        var val = parseFloat(el.value);
+        if (Number.isNaN(min)) min = 0;
+        if (Number.isNaN(max)) max = 100;
+        if (Number.isNaN(val)) val = min;
+        var ratio = max === min ? 0 : (val - min) / (max - min);
+        ratio = Math.max(0, Math.min(1, ratio));
+        var pctStr = (ratio * 100).toFixed(2) + '%';
+        el.style.setProperty('--p', ratio.toFixed(4));
+        el.style.setProperty('--fill', pctStr);
+        el.style.setProperty('--fill-pct', pctStr);
+      }
+      function syncAllRanges() {
+        document.querySelectorAll('input[type="range"]').forEach(syncRangeFill);
+      }
+      var desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+      if (desc && desc.get && desc.set) {
+        Object.defineProperty(HTMLInputElement.prototype, 'value', {
+          configurable: true,
+          get: function () { return desc.get.call(this); },
+          set: function (v) {
+            desc.set.call(this, v);
+            if (this.type === 'range') syncRangeFill(this);
+          }
+        });
+      }
+      document.addEventListener('input', function (e) {
+        if (e.target && e.target.type === 'range') syncRangeFill(e.target);
+      }, true);
+      document.addEventListener('change', function (e) {
+        if (e.target && e.target.type === 'range') syncRangeFill(e.target);
+      }, true);
+      document.addEventListener('click', function () { setTimeout(syncAllRanges, 0); }, true);
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncAllRanges);
+      } else { syncAllRanges(); }
+      setTimeout(syncAllRanges, 50);
+    })();
+  </script>
+</body>
+</html>

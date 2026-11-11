@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>১০.৩ বৈদ্যুতিক আবেশ ও ইলেকট্রোস্কোপ · অধ্যায় ১০: স্থির বিদ্যুৎ</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+  <style>
+    .elec-svg{width:100%;height:auto;border:1px solid #dbe3f2;border-radius:14px;background:linear-gradient(180deg,#f8fbff,#eef2ff);display:block}
+    .elec-btn-row{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="index.html">পড়ি <span>•</span> Physics</a>
+      <span class="crumb">অধ্যায় ১০ / ১০.৩</span>
+    </div>
+  </header>
+  <main>
+    <span class="badge">বইয়ের অনুচ্ছেদ ১০.৩ · ১০.৩.১</span>
+    <h1 class="title">বৈদ্যুতিক আবেশ ও ইলেকট্রোস্কোপ</h1>
+    <p class="subtitle">স্পর্শ ছাড়াই আধানের পুনর্বিন্যাস · আর্থিংয়ে স্থায়ী চার্জন · স্বর্ণপাত তড়িৎবীক্ষণ যন্ত্রের (Electroscope) কার্যপদ্ধতি।</p>
+
+    <section class="goal">
+      <h2>এই পাঠে শিখবে</h2>
+      <p>স্পর্শ না করেই কীভাবে বৈদ্যুতিক আবেশের মাধ্যমে কোনো নিরপেক্ষ পরিবাহীকে বিপরীত আধানে স্থায়ীভাবে চার্জিত করা যায় এবং ইলেকট্রোস্কোপ দিয়ে আধানের উপস্থিতি ও প্রকৃতি (চিহ্ন) নির্ণয় করার ধাপগুলো বুঝতে পারবে।</p>
+    </section>
+
+    <section class="section">
+      <h2>১০.৩ · বৈদ্যুতিক আবেশ (Electrical Induction)</h2>
+      <p>একটি চার্জিত বস্তু (আবেশী আধান বা Inducing Charge) যখন কোনো নিরপেক্ষ পরিবাহীর খুব কাছে আনা হয়—<strong>কিন্তু স্পর্শ করানো না হয়</strong>—তখন পরিবাহীর মুক্ত ইলেকট্রনগুলো চার্জিত বস্তুর আধান দ্বারা আকর্ষিত বা বিকর্ষিত হয়ে এক প্রান্তে সরে যায়। ফলে পরিবাহীর কাছের প্রান্তে <strong>বিপরীত আধান</strong> এবং দূরের প্রান্তে <strong>সমধর্মী আধান</strong> আবিষ্ট হয়। এই ঘটনাকে <strong>বৈদ্যুতিক আবেশ (Electrical Induction)</strong> বলে।</p>
+
+      <h3>আবেশ প্রক্রিয়ায় কোনো পরিবাহীকে স্থায়ীভাবে চার্জিত করার ৪টি ধাপ</h3>
+      <ol>
+        <li><strong>নৈকট্য:</strong> একটি ঋণাত্মক চার্জিত ইবোনাইট দণ্ডকে অন্তরিত স্ট্যান্ডের ওপর রাখা নিরপেক্ষ ধাতব গোলকের কাছে আনো (স্পর্শ করবে না)। গোলকের কাছের প্রান্তে $+q$ এবং দূরের প্রান্তে $-q$ আধান জমবে।</li>
+        <li><strong>ভূ-সংযোগ (Earthing):</strong> দণ্ডটি কাছে রেখেই আঙুল বা তার দিয়ে গোলকের দূরের প্রান্ত মাটির সাথে যুক্ত করো। দূরের প্রান্তের মুক্ত ইলেকট্রনগুলো বিকর্ষণের কারণে মাটিতে চলে যাবে (ফলে দূরের প্রান্ত নিস্তড়িৎ হবে, কিন্তু কাছের প্রান্তের $+q$ আধান দণ্ডের আকর্ষণে বাঁধা থাকবে)।</li>
+        <li><strong>ভূ-সংযোগ বিচ্ছিন্ন:</strong> দণ্ডটি <em>সরিয়ে নেওয়ার আগেই</em> ভূ-সংযোগ বিচ্ছিন্ন করো।</li>
+        <li><strong>আবেশী দণ্ড অপসারণ:</strong> এবার ইবোনাইট দণ্ড সরিয়ে নাও। গোলকের ধনাত্মক আধান পুরো পৃষ্ঠে সমানভাবে ছড়িয়ে পড়বে—অর্থাৎ গোলকটি স্থায়ীভাবে বিপরীত ($+$) আধানে চার্জিত হলো!</li>
+      </ol>
+
+      <div class="highlight-box">
+        <strong>আবেশের গুরুত্বপূর্ণ সত্য:</strong> আবেশে মূল চার্জিত দণ্ডটি কোনো আধান হারায় না। আর পরিবাহীতে তৈরি হওয়া স্থায়ী আধান সবসময় আবেশী দণ্ডের আধানের <strong>বিপরীত চিহ্নের</strong> হয়।
+      </div>
+
+      <h3 id="sub-10-3-1">১০.৩.১ · তড়িৎগ্রাহক বা স্বর্ণপাত তড়িৎবীক্ষণ যন্ত্র (Electroscope)</h3>
+      <p>কোনো বস্তুতে আধান আছে কি না এবং থাকলে সেটি ধনাত্মক না ঋণাত্মক—তা নির্ণয়ের জন্য <strong>তড়িৎগ্রাহক যন্ত্র বা ইলেকট্রোস্কোপ (Electroscope)</strong> ব্যবহার করা হয়। এতে একটি কাচের জারের ভেতর অন্তরক ছিপি দিয়ে একটি ধাতব দণ্ড প্রবেশ করানো থাকে। দণ্ডের ওপরের প্রান্তে একটি <strong>ধাতব চাকতি (Metal Disc)</strong> এবং নিচের প্রান্তে খুব পাতলা ও হালকা দুটি <strong>স্বর্ণপাত বা অ্যালুমিনিয়াম পাত (Gold Leaves)</strong> ঝোলানো থাকে।</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>পরীক্ষার অবস্থা</th>
+              <th>অজানা বস্তু কাছে আনলে যা ঘটে</th>
+              <th>সিদ্ধান্ত</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>প্রাথমিকভাবে নিরপেক্ষ ইলেকট্রোস্কোপ</td>
+              <td>পাত দুটি ফাঁক হয় না</td>
+              <td>বস্তুটি নিরপেক্ষ (আধান শূন্য)</td>
+            </tr>
+            <tr>
+              <td>প্রাথমিকভাবে নিরপেক্ষ ইলেকট্রোস্কোপ</td>
+              <td>পাত দুটি ফাঁক হয়ে যায়</td>
+              <td>বস্তুটি চার্জিত ($+$ বা $-$ যেকোনোটি হতে পারে)</td>
+            </tr>
+            <tr>
+              <td><strong>ধনাত্মক ($+$)</strong> চার্জিত ইলেকট্রোস্কোপ</td>
+              <td>পাতের ফাঁক <strong>বেড়ে যায়</strong></td>
+              <td>বস্তুটি <strong>ধনাত্মক ($+$)</strong> চার্জিত</td>
+            </tr>
+            <tr>
+              <td><strong>ধনাত্মক ($+$)</strong> চার্জিত ইলেকট্রোস্কোপ</td>
+              <td>পাতের ফাঁক <strong>কমে যায়</strong></td>
+              <td>বস্তুটি <strong>ঋণাত্মক ($-$)</strong> অথবা নিরপেক্ষ হতে পারে!</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="memory">
+        <strong>বোর্ড পরীক্ষায় বারবার আসা সূক্ষ্ম প্রশ্ন:</strong> চার্জিত ইলেকট্রোস্কোপে কোনো বস্তু কাছে আনলে <em>ফাঁক কমে যাওয়ার</em> চেয়ে <em>ফাঁক বেড়ে যাওয়া</em>-ই সমধর্মী চার্জ নিশ্চিত করার সবচেয়ে নিখুঁত পরীক্ষা! কারণ নিরপেক্ষ পরিবাহীও আবেশের ফলে পাতের ফাঁক সামান্য কমিয়ে দিতে পারে, কিন্তু ফাঁক <strong>বাড়াতে</strong> পারে একমাত্র <strong>একই চিহ্নের আধান</strong>।
+      </div>
+    </section>
+
+    <section class="lab" aria-label="ইলেকট্রোস্কোপ ও আবেশ ল্যাব">
+      <div class="lab-head">
+        <div>
+          <h2>ইন্টারেক্টিভ স্বর্ণপাত ইলেকট্রোস্কোপ ল্যাব</h2>
+          <div style="color:#64748b;font-size:14px">চাকতির কাছে ধনাত্মক, ঋণাত্মক বা নিরপেক্ষ দণ্ড এনে এবং ইলেকট্রোস্কোপ চার্জ করে পাতের ফাঁক পর্যবেক্ষণ করো।</div>
+        </div>
+        <span class="lab-tag">HTML SVG LAB</span>
+      </div>
+
+      <div class="elec-btn-row">
+        <button class="preset-btn active" data-state="neutral">নিরপেক্ষ যন্ত্র</button>
+        <button class="preset-btn" data-state="pos">+ চার্জিত যন্ত্র</button>
+        <button class="preset-btn" data-state="neg">− চার্জিত যন্ত্র</button>
+      </div>
+      <div class="elec-btn-row">
+        <button class="preset-btn active" data-rod="none">কাছে কোনো দণ্ড নেই</button>
+        <button class="preset-btn" data-rod="pos">+ ধনাত্মক দণ্ড আনো</button>
+        <button class="preset-btn" data-rod="neg">− ঋণাত্মক দণ্ড আনো</button>
+      </div>
+
+      <svg class="elec-svg" viewBox="0 0 600 280" role="img" aria-label="স্বর্ণপাত ইলেকট্রোস্কোপ সিমুলেশন">
+        <!-- Glass jar -->
+        <rect x="200" y="95" width="200" height="165" rx="20" fill="#ffffffaa" stroke="#94a3b8" stroke-width="3"/>
+        <rect x="255" y="88" width="90" height="16" rx="4" fill="#cbd5e1" stroke="#64748b" stroke-width="1.5"/>
+        <!-- Metal rod & disc -->
+        <rect x="296" y="55" width="8" height="115" fill="#d97706"/>
+        <ellipse cx="300" cy="54" rx="48" ry="10" fill="#f59e0b" stroke="#b45309" stroke-width="2"/>
+        <!-- Gold leaves -->
+        <line id="leafL" x1="298" y1="170" x2="292" y2="232" stroke="#eab308" stroke-width="4" stroke-linecap="round"/>
+        <line id="leafR" x1="302" y1="170" x2="308" y2="232" stroke="#eab308" stroke-width="4" stroke-linecap="round"/>
+        <!-- Approaching rod -->
+        <g id="rodGroup" opacity="0">
+          <rect x="95" y="38" width="130" height="28" rx="14" fill="#fee2e2" stroke="#dc2626" stroke-width="2" id="rodRect"/>
+          <text id="rodSigns" x="160" y="57" text-anchor="middle" font-size="16" font-weight="800" fill="#991b1b">+ + + +</text>
+        </g>
+        <!-- Labels on disc & leaves -->
+        <text id="discChargeTxt" x="365" y="58" font-size="14" font-weight="800" fill="#334155">চাকতি: নিরপেক্ষ</text>
+        <text id="leafChargeTxt" x="300" y="252" text-anchor="middle" font-size="13" font-weight="700" fill="#475569">পাতের কোণ: ০°</text>
+      </svg>
+
+      <div id="elecReadout" class="readout" style="margin-top:14px" aria-live="polite">নিরপেক্ষ ইলেকট্রোস্কোপ: উভয় পাত সমান্তরালে ঝুলছে।</div>
+    </section>
+
+    <section class="section">
+      <h2>নিজেকে যাচাই করো</h2>
+      <details class="check">
+        <summary>১. আবেশের মাধ্যমে কোনো নিরপেক্ষ গোলককে ঋণাত্মক চার্জিত করতে হলে কী ধরনের আবেশী দণ্ড কাছে আনতে হবে?</summary>
+        <p>ধনাত্মক চার্জিত দণ্ড কাছে আনতে হবে, তারপর ভূ-সংযোগ দিয়ে বিচ্ছিন্ন করে দণ্ড সরিয়ে নিতে হবে।</p>
+      </details>
+      <details class="check">
+        <summary>২. ইলেকট্রোস্কোপের পাত দুটি ফাঁক হয় কেন?</summary>
+        <p>দুটি পাতেই একই ধরনের আধান (উভয়ে $+$ বা উভয়ে $-$) সঞ্চিত হয় এবং সমধর্মী আধান পরস্পরকে বিকর্ষণ করে।</p>
+      </details>
+    </section>
+
+    <nav class="nav">
+      <a class="button secondary" href="section-02.html">← আগের পাঠ: ঘর্ষণে স্থির বিদ্যুৎ</a>
+      <a class="button" href="section-04.html">পরের পাঠ: বৈদ্যুতিক বল →</a>
+    </nav>
+    <footer class="footer"><a href="chapter-source.html">PDF-এর সম্পূর্ণ মূল পৃষ্ঠা</a> · অধ্যায় ১০</footer>
+  </main>
+
+  <script>
+    (function(){
+      let baseState = 'neutral';
+      let rodState = 'none';
+      const leafL = document.getElementById('leafL');
+      const leafR = document.getElementById('leafR');
+      const rodGroup = document.getElementById('rodGroup');
+      const rodRect = document.getElementById('rodRect');
+      const rodSigns = document.getElementById('rodSigns');
+      const discTxt = document.getElementById('discChargeTxt');
+      const leafTxt = document.getElementById('leafChargeTxt');
+      const readout = document.getElementById('elecReadout');
+
+      function setLeaves(deg){
+        const rad = (deg * Math.PI) / 180;
+        const len = 62;
+        const dx = Math.sin(rad) * len;
+        const dy = Math.cos(rad) * len;
+        leafL.setAttribute('x2', (298 - dx).toFixed(1));
+        leafL.setAttribute('y2', (170 + dy).toFixed(1));
+        leafR.setAttribute('x2', (302 + dx).toFixed(1));
+        leafR.setAttribute('y2', (170 + dy).toFixed(1));
+        leafTxt.textContent = 'পাতের বিচ্যুতি: ' + (deg * 2) + '°';
+      }
+
+      function render(){
+        if(rodState === 'none'){
+          rodGroup.setAttribute('opacity', '0');
+        } else {
+          rodGroup.setAttribute('opacity', '1');
+          if(rodState === 'pos'){
+            rodRect.setAttribute('fill', '#fee2e2');
+            rodRect.setAttribute('stroke', '#dc2626');
+            rodSigns.setAttribute('fill', '#991b1b');
+            rodSigns.textContent = '+ + + +';
+          } else {
+            rodRect.setAttribute('fill', '#dbeafe');
+            rodRect.setAttribute('stroke', '#2563eb');
+            rodSigns.setAttribute('fill', '#1e40af');
+            rodSigns.textContent = '− − − −';
+          }
+        }
+
+        let angle = 3;
+        let dMsg = 'চাকতি: নিরপেক্ষ';
+        let msg = '';
+
+        if(baseState === 'neutral'){
+          if(rodState === 'none'){
+            angle = 3; dMsg = 'চাকতি: নিরপেক্ষ';
+            msg = 'নিরপেক্ষ ইলেকট্রোস্কোপ: কোনো আধান নেই, তাই পাত দুটি প্রায় লেগে আছে।';
+          } else if(rodState === 'pos'){
+            angle = 22; dMsg = 'চাকতি: আবিষ্ট −';
+            msg = 'আবেশের কারণে চাকতিতে ইলেকট্রন (০−) জমা হয়েছে এবং পাত দুটিতে + আধান আসায় ফাঁক বেড়েছে!';
+          } else {
+            angle = 22; dMsg = 'চাকতি: আবিষ্ট +';
+            msg = 'দণ্ডের − আধান ইলেকট্রনকে ঠেলে নিচে পাতে পাঠিয়েছে; চাকতি + ও পাত দুটি − হওয়ায় ফাঁক হয়েছে!';
+          }
+        } else if(baseState === 'pos'){
+          if(rodState === 'none'){
+            angle = 20; dMsg = 'যন্ত্র: + চার্জিত';
+            msg = 'যন্ত্রটি আগে থেকেই ধনাত্মক (+) চার্জিত, তাই পাত দুটি মাঝারি অবস্থায় ফাঁক হয়ে আছে।';
+          } else if(rodState === 'pos'){
+            angle = 36; dMsg = 'চাকতি −, পাতে আরও +';
+            msg = 'সমধর্মী (+) দণ্ড কাছে আনায় নিচে আরও ধনাত্মক আধান জমেছে → পাতের ফাঁক আরও বেড়েছে! (নিশ্চিত + চার্জ)';
+          } else {
+            angle = 9; dMsg = 'চাকতিতে + আকৃষ্ট';
+            msg = 'বিপরীত (−) দণ্ড পাতের + আধানকে চাকতির দিকে টেনে নিয়েছে → পাতের ফাঁক কমে গেছে।';
+          }
+        } else {
+          if(rodState === 'none'){
+            angle = 20; dMsg = 'যন্ত্র: − চার্জিত';
+            msg = 'যন্ত্রটি আগে থেকেই ঋণাত্মক (−) চার্জিত, তাই পাত দুটি মাঝারি অবস্থায় ফাঁক হয়ে আছে।';
+          } else if(rodState === 'neg'){
+            angle = 36; dMsg = 'চাকতি +, পাতে আরও −';
+            msg = 'সমধর্মী (−) দণ্ড ইলেকট্রনকে আরও নিচে পাতে ঠেলে দিয়েছে → পাতের ফাঁক আরও বেড়েছে! (নিশ্চিত − চার্জ)';
+          } else {
+            angle = 9; dMsg = 'চাকতিতে − আকৃষ্ট';
+            msg = 'বিপরীত (+) দণ্ড পাতের ইলেকট্রনকে চাকতির দিকে টেনে নিয়েছে → পাতের ফাঁক কমে গেছে।';
+          }
+        }
+
+        setLeaves(angle);
+        discTxt.textContent = dMsg;
+        readout.textContent = msg;
+      }
+
+      document.querySelectorAll('[data-state]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('[data-state]').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          baseState = btn.dataset.state;
+          render();
+        });
+      });
+
+      document.querySelectorAll('[data-rod]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('[data-rod]').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          rodState = btn.dataset.rod;
+          render();
+        });
+      });
+
+      render();
+    })();
+  </script>
+</body>
+</html>

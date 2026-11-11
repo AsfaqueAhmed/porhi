@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>কুলম্বের সূত্র ও তড়িৎ ক্ষেত্র ল্যাব | poRi</title>
+  <style>
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-indigo: #4f46e5;
+      --pori-indigo-hover: #4338ca;
+      --pori-indigo-soft: #eef2ff;
+      --pori-indigo-border: #c7d2fe;
+      --pori-indigo-ink: #3730a3;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 18px;
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+
+    .app {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--pori-indigo-ink);
+      background: var(--pori-indigo-soft);
+      border: 1px solid var(--pori-indigo-border);
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-bottom: 6px;
+    }
+
+    h1 { margin: 0; font-size: 1.35rem; color: var(--pori-heading); }
+    .sub { margin: 4px 0 0; font-size: 0.88rem; color: var(--pori-muted); }
+
+    .preset-row { display: flex; gap: 7px; flex-wrap: wrap; }
+    button.preset {
+      border: 1px solid var(--pori-border);
+      background: #ffffff;
+      color: var(--pori-heading);
+      border-radius: 999px;
+      padding: 6px 11px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    button.preset.active {
+      background: var(--pori-indigo);
+      border-color: var(--pori-indigo);
+      color: #ffffff;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 315px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 820px) { .layout { grid-template-columns: 1fr; } }
+
+    .panel {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .ctrl { margin-bottom: 14px; }
+    .ctrl:last-child { margin-bottom: 0; }
+    .ctrl label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--pori-heading);
+      margin-bottom: 6px;
+    }
+    .ctrl label span.val {
+      color: var(--pori-indigo);
+      font-variant-numeric: tabular-nums;
+    }
+
+    select.ctrl-select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--pori-border);
+      border-radius: 10px;
+      background: #ffffff;
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 700;
+      color: var(--pori-heading);
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--pori-indigo) var(--fill, 50%), #e2e8f0 var(--fill, 50%));
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--pori-indigo);
+      border: 2px solid #ffffff;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
+    }
+
+    .stage {
+      background: #ffffff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 10px;
+    }
+
+    .calc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+    @media (max-width: 640px) { .calc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+    .calc-item {
+      background: #ffffff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 12px;
+      padding: 10px;
+    }
+    .calc-item.highlight {
+      background: var(--pori-indigo-soft);
+      border-color: var(--pori-indigo-border);
+    }
+    .calc-item .title { font-size: 0.72rem; font-weight: 800; color: var(--pori-muted); margin-bottom: 4px; }
+    .calc-item .value { font-size: 1rem; font-weight: 900; color: var(--pori-heading); font-variant-numeric: tabular-nums; }
+    .calc-item.highlight .value { color: var(--pori-indigo-ink); }
+
+    .readout {
+      margin-top: 12px;
+      background: var(--pori-indigo-soft);
+      border: 1px solid var(--pori-indigo-border);
+      border-left: 4px solid var(--pori-indigo);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.84rem;
+      color: #312e81;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="head">
+      <div>
+        <div class="eyebrow">PORI UNIFIED SIMULATOR THEME • SSC পদার্থবিজ্ঞান অধ্যায় ১০</div>
+        <h1>কুলম্বের সূত্র ও তড়িৎ ক্ষেত্র প্রাবল্য ল্যাব</h1>
+        <p class="sub">দুটি বিন্দু আধান (q₁, q₂), দূরত্ব (r) ও মাধ্যমের পরাবৈদ্যুতিক ধ্রুবক (κ) পরিবর্তন করে বৈদ্যুতিক বল ও ক্ষেত্র প্রাবল্য বিশ্লেষণ করো।</p>
+      </div>
+      <div class="preset-row">
+        <button class="preset active" data-q1="2" data-q2="-3" data-r="30" data-k="1">বইয়ের উদাহরণ</button>
+        <button class="preset" data-q1="4" data-q2="4" data-r="20" data-k="1">সমবিকর্ষণ</button>
+        <button class="preset" data-q1="2" data-q2="-3" data-r="60" data-k="1">দূরত্ব দ্বিগুণ</button>
+        <button class="preset" data-q1="6" data-q2="-6" data-r="30" data-k="80">পানি মাধ্যম (κ=80)</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="panel">
+        <div class="ctrl">
+          <label for="q1Range">প্রথম আধান (q₁) <span class="val" id="q1Val">+2 μC</span></label>
+          <input id="q1Range" type="range" min="-10" max="10" step="1" value="2" />
+        </div>
+        <div class="ctrl">
+          <label for="q2Range">দ্বিতীয় আধান (q₂) <span class="val" id="q2Val">−3 μC</span></label>
+          <input id="q2Range" type="range" min="-10" max="10" step="1" value="-3" />
+        </div>
+        <div class="ctrl">
+          <label for="rRange">মধ্যবর্তী দূরত্ব (r) <span class="val" id="rVal">30 cm (0.30 m)</span></label>
+          <input id="rRange" type="range" min="10" max="100" step="5" value="30" />
+        </div>
+        <div class="ctrl">
+          <label for="kappaSelect">মাধ্যম ও পরাবৈদ্যুতিক ধ্রুবক (κ)</label>
+          <select id="kappaSelect" class="ctrl-select">
+            <option value="1">শূন্যস্থান / বায়ু (κ = 1.0)</option>
+            <option value="3.5">কাগজ (κ = 3.5)</option>
+            <option value="6">কাচ (κ = 6.0)</option>
+            <option value="80">বিশুদ্ধ পানি (κ = 80.0)</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <div class="stage">
+          <svg id="simSvg" viewBox="0 0 660 280" width="100%" style="display:block;border-radius:10px;background:#f8fbff">
+            <defs>
+              <marker id="arrForce" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L7,3 z" fill="#4f46e5" />
+              </marker>
+              <marker id="arrField" markerWidth="8" markerHeight="8" refX="5" refY="2.5" orient="auto">
+                <path d="M0,0 L0,5 L6,2.5 z" fill="#059669" />
+              </marker>
+            </defs>
+
+            <!-- Medium tint backdrop -->
+            <rect id="mediumRect" x="14" y="14" width="632" height="150" rx="12" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5" />
+            <text id="mediumBadge" x="330" y="34" text-anchor="middle" font-size="12" font-weight="800" fill="#475569">মাধ্যম: বায়ু (κ = 1.0)</text>
+
+            <!-- Distance dashed axis -->
+            <line id="distLine" x1="190" y1="95" x2="470" y2="95" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5,4" />
+
+            <!-- Force vectors -->
+            <line id="fArrow1" x1="226" y1="68" x2="280" y2="68" stroke="#4f46e5" stroke-width="3.5" marker-end="url(#arrForce)" />
+            <line id="fArrow2" x1="434" y1="122" x2="380" y2="122" stroke="#4f46e5" stroke-width="3.5" marker-end="url(#arrForce)" />
+            <text id="fTxt" x="330" y="54" text-anchor="middle" font-size="13" font-weight="800" fill="#312e81">আকর্ষণ বল</text>
+
+            <!-- Charge circles -->
+            <circle id="c1Circle" cx="190" cy="95" r="28" fill="#fee2e2" stroke="#dc2626" stroke-width="2.5" />
+            <circle id="c2Circle" cx="470" cy="95" r="28" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5" />
+            <text id="c1Txt" x="190" y="100" text-anchor="middle" font-size="13" font-weight="900" fill="#991b1b">+2 μC</text>
+            <text id="c2Txt" x="470" y="100" text-anchor="middle" font-size="13" font-weight="900" fill="#1e40af">−3 μC</text>
+            <text id="rSvgTxt" x="330" y="150" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">r = 0.30 m</text>
+
+            <!-- Inverse-square F vs r mini graph -->
+            <rect x="14" y="176" width="632" height="92" rx="10" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
+            <text x="30" y="196" font-size="11" font-weight="800" fill="#475569">বিপরীত বর্গীয় লেখচিত্র: দূরত্ব (r) বনাম কুলম্ব বল (F ∝ 1/r²)</text>
+            <path id="curvePath" d="" fill="none" stroke="#4f46e5" stroke-width="2.5" />
+            <circle id="curveDot" cx="180" cy="220" r="5" fill="#dc2626" stroke="#ffffff" stroke-width="1.5" />
+            <text x="540" y="256" font-size="10" font-weight="700" fill="#64748b">r: 10 cm → 100 cm</text>
+          </svg>
+        </div>
+
+        <div class="calc-grid">
+          <div class="calc-item highlight">
+            <div class="title">কুলম্ব বল (F)</div>
+            <div class="value" id="valForce">0.600 N</div>
+          </div>
+          <div class="calc-item">
+            <div class="title">বলের প্রকৃতি</div>
+            <div class="value" id="valNature">আকর্ষণ</div>
+          </div>
+          <div class="calc-item">
+            <div class="title">q₂ অবস্থানে প্রাবল্য (E₁)</div>
+            <div class="value" id="valField">2.00 × 10⁵ N/C</div>
+          </div>
+          <div class="calc-item">
+            <div class="title">মাধ্যম হ্রাস অনুপাত</div>
+            <div class="value" id="valRatio">1 / 1.0</div>
+          </div>
+        </div>
+
+        <div class="readout" id="readoutBox">
+          F = (9×10⁹ × |q₁q₂|) / (κ · r²) = 0.600 N। বিপরীতধর্মী আধান পরস্পরকে আকর্ষণ করছে।
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const q1El = document.getElementById('q1Range');
+      const q2El = document.getElementById('q2Range');
+      const rEl = document.getElementById('rRange');
+      const kEl = document.getElementById('kappaSelect');
+
+      function fmtCharge(v) {
+        if (v > 0) return '+' + v + ' μC';
+        if (v < 0) return '−' + Math.abs(v) + ' μC';
+        return '0 μC';
+      }
+
+      function styleCircle(circle, txt, q) {
+        if (q > 0) {
+          circle.setAttribute('fill', '#fee2e2');
+          circle.setAttribute('stroke', '#dc2626');
+          txt.setAttribute('fill', '#991b1b');
+        } else if (q < 0) {
+          circle.setAttribute('fill', '#dbeafe');
+          circle.setAttribute('stroke', '#2563eb');
+          txt.setAttribute('fill', '#1e40af');
+        } else {
+          circle.setAttribute('fill', '#f1f5f9');
+          circle.setAttribute('stroke', '#64748b');
+          txt.setAttribute('fill', '#334155');
+        }
+        txt.textContent = fmtCharge(q);
+      }
+
+      function formatForce(f) {
+        if (f === 0) return '0 N';
+        if (f >= 10 || f < 0.001) return f.toExponential(2) + ' N';
+        return f.toPrecision(3) + ' N';
+      }
+
+      function update() {
+        const q1 = parseInt(q1El.value, 10);
+        const q2 = parseInt(q2El.value, 10);
+        const cm = Math.max(10, parseInt(rEl.value, 10));
+        const r = cm / 100;
+        const kappa = Math.max(1, parseFloat(kEl.value));
+
+        document.getElementById('q1Val').textContent = fmtCharge(q1);
+        document.getElementById('q2Val').textContent = fmtCharge(q2);
+        document.getElementById('rVal').textContent = cm + ' cm (' + r.toFixed(2) + ' m)';
+
+        const F = (9e9 * Math.abs(q1 * 1e-6) * Math.abs(q2 * 1e-6)) / (kappa * r * r);
+        const E1 = (9e9 * Math.abs(q1 * 1e-6)) / (kappa * r * r);
+
+        const sameSign = q1 * q2 > 0;
+        const zeroForce = q1 === 0 || q2 === 0;
+        const nature = zeroForce ? 'শূন্য বল' : sameSign ? 'বিকর্ষণ' : 'আকর্ষণ';
+
+        // Visual spacing
+        const halfSpan = 65 + (cm - 10) * 1.9;
+        const x1 = 330 - halfSpan;
+        const x2 = 330 + halfSpan;
+
+        const c1 = document.getElementById('c1Circle');
+        const c2 = document.getElementById('c2Circle');
+        const t1 = document.getElementById('c1Txt');
+        const t2 = document.getElementById('c2Txt');
+        c1.setAttribute('cx', x1); t1.setAttribute('x', x1);
+        c2.setAttribute('cx', x2); t2.setAttribute('x', x2);
+        styleCircle(c1, t1, q1);
+        styleCircle(c2, t2, q2);
+
+        const distLine = document.getElementById('distLine');
+        distLine.setAttribute('x1', x1);
+        distLine.setAttribute('x2', x2);
+        document.getElementById('rSvgTxt').textContent = 'r = ' + r.toFixed(2) + ' m';
+
+        const medNames = { '1': 'বায়ু / শূন্যস্থান (κ = 1.0)', '3.5': 'কাগজ (κ = 3.5)', '6': 'কাচ (κ = 6.0)', '80': 'বিশুদ্ধ পানি (κ = 80.0)' };
+        document.getElementById('mediumBadge').textContent = 'মাধ্যম: ' + (medNames[String(kEl.value)] || ('κ = ' + kappa));
+        document.getElementById('mediumRect').setAttribute('fill', kappa === 1 ? '#f1f5f9' : kappa >= 80 ? '#e0f2fe' : '#fef3c7');
+
+        const f1 = document.getElementById('fArrow1');
+        const f2 = document.getElementById('fArrow2');
+        const fTxt = document.getElementById('fTxt');
+        if (zeroForce) {
+          f1.setAttribute('opacity', '0');
+          f2.setAttribute('opacity', '0');
+          fTxt.textContent = 'কোনো একটি আধান ০ হলে কুলম্ব বল শূন্য';
+        } else {
+          f1.setAttribute('opacity', '1');
+          f2.setAttribute('opacity', '1');
+          const len = Math.min(75, Math.max(26, 22 + Math.log10(F + 1) * 32));
+          if (!sameSign) {
+            fTxt.textContent = 'আকর্ষণ বল (F₁₂ = F₂₁ = ' + formatForce(F) + ')';
+            f1.setAttribute('x1', x1 + 32); f1.setAttribute('x2', x1 + 32 + len);
+            f2.setAttribute('x1', x2 - 32); f2.setAttribute('x2', x2 - 32 - len);
+          } else {
+            fTxt.textContent = 'বিকর্ষণ বল (F₁₂ = F₂₁ = ' + formatForce(F) + ')';
+            f1.setAttribute('x1', x1 - 32); f1.setAttribute('x2', x1 - 32 - len);
+            f2.setAttribute('x1', x2 + 32); f2.setAttribute('x2', x2 + 32 + len);
+          }
+        }
+
+        // Draw inverse-square curve F(r) for current q1, q2, kappa
+        const fMax = (9e9 * Math.abs(q1 * 1e-6) * Math.abs(q2 * 1e-6)) / (kappa * 0.1 * 0.1);
+        let d = '';
+        for (let stepCm = 10; stepCm <= 100; stepCm += 2) {
+          const rm = stepCm / 100;
+          const fs = (9e9 * Math.abs(q1 * 1e-6) * Math.abs(q2 * 1e-6)) / (kappa * rm * rm);
+          const gx = 40 + ((stepCm - 10) / 90) * 580;
+          const normY = fMax > 0 ? fs / fMax : 0;
+          const gy = 256 - normY * 50;
+          d += (stepCm === 10 ? 'M ' : ' L ') + gx.toFixed(1) + ' ' + gy.toFixed(1);
+        }
+        document.getElementById('curvePath').setAttribute('d', d);
+        const curGx = 40 + ((cm - 10) / 90) * 580;
+        const curNormY = fMax > 0 ? F / fMax : 0;
+        const curGy = 256 - curNormY * 50;
+        const dot = document.getElementById('curveDot');
+        dot.setAttribute('cx', curGx.toFixed(1));
+        dot.setAttribute('cy', curGy.toFixed(1));
+
+        document.getElementById('valForce').textContent = formatForce(F);
+        document.getElementById('valNature').textContent = nature;
+        document.getElementById('valField').textContent = E1 === 0 ? '0 N/C' : E1.toExponential(2) + ' N/C';
+        document.getElementById('valRatio').textContent = '1 / ' + kappa.toFixed(1);
+
+        document.getElementById('readoutBox').textContent = zeroForce
+          ? 'যেকোনো একটি আধান শূন্য হওয়ায় পারস্পরিক বৈদ্যুতিক বল F = 0 N।'
+          : `F = (9×10⁹ × ${Math.abs(q1)}μC × ${Math.abs(q2)}μC) / (${kappa} × (${r.toFixed(2)})²) = ${formatForce(F)} (${nature})। দূরত্ব দ্বিগুণ করলে বল ১/৪ গুণ হয়।`;
+
+        if (window.syncPoriRange) {
+          [q1El, q2El, rEl].forEach(window.syncPoriRange);
+        }
+      }
+
+      document.querySelectorAll('.preset').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.preset').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          q1El.value = btn.dataset.q1;
+          q2El.value = btn.dataset.q2;
+          rEl.value = btn.dataset.r;
+          kEl.value = btn.dataset.k;
+          update();
+        });
+      });
+
+      [q1El, q2El, rEl].forEach(el => el.addEventListener('input', update));
+      kEl.addEventListener('change', update);
+      update();
+    })();
+  </script>
+
+  <!-- PORI UNIFIED RANGE SYNC START -->
+  <script>
+    (function () {
+      function syncRange(el) {
+        if (!el) return;
+        const min = el.min !== '' ? parseFloat(el.min) : 0;
+        const max = el.max !== '' ? parseFloat(el.max) : 100;
+        const val = parseFloat(el.value);
+        const pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
+        el.style.setProperty('--fill', pct.toFixed(2) + '%');
+        el.style.setProperty('--fill-pct', pct.toFixed(2) + '%');
+      }
+      window.syncPoriRange = syncRange;
+      function initRanges() {
+        document.querySelectorAll('input[type="range"]').forEach(el => {
+          if (el.dataset.poriRangeBound) return;
+          el.dataset.poriRangeBound = '1';
+          syncRange(el);
+          el.addEventListener('input', () => syncRange(el));
+          el.addEventListener('change', () => syncRange(el));
+        });
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initRanges);
+      } else {
+        initRanges();
+      }
+    })();
+  </script>
+  <!-- PORI UNIFIED RANGE SYNC END -->
+</body>
+</html>
