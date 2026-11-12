@@ -83,14 +83,47 @@ const DEFAULT_SUBJECTS: SubjectItem[] = [
   },
   {
     id: 'sub-hsc-phy',
-    code: 'PHY-HSC',
-    nameBangla: 'পদার্থবিজ্ঞান ১ম ও ২য় পত্র',
+    code: 'hsc_physics_1',
+    nameBangla: 'HSC পদার্থবিজ্ঞান ১ম পত্র',
     syllabusYear: 2026,
     classLevel: 'CLASS_11_12',
     program: 'HSC',
-    isReady: false,
-    chapterCount: 21,
-    topicCount: 140,
+    isReady: true,
+    chapterCount: 1,
+    topicCount: 1,
+  },
+  {
+    id: 'sub_class8_science',
+    code: 'class8_science',
+    nameBangla: 'অষ্টম শ্রেণির বিজ্ঞান',
+    syllabusYear: 2026,
+    classLevel: 'CLASS_6_8',
+    program: 'CLASS_6_8',
+    isReady: true,
+    chapterCount: 1,
+    topicCount: 1,
+  },
+  {
+    id: 'sub_admission_physics',
+    code: 'admission_ka_physics',
+    nameBangla: 'বিশ্ববিদ্যালয় ভর্তি: ক-ইউনিট পদার্থবিজ্ঞান',
+    syllabusYear: 2026,
+    classLevel: 'ADMISSION',
+    program: 'ADMISSION',
+    isReady: true,
+    chapterCount: 1,
+    topicCount: 1,
+  },
+  {
+    id: 'sub_bcs_preliminary',
+    code: 'bcs_preliminary',
+    nameBangla: 'BCS প্রিলিমিনারি: সাধারণ বিজ্ঞান ও বাংলাদেশ',
+    syllabusYear: 2026,
+    classLevel: 'BCS',
+    program: 'BCS',
+    isReady: true,
+    chapterCount: 1,
+    topicCount: 1,
   },
 ];
 
@@ -100,7 +133,7 @@ export default function SubjectsPage() {
   const { tr, language } = useLanguageStore();
   const [subjects, setSubjects] = useState<SubjectItem[]>(DEFAULT_SUBJECTS);
   const [isLoading, setIsLoading] = useState(true);
-  const [filter, setFilter] = useState<'ALL' | 'SSC' | 'HSC'>('ALL');
+  const [filter, setFilter] = useState<'ALL' | 'CLASS_6_8' | 'SSC' | 'HSC' | 'ADMISSION' | 'BCS'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -112,7 +145,17 @@ export default function SubjectsPage() {
           setSubjects(
             data.map((s) => ({
               ...s,
-              program: s.classLevel === 'CLASS_11_12' ? 'HSC' : 'SSC',
+              program:
+                s.program ||
+                (s.classLevel === 'CLASS_11_12'
+                  ? 'HSC'
+                  : s.classLevel === 'CLASS_6_8'
+                    ? 'CLASS_6_8'
+                    : s.classLevel === 'ADMISSION'
+                      ? 'ADMISSION'
+                      : s.classLevel === 'BCS'
+                        ? 'BCS'
+                        : 'SSC'),
               chapterCount:
                 s.chapterCount ??
                 (s.code.toLowerCase().includes('phy') ? DEFAULT_PHYSICS_CHAPTER_COUNT : 12),
@@ -188,31 +231,30 @@ export default function SubjectsPage() {
             />
           </div>
 
-          <div className="flex bg-slate-200/70 p-1 rounded-xl self-start">
-            <button
-              onClick={() => setFilter('ALL')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                filter === 'ALL' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              {tr('সকল বিষয়', 'All Subjects')}
-            </button>
-            <button
-              onClick={() => setFilter('SSC')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                filter === 'SSC' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              SSC
-            </button>
-            <button
-              onClick={() => setFilter('HSC')}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
-                filter === 'HSC' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              HSC
-            </button>
+          <div className="flex flex-wrap bg-slate-200/70 p-1 rounded-xl self-start gap-1">
+            {(
+              [
+                { key: 'ALL', bn: 'সকল বিষয়', en: 'All Subjects' },
+                { key: 'CLASS_6_8', bn: '৬ষ্ঠ–৮ম', en: 'Class 6–8' },
+                { key: 'SSC', bn: 'SSC', en: 'SSC' },
+                { key: 'HSC', bn: 'HSC', en: 'HSC' },
+                { key: 'ADMISSION', bn: 'ভর্তি প্রস্তুতি', en: 'Admission' },
+                { key: 'BCS', bn: 'BCS', en: 'BCS' },
+              ] as const
+            ).map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setFilter(tab.key)}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
+                  filter === tab.key
+                    ? 'bg-white text-slate-900 shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                {tr(tab.bn, tab.en)}
+              </button>
+            ))}
           </div>
         </div>
       </div>

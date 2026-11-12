@@ -14,6 +14,8 @@ import {
   CheckCircle2,
   Bookmark,
   CalendarDays,
+  ShieldCheck,
+  Layers,
 } from 'lucide-react';
 import { useUserStore, ServerOverviewPayload } from '@/store/user-store';
 import { useLanguageStore } from '@/store/language-store';
@@ -455,6 +457,20 @@ export default function DashboardPage() {
             >
               <AlertCircle className="w-4 h-4 text-purple-600" />
               <span>{tr('অধ্যায়ভিত্তিক পরীক্ষা', 'Chapter Model Test')}</span>
+            </Link>
+            <Link
+              href="/board-archive"
+              className="p-3 rounded-xl bg-emerald-50/70 hover:bg-emerald-100/70 border border-emerald-200 font-semibold text-emerald-900 flex flex-col gap-1 transition-colors"
+            >
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>{tr('ভেরিফায়েড বোর্ড প্রশ্ন', 'Board Question Archive')}</span>
+            </Link>
+            <Link
+              href="/exam/rehearsal"
+              className="p-3 rounded-xl bg-indigo-50/70 hover:bg-indigo-100/70 border border-indigo-200 font-semibold text-indigo-900 flex flex-col gap-1 transition-colors"
+            >
+              <Layers className="w-4 h-4 text-indigo-600" />
+              <span>{tr('বহু-পত্র রিহার্সাল', 'Multi-Paper Rehearsal')}</span>
             </Link>
           </div>
         </div>

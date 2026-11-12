@@ -10,6 +10,9 @@ import {
   Layers,
   Trophy,
   CheckCircle2,
+  Share2,
+  Copy,
+  Trash2,
 } from 'lucide-react';
 import { useUserStore, ServerOverviewPayload } from '@/store/user-store';
 import { useLanguageStore } from '@/store/language-store';
@@ -18,7 +21,11 @@ import { LatexRenderer } from '@/components/math/latex-renderer';
 import { DEFAULT_CHAPTERS, findTopicHierarchy } from '@/lib/curriculum-data';
 import { apiClient } from '@/lib/api-client';
 import { ensureGuestSession } from '@/lib/guest-session';
-import type { ExamHistoryResponseDTO, ExamHistoryItemDTO } from '@pori/shared';
+import type {
+  ExamHistoryResponseDTO,
+  ExamHistoryItemDTO,
+  GuardianShareLinkDTO,
+} from '@pori/shared';
 
 export default function ProgressPage() {
   const {
@@ -37,12 +44,17 @@ export default function ProgressPage() {
   const [mistakeTab, setMistakeTab] = useState<'UNRESOLVED' | 'RESOLVED'>('UNRESOLVED');
   const [serverHistory, setServerHistory] = useState<ExamHistoryResponseDTO | null>(null);
   const [examFilter, setExamFilter] = useState<'ALL' | 'CHAPTER_TEST' | 'SUBJECT_TEST'>('ALL');
+  const [shareLinks, setShareLinks] = useState<GuardianShareLinkDTO[]>([]);
+  const [shareAudience, setShareAudience] = useState<'PARENT' | 'TEACHER'>('PARENT');
+  const [shareRecipientLabel, setShareRecipientLabel] = useState('');
+  const [creatingShareLink, setCreatingShareLink] = useState(false);
+  const [copiedShareId, setCopiedShareId] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadServerProgress() {
       try {
         await Promise.resolve(ensureGuestSession()).catch(() => {});
-        const [overviewRes, historyRes] = await Promise.all([
+        const [overviewRes, historyRes, shareLinksRes] = await Promise.all([
           Promise.resolve(
             apiClient.get<ServerOverviewPayload>(
               `/student/overview?subjectId=${encodeURIComponent(subjectId)}`
@@ -53,6 +65,9 @@ export default function ProgressPage() {
               `/exam/history?subjectId=${encodeURIComponent(subjectId)}`
             )
           ).catch(() => null),
+          Promise.resolve(
+            apiClient.get<GuardianShareLinkDTO[]>('/student/share-links')
+          ).catch(() => []),
         ]);
         if (overviewRes) {
           hydrateFromServerOverview(overviewRes);
@@ -60,12 +75,45 @@ export default function ProgressPage() {
         if (historyRes && Array.isArray(historyRes.items)) {
           setServerHistory(historyRes);
         }
+        if (Array.isArray(shareLinksRes)) {
+          setShareLinks(shareLinksRes);
+        }
       } catch {
         // Offline / local fallback
       }
     }
     loadServerProgress();
   }, [subjectId, hydrateFromServerOverview]);
+
+  const handleCreateShareLink = async () => {
+    setCreatingShareLink(true);
+    try {
+      await Promise.resolve(ensureGuestSession()).catch(() => {});
+      const created = await apiClient.post<GuardianShareLinkDTO>('/student/share-links', {
+        audience: shareAudience,
+        recipientLabel: shareRecipientLabel.trim() || undefined,
+      });
+      if (created && created.shareCode) {
+        setShareLinks((prev) => [created, ...prev]);
+        setShareRecipientLabel('');
+      }
+    } catch {
+      // Ignore network errors cleanly
+    } finally {
+      setCreatingShareLink(false);
+    }
+  };
+
+  const handleRevokeShareLink = async (id: string) => {
+    try {
+      await apiClient.delete(`/student/share-links/${id}`);
+      setShareLinks((prev) =>
+        prev.map((link) => (link.id === id ? { ...link, isActive: false } : link)),
+      );
+    } catch {
+      // Ignore errors cleanly
+    }
+  };
 
   const totalTopics = useMemo(
     () => DEFAULT_CHAPTERS.reduce((sum, ch) => sum + ch.topics.length, 0),
@@ -723,6 +771,109 @@ export default function ProgressPage() {
                     </span>
                     <LatexRenderer content={m.explanationBangla} />
                   </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Parent & Teacher Read-Only Share Views */}
+      <div className="bg-white rounded-2xl border border-indigo-200/80 shadow-sm p-6 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2 text-slate-900 font-bold text-lg">
+            <Share2 className="w-5 h-5 text-indigo-600" />
+            <span>{tr('অভিভাবক / শিক্ষক অগ্রগতি শেয়ার', 'Parent / Teacher Progress Sharing')}</span>
+          </div>
+          <span className="text-xs text-slate-500">
+            {tr('রিড-অনলি রিপোর্ট লিংক (যেকোনো সময় বাতিলযোগ্য)', 'Read-only report link (revocable anytime)')}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-center">
+          <select
+            aria-label="শেয়ার দর্শক"
+            value={shareAudience}
+            onChange={(e) => setShareAudience(e.target.value === 'TEACHER' ? 'TEACHER' : 'PARENT')}
+            className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-800"
+          >
+            <option value="PARENT">{tr('অভিভাবক ভিউ', 'Parent View')}</option>
+            <option value="TEACHER">{tr('শিক্ষক ভিউ', 'Teacher View')}</option>
+          </select>
+
+          <input
+            type="text"
+            value={shareRecipientLabel}
+            onChange={(e) => setShareRecipientLabel(e.target.value)}
+            placeholder={tr('যেমন: আম্মু বা রসায়ন স্যার', 'e.g. Mom or Physics Teacher')}
+            className="sm:col-span-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          />
+
+          <button
+            type="button"
+            disabled={creatingShareLink}
+            onClick={handleCreateShareLink}
+            className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-indigo-600 px-4 py-2 text-xs font-bold text-white hover:bg-indigo-700 disabled:opacity-50"
+          >
+            <Share2 className="w-3.5 h-3.5" />
+            <span>{tr('শেয়ার লিংক তৈরি করো', 'Create Share Link')}</span>
+          </button>
+        </div>
+
+        {shareLinks.length > 0 && (
+          <div className="space-y-2 pt-1">
+            {shareLinks.map((link) => (
+              <div
+                key={link.id}
+                className={`flex flex-wrap items-center justify-between gap-2 rounded-xl border px-3.5 py-2.5 text-xs ${
+                  link.isActive
+                    ? 'border-slate-200 bg-slate-50'
+                    : 'border-slate-200 bg-slate-100/60 opacity-60'
+                }`}
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="rounded-full bg-indigo-50 px-2.5 py-0.5 font-bold text-indigo-700">
+                    {link.audience === 'TEACHER' ? 'শিক্ষক' : 'অভিভাবক'}
+                  </span>
+                  {link.recipientLabel && (
+                    <span className="font-semibold text-slate-800">{link.recipientLabel}</span>
+                  )}
+                  <Link
+                    href={link.sharePath}
+                    className="font-mono text-indigo-600 hover:underline"
+                  >
+                    {link.sharePath}
+                  </Link>
+                </div>
+
+                {link.isActive ? (
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const fullUrl =
+                          typeof window !== 'undefined'
+                            ? `${window.location.origin}${link.sharePath}`
+                            : link.sharePath;
+                        navigator.clipboard?.writeText?.(fullUrl).catch(() => {});
+                        setCopiedShareId(link.id);
+                      }}
+                      className="inline-flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-2.5 py-1 font-semibold text-slate-700 hover:bg-slate-50"
+                    >
+                      <Copy className="w-3 h-3" />
+                      {copiedShareId === link.id ? 'কপি হয়েছে' : 'কপি'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleRevokeShareLink(link.id)}
+                      className="inline-flex items-center gap-1 rounded-lg border border-rose-200 bg-white px-2.5 py-1 font-semibold text-rose-600 hover:bg-rose-50"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                      বাতিল
+                    </button>
+                  </div>
+                ) : (
+                  <span className="text-slate-400 font-semibold">বাতিলকৃত</span>
                 )}
               </div>
             ))}

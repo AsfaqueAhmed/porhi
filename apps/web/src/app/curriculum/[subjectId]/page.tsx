@@ -20,7 +20,11 @@ import { apiClient } from '@/lib/api-client';
 import { toBanglaDigits } from '@/lib/formatters';
 import { useLanguageStore } from '@/store/language-store';
 import { useUserStore } from '@/store/user-store';
-import { DEFAULT_CHAPTERS, ChapterItem, TopicItem } from '@/lib/curriculum-data';
+import {
+  getFallbackChaptersForSubject,
+  ChapterItem,
+  TopicItem,
+} from '@/lib/curriculum-data';
 import { CurriculumPageSkeleton } from '@/components/ui/shimmer';
 import {
   listDownloadedPacks,
@@ -37,7 +41,9 @@ export default function CurriculumPage() {
   const { tr, language } = useLanguageStore();
   const { completedTopics, topicMastery, bookmarks, toggleBookmark } = useUserStore();
 
-  const [chapters, setChapters] = useState<ChapterItem[]>(DEFAULT_CHAPTERS);
+  const [chapters, setChapters] = useState<ChapterItem[]>(() =>
+    getFallbackChaptersForSubject(subjectId),
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
@@ -221,13 +227,21 @@ export default function CurriculumPage() {
                 />
               </div>
             </div>
-            <Link
-              href={`/exam/subject/${subjectId}`}
-              className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-colors"
-            >
-              <Trophy className="w-3.5 h-3.5 text-amber-400" />
-              <span>{tr('পূর্ণ বিষয় মডেল টেস্ট', 'Full Subject Model Test')}</span>
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href={`/exam/subject/${subjectId}`}
+                className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-colors"
+              >
+                <Trophy className="w-3.5 h-3.5 text-amber-400" />
+                <span>{tr('পূর্ণ বিষয় মডেল টেস্ট', 'Full Subject Model Test')}</span>
+              </Link>
+              <Link
+                href="/board-archive"
+                className="inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-colors"
+              >
+                <span>{tr('বোর্ড প্রশ্ন ব্যাংক', 'Board Archive')}</span>
+              </Link>
+            </div>
           </div>
         </div>
 

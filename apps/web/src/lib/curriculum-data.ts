@@ -208,6 +208,119 @@ export const DEFAULT_CHAPTERS: ChapterItem[] = RAW_CHAPTERS.map((ch) => ({
   })),
 }));
 
+const TRACK_FALLBACK_CHAPTERS: Record<string, ChapterItem[]> = {
+  sub_class8_science: [
+    {
+      id: 'chap_c8_sci_1',
+      subjectId: 'sub_class8_science',
+      orderIndex: 1,
+      titleBangla: 'প্রথম অধ্যায়: পৃথিবী ও মহাকর্ষ',
+      topics: [
+        {
+          id: 'top_c8_sci_1_1',
+          chapterId: 'chap_c8_sci_1',
+          orderIndex: 1,
+          titleBangla: 'মহাকর্ষ ও অভিকর্ষজ ত্বরণ (Gravity & g)',
+          lessonCount: 1,
+          questionCount: 2,
+        },
+      ],
+    },
+  ],
+  sub_ssc_chemistry: [
+    {
+      id: 'chap_ssc_chem_3',
+      subjectId: 'sub_ssc_chemistry',
+      orderIndex: 1,
+      titleBangla: 'তৃতীয় অধ্যায়: পদার্থের গঠন ও মোলের ধারণা',
+      topics: [
+        {
+          id: 'top_ssc_chem_3_1',
+          chapterId: 'chap_ssc_chem_3',
+          orderIndex: 1,
+          titleBangla: 'পরমাণুর ইলেকট্রন বিন্যাস ও যোজনী',
+          lessonCount: 1,
+          questionCount: 2,
+        },
+      ],
+    },
+  ],
+  sub_hsc_physics_1: [
+    {
+      id: 'chap_hsc_phy1_2',
+      subjectId: 'sub_hsc_physics_1',
+      orderIndex: 1,
+      titleBangla: 'দ্বিতীয় অধ্যায়: ভেক্টর (Vectors)',
+      topics: [
+        {
+          id: 'top_hsc_phy1_2_1',
+          chapterId: 'chap_hsc_phy1_2',
+          orderIndex: 1,
+          titleBangla: 'ভেক্টর বিভাজন ও ডট/ক্রস গুণন',
+          lessonCount: 1,
+          questionCount: 2,
+        },
+      ],
+    },
+  ],
+  sub_admission_physics: [
+    {
+      id: 'chap_adm_phy_1',
+      subjectId: 'sub_admission_physics',
+      orderIndex: 1,
+      titleBangla: 'গতিবিদ্যা ও প্রাস (Admission Fast Track)',
+      topics: [
+        {
+          id: 'top_adm_phy_1_1',
+          chapterId: 'chap_adm_phy_1',
+          orderIndex: 1,
+          titleBangla: 'প্রাস ও সর্বাধিক পাল্লার শর্টকাট কৌশল',
+          lessonCount: 1,
+          questionCount: 2,
+        },
+      ],
+    },
+  ],
+  sub_bcs_preliminary: [
+    {
+      id: 'chap_bcs_1',
+      subjectId: 'sub_bcs_preliminary',
+      orderIndex: 1,
+      titleBangla: 'দৈনন্দিন বিজ্ঞান ও পরিবেশ',
+      topics: [
+        {
+          id: 'top_bcs_1_1',
+          chapterId: 'chap_bcs_1',
+          orderIndex: 1,
+          titleBangla: 'তাপ, আলো, শব্দ ও বায়ুমণ্ডলের স্তর',
+          lessonCount: 1,
+          questionCount: 2,
+        },
+      ],
+    },
+  ],
+};
+
+export function getFallbackChaptersForSubject(subjectId: string): ChapterItem[] {
+  const normalized = subjectId.toLowerCase();
+  if (normalized.includes('class8') || normalized === 'class8_science') {
+    return TRACK_FALLBACK_CHAPTERS.sub_class8_science;
+  }
+  if (normalized.includes('chem')) {
+    return TRACK_FALLBACK_CHAPTERS.sub_ssc_chemistry;
+  }
+  if (normalized.includes('hsc')) {
+    return TRACK_FALLBACK_CHAPTERS.sub_hsc_physics_1;
+  }
+  if (normalized.includes('admission')) {
+    return TRACK_FALLBACK_CHAPTERS.sub_admission_physics;
+  }
+  if (normalized.includes('bcs')) {
+    return TRACK_FALLBACK_CHAPTERS.sub_bcs_preliminary;
+  }
+  return DEFAULT_CHAPTERS;
+}
+
 export interface ResolvedTopicHierarchy {
   topicId: string;
   topicTitle: string;

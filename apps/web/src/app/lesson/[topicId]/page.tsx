@@ -24,6 +24,7 @@ import { LatexRenderer } from '@/components/math/latex-renderer';
 import { RichContentRenderer } from '@/components/content/rich-content-renderer';
 import { InteractiveSimulationRunner } from '@/components/content/interactive-simulation-runner';
 import { ReportContentModal } from '@/components/student/report-content-modal';
+import { LessonAudioPlayer } from '@/components/student/lesson-audio-player';
 import { apiClient } from '@/lib/api-client';
 import { ensureGuestSession } from '@/lib/guest-session';
 import { LessonDTO, ContentStatus, QuestionDTO } from '@pori/shared';
@@ -466,6 +467,14 @@ export default function LessonPage() {
           <LatexRenderer content={lesson.learningGoal} />
         </div>
       </div>
+
+      {/* Audio Lesson & Browser Voice Reader */}
+      <LessonAudioPlayer
+        audioUrl={lesson.audioUrl}
+        audioDurationSeconds={lesson.audioDurationSeconds}
+        title={lesson.titleBangla}
+        narrationText={`${lesson.learningGoal}\n\n${lesson.explanation}`}
+      />
 
       {/* Interactive Physics Simulation Lab (if available) */}
       {lesson.interactiveWidgetUrl && (
