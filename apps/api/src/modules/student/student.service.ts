@@ -673,6 +673,7 @@ export class StudentService {
         chapterId?: string | null;
         testType?: string;
         durationSeconds?: number;
+        negativeRatio?: number;
         answers: Array<{ questionId: string; selectedOptionId?: string | null }>;
         submittedAt?: string;
       }>;
