@@ -12,6 +12,12 @@ import 'package:porhi/features/curriculum/presentation/subjects/view/subjects_vi
 import 'package:porhi/features/dashboard/domain/entities/student_overview_entity.dart';
 import 'package:porhi/features/dashboard/presentation/dashboard/binding/dashboard_binding.dart';
 import 'package:porhi/features/dashboard/presentation/shared/quick_search_sheet.dart';
+import 'package:porhi/features/exam/presentation/exam_result/binding/exam_result_binding.dart';
+import 'package:porhi/features/exam/presentation/exam_result/view/exam_result_view.dart';
+import 'package:porhi/features/exam/presentation/exam_runner/binding/exam_runner_binding.dart';
+import 'package:porhi/features/exam/presentation/exam_runner/view/exam_runner_view.dart';
+import 'package:porhi/features/exam/presentation/exam_setup/binding/exam_setup_binding.dart';
+import 'package:porhi/features/exam/presentation/exam_setup/view/exam_setup_view.dart';
 import 'package:porhi/features/lesson/presentation/lesson/binding/lesson_binding.dart';
 import 'package:porhi/features/lesson/presentation/lesson/view/lesson_view.dart';
 import 'package:porhi/features/practice/presentation/practice/binding/practice_binding.dart';
@@ -74,6 +80,26 @@ class AppPages {
       name: AppRoutes.practice,
       page: () => const PracticeView(),
       binding: PracticeBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.examSetup,
+      page: () => const ExamSetupView(),
+      binding: ExamSetupBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.examRunner,
+      page: () => const ExamRunnerView(),
+      binding: ExamRunnerBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.examResult,
+      page: () => const ExamResultView(),
+      binding: ExamResultBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.exam,
+      page: () => const ExamSetupView(),
+      binding: ExamSetupBinding(),
     ),
   ];
 }

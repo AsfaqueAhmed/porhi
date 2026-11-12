@@ -393,6 +393,29 @@ class AppDatabase extends _$AppDatabase {
         .getSingleOrNull();
   }
 
+  Future<List<CachedQuestion>> getCachedQuestionsBySubject(
+    String subjectId,
+  ) async {
+    final trimmed = subjectId.trim();
+    if (trimmed.isEmpty) return const <CachedQuestion>[];
+    final bySubject = await (select(cachedQuestions)
+          ..where((t) => t.subjectId.equals(trimmed)))
+        .get();
+    if (bySubject.isNotEmpty) return bySubject;
+
+    final chapters = await getDownloadedChapters(subjectId: trimmed);
+    if (chapters.isEmpty) return const <CachedQuestion>[];
+    final chapterIds = chapters.map((c) => c.id).toList();
+    return (select(cachedQuestions)..where((t) => t.chapterId.isIn(chapterIds)))
+        .get();
+  }
+
+  Future<List<CachedQuestion>> getCachedQuestionsByIds(List<String> ids) async {
+    final cleaned = ids.map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+    if (cleaned.isEmpty) return const <CachedQuestion>[];
+    return (select(cachedQuestions)..where((t) => t.id.isIn(cleaned))).get();
+  }
+
   // ---------------------------------------------------------------------------
   // ActiveExamDrafts
   // ---------------------------------------------------------------------------

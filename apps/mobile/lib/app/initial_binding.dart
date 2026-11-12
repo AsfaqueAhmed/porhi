@@ -31,6 +31,11 @@ import 'package:porhi/features/dashboard/data/datasources/student_remote_datasou
 import 'package:porhi/features/dashboard/data/repositories/student_repository_impl.dart';
 import 'package:porhi/features/dashboard/domain/repositories/student_repository.dart';
 import 'package:porhi/features/dashboard/domain/usecases/student_usecases.dart';
+import 'package:porhi/features/exam/data/datasources/exam_local_datasource.dart';
+import 'package:porhi/features/exam/data/datasources/exam_remote_datasource.dart';
+import 'package:porhi/features/exam/data/repositories/exam_repository_impl.dart';
+import 'package:porhi/features/exam/domain/repositories/exam_repository.dart';
+import 'package:porhi/features/exam/domain/usecases/exam_usecases.dart';
 import 'package:porhi/features/lesson/data/datasources/lesson_local_datasource.dart';
 import 'package:porhi/features/lesson/data/datasources/lesson_remote_datasource.dart';
 import 'package:porhi/features/lesson/data/repositories/lesson_repository_impl.dart';
@@ -389,6 +394,44 @@ class InitialBinding extends Bindings {
     );
     _lazyPutIfAbsent<SubmitCqSelfAssessUseCase>(
       () => SubmitCqSelfAssessUseCase(Get.find<PracticeRepository>()),
+    );
+
+    _lazyPutIfAbsent<ExamRemoteDataSource>(
+      () => ExamRemoteDataSourceImpl(),
+    );
+    _lazyPutIfAbsent<ExamLocalDataSource>(
+      () => ExamLocalDataSourceImpl(database: database),
+    );
+    _lazyPutIfAbsent<ExamRepository>(
+      () => ExamRepositoryImpl(
+        remoteDataSource: Get.find<ExamRemoteDataSource>(),
+        localDataSource: Get.find<ExamLocalDataSource>(),
+        offlineSyncService: offlineSyncService,
+      ),
+    );
+    _lazyPutIfAbsent<StartExamUseCase>(
+      () => StartExamUseCase(Get.find<ExamRepository>()),
+    );
+    _lazyPutIfAbsent<HeartbeatExamUseCase>(
+      () => HeartbeatExamUseCase(Get.find<ExamRepository>()),
+    );
+    _lazyPutIfAbsent<SubmitExamUseCase>(
+      () => SubmitExamUseCase(Get.find<ExamRepository>()),
+    );
+    _lazyPutIfAbsent<GetExamSessionUseCase>(
+      () => GetExamSessionUseCase(Get.find<ExamRepository>()),
+    );
+    _lazyPutIfAbsent<SaveExamDraftUseCase>(
+      () => SaveExamDraftUseCase(Get.find<ExamRepository>()),
+    );
+    _lazyPutIfAbsent<GetLatestExamDraftUseCase>(
+      () => GetLatestExamDraftUseCase(Get.find<ExamRepository>()),
+    );
+    _lazyPutIfAbsent<DeleteExamDraftUseCase>(
+      () => DeleteExamDraftUseCase(Get.find<ExamRepository>()),
+    );
+    _lazyPutIfAbsent<ResumeExamSessionUseCase>(
+      () => ResumeExamSessionUseCase(Get.find<ExamRepository>()),
     );
 
     _lazyPutIfAbsent<ContentReportRemoteDataSource>(

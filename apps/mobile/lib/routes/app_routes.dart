@@ -10,6 +10,9 @@ abstract class AppRoutes {
   static const boardArchive = '/board-archive';
   static const lesson = '/lesson/:topicId';
   static const practice = '/practice/:chapterId';
+  static const examSetup = '/exam/setup';
+  static const examRunner = '/exam/runner';
+  static const examResult = '/exam/result/:sessionId';
   static const exam = '/exam/:chapterId';
 
   static String chaptersForSubject(String subjectId) =>
@@ -23,4 +26,7 @@ abstract class AppRoutes {
 
   static String examForChapter(String chapterId) =>
       '/exam/${Uri.encodeComponent(chapterId)}';
+
+  static String examResultForSession(String sessionId) =>
+      '/exam/result/${Uri.encodeComponent(sessionId)}';
 }
