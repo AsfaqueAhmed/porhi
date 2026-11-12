@@ -5,6 +5,7 @@ import {
   LessonCompleteDto,
   SaveNoteDto,
   SubmitFeedbackDto,
+  SyncOfflineDto,
   ToggleBookmarkDto,
 } from './dto/student.dto';
 
@@ -59,5 +60,13 @@ export class StudentController {
     @Req() req?: { user?: any },
   ) {
     return this.studentService.submitFeedback(req?.user?.id, body);
+  }
+
+  @Post('sync-offline')
+  async syncOfflineActivity(
+    @Body() body: SyncOfflineDto,
+    @Req() req?: { user?: any },
+  ) {
+    return this.studentService.syncOfflineActivity(req?.user?.id, body);
   }
 }

@@ -643,4 +643,280 @@ export class StudentService {
 
     return { success: true };
   }
+
+  async syncOfflineActivity(
+    userId: string | undefined,
+    payload: {
+      lessonCompletes?: Array<{
+        offlineEventId: string;
+        topicId: string;
+        chapterId?: string;
+        subjectId?: string;
+        completedAt?: string;
+      }>;
+      practiceAttempts?: Array<{
+        offlineEventId: string;
+        questionId: string;
+        topicId?: string;
+        isCorrect: boolean;
+        selectedOptionId?: string | null;
+        attemptedAt?: string;
+      }>;
+      examSubmissions?: Array<{
+        offlineSessionId: string;
+        subjectId: string;
+        chapterId?: string | null;
+        testType?: string;
+        durationSeconds?: number;
+        answers: Array<{ questionId: string; selectedOptionId?: string | null }>;
+        submittedAt?: string;
+      }>;
+    },
+  ): Promise<{ syncedLessons: number; syncedAttempts: number; syncedExams: number }> {
+    if (!userId) {
+      return { syncedLessons: 0, syncedAttempts: 0, syncedExams: 0 };
+    }
+
+    const recentEvents =
+      typeof this.prisma.eventLog?.findMany === 'function'
+        ? await this.prisma.eventLog
+            .findMany({
+              where: {
+                userId,
+                eventType: {
+                  in: ['LESSON_COMPLETE', 'PRACTICE_ATTEMPT', 'TEST_SUBMIT'],
+                },
+              },
+              take: 500,
+            })
+            .catch(() => [])
+        : [];
+
+    const existingEventIds = new Set<string>();
+    const existingSessionIds = new Set<string>();
+    for (const ev of recentEvents as any[]) {
+      const p = ev?.payload;
+      if (p && typeof p === 'object') {
+        if (typeof p.offlineEventId === 'string') existingEventIds.add(p.offlineEventId);
+        if (typeof p.offlineSessionId === 'string') existingSessionIds.add(p.offlineSessionId);
+      }
+    }
+
+    let syncedLessons = 0;
+    for (const item of payload?.lessonCompletes ?? []) {
+      if (!item?.topicId || !item?.offlineEventId) continue;
+      if (existingEventIds.has(item.offlineEventId)) continue;
+      existingEventIds.add(item.offlineEventId);
+
+      if (typeof this.prisma.eventLog?.create === 'function') {
+        await this.prisma.eventLog
+          .create({
+            data: {
+              userId,
+              eventType: 'LESSON_COMPLETE',
+              payload: {
+                topicId: item.topicId,
+                offlineEventId: item.offlineEventId,
+                offlineSynced: true,
+                completedAt: item.completedAt ?? new Date().toISOString(),
+              },
+            },
+          })
+          .catch(() => {});
+      }
+      syncedLessons++;
+    }
+
+    let syncedAttempts = 0;
+    for (const att of payload?.practiceAttempts ?? []) {
+      if (!att?.questionId || !att?.offlineEventId) continue;
+      if (existingEventIds.has(att.offlineEventId)) continue;
+      existingEventIds.add(att.offlineEventId);
+
+      if (typeof this.prisma.eventLog?.create === 'function') {
+        await this.prisma.eventLog
+          .create({
+            data: {
+              userId,
+              eventType: 'PRACTICE_ATTEMPT',
+              payload: {
+                questionId: att.questionId,
+                topicId: att.topicId ?? null,
+                isCorrect: att.isCorrect,
+                offlineEventId: att.offlineEventId,
+                offlineSynced: true,
+                attemptedAt: att.attemptedAt ?? new Date().toISOString(),
+              },
+            },
+          })
+          .catch(() => {});
+      }
+
+      if (
+        att.isCorrect === false &&
+        typeof (this.prisma.revisionMistake as any)?.upsert === 'function'
+      ) {
+        await (this.prisma.revisionMistake as any)
+          .upsert({
+            where: {
+              userId_questionId: {
+                userId,
+                questionId: att.questionId,
+              },
+            },
+            create: {
+              userId,
+              questionId: att.questionId,
+              wrongCount: 1,
+              resolved: false,
+            },
+            update: {
+              wrongCount: { increment: 1 },
+              resolved: false,
+            },
+          })
+          .catch(() => {});
+      }
+
+      syncedAttempts++;
+    }
+
+    let syncedExams = 0;
+    for (const exam of payload?.examSubmissions ?? []) {
+      if (!exam?.offlineSessionId || !exam?.subjectId) continue;
+      if (existingSessionIds.has(exam.offlineSessionId)) continue;
+      existingSessionIds.add(exam.offlineSessionId);
+
+      const submittedAnswers = Array.isArray(exam.answers) ? exam.answers : [];
+      const questionIds = Array.from(
+        new Set(submittedAnswers.map((a) => a.questionId).filter(Boolean)),
+      );
+
+      const questions =
+        questionIds.length > 0 && typeof this.prisma.question?.findMany === 'function'
+          ? await this.prisma.question
+              .findMany({ where: { id: { in: questionIds } } })
+              .catch(() => [])
+          : [];
+
+      const qMap = new Map<string, any>((questions as any[]).map((q) => [q.id, q]));
+
+      let correctCount = 0;
+      let wrongCount = 0;
+      let skippedCount = 0;
+      const evaluatedAnswers: any[] = [];
+
+      for (const ans of submittedAnswers) {
+        const q = qMap.get(ans.questionId);
+        const options = Array.isArray(q?.options) ? q.options : [];
+        const correctOpt = options.find((o: any) => o?.isCorrect === true);
+        const correctOptionId = correctOpt?.id ?? null;
+
+        if (!ans.selectedOptionId) {
+          skippedCount++;
+          evaluatedAnswers.push({
+            questionId: ans.questionId,
+            topicId: q?.topicId ?? null,
+            selectedOptionId: null,
+            correctOptionId,
+            isCorrect: false,
+            skipped: true,
+          });
+        } else {
+          const isCorrect =
+            correctOptionId !== null && ans.selectedOptionId === correctOptionId;
+          if (isCorrect) {
+            correctCount++;
+          } else {
+            wrongCount++;
+            if (typeof (this.prisma.revisionMistake as any)?.upsert === 'function') {
+              await (this.prisma.revisionMistake as any)
+                .upsert({
+                  where: {
+                    userId_questionId: {
+                      userId,
+                      questionId: ans.questionId,
+                    },
+                  },
+                  create: {
+                    userId,
+                    questionId: ans.questionId,
+                    wrongCount: 1,
+                    resolved: false,
+                  },
+                  update: {
+                    wrongCount: { increment: 1 },
+                    resolved: false,
+                  },
+                })
+                .catch(() => {});
+            }
+          }
+
+          evaluatedAnswers.push({
+            questionId: ans.questionId,
+            topicId: q?.topicId ?? null,
+            selectedOptionId: ans.selectedOptionId,
+            correctOptionId,
+            isCorrect,
+            skipped: false,
+          });
+        }
+      }
+
+      const totalQuestions = Math.max(submittedAnswers.length, evaluatedAnswers.length);
+      const negativeRatio = 0.25;
+      const score = Math.max(
+        0,
+        parseFloat((correctCount - wrongCount * negativeRatio).toFixed(4)),
+      );
+      const submittedAtDate = exam.submittedAt ? new Date(exam.submittedAt) : new Date();
+
+      if (typeof (this.prisma.examSession as any)?.create === 'function') {
+        await (this.prisma.examSession as any)
+          .create({
+            data: {
+              userId,
+              testType: exam.testType || 'OFFLINE_CHAPTER_TEST',
+              subjectId: exam.subjectId,
+              chapterId: exam.chapterId ?? null,
+              totalQuestions,
+              durationSeconds:
+                exam.durationSeconds ?? Math.max(60, totalQuestions * 60),
+              negativeRatio,
+              score,
+              status: 'COMPLETED',
+              startedAt: submittedAtDate,
+              completedAt: submittedAtDate,
+              answers: evaluatedAnswers as any,
+            },
+          })
+          .catch(() => {});
+      }
+
+      if (typeof this.prisma.eventLog?.create === 'function') {
+        await this.prisma.eventLog
+          .create({
+            data: {
+              userId,
+              eventType: 'TEST_SUBMIT',
+              payload: {
+                offlineSessionId: exam.offlineSessionId,
+                offlineSynced: true,
+                score,
+                totalQuestions,
+                correctCount,
+                wrongCount,
+                skippedCount,
+              },
+            },
+          })
+          .catch(() => {});
+      }
+
+      syncedExams++;
+    }
+
+    return { syncedLessons, syncedAttempts, syncedExams };
+  }
 }

@@ -14,4 +14,9 @@ export class CurriculumController {
   async getChaptersBySubject(@Param('subjectId') subjectId: string) {
     return this.curriculumService.getChaptersBySubject(subjectId);
   }
+
+  @Get('chapter/:chapterId/offline-pack')
+  async getOfflineChapterPack(@Param('chapterId') chapterId: string) {
+    return this.curriculumService.getOfflineChapterPack(chapterId);
+  }
 }

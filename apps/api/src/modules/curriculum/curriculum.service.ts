@@ -1,4 +1,5 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { ContentStatus } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 
 const SUBJECT_CODE_ALIASES: Record<string, string> = {
@@ -199,5 +200,92 @@ export class CurriculumService {
         topics,
       };
     });
+  }
+
+  async getOfflineChapterPack(chapterId: string) {
+    const chapter = await (this.prisma.chapter as any).findUnique({
+      where: { id: chapterId },
+      include: {
+        topics: {
+          orderBy: { orderIndex: 'asc' },
+          include: {
+            lessons: {
+              where: { status: ContentStatus.PUBLISHED },
+            },
+            questions: {
+              where: { status: ContentStatus.PUBLISHED },
+            },
+          },
+        },
+      },
+    });
+
+    if (!chapter) {
+      throw new NotFoundException(`Chapter not found with id: ${chapterId}`);
+    }
+
+    const rawTopics = Array.isArray(chapter.topics) ? chapter.topics : [];
+    const topics = rawTopics.map((topic: any) => ({
+      id: topic.id,
+      titleBangla: topic.titleBangla,
+      orderIndex: topic.orderIndex ?? 0,
+    }));
+
+    const lessons: any[] = [];
+    const questions: any[] = [];
+
+    for (const topic of rawTopics) {
+      if (Array.isArray(topic.lessons)) {
+        for (const lesson of topic.lessons) {
+          lessons.push({
+            id: lesson.id,
+            topicId: lesson.topicId || topic.id,
+            titleBangla: lesson.titleBangla,
+            learningGoal: lesson.learningGoal,
+            explanation: lesson.explanation,
+            importantTerms: Array.isArray(lesson.importantTerms)
+              ? lesson.importantTerms
+              : [],
+            workedExample: lesson.workedExample ?? null,
+            memoryAid: lesson.memoryAid ?? null,
+            interactiveWidgetUrl: lesson.interactiveWidgetUrl ?? null,
+            version: lesson.version ?? 1,
+          });
+        }
+      }
+      if (Array.isArray(topic.questions)) {
+        for (const q of topic.questions) {
+          questions.push({
+            id: q.id,
+            topicId: q.topicId || topic.id,
+            type: q.type,
+            stem: q.stem,
+            options: Array.isArray(q.options) ? q.options : null,
+            modelAnswer: q.modelAnswer ?? null,
+            rubric: Array.isArray(q.rubric) ? q.rubric : null,
+            explanation: q.explanation ?? null,
+            difficulty: q.difficulty ?? 'MEDIUM',
+            version: q.version ?? 1,
+          });
+        }
+      }
+    }
+
+    const maxVersion = Math.max(
+      1,
+      ...lessons.map((l) => l.version || 1),
+      ...questions.map((q) => q.version || 1),
+    );
+
+    return {
+      chapterId: chapter.id,
+      subjectId: chapter.subjectId,
+      titleBangla: chapter.titleBangla,
+      versionHash: `v1-${lessons.length}-${questions.length}-${maxVersion}`,
+      downloadedAt: new Date().toISOString(),
+      topics,
+      lessons,
+      questions,
+    };
   }
 }

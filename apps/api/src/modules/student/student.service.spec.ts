@@ -364,4 +364,74 @@ describe('StudentService', () => {
       expect((overview as any).lessonNotes).toEqual({ top_1: 'গুরুত্বপূর্ণ সূত্র' });
     });
   });
+
+  describe('syncOfflineActivity', () => {
+    it('replays offline lesson completions, practice attempts, and exam submissions without duplicating', async () => {
+      prisma.eventLog.findMany.mockResolvedValue([
+        { eventType: 'LESSON_COMPLETE', payload: { offlineEventId: 'ev_done_already' } },
+      ]);
+      prisma.eventLog.create.mockResolvedValue({ id: 'ev_sync' });
+      prisma.revisionMistake.upsert = vi.fn().mockResolvedValue({ id: 'mistake_sync' });
+      prisma.question.findMany.mockResolvedValue([
+        {
+          id: 'q1',
+          topicId: 'top_1',
+          options: [
+            { id: 'opt_a', text: 'A', isCorrect: true },
+            { id: 'opt_b', text: 'B', isCorrect: false },
+          ],
+          explanation: { directAnswer: 'A' },
+        },
+      ]);
+      prisma.examSession.create = vi.fn().mockResolvedValue({ id: 'sess_offline_1' });
+
+      const res = await (studentService as any).syncOfflineActivity('user-1', {
+        lessonCompletes: [
+          {
+            offlineEventId: 'ev_done_already',
+            topicId: 'top_old',
+            completedAt: '2026-11-12T08:00:00Z',
+          },
+          {
+            offlineEventId: 'ev_new_1',
+            topicId: 'top_1',
+            completedAt: '2026-11-12T09:00:00Z',
+          },
+        ],
+        practiceAttempts: [
+          {
+            offlineEventId: 'att_1',
+            questionId: 'q1',
+            topicId: 'top_1',
+            isCorrect: false,
+            attemptedAt: '2026-11-12T09:05:00Z',
+          },
+        ],
+        examSubmissions: [
+          {
+            offlineSessionId: 'off_ses_1',
+            subjectId: 'sub_1',
+            chapterId: 'chap_1',
+            answers: [{ questionId: 'q1', selectedOptionId: 'opt_a' }],
+            submittedAt: '2026-11-12T09:15:00Z',
+          },
+        ],
+      });
+
+      expect(res).toEqual({
+        syncedLessons: 1,
+        syncedAttempts: 1,
+        syncedExams: 1,
+      });
+      expect(prisma.revisionMistake.upsert).toHaveBeenCalledTimes(1);
+      expect(prisma.examSession.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          userId: 'user-1',
+          testType: 'OFFLINE_CHAPTER_TEST',
+          status: 'COMPLETED',
+          score: 1,
+        }),
+      });
+    });
+  });
 });

@@ -205,4 +205,70 @@ describe('CurriculumService', () => {
       });
     });
   });
+
+  describe('getOfflineChapterPack', () => {
+    it('returns published lessons and questions packaged for offline use', async () => {
+      (prisma.chapter as any).findUnique = vi.fn().mockResolvedValue({
+        id: 'chap_1',
+        subjectId: 'sub_1',
+        titleBangla: 'ভৌত রাশি ও পরিমাপ',
+        topics: [
+          {
+            id: 'top_1',
+            titleBangla: 'পদার্থবিজ্ঞান',
+            orderIndex: 1,
+            lessons: [
+              {
+                id: 'les_1',
+                topicId: 'top_1',
+                titleBangla: 'লেসন ১',
+                learningGoal: 'লক্ষ্য',
+                explanation: 'ব্যাখ্যা',
+                importantTerms: [],
+                workedExample: null,
+                memoryAid: null,
+                interactiveWidgetUrl: null,
+                version: 2,
+                status: 'PUBLISHED',
+              },
+            ],
+            questions: [
+              {
+                id: 'q_1',
+                topicId: 'top_1',
+                type: 'MCQ',
+                stem: 'বেগের একক কী?',
+                options: [
+                  { id: 'opt_1', text: 'm/s', isCorrect: true },
+                  { id: 'opt_2', text: 'm/s²', isCorrect: false },
+                ],
+                explanation: { directAnswer: 'm/s' },
+                difficulty: 'EASY',
+                version: 1,
+                status: 'PUBLISHED',
+              },
+            ],
+          },
+        ],
+      });
+
+      const pack = await (curriculumService as any).getOfflineChapterPack('chap_1');
+
+      expect(pack.chapterId).toBe('chap_1');
+      expect(pack.subjectId).toBe('sub_1');
+      expect(pack.titleBangla).toBe('ভৌত রাশি ও পরিমাপ');
+      expect(pack.topics).toHaveLength(1);
+      expect(pack.lessons).toHaveLength(1);
+      expect(pack.questions).toHaveLength(1);
+      expect(pack.questions[0].options[0].isCorrect).toBe(true);
+      expect(pack.versionHash).toBeTruthy();
+    });
+
+    it('throws NotFoundException when chapter does not exist', async () => {
+      (prisma.chapter as any).findUnique = vi.fn().mockResolvedValue(null);
+      await expect(
+        (curriculumService as any).getOfflineChapterPack('missing'),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
 });
