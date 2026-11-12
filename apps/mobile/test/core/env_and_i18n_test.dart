@@ -64,7 +64,19 @@ void main() {
         env.resolveMediaUrl('https://cdn.porhi.app/img.png'),
         'https://cdn.porhi.app/img.png',
       );
+      expect(
+        env.resolveMediaUrl('//cdn.porhi.app/img.png'),
+        '//cdn.porhi.app/img.png',
+      );
     });
+
+    test(
+      'effectiveWebBaseUrl falls back to localhost:3000 when apiBaseUrl is empty',
+      () {
+        const env = EnvConfig(apiBaseUrl: '');
+        expect(env.effectiveWebBaseUrl, 'http://localhost:3000');
+      },
+    );
   });
 
   group('bangla_digits & AppStrings', () {
@@ -73,11 +85,24 @@ void main() {
       expect(toBanglaDigits(409), '৪০৯');
     });
 
+    test('toAsciiDigits converts Bangla numerals cleanly', () {
+      expect(toAsciiDigits('২০২৬-১১-১২ (৮৫%)'), '2026-11-12 (85%)');
+    });
+
+    test('AppLanguage.fromCode normalizes locale codes and defaults to bn', () {
+      expect(AppLanguage.fromCode('en'), AppLanguage.en);
+      expect(AppLanguage.fromCode('bn'), AppLanguage.bn);
+      expect(AppLanguage.fromCode(null), AppLanguage.bn);
+      expect(AppLanguage.fromCode('EN'), AppLanguage.en);
+      expect(AppLanguage.fromCode('en_US'), AppLanguage.en);
+    });
+
     test('AppStrings switches between Bangla and English cleanly', () {
       expect(AppStrings.appName(AppLanguage.bn), 'পড়ি');
       expect(AppStrings.appName(AppLanguage.en), 'porhi');
       expect(AppStrings.tr('হোম', 'Home', AppLanguage.bn), 'হোম');
       expect(AppStrings.tr('হোম', 'Home', AppLanguage.en), 'Home');
+      expect(AppStrings.t('unknown.key', AppLanguage.en), 'unknown.key');
       expect(AppStrings.formatNumber(125, AppLanguage.bn), '১২৫');
       expect(AppStrings.formatNumber(125, AppLanguage.en), '125');
     });

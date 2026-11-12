@@ -68,6 +68,7 @@ class EnvConfig {
     final lower = value.toLowerCase();
     return lower.startsWith('http://') ||
         lower.startsWith('https://') ||
+        lower.startsWith('//') ||
         lower.startsWith('data:') ||
         lower.startsWith('file://');
   }

@@ -8,7 +8,9 @@ enum AppLanguage {
   String get code => name;
 
   static AppLanguage fromCode(String? code) {
-    return code == 'en' ? AppLanguage.en : AppLanguage.bn;
+    return code?.trim().toLowerCase().startsWith('en') == true
+        ? AppLanguage.en
+        : AppLanguage.bn;
   }
 }
 
