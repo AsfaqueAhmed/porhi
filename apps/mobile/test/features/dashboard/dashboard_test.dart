@@ -1,0 +1,612 @@
+import 'package:common/common.dart';
+import 'package:drift/native.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:network/network.dart';
+import 'package:porhi/app/initial_binding.dart';
+import 'package:porhi/core/database/app_database.dart';
+import 'package:porhi/core/i18n/app_strings.dart';
+import 'package:porhi/core/storage/preferences_storage_service.dart';
+import 'package:porhi/core/storage/secure_storage_service.dart';
+import 'package:porhi/core/sync/offline_sync_service.dart';
+import 'package:porhi/core/theme/porhi_theme.dart';
+import 'package:porhi/features/auth/data/datasources/firebase_auth_gateway.dart';
+import 'package:porhi/features/auth/domain/entities/auth_user_entity.dart';
+import 'package:porhi/features/auth/domain/repositories/auth_repository.dart';
+import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
+import 'package:porhi/features/dashboard/data/datasources/student_local_datasource.dart';
+import 'package:porhi/features/dashboard/data/datasources/student_remote_datasource.dart';
+import 'package:porhi/features/dashboard/data/models/student_overview_model.dart';
+import 'package:porhi/features/dashboard/data/repositories/student_repository_impl.dart';
+import 'package:porhi/features/dashboard/domain/entities/student_overview_entity.dart';
+import 'package:porhi/features/dashboard/domain/repositories/student_repository.dart';
+import 'package:porhi/features/dashboard/domain/usecases/student_usecases.dart';
+import 'package:porhi/features/dashboard/presentation/dashboard/view/dashboard_view.dart';
+import 'package:porhi/features/dashboard/presentation/shared/quick_search_sheet.dart';
+import 'package:porhi/features/shell/presentation/main_shell/binding/main_shell_binding.dart';
+import 'package:porhi/features/shell/presentation/main_shell/view/main_shell_view.dart';
+import 'package:porhi/routes/app_pages.dart';
+import 'package:porhi/routes/app_routes.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class _MockStudentRemoteDataSource extends Mock
+    implements StudentRemoteDataSource {}
+
+class _MockAuthRepository extends Mock implements AuthRepository {}
+
+class _MockStudentRepository extends Mock implements StudentRepository {}
+
+class _MockFirebaseAuthGateway extends Mock implements FirebaseAuthGateway {}
+
+Map<String, dynamic> _sampleOverviewJson({
+  int streakDays = 5,
+  String topicTitle = 'গতির সমীকরণ',
+}) {
+  final today = DateTime.now().toUtc();
+  final todayIso = today.toIso8601String().slice(0, 10);
+  final yesterdayIso =
+      today.subtract(const Duration(days: 1)).toIso8601String().slice(0, 10);
+
+  return <String, dynamic>{
+    'subjectId': 'sub_ssc_physics',
+    'curriculumTotals': <String, dynamic>{
+      'totalChapters': 4,
+      'totalTopics': 10,
+      'totalPublishedLessons': 10,
+      'totalPublishedQuestions': 40,
+    },
+    'completedTopicIds': <String>['top_1', 'top_2'],
+    'lastStudiedTopic': <String, dynamic>{
+      'topicId': 'top_2',
+      'topicTitle': topicTitle,
+      'chapterId': 'chap_ssc_physics_ch2',
+      'chapterTitle': 'গতি',
+      'timestamp': today.toIso8601String(),
+    },
+    'practiceStats': <String, dynamic>{
+      'totalAttempts': 20,
+      'correctAttempts': 16,
+      'accuracyPercent': 80,
+      'topicMastery': <String, dynamic>{
+        'top_2': <String, dynamic>{
+          'attempts': 10,
+          'correct': 8,
+          'accuracy': 80,
+        },
+      },
+    },
+    'streakDays': streakDays,
+    'studyDates': <String>[yesterdayIso, todayIso],
+    'dueMistakes': <Map<String, dynamic>>[
+      <String, dynamic>{
+        'id': 'mis_1',
+        'questionId': 'q_101',
+        'attemptCount': 2,
+        'updatedAt': today.toIso8601String(),
+        'topicId': 'top_2',
+        'topicTitle': topicTitle,
+        'chapterId': 'chap_ssc_physics_ch2',
+        'chapterTitle': 'গতি',
+        'stem': 'বেগের একক কোনটি?',
+        'correctOptionText': 'm/s',
+        'conceptNote': 'বেগ = সরণ / সময়',
+      },
+    ],
+    'weakTopics': <Map<String, dynamic>>[],
+    'recentExams': <Map<String, dynamic>>[],
+    'bookmarks': <Map<String, dynamic>>[
+      <String, dynamic>{
+        'id': 'top_2',
+        'type': 'topic',
+        'titleBangla': topicTitle,
+        'subtitleBangla': 'গতি',
+        'href': '/lesson/top_2',
+        'createdAt': today.toIso8601String(),
+      },
+    ],
+    'lessonNotes': <String, dynamic>{'top_2': 'v = u + at'},
+  };
+}
+
+extension on String {
+  String slice(int start, int end) => substring(start, end);
+}
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  late AppDatabase database;
+  late PreferencesStorageService prefsStorage;
+  late OfflineSyncService offlineSyncService;
+
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    await PorhiTheme.initCommon(enableLogger: false);
+  });
+
+  setUp(() async {
+    SharedPreferences.setMockInitialValues(<String, Object>{});
+    prefsStorage = PreferencesStorageService();
+    await prefsStorage.init();
+    database = AppDatabase(NativeDatabase.memory());
+    offlineSyncService = OfflineSyncService(database: database);
+    await offlineSyncService.init();
+  });
+
+  tearDown(() async {
+    Get.reset();
+    offlineSyncService.onClose();
+    await database.close();
+  });
+
+  group('StudentRepository & GetOverviewUseCase offline cache', () {
+    test(
+      'GetOverviewUseCase returns cached overview when offline and live overview when online',
+      () async {
+        final remote = _MockStudentRemoteDataSource();
+        final local = StudentLocalDataSourceImpl(
+          database: database,
+          preferencesStorage: prefsStorage,
+        );
+        final repo = StudentRepositoryImpl(
+          remoteDataSource: remote,
+          localDataSource: local,
+          offlineSyncService: offlineSyncService,
+        );
+        final getOverviewUseCase = GetOverviewUseCase(repo);
+
+        final liveModel = StudentOverviewModel.fromJson(
+          _sampleOverviewJson(streakDays: 7, topicTitle: 'নিউটনের দ্বিতীয় সূত্র'),
+        );
+        when(() => remote.getOverview('sub_ssc_physics')).thenAnswer(
+          (_) async => Right<ErrorResponse, StudentOverviewModel>(liveModel),
+        );
+
+        final onlineResult = await getOverviewUseCase(
+          subjectId: 'sub_ssc_physics',
+        );
+        expect(onlineResult.isRight(), isTrue);
+        final onlineEntity = onlineResult.getOrElse(
+          () => throw StateError('Expected Right'),
+        );
+        expect(onlineEntity.streakDays, 7);
+        expect(onlineEntity.isFromCache, isFalse);
+        expect(
+          onlineEntity.lastStudiedTopic?.topicTitle,
+          'নিউটনের দ্বিতীয় সূত্র',
+        );
+
+        // Now simulate offline failure; should fall back to LocalStudentCache.
+        when(() => remote.getOverview('sub_ssc_physics')).thenAnswer(
+          (_) async => Left<ErrorResponse, StudentOverviewModel>(
+            ErrorResponse(
+              message: 'No internet',
+              data: ApiResponseErrorType.noInternet,
+            ),
+          ),
+        );
+
+        final offlineResult = await getOverviewUseCase(
+          subjectId: 'sub_ssc_physics',
+        );
+        expect(offlineResult.isRight(), isTrue);
+        final offlineEntity = offlineResult.getOrElse(
+          () => throw StateError('Expected Right'),
+        );
+        expect(offlineEntity.streakDays, 7);
+        expect(offlineEntity.isFromCache, isTrue);
+        expect(
+          offlineEntity.lastStudiedTopic?.topicTitle,
+          'নিউটনের দ্বিতীয় সূত্র',
+        );
+      },
+    );
+  });
+
+  group('FilterQuickSearchTopicsUseCase', () {
+    test('matches Bangla/English titles and lab/ল্যাব keyword', () {
+      const useCase = FilterQuickSearchTopicsUseCase();
+      const items = <QuickSearchTopicEntity>[
+        QuickSearchTopicEntity(
+          topicId: 't1',
+          topicTitle: 'গতির সমীকরণ',
+          chapterId: 'c1',
+          chapterTitle: 'গতি',
+          subjectId: 'sub_ssc_physics',
+          hasInteractiveLab: true,
+          isCompleted: true,
+        ),
+        QuickSearchTopicEntity(
+          topicId: 't2',
+          topicTitle: 'কাজ ও ক্ষমতা',
+          chapterId: 'c2',
+          chapterTitle: 'কাজ, ক্ষমতা ও শক্তি',
+          subjectId: 'sub_ssc_physics',
+          hasInteractiveLab: false,
+          isCompleted: false,
+        ),
+      ];
+
+      expect(useCase(items: items, query: 'সমীকরণ').length, 1);
+      expect(useCase(items: items, query: 'শক্তি').single.topicId, 't2');
+      expect(useCase(items: items, query: 'lab').single.topicId, 't1');
+      expect(useCase(items: items, query: 'ল্যাব').single.topicId, 't1');
+    });
+  });
+
+  group('MainShellView, DashboardView & QuickSearchSheet widgets', () {
+    late _MockStudentRepository mockStudentRepo;
+    late _MockAuthRepository mockAuthRepo;
+
+    setUp(() {
+      mockStudentRepo = _MockStudentRepository();
+      mockAuthRepo = _MockAuthRepository();
+
+      when(() => mockAuthRepo.getLanguage()).thenReturn('bn');
+      when(() => mockAuthRepo.getCachedUser()).thenReturn(
+        const AuthUserEntity(
+          id: 'stu_1',
+          fullName: 'রাফি আহমেদ',
+          selectedClass: StudentTrack.ssc,
+        ),
+      );
+      when(() => mockStudentRepo.getActiveSubjectId(any()))
+          .thenReturn('sub_ssc_physics');
+      when(() => mockStudentRepo.pendingSyncCount).thenReturn(0);
+      when(() => mockStudentRepo.watchPendingSyncCount())
+          .thenAnswer((_) => Stream<int>.value(0));
+      when(() => mockStudentRepo.getCachedOverview(
+            subjectId: any(named: 'subjectId'),
+          )).thenAnswer((_) async => null);
+      when(() => mockStudentRepo.getCachedPlannerSummary())
+          .thenAnswer((_) async => null);
+      when(() => mockStudentRepo.getCachedQuickSearchCatalog(
+            subjectId: any(named: 'subjectId'),
+          )).thenAnswer((_) async => const <QuickSearchTopicEntity>[]);
+    });
+
+    void registerDashboardDependencies() {
+      Get.put<StudentRepository>(mockStudentRepo);
+      Get.put<AuthRepository>(mockAuthRepo);
+      Get.put<GetLanguageUseCase>(GetLanguageUseCase(mockAuthRepo));
+      Get.put<GetCachedUserUseCase>(GetCachedUserUseCase(mockAuthRepo));
+      Get.put<GetOverviewUseCase>(GetOverviewUseCase(mockStudentRepo));
+      Get.put<GetCachedOverviewUseCase>(
+        GetCachedOverviewUseCase(mockStudentRepo),
+      );
+      Get.put<GetPlannerSummaryUseCase>(
+        GetPlannerSummaryUseCase(mockStudentRepo),
+      );
+      Get.put<GetCachedPlannerSummaryUseCase>(
+        GetCachedPlannerSummaryUseCase(mockStudentRepo),
+      );
+      Get.put<GetQuickSearchCatalogUseCase>(
+        GetQuickSearchCatalogUseCase(mockStudentRepo),
+      );
+      Get.put<GetCachedQuickSearchCatalogUseCase>(
+        GetCachedQuickSearchCatalogUseCase(mockStudentRepo),
+      );
+      Get.put<FilterQuickSearchTopicsUseCase>(
+        const FilterQuickSearchTopicsUseCase(),
+      );
+      Get.put<FlushOfflineSyncUseCase>(
+        FlushOfflineSyncUseCase(mockStudentRepo),
+      );
+      Get.put<GetPendingSyncCountUseCase>(
+        GetPendingSyncCountUseCase(mockStudentRepo),
+      );
+      Get.put<WatchPendingSyncCountUseCase>(
+        WatchPendingSyncCountUseCase(mockStudentRepo),
+      );
+      Get.put<GetActiveSubjectIdUseCase>(
+        GetActiveSubjectIdUseCase(mockStudentRepo),
+      );
+    }
+
+    testWidgets(
+      'MainShellView switches active tab via Obx without mounting inactive tabs in an IndexedStack',
+      (tester) async {
+        final overview = StudentOverviewModel.fromJson(
+          _sampleOverviewJson(),
+        ).toEntity();
+        when(() => mockStudentRepo.getOverview(
+              subjectId: any(named: 'subjectId'),
+            )).thenAnswer((_) async => Right(overview));
+        when(() => mockStudentRepo.getPlannerSummary()).thenAnswer(
+          (_) async => const Right(
+            PlannerOverviewEntity(tasks: [], todayDueCount: 0),
+          ),
+        );
+
+        registerDashboardDependencies();
+        MainShellBinding().dependencies();
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            getPages: <GetPage<dynamic>>[
+              GetPage<dynamic>(
+                name: AppRoutes.account,
+                page: () => const Scaffold(body: Text('Account Screen')),
+              ),
+            ],
+            home: MainShellView(
+              tabBuilders: MainShellTabBuilders(
+                subjectsBuilder: (_) =>
+                    const Center(child: Text('Subjects Slot Active')),
+                plannerBuilder: (_) =>
+                    const Center(child: Text('Planner Slot Active')),
+                progressBuilder: (_) =>
+                    const Center(child: Text('Progress Slot Active')),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Verify zero IndexedStack widgets exist in the tree.
+        expect(find.byType(IndexedStack), findsNothing);
+        expect(find.byType(DashboardView), findsOneWidget);
+        expect(find.text('Subjects Slot Active'), findsNothing);
+        expect(find.text('Planner Slot Active'), findsNothing);
+        expect(find.text('Progress Slot Active'), findsNothing);
+
+        // Switch to Subjects tab (index 1).
+        await tester.tap(find.text(AppStrings.t('nav.subjects', AppLanguage.bn)));
+        await tester.pumpAndSettle();
+        expect(find.byType(IndexedStack), findsNothing);
+        expect(find.byType(DashboardView), findsNothing);
+        expect(find.text('Subjects Slot Active'), findsOneWidget);
+
+        // Switch to Planner tab (index 2).
+        await tester.tap(find.text(AppStrings.t('nav.planner', AppLanguage.bn)));
+        await tester.pumpAndSettle();
+        expect(find.text('Subjects Slot Active'), findsNothing);
+        expect(find.text('Planner Slot Active'), findsOneWidget);
+
+        // Switch to Progress tab (index 3).
+        await tester.tap(find.text(AppStrings.t('nav.progress', AppLanguage.bn)));
+        await tester.pumpAndSettle();
+        expect(find.text('Planner Slot Active'), findsNothing);
+        expect(find.text('Progress Slot Active'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'DashboardView renders streak, 7-day activity strip, continue card, due mistakes, and triggers sync badge',
+      (tester) async {
+        final overview = StudentOverviewModel.fromJson(
+          _sampleOverviewJson(streakDays: 6, topicTitle: 'ভেক্টর বিভাজন'),
+        ).toEntity();
+        when(() => mockStudentRepo.pendingSyncCount).thenReturn(3);
+        when(() => mockStudentRepo.watchPendingSyncCount())
+            .thenAnswer((_) => Stream<int>.value(3));
+        when(() => mockStudentRepo.getOverview(
+              subjectId: any(named: 'subjectId'),
+            )).thenAnswer((_) async => Right(overview));
+        when(() => mockStudentRepo.getPlannerSummary()).thenAnswer(
+          (_) async => const Right(
+            PlannerOverviewEntity(
+              tasks: <PlannerTaskSummaryEntity>[
+                PlannerTaskSummaryEntity(
+                  id: 'task_1',
+                  titleBangla: 'পদার্থবিজ্ঞান ২য় অধ্যায় রিভিশন',
+                  scheduledDate: '2026-11-12',
+                  completed: false,
+                ),
+              ],
+              todayDueCount: 1,
+            ),
+          ),
+        );
+        when(() => mockStudentRepo.syncOffline())
+            .thenAnswer((_) async => const Right<ErrorResponse, int>(3));
+
+        registerDashboardDependencies();
+        MainShellBinding().dependencies();
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            home: const MainShellView(),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.textContaining('৬'), findsWidgets);
+        expect(find.text('ভেক্টর বিভাজন'), findsOneWidget);
+        expect(find.byKey(const Key('dashboard_7day_strip')), findsOneWidget);
+        expect(find.byKey(const Key('sync_badge_button')), findsOneWidget);
+
+        await tester.scrollUntilVisible(
+          find.text('বেগের একক কোনটি?'),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(find.text('বেগের একক কোনটি?'), findsOneWidget);
+
+        await tester.scrollUntilVisible(
+          find.text('পদার্থবিজ্ঞান ২য় অধ্যায় রিভিশন'),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(
+          find.text('পদার্থবিজ্ঞান ২য় অধ্যায় রিভিশন'),
+          findsOneWidget,
+        );
+
+        await tester.tap(find.byKey(const Key('sync_badge_button')));
+        await tester.pumpAndSettle();
+        verify(() => mockStudentRepo.syncOffline()).called(1);
+      },
+    );
+
+    testWidgets(
+      'QuickSearchSheet filters topics from curriculum catalog',
+      (tester) async {
+        final overview = StudentOverviewModel.fromJson(
+          _sampleOverviewJson(),
+        ).toEntity();
+        when(() => mockStudentRepo.getOverview(
+              subjectId: any(named: 'subjectId'),
+            )).thenAnswer((_) async => Right(overview));
+        when(() => mockStudentRepo.getPlannerSummary()).thenAnswer(
+          (_) async => const Right(
+            PlannerOverviewEntity(tasks: [], todayDueCount: 0),
+          ),
+        );
+        when(() => mockStudentRepo.getQuickSearchCatalog(
+              subjectId: any(named: 'subjectId'),
+            )).thenAnswer(
+          (_) async => const Right<ErrorResponse, List<QuickSearchTopicEntity>>(
+            <QuickSearchTopicEntity>[
+              QuickSearchTopicEntity(
+                topicId: 'top_motion',
+                topicTitle: 'গতির সমীকরণ',
+                chapterId: 'ch_2',
+                chapterTitle: 'গতি',
+                subjectId: 'sub_ssc_physics',
+                hasInteractiveLab: true,
+                isCompleted: true,
+              ),
+              QuickSearchTopicEntity(
+                topicId: 'top_force',
+                topicTitle: 'নিউটনের প্রথম সূত্র',
+                chapterId: 'ch_3',
+                chapterTitle: 'বল',
+                subjectId: 'sub_ssc_physics',
+                hasInteractiveLab: false,
+                isCompleted: false,
+              ),
+            ],
+          ),
+        );
+
+        registerDashboardDependencies();
+        MainShellBinding().dependencies();
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            home: const MainShellView(),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byKey(const Key('quick_search_button')));
+        await tester.pumpAndSettle();
+
+        expect(find.byType(QuickSearchSheet), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.byType(QuickSearchSheet),
+            matching: find.text('গতির সমীকরণ'),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: find.byType(QuickSearchSheet),
+            matching: find.text('নিউটনের প্রথম সূত্র'),
+          ),
+          findsOneWidget,
+        );
+
+        await tester.enterText(
+          find.byKey(const Key('quick_search_input')),
+          'নিউটন',
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          find.descendant(
+            of: find.byType(QuickSearchSheet),
+            matching: find.text('নিউটনের প্রথম সূত্র'),
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: find.byType(QuickSearchSheet),
+            matching: find.text('গতির সমীকরণ'),
+          ),
+          findsNothing,
+        );
+      },
+    );
+
+    testWidgets(
+      'DashboardView navigates to /account and shows offline badge when serving cached data',
+      (tester) async {
+        final cachedOverview = StudentOverviewModel.fromJson(
+          _sampleOverviewJson(streakDays: 3, topicTitle: 'কাজ ও শক্তি'),
+        ).toEntity(isFromCache: true);
+        when(() => mockStudentRepo.getCachedOverview(
+              subjectId: any(named: 'subjectId'),
+            )).thenAnswer((_) async => cachedOverview);
+        when(() => mockStudentRepo.getOverview(
+              subjectId: any(named: 'subjectId'),
+            )).thenAnswer((_) async => Right(cachedOverview));
+        when(() => mockStudentRepo.getPlannerSummary()).thenAnswer(
+          (_) async => const Right(
+            PlannerOverviewEntity(tasks: [], todayDueCount: 0),
+          ),
+        );
+
+        registerDashboardDependencies();
+        MainShellBinding().dependencies();
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            getPages: <GetPage<dynamic>>[
+              GetPage<dynamic>(
+                name: AppRoutes.account,
+                page: () => const Scaffold(body: Text('Account Route Target')),
+              ),
+            ],
+            home: const MainShellView(),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text(AppStrings.t('common.offline', AppLanguage.bn)),
+          findsOneWidget,
+        );
+        expect(find.text('কাজ ও শক্তি'), findsOneWidget);
+
+        await tester.tap(find.byKey(const Key('dashboard_account_button')));
+        await tester.pumpAndSettle();
+        expect(find.text('Account Route Target'), findsOneWidget);
+      },
+    );
+  });
+
+  group('Routing & InitialBinding wiring', () {
+    test('InitialBinding registers StudentRepository and dashboard use cases and AppPages wires /home & /search', () {
+      InitialBinding(
+        database: database,
+        preferencesStorage: prefsStorage,
+        secureStorage: SecureStorageService(),
+        firebaseGateway: _MockFirebaseAuthGateway(),
+        initNetwork: false,
+      ).dependencies();
+
+      expect(Get.isRegistered<StudentRepository>(), isTrue);
+      expect(Get.isRegistered<GetOverviewUseCase>(), isTrue);
+      expect(Get.isRegistered<GetPlannerSummaryUseCase>(), isTrue);
+      expect(Get.isRegistered<GetQuickSearchCatalogUseCase>(), isTrue);
+      expect(Get.isRegistered<FlushOfflineSyncUseCase>(), isTrue);
+
+      final homeRoute =
+          AppPages.routes.firstWhere((r) => r.name == AppRoutes.home);
+      final searchRoute =
+          AppPages.routes.firstWhere((r) => r.name == AppRoutes.search);
+      expect(homeRoute.binding, isA<MainShellBinding>());
+      expect(searchRoute.name, '/search');
+    });
+  });
+}

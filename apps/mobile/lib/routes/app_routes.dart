@@ -4,4 +4,5 @@ abstract class AppRoutes {
   static const onboarding = '/onboarding';
   static const account = '/account';
   static const home = '/home';
+  static const search = '/search';
 }

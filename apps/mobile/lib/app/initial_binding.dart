@@ -17,6 +17,11 @@ import 'package:porhi/features/auth/data/datasources/firebase_auth_gateway.dart'
 import 'package:porhi/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:porhi/features/auth/domain/repositories/auth_repository.dart';
 import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
+import 'package:porhi/features/dashboard/data/datasources/student_local_datasource.dart';
+import 'package:porhi/features/dashboard/data/datasources/student_remote_datasource.dart';
+import 'package:porhi/features/dashboard/data/repositories/student_repository_impl.dart';
+import 'package:porhi/features/dashboard/domain/repositories/student_repository.dart';
+import 'package:porhi/features/dashboard/domain/usecases/student_usecases.dart';
 import 'package:porhi/routes/app_routes.dart';
 
 class InitialBinding extends Bindings {
@@ -164,6 +169,80 @@ class InitialBinding extends Bindings {
     );
     _lazyPutIfAbsent<ClearOfflineDataUseCase>(
       () => ClearOfflineDataUseCase(Get.find<AuthRepository>()),
+    );
+
+    _lazyPutIfAbsent<StudentRemoteDataSource>(
+      () => StudentRemoteDataSourceImpl(),
+    );
+    _lazyPutIfAbsent<StudentLocalDataSource>(
+      () => StudentLocalDataSourceImpl(
+        database: database,
+        preferencesStorage: preferencesStorage,
+      ),
+    );
+    _lazyPutIfAbsent<StudentRepository>(
+      () => StudentRepositoryImpl(
+        remoteDataSource: Get.find<StudentRemoteDataSource>(),
+        localDataSource: Get.find<StudentLocalDataSource>(),
+        offlineSyncService: offlineSyncService,
+      ),
+    );
+    _lazyPutIfAbsent<GetOverviewUseCase>(
+      () => GetOverviewUseCase(Get.find<StudentRepository>()),
+    );
+    _lazyPutIfAbsent<GetCachedOverviewUseCase>(
+      () => GetCachedOverviewUseCase(Get.find<StudentRepository>()),
+    );
+    _lazyPutIfAbsent<GetPlannerSummaryUseCase>(
+      () => GetPlannerSummaryUseCase(Get.find<StudentRepository>()),
+    );
+    _lazyPutIfAbsent<GetCachedPlannerSummaryUseCase>(
+      () => GetCachedPlannerSummaryUseCase(Get.find<StudentRepository>()),
+    );
+    _lazyPutIfAbsent<GetQuickSearchCatalogUseCase>(
+      () => GetQuickSearchCatalogUseCase(Get.find<StudentRepository>()),
+    );
+    _lazyPutIfAbsent<GetCachedQuickSearchCatalogUseCase>(
+      () => GetCachedQuickSearchCatalogUseCase(Get.find<StudentRepository>()),
+    );
+    _lazyPutIfAbsent<FilterQuickSearchTopicsUseCase>(
+      () => const FilterQuickSearchTopicsUseCase(),
+    );
+    _lazyPutIfAbsent<MarkLessonCompleteUseCase>(
+      () => MarkLessonCompleteUseCase(Get.find<StudentRepository>()),
+    );
+    _lazyPutIfAbsent<ToggleBookmarkUseCase>(
+      () => ToggleBookmarkUseCase(Get.find<StudentRepository>()),
+    );
+    _lazyPutIfAbsent<SaveNoteUseCase>(
+      () => SaveNoteUseCase(Get.find<StudentRepository>()),
+    );
+    _lazyPutIfAbsent<SubmitFeedbackUseCase>(
+      () => SubmitFeedbackUseCase(Get.find<StudentRepository>()),
+    );
+    _lazyPutIfAbsent<CreateShareLinkUseCase>(
+      () => CreateShareLinkUseCase(Get.find<StudentRepository>()),
+    );
+    _lazyPutIfAbsent<ListShareLinksUseCase>(
+      () => ListShareLinksUseCase(Get.find<StudentRepository>()),
+    );
+    _lazyPutIfAbsent<RevokeShareLinkUseCase>(
+      () => RevokeShareLinkUseCase(Get.find<StudentRepository>()),
+    );
+    _lazyPutIfAbsent<FlushOfflineSyncUseCase>(
+      () => FlushOfflineSyncUseCase(Get.find<StudentRepository>()),
+    );
+    _lazyPutIfAbsent<GetPendingSyncCountUseCase>(
+      () => GetPendingSyncCountUseCase(Get.find<StudentRepository>()),
+    );
+    _lazyPutIfAbsent<WatchPendingSyncCountUseCase>(
+      () => WatchPendingSyncCountUseCase(Get.find<StudentRepository>()),
+    );
+    _lazyPutIfAbsent<GetActiveSubjectIdUseCase>(
+      () => GetActiveSubjectIdUseCase(Get.find<StudentRepository>()),
+    );
+    _lazyPutIfAbsent<SetActiveSubjectIdUseCase>(
+      () => SetActiveSubjectIdUseCase(Get.find<StudentRepository>()),
     );
   }
 

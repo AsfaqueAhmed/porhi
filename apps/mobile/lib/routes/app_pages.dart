@@ -1,12 +1,14 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:porhi/core/theme/porhi_theme.dart';
 import 'package:porhi/features/auth/presentation/account/binding/account_binding.dart';
 import 'package:porhi/features/auth/presentation/account/view/account_view.dart';
 import 'package:porhi/features/auth/presentation/login/binding/login_binding.dart';
 import 'package:porhi/features/auth/presentation/login/view/login_view.dart';
 import 'package:porhi/features/auth/presentation/onboarding/binding/onboarding_binding.dart';
 import 'package:porhi/features/auth/presentation/onboarding/view/onboarding_view.dart';
+import 'package:porhi/features/dashboard/presentation/dashboard/binding/dashboard_binding.dart';
+import 'package:porhi/features/dashboard/presentation/shared/quick_search_sheet.dart';
+import 'package:porhi/features/shell/presentation/main_shell/binding/main_shell_binding.dart';
+import 'package:porhi/features/shell/presentation/main_shell/view/main_shell_view.dart';
 
 import '../features/splash/presentation/splash/binding/splash_binding.dart';
 import '../features/splash/presentation/splash/view/splash_view.dart';
@@ -36,49 +38,13 @@ class AppPages {
     ),
     GetPage(
       name: AppRoutes.home,
-      page: () => const _TemporaryHomePlaceholderView(),
+      page: () => const MainShellView(),
+      binding: MainShellBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.search,
+      page: () => const QuickSearchPage(),
+      binding: QuickSearchBinding(),
     ),
   ];
-}
-
-/// Minimal authenticated landing placeholder until the Task 6 Home Shell arrives.
-class _TemporaryHomePlaceholderView extends StatelessWidget {
-  const _TemporaryHomePlaceholderView();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('porhi'),
-        actions: <Widget>[
-          IconButton(
-            tooltip: 'Account',
-            icon: const Icon(Icons.person_outline_rounded),
-            onPressed: () => Get.toNamed(AppRoutes.account),
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            const Text(
-              'পড়ি',
-              style: TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.w800,
-                color: PorhiTheme.indigo600,
-              ),
-            ),
-            const SizedBox(height: 12),
-            ElevatedButton.icon(
-              onPressed: () => Get.toNamed(AppRoutes.account),
-              icon: const Icon(Icons.manage_accounts_rounded),
-              label: const Text('Account & Settings'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }
