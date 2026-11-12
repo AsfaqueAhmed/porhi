@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import PracticeRunnerPage from '../src/app/practice/[chapterId]/page';
 import { apiClient } from '../src/lib/api-client';
+import { ensureGuestSession } from '../src/lib/guest-session';
 import { useUserStore } from '../src/store/user-store';
 import { ContentStatus, QuestionType } from '@pori/shared';
 
@@ -21,6 +22,10 @@ vi.mock('../src/lib/api-client', () => ({
     get: vi.fn(),
     post: vi.fn(),
   },
+}));
+
+vi.mock('../src/lib/guest-session', () => ({
+  ensureGuestSession: vi.fn().mockResolvedValue({ token: 'guest-jwt', guestId: 'guest_1' }),
 }));
 
 describe('PracticeRunnerPage - Topic-only Practice Filtering & Smart Runner', () => {
@@ -160,5 +165,82 @@ describe('PracticeRunnerPage - Topic-only Practice Filtering & Smart Runner', ()
       expect(screen.getByText(/অনুশীলন সারসংক্ষেপ/i)).toBeDefined();
       expect(screen.getByRole('button', { name: /ভুল প্রশ্নগুলো আবার অনুশীলন করো/i })).toBeDefined();
     });
+  });
+
+  it('switches to Creative (CQ) mode, fetches ?type=CQ_CREATIVE, reveals rubric, and submits 1-10 self-assessment', async () => {
+    mockSearchParams = new URLSearchParams();
+
+    const sampleCq = {
+      id: 'q_cq_1',
+      topicId: 'top_ssc_physics_ch1_5',
+      type: 'CQ_CREATIVE',
+      stem: 'উদ্দীপক: একটি স্লাইড ক্যালিপার্সের প্রধান স্কেলের পাঠ 2 cm।\n\nক. ভার্নিয়ার ধ্রুবক কী? [১]\nখ. পরিমাপে ত্রুটি কেন হয়? [২]\nগ. ব্যাসার্ধ নির্ণয় করো। [৩]\nঘ. আয়তনের নির্ভুলতা বিশ্লেষণ করো। [৪]',
+      options: [],
+      cqRubric: {
+        ka: { mark: 1, criteria: 'ভার্নিয়ারের ১ ভাগের সাথে প্রধান স্কেলের ১ ভাগের পার্থক্যকে ভার্নিয়ার ধ্রুবক বলে।' },
+        kha: { mark: 2, criteria: 'যান্ত্রিক ও ব্যক্তিগত ত্রুটির কারণে পরিমাপে ত্রুটি হয়।' },
+        ga: { mark: 3, criteria: 'গ সূত্র প্রয়োগ করে ব্যাসার্ধ নির্ণয়ে ৩ নম্বর।' },
+        gha: { mark: 4, criteria: 'আয়তন ও ত্রুটি তুলনাসহ বিশ্লেষণে ৪ নম্বর।' },
+      },
+      explanation: {
+        directAnswer: 'গ. ব্যাসার্ধ 1.02 cm। ঘ. আপেক্ষিক ত্রুটি ২%।',
+        coreConcept: 'ভার্নিয়ার পরিমাপ পদ্ধতি।',
+      },
+      difficulty: 'MEDIUM',
+      boardSource: 'Dhaka Board 2024',
+      status: ContentStatus.PUBLISHED,
+      version: 1,
+    };
+
+    vi.mocked(apiClient.get)
+      .mockResolvedValueOnce([qTopic1] as any)
+      .mockResolvedValueOnce([sampleCq] as any);
+    vi.mocked(apiClient.post).mockResolvedValueOnce({
+      success: true,
+      questionId: 'q_cq_1',
+      selfScores: { ka: 1, kha: 2, ga: 2, gha: 3 },
+      totalScore: 8,
+      maxScore: 10,
+    });
+
+    render(<PracticeRunnerPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText(/Fusis/i)).toBeDefined();
+    });
+
+    // Toggle to Creative (CQ) mode
+    fireEvent.click(screen.getByRole('button', { name: /সৃজনশীল \(CQ\)/i }));
+
+    await waitFor(() => {
+      expect(apiClient.get).toHaveBeenCalledWith(
+        '/practice/chapter/chap_ssc_physics_ch1/questions?type=CQ_CREATIVE'
+      );
+      expect(screen.getByText(/স্লাইড ক্যালিপার্সের প্রধান স্কেল/i)).toBeDefined();
+      expect(screen.getByText(/Dhaka Board 2024/i)).toBeDefined();
+    });
+
+    // Reveal rubric & model answer
+    fireEvent.click(screen.getByRole('button', { name: /উত্তর ও মার্কিং রুব্রিক দেখো/i }));
+    expect(screen.getByText(/ভার্নিয়ারের ১ ভাগের সাথে/i)).toBeDefined();
+
+    // Update self-scores (ga=2, gha=3)
+    const gaInput = screen.getByLabelText(/গ \(প্রয়োগ\)/i);
+    const ghaInput = screen.getByLabelText(/ঘ \(উচ্চতর দক্ষতা\)/i);
+    fireEvent.change(gaInput, { target: { value: '2' } });
+    fireEvent.change(ghaInput, { target: { value: '3' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /স্ব-মূল্যায়ন জমা দাও/i }));
+
+    await waitFor(() => {
+      expect(ensureGuestSession).toHaveBeenCalled();
+      expect(apiClient.post).toHaveBeenCalledWith('/practice/cq-self-assess', {
+        questionId: 'q_cq_1',
+        selfScores: { ka: 1, kha: 2, ga: 2, gha: 3 },
+      });
+      expect(screen.getByText(/স্ব-মূল্যায়ন: ৮ \/ ১০/)).toBeDefined();
+    });
+
+    expect(useUserStore.getState().topicMastery['top_ssc_physics_ch1_5']).toBeDefined();
   });
 });

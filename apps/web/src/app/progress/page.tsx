@@ -397,12 +397,22 @@ export default function ProgressPage() {
                       : `Score: ${ex.score}/${ex.totalQuestions} (${ex.accuracyPercent}%)`}
                   </span>
                 </div>
-                <Link
-                  href={`/exam/${ex.chapterId}`}
-                  className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-bold text-indigo-600 hover:bg-indigo-50"
-                >
-                  {tr('আবার দাও', 'Retake')}
-                </Link>
+                <div className="flex items-center gap-2 shrink-0">
+                  {ex.examSessionId && !ex.examSessionId.startsWith('local_sess_') && (
+                    <Link
+                      href={`/exam/result/${ex.examSessionId}`}
+                      className="px-3 py-1.5 rounded-lg bg-indigo-50 border border-indigo-200 font-bold text-indigo-700 hover:bg-indigo-100"
+                    >
+                      {tr('ফলাফল দেখো', 'View Result')}
+                    </Link>
+                  )}
+                  <Link
+                    href={`/exam/${ex.chapterId}`}
+                    className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-bold text-indigo-600 hover:bg-indigo-50"
+                  >
+                    {tr('আবার দাও', 'Retake')}
+                  </Link>
+                </div>
               </div>
             ))}
           </div>
