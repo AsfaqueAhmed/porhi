@@ -18,6 +18,7 @@ import { LatexRenderer } from '@/components/math/latex-renderer';
 import { DEFAULT_CHAPTERS, findTopicHierarchy } from '@/lib/curriculum-data';
 import { apiClient } from '@/lib/api-client';
 import { ensureGuestSession } from '@/lib/guest-session';
+import type { ExamHistoryResponseDTO, ExamHistoryItemDTO } from '@pori/shared';
 
 export default function ProgressPage() {
   const {
@@ -34,16 +35,30 @@ export default function ProgressPage() {
   const subjectId = activeSubject?.id || 'sub_ssc_physics';
 
   const [mistakeTab, setMistakeTab] = useState<'UNRESOLVED' | 'RESOLVED'>('UNRESOLVED');
+  const [serverHistory, setServerHistory] = useState<ExamHistoryResponseDTO | null>(null);
+  const [examFilter, setExamFilter] = useState<'ALL' | 'CHAPTER_TEST' | 'SUBJECT_TEST'>('ALL');
 
   useEffect(() => {
     async function loadServerProgress() {
       try {
-        await ensureGuestSession().catch(() => {});
-        const res = await apiClient.get<ServerOverviewPayload>(
-          `/student/overview?subjectId=${encodeURIComponent(subjectId)}`
-        );
-        if (res) {
-          hydrateFromServerOverview(res);
+        await Promise.resolve(ensureGuestSession()).catch(() => {});
+        const [overviewRes, historyRes] = await Promise.all([
+          Promise.resolve(
+            apiClient.get<ServerOverviewPayload>(
+              `/student/overview?subjectId=${encodeURIComponent(subjectId)}`
+            )
+          ).catch(() => null),
+          Promise.resolve(
+            apiClient.get<ExamHistoryResponseDTO>(
+              `/exam/history?subjectId=${encodeURIComponent(subjectId)}`
+            )
+          ).catch(() => null),
+        ]);
+        if (overviewRes) {
+          hydrateFromServerOverview(overviewRes);
+        }
+        if (historyRes && Array.isArray(historyRes.items)) {
+          setServerHistory(historyRes);
         }
       } catch {
         // Offline / local fallback
@@ -71,8 +86,69 @@ export default function ProgressPage() {
     return { totalAttempted: attempted, totalCorrect: correct, averageAccuracyPct: pct };
   }, [topicMastery]);
 
-  const latestExam = examHistory[0] || null;
-  const totalSessionsCount = examHistory.length + Object.keys(topicMastery).length;
+  const mergedExamItems = useMemo<ExamHistoryItemDTO[]>(() => {
+    if (serverHistory?.items && serverHistory.items.length > 0) {
+      return serverHistory.items;
+    }
+    return examHistory.map((ex) => ({
+      sessionId: ex.examSessionId,
+      testType: ex.chapterId?.startsWith('subject_') ? 'SUBJECT_TEST' : 'CHAPTER_TEST',
+      subjectId,
+      subjectNameBangla: subjectName,
+      chapterId: ex.chapterId,
+      chapterTitleBangla: ex.chapterTitle,
+      totalQuestions: ex.totalQuestions,
+      correctCount: Math.round((ex.accuracyPercent / 100) * ex.totalQuestions),
+      wrongCount: 0,
+      skippedCount: 0,
+      score: ex.score,
+      accuracyPercent: ex.accuracyPercent,
+      completedAt: ex.submittedAt,
+    }));
+  }, [serverHistory, examHistory, subjectId, subjectName]);
+
+  const filteredExamItems = useMemo(() => {
+    if (examFilter === 'ALL') return mergedExamItems;
+    return mergedExamItems.filter((item) => item.testType === examFilter);
+  }, [mergedExamItems, examFilter]);
+
+  const examSummary = useMemo(() => {
+    if (serverHistory?.summary && serverHistory.items.length > 0 && examFilter === 'ALL') {
+      return serverHistory.summary;
+    }
+    const totalTests = filteredExamItems.length;
+    const averageAccuracy =
+      totalTests > 0
+        ? Math.round(
+            filteredExamItems.reduce((sum, item) => sum + item.accuracyPercent, 0) / totalTests
+          )
+        : 0;
+    const bestScorePercent =
+      totalTests > 0 ? Math.max(...filteredExamItems.map((item) => item.accuracyPercent)) : 0;
+    const subjectTestsCount = filteredExamItems.filter(
+      (item) => item.testType === 'SUBJECT_TEST'
+    ).length;
+    return { totalTests, averageAccuracy, bestScorePercent, subjectTestsCount };
+  }, [serverHistory, filteredExamItems, examFilter]);
+
+  const trendPoints = useMemo(() => {
+    if (serverHistory?.trend && serverHistory.trend.length > 0 && examFilter === 'ALL') {
+      return serverHistory.trend;
+    }
+    return [...filteredExamItems]
+      .slice(0, 12)
+      .reverse()
+      .map((item) => ({
+        sessionId: item.sessionId,
+        label: item.chapterTitleBangla || item.subjectNameBangla || subjectName,
+        date: (item.completedAt || '').slice(0, 10),
+        accuracyPercent: item.accuracyPercent,
+        testType: item.testType,
+      }));
+  }, [serverHistory, filteredExamItems, examFilter, subjectName]);
+
+  const latestExam = mergedExamItems[0] || examHistory[0] || null;
+  const totalSessionsCount = mergedExamItems.length + Object.keys(topicMastery).length;
 
   // Chapter Mastery Matrix
   const chapterMatrix = useMemo(() => {
@@ -376,46 +452,189 @@ export default function ProgressPage() {
         )}
       </div>
 
-      {/* Recent Exam History */}
-      {examHistory.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-          <div className="flex items-center gap-2 text-slate-900 font-bold text-lg border-b border-slate-100 pb-3">
-            <Trophy className="w-5 h-5 text-amber-500" />
-            <span>{tr('সাম্প্রতিক মডেল টেস্ট হিস্ট্রি', 'Recent Model Test History')}</span>
+      {/* Exam History, Filter Pills & Score Trend Chart */}
+      {(mergedExamItems.length > 0 || serverHistory !== null) && (
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2 text-slate-900 font-bold text-lg">
+              <Trophy className="w-5 h-5 text-amber-500" />
+              <span>{tr('মডেল টেস্ট হিস্ট্রি ও পারফরম্যান্স ট্রেন্ড', 'Model Test History & Score Trend')}</span>
+            </div>
+
+            <div className="flex flex-wrap gap-1.5 bg-slate-100 p-1 rounded-xl self-start">
+              {(
+                [
+                  { key: 'ALL', bn: 'সব', en: 'All' },
+                  { key: 'CHAPTER_TEST', bn: 'অধ্যায় টেস্ট', en: 'Chapter' },
+                  { key: 'SUBJECT_TEST', bn: 'বিষয়ভিত্তিক মডেল টেস্ট', en: 'Subject Test' },
+                ] as const
+              ).map((tab) => (
+                <button
+                  key={tab.key}
+                  type="button"
+                  onClick={() => setExamFilter(tab.key)}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
+                    examFilter === tab.key
+                      ? 'bg-white text-slate-900 shadow-2xs'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  {tr(tab.bn, tab.en)}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="space-y-2.5">
-            {examHistory.map((ex) => (
-              <div
-                key={ex.examSessionId}
-                className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3 text-xs"
-              >
-                <div>
-                  <span className="font-bold text-slate-900 block">{ex.chapterTitle}</span>
-                  <span className="text-slate-500">
-                    {language === 'bn'
-                      ? `স্কোর: ${toBanglaDigits(ex.score)}/${toBanglaDigits(ex.totalQuestions)} (${toBanglaDigits(ex.accuracyPercent)}%)`
-                      : `Score: ${ex.score}/${ex.totalQuestions} (${ex.accuracyPercent}%)`}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  {ex.examSessionId && !ex.examSessionId.startsWith('local_sess_') && (
-                    <Link
-                      href={`/exam/result/${ex.examSessionId}`}
-                      className="px-3 py-1.5 rounded-lg bg-indigo-50 border border-indigo-200 font-bold text-indigo-700 hover:bg-indigo-100"
-                    >
-                      {tr('ফলাফল দেখো', 'View Result')}
-                    </Link>
-                  )}
-                  <Link
-                    href={`/exam/${ex.chapterId}`}
-                    className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-bold text-indigo-600 hover:bg-indigo-50"
-                  >
-                    {tr('আবার দাও', 'Retake')}
-                  </Link>
-                </div>
+
+          {/* Summary KPI Row */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+              <div className="text-[11px] font-semibold text-slate-500">{tr('মোট পরীক্ষা', 'Total Tests')}</div>
+              <div className="text-xl font-black text-slate-900 mt-0.5">
+                {language === 'bn' ? toBanglaDigits(examSummary.totalTests) : examSummary.totalTests}
               </div>
-            ))}
+            </div>
+            <div className="p-3 rounded-xl bg-indigo-50 border border-indigo-200">
+              <div className="text-[11px] font-semibold text-indigo-700">{tr('গড় নির্ভুলতা', 'Avg Accuracy')}</div>
+              <div className="text-xl font-black text-indigo-900 mt-0.5">
+                {language === 'bn'
+                  ? `${toBanglaDigits(examSummary.averageAccuracy)}%`
+                  : `${examSummary.averageAccuracy}%`}
+              </div>
+            </div>
+            <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200">
+              <div className="text-[11px] font-semibold text-emerald-700">{tr('সর্বোচ্চ স্কোর', 'Best Score')}</div>
+              <div className="text-xl font-black text-emerald-900 mt-0.5">
+                {language === 'bn'
+                  ? `${toBanglaDigits(examSummary.bestScorePercent)}%`
+                  : `${examSummary.bestScorePercent}%`}
+              </div>
+            </div>
+            <div className="p-3 rounded-xl bg-amber-50 border border-amber-200">
+              <div className="text-[11px] font-semibold text-amber-800">{tr('পূর্ণ বিষয় টেস্ট', 'Subject Tests')}</div>
+              <div className="text-xl font-black text-amber-900 mt-0.5">
+                {language === 'bn'
+                  ? toBanglaDigits(examSummary.subjectTestsCount)
+                  : examSummary.subjectTestsCount}
+              </div>
+            </div>
           </div>
+
+          {/* Score Trend Inline SVG Chart */}
+          {trendPoints.length > 0 && (
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                <span>{tr('স্কোর ট্রেন্ড (%)', 'Score Trend (%)')}</span>
+                <Link
+                  href={`/exam/subject/${subjectId}`}
+                  className="text-indigo-600 hover:underline"
+                >
+                  {tr('পূর্ণ বিষয় টেস্ট দাও →', 'Take Subject Test →')}
+                </Link>
+              </div>
+              <svg
+                data-testid="score-trend-chart"
+                viewBox="0 0 360 110"
+                className="w-full h-28 overflow-visible"
+                role="img"
+                aria-label={tr('পরীক্ষার স্কোর ট্রেন্ড গ্রাফ', 'Exam Score Trend Chart')}
+              >
+                <line x1="20" y1="90" x2="340" y2="90" stroke="#e2e8f0" strokeWidth="1" />
+                <line x1="20" y1="50" x2="340" y2="50" stroke="#e2e8f0" strokeDasharray="3 3" strokeWidth="1" />
+                <line x1="20" y1="15" x2="340" y2="15" stroke="#e2e8f0" strokeDasharray="3 3" strokeWidth="1" />
+                {(() => {
+                  const pts = trendPoints.map((p, idx) => {
+                    const x =
+                      trendPoints.length === 1
+                        ? 180
+                        : 25 + (idx / Math.max(1, trendPoints.length - 1)) * 310;
+                    const y = 90 - (Math.max(0, Math.min(100, p.accuracyPercent)) / 100) * 75;
+                    return { x, y, ...p };
+                  });
+                  const polyPoints = pts.map((p) => `${p.x},${p.y}`).join(' ');
+                  return (
+                    <>
+                      {pts.length > 1 && (
+                        <polyline
+                          fill="none"
+                          stroke="#4f46e5"
+                          strokeWidth="2.5"
+                          strokeLinejoin="round"
+                          strokeLinecap="round"
+                          points={polyPoints}
+                        />
+                      )}
+                      {pts.map((p) => (
+                        <g key={p.sessionId}>
+                          <circle cx={p.x} cy={p.y} r="4" fill="#4f46e5" stroke="#ffffff" strokeWidth="1.5" />
+                          <text
+                            x={p.x}
+                            y={Math.max(10, p.y - 8)}
+                            textAnchor="middle"
+                            fontSize="9"
+                            fill="#334155"
+                            fontWeight="700"
+                          >
+                            {p.accuracyPercent}%
+                          </text>
+                        </g>
+                      ))}
+                    </>
+                  );
+                })()}
+              </svg>
+            </div>
+          )}
+
+          {filteredExamItems.length === 0 ? (
+            <p className="text-xs text-slate-500 text-center py-4">
+              {tr('এই ক্যাটাগরিতে এখনো কোনো পরীক্ষা দেওয়া হয়নি।', 'No exams recorded in this category yet.')}
+            </p>
+          ) : (
+            <div className="space-y-2.5">
+              {filteredExamItems.map((ex) => {
+                const isSubject = ex.testType === 'SUBJECT_TEST';
+                const title =
+                  ex.chapterTitleBangla ||
+                  (isSubject
+                    ? `${ex.subjectNameBangla || subjectName} — ${tr('পূর্ণ বিষয় মডেল টেস্ট', 'Full Subject Model Test')}`
+                    : subjectName);
+                const retakeHref = isSubject
+                  ? `/exam/subject/${ex.subjectId}`
+                  : `/exam/${ex.chapterId || 'chap_ssc_physics_ch2'}`;
+                return (
+                  <div
+                    key={ex.sessionId}
+                    className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-3 text-xs"
+                  >
+                    <div>
+                      <span className="font-bold text-slate-900 block">{title}</span>
+                      <span className="text-slate-500">
+                        {language === 'bn'
+                          ? `স্কোর: ${toBanglaDigits(ex.score)}/${toBanglaDigits(ex.totalQuestions)} (${toBanglaDigits(ex.accuracyPercent)}%)`
+                          : `Score: ${ex.score}/${ex.totalQuestions} (${ex.accuracyPercent}%)`}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      {ex.sessionId && !ex.sessionId.startsWith('local_sess_') && (
+                        <Link
+                          href={`/exam/result/${ex.sessionId}`}
+                          className="px-3 py-1.5 rounded-lg bg-indigo-50 border border-indigo-200 font-bold text-indigo-700 hover:bg-indigo-100"
+                        >
+                          {tr('ফলাফল দেখো', 'View Result')}
+                        </Link>
+                      )}
+                      <Link
+                        href={retakeHref}
+                        className="px-3 py-1.5 rounded-lg bg-white border border-slate-200 font-bold text-indigo-600 hover:bg-indigo-50"
+                      >
+                        {tr('আবার দাও', 'Retake')}
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       )}
 

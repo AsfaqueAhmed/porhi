@@ -28,6 +28,7 @@ interface SessionApiResponse {
   durationSeconds?: number;
   negativeRatio?: number;
   negativeDeduction?: number;
+  percentile?: number | null;
   answersWithExplanation?: ExamResultAnswerItem[];
 }
 
@@ -75,6 +76,7 @@ export default function ExamResultPage() {
           durationSeconds: res.durationSeconds,
           negativeRatio: res.negativeRatio ?? 0,
           negativeDeduction: res.negativeDeduction ?? 0,
+          percentile: res.percentile ?? null,
           answersWithExplanation: res.answersWithExplanation || [],
         });
       } catch {

@@ -54,6 +54,7 @@ export interface ExamResultData {
   durationSeconds?: number;
   negativeRatio?: number;
   negativeDeduction?: number;
+  percentile?: number | null;
   answersWithExplanation: ExamResultAnswerItem[];
 }
 
@@ -136,6 +137,12 @@ export function ExamResultView({ result, onRetake }: ExamResultViewProps) {
                 : `Negative Marking: −${negativeDeduction} (−${negativeRatio} per wrong answer)`
               : tr('নেগেটিভ মার্কিং: ০ (নেই)', 'Negative Marking: 0 (Disabled)')}
           </p>
+          {typeof result.percentile === 'number' && (
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-xs font-bold text-indigo-800 mt-2">
+              <span>{tr('পজিশন / পারসেন্টাইল:', 'Percentile Rank:')}</span>
+              <span>{formatNumber(result.percentile, language)}%</span>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-3 gap-3 max-w-md mx-auto pt-2">

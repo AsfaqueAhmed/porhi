@@ -157,22 +157,31 @@ export default function CurriculumPage() {
             </p>
           </div>
 
-          {/* Overall Subject Progress Card */}
-          <div className="bg-indigo-50/70 border border-indigo-100 rounded-xl p-3 min-w-[200px]">
-            <div className="flex items-center justify-between text-xs font-bold text-indigo-900 mb-1.5">
-              <span>{tr('সামগ্রিক অগ্রগতি', 'Overall Progress')}</span>
-              <span>
-                {language === 'bn'
-                  ? `${toBanglaDigits(totalCompleted)}/${toBanglaDigits(totalTopics)} (${toBanglaDigits(overallProgressPct)}%)`
-                  : `${totalCompleted}/${totalTopics} (${overallProgressPct}%)`}
-              </span>
+          {/* Overall Subject Progress Card & Full Subject Exam CTA */}
+          <div className="flex flex-col sm:items-end gap-2.5 shrink-0">
+            <div className="bg-indigo-50/70 border border-indigo-100 rounded-xl p-3 min-w-[210px]">
+              <div className="flex items-center justify-between text-xs font-bold text-indigo-900 mb-1.5">
+                <span>{tr('সামগ্রিক অগ্রগতি', 'Overall Progress')}</span>
+                <span>
+                  {language === 'bn'
+                    ? `${toBanglaDigits(totalCompleted)}/${toBanglaDigits(totalTopics)} (${toBanglaDigits(overallProgressPct)}%)`
+                    : `${totalCompleted}/${totalTopics} (${overallProgressPct}%)`}
+                </span>
+              </div>
+              <div className="w-full h-2 bg-indigo-100 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-indigo-600 rounded-full transition-all"
+                  style={{ width: `${overallProgressPct}%` }}
+                />
+              </div>
             </div>
-            <div className="w-full h-2 bg-indigo-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-indigo-600 rounded-full transition-all"
-                style={{ width: `${overallProgressPct}%` }}
-              />
-            </div>
+            <Link
+              href={`/exam/subject/${subjectId}`}
+              className="inline-flex items-center justify-center gap-2 px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold shadow-xs transition-colors"
+            >
+              <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              <span>{tr('পূর্ণ বিষয় মডেল টেস্ট', 'Full Subject Model Test')}</span>
+            </Link>
           </div>
         </div>
 
