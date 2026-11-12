@@ -82,7 +82,8 @@ class PracticeRepositoryImpl implements PracticeRepository {
 
     return result.fold(
       (err) async {
-        if (_isOfflineError(err) && mode != 'mistakes') {
+        final isMistakesMode = mode?.trim().toLowerCase() == 'mistakes';
+        if (_isOfflineError(err) && !isMistakesMode) {
           final cached = await _localDataSource.getCachedChapterQuestions(
             chapterId: chapterId,
             topicId: topicId,

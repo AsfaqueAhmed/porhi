@@ -65,16 +65,22 @@ class ChapterIndexController extends GetxController {
   final RxBool isPackStatusError = false.obs;
 
   int _loadGeneration = 0;
-  bool _isOpeningLesson = false;
+  bool _isNavigating = false;
 
-  Future<void> runLessonNavigation(Future<void> Function() action) async {
-    if (_isOpeningLesson) return;
-    _isOpeningLesson = true;
+  /// Guards route navigation (lessons, practice, exams, board archive)
+  /// against rapid double-taps pushing duplicate routes.
+  Future<void> runGuardedNavigation(Future<void> Function() action) async {
+    if (_isNavigating) return;
+    _isNavigating = true;
     try {
       await action();
     } finally {
-      _isOpeningLesson = false;
+      _isNavigating = false;
     }
+  }
+
+  Future<void> runLessonNavigation(Future<void> Function() action) {
+    return runGuardedNavigation(action);
   }
 
   @override

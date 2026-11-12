@@ -21,6 +21,8 @@ import 'package:porhi/features/content_report/domain/usecases/content_report_use
 import 'package:porhi/features/curriculum/domain/entities/curriculum_entities.dart';
 import 'package:porhi/features/curriculum/domain/repositories/curriculum_repository.dart';
 import 'package:porhi/features/curriculum/domain/usecases/curriculum_usecases.dart';
+import 'package:porhi/features/curriculum/presentation/curriculum/controller/chapter_index_controller.dart';
+import 'package:porhi/features/curriculum/presentation/curriculum/view/chapter_index_view.dart';
 import 'package:porhi/features/dashboard/domain/repositories/student_repository.dart';
 import 'package:porhi/features/dashboard/domain/usecases/student_usecases.dart';
 import 'package:porhi/features/practice/data/datasources/practice_local_datasource.dart';
@@ -1243,6 +1245,776 @@ void main() {
       Get.back();
       await tester.pumpAndSettle();
       expect(Get.isRegistered<PracticeController>(), isFalse);
+    });
+
+    test('PracticeLocalDataSourceImpl filters by decoded parsed.type when row.questionType is empty', () async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final local = PracticeLocalDataSourceImpl(database: db);
+
+      await db.upsertCachedQuestions(<CachedQuestionInput>[
+        CachedQuestionInput(
+          id: 'q_empty_type_cq',
+          chapterId: 'chap_empty_type',
+          topicId: 'top_1',
+          questionType: '',
+          difficulty: 'MEDIUM',
+          payloadJson: jsonEncode(_sampleCqJson(id: 'q_empty_type_cq', topicId: 'top_1')),
+          updatedAt: DateTime.now().toUtc(),
+        ),
+        CachedQuestionInput(
+          id: 'q_empty_type_mcq',
+          chapterId: 'chap_empty_type',
+          topicId: 'top_1',
+          questionType: '',
+          difficulty: 'EASY',
+          payloadJson: jsonEncode(
+            _sampleMcqJson(
+              id: 'q_empty_type_mcq',
+              topicId: 'top_1',
+              includeAnswerKey: true,
+            ),
+          ),
+          updatedAt: DateTime.now().toUtc(),
+        ),
+      ]);
+
+      final mcqs = await local.getCachedChapterQuestions(
+        chapterId: 'chap_empty_type',
+        type: 'MCQ',
+      );
+      final cqs = await local.getCachedChapterQuestions(
+        chapterId: 'chap_empty_type',
+        type: 'CQ_CREATIVE',
+      );
+
+      expect(mcqs.map((q) => q.id), <String>['q_empty_type_mcq']);
+      expect(cqs.map((q) => q.id), <String>['q_empty_type_cq']);
+    });
+
+    test('PracticeRepositoryImpl treats mode=MISTAKES case-insensitively and skips cached fallback offline', () async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      final syncService = OfflineSyncService(database: db);
+      await syncService.init();
+      final remote = _MockPracticeRemoteDataSource();
+      final local = PracticeLocalDataSourceImpl(database: db);
+      final repo = PracticeRepositoryImpl(
+        remoteDataSource: remote,
+        localDataSource: local,
+        offlineSyncService: syncService,
+      );
+
+      await db.upsertCachedQuestions(<CachedQuestionInput>[
+        CachedQuestionInput(
+          id: 'q_cached_1',
+          chapterId: 'chap_case',
+          topicId: 'top_1',
+          questionType: 'MCQ',
+          difficulty: 'EASY',
+          payloadJson: jsonEncode(_sampleMcqJson(id: 'q_cached_1', includeAnswerKey: true)),
+          updatedAt: DateTime.now().toUtc(),
+        ),
+      ]);
+
+      when(
+        () => remote.getChapterQuestions(
+          chapterId: 'chap_case',
+          topicId: any(named: 'topicId'),
+          difficulty: any(named: 'difficulty'),
+          mode: 'MISTAKES',
+          type: 'MCQ',
+        ),
+      ).thenAnswer(
+        (_) async => Left(
+          ErrorResponse(
+            message: 'No internet',
+            data: ApiResponseErrorType.noInternet,
+          ),
+        ),
+      );
+
+      final res = await repo.getChapterQuestions(
+        chapterId: 'chap_case',
+        mode: 'MISTAKES',
+        type: 'MCQ',
+      );
+      expect(res.isLeft(), isTrue);
+    });
+
+    testWidgets('ExplanationLayersCard didUpdateWidget resets expanded state when explanation changes', (tester) async {
+      const exp1 = ExplanationLayersEntity(
+        directAnswer: 'উত্তর ১',
+        distractorAnalysis: <String, String>{'খ': 'ব্যাখ্যা ১'},
+      );
+      const exp2 = ExplanationLayersEntity(
+        directAnswer: 'উত্তর ২',
+        distractorAnalysis: <String, String>{'খ': 'ব্যাখ্যা ২'},
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: PorhiTheme.light,
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: ExplanationLayersCard(
+                explanation: exp1,
+                languageCode: 'bn',
+              ),
+            ),
+          ),
+        ),
+      );
+
+      // Initially distractors is collapsed
+      expect(find.textContaining('ব্যাখ্যা ১'), findsNothing);
+      await tester.ensureVisible(
+        find.byKey(const Key('explanation_layer_header_distractors')),
+      );
+      await tester.tap(
+        find.byKey(const Key('explanation_layer_header_distractors')),
+      );
+      await tester.pumpAndSettle();
+      expect(find.textContaining('ব্যাখ্যা ১'), findsOneWidget);
+
+      // Updating explanation resets expanded layers cleanly
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: PorhiTheme.light,
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: ExplanationLayersCard(
+                explanation: exp2,
+                languageCode: 'bn',
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.textContaining('উত্তর ২'), findsOneWidget);
+      expect(find.textContaining('ব্যাখ্যা ২'), findsNothing);
+    });
+
+    testWidgets('CQ q1 -> q2 -> q1 transition and restartSession reset CqRubricCard UI state cleanly', (tester) async {
+      final cq1 = PracticeQuestionModel.fromJson(
+        _sampleCqJson(id: 'q_cq_1', topicId: 'top_1'),
+      ).toEntity();
+      final cq2 = PracticeQuestionModel.fromJson(<String, dynamic>{
+        ..._sampleCqJson(id: 'q_cq_2', topicId: 'top_1'),
+        'stem': 'দ্বিতীয় সৃজনশীল উদ্দীপক',
+      }).toEntity();
+
+      when(
+        () => practiceRepo.getChapterQuestions(
+          chapterId: 'chap_cq',
+          topicId: any(named: 'topicId'),
+          difficulty: any(named: 'difficulty'),
+          mode: any(named: 'mode'),
+          type: 'CQ_CREATIVE',
+        ),
+      ).thenAnswer((_) async => Right(<PracticeQuestionEntity>[cq1, cq2]));
+
+      when(
+        () => practiceRepo.submitCqSelfAssess(
+          questionId: 'q_cq_1',
+          selfScores: any(named: 'selfScores'),
+          topicId: any(named: 'topicId'),
+        ),
+      ).thenAnswer(
+        (_) async => const Right(
+          CqSelfAssessResultEntity(
+            questionId: 'q_cq_1',
+            selfScores: CqSelfScoresEntity(ka: 0, kha: 2, ga: 3, gha: 4),
+            totalScore: 9,
+            maxScore: 10,
+          ),
+        ),
+      );
+
+      registerDependencies();
+
+      await tester.pumpWidget(
+        GetMaterialApp(
+          theme: PorhiTheme.light,
+          initialRoute: '${AppRoutes.practiceForChapter('chap_cq')}?type=CQ_CREATIVE',
+          getPages: <GetPage<dynamic>>[
+            GetPage(
+              name: AppRoutes.practice,
+              page: () => const PracticeView(),
+              binding: PracticeBinding(),
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Reveal rubric & decrement ka (1->0 => 9/10) on cq1, then submit
+      await tester.ensureVisible(find.byKey(const Key('cq_toggle_rubric_btn')));
+      await tester.tap(find.byKey(const Key('cq_toggle_rubric_btn')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('cq_rubric_revealed_box')), findsOneWidget);
+
+      await tester.ensureVisible(find.byKey(const Key('cq_ka_dec')));
+      await tester.tap(find.byKey(const Key('cq_ka_dec')));
+      await tester.pump();
+      await tester.ensureVisible(find.byKey(const Key('cq_submit_btn')));
+      await tester.tap(find.byKey(const Key('cq_submit_btn')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('cq_submitted_badge')), findsOneWidget);
+
+      // Navigate cq1 -> cq2: cq2 should have hidden rubric & no submitted badge
+      await tester.ensureVisible(find.byKey(const Key('practice_next_btn')));
+      await tester.tap(find.byKey(const Key('practice_next_btn')));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('দ্বিতীয় সৃজনশীল উদ্দীপক'), findsOneWidget);
+      expect(find.byKey(const Key('cq_rubric_revealed_box')), findsNothing);
+      expect(find.byKey(const Key('cq_submitted_badge')), findsNothing);
+
+      // Navigate back cq2 -> cq1: submitted badge still reflects cq1's 9/10
+      await tester.ensureVisible(find.byKey(const Key('practice_prev_btn')));
+      await tester.tap(find.byKey(const Key('practice_prev_btn')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('cq_submitted_badge')), findsOneWidget);
+      expect(find.textContaining('৯ / ১০'), findsWidgets);
+
+      // restartSession() resets CqRubricCard UI state cleanly
+      await Get.find<PracticeController>().restartSession();
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('cq_submitted_badge')), findsNothing);
+      expect(find.byKey(const Key('cq_rubric_revealed_box')), findsNothing);
+      expect(find.textContaining('১০ / ১০'), findsOneWidget);
+    });
+
+    testWidgets('MCQ q1 -> q2 transition resets ExplanationLayersCard state cleanly', (tester) async {
+      final q1 = PracticeQuestionModel.fromJson(
+        _sampleMcqJson(id: 'q_1', includeExplanation: true),
+      ).toEntity();
+      final q2 = PracticeQuestionModel.fromJson(<String, dynamic>{
+        ..._sampleMcqJson(id: 'q_2', includeExplanation: false),
+        'stem': 'দ্বিতীয় বহুনির্বাচনি প্রশ্ন',
+        'explanation': <String, dynamic>{
+          'directAnswer': 'দ্বিতীয় প্রশ্নের সরাসরি উত্তর',
+          'distractorAnalysis': <String, dynamic>{
+            'খ': 'দ্বিতীয় প্রশ্নের ভুল অপশন বিশ্লেষণ',
+          },
+        },
+      }).toEntity();
+
+      when(
+        () => practiceRepo.getChapterQuestions(
+          chapterId: 'chap_mcq_exp',
+          topicId: any(named: 'topicId'),
+          difficulty: any(named: 'difficulty'),
+          mode: any(named: 'mode'),
+          type: 'MCQ',
+        ),
+      ).thenAnswer((_) async => Right(<PracticeQuestionEntity>[q1, q2]));
+
+      when(
+        () => practiceRepo.submitPractice(
+          questionId: 'q_1',
+          selectedOptionId: 'opt_a',
+          chapterId: 'chap_mcq_exp',
+          topicId: any(named: 'topicId'),
+          question: any(named: 'question'),
+        ),
+      ).thenAnswer(
+        (_) async => Right(
+          PracticeSubmitResultEntity(
+            isCorrect: true,
+            correctOptionId: 'opt_a',
+            explanation: q1.explanation,
+          ),
+        ),
+      );
+      when(
+        () => practiceRepo.submitPractice(
+          questionId: 'q_2',
+          selectedOptionId: 'opt_a',
+          chapterId: 'chap_mcq_exp',
+          topicId: any(named: 'topicId'),
+          question: any(named: 'question'),
+        ),
+      ).thenAnswer(
+        (_) async => Right(
+          PracticeSubmitResultEntity(
+            isCorrect: true,
+            correctOptionId: 'opt_a',
+            explanation: q2.explanation,
+          ),
+        ),
+      );
+
+      registerDependencies();
+
+      await tester.pumpWidget(
+        GetMaterialApp(
+          theme: PorhiTheme.light,
+          initialRoute: AppRoutes.practiceForChapter('chap_mcq_exp'),
+          getPages: <GetPage<dynamic>>[
+            GetPage(
+              name: AppRoutes.practice,
+              page: () => const PracticeView(),
+              binding: PracticeBinding(),
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Answer q1 & expand distractors layer
+      await tester.ensureVisible(find.byKey(const Key('practice_option_opt_a')));
+      await tester.tap(find.byKey(const Key('practice_option_opt_a')));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(
+        find.byKey(const Key('explanation_layer_header_distractors')),
+      );
+      await tester.tap(
+        find.byKey(const Key('explanation_layer_header_distractors')),
+      );
+      await tester.pumpAndSettle();
+      expect(find.textContaining('ত্বরণের মাত্রা'), findsOneWidget);
+
+      // Advance to q2 & answer q2 -> distractors starts collapsed for q2
+      await tester.ensureVisible(find.byKey(const Key('practice_next_btn')));
+      await tester.tap(find.byKey(const Key('practice_next_btn')));
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('practice_option_opt_a')));
+      await tester.tap(find.byKey(const Key('practice_option_opt_a')));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('দ্বিতীয় প্রশ্নের সরাসরি উত্তর'), findsOneWidget);
+      expect(find.textContaining('দ্বিতীয় প্রশ্নের ভুল অপশন বিশ্লেষণ'), findsNothing);
+    });
+
+    testWidgets('PracticeView renders with zero overflow on narrow 320px viewport & scaled text', (tester) async {
+      tester.view.physicalSize = const Size(320, 640);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      final mcq1 = PracticeQuestionModel.fromJson(_sampleMcqJson(id: 'q_n_1')).toEntity();
+      final mcq2 = PracticeQuestionModel.fromJson(_sampleMcqJson(id: 'q_n_2')).toEntity();
+
+      when(
+        () => practiceRepo.getChapterQuestions(
+          chapterId: 'chap_narrow',
+          topicId: any(named: 'topicId'),
+          difficulty: any(named: 'difficulty'),
+          mode: any(named: 'mode'),
+          type: 'MCQ',
+        ),
+      ).thenAnswer((_) async => Right(<PracticeQuestionEntity>[mcq1, mcq2]));
+
+      registerDependencies();
+
+      await tester.pumpWidget(
+        MediaQuery(
+          data: const MediaQueryData(
+            size: Size(320, 640),
+            textScaler: TextScaler.linear(1.25),
+          ),
+          child: GetMaterialApp(
+            theme: PorhiTheme.light,
+            initialRoute: AppRoutes.practiceForChapter('chap_narrow'),
+            getPages: <GetPage<dynamic>>[
+              GetPage(
+                name: AppRoutes.practice,
+                page: () => const PracticeView(),
+                binding: PracticeBinding(),
+              ),
+            ],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+
+      // Navigate to last question so 'পূর্ববর্তী প্রশ্ন' + 'অনুশীলন সম্পন্ন' both show at 320px
+      await tester.ensureVisible(find.byKey(const Key('practice_next_btn')));
+      await tester.tap(find.byKey(const Key('practice_next_btn')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('practice_finish_btn')), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('PracticeView shows OFFLINE_NO_ANSWER_KEY and offline CQ status banners', (tester) async {
+      final mcq = PracticeQuestionModel.fromJson(_sampleMcqJson(id: 'q_no_key')).toEntity();
+      final cq = PracticeQuestionModel.fromJson(_sampleCqJson(id: 'q_cq_off')).toEntity();
+
+      when(
+        () => practiceRepo.getChapterQuestions(
+          chapterId: 'chap_off',
+          topicId: any(named: 'topicId'),
+          difficulty: any(named: 'difficulty'),
+          mode: any(named: 'mode'),
+          type: 'MCQ',
+        ),
+      ).thenAnswer((_) async => Right(<PracticeQuestionEntity>[mcq]));
+
+      when(
+        () => practiceRepo.getChapterQuestions(
+          chapterId: 'chap_off',
+          topicId: any(named: 'topicId'),
+          difficulty: any(named: 'difficulty'),
+          mode: any(named: 'mode'),
+          type: 'CQ_CREATIVE',
+        ),
+      ).thenAnswer((_) async => Right(<PracticeQuestionEntity>[cq]));
+
+      when(
+        () => practiceRepo.submitPractice(
+          questionId: 'q_no_key',
+          selectedOptionId: 'opt_a',
+          chapterId: 'chap_off',
+          topicId: any(named: 'topicId'),
+          question: any(named: 'question'),
+        ),
+      ).thenAnswer(
+        (_) async => Left(
+          ErrorResponse(
+            message: 'Offline key missing',
+            data: ApiResponseErrorType.noInternet,
+            code: 'OFFLINE_NO_ANSWER_KEY',
+          ),
+        ),
+      );
+
+      when(
+        () => practiceRepo.submitCqSelfAssess(
+          questionId: 'q_cq_off',
+          selfScores: any(named: 'selfScores'),
+          topicId: any(named: 'topicId'),
+        ),
+      ).thenAnswer(
+        (_) async => const Right(
+          CqSelfAssessResultEntity(
+            questionId: 'q_cq_off',
+            selfScores: CqSelfScoresEntity(ka: 1, kha: 2, ga: 3, gha: 4),
+            totalScore: 10,
+            maxScore: 10,
+            isQueuedOffline: true,
+          ),
+        ),
+      );
+
+      registerDependencies();
+
+      await tester.pumpWidget(
+        GetMaterialApp(
+          theme: PorhiTheme.light,
+          initialRoute: AppRoutes.practiceForChapter('chap_off'),
+          getPages: <GetPage<dynamic>>[
+            GetPage(
+              name: AppRoutes.practice,
+              page: () => const PracticeView(),
+              binding: PracticeBinding(),
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.byKey(const Key('practice_option_opt_a')));
+      await tester.tap(find.byKey(const Key('practice_option_opt_a')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('practice_status_banner')), findsOneWidget);
+      expect(find.textContaining('অফলাইনে উত্তর যাচাইয়ের জন্য'), findsOneWidget);
+
+      await tester.ensureVisible(find.byKey(const Key('practice_tab_cq')));
+      await tester.tap(find.byKey(const Key('practice_tab_cq')));
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(find.byKey(const Key('cq_submit_btn')));
+      await tester.tap(find.byKey(const Key('cq_submit_btn')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('practice_status_banner')), findsOneWidget);
+      expect(find.textContaining('অফলাইনে স্ব-মূল্যায়ন সংরক্ষিত হয়েছে'), findsOneWidget);
+    });
+
+    testWidgets('PracticeController guards duplicate CQ & bookmark taps and resets bookmark lock on loadQuestions()', (tester) async {
+      final mcq1 = PracticeQuestionModel.fromJson(_sampleMcqJson(id: 'q_guard_1')).toEntity();
+      final cq1 = PracticeQuestionModel.fromJson(_sampleCqJson(id: 'q_guard_cq')).toEntity();
+
+      final cqCompleter = Completer<Either<ErrorResponse, CqSelfAssessResultEntity>>();
+      final bookmarkCompleter = Completer<Either<ErrorResponse, bool>>();
+
+      when(
+        () => practiceRepo.getChapterQuestions(
+          chapterId: 'chap_guard',
+          topicId: any(named: 'topicId'),
+          difficulty: any(named: 'difficulty'),
+          mode: any(named: 'mode'),
+          type: 'MCQ',
+        ),
+      ).thenAnswer((_) async => Right(<PracticeQuestionEntity>[mcq1]));
+
+      when(
+        () => practiceRepo.getChapterQuestions(
+          chapterId: 'chap_guard',
+          topicId: any(named: 'topicId'),
+          difficulty: any(named: 'difficulty'),
+          mode: any(named: 'mode'),
+          type: 'CQ_CREATIVE',
+        ),
+      ).thenAnswer((_) async => Right(<PracticeQuestionEntity>[cq1]));
+
+      when(
+        () => practiceRepo.submitCqSelfAssess(
+          questionId: 'q_guard_cq',
+          selfScores: any(named: 'selfScores'),
+          topicId: any(named: 'topicId'),
+        ),
+      ).thenAnswer((_) => cqCompleter.future);
+
+      when(
+        () => studentRepo.toggleBookmark(
+          itemId: 'q_guard_1',
+          itemType: 'question',
+          titleBangla: any(named: 'titleBangla'),
+          subtitleBangla: any(named: 'subtitleBangla'),
+          href: any(named: 'href'),
+        ),
+      ).thenAnswer((_) => bookmarkCompleter.future);
+
+      registerDependencies();
+
+      await tester.pumpWidget(
+        GetMaterialApp(
+          theme: PorhiTheme.light,
+          initialRoute: AppRoutes.practiceForChapter('chap_guard'),
+          getPages: <GetPage<dynamic>>[
+            GetPage(
+              name: AppRoutes.practice,
+              page: () => const PracticeView(),
+              binding: PracticeBinding(),
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final ctrl = Get.find<PracticeController>();
+
+      // Start bookmark toggle (in-flight), duplicate tap ignored
+      unawaited(ctrl.toggleQuestionBookmark());
+      unawaited(ctrl.toggleQuestionBookmark());
+      expect(ctrl.togglingBookmarkQuestionId.value, 'q_guard_1');
+
+      // Interrupt with loadQuestions() (e.g., switching to CQ): lock must clear immediately
+      await ctrl.setQuestionTypeMode('CQ_CREATIVE');
+      await tester.pumpAndSettle();
+      expect(ctrl.togglingBookmarkQuestionId.value, isNull);
+
+      // Stale bookmark completes -> does not mutate bookmarkedQuestionIds
+      bookmarkCompleter.complete(const Right(true));
+      await tester.pumpAndSettle();
+      expect(ctrl.bookmarkedQuestionIds.contains('q_guard_1'), isFalse);
+      verify(
+        () => studentRepo.toggleBookmark(
+          itemId: 'q_guard_1',
+          itemType: 'question',
+          titleBangla: any(named: 'titleBangla'),
+          subtitleBangla: any(named: 'subtitleBangla'),
+          href: any(named: 'href'),
+        ),
+      ).called(1);
+
+      // Duplicate CQ submit taps while in-flight invoke use case only once
+      unawaited(ctrl.submitCqSelfAssess(const CqSelfScoresEntity()));
+      unawaited(ctrl.submitCqSelfAssess(const CqSelfScoresEntity(ka: 0)));
+      cqCompleter.complete(
+        const Right(
+          CqSelfAssessResultEntity(
+            questionId: 'q_guard_cq',
+            selfScores: CqSelfScoresEntity(),
+            totalScore: 10,
+            maxScore: 10,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      verify(
+        () => practiceRepo.submitCqSelfAssess(
+          questionId: 'q_guard_cq',
+          selfScores: any(named: 'selfScores'),
+          topicId: any(named: 'topicId'),
+        ),
+      ).called(1);
+    });
+
+    testWidgets('PracticeRouteArgs overrides query params symmetrically and empty chapterId reports explicit error', (tester) async {
+      when(
+        () => practiceRepo.getChapterQuestions(
+          chapterId: 'chap_args',
+          topicId: any(named: 'topicId'),
+          difficulty: any(named: 'difficulty'),
+          mode: null,
+          type: 'MCQ',
+        ),
+      ).thenAnswer((_) async => const Right(<PracticeQuestionEntity>[]));
+
+      registerDependencies();
+
+      await tester.pumpWidget(
+        GetMaterialApp(
+          theme: PorhiTheme.light,
+          initialRoute: '/root',
+          getPages: <GetPage<dynamic>>[
+            GetPage(
+              name: '/root',
+              page: () => const Scaffold(body: Text('Root')),
+            ),
+            GetPage(
+              name: AppRoutes.practice,
+              page: () => const PracticeView(),
+              binding: PracticeBinding(),
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      unawaited(
+        Get.toNamed(
+          '${AppRoutes.practiceForChapter('chap_args')}?type=CQ_CREATIVE&mode=mistakes',
+          arguments: const PracticeRouteArgs(
+            type: 'MCQ',
+            mode: 'all',
+            chapterTitle: 'গতি',
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final ctrl = Get.find<PracticeController>();
+      expect(ctrl.questionTypeMode.value, 'MCQ');
+      expect(ctrl.practiceMode.value, 'ALL');
+      expect(ctrl.chapterTitle.value, 'গতি');
+
+      Get.back();
+      await tester.pumpAndSettle();
+
+      // Empty/whitespace chapterId reports explicit error rather than falling back to chap_ssc_physics_ch2
+      unawaited(Get.toNamed('/practice/%20'));
+      await tester.pumpAndSettle();
+      final missingCtrl = Get.find<PracticeController>();
+      expect(missingCtrl.chapterId.value.trim(), isEmpty);
+      expect(missingCtrl.errorMessage.value, isNotNull);
+    });
+
+    testWidgets('ChapterIndexView double-tap on onPracticeTap pushes PracticeView only once', (tester) async {
+      when(() => studentRepo.getActiveSubjectId(any())).thenReturn('sub_1');
+      when(() => curriculumRepo.getActiveSubjectId(any())).thenReturn('sub_1');
+      when(() => curriculumRepo.getCachedChapters('sub_1')).thenAnswer(
+        (_) async => const <ChapterEntity>[
+          ChapterEntity(
+            id: 'chap_dt_1',
+            subjectId: 'sub_1',
+            orderIndex: 1,
+            titleBangla: 'প্রথম অধ্যায়',
+            topics: <TopicEntity>[
+              TopicEntity(
+                id: 'top_dt_1',
+                chapterId: 'chap_dt_1',
+                orderIndex: 1,
+                titleBangla: 'টপিক ১',
+              ),
+            ],
+          ),
+        ],
+      );
+      when(() => curriculumRepo.getChapters('sub_1')).thenAnswer(
+        (_) async => const Right(<ChapterEntity>[
+          ChapterEntity(
+            id: 'chap_dt_1',
+            subjectId: 'sub_1',
+            orderIndex: 1,
+            titleBangla: 'প্রথম অধ্যায়',
+            topics: <TopicEntity>[
+              TopicEntity(
+                id: 'top_dt_1',
+                chapterId: 'chap_dt_1',
+                orderIndex: 1,
+                titleBangla: 'টপিক ১',
+              ),
+            ],
+          ),
+        ]),
+      );
+      when(() => curriculumRepo.getDownloadedChapters(subjectId: any(named: 'subjectId')))
+          .thenAnswer((_) async => const <DownloadedChapterEntity>[]);
+
+      when(
+        () => practiceRepo.getChapterQuestions(
+          chapterId: 'chap_dt_1',
+          topicId: any(named: 'topicId'),
+          difficulty: any(named: 'difficulty'),
+          mode: any(named: 'mode'),
+          type: 'MCQ',
+        ),
+      ).thenAnswer((_) async => const Right(<PracticeQuestionEntity>[]));
+
+      registerDependencies();
+      Get.put<ChapterIndexController>(
+        ChapterIndexController(
+          getChaptersUseCase: GetChaptersUseCase(curriculumRepo),
+          getCachedChaptersUseCase: GetCachedChaptersUseCase(curriculumRepo),
+          filterChaptersUseCase: const FilterChaptersUseCase(),
+          downloadChapterPackUseCase: DownloadChapterPackUseCase(curriculumRepo),
+          removeChapterPackUseCase: RemoveChapterPackUseCase(curriculumRepo),
+          getDownloadedChaptersUseCase: GetDownloadedChaptersUseCase(curriculumRepo),
+          getOfflineChapterPackUseCase: GetOfflineChapterPackUseCase(curriculumRepo),
+          getActiveSubjectUseCase: GetActiveCurriculumSubjectUseCase(curriculumRepo),
+          getCachedOverviewUseCase: GetCachedOverviewUseCase(studentRepo),
+          toggleBookmarkUseCase: ToggleBookmarkUseCase(studentRepo),
+          patchCachedBookmarkUseCase: PatchCachedBookmarkUseCase(studentRepo),
+          getCachedUserUseCase: GetCachedUserUseCase(authRepo),
+          getLanguageUseCase: GetLanguageUseCase(authRepo),
+        ),
+      );
+
+      var practiceRouteBuilds = 0;
+      await tester.pumpWidget(
+        GetMaterialApp(
+          theme: PorhiTheme.light,
+          initialRoute: AppRoutes.chaptersForSubject('sub_1'),
+          getPages: <GetPage<dynamic>>[
+            GetPage(
+              name: AppRoutes.chapters,
+              page: () => const ChapterIndexView(),
+            ),
+            GetPage(
+              name: AppRoutes.practice,
+              page: () {
+                practiceRouteBuilds++;
+                return const PracticeView();
+              },
+              binding: PracticeBinding(),
+            ),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final practiceBtn = find.byKey(const Key('chapter_practice_btn_chap_dt_1'));
+      await tester.ensureVisible(practiceBtn);
+      await tester.tap(practiceBtn);
+      await tester.pump();
+      await tester.tap(practiceBtn, warnIfMissed: false);
+      await tester.pumpAndSettle();
+
+      expect(practiceRouteBuilds, 1);
+      verify(
+        () => practiceRepo.getChapterQuestions(
+          chapterId: 'chap_dt_1',
+          topicId: any(named: 'topicId'),
+          difficulty: any(named: 'difficulty'),
+          mode: any(named: 'mode'),
+          type: 'MCQ',
+        ),
+      ).called(1);
     });
   });
 }

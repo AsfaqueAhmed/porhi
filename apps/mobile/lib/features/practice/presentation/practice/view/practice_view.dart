@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:porhi/app/env.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
 import 'package:porhi/core/widgets/rich_content/rich_content_view.dart';
@@ -211,8 +212,11 @@ class _PracticeHeaderFilterCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8,
+                runSpacing: 6,
                 children: <Widget>[
                   Text(
                     total == 0
@@ -226,8 +230,10 @@ class _PracticeHeaderFilterCard extends StatelessWidget {
                     ),
                   ),
                   if (typeMode == 'MCQ')
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 4,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: <Widget>[
                         _StatPill(
                           label:
@@ -235,7 +241,6 @@ class _PracticeHeaderFilterCard extends StatelessWidget {
                           bg: PorhiTheme.emerald50,
                           fg: PorhiTheme.emerald600,
                         ),
-                        const SizedBox(width: 6),
                         _StatPill(
                           label:
                               '${AppStrings.formatNumber(controller.answeredCount, lang)}/${AppStrings.formatNumber(total, lang)}',
@@ -427,7 +432,7 @@ class _StatPill extends StatelessWidget {
   }
 }
 
-class _QuestionCard extends StatelessWidget {
+class _QuestionCard extends StatefulWidget {
   final PracticeController controller;
   final PracticeQuestionEntity question;
   final AppLanguage lang;
@@ -439,7 +444,42 @@ class _QuestionCard extends StatelessWidget {
   });
 
   @override
+  State<_QuestionCard> createState() => _QuestionCardState();
+}
+
+class _QuestionCardState extends State<_QuestionCard> {
+  bool _isOpeningReportSheet = false;
+
+  Future<void> _openReportSheet() async {
+    if (_isOpeningReportSheet) return;
+    _isOpeningReportSheet = true;
+    try {
+      final question = widget.question;
+      await ReportContentSheet.show(
+        context,
+        contentType: ReportContentType.question,
+        contentId: question.id,
+        topicId: question.topicId.isNotEmpty
+            ? question.topicId
+            : widget.controller.topicIdFilter.value,
+        contentLabel: question.stem.length > 80
+            ? question.stem.substring(0, 80)
+            : question.stem,
+        language: widget.lang,
+      );
+    } finally {
+      if (mounted) {
+        _isOpeningReportSheet = false;
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final controller = widget.controller;
+    final question = widget.question;
+    final lang = widget.lang;
+
     return Obx(() {
       final isBookmarked =
           controller.bookmarkedQuestionIds.contains(question.id);
@@ -452,6 +492,7 @@ class _QuestionCard extends StatelessWidget {
       final isSubmittingCq =
           controller.submittingCqQuestionId.value == question.id;
       final cqResult = controller.cqSubmittedResults[question.id];
+      final resetCount = controller.sessionResetCount.value;
 
       final letters = lang == AppLanguage.bn
           ? const <String>['ক', 'খ', 'গ', 'ঘ']
@@ -523,18 +564,7 @@ class _QuestionCard extends StatelessWidget {
                         key: const Key('practice_report_btn'),
                         tooltip:
                             AppStrings.tr('ভুল রিপোর্ট', 'Report Error', lang),
-                        onPressed: () => ReportContentSheet.show(
-                          context,
-                          contentType: ReportContentType.question,
-                          contentId: question.id,
-                          topicId: question.topicId.isNotEmpty
-                              ? question.topicId
-                              : controller.topicIdFilter.value,
-                          contentLabel: question.stem.length > 80
-                              ? question.stem.substring(0, 80)
-                              : question.stem,
-                          language: lang,
-                        ),
+                        onPressed: _openReportSheet,
                         icon: const Icon(
                           Icons.flag_outlined,
                           color: PorhiTheme.rose600,
@@ -579,7 +609,9 @@ class _QuestionCard extends StatelessWidget {
               ] else ...<Widget>[
                 const SizedBox(height: 8),
                 CqRubricCard(
-                  key: ValueKey<String>('cq_rubric_${question.id}'),
+                  key: ValueKey<String>(
+                    'cq_rubric_${question.id}_$resetCount',
+                  ),
                   question: question,
                   submittedResult: cqResult,
                   isSubmitting: isSubmittingCq,
@@ -653,7 +685,7 @@ class _McqOptionTile extends StatelessWidget {
   final bool isChosen;
   final String? correctOptionId;
   final bool isSubmitting;
-  final dynamic envConfig;
+  final EnvConfig? envConfig;
   final VoidCallback onTap;
 
   const _McqOptionTile({
@@ -873,51 +905,63 @@ class _NavigationRow extends StatelessWidget {
     final hasPrev = idx > 0;
     final hasNext = idx < controller.questions.length - 1;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: <Widget>[
-        OutlinedButton.icon(
-          key: const Key('practice_prev_btn'),
-          onPressed: hasPrev ? controller.previousQuestion : null,
-          icon: const Icon(Icons.arrow_back_rounded, size: 18),
-          label: Text(
-            AppStrings.tr('পূর্ববর্তী প্রশ্ন', 'Previous', lang),
-          ),
-        ),
-        if (hasNext)
-          FilledButton.icon(
-            key: const Key('practice_next_btn'),
-            onPressed: controller.nextQuestion,
-            style: FilledButton.styleFrom(
-              backgroundColor: PorhiTheme.indigo600,
-              foregroundColor: Colors.white,
-            ),
-            icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+    return SizedBox(
+      width: double.infinity,
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 8,
+        runSpacing: 8,
+        children: <Widget>[
+          OutlinedButton.icon(
+            key: const Key('practice_prev_btn'),
+            onPressed: hasPrev ? controller.previousQuestion : null,
+            icon: const Icon(Icons.arrow_back_rounded, size: 18),
             label: Text(
-              AppStrings.tr('পরবর্তী প্রশ্ন', 'Next', lang),
-            ),
-          )
-        else
-          FilledButton.icon(
-            key: const Key('practice_finish_btn'),
-            onPressed: () {
-              final subjectId = controller.subjectId.value.trim();
-              if (Get.key.currentState?.canPop() == true) {
-                Get.back();
-              } else if (subjectId.isNotEmpty) {
-                Get.offNamed(AppRoutes.chaptersForSubject(subjectId));
-              }
-            },
-            style: FilledButton.styleFrom(
-              backgroundColor: PorhiTheme.emerald600,
-              foregroundColor: Colors.white,
-            ),
-            icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
-            label: Text(
-              AppStrings.tr('অনুশীলন সম্পন্ন', 'Finish Practice', lang),
+              AppStrings.tr('পূর্ববর্তী প্রশ্ন', 'Previous', lang),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
-      ],
+          if (hasNext)
+            FilledButton.icon(
+              key: const Key('practice_next_btn'),
+              onPressed: controller.nextQuestion,
+              style: FilledButton.styleFrom(
+                backgroundColor: PorhiTheme.indigo600,
+                foregroundColor: Colors.white,
+              ),
+              icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+              label: Text(
+                AppStrings.tr('পরবর্তী প্রশ্ন', 'Next', lang),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            )
+          else
+            FilledButton.icon(
+              key: const Key('practice_finish_btn'),
+              onPressed: () {
+                final subjectId = controller.subjectId.value.trim();
+                if (Get.key.currentState?.canPop() == true) {
+                  Get.back();
+                } else if (subjectId.isNotEmpty) {
+                  Get.offNamed(AppRoutes.chaptersForSubject(subjectId));
+                }
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: PorhiTheme.emerald600,
+                foregroundColor: Colors.white,
+              ),
+              icon: const Icon(Icons.check_circle_outline_rounded, size: 18),
+              label: Text(
+                AppStrings.tr('অনুশীলন সম্পন্ন', 'Finish Practice', lang),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

@@ -45,6 +45,18 @@ class _ExplanationLayersCardState extends State<ExplanationLayersCard> {
     };
   }
 
+  @override
+  void didUpdateWidget(covariant ExplanationLayersCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.explanation != widget.explanation ||
+        oldWidget.initialExpanded != widget.initialExpanded) {
+      _expanded = <String, bool>{
+        ..._defaultExpanded,
+        ...?widget.initialExpanded,
+      };
+    }
+  }
+
   void _toggleLayer(String key) {
     setState(() {
       _expanded[key] = !(_expanded[key] ?? false);

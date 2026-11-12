@@ -433,5 +433,70 @@ describe('StudentService', () => {
         }),
       });
     });
+
+    it('preserves CQ selfScores and skips revisionMistake.upsert for cq:k,kh,g,gh attempts', async () => {
+      prisma.eventLog.findMany.mockResolvedValue([]);
+      prisma.eventLog.create.mockResolvedValue({ id: 'ev_cq_sync' });
+      prisma.revisionMistake.upsert = vi.fn().mockResolvedValue({ id: 'mistake_sync' });
+
+      const res = await (studentService as any).syncOfflineActivity('user-1', {
+        practiceAttempts: [
+          {
+            offlineEventId: 'att_cq_1',
+            questionId: 'q_cq_1',
+            topicId: 'top_1',
+            selectedOptionId: 'cq:1,1,1,1',
+            isCorrect: false,
+            attemptedAt: '2026-11-12T10:00:00Z',
+          },
+          {
+            offlineEventId: 'att_mcq_1',
+            questionId: 'q_mcq_1',
+            topicId: 'top_1',
+            selectedOptionId: 'opt_b',
+            isCorrect: false,
+            attemptedAt: '2026-11-12T10:01:00Z',
+          },
+        ],
+      });
+
+      expect(res).toEqual({
+        syncedLessons: 0,
+        syncedAttempts: 2,
+        syncedExams: 0,
+      });
+
+      expect(prisma.eventLog.create).toHaveBeenCalledWith({
+        data: {
+          userId: 'user-1',
+          eventType: 'PRACTICE_ATTEMPT',
+          payload: expect.objectContaining({
+            questionId: 'q_cq_1',
+            topicId: 'top_1',
+            type: 'CQ_CREATIVE',
+            selfScores: { ka: 1, kha: 1, ga: 1, gha: 1 },
+            totalScore: 4,
+            maxScore: 10,
+            selectedOptionId: 'cq:1,1,1,1',
+            isCorrect: false,
+            offlineEventId: 'att_cq_1',
+            offlineSynced: true,
+          }),
+        },
+      });
+
+      // Only the normal MCQ wrong attempt creates a revisionMistake row
+      expect(prisma.revisionMistake.upsert).toHaveBeenCalledTimes(1);
+      expect(prisma.revisionMistake.upsert).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            userId_questionId: {
+              userId: 'user-1',
+              questionId: 'q_mcq_1',
+            },
+          },
+        }),
+      );
+    });
   });
 });

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:network/network.dart' show ErrorResponse;
+import 'package:network/network.dart' show ApiResponseErrorType, ErrorResponse;
 import 'package:porhi/app/env.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
 import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
@@ -70,10 +70,25 @@ class PracticeController extends GetxController {
 
   final RxSet<String> bookmarkedQuestionIds = <String>{}.obs;
   final RxnString togglingBookmarkQuestionId = RxnString();
+  final RxInt sessionResetCount = 0.obs;
 
   final Map<String, PracticeQuestionEntity> _sessionWrongQuestions =
       <String, PracticeQuestionEntity>{};
   int _loadGeneration = 0;
+  int _bookmarkGeneration = 0;
+
+  bool _isOfflineError(ErrorResponse err) {
+    return err.data == ApiResponseErrorType.noInternet ||
+        err.data == ApiResponseErrorType.slowOrNoInternet;
+  }
+
+  String _tryDecodeUriComponent(String raw) {
+    try {
+      return Uri.decodeComponent(raw);
+    } on ArgumentError {
+      return raw;
+    }
+  }
 
   PracticeQuestionEntity? get currentQuestion {
     if (questions.isEmpty) return null;
@@ -134,12 +149,12 @@ class PracticeController extends GetxController {
 
     final rawChapter = Get.parameters['chapterId']?.trim();
     if (rawChapter != null && rawChapter.isNotEmpty) {
-      chapterId.value = Uri.decodeComponent(rawChapter);
+      chapterId.value = _tryDecodeUriComponent(rawChapter);
     }
 
     final rawTopic = Get.parameters['topicId']?.trim();
     if (rawTopic != null && rawTopic.isNotEmpty) {
-      topicIdFilter.value = Uri.decodeComponent(rawTopic);
+      topicIdFilter.value = _tryDecodeUriComponent(rawTopic);
     }
 
     final rawDiff = Get.parameters['difficulty']?.trim().toUpperCase();
@@ -151,6 +166,8 @@ class PracticeController extends GetxController {
     final rawMode = Get.parameters['mode']?.trim().toLowerCase();
     if (rawMode == 'mistakes') {
       practiceMode.value = 'MISTAKES';
+    } else if (rawMode == 'all') {
+      practiceMode.value = 'ALL';
     }
 
     final rawType = Get.parameters['type']?.trim().toUpperCase();
@@ -176,26 +193,36 @@ class PracticeController extends GetxController {
               .contains(args.difficulty!.trim().toUpperCase())) {
         difficultyFilter.value = args.difficulty!.trim().toUpperCase();
       }
-      if (args.mode?.trim().toLowerCase() == 'mistakes') {
-        practiceMode.value = 'MISTAKES';
+      if (args.mode != null && args.mode!.trim().isNotEmpty) {
+        practiceMode.value =
+            args.mode!.trim().toLowerCase() == 'mistakes' ? 'MISTAKES' : 'ALL';
       }
-      if (args.type?.trim().toUpperCase() == 'CQ_CREATIVE') {
-        questionTypeMode.value = 'CQ_CREATIVE';
+      if (args.type != null && args.type!.trim().isNotEmpty) {
+        final normalizedType = args.type!.trim().toUpperCase();
+        if (normalizedType == 'CQ_CREATIVE' || normalizedType == 'MCQ') {
+          questionTypeMode.value = normalizedType;
+        }
       }
     } else if (args is String && args.trim().isNotEmpty && chapterId.isEmpty) {
       chapterId.value = args.trim();
-    }
-
-    if (chapterId.value.isEmpty) {
-      chapterId.value = 'chap_ssc_physics_ch2';
     }
   }
 
   Future<void> loadQuestions() async {
     final activeChapterId = chapterId.value.trim();
-    if (activeChapterId.isEmpty) return;
+    if (activeChapterId.isEmpty) {
+      isLoading.value = false;
+      questions.clear();
+      errorMessage.value = AppStrings.tr(
+        'অধ্যায়ের আইডি পাওয়া যায়নি। আবার অধ্যায় নির্বাচন করুন।',
+        'Chapter ID is missing or invalid. Please select a chapter again.',
+        language.value,
+      );
+      return;
+    }
 
     final generation = ++_loadGeneration;
+    ++_bookmarkGeneration;
     isLoading.value = true;
     isOfflineMode.value = false;
     errorMessage.value = null;
@@ -204,6 +231,7 @@ class PracticeController extends GetxController {
     currentIndex.value = 0;
     submittingQuestionId.value = null;
     submittingCqQuestionId.value = null;
+    togglingBookmarkQuestionId.value = null;
 
     try {
       await _hydrateMetadataAndBookmarks(
@@ -231,6 +259,7 @@ class PracticeController extends GetxController {
       res.fold(
         (err) {
           if (practiceMode.value == 'MISTAKES' &&
+              _isOfflineError(err) &&
               _sessionWrongQuestions.isNotEmpty &&
               typeParam == 'MCQ') {
             final filteredWrong = _sessionWrongQuestions.values.where((q) {
@@ -240,6 +269,10 @@ class PracticeController extends GetxController {
               }
               return true;
             }).toList();
+            for (final q in filteredWrong) {
+              selectedOptions.remove(q.id);
+              submitResults.remove(q.id);
+            }
             questions.assignAll(filteredWrong);
             isOfflineMode.value = true;
           } else {
@@ -317,8 +350,21 @@ class PracticeController extends GetxController {
 
   Future<void> toggleMistakesMode() async {
     if (questionTypeMode.value != 'MCQ') return;
-    practiceMode.value =
+    final nextMode =
         practiceMode.value == 'MISTAKES' ? 'ALL' : 'MISTAKES';
+    practiceMode.value = nextMode;
+    if (nextMode == 'MISTAKES') {
+      for (final q in questions) {
+        if (submitResults[q.id]?.isCorrect == false) {
+          selectedOptions.remove(q.id);
+          submitResults.remove(q.id);
+        }
+      }
+      for (final id in _sessionWrongQuestions.keys) {
+        selectedOptions.remove(id);
+        submitResults.remove(id);
+      }
+    }
     await loadQuestions();
   }
 
@@ -464,6 +510,7 @@ class PracticeController extends GetxController {
     if (q == null || togglingBookmarkQuestionId.value != null) return;
 
     final generation = _loadGeneration;
+    final bookmarkGen = ++_bookmarkGeneration;
     togglingBookmarkQuestionId.value = q.id;
     statusMessage.value = null;
     isStatusError.value = false;
@@ -486,7 +533,11 @@ class PracticeController extends GetxController {
         subtitleBangla: subtitle,
         href: href,
       );
-      if (isClosed || generation != _loadGeneration) return;
+      if (isClosed ||
+          generation != _loadGeneration ||
+          bookmarkGen != _bookmarkGeneration) {
+        return;
+      }
 
       await result.fold(
         (err) async {
@@ -529,7 +580,9 @@ class PracticeController extends GetxController {
         },
       );
     } finally {
-      if (!isClosed && generation == _loadGeneration) {
+      if (!isClosed &&
+          generation == _loadGeneration &&
+          bookmarkGen == _bookmarkGeneration) {
         togglingBookmarkQuestionId.value = null;
       }
     }
@@ -574,6 +627,12 @@ class PracticeController extends GetxController {
       submitResults.remove(q.id);
       cqSubmittedResults.remove(q.id);
     }
+    for (final id in _sessionWrongQuestions.keys) {
+      selectedOptions.remove(id);
+      submitResults.remove(id);
+    }
+    _sessionWrongQuestions.clear();
+    sessionResetCount.value++;
     currentIndex.value = 0;
     statusMessage.value = null;
     if (practiceMode.value == 'MISTAKES') {

@@ -58,6 +58,13 @@ class PracticeLocalDataSourceImpl implements PracticeLocalDataSource {
       final parsed = _decodeCachedQuestion(row);
       if (parsed == null) continue;
 
+      if (normalizedType != null &&
+          normalizedType.isNotEmpty &&
+          normalizedType != 'ALL' &&
+          parsed.type.trim().toUpperCase() != normalizedType) {
+        continue;
+      }
+
       if (normalizedDifficulty != null &&
           normalizedDifficulty.isNotEmpty &&
           normalizedDifficulty != 'ALL' &&

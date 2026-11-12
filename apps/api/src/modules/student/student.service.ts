@@ -738,26 +738,70 @@ export class StudentService {
       if (existingEventIds.has(att.offlineEventId)) continue;
       existingEventIds.add(att.offlineEventId);
 
+      const cqMatch =
+        typeof att.selectedOptionId === 'string'
+          ? /^cq:(\d+),(\d+),(\d+),(\d+)$/.exec(att.selectedOptionId.trim())
+          : null;
+      const parsedCq = cqMatch
+        ? {
+            ka: Number(cqMatch[1]),
+            kha: Number(cqMatch[2]),
+            ga: Number(cqMatch[3]),
+            gha: Number(cqMatch[4]),
+          }
+        : null;
+      const isCqSelfAssess =
+        parsedCq !== null &&
+        parsedCq.ka >= 0 &&
+        parsedCq.ka <= 1 &&
+        parsedCq.kha >= 0 &&
+        parsedCq.kha <= 2 &&
+        parsedCq.ga >= 0 &&
+        parsedCq.ga <= 3 &&
+        parsedCq.gha >= 0 &&
+        parsedCq.gha <= 4;
+
       if (typeof this.prisma.eventLog?.create === 'function') {
+        const cqTotalScore = isCqSelfAssess
+          ? parsedCq.ka + parsedCq.kha + parsedCq.ga + parsedCq.gha
+          : 0;
+        const eventPayload = isCqSelfAssess
+          ? {
+              questionId: att.questionId,
+              topicId: att.topicId ?? null,
+              type: 'CQ_CREATIVE',
+              selfScores: parsedCq,
+              totalScore: cqTotalScore,
+              maxScore: 10,
+              selectedOptionId: att.selectedOptionId,
+              isCorrect: cqTotalScore >= 6,
+              offlineEventId: att.offlineEventId,
+              offlineSynced: true,
+              attemptedAt: att.attemptedAt ?? new Date().toISOString(),
+            }
+          : {
+              questionId: att.questionId,
+              topicId: att.topicId ?? null,
+              selectedOptionId: att.selectedOptionId ?? null,
+              isCorrect: att.isCorrect,
+              offlineEventId: att.offlineEventId,
+              offlineSynced: true,
+              attemptedAt: att.attemptedAt ?? new Date().toISOString(),
+            };
+
         await this.prisma.eventLog
           .create({
             data: {
               userId,
               eventType: 'PRACTICE_ATTEMPT',
-              payload: {
-                questionId: att.questionId,
-                topicId: att.topicId ?? null,
-                isCorrect: att.isCorrect,
-                offlineEventId: att.offlineEventId,
-                offlineSynced: true,
-                attemptedAt: att.attemptedAt ?? new Date().toISOString(),
-              },
+              payload: eventPayload,
             },
           })
           .catch(() => {});
       }
 
       if (
+        !isCqSelfAssess &&
         att.isCorrect === false &&
         typeof (this.prisma.revisionMistake as any)?.upsert === 'function'
       ) {

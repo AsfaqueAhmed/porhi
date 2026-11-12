@@ -329,14 +329,16 @@ class ChapterIndexView extends GetView<ChapterIndexController> {
     _showUpcomingModuleNotice(context, lang);
   }
 
-  void _openNamedRouteOrNotice(
+  Future<void> _openNamedRouteOrNotice(
     BuildContext context,
     String route,
     AppLanguage lang, {
     Object? arguments,
-  }) {
+  }) async {
     if (_isRouteRegistered(route)) {
-      Get.toNamed(route, arguments: arguments);
+      await controller.runGuardedNavigation(() async {
+        await Get.toNamed(route, arguments: arguments);
+      });
       return;
     }
     _showUpcomingModuleNotice(context, lang);
