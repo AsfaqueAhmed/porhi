@@ -65,6 +65,15 @@ export interface StudentOverviewResponse {
     durationSeconds: number;
     completedAt: string | null;
   }>;
+  bookmarks?: Array<{
+    id: string;
+    type: 'topic' | 'question';
+    titleBangla: string;
+    subtitleBangla?: string | null;
+    href: string;
+    createdAt: string;
+  }>;
+  lessonNotes?: Record<string, string>;
 }
 
 function calculateConsecutiveStreak(dateStrings: string[]): number {
@@ -208,11 +217,13 @@ export class StudentService {
         dueMistakes: [],
         weakTopics: [],
         recentExams: [],
+        bookmarks: [],
+        lessonNotes: {},
       };
     }
 
-    // Fetch user events, mistakes, and exam sessions
-    const [events, mistakes, examSessions] = await Promise.all([
+    // Fetch user events, mistakes, exam sessions, bookmarks, and lesson notes
+    const [events, mistakes, examSessions, bookmarkRows, noteRows] = await Promise.all([
       this.prisma.eventLog?.findMany?.({
         where: { userId },
         orderBy: { timestamp: 'desc' },
@@ -239,6 +250,24 @@ export class StudentService {
         orderBy: { completedAt: 'desc' },
         take: 10,
       }) || Promise.resolve([]),
+      typeof (this.prisma as any).studentBookmark?.findMany === 'function'
+        ? (this.prisma as any).studentBookmark
+            .findMany({
+              where: { userId },
+              orderBy: { createdAt: 'desc' },
+              take: 50,
+            })
+            .catch(() => [])
+        : Promise.resolve([]),
+      typeof (this.prisma as any).studentNote?.findMany === 'function'
+        ? (this.prisma as any).studentNote
+            .findMany({
+              where: { userId },
+              orderBy: { updatedAt: 'desc' },
+              take: 100,
+            })
+            .catch(() => [])
+        : Promise.resolve([]),
     ]);
 
     const completedSet = new Set<string>();
@@ -388,6 +417,24 @@ export class StudentService {
       completedAt: s.completedAt ? new Date(s.completedAt).toISOString() : null,
     }));
 
+    const bookmarks: NonNullable<StudentOverviewResponse['bookmarks']> = (bookmarkRows as any[]).map(
+      (b) => ({
+        id: b.itemId,
+        type: (b.itemType === 'question' ? 'question' : 'topic') as 'topic' | 'question',
+        titleBangla: b.titleBangla,
+        subtitleBangla: b.subtitleBangla ?? null,
+        href: b.href,
+        createdAt: b.createdAt ? new Date(b.createdAt).toISOString() : new Date().toISOString(),
+      }),
+    );
+
+    const lessonNotes: Record<string, string> = {};
+    for (const n of noteRows as any[]) {
+      if (n.topicId && typeof n.content === 'string') {
+        lessonNotes[n.topicId] = n.content;
+      }
+    }
+
     return {
       subjectId: resolvedSubjectId,
       curriculumTotals: {
@@ -409,6 +456,8 @@ export class StudentService {
       dueMistakes,
       weakTopics,
       recentExams,
+      bookmarks,
+      lessonNotes,
     };
   }
 
@@ -454,5 +503,144 @@ export class StudentService {
       success: true,
       questionId,
     };
+  }
+
+  async toggleBookmark(
+    userId: string | undefined,
+    dto: {
+      itemId: string;
+      itemType: 'topic' | 'question';
+      titleBangla: string;
+      subtitleBangla?: string;
+      href: string;
+    },
+  ): Promise<{ bookmarked: boolean }> {
+    if (!userId || !dto?.itemId || typeof (this.prisma as any).studentBookmark?.findUnique !== 'function') {
+      return { bookmarked: false };
+    }
+
+    const existing = await (this.prisma as any).studentBookmark.findUnique({
+      where: {
+        userId_itemId_itemType: {
+          userId,
+          itemId: dto.itemId,
+          itemType: dto.itemType,
+        },
+      },
+    });
+
+    let bookmarked: boolean;
+    if (existing) {
+      await (this.prisma as any).studentBookmark.delete({
+        where: { id: existing.id },
+      });
+      bookmarked = false;
+    } else {
+      await (this.prisma as any).studentBookmark.create({
+        data: {
+          userId,
+          itemId: dto.itemId,
+          itemType: dto.itemType,
+          titleBangla: dto.titleBangla,
+          subtitleBangla: dto.subtitleBangla ?? null,
+          href: dto.href,
+        },
+      });
+      bookmarked = true;
+    }
+
+    if (typeof this.prisma.eventLog?.create === 'function') {
+      await this.prisma.eventLog
+        .create({
+          data: {
+            userId,
+            eventType: 'BOOKMARK_TOGGLE',
+            payload: {
+              itemId: dto.itemId,
+              itemType: dto.itemType,
+              bookmarked,
+            },
+          },
+        })
+        .catch(() => {});
+    }
+
+    return { bookmarked };
+  }
+
+  async saveNote(
+    userId: string | undefined,
+    topicId: string,
+    content: string,
+  ): Promise<{ success: boolean; topicId: string; content: string }> {
+    const rawContent = typeof content === 'string' ? content : '';
+    const isEmpty = rawContent.trim().length === 0;
+
+    if (!userId || !topicId) {
+      return { success: true, topicId: topicId || '', content: isEmpty ? '' : rawContent };
+    }
+
+    if (isEmpty) {
+      if (typeof (this.prisma as any).studentNote?.deleteMany === 'function') {
+        await (this.prisma as any).studentNote
+          .deleteMany({
+            where: { userId, topicId },
+          })
+          .catch(() => {});
+      }
+      return { success: true, topicId, content: '' };
+    }
+
+    if (typeof (this.prisma as any).studentNote?.upsert === 'function') {
+      await (this.prisma as any).studentNote.upsert({
+        where: {
+          userId_topicId: {
+            userId,
+            topicId,
+          },
+        },
+        create: {
+          userId,
+          topicId,
+          content: rawContent,
+        },
+        update: {
+          content: rawContent,
+        },
+      });
+    }
+
+    return { success: true, topicId, content: rawContent };
+  }
+
+  async submitFeedback(
+    userId: string | undefined,
+    dto: {
+      contentType: 'LESSON' | 'QUESTION';
+      contentId: string;
+      helpful: boolean;
+      comment?: string;
+    },
+  ): Promise<{ success: boolean }> {
+    if (userId && dto?.contentId && typeof this.prisma.eventLog?.create === 'function') {
+      await this.prisma.eventLog
+        .create({
+          data: {
+            userId,
+            eventType: 'EXPLANATION_FEEDBACK',
+            payload: {
+              contentType: dto.contentType,
+              contentId: dto.contentId,
+              helpful: dto.helpful,
+              comment: dto.comment?.trim() || null,
+            },
+          },
+        })
+        .catch((err: any) => {
+          this.logger.warn(`Failed to log EXPLANATION_FEEDBACK: ${err?.message ?? err}`);
+        });
+    }
+
+    return { success: true };
   }
 }

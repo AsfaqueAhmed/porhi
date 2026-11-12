@@ -1,6 +1,12 @@
 import { Body, Controller, Get, Inject, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
+import {
+  LessonCompleteDto,
+  SaveNoteDto,
+  SubmitFeedbackDto,
+  ToggleBookmarkDto,
+} from './dto/student.dto';
 
 @Controller('student')
 @UseGuards(OptionalJwtAuthGuard)
@@ -17,7 +23,7 @@ export class StudentController {
 
   @Post('lesson-complete')
   async markLessonComplete(
-    @Body() body: { topicId: string; lessonId?: string; timeSpentSeconds?: number },
+    @Body() body: LessonCompleteDto,
     @Req() req?: { user?: any },
   ) {
     return this.studentService.markLessonComplete(req?.user?.id, body);
@@ -29,5 +35,29 @@ export class StudentController {
     @Req() req?: { user?: any },
   ) {
     return this.studentService.resolveMistake(req?.user?.id, questionId);
+  }
+
+  @Post('bookmarks/toggle')
+  async toggleBookmark(
+    @Body() body: ToggleBookmarkDto,
+    @Req() req?: { user?: any },
+  ) {
+    return this.studentService.toggleBookmark(req?.user?.id, body);
+  }
+
+  @Post('notes')
+  async saveNote(
+    @Body() body: SaveNoteDto,
+    @Req() req?: { user?: any },
+  ) {
+    return this.studentService.saveNote(req?.user?.id, body.topicId, body.content);
+  }
+
+  @Post('feedback')
+  async submitFeedback(
+    @Body() body: SubmitFeedbackDto,
+    @Req() req?: { user?: any },
+  ) {
+    return this.studentService.submitFeedback(req?.user?.id, body);
   }
 }

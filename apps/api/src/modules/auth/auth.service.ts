@@ -249,6 +249,74 @@ export class AuthService {
               where: { userId: guestUser.id },
             });
 
+            if (typeof (tx as any).studentBookmark?.findMany === 'function') {
+              const guestBookmarks = await (tx as any).studentBookmark.findMany({
+                where: { userId: guestUser.id },
+              });
+              const existingBookmarks = await (tx as any).studentBookmark.findMany({
+                where: { userId: existingUserWithPhone.id },
+              });
+              const existingKeys = new Set(
+                existingBookmarks.map(
+                  (b: { itemId: string; itemType: string }) => `${b.itemType}:${b.itemId}`,
+                ),
+              );
+              const newBookmarks = guestBookmarks
+                .filter(
+                  (b: { itemId: string; itemType: string }) =>
+                    !existingKeys.has(`${b.itemType}:${b.itemId}`),
+                )
+                .map(
+                  (b: {
+                    itemId: string;
+                    itemType: string;
+                    titleBangla: string;
+                    subtitleBangla?: string | null;
+                    href: string;
+                  }) => ({
+                    userId: existingUserWithPhone.id,
+                    itemId: b.itemId,
+                    itemType: b.itemType,
+                    titleBangla: b.titleBangla,
+                    subtitleBangla: b.subtitleBangla ?? null,
+                    href: b.href,
+                  }),
+                );
+
+              if (newBookmarks.length > 0) {
+                await (tx as any).studentBookmark.createMany({ data: newBookmarks });
+              }
+              await (tx as any).studentBookmark.deleteMany({
+                where: { userId: guestUser.id },
+              });
+            }
+
+            if (typeof (tx as any).studentNote?.findMany === 'function') {
+              const guestNotes = await (tx as any).studentNote.findMany({
+                where: { userId: guestUser.id },
+              });
+              const existingNotes = await (tx as any).studentNote.findMany({
+                where: { userId: existingUserWithPhone.id },
+              });
+              const existingTopicIds = new Set(
+                existingNotes.map((n: { topicId: string }) => n.topicId),
+              );
+              const newNotes = guestNotes
+                .filter((n: { topicId: string }) => !existingTopicIds.has(n.topicId))
+                .map((n: { topicId: string; content: string }) => ({
+                  userId: existingUserWithPhone.id,
+                  topicId: n.topicId,
+                  content: n.content,
+                }));
+
+              if (newNotes.length > 0) {
+                await (tx as any).studentNote.createMany({ data: newNotes });
+              }
+              await (tx as any).studentNote.deleteMany({
+                where: { userId: guestUser.id },
+              });
+            }
+
             await tx.user.delete({
               where: { id: guestUser.id },
             });
@@ -353,5 +421,55 @@ export class AuthService {
       throw new UnauthorizedException('User not found');
     }
     return user;
+  }
+
+  async updateProfile(
+    userId: string,
+    dto: { fullName?: string; selectedClass?: string },
+  ) {
+    const data: { fullName?: string | null; selectedClass?: string } = {};
+
+    if (dto.selectedClass !== undefined) {
+      if (dto.selectedClass !== 'SSC' && dto.selectedClass !== 'HSC') {
+        throw new BadRequestException('selectedClass must be either SSC or HSC');
+      }
+      data.selectedClass = dto.selectedClass;
+    }
+
+    if (dto.fullName !== undefined) {
+      const trimmed = dto.fullName.trim();
+      if (trimmed.length > 80) {
+        throw new BadRequestException('fullName must be 80 characters or fewer');
+      }
+      data.fullName = trimmed.length > 0 ? trimmed : null;
+    }
+
+    if (Object.keys(data).length === 0) {
+      const existing = await this.getUserById(userId);
+      return {
+        id: existing.id,
+        guestId: existing.guestId,
+        phoneNumber: existing.phoneNumber,
+        fullName: existing.fullName ?? null,
+        role: existing.role,
+        selectedClass: existing.selectedClass,
+        isGuest: !existing.phoneNumber && !!existing.guestId,
+      };
+    }
+
+    const updated = await this.prisma.user.update({
+      where: { id: userId },
+      data,
+    });
+
+    return {
+      id: updated.id,
+      guestId: updated.guestId,
+      phoneNumber: updated.phoneNumber,
+      fullName: updated.fullName ?? null,
+      role: updated.role,
+      selectedClass: updated.selectedClass,
+      isGuest: !updated.phoneNumber && !!updated.guestId,
+    };
   }
 }

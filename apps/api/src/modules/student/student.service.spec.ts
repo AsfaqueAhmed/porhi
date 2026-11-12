@@ -267,4 +267,101 @@ describe('StudentService', () => {
       });
     });
   });
+
+  describe('bookmarks, lesson notes, and explanation feedback sync', () => {
+    it('toggles a student bookmark and logs BOOKMARK_TOGGLE event', async () => {
+      prisma.studentBookmark = {
+        findUnique: vi.fn().mockResolvedValueOnce(null),
+        create: vi.fn().mockResolvedValueOnce({ id: 'bm_1' }),
+        delete: vi.fn(),
+      };
+      prisma.eventLog.create.mockResolvedValue({ id: 'ev_bm' });
+
+      const added = await (studentService as any).toggleBookmark('user-1', {
+        itemId: 'top_1',
+        itemType: 'topic',
+        titleBangla: '১.১ পদার্থবিজ্ঞান',
+        subtitleBangla: 'প্রথম অধ্যায়',
+        href: '/lesson/top_1',
+      });
+
+      expect(added).toEqual({ bookmarked: true });
+      expect(prisma.studentBookmark.create).toHaveBeenCalled();
+
+      prisma.studentBookmark.findUnique.mockResolvedValueOnce({ id: 'bm_1' });
+      const removed = await (studentService as any).toggleBookmark('user-1', {
+        itemId: 'top_1',
+        itemType: 'topic',
+        titleBangla: '১.১ পদার্থবিজ্ঞান',
+        href: '/lesson/top_1',
+      });
+
+      expect(removed).toEqual({ bookmarked: false });
+      expect(prisma.studentBookmark.delete).toHaveBeenCalledWith({ where: { id: 'bm_1' } });
+    });
+
+    it('upserts or deletes a student lesson note', async () => {
+      prisma.studentNote = {
+        upsert: vi.fn().mockResolvedValue({ id: 'note_1' }),
+        deleteMany: vi.fn().mockResolvedValue({ count: 1 }),
+      };
+
+      const saved = await (studentService as any).saveNote('user-1', 'top_1', 'সূত্র: $v = u + at$');
+      expect(saved).toEqual({ success: true, topicId: 'top_1', content: 'সূত্র: $v = u + at$' });
+      expect(prisma.studentNote.upsert).toHaveBeenCalled();
+
+      const cleared = await (studentService as any).saveNote('user-1', 'top_1', '   ');
+      expect(cleared).toEqual({ success: true, topicId: 'top_1', content: '' });
+      expect(prisma.studentNote.deleteMany).toHaveBeenCalledWith({
+        where: { userId: 'user-1', topicId: 'top_1' },
+      });
+    });
+
+    it('records Bengali explanation feedback in EventLog and hydrates bookmarks & lessonNotes in getOverview', async () => {
+      prisma.eventLog.create.mockResolvedValue({ id: 'ev_fb' });
+      const fb = await (studentService as any).submitFeedback('user-1', {
+        contentType: 'LESSON',
+        contentId: 'les_1',
+        helpful: true,
+        comment: 'খুব সহজভাবে বোঝানো হয়েছে',
+      });
+      expect(fb).toEqual({ success: true });
+      expect(prisma.eventLog.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          userId: 'user-1',
+          eventType: 'EXPLANATION_FEEDBACK',
+        }),
+      });
+
+      prisma.subject.findUnique.mockResolvedValue({ id: 'sub_1', code: 'ssc_physics' });
+      prisma.chapter.findMany.mockResolvedValue([]);
+      prisma.eventLog.findMany.mockResolvedValue([]);
+      prisma.revisionMistake.findMany.mockResolvedValue([]);
+      prisma.examSession.findMany.mockResolvedValue([]);
+      prisma.studentBookmark = {
+        findMany: vi.fn().mockResolvedValue([
+          {
+            itemId: 'top_1',
+            itemType: 'topic',
+            titleBangla: '১.১ পদার্থবিজ্ঞান',
+            subtitleBangla: 'অধ্যায় ১',
+            href: '/lesson/top_1',
+            createdAt: new Date('2026-11-12T00:00:00Z'),
+          },
+        ]),
+      };
+      prisma.studentNote = {
+        findMany: vi.fn().mockResolvedValue([{ topicId: 'top_1', content: 'গুরুত্বপূর্ণ সূত্র' }]),
+      };
+
+      const overview = await studentService.getOverview('sub_1', 'user-1');
+      expect((overview as any).bookmarks).toHaveLength(1);
+      expect((overview as any).bookmarks[0]).toMatchObject({
+        id: 'top_1',
+        type: 'topic',
+        titleBangla: '১.১ পদার্থবিজ্ঞান',
+      });
+      expect((overview as any).lessonNotes).toEqual({ top_1: 'গুরুত্বপূর্ণ সূত্র' });
+    });
+  });
 });

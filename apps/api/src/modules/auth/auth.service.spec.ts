@@ -635,4 +635,106 @@ describe('AuthService', () => {
       expect(jwtService.sign).not.toHaveBeenCalled();
     });
   });
+
+  describe('updateProfile & bookmark/note migration', () => {
+    it('updates fullName and selectedClass for an authenticated user and rejects invalid selectedClass', async () => {
+      prisma.user.update.mockResolvedValue({
+        id: 'u-1',
+        guestId: null,
+        phoneNumber: '01712345678',
+        fullName: 'তানভীর আহমেদ',
+        role: 'STUDENT',
+        selectedClass: 'HSC',
+      });
+
+      const updated = await (authService as any).updateProfile('u-1', {
+        fullName: 'তানভীর আহমেদ',
+        selectedClass: 'HSC',
+      });
+
+      expect(updated.fullName).toBe('তানভীর আহমেদ');
+      expect(updated.selectedClass).toBe('HSC');
+
+      await expect(
+        (authService as any).updateProfile('u-1', { selectedClass: 'INVALID' }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('merges non-duplicate bookmarks and notes when guest merges into existing phone user', async () => {
+      const existingUser = {
+        id: 'u-existing-phone',
+        guestId: null,
+        phoneNumber: '01712345678',
+        role: 'STUDENT',
+        selectedClass: 'SSC',
+      };
+      const guestUser = {
+        id: 'u-guest-merge',
+        guestId: 'guest-abc-789',
+        phoneNumber: null,
+        role: 'STUDENT',
+        selectedClass: 'SSC',
+      };
+
+      prisma.user.findUnique
+        .mockResolvedValueOnce(existingUser)
+        .mockResolvedValueOnce(guestUser);
+      prisma.revisionMistake.findMany
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([]);
+
+      (prisma as any).studentBookmark = {
+        findMany: vi
+          .fn()
+          .mockResolvedValueOnce([
+            {
+              itemId: 'top_2',
+              itemType: 'topic',
+              titleBangla: 'বেগ',
+              subtitleBangla: 'অধ্যায় ২',
+              href: '/lesson/top_2',
+            },
+          ])
+          .mockResolvedValueOnce([
+            { itemId: 'top_1', itemType: 'topic' },
+          ]),
+        createMany: vi.fn().mockResolvedValue({ count: 1 }),
+        deleteMany: vi.fn().mockResolvedValue({ count: 1 }),
+      };
+
+      (prisma as any).studentNote = {
+        findMany: vi
+          .fn()
+          .mockResolvedValueOnce([
+            { topicId: 'top_1', content: 'Guest note ignored' },
+            { topicId: 'top_2', content: 'Guest note preserved' },
+          ])
+          .mockResolvedValueOnce([{ topicId: 'top_1', content: 'Existing note' }]),
+        createMany: vi.fn().mockResolvedValue({ count: 1 }),
+        deleteMany: vi.fn().mockResolvedValue({ count: 2 }),
+      };
+
+      const res = await authService.verifyOtp('01712345678', '1234', 'guest-abc-789');
+
+      expect(res.progressMigrated).toBe(true);
+      expect((prisma as any).studentBookmark.createMany).toHaveBeenCalledWith({
+        data: [
+          expect.objectContaining({
+            userId: 'u-existing-phone',
+            itemId: 'top_2',
+            itemType: 'topic',
+          }),
+        ],
+      });
+      expect((prisma as any).studentNote.createMany).toHaveBeenCalledWith({
+        data: [
+          expect.objectContaining({
+            userId: 'u-existing-phone',
+            topicId: 'top_2',
+            content: 'Guest note preserved',
+          }),
+        ],
+      });
+    });
+  });
 });
