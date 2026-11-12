@@ -4,6 +4,8 @@ import 'package:porhi/core/i18n/app_strings.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
 import 'package:porhi/features/curriculum/presentation/subjects/view/subjects_view.dart';
 import 'package:porhi/features/dashboard/presentation/dashboard/view/dashboard_view.dart';
+import 'package:porhi/features/planner/presentation/planner/view/planner_view.dart';
+import 'package:porhi/features/progress/presentation/progress/view/progress_view.dart';
 import 'package:porhi/features/shell/presentation/main_shell/controller/main_shell_controller.dart';
 import 'package:porhi/routes/app_routes.dart';
 
@@ -40,11 +42,13 @@ class MainShellTabBuilders {
     }
   }
 
-  static Widget _defaultPlannerBuilder(BuildContext context) =>
-      const PlannerTabSlot();
+  static Widget _defaultPlannerBuilder(BuildContext context) => PlannerView(
+        onAccountTap: () => _openAccountFromShell(context),
+      );
 
-  static Widget _defaultProgressBuilder(BuildContext context) =>
-      const ProgressTabSlot();
+  static Widget _defaultProgressBuilder(BuildContext context) => ProgressView(
+        onAccountTap: () => _openAccountFromShell(context),
+      );
 }
 
 /// 4-tab authenticated shell rendering ONLY the active tab dynamically via [Obx]

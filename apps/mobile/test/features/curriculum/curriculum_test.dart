@@ -682,7 +682,11 @@ void main() {
             getPages: <GetPage<dynamic>>[
               GetPage<dynamic>(
                 name: AppRoutes.home,
-                page: () => const MainShellView(),
+                page: () => MainShellView(
+                  tabBuilders: MainShellTabBuilders(
+                    plannerBuilder: (_) => const PlannerTabSlot(),
+                  ),
+                ),
                 binding: MainShellBinding(),
               ),
               GetPage<dynamic>(
@@ -1037,7 +1041,11 @@ void main() {
             getPages: <GetPage<dynamic>>[
               GetPage<dynamic>(
                 name: AppRoutes.home,
-                page: () => const MainShellView(),
+                page: () => MainShellView(
+                  tabBuilders: MainShellTabBuilders(
+                    plannerBuilder: (_) => const PlannerTabSlot(),
+                  ),
+                ),
                 binding: MainShellBinding(),
               ),
               GetPage<dynamic>(

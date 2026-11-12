@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:porhi/app/app.dart';
 import 'package:porhi/app/initial_binding.dart';
+import 'package:porhi/core/notifications/local_reminder_scheduler.dart';
 import 'package:porhi/core/storage/preferences_storage_service.dart';
 import 'package:porhi/core/storage/secure_storage_service.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
@@ -24,6 +25,10 @@ Future<void> main() async {
 
   final secureStorage = SecureStorageService();
   await secureStorage.init();
+
+  final reminderScheduler = LocalReminderScheduler();
+  await reminderScheduler.initialize();
+  Get.put<LocalReminderScheduler>(reminderScheduler, permanent: true);
 
   final hasSession =
       secureStorage.accessToken != null &&

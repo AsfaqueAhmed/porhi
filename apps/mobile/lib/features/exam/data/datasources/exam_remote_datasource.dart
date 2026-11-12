@@ -27,6 +27,11 @@ abstract class ExamRemoteDataSource {
   Future<Either<ErrorResponse, ExamSessionDetailModel>> getSession(
     String sessionId,
   );
+
+  Future<Either<ErrorResponse, ExamHistoryModel>> getHistory({
+    String? subjectId,
+    String? testType,
+  });
 }
 
 class ExamRemoteDataSourceImpl extends BaseRepository
@@ -109,6 +114,28 @@ class ExamRemoteDataSourceImpl extends BaseRepository
     return get<ExamSessionDetailModel>(
       path: '/exam/session/${Uri.encodeComponent(sessionId)}',
       responseCompiler: ExamSessionDetailModel.fromJson,
+    );
+  }
+
+  @override
+  Future<Either<ErrorResponse, ExamHistoryModel>> getHistory({
+    String? subjectId,
+    String? testType,
+  }) {
+    final query = <String, String>{};
+    final cleanSubject = subjectId?.trim();
+    if (cleanSubject != null && cleanSubject.isNotEmpty) {
+      query['subjectId'] = cleanSubject;
+    }
+    final cleanType = testType?.trim();
+    if (cleanType != null && cleanType.isNotEmpty && cleanType != 'ALL') {
+      query['testType'] = cleanType;
+    }
+
+    return get<ExamHistoryModel>(
+      path: '/exam/history',
+      queryParameters: query.isEmpty ? null : query,
+      responseCompiler: ExamHistoryModel.fromJson,
     );
   }
 }

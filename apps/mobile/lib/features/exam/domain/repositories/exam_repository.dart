@@ -43,4 +43,9 @@ abstract class ExamRepository {
   Future<Either<ErrorResponse, ExamResumeDataEntity>> getResumeSessionData(
     ExamDraftEntity draft,
   );
+
+  Future<Either<ErrorResponse, ExamHistoryEntity>> getHistory({
+    String? subjectId,
+    String? testType,
+  });
 }

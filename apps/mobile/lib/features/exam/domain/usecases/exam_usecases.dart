@@ -209,6 +209,22 @@ class ResumeExamSessionUseCase {
       _repository.getResumeSessionData(draft);
 }
 
+class GetExamHistoryUseCase {
+  final ExamRepository _repository;
+
+  const GetExamHistoryUseCase(this._repository);
+
+  Future<Either<ErrorResponse, ExamHistoryEntity>> call({
+    String? subjectId,
+    String? testType,
+  }) {
+    return _repository.getHistory(
+      subjectId: subjectId,
+      testType: testType,
+    );
+  }
+}
+
 /// Returns a non-empty trimmed error message or [fallback] when [rawMessage]
 /// is null or blank.
 String resolveExamErrorMessage(String? rawMessage, String fallback) {

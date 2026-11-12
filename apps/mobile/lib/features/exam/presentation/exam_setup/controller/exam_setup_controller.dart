@@ -111,9 +111,24 @@ class ExamSetupController extends GetxController {
     final user = _getCachedUserUseCase();
     final fallbackSubjectId = _getActiveSubjectIdUseCase(user?.selectedClass);
 
-    final args = Get.arguments is ExamSetupRouteArgs
-        ? Get.arguments as ExamSetupRouteArgs
-        : null;
+    final rawArgs = Get.arguments;
+    final ExamSetupRouteArgs? args;
+    if (rawArgs is ExamSetupRouteArgs) {
+      args = rawArgs;
+    } else if (rawArgs is Map) {
+      final rawType = rawArgs['testType']?.toString();
+      args = ExamSetupRouteArgs(
+        subjectId: rawArgs['subjectId']?.toString(),
+        chapterId: rawArgs['chapterId']?.toString(),
+        chapterTitle: rawArgs['chapterTitle']?.toString(),
+        topicId: rawArgs['topicId']?.toString(),
+        testType: rawType != null && rawType.trim().isNotEmpty
+            ? ExamTestType.fromApiValue(rawType)
+            : null,
+      );
+    } else {
+      args = null;
+    }
 
     if (args?.subjectId != null && args!.subjectId!.trim().isNotEmpty) {
       subjectId.value = args.subjectId!.trim();

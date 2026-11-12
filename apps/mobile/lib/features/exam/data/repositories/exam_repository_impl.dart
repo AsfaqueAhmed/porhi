@@ -578,4 +578,19 @@ class ExamRepositoryImpl implements ExamRepository {
     ordered.addAll(byId.values);
     return ordered;
   }
+
+  @override
+  Future<Either<ErrorResponse, ExamHistoryEntity>> getHistory({
+    String? subjectId,
+    String? testType,
+  }) async {
+    final result = await _remoteDataSource.getHistory(
+      subjectId: subjectId,
+      testType: testType,
+    );
+    return result.fold(
+      Left<ErrorResponse, ExamHistoryEntity>.new,
+      (model) => Right<ErrorResponse, ExamHistoryEntity>(model.toEntity()),
+    );
+  }
 }

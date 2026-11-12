@@ -9,6 +9,8 @@ import 'package:porhi/core/database/app_database.dart';
 import 'package:porhi/core/network/auth_request_interceptor.dart';
 import 'package:porhi/core/network/auth_session_coordinator.dart';
 import 'package:porhi/core/network/offline_sync_api_handler.dart';
+import 'package:porhi/core/notifications/local_reminder_scheduler.dart';
+import 'package:porhi/core/services/share_gateway.dart';
 import 'package:porhi/core/storage/preferences_storage_service.dart';
 import 'package:porhi/core/storage/secure_storage_service.dart';
 import 'package:porhi/core/sync/offline_sync_service.dart';
@@ -45,6 +47,11 @@ import 'package:porhi/features/lesson/data/datasources/lesson_remote_datasource.
 import 'package:porhi/features/lesson/data/repositories/lesson_repository_impl.dart';
 import 'package:porhi/features/lesson/domain/repositories/lesson_repository.dart';
 import 'package:porhi/features/lesson/domain/usecases/lesson_usecases.dart';
+import 'package:porhi/features/planner/data/datasources/planner_local_datasource.dart';
+import 'package:porhi/features/planner/data/datasources/planner_remote_datasource.dart';
+import 'package:porhi/features/planner/data/repositories/planner_repository_impl.dart';
+import 'package:porhi/features/planner/domain/repositories/planner_repository.dart';
+import 'package:porhi/features/planner/domain/usecases/planner_usecases.dart';
 import 'package:porhi/features/practice/data/datasources/practice_local_datasource.dart';
 import 'package:porhi/features/practice/data/datasources/practice_remote_datasource.dart';
 import 'package:porhi/features/practice/data/repositories/practice_repository_impl.dart';
@@ -100,6 +107,11 @@ class InitialBinding extends Bindings {
       permanent: true,
     );
     unawaited(offlineSyncService.init());
+    _putIfAbsent<LocalReminderScheduler>(
+      () => LocalReminderScheduler(),
+      permanent: true,
+    );
+    _lazyPutIfAbsent<ShareGateway>(() => SharePlusGateway());
     _putIfAbsent<FirebaseAuthGateway>(
       () => _firebaseGatewayOverride ?? FirebaseAuthGatewayImpl(),
       permanent: true,
@@ -440,6 +452,46 @@ class InitialBinding extends Bindings {
     );
     _lazyPutIfAbsent<ResumeExamSessionUseCase>(
       () => ResumeExamSessionUseCase(Get.find<ExamRepository>()),
+    );
+    _lazyPutIfAbsent<GetExamHistoryUseCase>(
+      () => GetExamHistoryUseCase(Get.find<ExamRepository>()),
+    );
+
+    _lazyPutIfAbsent<PlannerRemoteDataSource>(
+      () => PlannerRemoteDataSourceImpl(),
+    );
+    _lazyPutIfAbsent<PlannerLocalDataSource>(
+      () => PlannerLocalDataSourceImpl(
+        database: database,
+        preferencesStorage: preferencesStorage,
+      ),
+    );
+    _lazyPutIfAbsent<PlannerRepository>(
+      () => PlannerRepositoryImpl(
+        remoteDataSource: Get.find<PlannerRemoteDataSource>(),
+        localDataSource: Get.find<PlannerLocalDataSource>(),
+      ),
+    );
+    _lazyPutIfAbsent<GetPlannerTasksUseCase>(
+      () => GetPlannerTasksUseCase(Get.find<PlannerRepository>()),
+    );
+    _lazyPutIfAbsent<GetCachedPlannerTasksUseCase>(
+      () => GetCachedPlannerTasksUseCase(Get.find<PlannerRepository>()),
+    );
+    _lazyPutIfAbsent<CreateStudyTaskUseCase>(
+      () => CreateStudyTaskUseCase(Get.find<PlannerRepository>()),
+    );
+    _lazyPutIfAbsent<AutoGenerateStudyPlanUseCase>(
+      () => AutoGenerateStudyPlanUseCase(Get.find<PlannerRepository>()),
+    );
+    _lazyPutIfAbsent<ToggleStudyTaskCompletionUseCase>(
+      () => ToggleStudyTaskCompletionUseCase(Get.find<PlannerRepository>()),
+    );
+    _lazyPutIfAbsent<UpdateStudyTaskUseCase>(
+      () => UpdateStudyTaskUseCase(Get.find<PlannerRepository>()),
+    );
+    _lazyPutIfAbsent<DeleteStudyTaskUseCase>(
+      () => DeleteStudyTaskUseCase(Get.find<PlannerRepository>()),
     );
 
     _lazyPutIfAbsent<ContentReportRemoteDataSource>(

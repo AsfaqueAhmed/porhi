@@ -408,3 +408,114 @@ class ExamResultArgs extends Equatable {
   @override
   List<Object?> get props => <Object?>[preloadedResult, title];
 }
+
+class ExamHistoryItemEntity extends Equatable {
+  final String sessionId;
+  final ExamTestType testType;
+  final String subjectId;
+  final String? subjectNameBangla;
+  final String? chapterId;
+  final String? chapterTitleBangla;
+  final int totalQuestions;
+  final int correctCount;
+  final int wrongCount;
+  final int skippedCount;
+  final double score;
+  final int accuracyPercent;
+  final String completedAt;
+
+  const ExamHistoryItemEntity({
+    required this.sessionId,
+    required this.testType,
+    required this.subjectId,
+    this.subjectNameBangla,
+    this.chapterId,
+    this.chapterTitleBangla,
+    this.totalQuestions = 0,
+    this.correctCount = 0,
+    this.wrongCount = 0,
+    this.skippedCount = 0,
+    this.score = 0,
+    this.accuracyPercent = 0,
+    required this.completedAt,
+  });
+
+  @override
+  List<Object?> get props => <Object?>[
+        sessionId,
+        testType,
+        subjectId,
+        subjectNameBangla,
+        chapterId,
+        chapterTitleBangla,
+        totalQuestions,
+        correctCount,
+        wrongCount,
+        skippedCount,
+        score,
+        accuracyPercent,
+        completedAt,
+      ];
+}
+
+class ExamHistorySummaryEntity extends Equatable {
+  final int totalTests;
+  final int averageAccuracy;
+  final int bestScorePercent;
+  final int subjectTestsCount;
+
+  const ExamHistorySummaryEntity({
+    this.totalTests = 0,
+    this.averageAccuracy = 0,
+    this.bestScorePercent = 0,
+    this.subjectTestsCount = 0,
+  });
+
+  @override
+  List<Object?> get props => <Object?>[
+        totalTests,
+        averageAccuracy,
+        bestScorePercent,
+        subjectTestsCount,
+      ];
+}
+
+class ExamHistoryTrendPointEntity extends Equatable {
+  final String sessionId;
+  final String label;
+  final String date;
+  final int accuracyPercent;
+  final String testType;
+
+  const ExamHistoryTrendPointEntity({
+    required this.sessionId,
+    required this.label,
+    required this.date,
+    this.accuracyPercent = 0,
+    this.testType = 'CHAPTER_TEST',
+  });
+
+  @override
+  List<Object?> get props => <Object?>[
+        sessionId,
+        label,
+        date,
+        accuracyPercent,
+        testType,
+      ];
+}
+
+class ExamHistoryEntity extends Equatable {
+  final List<ExamHistoryItemEntity> items;
+  final ExamHistorySummaryEntity summary;
+  final List<ExamHistoryTrendPointEntity> trend;
+
+  const ExamHistoryEntity({
+    this.items = const <ExamHistoryItemEntity>[],
+    this.summary = const ExamHistorySummaryEntity(),
+    this.trend = const <ExamHistoryTrendPointEntity>[],
+  });
+
+  @override
+  List<Object?> get props => <Object?>[items, summary, trend];
+}

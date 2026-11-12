@@ -649,3 +649,82 @@ class ExamSessionDetailModel extends BaseResponseModel<ExamSessionDetailModel> {
 
 String encodeExamResultJson(ExamResultEntity entity) =>
     jsonEncode(ExamSessionDetailModel.fromResultEntity(entity).toJson());
+
+class ExamHistoryModel extends BaseResponseModel<ExamHistoryModel> {
+  final List<Map<String, dynamic>> items;
+  final Map<String, dynamic> summary;
+  final List<Map<String, dynamic>> trend;
+
+  ExamHistoryModel({
+    this.items = const <Map<String, dynamic>>[],
+    this.summary = const <String, dynamic>{},
+    this.trend = const <Map<String, dynamic>>[],
+    super.message,
+  }) {
+    data = this;
+  }
+
+  factory ExamHistoryModel.fromJson(Map<String, dynamic> json) {
+    final source = json['json'] is Map
+        ? Map<String, dynamic>.from(json['json'] as Map)
+        : json;
+    return ExamHistoryModel(
+      items: _asList(source['items']).map(_asMap).toList(),
+      summary: _asMap(source['summary']),
+      trend: _asList(source['trend']).map(_asMap).toList(),
+      message: _asNullableString(json['message']),
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'items': items,
+        'summary': summary,
+        'trend': trend,
+      };
+
+  ExamHistoryEntity toEntity() {
+    return ExamHistoryEntity(
+      items: items
+          .map(
+            (item) => ExamHistoryItemEntity(
+              sessionId: _asString(item['sessionId']),
+              testType:
+                  ExamTestType.fromApiValue(_asNullableString(item['testType'])),
+              subjectId: _asString(item['subjectId']),
+              subjectNameBangla: _asNullableString(item['subjectNameBangla']),
+              chapterId: _asNullableString(item['chapterId']),
+              chapterTitleBangla: _asNullableString(item['chapterTitleBangla']),
+              totalQuestions: _asInt(item['totalQuestions']),
+              correctCount: _asInt(item['correctCount']),
+              wrongCount: _asInt(item['wrongCount']),
+              skippedCount: _asInt(item['skippedCount']),
+              score: _asDouble(item['score']),
+              accuracyPercent: _asInt(item['accuracyPercent']),
+              completedAt: _asString(item['completedAt']),
+            ),
+          )
+          .toList(),
+      summary: ExamHistorySummaryEntity(
+        totalTests: _asInt(summary['totalTests']),
+        averageAccuracy: _asInt(summary['averageAccuracy']),
+        bestScorePercent: _asInt(summary['bestScorePercent']),
+        subjectTestsCount: _asInt(summary['subjectTestsCount']),
+      ),
+      trend: trend
+          .map(
+            (point) => ExamHistoryTrendPointEntity(
+              sessionId: _asString(point['sessionId']),
+              label: _asString(point['label']),
+              date: _asString(point['date']),
+              accuracyPercent: _asInt(point['accuracyPercent']),
+              testType: _asString(
+                point['testType'],
+                fallback: 'CHAPTER_TEST',
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+}

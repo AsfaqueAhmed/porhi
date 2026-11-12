@@ -5,6 +5,10 @@ import 'package:porhi/features/curriculum/presentation/subjects/controller/subje
 import 'package:porhi/features/dashboard/domain/usecases/student_usecases.dart';
 import 'package:porhi/features/dashboard/presentation/dashboard/binding/dashboard_binding.dart';
 import 'package:porhi/features/dashboard/presentation/dashboard/controller/dashboard_controller.dart';
+import 'package:porhi/features/planner/presentation/planner/binding/planner_binding.dart';
+import 'package:porhi/features/planner/presentation/planner/controller/planner_controller.dart';
+import 'package:porhi/features/progress/presentation/progress/binding/progress_binding.dart';
+import 'package:porhi/features/progress/presentation/progress/controller/progress_controller.dart';
 import 'package:porhi/features/shell/presentation/main_shell/controller/main_shell_controller.dart';
 
 /// Registers the shell controller and lazily registers all tab controllers
@@ -57,6 +61,32 @@ class MainShellBinding extends Bindings {
               }
             },
           );
+          shell.registerTabHooks(
+            index: 2,
+            onAccountReturn: () async {
+              if (isInstantiated<PlannerController>()) {
+                await Get.find<PlannerController>().refreshFromShell();
+              }
+            },
+            onTabActivated: () async {
+              if (isInstantiated<PlannerController>()) {
+                await Get.find<PlannerController>().refreshFromShell();
+              }
+            },
+          );
+          shell.registerTabHooks(
+            index: 3,
+            onAccountReturn: () async {
+              if (isInstantiated<ProgressController>()) {
+                await Get.find<ProgressController>().refreshFromShell();
+              }
+            },
+            onTabActivated: () async {
+              if (isInstantiated<ProgressController>()) {
+                await Get.find<ProgressController>().refreshFromShell();
+              }
+            },
+          );
           return shell;
         },
       );
@@ -66,11 +96,21 @@ class MainShellBinding extends Bindings {
     SubjectsBinding.registerDependencies(
       onActiveSubjectChanged: () {
         if (Get.isRegistered<MainShellController>()) {
-          Get.find<MainShellController>()
-              .markTabDirty(0, refreshIfRegistered: true);
+          final shell = Get.find<MainShellController>();
+          shell.markTabDirty(0, refreshIfRegistered: true);
+          shell.markTabDirty(2);
+          shell.markTabDirty(3);
         }
       },
     );
+    PlannerBinding.registerDependencies(
+      onPlannerChanged: () {
+        if (Get.isRegistered<MainShellController>()) {
+          Get.find<MainShellController>().markTabDirty(0);
+        }
+      },
+    );
+    ProgressBinding.registerDependencies();
 
     for (final binding in tabBindings) {
       binding.dependencies();
