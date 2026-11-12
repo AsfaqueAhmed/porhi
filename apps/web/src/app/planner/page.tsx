@@ -54,11 +54,12 @@ export default function PlannerPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [notifStatus, setNotifStatus] = useState<string>(
-    typeof Notification !== 'undefined' ? Notification.permission : 'default'
-  );
+  const [notifStatus, setNotifStatus] = useState<string>('default');
 
   useEffect(() => {
+    if (typeof Notification !== 'undefined') {
+      setNotifStatus(Notification.permission);
+    }
     let active = true;
     async function loadPlanner() {
       setIsLoading(true);

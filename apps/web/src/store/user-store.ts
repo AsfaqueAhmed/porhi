@@ -643,6 +643,7 @@ export const useUserStore = create<UserState>()(
     }),
     {
       name: 'pori-user-storage',
+      skipHydration: true,
       partialize: (state) => ({
         guestId: state.guestId,
         token: state.token,

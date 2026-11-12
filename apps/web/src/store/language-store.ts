@@ -28,6 +28,7 @@ export const useLanguageStore = create<LanguageState>()(
     }),
     {
       name: LANGUAGE_STORAGE_KEY,
+      skipHydration: true,
     },
   ),
 );

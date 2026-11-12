@@ -16,9 +16,7 @@ import type { OfflineSyncResponseDTO } from '@pori/shared';
 
 export function OfflineSyncBanner() {
   const { tr, language } = useLanguageStore();
-  const [isOnline, setIsOnline] = useState<boolean>(
-    typeof navigator !== 'undefined' ? navigator.onLine : true
-  );
+  const [isOnline, setIsOnline] = useState<boolean>(true);
   const [pendingCount, setPendingCount] = useState<number>(0);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [syncDoneMessage, setSyncDoneMessage] = useState<string | null>(null);
@@ -55,6 +53,9 @@ export function OfflineSyncBanner() {
   }, [tr]);
 
   useEffect(() => {
+    if (typeof navigator !== 'undefined') {
+      setIsOnline(navigator.onLine);
+    }
     refreshQueueCount();
 
     const handleOnline = () => {

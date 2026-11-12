@@ -5,12 +5,16 @@ import { usePathname } from 'next/navigation';
 import { PersistentNav } from './persistent-nav';
 import { OfflineSyncBanner } from './offline-sync-banner';
 import { registerServiceWorker } from '@/lib/sw-register';
+import { useUserStore } from '@/store/user-store';
+import { useLanguageStore } from '@/store/language-store';
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname?.startsWith('/admin');
 
   useEffect(() => {
+    useUserStore.persist.rehydrate();
+    useLanguageStore.persist.rehydrate();
     registerServiceWorker();
   }, []);
 
