@@ -1,5 +1,8 @@
 import { IsIn, IsOptional, IsString, MaxLength } from 'class-validator';
 
+export const STUDENT_TRACKS = ['CLASS_6_8', 'SSC', 'HSC', 'ADMISSION', 'BCS'] as const;
+export type ProgramTrack = (typeof STUDENT_TRACKS)[number];
+
 export class UpdateProfileDto {
   @IsOptional()
   @IsString()
@@ -7,6 +10,8 @@ export class UpdateProfileDto {
   fullName?: string;
 
   @IsOptional()
-  @IsIn(['SSC', 'HSC'], { message: 'selectedClass must be either SSC or HSC' })
-  selectedClass?: 'SSC' | 'HSC';
+  @IsIn(STUDENT_TRACKS, {
+    message: 'selectedClass must be one of CLASS_6_8, SSC, HSC, ADMISSION, BCS',
+  })
+  selectedClass?: ProgramTrack;
 }

@@ -277,6 +277,8 @@ export class CurriculumService {
             options: Array.isArray(q.options) ? q.options : null,
             modelAnswer: q.modelAnswer ?? null,
             rubric: Array.isArray(q.rubric) ? q.rubric : null,
+            cqRubric: q.cqRubric ?? null,
+            boardSource: q.boardSource ?? null,
             explanation: q.explanation ?? null,
             difficulty: q.difficulty ?? 'MEDIUM',
             version: q.version ?? 1,

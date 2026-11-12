@@ -32,7 +32,9 @@ enum ReportStatus {
 model User {
   id             String            @id @default(uuid())
   guestId        String?           @unique
+  firebaseUid    String?           @unique
   phoneNumber    String?           @unique
+  email          String?           @unique
   fullName       String?
   passwordHash   String?
   role           Role              @default(STUDENT)

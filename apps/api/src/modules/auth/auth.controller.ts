@@ -1,6 +1,7 @@
 import { Body, Controller, Get, Inject, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AdminLoginDto } from './dto/admin-login.dto';
+import { FirebaseLoginDto } from './dto/firebase-login.dto';
 import { GuestLoginDto } from './dto/guest-login.dto';
 import { RequestOtpDto } from './dto/request-otp.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -24,6 +25,11 @@ export class AuthController {
   @Post('verify-otp')
   async verifyOtp(@Body() dto: VerifyOtpDto) {
     return this.authService.verifyOtp(dto.phoneNumber, dto.code, dto.guestId);
+  }
+
+  @Post('firebase')
+  async firebaseLogin(@Body() dto: FirebaseLoginDto) {
+    return this.authService.firebaseLogin(dto);
   }
 
   @Post('admin/login')

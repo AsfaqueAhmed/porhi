@@ -3,6 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { FirebaseVerifierService } from './firebase-verifier.service';
 import { JwtStrategy, getJwtSecret } from './strategies/jwt.strategy';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
@@ -17,7 +18,7 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy, JwtAuthGuard],
-  exports: [AuthService, JwtAuthGuard, PassportModule, JwtModule],
+  providers: [AuthService, FirebaseVerifierService, JwtStrategy, JwtAuthGuard],
+  exports: [AuthService, FirebaseVerifierService, JwtAuthGuard, PassportModule, JwtModule],
 })
 export class AuthModule {}

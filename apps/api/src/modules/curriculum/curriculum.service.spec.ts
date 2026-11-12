@@ -270,5 +270,65 @@ describe('CurriculumService', () => {
         (curriculumService as any).getOfflineChapterPack('missing'),
       ).rejects.toThrow(NotFoundException);
     });
+
+    it('includes cqRubric and boardSource in offline chapter pack questions', async () => {
+      const cqRubric = {
+        k: { prompt: 'জ্ঞানমূলক', marks: 1, answer: 'উত্তর ক' },
+        kha: { prompt: 'অনুধাবনমূলক', marks: 2, answer: 'উত্তর খ' },
+      };
+      (prisma.chapter as any).findUnique = vi.fn().mockResolvedValue({
+        id: 'chap_1',
+        subjectId: 'sub_1',
+        titleBangla: 'বল',
+        topics: [
+          {
+            id: 'top_1',
+            titleBangla: 'নিউটনের সূত্র',
+            orderIndex: 1,
+            lessons: [],
+            questions: [
+              {
+                id: 'q_cq_1',
+                topicId: 'top_1',
+                type: 'CQ_CREATIVE',
+                stem: 'একটি উদ্দীপক...',
+                options: null,
+                explanation: { directAnswer: 'সমাধান' },
+                cqRubric,
+                boardSource: 'Dhaka Board 2024',
+                difficulty: 'HARD',
+                version: 3,
+                status: 'PUBLISHED',
+              },
+              {
+                id: 'q_mcq_1',
+                topicId: 'top_1',
+                type: 'MCQ',
+                stem: 'বলের একক কী?',
+                options: [{ id: 'opt_1', text: 'N', isCorrect: true }],
+                explanation: { directAnswer: 'N' },
+                difficulty: 'EASY',
+                version: 1,
+                status: 'PUBLISHED',
+              },
+            ],
+          },
+        ],
+      });
+
+      const pack = await curriculumService.getOfflineChapterPack('chap_1');
+
+      expect(pack.questions).toHaveLength(2);
+      expect(pack.questions[0]).toMatchObject({
+        id: 'q_cq_1',
+        cqRubric,
+        boardSource: 'Dhaka Board 2024',
+      });
+      expect(pack.questions[1]).toMatchObject({
+        id: 'q_mcq_1',
+        cqRubric: null,
+        boardSource: null,
+      });
+    });
   });
 });

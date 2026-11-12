@@ -1,14 +1,17 @@
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from 'vitest';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication, UnauthorizedException, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/database/prisma.service';
+import { FirebaseVerifierService } from '../src/modules/auth/firebase-verifier.service';
 
 interface MockUser {
   id: string;
   guestId: string | null;
+  firebaseUid?: string | null;
   phoneNumber: string | null;
+  email?: string | null;
   fullName: string | null;
   passwordHash?: string | null;
   role: 'STUDENT' | 'EDITOR' | 'REVIEWER' | 'ADMIN';
@@ -27,17 +30,25 @@ describe('AuthModule (e2e)', () => {
 
   const mockPrismaService = {
     user: {
-      findUnique: async ({ where }: { where: { id?: string; guestId?: string; phoneNumber?: string } }) => {
+      findUnique: async ({
+        where,
+      }: {
+        where: { id?: string; guestId?: string; firebaseUid?: string; phoneNumber?: string; email?: string };
+      }) => {
         if (where.id) return users.find((u) => u.id === where.id) || null;
         if (where.guestId) return users.find((u) => u.guestId === where.guestId) || null;
+        if (where.firebaseUid) return users.find((u) => u.firebaseUid === where.firebaseUid) || null;
         if (where.phoneNumber) return users.find((u) => u.phoneNumber === where.phoneNumber) || null;
+        if (where.email) return users.find((u) => u.email === where.email) || null;
         return null;
       },
       create: async ({ data }: { data: any }) => {
         const newUser: MockUser = {
           id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
           guestId: data.guestId ?? null,
+          firebaseUid: data.firebaseUid ?? null,
           phoneNumber: data.phoneNumber ?? null,
+          email: data.email ?? null,
           fullName: data.fullName ?? null,
           passwordHash: data.passwordHash ?? null,
           role: data.role ?? 'STUDENT',
@@ -147,12 +158,27 @@ describe('AuthModule (e2e)', () => {
     },
   };
 
+  const mockFirebaseVerifier = {
+    verifyIdToken: async (idToken: string) => {
+      if (idToken === 'valid-google-token') {
+        return {
+          uid: 'fb_e2e_uid_1',
+          email: 'e2estudent@example.com',
+          name: 'E2E Student',
+        };
+      }
+      throw new UnauthorizedException('Invalid Firebase ID token');
+    },
+  };
+
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
       .overrideProvider(PrismaService)
       .useValue(mockPrismaService)
+      .overrideProvider(FirebaseVerifierService)
+      .useValue(mockFirebaseVerifier)
       .compile();
 
     app = moduleFixture.createNestApplication();
@@ -471,6 +497,61 @@ describe('AuthModule (e2e)', () => {
         .post('/auth/verify-otp')
         .send({ phoneNumber: '01788887777', code: '1234' })
         .expect(403);
+    });
+  });
+
+  describe('POST /auth/firebase & 5-track PATCH /auth/profile', () => {
+    it('exchanges a valid Firebase token, validates 5 tracks on DTOs, and rejects invalid tokens', async () => {
+      await request(app.getHttpServer())
+        .post('/auth/firebase')
+        .send({ idToken: 'bad-token' })
+        .expect(401);
+
+      await request(app.getHttpServer())
+        .post('/auth/firebase')
+        .send({ idToken: 'valid-google-token', selectedClass: 'INVALID' })
+        .expect(400);
+
+      const createRes = await request(app.getHttpServer())
+        .post('/auth/firebase')
+        .send({
+          idToken: 'valid-google-token',
+          fullName: 'সাব্বির',
+          selectedClass: 'CLASS_6_8',
+        })
+        .expect(201);
+
+      expect(createRes.body.isNewUser).toBe(true);
+      expect(createRes.body.accessToken).toBeDefined();
+      expect(createRes.body.user).toMatchObject({
+        firebaseUid: 'fb_e2e_uid_1',
+        email: 'e2estudent@example.com',
+        fullName: 'সাব্বির',
+        role: 'STUDENT',
+        selectedClass: 'CLASS_6_8',
+      });
+
+      const loginAgainRes = await request(app.getHttpServer())
+        .post('/auth/firebase')
+        .send({ idToken: 'valid-google-token' })
+        .expect(201);
+
+      expect(loginAgainRes.body.isNewUser).toBe(false);
+      expect(loginAgainRes.body.user.id).toBe(createRes.body.user.id);
+
+      const patchRes = await request(app.getHttpServer())
+        .patch('/auth/profile')
+        .set('Authorization', `Bearer ${createRes.body.accessToken}`)
+        .send({ selectedClass: 'BCS' })
+        .expect(200);
+
+      expect(patchRes.body.selectedClass).toBe('BCS');
+
+      await request(app.getHttpServer())
+        .patch('/auth/profile')
+        .set('Authorization', `Bearer ${createRes.body.accessToken}`)
+        .send({ selectedClass: 'INVALID' })
+        .expect(400);
     });
   });
 });

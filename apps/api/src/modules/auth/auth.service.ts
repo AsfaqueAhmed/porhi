@@ -1,6 +1,7 @@
 import {
   Injectable,
   Inject,
+  Optional,
   BadRequestException,
   ForbiddenException,
   UnauthorizedException,
@@ -11,6 +12,8 @@ import { randomInt } from 'crypto';
 import { PrismaService } from '../../database/prisma.service';
 import { normalizeBangladeshPhone } from './phone.util';
 import { verifyPassword } from './password.util';
+import { FirebaseVerifierService } from './firebase-verifier.service';
+import { ProgramTrack, STUDENT_TRACKS } from './dto/update-profile.dto';
 
 interface OtpEntry {
   code: string;
@@ -55,6 +58,20 @@ export interface VerifyOtpResult {
   progressMigrated: boolean;
 }
 
+export interface FirebaseAuthResult {
+  accessToken: string;
+  isNewUser: boolean;
+  user: {
+    id: string;
+    firebaseUid: string | null;
+    phoneNumber: string | null;
+    email: string | null;
+    fullName: string | null;
+    role: Role;
+    selectedClass: string;
+  };
+}
+
 @Injectable()
 export class AuthService {
   private readonly otpStore = new Map<string, OtpEntry>();
@@ -62,6 +79,9 @@ export class AuthService {
   constructor(
     @Inject(PrismaService) private readonly prisma: PrismaService,
     @Inject(JwtService) private readonly jwtService: JwtService,
+    @Optional()
+    @Inject(FirebaseVerifierService)
+    private readonly firebaseVerifier?: FirebaseVerifierService,
   ) {}
 
   private cleanupExpiredOtps(): void {
@@ -430,8 +450,10 @@ export class AuthService {
     const data: { fullName?: string | null; selectedClass?: string } = {};
 
     if (dto.selectedClass !== undefined) {
-      if (dto.selectedClass !== 'SSC' && dto.selectedClass !== 'HSC') {
-        throw new BadRequestException('selectedClass must be either SSC or HSC');
+      if (!STUDENT_TRACKS.includes(dto.selectedClass as ProgramTrack)) {
+        throw new BadRequestException(
+          'selectedClass must be one of CLASS_6_8, SSC, HSC, ADMISSION, BCS',
+        );
       }
       data.selectedClass = dto.selectedClass;
     }
@@ -470,6 +492,127 @@ export class AuthService {
       role: updated.role,
       selectedClass: updated.selectedClass,
       isGuest: !updated.phoneNumber && !!updated.guestId,
+    };
+  }
+
+  async firebaseLogin(dto: {
+    idToken: string;
+    fullName?: string;
+    selectedClass?: string;
+  }): Promise<FirebaseAuthResult> {
+    if (dto.selectedClass !== undefined && !STUDENT_TRACKS.includes(dto.selectedClass as ProgramTrack)) {
+      throw new BadRequestException(
+        'selectedClass must be one of CLASS_6_8, SSC, HSC, ADMISSION, BCS',
+      );
+    }
+
+    let requestedFullName: string | null = null;
+    if (dto.fullName !== undefined) {
+      const trimmed = dto.fullName.trim();
+      if (trimmed.length > 80) {
+        throw new BadRequestException('fullName must be 80 characters or fewer');
+      }
+      requestedFullName = trimmed.length > 0 ? trimmed : null;
+    }
+
+    if (!this.firebaseVerifier) {
+      throw new UnauthorizedException('Firebase authentication is not configured');
+    }
+
+    const decoded = await this.firebaseVerifier.verifyIdToken(dto.idToken);
+
+    let normalizedPhone: string | null = null;
+    if (decoded.phoneNumber) {
+      try {
+        normalizedPhone = normalizeBangladeshPhone(decoded.phoneNumber);
+      } catch {
+        const trimmed = decoded.phoneNumber.trim();
+        normalizedPhone = trimmed.length > 0 ? trimmed : null;
+      }
+    }
+
+    const normalizedEmail = decoded.email ? decoded.email.trim().toLowerCase() : null;
+
+    let user = await this.prisma.user.findUnique({
+      where: { firebaseUid: decoded.uid },
+    });
+
+    if (!user && normalizedPhone) {
+      user = await this.prisma.user.findUnique({
+        where: { phoneNumber: normalizedPhone },
+      });
+    }
+
+    if (!user && normalizedEmail) {
+      user = await this.prisma.user.findUnique({
+        where: { email: normalizedEmail },
+      });
+    }
+
+    this.assertOtpAllowed(user);
+
+    const resolvedFullName = requestedFullName ?? (decoded.name?.trim() || null);
+    let isNewUser = false;
+
+    if (!user) {
+      isNewUser = true;
+      user = await this.prisma.user.create({
+        data: {
+          firebaseUid: decoded.uid,
+          phoneNumber: normalizedPhone,
+          email: normalizedEmail,
+          fullName: resolvedFullName ? resolvedFullName.slice(0, 80) : null,
+          role: Role.STUDENT,
+          selectedClass: (dto.selectedClass as ProgramTrack | undefined) ?? 'SSC',
+        },
+      });
+    } else {
+      const updateData: {
+        firebaseUid?: string;
+        phoneNumber?: string;
+        email?: string;
+        fullName?: string;
+      } = {};
+
+      if (!user.firebaseUid) {
+        updateData.firebaseUid = decoded.uid;
+      }
+      if (normalizedPhone && !user.phoneNumber) {
+        updateData.phoneNumber = normalizedPhone;
+      }
+      if (normalizedEmail && !user.email) {
+        updateData.email = normalizedEmail;
+      }
+      if (!user.fullName && resolvedFullName) {
+        updateData.fullName = resolvedFullName.slice(0, 80);
+      }
+
+      if (Object.keys(updateData).length > 0) {
+        user = await this.prisma.user.update({
+          where: { id: user.id },
+          data: updateData,
+        });
+      }
+    }
+
+    const accessToken = this.jwtService.sign({
+      sub: user.id,
+      role: user.role,
+      isGuest: false,
+    });
+
+    return {
+      accessToken,
+      isNewUser,
+      user: {
+        id: user.id,
+        firebaseUid: user.firebaseUid ?? null,
+        phoneNumber: user.phoneNumber ?? null,
+        email: user.email ?? null,
+        fullName: user.fullName ?? null,
+        role: user.role,
+        selectedClass: user.selectedClass,
+      },
     };
   }
 }

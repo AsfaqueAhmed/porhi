@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { BadRequestException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { FirebaseVerifierService } from './firebase-verifier.service';
 import { PrismaService } from '../../database/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { getJwtSecret } from './strategies/jwt.strategy';
@@ -30,6 +31,9 @@ describe('AuthService', () => {
   };
   let jwtService: {
     sign: ReturnType<typeof vi.fn>;
+  };
+  let firebaseVerifier: {
+    verifyIdToken: ReturnType<typeof vi.fn>;
   };
 
   const originalEnv = { ...process.env };
@@ -69,7 +73,15 @@ describe('AuthService', () => {
       sign: vi.fn().mockReturnValue('mock_jwt_token'),
     };
 
-    authService = new AuthService(prisma as unknown as PrismaService, jwtService as unknown as JwtService);
+    firebaseVerifier = {
+      verifyIdToken: vi.fn(),
+    };
+
+    authService = new AuthService(
+      prisma as unknown as PrismaService,
+      jwtService as unknown as JwtService,
+      firebaseVerifier as unknown as FirebaseVerifierService,
+    );
   });
 
   afterEach(() => {
@@ -660,6 +672,29 @@ describe('AuthService', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
+    it('accepts all 5 student tracks on updateProfile and rejects INVALID', async () => {
+      const tracks = ['CLASS_6_8', 'SSC', 'HSC', 'ADMISSION', 'BCS'] as const;
+      for (const track of tracks) {
+        prisma.user.update.mockResolvedValueOnce({
+          id: 'u-1',
+          guestId: null,
+          phoneNumber: '01712345678',
+          fullName: 'Student',
+          role: 'STUDENT',
+          selectedClass: track,
+        });
+
+        const updated = await (authService as any).updateProfile('u-1', {
+          selectedClass: track,
+        });
+        expect(updated.selectedClass).toBe(track);
+      }
+
+      await expect(
+        (authService as any).updateProfile('u-1', { selectedClass: 'INVALID' }),
+      ).rejects.toThrow(BadRequestException);
+    });
+
     it('merges non-duplicate bookmarks and notes when guest merges into existing phone user', async () => {
       const existingUser = {
         id: 'u-existing-phone',
@@ -735,6 +770,212 @@ describe('AuthService', () => {
           }),
         ],
       });
+    });
+  });
+
+  describe('firebaseLogin', () => {
+    it('creates a new student via firebaseLogin and returns isNewUser: true', async () => {
+      firebaseVerifier.verifyIdToken.mockResolvedValue({
+        uid: 'fb-uid-1',
+        phoneNumber: '+8801712345678',
+        email: 'rafi@example.com',
+        name: 'Firebase Name',
+      });
+      prisma.user.findUnique
+        .mockResolvedValueOnce(null) // firebaseUid
+        .mockResolvedValueOnce(null) // phoneNumber
+        .mockResolvedValueOnce(null); // email
+      prisma.user.create.mockResolvedValue({
+        id: 'u-fb-1',
+        firebaseUid: 'fb-uid-1',
+        phoneNumber: '01712345678',
+        email: 'rafi@example.com',
+        fullName: 'রাফি আহমেদ',
+        role: 'STUDENT',
+        selectedClass: 'ADMISSION',
+      });
+
+      const result = await authService.firebaseLogin({
+        idToken: 'valid-firebase-token',
+        fullName: 'রাফি আহমেদ',
+        selectedClass: 'ADMISSION',
+      });
+
+      expect(firebaseVerifier.verifyIdToken).toHaveBeenCalledWith('valid-firebase-token');
+      expect(prisma.user.create).toHaveBeenCalledWith({
+        data: {
+          firebaseUid: 'fb-uid-1',
+          phoneNumber: '01712345678',
+          email: 'rafi@example.com',
+          fullName: 'রাফি আহমেদ',
+          role: 'STUDENT',
+          selectedClass: 'ADMISSION',
+        },
+      });
+      expect(jwtService.sign).toHaveBeenCalledWith({
+        sub: 'u-fb-1',
+        role: 'STUDENT',
+        isGuest: false,
+      });
+      expect(result).toEqual({
+        accessToken: 'mock_jwt_token',
+        isNewUser: true,
+        user: {
+          id: 'u-fb-1',
+          firebaseUid: 'fb-uid-1',
+          phoneNumber: '01712345678',
+          email: 'rafi@example.com',
+          fullName: 'রাফি আহমেদ',
+          role: 'STUDENT',
+          selectedClass: 'ADMISSION',
+        },
+      });
+    });
+
+    it('links firebaseUid to an existing student matched by phoneNumber without duplicating user', async () => {
+      firebaseVerifier.verifyIdToken.mockResolvedValue({
+        uid: 'fb-uid-link',
+        phoneNumber: '+8801712345678',
+        email: 'rafi@example.com',
+      });
+      prisma.user.findUnique
+        .mockResolvedValueOnce(null) // firebaseUid
+        .mockResolvedValueOnce({
+          id: 'u-existing-student',
+          firebaseUid: null,
+          phoneNumber: '01712345678',
+          email: null,
+          fullName: 'রাফি',
+          passwordHash: null,
+          role: 'STUDENT',
+          selectedClass: 'SSC',
+        });
+      prisma.user.update.mockResolvedValue({
+        id: 'u-existing-student',
+        firebaseUid: 'fb-uid-link',
+        phoneNumber: '01712345678',
+        email: 'rafi@example.com',
+        fullName: 'রাফি',
+        role: 'STUDENT',
+        selectedClass: 'SSC',
+      });
+
+      const result = await authService.firebaseLogin({
+        idToken: 'firebase-token-phone',
+      });
+
+      expect(prisma.user.create).not.toHaveBeenCalled();
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { id: 'u-existing-student' },
+        data: {
+          firebaseUid: 'fb-uid-link',
+          email: 'rafi@example.com',
+        },
+      });
+      expect(result).toEqual({
+        accessToken: 'mock_jwt_token',
+        isNewUser: false,
+        user: {
+          id: 'u-existing-student',
+          firebaseUid: 'fb-uid-link',
+          phoneNumber: '01712345678',
+          email: 'rafi@example.com',
+          fullName: 'রাফি',
+          role: 'STUDENT',
+          selectedClass: 'SSC',
+        },
+      });
+    });
+
+    it('rejects staff/passwordHash account in firebaseLogin with ForbiddenException', async () => {
+      firebaseVerifier.verifyIdToken.mockResolvedValue({
+        uid: 'fb-uid-admin',
+        phoneNumber: '+8801737740010',
+      });
+      prisma.user.findUnique
+        .mockResolvedValueOnce(null) // firebaseUid
+        .mockResolvedValueOnce({
+          id: 'u-admin-1',
+          phoneNumber: '01737740010',
+          passwordHash: 'salt:hash',
+          role: 'ADMIN',
+          selectedClass: 'SSC',
+        });
+
+      await expect(
+        authService.firebaseLogin({ idToken: 'admin-token' }),
+      ).rejects.toThrow(ForbiddenException);
+      expect(prisma.user.update).not.toHaveBeenCalled();
+      expect(prisma.user.create).not.toHaveBeenCalled();
+      expect(jwtService.sign).not.toHaveBeenCalled();
+
+      firebaseVerifier.verifyIdToken.mockResolvedValue({
+        uid: 'fb-uid-student-pw',
+        email: 'pwstudent@example.com',
+      });
+      prisma.user.findUnique
+        .mockResolvedValueOnce(null) // firebaseUid
+        .mockResolvedValueOnce({
+          id: 'u-student-pw',
+          email: 'pwstudent@example.com',
+          passwordHash: 'salt:hash',
+          role: 'STUDENT',
+          selectedClass: 'SSC',
+        });
+
+      await expect(
+        authService.firebaseLogin({ idToken: 'student-pw-token' }),
+      ).rejects.toThrow(ForbiddenException);
+      expect(jwtService.sign).not.toHaveBeenCalled();
+    });
+
+    it('links firebaseUid to existing student matched by normalized email and rejects invalid selectedClass', async () => {
+      firebaseVerifier.verifyIdToken.mockResolvedValue({
+        uid: 'fb-uid-email',
+        email: '  Student@Example.com ',
+      });
+      prisma.user.findUnique
+        .mockResolvedValueOnce(null) // firebaseUid
+        .mockResolvedValueOnce({
+          id: 'u-existing-email',
+          firebaseUid: null,
+          phoneNumber: null,
+          email: 'student@example.com',
+          fullName: 'তানজিম',
+          passwordHash: null,
+          role: 'STUDENT',
+          selectedClass: 'HSC',
+        });
+      prisma.user.update.mockResolvedValue({
+        id: 'u-existing-email',
+        firebaseUid: 'fb-uid-email',
+        phoneNumber: null,
+        email: 'student@example.com',
+        fullName: 'তানজিম',
+        role: 'STUDENT',
+        selectedClass: 'HSC',
+      });
+
+      const result = await authService.firebaseLogin({
+        idToken: 'firebase-email-token',
+      });
+
+      expect(prisma.user.findUnique).toHaveBeenNthCalledWith(1, {
+        where: { firebaseUid: 'fb-uid-email' },
+      });
+      expect(prisma.user.findUnique).toHaveBeenNthCalledWith(2, {
+        where: { email: 'student@example.com' },
+      });
+      expect(prisma.user.create).not.toHaveBeenCalled();
+      expect(result.isNewUser).toBe(false);
+      expect(result.user.firebaseUid).toBe('fb-uid-email');
+
+      await expect(
+        authService.firebaseLogin({
+          idToken: 'firebase-email-token',
+          selectedClass: 'INVALID_TRACK',
+        }),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });
