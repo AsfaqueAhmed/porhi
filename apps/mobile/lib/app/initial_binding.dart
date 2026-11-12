@@ -219,6 +219,9 @@ class InitialBinding extends Bindings {
     _lazyPutIfAbsent<ToggleBookmarkUseCase>(
       () => ToggleBookmarkUseCase(Get.find<StudentRepository>()),
     );
+    _lazyPutIfAbsent<PatchCachedBookmarkUseCase>(
+      () => PatchCachedBookmarkUseCase(Get.find<StudentRepository>()),
+    );
     _lazyPutIfAbsent<SaveNoteUseCase>(
       () => SaveNoteUseCase(Get.find<StudentRepository>()),
     );

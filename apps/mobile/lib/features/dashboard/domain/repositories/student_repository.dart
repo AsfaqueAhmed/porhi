@@ -39,6 +39,16 @@ abstract class StudentRepository {
     required String href,
   });
 
+  Future<void> syncCachedBookmark({
+    required String subjectId,
+    required String itemId,
+    required String itemType,
+    required String titleBangla,
+    String? subtitleBangla,
+    required String href,
+    required bool bookmarked,
+  });
+
   Future<Either<ErrorResponse, String>> saveNote({
     required String topicId,
     required String content,

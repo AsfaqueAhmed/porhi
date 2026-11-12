@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:common/common.dart';
@@ -395,6 +396,117 @@ void main() {
             isEmpty);
       },
     );
+
+    test(
+      'saveOfflineChapterPack re-download purges stale lessons/questions while preserving prior CachedLessons.isCompleted',
+      () async {
+        final now = DateTime.utc(2026, 11, 12);
+        await database.saveOfflineChapterPack(
+          chapterId: 'chap_ssc_phy_2',
+          subjectId: 'sub_ssc_physics',
+          titleBangla: 'গতি (Motion)',
+          version: 1,
+          lessonCount: 2,
+          questionCount: 1,
+          sizeBytes: 1024,
+          downloadedAt: now,
+          lessons: <CachedLessonInput>[
+            CachedLessonInput(
+              id: 'les_keep_completed',
+              chapterId: 'chap_ssc_phy_2',
+              topicId: 'top_motion_eq',
+              subjectId: 'sub_ssc_physics',
+              titleBangla: 'completed lesson',
+              payloadJson: '{}',
+              isCompleted: true,
+              updatedAt: now,
+            ),
+            CachedLessonInput(
+              id: 'les_stale_removed',
+              chapterId: 'chap_ssc_phy_2',
+              topicId: 'top_removed',
+              subjectId: 'sub_ssc_physics',
+              titleBangla: 'stale lesson',
+              payloadJson: '{}',
+              isCompleted: true,
+              updatedAt: now,
+            ),
+          ],
+          questions: <CachedQuestionInput>[
+            CachedQuestionInput(
+              id: 'q_stale_removed',
+              chapterId: 'chap_ssc_phy_2',
+              topicId: 'top_removed',
+              subjectId: 'sub_ssc_physics',
+              questionType: 'MCQ',
+              payloadJson: '{}',
+              updatedAt: now,
+            ),
+          ],
+        );
+
+        // Re-download chapter v2 with only les_keep_completed (isCompleted: false)
+        // and a new question q_v2. Prior isCompleted must survive while stale rows are purged.
+        final v2Time = DateTime.utc(2026, 11, 13);
+        await database.saveOfflineChapterPack(
+          chapterId: 'chap_ssc_phy_2',
+          subjectId: 'sub_ssc_physics',
+          titleBangla: 'গতি (Motion)',
+          version: 2,
+          lessonCount: 2,
+          questionCount: 1,
+          sizeBytes: 2048,
+          downloadedAt: v2Time,
+          lessons: <CachedLessonInput>[
+            CachedLessonInput(
+              id: 'les_keep_completed',
+              chapterId: 'chap_ssc_phy_2',
+              topicId: 'top_motion_eq',
+              subjectId: 'sub_ssc_physics',
+              titleBangla: 'completed lesson v2',
+              payloadJson: '{}',
+              isCompleted: false,
+              updatedAt: v2Time,
+            ),
+            CachedLessonInput(
+              id: 'les_new_v2',
+              chapterId: 'chap_ssc_phy_2',
+              topicId: 'top_free_fall',
+              subjectId: 'sub_ssc_physics',
+              titleBangla: 'new lesson v2',
+              payloadJson: '{}',
+              isCompleted: false,
+              updatedAt: v2Time,
+            ),
+          ],
+          questions: <CachedQuestionInput>[
+            CachedQuestionInput(
+              id: 'q_v2',
+              chapterId: 'chap_ssc_phy_2',
+              topicId: 'top_free_fall',
+              subjectId: 'sub_ssc_physics',
+              questionType: 'MCQ',
+              payloadJson: '{}',
+              updatedAt: v2Time,
+            ),
+          ],
+        );
+
+        final lessons =
+            await database.getCachedLessonsByChapter('chap_ssc_phy_2');
+        expect(lessons.map((l) => l.id).toSet(),
+            <String>{'les_keep_completed', 'les_new_v2'});
+        final preserved =
+            lessons.firstWhere((l) => l.id == 'les_keep_completed');
+        expect(preserved.isCompleted, isTrue);
+        final untouched = lessons.firstWhere((l) => l.id == 'les_new_v2');
+        expect(untouched.isCompleted, isFalse);
+
+        final questions =
+            await database.getCachedQuestionsByChapter('chap_ssc_phy_2');
+        expect(questions.map((q) => q.id).toList(), <String>['q_v2']);
+      },
+    );
   });
 
   group('5-track SubjectsView, Tab 1 shell integration & Dashboard sync', () {
@@ -431,6 +543,15 @@ void main() {
       when(() => mockStudentRepo.getCachedQuickSearchCatalog(
             subjectId: any(named: 'subjectId'),
           )).thenAnswer((_) async => const <QuickSearchTopicEntity>[]);
+      when(() => mockStudentRepo.syncCachedBookmark(
+            subjectId: any(named: 'subjectId'),
+            itemId: any(named: 'itemId'),
+            itemType: any(named: 'itemType'),
+            titleBangla: any(named: 'titleBangla'),
+            subtitleBangla: any(named: 'subtitleBangla'),
+            href: any(named: 'href'),
+            bookmarked: any(named: 'bookmarked'),
+          )).thenAnswer((_) async {});
       when(() => mockStudentRepo.getOverview(
             subjectId: any(named: 'subjectId'),
           )).thenAnswer(
@@ -532,6 +653,9 @@ void main() {
         GetActiveCurriculumSubjectUseCase(mockCurriculumRepo),
       );
       Get.put<ToggleBookmarkUseCase>(ToggleBookmarkUseCase(mockStudentRepo));
+      Get.put<PatchCachedBookmarkUseCase>(
+        PatchCachedBookmarkUseCase(mockStudentRepo),
+      );
     }
 
     testWidgets(
@@ -847,11 +971,508 @@ void main() {
 
         // Tap topic row to open offline preview sheet with lesson details.
         final topicRow = find.byKey(const Key('topic_row_top_motion_eq'));
-        await tester.ensureVisible(topicRow);
+        await tester.scrollUntilVisible(
+          topicRow,
+          150,
+          scrollable: find.byType(Scrollable).first,
+        );
         await tester.pumpAndSettle();
         await tester.tap(topicRow);
         await tester.pumpAndSettle();
         expect(find.text('গতির চারটি মৌলিক সমীকরণ'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'Returning from /account on another tab refreshes SubjectsView language & downloadedChapters, offline loadSubjects marks isOfflineCache=true, search filters, and double-tapping SubjectCard navigates once',
+      (tester) async {
+        final subjects = SubjectListModel.fromJson(<String, dynamic>{
+          'json': _sampleSubjectsJson(),
+        }).toEntities();
+        final downloaded = <DownloadedChapterEntity>[
+          DownloadedChapterEntity(
+            chapterId: 'chap_ssc_phy_2',
+            subjectId: 'sub_ssc_physics',
+            orderIndex: 2,
+            titleBangla: 'গতি (Motion)',
+            version: 1,
+            versionHash: 'v1',
+            lessonCount: 1,
+            questionCount: 1,
+            sizeBytes: 1024,
+            downloadedAt: DateTime.utc(2026, 11, 12),
+          ),
+        ];
+
+        var currentLang = 'bn';
+        var currentDownloaded = List<DownloadedChapterEntity>.from(downloaded);
+        var failSubjectsNetwork = false;
+        var curriculumBuildCount = 0;
+
+        when(() => mockAuthRepo.getLanguage()).thenAnswer((_) => currentLang);
+        when(() => mockCurriculumRepo.getSubjects(program: any(named: 'program')))
+            .thenAnswer((_) async {
+          if (failSubjectsNetwork) {
+            return Left<ErrorResponse, List<SubjectEntity>>(
+              ErrorResponse(
+                message: null,
+                data: ApiResponseErrorType.noInternet,
+              ),
+            );
+          }
+          return Right<ErrorResponse, List<SubjectEntity>>(subjects);
+        });
+        when(() => mockCurriculumRepo.getDownloadedChapters(
+              subjectId: any(named: 'subjectId'),
+            )).thenAnswer((_) async => currentDownloaded);
+        when(() => mockCurriculumRepo.getChapters(any()))
+            .thenAnswer((_) async => const Right(<ChapterEntity>[]));
+
+        registerTestDeps();
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            initialRoute: AppRoutes.home,
+            getPages: <GetPage<dynamic>>[
+              GetPage<dynamic>(
+                name: AppRoutes.home,
+                page: () => const MainShellView(),
+                binding: MainShellBinding(),
+              ),
+              GetPage<dynamic>(
+                name: AppRoutes.account,
+                page: () => Scaffold(
+                  body: ElevatedButton(
+                    key: const Key('mock_account_clear_and_switch_lang'),
+                    onPressed: () {
+                      currentLang = 'en';
+                      currentDownloaded = <DownloadedChapterEntity>[];
+                      Get.back<void>();
+                    },
+                    child: const Text('Update Prefs & Clear Cache'),
+                  ),
+                ),
+              ),
+              GetPage<dynamic>(
+                name: AppRoutes.chapters,
+                page: () {
+                  curriculumBuildCount += 1;
+                  return const ChapterIndexView();
+                },
+                binding: CurriculumBinding(),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Visit Tab 1 (Subjects) first so SubjectsController is live & shows downloaded summary in bn.
+        await tester.tap(find.text(AppStrings.t('nav.subjects', AppLanguage.bn)));
+        await tester.pumpAndSettle();
+        expect(find.text('বিষয় ক্যাটালগ'), findsOneWidget);
+        expect(find.byKey(const Key('downloaded_chapters_summary')), findsOneWidget);
+
+        // Switch to Tab 2 (Planner) and open /account from _ShellPlaceholderSlot.
+        await tester.tap(find.text(AppStrings.t('nav.planner', AppLanguage.bn)));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('slot_account_button')));
+        await tester.pumpAndSettle();
+
+        // Simulate clearing offline cache and switching language to EN in /account, then popping back.
+        await tester.tap(
+          find.byKey(const Key('mock_account_clear_and_switch_lang')),
+        );
+        await tester.pumpAndSettle();
+
+        // Switch back to Tab 1 (Subjects): language and downloadedChapters must already reflect changes.
+        await tester.tap(find.text(AppStrings.t('nav.subjects', AppLanguage.en)));
+        await tester.pumpAndSettle();
+        expect(find.text('Subject Catalog'), findsOneWidget);
+        expect(find.byKey(const Key('downloaded_chapters_summary')), findsNothing);
+
+        // Verify offline loadSubjects sets isOfflineCache=true when allSubjects is already populated.
+        failSubjectsNetwork = true;
+        final subjectsCtrl = Get.find<SubjectsController>();
+        await subjectsCtrl.loadSubjects();
+        await tester.pumpAndSettle();
+        expect(subjectsCtrl.isOfflineCache.value, isTrue);
+
+        // Verify search filtering narrows visible subjects cleanly.
+        await tester.enterText(
+          find.byKey(const Key('subjects_search_input')),
+          'BCS',
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('BCS প্রিলিমিনারি: সাধারণ বিজ্ঞান'), findsOneWidget);
+        expect(find.text('পদার্থবিজ্ঞান'), findsNothing);
+        await tester.tap(find.byKey(const Key('subjects_search_clear_btn')));
+        await tester.pumpAndSettle();
+
+        // Verify rapid double-tap on SubjectCard only navigates to /curriculum/:subjectId once.
+        final setActiveCompleter = Completer<void>();
+        when(() => mockCurriculumRepo.setActiveSubjectId('sub_hsc_physics_1'))
+            .thenAnswer((_) => setActiveCompleter.future);
+
+        final hscCard = find.byKey(const Key('subject_card_sub_hsc_physics_1'));
+        await tester.scrollUntilVisible(
+          hscCard,
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(hscCard);
+        await tester.pump();
+        await tester.tap(hscCard);
+        await tester.pump();
+
+        setActiveCompleter.complete();
+        await tester.pumpAndSettle();
+
+        verify(
+          () => mockCurriculumRepo.setActiveSubjectId('sub_hsc_physics_1'),
+        ).called(1);
+        expect(curriculumBuildCount, 1);
+      },
+    );
+
+    testWidgets(
+      'ChapterIndexController guards double-tapped bookmarks, surfaces error banner on failure, and persists cached bookmark across re-open',
+      (tester) async {
+        final chapters = ChapterListModel.fromJson(<String, dynamic>{
+          'json': _sampleChaptersJson(),
+        }).toEntities();
+
+        var cachedOverview = const StudentOverviewEntity(
+          subjectId: 'sub_ssc_physics',
+          bookmarks: <StudentBookmarkEntity>[],
+        );
+
+        when(() => mockCurriculumRepo.getChapters('sub_ssc_physics'))
+            .thenAnswer((_) async => Right(chapters));
+        when(() => mockStudentRepo.getCachedOverview(subjectId: 'sub_ssc_physics'))
+            .thenAnswer((_) async => cachedOverview);
+        when(() => mockStudentRepo.syncCachedBookmark(
+              subjectId: any(named: 'subjectId'),
+              itemId: any(named: 'itemId'),
+              itemType: any(named: 'itemType'),
+              titleBangla: any(named: 'titleBangla'),
+              subtitleBangla: any(named: 'subtitleBangla'),
+              href: any(named: 'href'),
+              bookmarked: any(named: 'bookmarked'),
+            )).thenAnswer((inv) async {
+          final itemId = inv.namedArguments[#itemId] as String;
+          final bookmarked = inv.namedArguments[#bookmarked] as bool;
+          final updated = cachedOverview.bookmarks
+              .where((b) => b.id != itemId)
+              .toList();
+          if (bookmarked) {
+            updated.add(
+              StudentBookmarkEntity(
+                id: itemId,
+                type: inv.namedArguments[#itemType] as String,
+                titleBangla: inv.namedArguments[#titleBangla] as String,
+                subtitleBangla: inv.namedArguments[#subtitleBangla] as String?,
+                href: inv.namedArguments[#href] as String,
+                createdAt: DateTime.utc(2026, 11, 12).toIso8601String(),
+              ),
+            );
+          }
+          cachedOverview = StudentOverviewEntity(
+            subjectId: cachedOverview.subjectId,
+            bookmarks: updated,
+          );
+        });
+
+        final bookmarkCompleter =
+            Completer<Either<ErrorResponse, bool>>();
+        var bookmarkCalls = 0;
+        when(() => mockStudentRepo.toggleBookmark(
+              itemId: 'top_motion_eq',
+              itemType: any(named: 'itemType'),
+              titleBangla: any(named: 'titleBangla'),
+              subtitleBangla: any(named: 'subtitleBangla'),
+              href: any(named: 'href'),
+            )).thenAnswer((_) {
+          bookmarkCalls += 1;
+          if (bookmarkCalls == 1) {
+            return bookmarkCompleter.future;
+          }
+          return Future<Either<ErrorResponse, bool>>.value(
+            Left<ErrorResponse, bool>(
+              ErrorResponse(
+                message: 'Bookmark error',
+                data: ApiResponseErrorType.serverError,
+              ),
+            ),
+          );
+        });
+
+        registerTestDeps();
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            initialRoute: AppRoutes.subjects,
+            getPages: <GetPage<dynamic>>[
+              GetPage<dynamic>(
+                name: AppRoutes.subjects,
+                page: () => const Scaffold(body: Text('Root')),
+              ),
+              GetPage<dynamic>(
+                name: AppRoutes.chapters,
+                page: () => const ChapterIndexView(),
+                binding: CurriculumBinding(),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        unawaited(
+          Get.toNamed(AppRoutes.chaptersForSubject('sub_ssc_physics')),
+        );
+        await tester.pumpAndSettle();
+
+        final bookmarkBtn =
+            find.byKey(const Key('topic_bookmark_btn_top_motion_eq'));
+        await tester.ensureVisible(bookmarkBtn);
+        await tester.pumpAndSettle();
+
+        // Rapid double-tap while first bookmark request is in flight: only 1 call runs.
+        await tester.tap(bookmarkBtn);
+        await tester.pump();
+        await tester.tap(bookmarkBtn);
+        await tester.pump();
+        expect(bookmarkCalls, 1);
+
+        bookmarkCompleter.complete(const Right<ErrorResponse, bool>(true));
+        await tester.pumpAndSettle();
+
+        expect(
+          Get.find<ChapterIndexController>()
+              .bookmarkedTopicIds
+              .contains('top_motion_eq'),
+          isTrue,
+        );
+        verify(
+          () => mockStudentRepo.syncCachedBookmark(
+            subjectId: 'sub_ssc_physics',
+            itemId: 'top_motion_eq',
+            itemType: 'topic',
+            titleBangla: 'গতির সমীকরণ ল্যাব',
+            subtitleBangla: 'গতি (Motion)',
+            href: '/lesson/top_motion_eq',
+            bookmarked: true,
+          ),
+        ).called(1);
+
+        // Next tap fails -> error banner surfaces and bookmark remains true.
+        await tester.tap(bookmarkBtn);
+        await tester.pumpAndSettle();
+        expect(
+          Get.find<ChapterIndexController>().packStatusMessage.value,
+          'Bookmark error',
+        );
+        expect(
+          Get.find<ChapterIndexController>().isPackStatusError.value,
+          isTrue,
+        );
+        await tester.scrollUntilVisible(
+          find.byKey(const Key('offline_pack_status_banner')),
+          -200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('offline_pack_status_banner')), findsOneWidget);
+        expect(find.text('Bookmark error'), findsOneWidget);
+
+        // Leave /curriculum/:subjectId and re-open: cached bookmark persists immediately.
+        Get.back<void>();
+        await tester.pumpAndSettle();
+        unawaited(
+          Get.toNamed(AppRoutes.chaptersForSubject('sub_ssc_physics')),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          Get.find<ChapterIndexController>()
+              .bookmarkedTopicIds
+              .contains('top_motion_eq'),
+          isTrue,
+        );
+      },
+    );
+
+    testWidgets(
+      'ChapterIndexController guards offline pack removal concurrency and surfaces SQLite exceptions in packStatusMessage',
+      (tester) async {
+        final chapters = ChapterListModel.fromJson(<String, dynamic>{
+          'json': _sampleChaptersJson(),
+        }).toEntities();
+        final downloaded = <DownloadedChapterEntity>[
+          DownloadedChapterEntity(
+            chapterId: 'chap_ssc_phy_2',
+            subjectId: 'sub_ssc_physics',
+            orderIndex: 2,
+            titleBangla: 'গতি (Motion)',
+            version: 1,
+            versionHash: 'v1',
+            lessonCount: 1,
+            questionCount: 2,
+            sizeBytes: 1024,
+            downloadedAt: DateTime.utc(2026, 11, 12),
+          ),
+        ];
+
+        when(() => mockCurriculumRepo.getChapters('sub_ssc_physics'))
+            .thenAnswer((_) async => Right(chapters));
+        when(() => mockCurriculumRepo.getDownloadedChapters(
+              subjectId: 'sub_ssc_physics',
+            )).thenAnswer((_) async => downloaded);
+
+        final removeCompleter = Completer<void>();
+        var removeCalls = 0;
+        when(() => mockCurriculumRepo.removeChapterPack('chap_ssc_phy_2'))
+            .thenAnswer((_) {
+          removeCalls += 1;
+          if (removeCalls == 1) {
+            return removeCompleter.future;
+          }
+          return Future<void>.error(Exception('disk I/O error'));
+        });
+
+        registerTestDeps();
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            initialRoute: AppRoutes.chaptersForSubject('sub_ssc_physics'),
+            getPages: <GetPage<dynamic>>[
+              GetPage<dynamic>(
+                name: AppRoutes.chapters,
+                page: () => const ChapterIndexView(),
+                binding: CurriculumBinding(),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final ctrl = Get.find<ChapterIndexController>();
+        final chapter = chapters.first;
+
+        // Concurrent double removal only invokes removeChapterPack once.
+        final f1 = ctrl.toggleOfflinePack(chapter);
+        final f2 = ctrl.toggleOfflinePack(chapter);
+        await tester.pump();
+        expect(removeCalls, 1);
+
+        removeCompleter.completeError(Exception('disk I/O error'));
+        await Future.wait(<Future<void>>[f1, f2]);
+        await tester.pumpAndSettle();
+
+        expect(ctrl.isPackStatusError.value, isTrue);
+        expect(ctrl.packStatusMessage.value, isNotNull);
+        expect(
+          ctrl.downloadingChapterIds.contains('chap_ssc_phy_2'),
+          isFalse,
+        );
+        expect(find.byKey(const Key('offline_pack_status_banner')), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'Offline chapter preview sheet wraps long learningGoal in SingleChildScrollView without overflow',
+      (tester) async {
+        final longGoal = List<String>.filled(
+          40,
+          'দীর্ঘ শিখনফল: গতির চারটি মৌলিক সমীকরণ ও লেখচিত্র বিশ্লেষণ।',
+        ).join(' ');
+        final downloaded = <DownloadedChapterEntity>[
+          DownloadedChapterEntity(
+            chapterId: 'chap_ssc_phy_2',
+            subjectId: 'sub_ssc_physics',
+            orderIndex: 2,
+            titleBangla: 'গতি (Motion)',
+            version: 1,
+            versionHash: 'v1',
+            lessonCount: 1,
+            questionCount: 0,
+            sizeBytes: 2048,
+            downloadedAt: DateTime.utc(2026, 11, 12),
+            topics: const <TopicEntity>[
+              TopicEntity(
+                id: 'top_motion_eq',
+                chapterId: 'chap_ssc_phy_2',
+                orderIndex: 1,
+                titleBangla: 'গতির সমীকরণ ল্যাব',
+                lessonCount: 1,
+              ),
+            ],
+          ),
+        ];
+        final chapters = downloaded.map((d) => d.toChapterEntity()).toList();
+        final pack = OfflineChapterPackEntity(
+          chapterId: 'chap_ssc_phy_2',
+          subjectId: 'sub_ssc_physics',
+          titleBangla: 'গতি (Motion)',
+          versionHash: 'v1',
+          sizeBytes: 2048,
+          downloadedAt: DateTime.utc(2026, 11, 12),
+          topics: downloaded.single.topics,
+          lessons: <OfflineLessonEntity>[
+            OfflineLessonEntity(
+              id: 'les_long',
+              topicId: 'top_motion_eq',
+              titleBangla: 'দীর্ঘ লেসন',
+              learningGoal: longGoal,
+            ),
+          ],
+          questions: const <OfflineQuestionEntity>[],
+        );
+
+        when(() => mockCurriculumRepo.getChapters('sub_ssc_physics'))
+            .thenAnswer((_) async => Right(chapters));
+        when(() => mockCurriculumRepo.getDownloadedChapters(
+              subjectId: 'sub_ssc_physics',
+            )).thenAnswer((_) async => downloaded);
+        when(() => mockCurriculumRepo.getOfflineChapterPack('chap_ssc_phy_2'))
+            .thenAnswer((_) async => pack);
+
+        registerTestDeps();
+
+        await tester.binding.setSurfaceSize(const Size(360, 480));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            initialRoute: AppRoutes.chaptersForSubject('sub_ssc_physics'),
+            getPages: <GetPage<dynamic>>[
+              GetPage<dynamic>(
+                name: AppRoutes.chapters,
+                page: () => const ChapterIndexView(),
+                binding: CurriculumBinding(),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final topicRow = find.byKey(const Key('topic_row_top_motion_eq'));
+        await tester.scrollUntilVisible(
+          topicRow,
+          150,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(topicRow);
+        await tester.pumpAndSettle();
+
+        expect(find.byType(SingleChildScrollView), findsOneWidget);
+        expect(find.text('দীর্ঘ লেসন'), findsOneWidget);
+        expect(tester.takeException(), isNull);
       },
     );
   });

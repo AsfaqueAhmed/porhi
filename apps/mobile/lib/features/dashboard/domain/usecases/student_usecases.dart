@@ -144,6 +144,32 @@ class ToggleBookmarkUseCase {
   }
 }
 
+class PatchCachedBookmarkUseCase {
+  final StudentRepository _repository;
+
+  const PatchCachedBookmarkUseCase(this._repository);
+
+  Future<void> call({
+    required String subjectId,
+    required String itemId,
+    required String itemType,
+    required String titleBangla,
+    String? subtitleBangla,
+    required String href,
+    required bool bookmarked,
+  }) {
+    return _repository.syncCachedBookmark(
+      subjectId: subjectId,
+      itemId: itemId,
+      itemType: itemType,
+      titleBangla: titleBangla,
+      subtitleBangla: subtitleBangla,
+      href: href,
+      bookmarked: bookmarked,
+    );
+  }
+}
+
 class SaveNoteUseCase {
   final StudentRepository _repository;
 

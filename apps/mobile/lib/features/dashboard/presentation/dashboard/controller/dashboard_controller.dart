@@ -106,6 +106,14 @@ class DashboardController extends GetxController {
     if (subjectChanged) {
       _resetSubjectScopedState();
       await loadDashboard();
+    } else if (overview.value != null) {
+      final cachedOverview =
+          await _getCachedOverviewUseCase(subjectId: activeSubjectId.value);
+      if (isClosed) return;
+      if (cachedOverview != null &&
+          cachedOverview.subjectId == activeSubjectId.value) {
+        overview.value = cachedOverview;
+      }
     }
   }
 

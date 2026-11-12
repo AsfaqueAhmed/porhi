@@ -24,6 +24,7 @@ class CurriculumBinding extends Bindings {
           getActiveSubjectUseCase: Get.find<GetActiveCurriculumSubjectUseCase>(),
           getCachedOverviewUseCase: Get.find<GetCachedOverviewUseCase>(),
           toggleBookmarkUseCase: Get.find<ToggleBookmarkUseCase>(),
+          patchCachedBookmarkUseCase: Get.find<PatchCachedBookmarkUseCase>(),
           getCachedUserUseCase: Get.find<GetCachedUserUseCase>(),
           getLanguageUseCase: Get.find<GetLanguageUseCase>(),
         ),

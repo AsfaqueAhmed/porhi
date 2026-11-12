@@ -232,7 +232,8 @@ class AppDatabase extends _$AppDatabase {
   }
 
   /// Atomically replaces cached lessons/questions for [chapterId] and saves
-  /// the downloaded chapter metadata, lessons, and questions in one transaction.
+  /// the downloaded chapter metadata, lessons, and questions in one transaction,
+  /// preserving prior [CachedLessons.isCompleted] flags across re-downloads.
   Future<void> saveOfflineChapterPack({
     required String chapterId,
     required String subjectId,
@@ -248,6 +249,18 @@ class AppDatabase extends _$AppDatabase {
     required List<CachedQuestionInput> questions,
   }) {
     return transaction(() async {
+      final existingLessons = await (select(cachedLessons)
+            ..where((t) => t.chapterId.equals(chapterId)))
+          .get();
+      final completedLessonIds = <String>{
+        for (final row in existingLessons)
+          if (row.isCompleted) row.id,
+      };
+      final completedTopicIds = <String>{
+        for (final row in existingLessons)
+          if (row.isCompleted) row.topicId,
+      };
+
       await (delete(cachedLessons)..where((t) => t.chapterId.equals(chapterId)))
           .go();
       await (delete(cachedQuestions)
@@ -265,7 +278,28 @@ class AppDatabase extends _$AppDatabase {
         downloadedAt: downloadedAt,
         metadataJson: metadataJson,
       );
-      await upsertCachedLessons(lessons);
+
+      final mergedLessons = lessons
+          .map(
+            (lesson) => (lesson.isCompleted ||
+                    completedLessonIds.contains(lesson.id) ||
+                    completedTopicIds.contains(lesson.topicId))
+                ? CachedLessonInput(
+                    id: lesson.id,
+                    topicId: lesson.topicId,
+                    chapterId: lesson.chapterId,
+                    subjectId: lesson.subjectId,
+                    titleBangla: lesson.titleBangla,
+                    titleEnglish: lesson.titleEnglish,
+                    payloadJson: lesson.payloadJson,
+                    isCompleted: true,
+                    updatedAt: lesson.updatedAt,
+                  )
+                : lesson,
+          )
+          .toList();
+
+      await upsertCachedLessons(mergedLessons);
       await upsertCachedQuestions(questions);
     });
   }

@@ -115,9 +115,9 @@ class DashboardView extends GetView<DashboardController> {
                   return;
                 }
                 if (Get.isRegistered<MainShellController>()) {
-                  Get.find<MainShellController>().refreshPreferences();
-                }
-                if (Get.isRegistered<DashboardController>()) {
+                  await Get.find<MainShellController>()
+                      .refreshAfterAccountReturn();
+                } else if (Get.isRegistered<DashboardController>()) {
                   await Get.find<DashboardController>()
                       .refreshLanguageAndUser();
                 }

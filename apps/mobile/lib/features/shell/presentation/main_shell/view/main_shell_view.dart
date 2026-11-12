@@ -1,11 +1,8 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
 import 'package:porhi/features/curriculum/presentation/subjects/view/subjects_view.dart';
-import 'package:porhi/features/dashboard/presentation/dashboard/controller/dashboard_controller.dart';
 import 'package:porhi/features/dashboard/presentation/dashboard/view/dashboard_view.dart';
 import 'package:porhi/features/shell/presentation/main_shell/controller/main_shell_controller.dart';
 import 'package:porhi/routes/app_routes.dart';
@@ -28,8 +25,20 @@ class MainShellTabBuilders {
   static Widget _defaultHomeBuilder(BuildContext context) =>
       const DashboardView();
 
-  static Widget _defaultSubjectsBuilder(BuildContext context) =>
-      const SubjectsView();
+  static Widget _defaultSubjectsBuilder(BuildContext context) => SubjectsView(
+        onAccountTap: () => _openAccountFromShell(context),
+      );
+
+  static Future<void> _openAccountFromShell(BuildContext context) async {
+    final originRoute = Get.currentRoute;
+    await Get.toNamed(AppRoutes.account);
+    if (!context.mounted || Get.currentRoute != originRoute) {
+      return;
+    }
+    if (Get.isRegistered<MainShellController>()) {
+      await Get.find<MainShellController>().refreshAfterAccountReturn();
+    }
+  }
 
   static Widget _defaultPlannerBuilder(BuildContext context) =>
       const PlannerTabSlot();
@@ -172,20 +181,8 @@ class _ShellPlaceholderSlot extends GetView<MainShellController> {
               key: const Key('slot_account_button'),
               tooltip: AppStrings.t('nav.account', controller.language.value),
               icon: const Icon(Icons.person_outline_rounded),
-              onPressed: () async {
-                await Get.toNamed(AppRoutes.account);
-                if (!context.mounted || Get.currentRoute != AppRoutes.home) {
-                  return;
-                }
-                if (Get.isRegistered<MainShellController>()) {
-                  Get.find<MainShellController>().refreshPreferences();
-                }
-                if (Get.isRegistered<DashboardController>()) {
-                  unawaited(
-                    Get.find<DashboardController>().refreshLanguageAndUser(),
-                  );
-                }
-              },
+              onPressed: () =>
+                  MainShellTabBuilders._openAccountFromShell(context),
             ),
           ),
         ],

@@ -18,6 +18,7 @@ class ChapterIndexController extends GetxController {
   final GetActiveCurriculumSubjectUseCase _getActiveSubjectUseCase;
   final GetCachedOverviewUseCase _getCachedOverviewUseCase;
   final ToggleBookmarkUseCase _toggleBookmarkUseCase;
+  final PatchCachedBookmarkUseCase _patchCachedBookmarkUseCase;
   final GetCachedUserUseCase _getCachedUserUseCase;
   final GetLanguageUseCase _getLanguageUseCase;
 
@@ -32,6 +33,7 @@ class ChapterIndexController extends GetxController {
     required this._getActiveSubjectUseCase,
     required this._getCachedOverviewUseCase,
     required this._toggleBookmarkUseCase,
+    required this._patchCachedBookmarkUseCase,
     required this._getCachedUserUseCase,
     required this._getLanguageUseCase,
   });
@@ -51,6 +53,7 @@ class ChapterIndexController extends GetxController {
   final RxMap<String, DownloadedChapterEntity> downloadedChaptersMap =
       <String, DownloadedChapterEntity>{}.obs;
   final RxSet<String> downloadingChapterIds = <String>{}.obs;
+  final RxSet<String> togglingBookmarkIds = <String>{}.obs;
 
   final RxBool isLoading = false.obs;
   final RxBool isOfflineMode = false.obs;
@@ -219,22 +222,22 @@ class ChapterIndexController extends GetxController {
 
     packStatusMessage.value = null;
     isPackStatusError.value = false;
-
-    if (isChapterDownloaded(chapter.id)) {
-      await _removeChapterPackUseCase(chapter.id);
-      if (isClosed) return;
-      downloadedChaptersMap.remove(chapter.id);
-      isPackStatusError.value = false;
-      packStatusMessage.value = AppStrings.tr(
-        '"${chapter.titleBangla}" অফলাইন প্যাক মুছে ফেলা হয়েছে।',
-        'Removed offline pack for "${chapter.titleBangla}".',
-        language.value,
-      );
-      return;
-    }
-
     downloadingChapterIds.add(chapter.id);
+
     try {
+      if (isChapterDownloaded(chapter.id)) {
+        await _removeChapterPackUseCase(chapter.id);
+        if (isClosed) return;
+        downloadedChaptersMap.remove(chapter.id);
+        isPackStatusError.value = false;
+        packStatusMessage.value = AppStrings.tr(
+          '"${chapter.titleBangla}" অফলাইন প্যাক মুছে ফেলা হয়েছে।',
+          'Removed offline pack for "${chapter.titleBangla}".',
+          language.value,
+        );
+        return;
+      }
+
       final result = await _downloadChapterPackUseCase(
         chapter.id,
         orderIndex: chapter.orderIndex,
@@ -271,6 +274,15 @@ class ChapterIndexController extends GetxController {
           );
         },
       );
+    } catch (_) {
+      if (!isClosed) {
+        isPackStatusError.value = true;
+        packStatusMessage.value = AppStrings.tr(
+          'অফলাইন স্টোরেজ আপডেট করা যায়নি। আবার চেষ্টা করুন।',
+          'Could not update offline storage. Please try again.',
+          language.value,
+        );
+      }
     } finally {
       if (!isClosed) {
         downloadingChapterIds.remove(chapter.id);
@@ -286,32 +298,62 @@ class ChapterIndexController extends GetxController {
     ChapterEntity chapter,
     TopicEntity topic,
   ) async {
-    final result = await _toggleBookmarkUseCase(
-      itemId: topic.id,
-      itemType: 'topic',
-      titleBangla: topic.titleBangla,
-      subtitleBangla: chapter.titleBangla,
-      href: '/lesson/${topic.id}',
-    );
-    if (isClosed) return;
-    result.fold(
-      (err) {
+    if (togglingBookmarkIds.contains(topic.id)) return;
+    togglingBookmarkIds.add(topic.id);
+    packStatusMessage.value = null;
+    isPackStatusError.value = false;
+
+    try {
+      final href = '/lesson/${topic.id}';
+      final result = await _toggleBookmarkUseCase(
+        itemId: topic.id,
+        itemType: 'topic',
+        titleBangla: topic.titleBangla,
+        subtitleBangla: chapter.titleBangla,
+        href: href,
+      );
+      if (isClosed) return;
+      await result.fold(
+        (err) async {
+          isPackStatusError.value = true;
+          packStatusMessage.value = _resolveErrorMessage(
+            err,
+            fallbackBn: 'বুকমার্ক আপডেট করা যায়নি।',
+            fallbackEn: 'Could not update bookmark.',
+          );
+        },
+        (bookmarked) async {
+          if (bookmarked) {
+            bookmarkedTopicIds.add(topic.id);
+          } else {
+            bookmarkedTopicIds.remove(topic.id);
+          }
+          _applyFilters();
+          await _patchCachedBookmarkUseCase(
+            subjectId: subjectId.value,
+            itemId: topic.id,
+            itemType: 'topic',
+            titleBangla: topic.titleBangla,
+            subtitleBangla: chapter.titleBangla,
+            href: href,
+            bookmarked: bookmarked,
+          );
+        },
+      );
+    } catch (_) {
+      if (!isClosed) {
         isPackStatusError.value = true;
-        packStatusMessage.value = _resolveErrorMessage(
-          err,
-          fallbackBn: 'বুকমার্ক আপডেট করা যায়নি।',
-          fallbackEn: 'Could not update bookmark.',
+        packStatusMessage.value = AppStrings.tr(
+          'বুকমার্ক আপডেট করা যায়নি।',
+          'Could not update bookmark.',
+          language.value,
         );
-      },
-      (bookmarked) {
-        if (bookmarked) {
-          bookmarkedTopicIds.add(topic.id);
-        } else {
-          bookmarkedTopicIds.remove(topic.id);
-        }
-        _applyFilters();
-      },
-    );
+      }
+    } finally {
+      if (!isClosed) {
+        togglingBookmarkIds.remove(topic.id);
+      }
+    }
   }
 
   void _applyFilters() {

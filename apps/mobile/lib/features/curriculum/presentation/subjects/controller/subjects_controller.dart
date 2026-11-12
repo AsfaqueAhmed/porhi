@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:network/network.dart' show ErrorResponse;
@@ -8,7 +6,6 @@ import 'package:porhi/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
 import 'package:porhi/features/curriculum/domain/entities/curriculum_entities.dart';
 import 'package:porhi/features/curriculum/domain/usecases/curriculum_usecases.dart';
-import 'package:porhi/features/dashboard/presentation/dashboard/controller/dashboard_controller.dart';
 
 class SubjectsController extends GetxController {
   final GetSubjectsUseCase _getSubjectsUseCase;
@@ -19,6 +16,7 @@ class SubjectsController extends GetxController {
   final SetActiveCurriculumSubjectUseCase _setActiveSubjectUseCase;
   final GetCachedUserUseCase _getCachedUserUseCase;
   final GetLanguageUseCase _getLanguageUseCase;
+  final VoidCallback? _onActiveSubjectChanged;
 
   SubjectsController({
     required this._getSubjectsUseCase,
@@ -29,6 +27,7 @@ class SubjectsController extends GetxController {
     required this._setActiveSubjectUseCase,
     required this._getCachedUserUseCase,
     required this._getLanguageUseCase,
+    this._onActiveSubjectChanged,
   });
 
   final TextEditingController searchController = TextEditingController();
@@ -48,6 +47,7 @@ class SubjectsController extends GetxController {
   final RxnString errorMessage = RxnString();
 
   int _loadGeneration = 0;
+  bool _isSelectingSubject = false;
 
   @override
   void onInit() {
@@ -68,32 +68,39 @@ class SubjectsController extends GetxController {
     downloadedChapters.assignAll(chapters);
   }
 
+  Future<void> refreshFromAccount() async {
+    refreshPreferences();
+    await refreshDownloadedChapters();
+  }
+
   Future<void> loadSubjects() async {
     final generation = ++_loadGeneration;
+    refreshPreferences();
     isLoading.value = true;
     errorMessage.value = null;
 
     try {
-      final downloadedFuture = _getDownloadedChaptersUseCase();
-      final cachedSubjects = await _getCachedSubjectsUseCase();
+      await refreshDownloadedChapters();
       if (isClosed || generation != _loadGeneration) return;
 
-      if (cachedSubjects.isNotEmpty && allSubjects.isEmpty) {
-        allSubjects.assignAll(cachedSubjects);
-        isOfflineCache.value = true;
-        _applyFilters();
+      if (allSubjects.isEmpty) {
+        final cachedSubjects = await _getCachedSubjectsUseCase();
+        if (isClosed || generation != _loadGeneration) return;
+        if (cachedSubjects.isNotEmpty) {
+          allSubjects.assignAll(cachedSubjects);
+          isOfflineCache.value = true;
+          _applyFilters();
+        }
       }
-
-      final downloaded = await downloadedFuture;
-      if (isClosed || generation != _loadGeneration) return;
-      downloadedChapters.assignAll(downloaded);
 
       final result = await _getSubjectsUseCase();
       if (isClosed || generation != _loadGeneration) return;
 
       result.fold(
         (err) {
-          if (allSubjects.isEmpty) {
+          if (allSubjects.isNotEmpty) {
+            isOfflineCache.value = true;
+          } else {
             errorMessage.value = _resolveErrorMessage(
               err,
               fallbackBn: 'বিষয়ের তালিকা লোড করা যায়নি। আবার চেষ্টা করুন।',
@@ -146,16 +153,49 @@ class SubjectsController extends GetxController {
     filteredSubjects.assignAll(filtered);
   }
 
-  /// Persists [subject] as active and syncs [DashboardController] before navigation.
+  /// Persists [subject] as active and notifies listeners before navigation.
   Future<bool> selectSubject(SubjectEntity subject) async {
-    if (!subject.isReady) return false;
-    await _setActiveSubjectUseCase(subject.id);
-    if (isClosed) return false;
-    activeSubjectId.value = subject.id;
-    if (Get.isRegistered<DashboardController>()) {
-      unawaited(Get.find<DashboardController>().refreshLanguageAndUser());
+    if (!subject.isReady || _isSelectingSubject) return false;
+    _isSelectingSubject = true;
+    try {
+      await _setActiveSubjectUseCase(subject.id);
+      if (isClosed) return false;
+      activeSubjectId.value = subject.id;
+      _onActiveSubjectChanged?.call();
+      return true;
+    } finally {
+      _isSelectingSubject = false;
     }
-    return true;
+  }
+
+  /// Selects [subject] and runs [navigate] while guarding against rapid double-taps.
+  Future<void> openSubject(
+    SubjectEntity subject,
+    Future<void> Function() navigate,
+  ) async {
+    if (!subject.isReady || _isSelectingSubject) return;
+    _isSelectingSubject = true;
+    try {
+      await _setActiveSubjectUseCase(subject.id);
+      if (isClosed) return;
+      activeSubjectId.value = subject.id;
+      _onActiveSubjectChanged?.call();
+      await navigate();
+    } finally {
+      _isSelectingSubject = false;
+    }
+  }
+
+  /// Runs [navigate] for an already-known subject shortcut while preventing
+  /// duplicate route pushes from rapid double-taps.
+  Future<void> openSubjectRoute(Future<void> Function() navigate) async {
+    if (_isSelectingSubject) return;
+    _isSelectingSubject = true;
+    try {
+      await navigate();
+    } finally {
+      _isSelectingSubject = false;
+    }
   }
 
   int downloadedCountForSubject(String subjectId) {

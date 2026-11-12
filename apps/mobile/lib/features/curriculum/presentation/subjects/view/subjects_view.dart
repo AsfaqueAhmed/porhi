@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
@@ -8,12 +6,12 @@ import 'package:porhi/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:porhi/features/curriculum/domain/entities/curriculum_entities.dart';
 import 'package:porhi/features/curriculum/presentation/subjects/controller/subjects_controller.dart';
 import 'package:porhi/features/curriculum/presentation/subjects/widgets/subject_card.dart';
-import 'package:porhi/features/dashboard/presentation/dashboard/controller/dashboard_controller.dart';
-import 'package:porhi/features/shell/presentation/main_shell/controller/main_shell_controller.dart';
 import 'package:porhi/routes/app_routes.dart';
 
 class SubjectsView extends GetView<SubjectsController> {
-  const SubjectsView({super.key});
+  final Future<void> Function()? onAccountTap;
+
+  const SubjectsView({super.key, this.onAccountTap});
 
   @override
   Widget build(BuildContext context) {
@@ -63,24 +61,7 @@ class SubjectsView extends GetView<SubjectsController> {
               key: const Key('subjects_account_button'),
               tooltip: AppStrings.t('nav.account', lang),
               icon: const Icon(Icons.person_outline_rounded),
-              onPressed: () async {
-                final originRoute = Get.currentRoute;
-                await Get.toNamed(AppRoutes.account);
-                if (!context.mounted || Get.currentRoute != originRoute) {
-                  return;
-                }
-                if (Get.isRegistered<MainShellController>()) {
-                  Get.find<MainShellController>().refreshPreferences();
-                }
-                if (Get.isRegistered<SubjectsController>()) {
-                  Get.find<SubjectsController>().refreshPreferences();
-                }
-                if (Get.isRegistered<DashboardController>()) {
-                  unawaited(
-                    Get.find<DashboardController>().refreshLanguageAndUser(),
-                  );
-                }
-              },
+              onPressed: () => _handleAccountTap(context),
             );
           }),
         ],
@@ -177,8 +158,9 @@ class SubjectsView extends GetView<SubjectsController> {
                 _DownloadedChaptersCard(
                   language: lang,
                   downloaded: downloaded,
-                  onOpenSubject: (subjectId) =>
-                      _openCurriculumRoute(context, subjectId),
+                  onOpenSubject: (subjectId) => controller.openSubjectRoute(
+                    () => _openCurriculumRoute(context, subjectId),
+                  ),
                 ),
               ],
               if (error != null && allCount == 0) ...<Widget>[
@@ -237,19 +219,36 @@ class SubjectsView extends GetView<SubjectsController> {
     );
   }
 
+  Future<void> _handleAccountTap(BuildContext context) async {
+    if (onAccountTap != null) {
+      await onAccountTap!();
+      return;
+    }
+    final originRoute = Get.currentRoute;
+    await Get.toNamed(AppRoutes.account);
+    if (!context.mounted || Get.currentRoute != originRoute) {
+      return;
+    }
+    if (Get.isRegistered<SubjectsController>()) {
+      await Get.find<SubjectsController>().refreshFromAccount();
+    }
+  }
+
   Future<void> _handleSelectSubject(
     BuildContext context,
     SubjectEntity subject,
   ) async {
-    final ok = await controller.selectSubject(subject);
-    if (!ok || !context.mounted) return;
-    await _openCurriculumRoute(context, subject.id);
+    await controller.openSubject(
+      subject,
+      () => _openCurriculumRoute(context, subject.id),
+    );
   }
 
   Future<void> _openCurriculumRoute(
     BuildContext context,
     String subjectId,
   ) async {
+    if (!context.mounted) return;
     final originRoute = Get.currentRoute;
     await Get.toNamed(AppRoutes.chaptersForSubject(subjectId));
     if (!context.mounted || Get.currentRoute != originRoute) {
@@ -289,9 +288,7 @@ class _TrackFilterBar extends StatelessWidget {
           labelStyle: TextStyle(
             fontWeight: FontWeight.w700,
             fontSize: 12,
-            color: selectedTrack == null
-                ? Colors.white
-                : PorhiTheme.slate700,
+            color: selectedTrack == null ? Colors.white : PorhiTheme.slate700,
           ),
           onSelected: (_) => onSelected(null),
         ),

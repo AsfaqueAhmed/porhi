@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
 import 'package:porhi/features/curriculum/domain/usecases/curriculum_usecases.dart';
@@ -6,7 +7,7 @@ import 'package:porhi/features/curriculum/presentation/subjects/controller/subje
 /// Registers [SubjectsController] without `fenix: true` so logout cleanly
 /// disposes tab and route controllers.
 class SubjectsBinding extends Bindings {
-  static void registerDependencies() {
+  static void registerDependencies({VoidCallback? onActiveSubjectChanged}) {
     if (!Get.isRegistered<SubjectsController>()) {
       Get.lazyPut<SubjectsController>(
         () => SubjectsController(
@@ -19,6 +20,7 @@ class SubjectsBinding extends Bindings {
           setActiveSubjectUseCase: Get.find<SetActiveCurriculumSubjectUseCase>(),
           getCachedUserUseCase: Get.find<GetCachedUserUseCase>(),
           getLanguageUseCase: Get.find<GetLanguageUseCase>(),
+          onActiveSubjectChanged: onActiveSubjectChanged,
         ),
       );
     }

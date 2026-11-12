@@ -4,6 +4,7 @@ import 'package:porhi/core/sync/offline_sync_service.dart';
 import 'package:porhi/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:porhi/features/dashboard/data/datasources/student_local_datasource.dart';
 import 'package:porhi/features/dashboard/data/datasources/student_remote_datasource.dart';
+import 'package:porhi/features/dashboard/data/models/student_overview_model.dart';
 import 'package:porhi/features/dashboard/domain/entities/student_overview_entity.dart';
 import 'package:porhi/features/dashboard/domain/repositories/student_repository.dart';
 
@@ -148,6 +149,52 @@ class StudentRepositoryImpl implements StudentRepository {
       (err) => Left<ErrorResponse, bool>(err),
       (model) => Right<ErrorResponse, bool>(model.bookmarked),
     );
+  }
+
+  @override
+  Future<void> syncCachedBookmark({
+    required String subjectId,
+    required String itemId,
+    required String itemType,
+    required String titleBangla,
+    String? subtitleBangla,
+    required String href,
+    required bool bookmarked,
+  }) async {
+    final cached = await _localDataSource.getCachedOverview(subjectId);
+    if (cached == null) return;
+    final updatedBookmarks = cached.bookmarks
+        .where(
+          (b) => !(b['id']?.toString() == itemId &&
+              b['type']?.toString() == itemType),
+        )
+        .toList();
+    if (bookmarked) {
+      updatedBookmarks.insert(0, <String, dynamic>{
+        'id': itemId,
+        'type': itemType,
+        'titleBangla': titleBangla,
+        'subtitleBangla': subtitleBangla ?? '',
+        'href': href,
+        'createdAt': DateTime.now().toUtc().toIso8601String(),
+      });
+    }
+    final updatedModel = StudentOverviewModel(
+      subjectId: cached.subjectId,
+      curriculumTotals: cached.curriculumTotals,
+      completedTopicIds: cached.completedTopicIds,
+      lastStudiedTopic: cached.lastStudiedTopic,
+      practiceStats: cached.practiceStats,
+      streakDays: cached.streakDays,
+      studyDates: cached.studyDates,
+      dueMistakes: cached.dueMistakes,
+      weakTopics: cached.weakTopics,
+      recentExams: cached.recentExams,
+      bookmarks: updatedBookmarks,
+      lessonNotes: cached.lessonNotes,
+      message: cached.message,
+    );
+    await _localDataSource.cacheOverview(subjectId, updatedModel);
   }
 
   @override
