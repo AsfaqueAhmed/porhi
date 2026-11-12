@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
 import 'package:porhi/core/i18n/bangla_digits.dart';
-import 'package:porhi/core/notifications/local_reminder_scheduler.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
+import 'package:porhi/core/utils/date_time_parser.dart';
 import 'package:porhi/features/planner/domain/entities/planner_entities.dart';
 import 'package:porhi/features/planner/presentation/planner/controller/planner_controller.dart';
 import 'package:porhi/routes/app_routes.dart';
@@ -201,7 +201,7 @@ class PlannerView extends GetView<PlannerController> {
 
   Future<void> _pickDate(BuildContext context) async {
     final now = DateTime.now();
-    final parsed = LocalReminderScheduler.normalizeYyyyMmDd(
+    final parsed = DateTimeParser.normalizeYyyyMmDd(
       controller.dateController.text,
     );
     final initial = parsed != null ? DateTime.tryParse(parsed) ?? now : now;
@@ -432,47 +432,62 @@ class _CreateTaskCard extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: TextField(
-                    key: const Key('planner_date_input'),
-                    controller: controller.dateController,
-                    decoration: InputDecoration(
-                      labelText: AppStrings.tr(
-                        'তারিখ (YYYY-MM-DD)',
-                        'Date (YYYY-MM-DD)',
-                        lang,
-                      ),
-                      suffixIcon: IconButton(
-                        tooltip: AppStrings.tr('তারিখ বাছাই', 'Pick date', lang),
-                        icon: const Icon(Icons.calendar_today_outlined, size: 18),
-                        onPressed: onPickDate,
-                      ),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final textScale = MediaQuery.textScalerOf(context).scale(1.0);
+                final stackVertically =
+                    constraints.maxWidth < 320 || textScale > 1.15;
+                final dateField = TextField(
+                  key: const Key('planner_date_input'),
+                  controller: controller.dateController,
+                  decoration: InputDecoration(
+                    labelText: AppStrings.tr(
+                      'তারিখ (YYYY-MM-DD)',
+                      'Date (YYYY-MM-DD)',
+                      lang,
+                    ),
+                    suffixIcon: IconButton(
+                      tooltip: AppStrings.tr('তারিখ বাছাই', 'Pick date', lang),
+                      icon: const Icon(Icons.calendar_today_outlined, size: 18),
+                      onPressed: onPickDate,
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    key: const Key('planner_time_input'),
-                    controller: controller.reminderTimeController,
-                    decoration: InputDecoration(
-                      labelText: AppStrings.tr(
-                        'সময় (HH:mm)',
-                        'Time (HH:mm)',
-                        lang,
-                      ),
-                      hintText: AppStrings.tr('১৮:৩০', '18:30', lang),
-                      suffixIcon: IconButton(
-                        tooltip: AppStrings.tr('সময় বাছাই', 'Pick time', lang),
-                        icon: const Icon(Icons.schedule_rounded, size: 18),
-                        onPressed: onPickTime,
-                      ),
+                );
+                final timeField = TextField(
+                  key: const Key('planner_time_input'),
+                  controller: controller.reminderTimeController,
+                  decoration: InputDecoration(
+                    labelText: AppStrings.tr(
+                      'সময় (HH:mm)',
+                      'Time (HH:mm)',
+                      lang,
+                    ),
+                    hintText: AppStrings.tr('১৮:৩০', '18:30', lang),
+                    suffixIcon: IconButton(
+                      tooltip: AppStrings.tr('সময় বাছাই', 'Pick time', lang),
+                      icon: const Icon(Icons.schedule_rounded, size: 18),
+                      onPressed: onPickTime,
                     ),
                   ),
-                ),
-              ],
+                );
+                if (stackVertically) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      dateField,
+                      const SizedBox(height: 10),
+                      timeField,
+                    ],
+                  );
+                }
+                return Row(
+                  children: <Widget>[
+                    Expanded(child: dateField),
+                    const SizedBox(width: 8),
+                    Expanded(child: timeField),
+                  ],
+                );
+              },
             ),
             const SizedBox(height: 10),
             Obx(() {

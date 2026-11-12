@@ -7,6 +7,8 @@ class PreferencesStorageService extends BaseStorageService {
   static const String languageKey = 'porhi_language';
   static const String lastSyncAtKey = 'porhi_last_sync_at';
   static const String activeSubjectIdKey = 'porhi_active_subject_id';
+  static const String studyRemindersEnabledKey =
+      'porhi_study_reminders_enabled';
 
   SharedPreferences? _prefs;
   Future<SharedPreferences>? _prefsFuture;

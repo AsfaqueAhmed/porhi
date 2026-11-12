@@ -74,9 +74,7 @@ class PlannerRepositoryImpl implements PlannerRepository {
       Left<ErrorResponse, AutoGeneratePlanResultEntity>.new,
       (model) async {
         final entity = model.toEntity();
-        for (final task in entity.tasks) {
-          await _localDataSource.upsertCachedTask(task);
-        }
+        await _localDataSource.upsertCachedTasks(entity.tasks);
         return Right<ErrorResponse, AutoGeneratePlanResultEntity>(entity);
       },
     );

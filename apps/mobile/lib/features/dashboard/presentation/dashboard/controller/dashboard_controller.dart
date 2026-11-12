@@ -121,7 +121,28 @@ class DashboardController extends GetxController {
         }
       }
       await _refreshOverlayAndSyncSearch();
+      await refreshPlannerSummary();
     }
+  }
+
+  /// Reloads the planner summary card from local cache immediately and then
+  /// best-effort refreshes from the backend so edits in the Planner tab
+  /// appear on Home right away.
+  Future<void> refreshPlannerSummary({bool refreshRemote = true}) async {
+    final cachedPlanner = await _getCachedPlannerSummaryUseCase();
+    if (isClosed) return;
+    if (cachedPlanner != null) {
+      plannerSummary.value = cachedPlanner;
+    }
+    if (!refreshRemote) return;
+    final plannerResult = await _getPlannerSummaryUseCase();
+    if (isClosed) return;
+    plannerResult.fold(
+      (_) {},
+      (summary) {
+        plannerSummary.value = summary;
+      },
+    );
   }
 
   bool _isOpeningLesson = false;

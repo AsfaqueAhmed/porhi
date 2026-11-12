@@ -14,7 +14,7 @@ import 'package:porhi/routes/app_routes.dart';
 
 class PlannerController extends GetxController {
   static const String remindersEnabledStorageKey =
-      'porhi_study_reminders_enabled';
+      PreferencesStorageService.studyRemindersEnabledKey;
 
   final GetPlannerTasksUseCase _getPlannerTasksUseCase;
   final GetCachedPlannerTasksUseCase _getCachedPlannerTasksUseCase;
@@ -103,7 +103,12 @@ class PlannerController extends GetxController {
         return tasks.toList();
       case PlannerTaskFilter.dueToday:
         return tasks
-            .where((t) => !t.completed && t.scheduledDate.compareTo(today) <= 0)
+            .where(
+              (t) =>
+                  !t.completed &&
+                  t.scheduledDate.isNotEmpty &&
+                  t.scheduledDate.compareTo(today) <= 0,
+            )
             .toList();
       case PlannerTaskFilter.completed:
         return tasks.where((t) => t.completed).toList();
@@ -429,7 +434,10 @@ class PlannerController extends GetxController {
       final type = task.targetType.trim().toUpperCase();
       final topicId = task.topicId?.trim() ?? '';
       final chapterId = task.chapterId?.trim() ?? '';
-      final subjectId = task.subjectId?.trim() ?? activeSubjectId.value;
+      final rawSubjectId = task.subjectId?.trim();
+      final subjectId = (rawSubjectId != null && rawSubjectId.isNotEmpty)
+          ? rawSubjectId
+          : activeSubjectId.value;
 
       switch (type) {
         case 'LESSON':
@@ -487,7 +495,12 @@ class PlannerController extends GetxController {
   void _recalculateTodayDueCount() {
     final today = _todayIsoDate();
     todayDueCount.value = tasks
-        .where((t) => !t.completed && t.scheduledDate.compareTo(today) <= 0)
+        .where(
+          (t) =>
+              !t.completed &&
+              t.scheduledDate.isNotEmpty &&
+              t.scheduledDate.compareTo(today) <= 0,
+        )
         .length;
   }
 

@@ -1,6 +1,6 @@
 import 'package:common/common.dart';
 import 'package:network/network.dart';
-import 'package:porhi/core/notifications/local_reminder_scheduler.dart';
+import 'package:porhi/core/utils/date_time_parser.dart';
 import 'package:porhi/features/planner/domain/entities/planner_entities.dart';
 import 'package:porhi/features/planner/domain/repositories/planner_repository.dart';
 
@@ -57,7 +57,7 @@ class CreateStudyTaskUseCase {
     }
 
     final normalizedDate =
-        LocalReminderScheduler.normalizeYyyyMmDd(scheduledDate);
+        DateTimeParser.normalizeYyyyMmDd(scheduledDate);
     if (normalizedDate == null) {
       return Left<ErrorResponse, PlannerTaskSummaryEntity>(
         ErrorResponse(
@@ -70,7 +70,7 @@ class CreateStudyTaskUseCase {
     String? normalizedTime;
     final rawTime = reminderTime?.trim();
     if (rawTime != null && rawTime.isNotEmpty) {
-      normalizedTime = LocalReminderScheduler.normalizeHhMm(rawTime);
+      normalizedTime = DateTimeParser.normalizeHhMm(rawTime);
       if (normalizedTime == null) {
         return Left<ErrorResponse, PlannerTaskSummaryEntity>(
           ErrorResponse(
@@ -114,7 +114,7 @@ class AutoGenerateStudyPlanUseCase {
     String? normalizedStartDate;
     final rawDate = startDate?.trim();
     if (rawDate != null && rawDate.isNotEmpty) {
-      normalizedStartDate = LocalReminderScheduler.normalizeYyyyMmDd(rawDate);
+      normalizedStartDate = DateTimeParser.normalizeYyyyMmDd(rawDate);
       if (normalizedStartDate == null) {
         return Left<ErrorResponse, AutoGeneratePlanResultEntity>(
           ErrorResponse(
@@ -194,7 +194,7 @@ class UpdateStudyTaskUseCase {
 
     String? normalizedDate;
     if (scheduledDate != null) {
-      normalizedDate = LocalReminderScheduler.normalizeYyyyMmDd(scheduledDate);
+      normalizedDate = DateTimeParser.normalizeYyyyMmDd(scheduledDate);
       if (normalizedDate == null) {
         return Left<ErrorResponse, PlannerTaskSummaryEntity>(
           ErrorResponse(
@@ -205,16 +205,23 @@ class UpdateStudyTaskUseCase {
       }
     }
 
+    // Pass `reminderTime: ''` to explicitly clear an existing reminder; pass
+    // `null` to leave the server value untouched.
     String? normalizedTime;
-    if (reminderTime != null && reminderTime.trim().isNotEmpty) {
-      normalizedTime = LocalReminderScheduler.normalizeHhMm(reminderTime);
-      if (normalizedTime == null) {
-        return Left<ErrorResponse, PlannerTaskSummaryEntity>(
-          ErrorResponse(
-            message: 'রিমাইন্ডার সময় HH:mm ফরম্যাটে দাও।',
-            data: ApiResponseErrorType.response,
-          ),
-        );
+    if (reminderTime != null) {
+      final trimmedTime = reminderTime.trim();
+      if (trimmedTime.isEmpty) {
+        normalizedTime = '';
+      } else {
+        normalizedTime = DateTimeParser.normalizeHhMm(trimmedTime);
+        if (normalizedTime == null) {
+          return Left<ErrorResponse, PlannerTaskSummaryEntity>(
+            ErrorResponse(
+              message: 'রিমাইন্ডার সময় HH:mm ফরম্যাটে দাও।',
+              data: ApiResponseErrorType.response,
+            ),
+          );
+        }
       }
     }
 

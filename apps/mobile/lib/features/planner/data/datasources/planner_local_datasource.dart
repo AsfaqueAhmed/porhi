@@ -13,12 +13,15 @@ abstract class PlannerLocalDataSource {
 
   Future<void> upsertCachedTask(PlannerTaskSummaryEntity task);
 
+  Future<void> upsertCachedTasks(List<PlannerTaskSummaryEntity> tasks);
+
   Future<void> removeCachedTask(String taskId);
 }
 
 class PlannerLocalDataSourceImpl implements PlannerLocalDataSource {
   static const String _plannerCacheKey = 'planner_summary';
-  static const String remindersEnabledKey = 'porhi_study_reminders_enabled';
+  static const String remindersEnabledKey =
+      PreferencesStorageService.studyRemindersEnabledKey;
 
   final AppDatabase _database;
   final PreferencesStorageService _preferencesStorage;
@@ -65,17 +68,33 @@ class PlannerLocalDataSourceImpl implements PlannerLocalDataSource {
   }
 
   @override
-  Future<void> upsertCachedTask(PlannerTaskSummaryEntity task) async {
+  Future<void> upsertCachedTask(PlannerTaskSummaryEntity task) {
+    return upsertCachedTasks(<PlannerTaskSummaryEntity>[task]);
+  }
+
+  @override
+  Future<void> upsertCachedTasks(List<PlannerTaskSummaryEntity> tasks) async {
+    if (tasks.isEmpty) return;
     final existing = await getCachedTasks();
     final list = List<Map<String, dynamic>>.from(
       existing?.tasks ?? const <Map<String, dynamic>>[],
     );
-    final newJson = PlannerTaskModel.fromEntity(task).toJson();
-    final idx = list.indexWhere((e) => e['id']?.toString() == task.id);
-    if (idx >= 0) {
-      list[idx] = newJson;
-    } else {
-      list.add(newJson);
+    final indexById = <String, int>{};
+    for (var i = 0; i < list.length; i++) {
+      final id = list[i]['id']?.toString();
+      if (id != null && id.isNotEmpty) {
+        indexById[id] = i;
+      }
+    }
+    for (final task in tasks) {
+      final newJson = PlannerTaskModel.fromEntity(task).toJson();
+      final idx = indexById[task.id];
+      if (idx != null) {
+        list[idx] = newJson;
+      } else {
+        indexById[task.id] = list.length;
+        list.add(newJson);
+      }
     }
     await cacheTasks(
       PlannerOverviewModel(

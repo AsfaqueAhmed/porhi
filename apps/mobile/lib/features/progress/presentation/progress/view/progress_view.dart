@@ -288,7 +288,7 @@ class _KpiSummaryGrid extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         item.label,
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 11,
@@ -425,7 +425,7 @@ class _ScoreTrendCard extends StatelessWidget {
                       leftTitles: AxisTitles(
                         sideTitles: SideTitles(
                           showTitles: true,
-                          reservedSize: 34,
+                          reservedSize: 44,
                           interval: 25,
                           getTitlesWidget: (value, meta) {
                             return Text(
@@ -491,7 +491,7 @@ class _ScoreTrendCard extends StatelessWidget {
         return AppStrings.tr('অধ্যায়', 'Chapter', lang);
       case 'TOPIC_TEST':
         return AppStrings.tr('টপিক', 'Topic', lang);
-      case 'WEAK_TOPIC_TEST':
+      case 'WEAK_AREA':
         return AppStrings.tr('দুর্বল', 'Weak', lang);
       case 'SUBJECT_TEST':
         return AppStrings.tr('বিষয়', 'Subject', lang);

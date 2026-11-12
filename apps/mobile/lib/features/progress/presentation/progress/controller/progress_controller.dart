@@ -18,12 +18,12 @@ import 'package:porhi/routes/app_routes.dart';
 typedef ClipboardWriter = Future<void> Function(String text);
 
 class ProgressController extends GetxController {
-  static const List<String> testTypeFilters = <String>[
+  static final List<String> testTypeFilters = <String>[
     'ALL',
-    'CHAPTER_TEST',
-    'TOPIC_TEST',
-    'WEAK_TOPIC_TEST',
-    'SUBJECT_TEST',
+    ExamTestType.chapterTest.apiValue,
+    ExamTestType.topicTest.apiValue,
+    ExamTestType.weakArea.apiValue,
+    ExamTestType.subjectTest.apiValue,
   ];
 
   final GetOverviewUseCase _getOverviewUseCase;
@@ -85,6 +85,7 @@ class ProgressController extends GetxController {
   int _loadGeneration = 0;
   int _historyGeneration = 0;
   bool _isNavigating = false;
+  bool _isSharing = false;
 
   @override
   void onInit() {
@@ -100,6 +101,7 @@ class ProgressController extends GetxController {
     if (activeSubjectId.value != nextSubject) {
       activeSubjectId.value = nextSubject;
       overview.value = null;
+      examHistory.value = null;
     }
   }
 
@@ -114,6 +116,7 @@ class ProgressController extends GetxController {
 
   Future<void> loadProgress() async {
     final generation = ++_loadGeneration;
+    final historyGen = ++_historyGeneration;
     refreshPreferences();
     isLoading.value = true;
     errorMessage.value = null;
@@ -170,17 +173,21 @@ class ProgressController extends GetxController {
 
       historyResult.fold(
         (err) {
-          firstError ??= _resolveError(
-            err.message,
-            AppStrings.tr(
-              'পরীক্ষার ইতিহাস লোড করা যায়নি।',
-              'Could not load exam history.',
-              language.value,
-            ),
-          );
+          if (historyGen == _historyGeneration) {
+            firstError ??= _resolveError(
+              err.message,
+              AppStrings.tr(
+                'পরীক্ষার ইতিহাস লোড করা যায়নি।',
+                'Could not load exam history.',
+                language.value,
+              ),
+            );
+          }
         },
         (data) {
-          examHistory.value = data as ExamHistoryEntity;
+          if (historyGen == _historyGeneration) {
+            examHistory.value = data as ExamHistoryEntity;
+          }
         },
       );
 
@@ -373,19 +380,36 @@ class ProgressController extends GetxController {
   }
 
   Future<void> shareGuardianLink(GuardianShareLinkEntity link) async {
-    final fullUrl = buildShareUrl(link);
-    final label = link.recipientLabel?.trim();
-    final subject = AppStrings.tr(
-      'পড়ি — শিক্ষার্থীর অগ্রগতি রিপোর্ট',
-      'porhi — Student Progress Report',
-      language.value,
-    );
-    final message = AppStrings.tr(
-      '${label != null && label.isNotEmpty ? '$label-এর জন্য ' : ''}আমার পড়ি (porhi) পড়াশোনার অগ্রগতি দেখুন: $fullUrl',
-      'View ${label != null && label.isNotEmpty ? "$label's " : ''}porhi study progress report: $fullUrl',
-      language.value,
-    );
-    await _shareGateway.shareText(message, subject: subject);
+    if (_isSharing) return;
+    _isSharing = true;
+    try {
+      final fullUrl = buildShareUrl(link);
+      final label = link.recipientLabel?.trim();
+      final subject = AppStrings.tr(
+        'পড়ি — শিক্ষার্থীর অগ্রগতি রিপোর্ট',
+        'porhi — Student Progress Report',
+        language.value,
+      );
+      final message = AppStrings.tr(
+        '${label != null && label.isNotEmpty ? '$label-এর জন্য ' : ''}আমার পড়ি (porhi) পড়াশোনার অগ্রগতি দেখুন: $fullUrl',
+        'View ${label != null && label.isNotEmpty ? "$label's " : ''}porhi study progress report: $fullUrl',
+        language.value,
+      );
+      await _shareGateway.shareText(message, subject: subject);
+    } catch (_) {
+      if (!isClosed) {
+        _showStatus(
+          AppStrings.tr(
+            'লিংক শেয়ার করা যায়নি। অনুগ্রহ করে কপি বাটন ব্যবহার করো।',
+            'Could not open share sheet. Please use the copy button.',
+            language.value,
+          ),
+          isError: true,
+        );
+      }
+    } finally {
+      _isSharing = false;
+    }
   }
 
   Future<void> openPracticeForWeakTopic({

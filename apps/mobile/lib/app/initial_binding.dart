@@ -176,6 +176,11 @@ class InitialBinding extends Bindings {
           secureStorage: secureStorage,
           preferencesStorage: preferencesStorage,
           database: database,
+          onSignOutCleanup: () async {
+            if (Get.isRegistered<LocalReminderScheduler>()) {
+              await Get.find<LocalReminderScheduler>().cancelAllReminders();
+            }
+          },
         ),
         fenix: true,
       );

@@ -3,8 +3,11 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
-import 'package:porhi/core/i18n/bangla_digits.dart';
+import 'package:porhi/core/utils/date_time_parser.dart';
 import 'package:porhi/features/dashboard/domain/entities/student_overview_entity.dart';
+import 'package:porhi/features/exam/domain/entities/exam_entities.dart';
+import 'package:porhi/features/lesson/domain/entities/lesson_entities.dart';
+import 'package:porhi/features/practice/domain/entities/practice_entities.dart';
 import 'package:porhi/features/shell/presentation/main_shell/controller/main_shell_controller.dart';
 import 'package:porhi/routes/app_routes.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
@@ -165,15 +168,13 @@ class LocalReminderScheduler {
       'Daily study planner and revision reminders for porhi';
   static const String fallbackTimeZoneName = 'Asia/Dhaka';
 
-  static final RegExp _dateRegex = RegExp(r'^(\d{4})-(\d{2})-(\d{2})$');
-  static final RegExp _timeRegex = RegExp(r'^(\d{2}):(\d{2})$');
-
   final LocalNotificationsGateway _gateway;
   final ReminderRouteNavigator _onNavigate;
   final VoidCallback _onFocusPlanner;
 
   bool _initialized = false;
   bool _timeZonesInitialized = false;
+  Future<void>? _initFuture;
 
   LocalReminderScheduler({
     LocalNotificationsGateway? gateway,
@@ -228,10 +229,20 @@ class LocalReminderScheduler {
   }
 
   /// Idempotently initializes timezone data, notification plugin, and Android channel.
+  /// Concurrent callers await the same in-flight initialization future.
   Future<void> initialize({bool requestPermissions = false}) async {
     safeLocalLocation();
     if (!_initialized) {
-      _initialized = true;
+      _initFuture ??= _performInitialize();
+      await _initFuture;
+    }
+    if (requestPermissions) {
+      await _gateway.requestPermissions();
+    }
+  }
+
+  Future<void> _performInitialize() async {
+    try {
       await _gateway.initialize(
         onNotificationTap: (payload) {
           handleNotificationPayload(payload);
@@ -240,45 +251,20 @@ class LocalReminderScheduler {
         channelName: channelName,
         channelDescription: channelDescription,
       );
-    }
-    if (requestPermissions) {
-      await _gateway.requestPermissions();
+      _initialized = true;
+    } catch (_) {
+      _initFuture = null;
+      rethrow;
     }
   }
 
   /// Normalizes Bangla numerals (`০-৯`) to ASCII and validates strict `HH:mm`.
   /// Returns `null` when [raw] is blank or malformed.
-  static String? normalizeHhMm(String raw) {
-    final ascii = toAsciiDigits(raw).trim();
-    if (ascii.isEmpty) return null;
-    final match = _timeRegex.firstMatch(ascii);
-    if (match == null) return null;
-    final hour = int.tryParse(match.group(1)!);
-    final minute = int.tryParse(match.group(2)!);
-    if (hour == null || minute == null) return null;
-    if (hour < 0 || hour > 23 || minute < 0 || minute > 59) return null;
-    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
-  }
+  static String? normalizeHhMm(String raw) => DateTimeParser.normalizeHhMm(raw);
 
   /// Normalizes Bangla numerals (`০-৯`) to ASCII and validates strict calendar `YYYY-MM-DD`.
-  static String? normalizeYyyyMmDd(String raw) {
-    final ascii = toAsciiDigits(raw).trim();
-    if (ascii.isEmpty) return null;
-    final match = _dateRegex.firstMatch(ascii);
-    if (match == null) return null;
-    final year = int.tryParse(match.group(1)!);
-    final month = int.tryParse(match.group(2)!);
-    final day = int.tryParse(match.group(3)!);
-    if (year == null || month == null || day == null) return null;
-    if (month < 1 || month > 12 || day < 1 || day > 31) return null;
-    final check = DateTime(year, month, day);
-    if (check.year != year || check.month != month || check.day != day) {
-      return null;
-    }
-    return '${year.toString().padLeft(4, '0')}-'
-        '${month.toString().padLeft(2, '0')}-'
-        '${day.toString().padLeft(2, '0')}';
-  }
+  static String? normalizeYyyyMmDd(String raw) =>
+      DateTimeParser.normalizeYyyyMmDd(raw);
 
   /// Derives a deterministic 32-bit positive integer ID from [taskId].
   static int notificationIdForTask(String taskId) {
@@ -336,8 +322,10 @@ class LocalReminderScheduler {
     DateTime? now,
   }) async {
     await initialize();
+    // Clear existing/stale reminders first so externally deleted, completed,
+    // or disabled reminders are never left scheduled.
+    await _gateway.cancelAll();
     if (!enabled) {
-      await _gateway.cancelAll();
       return;
     }
 
@@ -346,13 +334,8 @@ class LocalReminderScheduler {
 
     for (final task in tasks) {
       final taskId = task.id.trim();
-      if (taskId.isEmpty) continue;
+      if (taskId.isEmpty || task.completed) continue;
       final notificationId = notificationIdForTask(taskId);
-
-      if (task.completed) {
-        await _gateway.cancel(notificationId);
-        continue;
-      }
 
       final scheduled = parseScheduleDateTime(
         scheduledDate: task.scheduledDate,
@@ -362,26 +345,30 @@ class LocalReminderScheduler {
       );
 
       if (scheduled == null) {
-        await _gateway.cancel(notificationId);
         continue;
       }
 
+      final trimmedTitle = task.titleBangla.trim();
       final payload = jsonEncode(<String, dynamic>{
         'taskId': taskId,
         'targetType': task.targetType,
         'subjectId': task.subjectId,
         'chapterId': task.chapterId,
         'topicId': task.topicId,
+        if (trimmedTitle.isNotEmpty) 'title': trimmedTitle,
       });
 
-      final title = task.titleBangla.trim().isNotEmpty
+      final title = trimmedTitle.isNotEmpty
           ? 'পড়ি — স্টাডি রিমাইন্ডার'
           : 'porhi — Study Reminder';
+      final body = trimmedTitle.isNotEmpty
+          ? trimmedTitle
+          : 'তোমার নির্ধারিত পড়া শুরু করার সময় হয়েছে।';
 
       await _gateway.zonedSchedule(
         id: notificationId,
         title: title,
-        body: task.titleBangla.trim(),
+        body: body,
         scheduledDate: scheduled,
         payload: payload,
         channelId: channelId,
@@ -397,6 +384,12 @@ class LocalReminderScheduler {
     if (trimmed.isEmpty) return;
     await initialize();
     await _gateway.cancel(notificationIdForTask(trimmed));
+  }
+
+  /// Cancels all scheduled study reminders (e.g. on user sign-out).
+  Future<void> cancelAllReminders() async {
+    await initialize();
+    await _gateway.cancelAll();
   }
 
   /// Safely parses a tapped notification [payload] and deep-links to the target screen.
@@ -416,24 +409,47 @@ class LocalReminderScheduler {
     final subjectId = data['subjectId']?.toString().trim() ?? '';
     final chapterId = data['chapterId']?.toString().trim() ?? '';
     final topicId = data['topicId']?.toString().trim() ?? '';
+    final title = data['title']?.toString().trim() ?? '';
 
     switch (targetType) {
       case 'LESSON':
         if (topicId.isNotEmpty) {
-          await _onNavigate(AppRoutes.lessonForTopic(topicId));
+          await _onNavigate(
+            AppRoutes.lessonForTopic(topicId),
+            arguments: LessonRouteArgs(
+              subjectId: subjectId.isNotEmpty ? subjectId : null,
+              chapterId: chapterId.isNotEmpty ? chapterId : null,
+              topicTitle: title.isNotEmpty ? title : null,
+            ),
+          );
           return;
         }
         break;
       case 'PRACTICE':
       case 'REVISION':
         if (chapterId.isNotEmpty) {
-          await _onNavigate(AppRoutes.practiceForChapter(chapterId));
+          await _onNavigate(
+            AppRoutes.practiceForChapter(chapterId),
+            arguments: PracticeRouteArgs(
+              subjectId: subjectId.isNotEmpty ? subjectId : null,
+              topicId: topicId.isNotEmpty ? topicId : null,
+              mode: targetType == 'REVISION' ? 'mistakes' : null,
+            ),
+          );
           return;
         }
         break;
       case 'MODEL_TEST':
         if (chapterId.isNotEmpty) {
-          await _onNavigate(AppRoutes.examForChapter(chapterId));
+          await _onNavigate(
+            AppRoutes.examForChapter(chapterId),
+            arguments: ExamSetupRouteArgs(
+              subjectId: subjectId.isNotEmpty ? subjectId : null,
+              chapterId: chapterId,
+              topicId: topicId.isNotEmpty ? topicId : null,
+              testType: ExamTestType.chapterTest,
+            ),
+          );
           return;
         }
         if (subjectId.isNotEmpty) {

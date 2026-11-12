@@ -18,6 +18,7 @@ class AuthRepositoryImpl implements AuthRepository {
   final SecureStorageService _secureStorage;
   final PreferencesStorageService _preferencesStorage;
   final AppDatabase? _database;
+  final Future<void> Function()? _onSignOutCleanup;
 
   AuthRepositoryImpl({
     required this._firebaseGateway,
@@ -25,6 +26,7 @@ class AuthRepositoryImpl implements AuthRepository {
     required this._secureStorage,
     required this._preferencesStorage,
     this._database,
+    this._onSignOutCleanup,
   });
 
   @override
@@ -205,6 +207,15 @@ class AuthRepositoryImpl implements AuthRepository {
           PreferencesStorageService.activeSubjectIdKey,
         ),
       );
+      await _runBestEffort(
+        () => _preferencesStorage.remove(
+          PreferencesStorageService.studyRemindersEnabledKey,
+        ),
+      );
+      final cleanup = _onSignOutCleanup;
+      if (cleanup != null) {
+        await _runBestEffort(cleanup);
+      }
       final db = _database;
       if (db != null) {
         await _runBestEffort(db.clearUserOfflineData);

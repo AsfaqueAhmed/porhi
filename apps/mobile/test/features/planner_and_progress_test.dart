@@ -1,17 +1,24 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:common/common.dart';
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:network/network.dart';
 import 'package:porhi/app/env.dart';
+import 'package:porhi/core/database/app_database.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
 import 'package:porhi/core/notifications/local_reminder_scheduler.dart';
 import 'package:porhi/core/services/share_gateway.dart';
 import 'package:porhi/core/storage/preferences_storage_service.dart';
+import 'package:porhi/core/storage/secure_storage_service.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
+import 'package:porhi/features/auth/data/datasources/auth_remote_datasource.dart';
+import 'package:porhi/features/auth/data/datasources/firebase_auth_gateway.dart';
+import 'package:porhi/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:porhi/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:porhi/features/auth/domain/repositories/auth_repository.dart';
 import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
@@ -24,16 +31,23 @@ import 'package:porhi/features/curriculum/domain/usecases/curriculum_usecases.da
 import 'package:porhi/features/dashboard/domain/entities/student_overview_entity.dart';
 import 'package:porhi/features/dashboard/domain/repositories/student_repository.dart';
 import 'package:porhi/features/dashboard/domain/usecases/student_usecases.dart';
+import 'package:porhi/features/dashboard/presentation/dashboard/controller/dashboard_controller.dart';
 import 'package:porhi/features/exam/data/models/exam_models.dart';
 import 'package:porhi/features/exam/domain/entities/exam_entities.dart';
 import 'package:porhi/features/exam/domain/repositories/exam_repository.dart';
 import 'package:porhi/features/exam/domain/usecases/exam_usecases.dart';
+import 'package:porhi/features/exam/presentation/exam_setup/controller/exam_setup_controller.dart';
+import 'package:porhi/features/lesson/domain/entities/lesson_entities.dart';
+import 'package:porhi/features/planner/data/datasources/planner_local_datasource.dart';
+import 'package:porhi/features/planner/data/datasources/planner_remote_datasource.dart';
 import 'package:porhi/features/planner/data/models/planner_models.dart';
+import 'package:porhi/features/planner/data/repositories/planner_repository_impl.dart';
 import 'package:porhi/features/planner/domain/entities/planner_entities.dart';
 import 'package:porhi/features/planner/domain/repositories/planner_repository.dart';
 import 'package:porhi/features/planner/domain/usecases/planner_usecases.dart';
 import 'package:porhi/features/planner/presentation/planner/controller/planner_controller.dart';
 import 'package:porhi/features/planner/presentation/planner/view/planner_view.dart';
+import 'package:porhi/features/practice/domain/entities/practice_entities.dart';
 import 'package:porhi/features/progress/presentation/progress/controller/progress_controller.dart';
 import 'package:porhi/features/progress/presentation/progress/view/progress_view.dart';
 import 'package:porhi/features/shell/presentation/main_shell/binding/main_shell_binding.dart';
@@ -60,6 +74,15 @@ class _MockAuthRepository extends Mock implements AuthRepository {}
 class _MockCurriculumRepository extends Mock implements CurriculumRepository {}
 
 class _MockShareGateway extends Mock implements ShareGateway {}
+
+class _MockPlannerRemoteDataSource extends Mock
+    implements PlannerRemoteDataSource {}
+
+class _MockFirebaseAuthGateway extends Mock implements FirebaseAuthGateway {}
+
+class _MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
+
+class _MockSecureStorageService extends Mock implements SecureStorageService {}
 
 void main() {
   setUpAll(() {
@@ -238,21 +261,43 @@ void main() {
           now: now,
         );
 
-        verify(
-          () => gateway.cancel(
-            LocalReminderScheduler.notificationIdForTask('task_done'),
+        verify(() => gateway.cancelAll()).called(1);
+        verifyNever(
+          () => gateway.zonedSchedule(
+            id: LocalReminderScheduler.notificationIdForTask('task_done'),
+            title: any(named: 'title'),
+            body: any(named: 'body'),
+            scheduledDate: any(named: 'scheduledDate'),
+            payload: any(named: 'payload'),
+            channelId: any(named: 'channelId'),
+            channelName: any(named: 'channelName'),
+            channelDescription: any(named: 'channelDescription'),
           ),
-        ).called(1);
-        verify(
-          () => gateway.cancel(
-            LocalReminderScheduler.notificationIdForTask('task_past'),
+        );
+        verifyNever(
+          () => gateway.zonedSchedule(
+            id: LocalReminderScheduler.notificationIdForTask('task_past'),
+            title: any(named: 'title'),
+            body: any(named: 'body'),
+            scheduledDate: any(named: 'scheduledDate'),
+            payload: any(named: 'payload'),
+            channelId: any(named: 'channelId'),
+            channelName: any(named: 'channelName'),
+            channelDescription: any(named: 'channelDescription'),
           ),
-        ).called(1);
-        verify(
-          () => gateway.cancel(
-            LocalReminderScheduler.notificationIdForTask('task_bad_time'),
+        );
+        verifyNever(
+          () => gateway.zonedSchedule(
+            id: LocalReminderScheduler.notificationIdForTask('task_bad_time'),
+            title: any(named: 'title'),
+            body: any(named: 'body'),
+            scheduledDate: any(named: 'scheduledDate'),
+            payload: any(named: 'payload'),
+            channelId: any(named: 'channelId'),
+            channelName: any(named: 'channelName'),
+            channelDescription: any(named: 'channelDescription'),
           ),
-        ).called(1);
+        );
 
         final captured = verify(
           () => gateway.zonedSchedule(
@@ -333,9 +378,24 @@ void main() {
         }),
       );
 
-      expect(navigatedCalls[0], (AppRoutes.lessonForTopic('top_1'), null));
-      expect(navigatedCalls[1], (AppRoutes.practiceForChapter('chap_1'), null));
-      expect(navigatedCalls[2], (AppRoutes.examForChapter('chap_2'), null));
+      expect(
+        navigatedCalls[0],
+        (AppRoutes.lessonForTopic('top_1'), const LessonRouteArgs()),
+      );
+      expect(
+        navigatedCalls[1],
+        (AppRoutes.practiceForChapter('chap_1'), const PracticeRouteArgs()),
+      );
+      expect(
+        navigatedCalls[2],
+        (
+          AppRoutes.examForChapter('chap_2'),
+          const ExamSetupRouteArgs(
+            chapterId: 'chap_2',
+            testType: ExamTestType.chapterTest,
+          ),
+        ),
+      );
       expect(navigatedCalls[3].$1, AppRoutes.examSetup);
       expect(
         navigatedCalls[3].$2,
@@ -344,7 +404,13 @@ void main() {
           'testType': 'SUBJECT_TEST',
         },
       );
-      expect(navigatedCalls[4], (AppRoutes.practiceForChapter('chap_3'), null));
+      expect(
+        navigatedCalls[4],
+        (
+          AppRoutes.practiceForChapter('chap_3'),
+          const PracticeRouteArgs(mode: 'mistakes'),
+        ),
+      );
       expect(focusPlannerCalls, 1);
     });
   });
@@ -638,6 +704,7 @@ void main() {
         ).called(greaterThanOrEqualTo(1));
 
         // Disable device reminders -> persisted + cancelAll.
+        clearInteractions(mockGateway);
         await controller.toggleRemindersEnabled(false);
         expect(controller.remindersEnabled.value, isFalse);
         expect(
@@ -1651,6 +1718,789 @@ void main() {
         expect(Get.isRegistered<MainShellController>(), isFalse);
         expect(Get.isRegistered<PlannerController>(), isFalse);
         expect(Get.isRegistered<ProgressController>(), isFalse);
+      },
+    );
+  });
+
+  group('Fix Round 1 regression & edge-case coverage', () {
+    test(
+      'LocalReminderScheduler memoizes concurrent initialize(), cancels all reminders on cancelAllReminders(), and supplies fallback body when title is empty',
+      () async {
+        final gateway = _MockNotificationsGateway();
+        final initCompleter = Completer<void>();
+        when(
+          () => gateway.initialize(
+            onNotificationTap: any(named: 'onNotificationTap'),
+            channelId: any(named: 'channelId'),
+            channelName: any(named: 'channelName'),
+            channelDescription: any(named: 'channelDescription'),
+          ),
+        ).thenAnswer((_) => initCompleter.future);
+        when(() => gateway.cancelAll()).thenAnswer((_) async {});
+        when(
+          () => gateway.zonedSchedule(
+            id: any(named: 'id'),
+            title: any(named: 'title'),
+            body: any(named: 'body'),
+            scheduledDate: any(named: 'scheduledDate'),
+            payload: any(named: 'payload'),
+            channelId: any(named: 'channelId'),
+            channelName: any(named: 'channelName'),
+            channelDescription: any(named: 'channelDescription'),
+          ),
+        ).thenAnswer((_) async {});
+
+        final scheduler = LocalReminderScheduler(gateway: gateway);
+        var finishedFirst = false;
+        var finishedSecond = false;
+        final f1 = scheduler.initialize().then((_) => finishedFirst = true);
+        final f2 = scheduler.initialize().then((_) => finishedSecond = true);
+        await Future<void>.delayed(Duration.zero);
+        expect(finishedFirst, isFalse);
+        expect(finishedSecond, isFalse);
+
+        initCompleter.complete();
+        await Future.wait(<Future<void>>[f1, f2]);
+        expect(finishedFirst, isTrue);
+        expect(finishedSecond, isTrue);
+        verify(
+          () => gateway.initialize(
+            onNotificationTap: any(named: 'onNotificationTap'),
+            channelId: any(named: 'channelId'),
+            channelName: any(named: 'channelName'),
+            channelDescription: any(named: 'channelDescription'),
+          ),
+        ).called(1);
+
+        final now = DateTime.utc(2026, 11, 12, 8, 0);
+        await scheduler.syncTaskReminders(
+          const <PlannerTaskSummaryEntity>[
+            PlannerTaskSummaryEntity(
+              id: 'empty_title_task',
+              titleBangla: '   ',
+              scheduledDate: '2026-11-13',
+              reminderTime: '18:00',
+              completed: false,
+            ),
+          ],
+          now: now,
+        );
+        verify(
+          () => gateway.zonedSchedule(
+            id: LocalReminderScheduler.notificationIdForTask(
+              'empty_title_task',
+            ),
+            title: 'porhi — Study Reminder',
+            body: 'তোমার নির্ধারিত পড়া শুরু করার সময় হয়েছে।',
+            scheduledDate: any(named: 'scheduledDate'),
+            payload: any(named: 'payload'),
+            channelId: any(named: 'channelId'),
+            channelName: any(named: 'channelName'),
+            channelDescription: any(named: 'channelDescription'),
+          ),
+        ).called(1);
+
+        await scheduler.cancelAllReminders();
+        verify(() => gateway.cancelAll()).called(2);
+      },
+    );
+
+    test(
+      'PlannerLocalDataSourceImpl & PlannerRepositoryImpl batch-cache autoGeneratePlan in memory AppDatabase',
+      () async {
+        SharedPreferences.setMockInitialValues(<String, Object>{});
+        final prefs = PreferencesStorageService();
+        await prefs.init();
+        final db = AppDatabase(NativeDatabase.memory());
+        addTearDown(db.close);
+
+        final remote = _MockPlannerRemoteDataSource();
+        final local = PlannerLocalDataSourceImpl(
+          database: db,
+          preferencesStorage: prefs,
+        );
+        final repo = PlannerRepositoryImpl(
+          remoteDataSource: remote,
+          localDataSource: local,
+        );
+
+        await local.upsertCachedTask(
+          const PlannerTaskSummaryEntity(
+            id: 'existing_1',
+            titleBangla: 'আগের কাজ',
+            scheduledDate: '2026-11-12',
+            completed: false,
+          ),
+        );
+
+        when(
+          () => remote.autoGeneratePlan(
+            subjectId: any(named: 'subjectId'),
+            startDate: any(named: 'startDate'),
+          ),
+        ).thenAnswer(
+          (_) async => Right(
+            AutoGeneratePlanResponseModel(
+              createdCount: 2,
+              tasks: <PlannerTaskModel>[
+                PlannerTaskModel(
+                  id: 'gen_1',
+                  titleBangla: 'জেনারেটেড ১',
+                  scheduledDate: '2026-11-13',
+                  completed: false,
+                  targetType: 'LESSON',
+                ),
+                PlannerTaskModel(
+                  id: 'gen_2',
+                  titleBangla: 'জেনারেটেড ২',
+                  scheduledDate: '2026-11-14',
+                  completed: false,
+                  targetType: 'PRACTICE',
+                ),
+              ],
+            ),
+          ),
+        );
+
+        final result = await repo.autoGeneratePlan(subjectId: 'sub_ssc_physics');
+        expect(result.isRight(), isTrue);
+
+        final cached = await repo.getCachedTasks();
+        expect(cached, isNotNull);
+        expect(cached!.tasks.map((t) => t.id), containsAll(<String>[
+          'existing_1',
+          'gen_1',
+          'gen_2',
+        ]));
+      },
+    );
+
+    test(
+      'UpdateStudyTaskUseCase preserves empty string to clear reminderTime vs null to omit, and PlannerController guards empty scheduledDate & subjectId',
+      () async {
+        SharedPreferences.setMockInitialValues(<String, Object>{});
+        final prefs = PreferencesStorageService();
+        await prefs.init();
+        final mockRepo = _MockPlannerRepository();
+        final mockStudentRepo = _MockStudentRepository();
+        final mockAuthRepo = _MockAuthRepository();
+        final mockGateway = _MockNotificationsGateway();
+
+        when(
+          () => mockGateway.initialize(
+            onNotificationTap: any(named: 'onNotificationTap'),
+            channelId: any(named: 'channelId'),
+            channelName: any(named: 'channelName'),
+            channelDescription: any(named: 'channelDescription'),
+          ),
+        ).thenAnswer((_) async {});
+        when(() => mockGateway.cancelAll()).thenAnswer((_) async {});
+        when(() => mockAuthRepo.getLanguage()).thenReturn('bn');
+        when(() => mockAuthRepo.getCachedUser()).thenReturn(null);
+        when(() => mockStudentRepo.getActiveSubjectId(any()))
+            .thenReturn('sub_ssc_physics');
+        when(() => mockRepo.getCachedTasks()).thenAnswer((_) async => null);
+        when(() => mockRepo.getTasks()).thenAnswer(
+          (_) async => const Right(
+            PlannerOverviewEntity(
+              tasks: <PlannerTaskSummaryEntity>[
+                PlannerTaskSummaryEntity(
+                  id: 'blank_date',
+                  titleBangla: 'ফাঁকা তারিখ',
+                  scheduledDate: '',
+                  completed: false,
+                ),
+                PlannerTaskSummaryEntity(
+                  id: 'due_task',
+                  titleBangla: 'আজকের কাজ',
+                  scheduledDate: '2020-01-01',
+                  completed: false,
+                ),
+              ],
+              todayDueCount: 1,
+            ),
+          ),
+        );
+        when(
+          () => mockRepo.updateTask(
+            id: any(named: 'id'),
+            completed: any(named: 'completed'),
+            titleBangla: any(named: 'titleBangla'),
+            scheduledDate: any(named: 'scheduledDate'),
+            reminderTime: any(named: 'reminderTime'),
+          ),
+        ).thenAnswer(
+          (_) async => const Right(
+            PlannerTaskSummaryEntity(
+              id: 'due_task',
+              titleBangla: 'আজকের কাজ',
+              scheduledDate: '2020-01-01',
+              completed: false,
+            ),
+          ),
+        );
+
+        final updateUseCase = UpdateStudyTaskUseCase(mockRepo);
+        await updateUseCase(id: 't1', reminderTime: '');
+        verify(
+          () => mockRepo.updateTask(
+            id: 't1',
+            completed: null,
+            titleBangla: null,
+            scheduledDate: null,
+            reminderTime: '',
+          ),
+        ).called(1);
+
+        final controller = PlannerController(
+          getPlannerTasksUseCase: GetPlannerTasksUseCase(mockRepo),
+          getCachedPlannerTasksUseCase: GetCachedPlannerTasksUseCase(mockRepo),
+          createStudyTaskUseCase: CreateStudyTaskUseCase(mockRepo),
+          autoGenerateStudyPlanUseCase: AutoGenerateStudyPlanUseCase(mockRepo),
+          toggleStudyTaskCompletionUseCase:
+              ToggleStudyTaskCompletionUseCase(mockRepo),
+          deleteStudyTaskUseCase: DeleteStudyTaskUseCase(mockRepo),
+          getLanguageUseCase: GetLanguageUseCase(mockAuthRepo),
+          getCachedUserUseCase: GetCachedUserUseCase(mockAuthRepo),
+          getActiveSubjectIdUseCase: GetActiveSubjectIdUseCase(mockStudentRepo),
+          reminderScheduler: LocalReminderScheduler(gateway: mockGateway),
+          preferencesStorage: prefs,
+        );
+        Get.put<PlannerController>(controller);
+        await Future<void>.delayed(Duration.zero);
+
+        controller.setFilter(PlannerTaskFilter.dueToday);
+        expect(controller.filteredTasks.map((t) => t.id), <String>['due_task']);
+
+        // Blank subjectId should fallback to activeSubjectId when opening target.
+        expect(
+          controller.canOpenTaskTarget(
+            const PlannerTaskSummaryEntity(
+              id: 'empty_sub',
+              titleBangla: 'লিংক',
+              scheduledDate: '2026-11-12',
+              targetType: 'LESSON',
+              subjectId: '  ',
+              topicId: 'top_1',
+            ),
+          ),
+          isTrue,
+        );
+      },
+    );
+
+    test(
+      'ProgressController uses WEAK_AREA, prevents loadProgress race overwrite, clears examHistory on subject change, and handles share errors/double-tap',
+      () async {
+        expect(
+          ProgressController.testTypeFilters,
+          contains(ExamTestType.weakArea.apiValue),
+        );
+        expect(
+          ProgressController.testTypeFilters.contains('WEAK_TOPIC_TEST'),
+          isFalse,
+        );
+
+        final mockStudentRepo = _MockStudentRepository();
+        final mockExamRepo = _MockExamRepository();
+        final mockReportRepo = _MockContentReportRepository();
+        final mockAuthRepo = _MockAuthRepository();
+        final mockShareGateway = _MockShareGateway();
+
+        var activeSub = 'sub_ssc_physics';
+        when(() => mockAuthRepo.getLanguage()).thenReturn('bn');
+        when(() => mockAuthRepo.getCachedUser()).thenReturn(null);
+        when(() => mockStudentRepo.getActiveSubjectId(any()))
+            .thenAnswer((_) => activeSub);
+        when(
+          () => mockStudentRepo.getCachedOverview(
+            subjectId: any(named: 'subjectId'),
+          ),
+        ).thenAnswer((_) async => null);
+        when(
+          () => mockStudentRepo.getOverview(subjectId: any(named: 'subjectId')),
+        ).thenAnswer(
+          (_) async => const Right(
+            StudentOverviewEntity(subjectId: 'sub_ssc_physics'),
+          ),
+        );
+        when(() => mockStudentRepo.listShareLinks())
+            .thenAnswer((_) async => const Right(<GuardianShareLinkEntity>[]));
+        when(() => mockReportRepo.listMyReports())
+            .thenAnswer((_) async => const Right(<ContentReportEntity>[]));
+
+        final slowAllHistoryCompleter =
+            Completer<Either<ErrorResponse, ExamHistoryEntity>>();
+        when(
+          () => mockExamRepo.getHistory(
+            subjectId: any(named: 'subjectId'),
+            testType: 'ALL',
+          ),
+        ).thenAnswer((_) => slowAllHistoryCompleter.future);
+        when(
+          () => mockExamRepo.getHistory(
+            subjectId: any(named: 'subjectId'),
+            testType: ExamTestType.weakArea.apiValue,
+          ),
+        ).thenAnswer(
+          (_) async => const Right(
+            ExamHistoryEntity(
+              summary: ExamHistorySummaryEntity(totalTests: 3),
+            ),
+          ),
+        );
+
+        final controller = ProgressController(
+          getOverviewUseCase: GetOverviewUseCase(mockStudentRepo),
+          getCachedOverviewUseCase: GetCachedOverviewUseCase(mockStudentRepo),
+          getExamHistoryUseCase: GetExamHistoryUseCase(mockExamRepo),
+          listShareLinksUseCase: ListShareLinksUseCase(mockStudentRepo),
+          createShareLinkUseCase: CreateShareLinkUseCase(mockStudentRepo),
+          revokeShareLinkUseCase: RevokeShareLinkUseCase(mockStudentRepo),
+          listMyContentReportsUseCase:
+              ListMyContentReportsUseCase(mockReportRepo),
+          getLanguageUseCase: GetLanguageUseCase(mockAuthRepo),
+          getCachedUserUseCase: GetCachedUserUseCase(mockAuthRepo),
+          getActiveSubjectIdUseCase: GetActiveSubjectIdUseCase(mockStudentRepo),
+          envConfig: const EnvConfig(
+            apiBaseUrl: 'http://localhost:3001/api',
+            webBaseUrl: 'https://porhi.com',
+          ),
+          shareGateway: mockShareGateway,
+        );
+        Get.put<ProgressController>(controller);
+        await Future<void>.delayed(Duration.zero);
+
+        // Newer filter completes before initial slow loadProgress() history resolves.
+        await controller.selectTestTypeFilter(ExamTestType.weakArea.apiValue);
+        expect(controller.examHistory.value?.summary.totalTests, 3);
+
+        slowAllHistoryCompleter.complete(
+          const Right(
+            ExamHistoryEntity(
+              summary: ExamHistorySummaryEntity(totalTests: 99),
+            ),
+          ),
+        );
+        await Future<void>.delayed(Duration.zero);
+        expect(controller.examHistory.value?.summary.totalTests, 3);
+
+        // Subject switch clears stale examHistory immediately.
+        activeSub = 'sub_ssc_math';
+        controller.refreshPreferences();
+        expect(controller.examHistory.value, isNull);
+
+        // shareGuardianLink handles exceptions and guards concurrent taps.
+        final shareCompleter = Completer<void>();
+        when(
+          () => mockShareGateway.shareText(
+            any(),
+            subject: any(named: 'subject'),
+          ),
+        ).thenAnswer((_) => shareCompleter.future);
+        const link = GuardianShareLinkEntity(
+          id: 's1',
+          shareCode: 'abc',
+          audience: 'PARENT',
+          sharePath: '/share/abc',
+          isActive: true,
+          createdAt: '2026-11-12',
+        );
+        final firstShare = controller.shareGuardianLink(link);
+        final secondShare = controller.shareGuardianLink(link);
+        shareCompleter.completeError(Exception('share unavailable'));
+        await Future.wait(<Future<void>>[firstShare, secondShare]);
+        verify(
+          () => mockShareGateway.shareText(
+            any(),
+            subject: any(named: 'subject'),
+          ),
+        ).called(1);
+        expect(controller.isStatusError.value, isTrue);
+        expect(controller.statusMessage.value, isNotNull);
+      },
+    );
+
+    test(
+      'DashboardController.refreshLanguageAndUser refreshes plannerSummary even when subject is unchanged',
+      () async {
+        final mockStudentRepo = _MockStudentRepository();
+        final mockAuthRepo = _MockAuthRepository();
+
+        var cachedPlanner = const PlannerOverviewEntity(
+          todayDueCount: 2,
+          tasks: <PlannerTaskSummaryEntity>[],
+        );
+        var remotePlanner = const PlannerOverviewEntity(
+          todayDueCount: 2,
+          tasks: <PlannerTaskSummaryEntity>[],
+        );
+
+        when(() => mockAuthRepo.getLanguage()).thenReturn('bn');
+        when(() => mockAuthRepo.getCachedUser()).thenReturn(null);
+        when(() => mockStudentRepo.getActiveSubjectId(any()))
+            .thenReturn('sub_ssc_physics');
+        when(
+          () => mockStudentRepo.getCachedOverview(
+            subjectId: any(named: 'subjectId'),
+          ),
+        ).thenAnswer((_) async => null);
+        when(
+          () => mockStudentRepo.getOverview(subjectId: any(named: 'subjectId')),
+        ).thenAnswer(
+          (_) async => const Right(
+            StudentOverviewEntity(subjectId: 'sub_ssc_physics'),
+          ),
+        );
+        when(() => mockStudentRepo.getCachedPlannerSummary())
+            .thenAnswer((_) async => cachedPlanner);
+        when(() => mockStudentRepo.getPlannerSummary())
+            .thenAnswer((_) async => Right(remotePlanner));
+        when(
+          () => mockStudentRepo.getCachedQuickSearchCatalog(
+            subjectId: any(named: 'subjectId'),
+          ),
+        ).thenAnswer((_) async => const <QuickSearchTopicEntity>[]);
+        when(
+          () => mockStudentRepo.getQuickSearchCatalog(
+            subjectId: any(named: 'subjectId'),
+          ),
+        ).thenAnswer((_) async => const Right(<QuickSearchTopicEntity>[]));
+        when(() => mockStudentRepo.pendingSyncCount).thenReturn(0);
+        when(() => mockStudentRepo.watchPendingSyncCount())
+            .thenAnswer((_) => const Stream<int>.empty());
+
+        final dashboardController = DashboardController(
+          getOverviewUseCase: GetOverviewUseCase(mockStudentRepo),
+          getCachedOverviewUseCase: GetCachedOverviewUseCase(mockStudentRepo),
+          getPlannerSummaryUseCase: GetPlannerSummaryUseCase(mockStudentRepo),
+          getCachedPlannerSummaryUseCase:
+              GetCachedPlannerSummaryUseCase(mockStudentRepo),
+          getQuickSearchCatalogUseCase:
+              GetQuickSearchCatalogUseCase(mockStudentRepo),
+          getCachedQuickSearchCatalogUseCase:
+              GetCachedQuickSearchCatalogUseCase(mockStudentRepo),
+          filterQuickSearchTopicsUseCase: const FilterQuickSearchTopicsUseCase(),
+          flushOfflineSyncUseCase: FlushOfflineSyncUseCase(mockStudentRepo),
+          getPendingSyncCountUseCase:
+              GetPendingSyncCountUseCase(mockStudentRepo),
+          watchPendingSyncCountUseCase:
+              WatchPendingSyncCountUseCase(mockStudentRepo),
+          getCachedUserUseCase: GetCachedUserUseCase(mockAuthRepo),
+          getLanguageUseCase: GetLanguageUseCase(mockAuthRepo),
+          getActiveSubjectIdUseCase: GetActiveSubjectIdUseCase(mockStudentRepo),
+          getLocalTopicStateOverlayUseCase: null,
+        );
+        Get.put<DashboardController>(dashboardController);
+        await Future<void>.delayed(Duration.zero);
+        expect(dashboardController.plannerSummary.value?.todayDueCount, 2);
+
+        cachedPlanner = const PlannerOverviewEntity(todayDueCount: 0);
+        remotePlanner = const PlannerOverviewEntity(todayDueCount: 0);
+        await dashboardController.refreshLanguageAndUser();
+        expect(dashboardController.plannerSummary.value?.todayDueCount, 0);
+      },
+    );
+
+    test(
+      'AuthRepositoryImpl.signOut cancels scheduled reminders and removes studyRemindersEnabledKey',
+      () async {
+        SharedPreferences.setMockInitialValues(<String, Object>{
+          PreferencesStorageService.studyRemindersEnabledKey: false,
+        });
+        final prefs = PreferencesStorageService();
+        await prefs.init();
+        final firebaseGateway = _MockFirebaseAuthGateway();
+        final remoteDs = _MockAuthRemoteDataSource();
+        final secureStorage = _MockSecureStorageService();
+
+        when(() => firebaseGateway.signOut()).thenAnswer((_) async {});
+        when(() => secureStorage.clearSession()).thenAnswer((_) async {});
+
+        var cleanupCalled = 0;
+        final authRepo = AuthRepositoryImpl(
+          firebaseGateway: firebaseGateway,
+          remoteDataSource: remoteDs,
+          secureStorage: secureStorage,
+          preferencesStorage: prefs,
+          onSignOutCleanup: () async {
+            cleanupCalled++;
+          },
+        );
+
+        await authRepo.signOut();
+        expect(cleanupCalled, 1);
+        expect(
+          prefs.read(PreferencesStorageService.studyRemindersEnabledKey),
+          isNull,
+        );
+      },
+    );
+
+    testWidgets(
+      'ExamSetupController applies Map route arguments for subject test reminders',
+      (tester) async {
+        final mockExamRepo = _MockExamRepository();
+        final mockCurriculumRepo = _MockCurriculumRepository();
+        final mockAuthRepo = _MockAuthRepository();
+        final mockStudentRepo = _MockStudentRepository();
+
+        when(() => mockAuthRepo.getLanguage()).thenReturn('bn');
+        when(() => mockAuthRepo.getCachedUser()).thenReturn(null);
+        when(() => mockStudentRepo.getActiveSubjectId(any()))
+            .thenReturn('sub_fallback');
+        when(() => mockExamRepo.getLatestExamDraft())
+            .thenAnswer((_) async => null);
+        when(
+          () => mockCurriculumRepo.getCachedSubjects(
+            program: any(named: 'program'),
+          ),
+        ).thenAnswer((_) async => const <SubjectEntity>[]);
+        when(() => mockCurriculumRepo.getCachedChapters(any()))
+            .thenAnswer((_) async => const <ChapterEntity>[]);
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            home: const Scaffold(body: Text('Root')),
+            getPages: <GetPage<dynamic>>[
+              GetPage<dynamic>(
+                name: AppRoutes.examSetup,
+                page: () => const Scaffold(body: Text('ExamSetup')),
+                binding: BindingsBuilder<void>(() {
+                  Get.lazyPut<ExamSetupController>(
+                    () => ExamSetupController(
+                      startExamUseCase: StartExamUseCase(mockExamRepo),
+                      getLatestExamDraftUseCase:
+                          GetLatestExamDraftUseCase(mockExamRepo),
+                      deleteExamDraftUseCase:
+                          DeleteExamDraftUseCase(mockExamRepo),
+                      resumeExamSessionUseCase:
+                          ResumeExamSessionUseCase(mockExamRepo),
+                      getCachedChaptersUseCase:
+                          GetCachedChaptersUseCase(mockCurriculumRepo),
+                      getCachedSubjectsUseCase:
+                          GetCachedSubjectsUseCase(mockCurriculumRepo),
+                      getCachedUserUseCase: GetCachedUserUseCase(mockAuthRepo),
+                      getActiveSubjectIdUseCase:
+                          GetActiveSubjectIdUseCase(mockStudentRepo),
+                      getLanguageUseCase: GetLanguageUseCase(mockAuthRepo),
+                    ),
+                  );
+                }),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        unawaited(
+          Get.toNamed<dynamic>(
+            AppRoutes.examSetup,
+            arguments: <String, dynamic>{
+              'subjectId': 'sub_ssc_physics',
+              'testType': 'SUBJECT_TEST',
+            },
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final setupController = Get.find<ExamSetupController>();
+        expect(setupController.subjectId.value, 'sub_ssc_physics');
+        expect(setupController.testType.value, ExamTestType.subjectTest);
+      },
+    );
+
+    testWidgets(
+      'PlannerView and ProgressView render cleanly at 320dp with 1.3x text scale and tap WEAK_AREA filter chip',
+      (tester) async {
+        SharedPreferences.setMockInitialValues(<String, Object>{});
+        final prefs = PreferencesStorageService();
+        await prefs.init();
+
+        final mockPlannerRepo = _MockPlannerRepository();
+        final mockStudentRepo = _MockStudentRepository();
+        final mockAuthRepo = _MockAuthRepository();
+        final mockExamRepo = _MockExamRepository();
+        final mockReportRepo = _MockContentReportRepository();
+        final mockShareGateway = _MockShareGateway();
+        final mockGateway = _MockNotificationsGateway();
+
+        when(
+          () => mockGateway.initialize(
+            onNotificationTap: any(named: 'onNotificationTap'),
+            channelId: any(named: 'channelId'),
+            channelName: any(named: 'channelName'),
+            channelDescription: any(named: 'channelDescription'),
+          ),
+        ).thenAnswer((_) async {});
+        when(() => mockGateway.cancelAll()).thenAnswer((_) async {});
+        when(() => mockAuthRepo.getLanguage()).thenReturn('bn');
+        when(() => mockAuthRepo.getCachedUser()).thenReturn(null);
+        when(() => mockStudentRepo.getActiveSubjectId(any()))
+            .thenReturn('sub_ssc_physics');
+        when(() => mockPlannerRepo.getCachedTasks())
+            .thenAnswer((_) async => null);
+        when(() => mockPlannerRepo.getTasks()).thenAnswer(
+          (_) async => const Right(
+            PlannerOverviewEntity(
+              todayDueCount: 1,
+              tasks: <PlannerTaskSummaryEntity>[
+                PlannerTaskSummaryEntity(
+                  id: 't1',
+                  titleBangla: 'নিউটনের সূত্র পড়া',
+                  scheduledDate: '2026-11-12',
+                  reminderTime: '18:30',
+                  targetType: 'LESSON',
+                  subjectId: 'sub_ssc_physics',
+                  topicId: 'top_1',
+                ),
+              ],
+            ),
+          ),
+        );
+        when(
+          () => mockStudentRepo.getCachedOverview(
+            subjectId: any(named: 'subjectId'),
+          ),
+        ).thenAnswer((_) async => null);
+        when(
+          () => mockStudentRepo.getOverview(subjectId: any(named: 'subjectId')),
+        ).thenAnswer(
+          (_) async => const Right(
+            StudentOverviewEntity(
+              subjectId: 'sub_ssc_physics',
+              curriculumTotals: CurriculumTotalsEntity(
+                totalChapters: 4,
+                totalTopics: 10,
+              ),
+              completedTopicIds: <String>['t1', 't2', 't3'],
+              streakDays: 5,
+              practiceStats: PracticeStatsEntity(accuracyPercent: 78),
+            ),
+          ),
+        );
+        when(
+          () => mockExamRepo.getHistory(
+            subjectId: any(named: 'subjectId'),
+            testType: any(named: 'testType'),
+          ),
+        ).thenAnswer(
+          (_) async => const Right(
+            ExamHistoryEntity(
+              summary: ExamHistorySummaryEntity(
+                totalTests: 2,
+                averageAccuracy: 75,
+                bestScorePercent: 85,
+              ),
+              trend: <ExamHistoryTrendPointEntity>[
+                ExamHistoryTrendPointEntity(
+                  sessionId: 's1',
+                  label: 'Test 1',
+                  date: '2026-11-10',
+                  accuracyPercent: 65,
+                  testType: 'CHAPTER_TEST',
+                ),
+                ExamHistoryTrendPointEntity(
+                  sessionId: 's2',
+                  label: 'Test 2',
+                  date: '2026-11-11',
+                  accuracyPercent: 85,
+                  testType: 'CHAPTER_TEST',
+                ),
+              ],
+            ),
+          ),
+        );
+        when(() => mockStudentRepo.listShareLinks())
+            .thenAnswer((_) async => const Right(<GuardianShareLinkEntity>[]));
+        when(() => mockReportRepo.listMyReports())
+            .thenAnswer((_) async => const Right(<ContentReportEntity>[]));
+
+        Get.put<PlannerController>(
+          PlannerController(
+            getPlannerTasksUseCase: GetPlannerTasksUseCase(mockPlannerRepo),
+            getCachedPlannerTasksUseCase:
+                GetCachedPlannerTasksUseCase(mockPlannerRepo),
+            createStudyTaskUseCase: CreateStudyTaskUseCase(mockPlannerRepo),
+            autoGenerateStudyPlanUseCase:
+                AutoGenerateStudyPlanUseCase(mockPlannerRepo),
+            toggleStudyTaskCompletionUseCase:
+                ToggleStudyTaskCompletionUseCase(mockPlannerRepo),
+            deleteStudyTaskUseCase: DeleteStudyTaskUseCase(mockPlannerRepo),
+            getLanguageUseCase: GetLanguageUseCase(mockAuthRepo),
+            getCachedUserUseCase: GetCachedUserUseCase(mockAuthRepo),
+            getActiveSubjectIdUseCase:
+                GetActiveSubjectIdUseCase(mockStudentRepo),
+            reminderScheduler: LocalReminderScheduler(gateway: mockGateway),
+            preferencesStorage: prefs,
+          ),
+        );
+        Get.put<ProgressController>(
+          ProgressController(
+            getOverviewUseCase: GetOverviewUseCase(mockStudentRepo),
+            getCachedOverviewUseCase: GetCachedOverviewUseCase(mockStudentRepo),
+            getExamHistoryUseCase: GetExamHistoryUseCase(mockExamRepo),
+            listShareLinksUseCase: ListShareLinksUseCase(mockStudentRepo),
+            createShareLinkUseCase: CreateShareLinkUseCase(mockStudentRepo),
+            revokeShareLinkUseCase: RevokeShareLinkUseCase(mockStudentRepo),
+            listMyContentReportsUseCase:
+                ListMyContentReportsUseCase(mockReportRepo),
+            getLanguageUseCase: GetLanguageUseCase(mockAuthRepo),
+            getCachedUserUseCase: GetCachedUserUseCase(mockAuthRepo),
+            getActiveSubjectIdUseCase:
+                GetActiveSubjectIdUseCase(mockStudentRepo),
+            envConfig: const EnvConfig(
+              apiBaseUrl: 'http://localhost:3001/api',
+              webBaseUrl: 'https://porhi.com',
+            ),
+            shareGateway: mockShareGateway,
+          ),
+        );
+
+        await tester.binding.setSurfaceSize(const Size(320, 720));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+
+        await tester.pumpWidget(
+          MediaQuery(
+            data: const MediaQueryData(
+              size: Size(320, 720),
+              textScaler: TextScaler.linear(1.3),
+            ),
+            child: GetMaterialApp(
+              theme: PorhiTheme.light,
+              home: const PlannerView(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        expect(find.byKey(const Key('planner_date_input')), findsOneWidget);
+        expect(find.byKey(const Key('planner_time_input')), findsOneWidget);
+
+        await tester.pumpWidget(
+          MediaQuery(
+            data: const MediaQueryData(
+              size: Size(320, 720),
+              textScaler: TextScaler.linear(1.3),
+            ),
+            child: GetMaterialApp(
+              theme: PorhiTheme.light,
+              home: const ProgressView(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+
+        await tester.scrollUntilVisible(find.text('দুর্বল'), 200);
+        await tester.tap(find.text('দুর্বল'));
+        await tester.pumpAndSettle();
+        verify(
+          () => mockExamRepo.getHistory(
+            subjectId: 'sub_ssc_physics',
+            testType: 'WEAK_AREA',
+          ),
+        ).called(1);
       },
     );
   });
