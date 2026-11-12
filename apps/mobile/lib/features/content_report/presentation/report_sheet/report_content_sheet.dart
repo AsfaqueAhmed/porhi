@@ -374,8 +374,10 @@ class _ReportContentSheetState extends State<ReportContentSheet> {
                 ),
               ],
               const SizedBox(height: 14),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
+              Wrap(
+                alignment: WrapAlignment.end,
+                spacing: 10,
+                runSpacing: 8,
                 children: <Widget>[
                   OutlinedButton(
                     key: const Key('report_cancel_btn'),
@@ -384,7 +386,6 @@ class _ReportContentSheetState extends State<ReportContentSheet> {
                         : () => Navigator.of(context).pop(),
                     child: Text(AppStrings.t('action.cancel', lang)),
                   ),
-                  const SizedBox(width: 10),
                   FilledButton.icon(
                     key: const Key('report_submit_btn'),
                     onPressed: _isSubmitting ? null : _submit,

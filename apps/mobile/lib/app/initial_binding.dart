@@ -354,6 +354,9 @@ class InitialBinding extends Bindings {
     _lazyPutIfAbsent<SaveLocalLessonNoteUseCase>(
       () => SaveLocalLessonNoteUseCase(Get.find<LessonRepository>()),
     );
+    _lazyPutIfAbsent<GetLocalTopicStateOverlayUseCase>(
+      () => GetLocalTopicStateOverlayUseCase(Get.find<LessonRepository>()),
+    );
 
     _lazyPutIfAbsent<ContentReportRemoteDataSource>(
       () => ContentReportRemoteDataSourceImpl(),

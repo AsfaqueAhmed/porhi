@@ -261,3 +261,24 @@ class LessonRouteArgs extends Equatable {
         siblingTopics,
       ];
 }
+
+/// Lightweight local state overlay persisted when `student_overview_<subjectId>`
+/// has not yet been seeded on device (e.g., offline or deep-linked navigation).
+class LocalTopicStateOverlayEntity extends Equatable {
+  final List<String> completedTopicIds;
+  final List<String> bookmarkedTopicIds;
+  final Map<String, String> lessonNotes;
+
+  const LocalTopicStateOverlayEntity({
+    this.completedTopicIds = const <String>[],
+    this.bookmarkedTopicIds = const <String>[],
+    this.lessonNotes = const <String, String>{},
+  });
+
+  @override
+  List<Object?> get props => <Object?>[
+        completedTopicIds,
+        bookmarkedTopicIds,
+        lessonNotes,
+      ];
+}

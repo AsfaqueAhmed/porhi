@@ -295,17 +295,19 @@ class ChapterIndexView extends GetView<ChapterIndexController> {
             ),
           )
           .toList();
-      await Get.toNamed(
-        lessonRoute,
-        arguments: LessonRouteArgs(
-          subjectId: controller.subjectId.value,
-          chapterId: chapter.id,
-          chapterTitle: chapter.titleBangla,
-          topicTitle: topic.titleBangla,
-          siblingTopics: siblingTopics,
-        ),
-      );
-      await controller.refreshOverviewStateFromCache();
+      await controller.runLessonNavigation(() async {
+        await Get.toNamed(
+          lessonRoute,
+          arguments: LessonRouteArgs(
+            subjectId: controller.subjectId.value,
+            chapterId: chapter.id,
+            chapterTitle: chapter.titleBangla,
+            topicTitle: topic.titleBangla,
+            siblingTopics: siblingTopics,
+          ),
+        );
+        await controller.refreshOverviewStateFromCache();
+      });
       return;
     }
 

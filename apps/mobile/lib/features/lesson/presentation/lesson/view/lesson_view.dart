@@ -207,6 +207,7 @@ class LessonView extends GetView<LessonController> {
                 const SizedBox(height: 12),
               ],
               LessonAudioPlayer(
+                key: ValueKey<String>('lesson_audio_${currentLesson.id}'),
                 audioUrl: currentLesson.audioUrl,
                 audioDurationSeconds: currentLesson.audioDurationSeconds,
                 title: currentLesson.titleBangla,
@@ -220,6 +221,7 @@ class LessonView extends GetView<LessonController> {
               if (currentLesson.interactiveWidgetUrl != null &&
                   currentLesson.interactiveWidgetUrl!.trim().isNotEmpty)
                 InteractiveLabCard(
+                  key: ValueKey<String>('lesson_lab_${currentLesson.id}'),
                   widgetUrl: currentLesson.interactiveWidgetUrl,
                   title: currentLesson.titleBangla,
                   envConfig: envConfig,
@@ -322,12 +324,19 @@ class LessonView extends GetView<LessonController> {
                 Expanded(
                   child: FilledButton.icon(
                     key: const Key('lesson_complete_btn'),
-                    onPressed: completing ? null : controller.completeLesson,
+                    onPressed: (completing || completed)
+                        ? null
+                        : controller.completeLesson,
                     style: FilledButton.styleFrom(
                       backgroundColor: completed
                           ? PorhiTheme.emerald600
                           : PorhiTheme.indigo600,
                       foregroundColor: Colors.white,
+                      disabledBackgroundColor: completed
+                          ? PorhiTheme.emerald600
+                          : null,
+                      disabledForegroundColor:
+                          completed ? Colors.white : null,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 12,

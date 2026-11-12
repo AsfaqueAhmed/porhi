@@ -25,10 +25,18 @@ abstract class StudentLocalDataSource {
   String? getActiveSubjectId();
 
   Future<void> setActiveSubjectId(String subjectId);
+
+  Future<void> patchLocalBookmarkDelta({
+    required String subjectId,
+    required String itemId,
+    required String itemType,
+    required bool bookmarked,
+  });
 }
 
 class StudentLocalDataSourceImpl implements StudentLocalDataSource {
   static const String _overviewPrefix = 'student_overview_';
+  static const String _localDeltaPrefix = 'local_lesson_state_';
   static const String _plannerKey = 'planner_summary';
   static const String _searchPrefix = 'quick_search_';
 
@@ -45,9 +53,49 @@ class StudentLocalDataSourceImpl implements StudentLocalDataSource {
     String subjectId,
     StudentOverviewModel model,
   ) async {
+    final trimmedSubject = subjectId.trim();
+    var finalJson = model.toJson();
+    final deltaKey = '$_localDeltaPrefix$trimmedSubject';
+    final deltaRow = await _database.getStudentCache(deltaKey);
+    if (deltaRow != null && deltaRow.payloadJson.trim().isNotEmpty) {
+      try {
+        final decoded = jsonDecode(deltaRow.payloadJson);
+        if (decoded is Map) {
+          final delta = Map<String, dynamic>.from(decoded);
+          final completed = (finalJson['completedTopicIds'] as List?)
+                  ?.map((e) => e.toString())
+                  .toList() ??
+              <String>[];
+          final deltaCompleted = delta['completedTopicIds'];
+          if (deltaCompleted is List) {
+            for (final id in deltaCompleted.map((e) => e.toString())) {
+              if (id.isNotEmpty && !completed.contains(id)) {
+                completed.add(id);
+              }
+            }
+          }
+          finalJson['completedTopicIds'] = completed;
+
+          final notes = (finalJson['lessonNotes'] is Map)
+              ? Map<String, dynamic>.from(finalJson['lessonNotes'] as Map)
+              : <String, dynamic>{};
+          final deltaNotes = delta['lessonNotes'];
+          if (deltaNotes is Map) {
+            for (final entry in deltaNotes.entries) {
+              notes.putIfAbsent(entry.key.toString(), () => entry.value);
+            }
+          }
+          finalJson['lessonNotes'] = notes;
+        }
+      } catch (_) {
+        // Ignore malformed delta JSON.
+      }
+      await _database.deleteStudentCache(deltaKey);
+    }
+
     await _database.putStudentCache(
-      '$_overviewPrefix$subjectId',
-      jsonEncode(model.toJson()),
+      '$_overviewPrefix$trimmedSubject',
+      jsonEncode(finalJson),
     );
   }
 
@@ -139,5 +187,44 @@ class StudentLocalDataSourceImpl implements StudentLocalDataSource {
       PreferencesStorageService.activeSubjectIdKey,
       subjectId.trim(),
     );
+  }
+
+  @override
+  Future<void> patchLocalBookmarkDelta({
+    required String subjectId,
+    required String itemId,
+    required String itemType,
+    required bool bookmarked,
+  }) async {
+    if (itemType != 'topic') return;
+    final trimmedSubject = subjectId.trim();
+    if (trimmedSubject.isEmpty || itemId.trim().isEmpty) return;
+
+    final key = '$_localDeltaPrefix$trimmedSubject';
+    final row = await _database.getStudentCache(key);
+    var map = <String, dynamic>{};
+    if (row != null && row.payloadJson.trim().isNotEmpty) {
+      try {
+        final decoded = jsonDecode(row.payloadJson);
+        if (decoded is Map) {
+          map = Map<String, dynamic>.from(decoded);
+        }
+      } catch (_) {
+        map = <String, dynamic>{};
+      }
+    }
+    final raw = map['bookmarkedTopicIds'];
+    final list = raw is List
+        ? raw.map((e) => e.toString()).where((s) => s.isNotEmpty).toList()
+        : <String>[];
+    if (bookmarked) {
+      if (!list.contains(itemId)) {
+        list.add(itemId);
+      }
+    } else {
+      list.remove(itemId);
+    }
+    map['bookmarkedTopicIds'] = list;
+    await _database.putStudentCache(key, jsonEncode(map));
   }
 }

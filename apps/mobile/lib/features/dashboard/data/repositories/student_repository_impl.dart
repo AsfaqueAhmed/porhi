@@ -162,7 +162,15 @@ class StudentRepositoryImpl implements StudentRepository {
     required bool bookmarked,
   }) async {
     final cached = await _localDataSource.getCachedOverview(subjectId);
-    if (cached == null) return;
+    if (cached == null) {
+      await _localDataSource.patchLocalBookmarkDelta(
+        subjectId: subjectId,
+        itemId: itemId,
+        itemType: itemType,
+        bookmarked: bookmarked,
+      );
+      return;
+    }
     final updatedBookmarks = cached.bookmarks
         .where(
           (b) => !(b['id']?.toString() == itemId &&

@@ -6,6 +6,7 @@ import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
 import 'package:porhi/features/curriculum/domain/entities/curriculum_entities.dart';
 import 'package:porhi/features/curriculum/domain/usecases/curriculum_usecases.dart';
 import 'package:porhi/features/dashboard/domain/usecases/student_usecases.dart';
+import 'package:porhi/features/lesson/domain/usecases/lesson_usecases.dart';
 
 class ChapterIndexController extends GetxController {
   final GetChaptersUseCase _getChaptersUseCase;
@@ -17,6 +18,7 @@ class ChapterIndexController extends GetxController {
   final GetOfflineChapterPackUseCase _getOfflineChapterPackUseCase;
   final GetActiveCurriculumSubjectUseCase _getActiveSubjectUseCase;
   final GetCachedOverviewUseCase _getCachedOverviewUseCase;
+  final GetLocalTopicStateOverlayUseCase? _getLocalTopicStateOverlayUseCase;
   final ToggleBookmarkUseCase _toggleBookmarkUseCase;
   final PatchCachedBookmarkUseCase _patchCachedBookmarkUseCase;
   final GetCachedUserUseCase _getCachedUserUseCase;
@@ -32,6 +34,7 @@ class ChapterIndexController extends GetxController {
     required this._getOfflineChapterPackUseCase,
     required this._getActiveSubjectUseCase,
     required this._getCachedOverviewUseCase,
+    this._getLocalTopicStateOverlayUseCase,
     required this._toggleBookmarkUseCase,
     required this._patchCachedBookmarkUseCase,
     required this._getCachedUserUseCase,
@@ -62,6 +65,17 @@ class ChapterIndexController extends GetxController {
   final RxBool isPackStatusError = false.obs;
 
   int _loadGeneration = 0;
+  bool _isOpeningLesson = false;
+
+  Future<void> runLessonNavigation(Future<void> Function() action) async {
+    if (_isOpeningLesson) return;
+    _isOpeningLesson = true;
+    try {
+      await action();
+    } finally {
+      _isOpeningLesson = false;
+    }
+  }
 
   @override
   void onInit() {
@@ -117,6 +131,14 @@ class ChapterIndexController extends GetxController {
               .map((b) => b.id),
         );
         _applyFilters();
+      } else if (_getLocalTopicStateOverlayUseCase != null) {
+        final overlay = await _getLocalTopicStateOverlayUseCase(activeId);
+        if (isClosed || generation != _loadGeneration) return;
+        if (overlay != null) {
+          completedTopicIds.assignAll(overlay.completedTopicIds);
+          bookmarkedTopicIds.assignAll(overlay.bookmarkedTopicIds);
+          _applyFilters();
+        }
       }
 
       final result = await _getChaptersUseCase(activeId);
@@ -370,6 +392,17 @@ class ChapterIndexController extends GetxController {
             .map((b) => b.id),
       );
       _applyFilters();
+      return;
+    }
+
+    if (_getLocalTopicStateOverlayUseCase != null) {
+      final overlay = await _getLocalTopicStateOverlayUseCase(activeId);
+      if (isClosed) return;
+      if (overlay != null) {
+        completedTopicIds.assignAll(overlay.completedTopicIds);
+        bookmarkedTopicIds.assignAll(overlay.bookmarkedTopicIds);
+        _applyFilters();
+      }
     }
   }
 

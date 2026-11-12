@@ -52,10 +52,14 @@ class LessonRepositoryImpl implements LessonRepository {
     return QuickCheckQuestionEntity(
       id: remote.id,
       topicId: remote.topicId,
+      type: remote.type.isNotEmpty ? remote.type : local.type,
       stem: remote.stem,
       options: mergedOptions,
       explanation: mergedExplanation,
       difficulty: remote.difficulty,
+      boardSource: (remote.boardSource != null && remote.boardSource!.isNotEmpty)
+          ? remote.boardSource
+          : local.boardSource,
     );
   }
 
@@ -301,5 +305,12 @@ class LessonRepositoryImpl implements LessonRepository {
       content: content,
       subjectId: subjectId,
     );
+  }
+
+  @override
+  Future<LocalTopicStateOverlayEntity?> getLocalTopicStateOverlay(
+    String subjectId,
+  ) {
+    return _localDataSource.getLocalTopicStateOverlay(subjectId);
   }
 }

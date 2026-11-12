@@ -30,12 +30,19 @@ import 'package:porhi/features/curriculum/domain/entities/curriculum_entities.da
 import 'package:porhi/features/curriculum/domain/repositories/curriculum_repository.dart';
 import 'package:porhi/features/curriculum/domain/usecases/curriculum_usecases.dart';
 import 'package:porhi/features/curriculum/presentation/curriculum/binding/curriculum_binding.dart';
+import 'package:porhi/features/curriculum/presentation/curriculum/controller/chapter_index_controller.dart';
 import 'package:porhi/features/curriculum/presentation/curriculum/view/chapter_index_view.dart';
+import 'package:porhi/features/dashboard/data/datasources/student_local_datasource.dart';
+import 'package:porhi/features/dashboard/data/datasources/student_remote_datasource.dart';
+import 'package:porhi/features/dashboard/data/models/student_overview_model.dart';
+import 'package:porhi/features/dashboard/data/repositories/student_repository_impl.dart';
 import 'package:porhi/features/dashboard/domain/entities/student_overview_entity.dart';
 import 'package:porhi/features/dashboard/domain/repositories/student_repository.dart';
 import 'package:porhi/features/dashboard/domain/usecases/student_usecases.dart';
 import 'package:porhi/features/dashboard/presentation/dashboard/binding/dashboard_binding.dart';
+import 'package:porhi/features/dashboard/presentation/dashboard/controller/dashboard_controller.dart';
 import 'package:porhi/features/dashboard/presentation/dashboard/view/dashboard_view.dart';
+import 'package:porhi/features/dashboard/presentation/shared/quick_search_sheet.dart';
 import 'package:porhi/features/lesson/data/datasources/lesson_local_datasource.dart';
 import 'package:porhi/features/lesson/data/datasources/lesson_remote_datasource.dart';
 import 'package:porhi/features/lesson/data/models/lesson_models.dart';
@@ -46,6 +53,7 @@ import 'package:porhi/features/lesson/domain/usecases/lesson_usecases.dart';
 import 'package:porhi/features/lesson/presentation/lesson/binding/lesson_binding.dart';
 import 'package:porhi/features/lesson/presentation/lesson/controller/lesson_controller.dart';
 import 'package:porhi/features/lesson/presentation/lesson/view/lesson_view.dart';
+import 'package:porhi/features/lesson/presentation/lesson/widgets/lesson_notes_sheet.dart';
 import 'package:porhi/features/lesson/presentation/lesson/widgets/lesson_quick_check_card.dart';
 import 'package:porhi/routes/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -62,6 +70,9 @@ class _MockContentReportRepository extends Mock
     implements ContentReportRepository {}
 
 class _MockStudentRepository extends Mock implements StudentRepository {}
+
+class _MockStudentRemoteDataSource extends Mock
+    implements StudentRemoteDataSource {}
 
 class _MockCurriculumRepository extends Mock implements CurriculumRepository {}
 
@@ -592,6 +603,76 @@ void main() {
       expect(offlineSync.pendingCount.value, 0);
       expect(await db.getPendingSyncItems(), isEmpty);
     });
+
+    test(
+        'unseeded student_overview falls back to local_lesson_state overlay without faking overview totals',
+        () async {
+      SharedPreferences.setMockInitialValues(<String, Object>{});
+      final prefs = PreferencesStorageService();
+      await prefs.init();
+      final mockStudentRemote = _MockStudentRemoteDataSource();
+      final studentLocal = StudentLocalDataSourceImpl(
+        database: db,
+        preferencesStorage: prefs,
+      );
+      final lessonLocal = LessonLocalDataSourceImpl(database: db);
+      final studentRepo = StudentRepositoryImpl(
+        remoteDataSource: mockStudentRemote,
+        localDataSource: studentLocal,
+        offlineSyncService: offlineSync,
+      );
+
+      await lessonLocal.markCachedLessonCompleted(
+        topicId: 'top_motion_eq',
+        subjectId: 'sub_ssc_physics',
+      );
+      await lessonLocal.saveLocalLessonNote(
+        topicId: 'top_motion_eq',
+        content: 'অফলাইন নোট',
+        subjectId: 'sub_ssc_physics',
+      );
+      await studentRepo.syncCachedBookmark(
+        subjectId: 'sub_ssc_physics',
+        itemId: 'top_motion_eq',
+        itemType: 'topic',
+        titleBangla: 'গতির সমীকরণসমূহ',
+        href: '/lesson/top_motion_eq',
+        bookmarked: true,
+      );
+
+      // Must NOT synthesize a fake 0-total overview row
+      expect(await studentLocal.getCachedOverview('sub_ssc_physics'), isNull);
+
+      final overlay = await repository.getLocalTopicStateOverlay('sub_ssc_physics');
+      expect(overlay, isNotNull);
+      expect(overlay!.completedTopicIds, contains('top_motion_eq'));
+      expect(overlay.bookmarkedTopicIds, contains('top_motion_eq'));
+      expect(overlay.lessonNotes['top_motion_eq'], 'অফলাইন নোট');
+
+      // When real server overview later arrives, overlay merges and clears cleanly
+      await studentLocal.cacheOverview(
+        'sub_ssc_physics',
+        StudentOverviewModel(
+          subjectId: 'sub_ssc_physics',
+          curriculumTotals: <String, dynamic>{
+            'totalChapters': 5,
+            'totalTopics': 25,
+          },
+          completedTopicIds: <String>['top_prev'],
+          lessonNotes: <String, String>{},
+        ),
+      );
+      final mergedOverview =
+          await studentLocal.getCachedOverview('sub_ssc_physics');
+      expect(mergedOverview, isNotNull);
+      expect(mergedOverview!.curriculumTotals['totalTopics'], 25);
+      expect(
+        mergedOverview.completedTopicIds,
+        containsAll(<String>['top_prev', 'top_motion_eq']),
+      );
+      expect(mergedOverview.lessonNotes['top_motion_eq'], 'অফলাইন নোট');
+      expect(await db.getStudentCache('local_lesson_state_sub_ssc_physics'), isNull);
+    });
   });
 
   group('ContentReportRepositoryImpl & SubmitContentReportUseCase', () {
@@ -715,6 +796,8 @@ void main() {
       ).thenAnswer((_) async => const <QuickCheckQuestionEntity>[]);
       when(() => mockLessonRepo.getLocalLessonNote(any()))
           .thenAnswer((_) async => null);
+      when(() => mockLessonRepo.getLocalTopicStateOverlay(any()))
+          .thenAnswer((_) async => null);
       when(
         () => mockLessonRepo.saveLocalLessonNote(
           topicId: any(named: 'topicId'),
@@ -784,6 +867,9 @@ void main() {
       );
       Get.put<SaveLocalLessonNoteUseCase>(
         SaveLocalLessonNoteUseCase(mockLessonRepo),
+      );
+      Get.put<GetLocalTopicStateOverlayUseCase>(
+        GetLocalTopicStateOverlayUseCase(mockLessonRepo),
       );
       Get.put<SubmitContentReportUseCase>(
         SubmitContentReportUseCase(mockReportRepo),
@@ -1240,6 +1326,629 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.byType(LessonView), findsOneWidget);
         expect(find.text('গতির সমীকরণসমূহ'), findsWidgets);
+      },
+    );
+
+    testWidgets(
+      'Prev/Next rapid topic switching discards stale loadTopic & mid-flight completions and swaps player keys',
+      (tester) async {
+        final lesson1 = LessonDetailModel.fromJson(_sampleLessonJson()).toEntity();
+        final lesson2 = LessonDetailModel.fromJson(
+          _sampleLessonJson(
+            id: 'lesson_free_fall',
+            topicId: 'top_free_fall',
+            titleBangla: 'পড়ন্ত বস্তুর সূত্র',
+          ),
+        ).toEntity();
+
+        final slowTopic1Completer =
+            Completer<Either<ErrorResponse, LessonDetailEntity>>();
+        final fastTopic2Completer =
+            Completer<Either<ErrorResponse, LessonDetailEntity>>();
+        final slowCompleteCompleter =
+            Completer<Either<ErrorResponse, LessonCompleteResultEntity>>();
+
+        var topic1FetchCount = 0;
+        when(() => mockLessonRepo.getLessonByTopic('top_motion_eq')).thenAnswer((_) {
+          topic1FetchCount++;
+          if (topic1FetchCount == 1) {
+            return Future<Either<ErrorResponse, LessonDetailEntity>>.value(
+              Right(lesson1),
+            );
+          }
+          return slowTopic1Completer.future;
+        });
+        when(() => mockLessonRepo.getLessonByTopic('top_free_fall'))
+            .thenAnswer((_) => fastTopic2Completer.future);
+        when(
+          () => mockLessonRepo.getTopicQuickQuestions(
+            chapterId: any(named: 'chapterId'),
+            topicId: any(named: 'topicId'),
+          ),
+        ).thenAnswer((_) async => const Right(<QuickCheckQuestionEntity>[]));
+        when(
+          () => mockLessonRepo.completeLesson(
+            topicId: any(named: 'topicId'),
+            lessonId: any(named: 'lessonId'),
+            chapterId: any(named: 'chapterId'),
+            subjectId: any(named: 'subjectId'),
+            timeSpentSeconds: any(named: 'timeSpentSeconds'),
+          ),
+        ).thenAnswer((_) => slowCompleteCompleter.future);
+
+        registerDeps();
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            initialRoute: AppRoutes.lessonForTopic('top_motion_eq'),
+            getPages: <GetPage<dynamic>>[
+              GetPage<dynamic>(
+                name: AppRoutes.lesson,
+                page: () => LessonView(
+                  envConfig: const EnvConfig(apiBaseUrl: 'https://api.porhi.test'),
+                  audioBackendFactory: () => fakeAudio,
+                  ttsBackendFactory: () => fakeTts,
+                  webViewBuilder: (
+                    context,
+                    source, {
+                    required isLocalFile,
+                    required isHtml,
+                  }) =>
+                      Container(
+                    key: const Key('injected_webview_lab'),
+                    child: Text(source),
+                  ),
+                ),
+                binding: LessonBinding(),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final controller = Get.find<LessonController>();
+        expect(controller.nextTopic.value?.id, 'top_free_fall');
+
+        expect(
+          find.byKey(const ValueKey<String>('lesson_audio_lesson_motion_1')),
+          findsOneWidget,
+        );
+
+        // Trigger mid-flight completion on topic 1, then immediately switch to topic 2
+        unawaited(controller.completeLesson());
+        await tester.pump();
+        expect(controller.isCompleting.value, isTrue);
+
+        unawaited(controller.switchToTopic('top_free_fall'));
+        await tester.pump();
+
+        // Busy flags & previous lesson cleared immediately before async response
+        expect(controller.lesson.value, isNull);
+        expect(controller.isCompleting.value, isFalse);
+
+        fastTopic2Completer.complete(Right(lesson2));
+        await tester.pumpAndSettle();
+
+        expect(controller.topicId.value, 'top_free_fall');
+        expect(
+          find.byKey(const ValueKey<String>('lesson_audio_lesson_free_fall')),
+          findsOneWidget,
+        );
+
+        // Stale completion from topic 1 finishes late -> must be ignored
+        slowCompleteCompleter.complete(
+          const Right(
+            LessonCompleteResultEntity(
+              topicId: 'top_motion_eq',
+              isQueuedOffline: false,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(controller.isCompleted.value, isFalse);
+        expect(controller.lesson.value?.topicId, 'top_free_fall');
+
+        // Rapid Prev -> Next race: slow fetch for topic 1 completes AFTER fast fetch for topic 2
+        unawaited(controller.switchToTopic('top_motion_eq'));
+        await tester.pump();
+        final fastTopic2Again =
+            Completer<Either<ErrorResponse, LessonDetailEntity>>();
+        when(() => mockLessonRepo.getLessonByTopic('top_free_fall'))
+            .thenAnswer((_) => fastTopic2Again.future);
+        unawaited(controller.switchToTopic('top_free_fall'));
+        await tester.pump();
+        fastTopic2Again.complete(Right(lesson2));
+        await tester.pumpAndSettle();
+
+        slowTopic1Completer.complete(Right(lesson1));
+        await tester.pumpAndSettle();
+        expect(controller.topicId.value, 'top_free_fall');
+        expect(controller.lesson.value?.id, 'lesson_free_fall');
+      },
+    );
+
+    testWidgets(
+      'LessonView shows localized error+retry on null ErrorResponse.message and disables completed button to prevent duplicate SyncQueue',
+      (tester) async {
+        final lesson1 = LessonDetailModel.fromJson(_sampleLessonJson()).toEntity();
+        var calls = 0;
+        when(() => mockLessonRepo.getLessonByTopic('top_motion_eq')).thenAnswer((_) async {
+          calls++;
+          if (calls == 1) {
+            return Left(
+              ErrorResponse(
+                data: ApiResponseErrorType.serverError,
+                message: null,
+              ),
+            );
+          }
+          return Right(lesson1);
+        });
+        when(
+          () => mockLessonRepo.getTopicQuickQuestions(
+            chapterId: any(named: 'chapterId'),
+            topicId: any(named: 'topicId'),
+          ),
+        ).thenAnswer((_) async => const Right(<QuickCheckQuestionEntity>[]));
+        when(
+          () => mockLessonRepo.completeLesson(
+            topicId: any(named: 'topicId'),
+            lessonId: any(named: 'lessonId'),
+            chapterId: any(named: 'chapterId'),
+            subjectId: any(named: 'subjectId'),
+            timeSpentSeconds: any(named: 'timeSpentSeconds'),
+          ),
+        ).thenAnswer(
+          (_) async => const Right(
+            LessonCompleteResultEntity(
+              topicId: 'top_motion_eq',
+              isQueuedOffline: true,
+            ),
+          ),
+        );
+
+        registerDeps();
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            initialRoute: AppRoutes.lessonForTopic('top_motion_eq'),
+            getPages: <GetPage<dynamic>>[
+              GetPage<dynamic>(
+                name: AppRoutes.lesson,
+                page: () => LessonView(
+                  audioBackendFactory: () => fakeAudio,
+                  ttsBackendFactory: () => fakeTts,
+                  webViewBuilder: (
+                    context,
+                    source, {
+                    required isLocalFile,
+                    required isHtml,
+                  }) =>
+                      SizedBox(child: Text(source)),
+                ),
+                binding: LessonBinding(),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text('পাঠের বিষয়বস্তু লোড করা যায়নি। আবার চেষ্টা করুন।'),
+          findsOneWidget,
+        );
+        await tester.tap(find.text('আবার চেষ্টা করুন'));
+        await tester.pumpAndSettle();
+        expect(find.text('গতির সমীকরণসমূহ'), findsWidgets);
+
+        await tester.tap(find.byKey(const Key('lesson_complete_btn')));
+        await tester.pumpAndSettle();
+        expect(find.text('✓ পাঠ সম্পন্ন'), findsOneWidget);
+
+        // Repeated tap while completed must be disabled and not re-invoke completeLesson
+        await tester.tap(find.byKey(const Key('lesson_complete_btn')));
+        await tester.pumpAndSettle();
+        verify(
+          () => mockLessonRepo.completeLesson(
+            topicId: any(named: 'topicId'),
+            lessonId: any(named: 'lessonId'),
+            chapterId: any(named: 'chapterId'),
+            subjectId: any(named: 'subjectId'),
+            timeSpentSeconds: any(named: 'timeSpentSeconds'),
+          ),
+        ).called(1);
+      },
+    );
+
+    testWidgets(
+      'LessonNotesSheet renders inline error banner on failure, guards close while saving, and validates ReportContentSheet edge cases',
+      (tester) async {
+        final lesson1 = LessonDetailModel.fromJson(_sampleLessonJson()).toEntity();
+        final saveCompleter = Completer<Either<ErrorResponse, String>>();
+        final reportCompleter = Completer<Either<ErrorResponse, ContentReportEntity>>();
+
+        when(() => mockLessonRepo.getLessonByTopic('top_motion_eq'))
+            .thenAnswer((_) async => Right(lesson1));
+        when(
+          () => mockLessonRepo.getTopicQuickQuestions(
+            chapterId: any(named: 'chapterId'),
+            topicId: any(named: 'topicId'),
+          ),
+        ).thenAnswer((_) async => const Right(<QuickCheckQuestionEntity>[]));
+        when(
+          () => mockStudentRepo.saveNote(
+            topicId: any(named: 'topicId'),
+            content: any(named: 'content'),
+          ),
+        ).thenAnswer((_) => saveCompleter.future);
+        when(
+          () => mockReportRepo.submitReport(
+            contentType: any(named: 'contentType'),
+            contentId: any(named: 'contentId'),
+            topicId: any(named: 'topicId'),
+            category: any(named: 'category'),
+            description: any(named: 'description'),
+          ),
+        ).thenAnswer((_) => reportCompleter.future);
+
+        registerDeps();
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            initialRoute: AppRoutes.lessonForTopic('top_motion_eq'),
+            getPages: <GetPage<dynamic>>[
+              GetPage<dynamic>(
+                name: AppRoutes.lesson,
+                page: () => LessonView(
+                  audioBackendFactory: () => fakeAudio,
+                  ttsBackendFactory: () => fakeTts,
+                  webViewBuilder: (
+                    context,
+                    source, {
+                    required isLocalFile,
+                    required isHtml,
+                  }) =>
+                      SizedBox(child: Text(source)),
+                ),
+                binding: LessonBinding(),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // 1) Notes sheet inline error + close disabled while saving
+        await tester.tap(find.byKey(const Key('lesson_footer_notes_btn')));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const Key('lesson_note_input')),
+          'নোট পরিবর্তন',
+        );
+        await tester.tap(find.byKey(const Key('lesson_note_save_btn')));
+        await tester.pump();
+
+        final closeBtn = tester.widget<IconButton>(
+          find.byKey(const Key('lesson_note_close_btn')),
+        );
+        expect(closeBtn.onPressed, isNull);
+        final popScope = tester.widget<PopScope>(
+          find.ancestor(
+            of: find.byKey(const Key('lesson_notes_sheet')),
+            matching: find.byType(PopScope),
+          ),
+        );
+        expect(popScope.canPop, isFalse);
+
+        saveCompleter.complete(
+          Left(
+            ErrorResponse(
+              data: ApiResponseErrorType.serverError,
+              message: 'নোট সেভ করা সম্ভব হয়নি',
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(const Key('lesson_note_error_banner')), findsOneWidget);
+        expect(find.text('নোট সেভ করা সম্ভব হয়নি'), findsOneWidget);
+
+        await tester.tap(find.byKey(const Key('lesson_note_close_btn')));
+        await tester.pumpAndSettle();
+        expect(find.byType(LessonNotesSheet), findsNothing);
+
+        // 2) ReportContentSheet >2000 char validation + double-tap guard + null message fallback
+        await tester.tap(find.byKey(const Key('lesson_footer_report_btn')));
+        await tester.pumpAndSettle();
+
+        final controller = tester.widget<TextField>(
+          find.byKey(const Key('report_description_input')),
+        ).controller!;
+        controller.text = 'a' * 2001;
+        await tester.pump();
+        await tester.ensureVisible(find.byKey(const Key('report_submit_btn')));
+        await tester.tap(find.byKey(const Key('report_submit_btn')));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('report_error_text')), findsOneWidget);
+
+        await tester.enterText(
+          find.byKey(const Key('report_description_input')),
+          'সঠিক বিবরণ',
+        );
+        await tester.ensureVisible(find.byKey(const Key('report_submit_btn')));
+        await tester.tap(find.byKey(const Key('report_submit_btn')));
+        await tester.pump();
+        // Rapid second tap while in-flight must be ignored
+        await tester.tap(
+          find.byKey(const Key('report_submit_btn')),
+          warnIfMissed: false,
+        );
+        await tester.pump();
+
+        reportCompleter.complete(
+          Left(ErrorResponse(data: ApiResponseErrorType.serverError, message: null)),
+        );
+        await tester.pumpAndSettle();
+
+        verify(
+          () => mockReportRepo.submitReport(
+            contentType: any(named: 'contentType'),
+            contentId: any(named: 'contentId'),
+            topicId: any(named: 'topicId'),
+            category: any(named: 'category'),
+            description: any(named: 'description'),
+          ),
+        ).called(1);
+        expect(
+          find.text(
+            'রিপোর্ট পাঠানো যায়নি। ইন্টারনেট সংযোগ যাচাই করে আবার চেষ্টা করো।',
+          ),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
+      'ChapterIndexView and QuickSearchSheet refresh completion/bookmark state after LessonView even with unseeded overview cache',
+      (tester) async {
+        final lesson1 = LessonDetailModel.fromJson(_sampleLessonJson()).toEntity();
+        var overlay = const LocalTopicStateOverlayEntity();
+        StudentOverviewEntity? seededOverview;
+
+        when(() => mockLessonRepo.getLessonByTopic('top_motion_eq'))
+            .thenAnswer((_) async => Right(lesson1));
+        when(
+          () => mockLessonRepo.getTopicQuickQuestions(
+            chapterId: any(named: 'chapterId'),
+            topicId: any(named: 'topicId'),
+          ),
+        ).thenAnswer((_) async => const Right(<QuickCheckQuestionEntity>[]));
+        when(() => mockLessonRepo.getLocalTopicStateOverlay('sub_ssc_physics'))
+            .thenAnswer((_) async => overlay);
+        when(
+          () => mockLessonRepo.completeLesson(
+            topicId: any(named: 'topicId'),
+            lessonId: any(named: 'lessonId'),
+            chapterId: any(named: 'chapterId'),
+            subjectId: any(named: 'subjectId'),
+            timeSpentSeconds: any(named: 'timeSpentSeconds'),
+          ),
+        ).thenAnswer((_) async {
+          overlay = const LocalTopicStateOverlayEntity(
+            completedTopicIds: <String>['top_motion_eq'],
+            bookmarkedTopicIds: <String>['top_motion_eq'],
+          );
+          if (seededOverview != null) {
+            seededOverview = StudentOverviewEntity(
+              subjectId: 'sub_ssc_physics',
+              completedTopicIds: overlay.completedTopicIds,
+            );
+          }
+          return const Right(
+            LessonCompleteResultEntity(
+              topicId: 'top_motion_eq',
+              isQueuedOffline: true,
+            ),
+          );
+        });
+        when(
+          () => mockStudentRepo.getCachedOverview(
+            subjectId: any(named: 'subjectId'),
+          ),
+        ).thenAnswer((_) async => seededOverview);
+        when(() => mockCurriculumRepo.getDownloadedChapters(
+              subjectId: any(named: 'subjectId'),
+            )).thenAnswer((_) async => const <DownloadedChapterEntity>[]);
+        when(() => mockCurriculumRepo.getActiveSubjectId(any()))
+            .thenReturn('sub_ssc_physics');
+        when(() => mockCurriculumRepo.getChapters('sub_ssc_physics'))
+            .thenAnswer(
+          (_) async => Right(<ChapterEntity>[
+            ChapterEntity(
+              id: 'chap_ssc_phy_2',
+              subjectId: 'sub_ssc_physics',
+              orderIndex: 2,
+              titleBangla: 'গতি (Motion)',
+              topics: chapterTopics,
+            ),
+          ]),
+        );
+        when(() => mockCurriculumRepo.getSubjects(program: any(named: 'program')))
+            .thenAnswer((_) async => const Right(<SubjectEntity>[]));
+        when(() => mockCurriculumRepo.getCachedChapters(any()))
+            .thenAnswer((_) async => const <ChapterEntity>[]);
+        when(() => mockStudentRepo.getOverview(subjectId: 'sub_ssc_physics'))
+            .thenAnswer(
+          (_) async => Right(
+            StudentOverviewEntity(
+              subjectId: 'sub_ssc_physics',
+              completedTopicIds: overlay.completedTopicIds,
+            ),
+          ),
+        );
+        when(() => mockStudentRepo.getCachedPlannerSummary())
+            .thenAnswer((_) async => null);
+        when(() => mockStudentRepo.getPlannerSummary())
+            .thenAnswer((_) async => const Right(PlannerOverviewEntity()));
+        when(() => mockStudentRepo.pendingSyncCount).thenReturn(0);
+        when(() => mockStudentRepo.watchPendingSyncCount())
+            .thenAnswer((_) => const Stream<int>.empty());
+        when(
+          () => mockStudentRepo.getCachedQuickSearchCatalog(
+            subjectId: any(named: 'subjectId'),
+          ),
+        ).thenAnswer(
+          (_) async => const <QuickSearchTopicEntity>[
+            QuickSearchTopicEntity(
+              topicId: 'top_motion_eq',
+              topicTitle: 'গতির সমীকরণসমূহ',
+              chapterId: 'chap_ssc_phy_2',
+              chapterTitle: 'গতি (Motion)',
+              subjectId: 'sub_ssc_physics',
+            ),
+          ],
+        );
+        when(
+          () => mockStudentRepo.getQuickSearchCatalog(
+            subjectId: any(named: 'subjectId'),
+          ),
+        ).thenAnswer(
+          (_) async => const Right(<QuickSearchTopicEntity>[
+            QuickSearchTopicEntity(
+              topicId: 'top_motion_eq',
+              topicTitle: 'গতির সমীকরণসমূহ',
+              chapterId: 'chap_ssc_phy_2',
+              chapterTitle: 'গতি (Motion)',
+              subjectId: 'sub_ssc_physics',
+            ),
+          ]),
+        );
+
+        Get.put<GetDownloadedChaptersUseCase>(
+          GetDownloadedChaptersUseCase(mockCurriculumRepo),
+        );
+        Get.put<GetActiveCurriculumSubjectUseCase>(
+          GetActiveCurriculumSubjectUseCase(mockCurriculumRepo),
+        );
+        Get.put<DownloadChapterPackUseCase>(
+          DownloadChapterPackUseCase(mockCurriculumRepo),
+        );
+        Get.put<RemoveChapterPackUseCase>(
+          RemoveChapterPackUseCase(mockCurriculumRepo),
+        );
+        Get.put<FilterChaptersUseCase>(const FilterChaptersUseCase());
+        Get.put<GetOverviewUseCase>(GetOverviewUseCase(mockStudentRepo));
+        Get.put<GetPlannerSummaryUseCase>(
+          GetPlannerSummaryUseCase(mockStudentRepo),
+        );
+        Get.put<GetCachedPlannerSummaryUseCase>(
+          GetCachedPlannerSummaryUseCase(mockStudentRepo),
+        );
+        Get.put<GetQuickSearchCatalogUseCase>(
+          GetQuickSearchCatalogUseCase(mockStudentRepo),
+        );
+        Get.put<GetCachedQuickSearchCatalogUseCase>(
+          GetCachedQuickSearchCatalogUseCase(mockStudentRepo),
+        );
+        Get.put<FilterQuickSearchTopicsUseCase>(
+          const FilterQuickSearchTopicsUseCase(),
+        );
+        Get.put<FlushOfflineSyncUseCase>(
+          FlushOfflineSyncUseCase(mockStudentRepo),
+        );
+        Get.put<GetPendingSyncCountUseCase>(
+          GetPendingSyncCountUseCase(mockStudentRepo),
+        );
+        Get.put<WatchPendingSyncCountUseCase>(
+          WatchPendingSyncCountUseCase(mockStudentRepo),
+        );
+
+        registerDeps();
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            initialRoute: AppRoutes.chaptersForSubject('sub_ssc_physics'),
+            getPages: <GetPage<dynamic>>[
+              GetPage<dynamic>(
+                name: AppRoutes.home,
+                page: () => const DashboardView(),
+                binding: DashboardBinding(),
+              ),
+              GetPage<dynamic>(
+                name: AppRoutes.chapters,
+                page: () => const ChapterIndexView(),
+                binding: CurriculumBinding(),
+              ),
+              GetPage<dynamic>(
+                name: AppRoutes.lesson,
+                page: () => LessonView(
+                  audioBackendFactory: () => fakeAudio,
+                  ttsBackendFactory: () => fakeTts,
+                  webViewBuilder: (
+                    context,
+                    source, {
+                    required isLocalFile,
+                    required isHtml,
+                  }) =>
+                      SizedBox(child: Text(source)),
+                ),
+                binding: LessonBinding(),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final chapterController = Get.find<ChapterIndexController>();
+        expect(chapterController.completedTopicIds, isEmpty);
+
+        // Open LessonView from ChapterIndexView, complete lesson, pop back -> overlay refreshes
+        await tester.drag(find.byType(ListView).first, const Offset(0, -250));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('গতির সমীকরণসমূহ'));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byKey(const Key('lesson_complete_btn')));
+        await tester.pumpAndSettle();
+
+        Get.back<void>();
+        await tester.pumpAndSettle();
+
+        expect(
+          chapterController.completedTopicIds,
+          contains('top_motion_eq'),
+        );
+        expect(
+          chapterController.bookmarkedTopicIds,
+          contains('top_motion_eq'),
+        );
+
+        // QuickSearchSheet selection -> LessonView -> return triggers DashboardController refresh
+        DashboardBinding().dependencies();
+        final dashController = Get.find<DashboardController>();
+        await dashController.loadDashboard();
+        seededOverview = dashController.overview.value;
+        await tester.pumpAndSettle();
+        unawaited(QuickSearchSheet.show(Get.context!));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('গতির সমীকরণসমূহ').last);
+        await tester.pumpAndSettle();
+        expect(find.byType(LessonView), findsOneWidget);
+
+        // Simulate lesson completed after opening from search, then pop back
+        seededOverview = const StudentOverviewEntity(
+          subjectId: 'sub_ssc_physics',
+          completedTopicIds: <String>['top_motion_eq'],
+        );
+        Get.back<void>();
+        await tester.pumpAndSettle();
+        expect(
+          dashController.searchCatalog.first.isCompleted,
+          isTrue,
+        );
       },
     );
   });

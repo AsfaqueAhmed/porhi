@@ -120,3 +120,13 @@ class SaveLocalLessonNoteUseCase {
     );
   }
 }
+
+class GetLocalTopicStateOverlayUseCase {
+  final LessonRepository _repository;
+
+  const GetLocalTopicStateOverlayUseCase(this._repository);
+
+  Future<LocalTopicStateOverlayEntity?> call(String subjectId) {
+    return _repository.getLocalTopicStateOverlay(subjectId);
+  }
+}

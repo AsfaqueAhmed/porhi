@@ -26,11 +26,16 @@ abstract class LessonLocalDataSource {
     required String content,
     String? subjectId,
   });
+
+  Future<LocalTopicStateOverlayEntity?> getLocalTopicStateOverlay(
+    String subjectId,
+  );
 }
 
 class LessonLocalDataSourceImpl implements LessonLocalDataSource {
   static const String _noteCachePrefix = 'lesson_note_';
   static const String _overviewCachePrefix = 'student_overview_';
+  static const String _localDeltaCachePrefix = 'local_lesson_state_';
 
   final AppDatabase _database;
 
@@ -126,8 +131,9 @@ class LessonLocalDataSourceImpl implements LessonLocalDataSource {
   }) async {
     await _database.markCachedLessonCompleted(topicId);
     if (subjectId == null || subjectId.trim().isEmpty) return;
-    await _patchOverviewCache(
-      subjectId: subjectId.trim(),
+    final trimmedSubject = subjectId.trim();
+    final patchedOverview = await _patchOverviewCache(
+      subjectId: trimmedSubject,
       patch: (map) {
         final raw = map['completedTopicIds'];
         final list = raw is List
@@ -139,6 +145,21 @@ class LessonLocalDataSourceImpl implements LessonLocalDataSource {
         }
       },
     );
+    if (!patchedOverview) {
+      await _patchLocalDeltaCache(
+        subjectId: trimmedSubject,
+        patch: (map) {
+          final raw = map['completedTopicIds'];
+          final list = raw is List
+              ? raw.map((e) => e.toString()).where((s) => s.isNotEmpty).toList()
+              : <String>[];
+          if (!list.contains(topicId)) {
+            list.add(topicId);
+            map['completedTopicIds'] = list;
+          }
+        },
+      );
+    }
   }
 
   @override
@@ -172,8 +193,9 @@ class LessonLocalDataSourceImpl implements LessonLocalDataSource {
     );
 
     if (subjectId == null || subjectId.trim().isEmpty) return;
-    await _patchOverviewCache(
-      subjectId: subjectId.trim(),
+    final trimmedSubject = subjectId.trim();
+    final patchedOverview = await _patchOverviewCache(
+      subjectId: trimmedSubject,
       patch: (map) {
         final rawNotes = map['lessonNotes'];
         final notes = rawNotes is Map
@@ -187,23 +209,102 @@ class LessonLocalDataSourceImpl implements LessonLocalDataSource {
         map['lessonNotes'] = notes;
       },
     );
+    if (!patchedOverview) {
+      await _patchLocalDeltaCache(
+        subjectId: trimmedSubject,
+        patch: (map) {
+          final rawNotes = map['lessonNotes'];
+          final notes = rawNotes is Map
+              ? Map<String, dynamic>.from(rawNotes)
+              : <String, dynamic>{};
+          if (content.trim().isEmpty) {
+            notes.remove(topicId);
+          } else {
+            notes[topicId] = content;
+          }
+          map['lessonNotes'] = notes;
+        },
+      );
+    }
   }
 
-  Future<void> _patchOverviewCache({
+  @override
+  Future<LocalTopicStateOverlayEntity?> getLocalTopicStateOverlay(
+    String subjectId,
+  ) async {
+    final trimmed = subjectId.trim();
+    if (trimmed.isEmpty) return null;
+    final row = await _database.getStudentCache('$_localDeltaCachePrefix$trimmed');
+    if (row == null || row.payloadJson.trim().isEmpty) return null;
+    try {
+      final decoded = jsonDecode(row.payloadJson);
+      if (decoded is! Map) return null;
+      final map = Map<String, dynamic>.from(decoded);
+      final completed = (map['completedTopicIds'] is List)
+          ? (map['completedTopicIds'] as List)
+              .map((e) => e.toString())
+              .where((s) => s.isNotEmpty)
+              .toList()
+          : const <String>[];
+      final bookmarked = (map['bookmarkedTopicIds'] is List)
+          ? (map['bookmarkedTopicIds'] as List)
+              .map((e) => e.toString())
+              .where((s) => s.isNotEmpty)
+              .toList()
+          : const <String>[];
+      final notes = <String, String>{};
+      if (map['lessonNotes'] is Map) {
+        for (final entry in (map['lessonNotes'] as Map).entries) {
+          notes[entry.key.toString()] = entry.value?.toString() ?? '';
+        }
+      }
+      return LocalTopicStateOverlayEntity(
+        completedTopicIds: completed,
+        bookmarkedTopicIds: bookmarked,
+        lessonNotes: notes,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<bool> _patchOverviewCache({
     required String subjectId,
     required void Function(Map<String, dynamic> map) patch,
   }) async {
     final key = '$_overviewCachePrefix$subjectId';
     final row = await _database.getStudentCache(key);
-    if (row == null || row.payloadJson.trim().isEmpty) return;
+    if (row == null || row.payloadJson.trim().isEmpty) return false;
     try {
       final decoded = jsonDecode(row.payloadJson);
-      if (decoded is! Map) return;
+      if (decoded is! Map) return false;
       final map = Map<String, dynamic>.from(decoded);
       patch(map);
       await _database.putStudentCache(key, jsonEncode(map));
+      return true;
     } catch (_) {
-      // Ignore malformed cached overview JSON.
+      return false;
     }
+  }
+
+  Future<void> _patchLocalDeltaCache({
+    required String subjectId,
+    required void Function(Map<String, dynamic> map) patch,
+  }) async {
+    final key = '$_localDeltaCachePrefix$subjectId';
+    final row = await _database.getStudentCache(key);
+    var map = <String, dynamic>{};
+    if (row != null && row.payloadJson.trim().isNotEmpty) {
+      try {
+        final decoded = jsonDecode(row.payloadJson);
+        if (decoded is Map) {
+          map = Map<String, dynamic>.from(decoded);
+        }
+      } catch (_) {
+        map = <String, dynamic>{};
+      }
+    }
+    patch(map);
+    await _database.putStudentCache(key, jsonEncode(map));
   }
 }

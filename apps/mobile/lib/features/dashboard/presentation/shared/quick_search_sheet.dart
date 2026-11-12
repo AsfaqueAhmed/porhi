@@ -39,6 +39,7 @@ class QuickSearchSheet extends StatefulWidget {
 
 class _QuickSearchSheetState extends State<QuickSearchSheet> {
   late final DashboardController _controller;
+  bool _isOpeningTopic = false;
 
   @override
   void initState() {
@@ -52,20 +53,19 @@ class _QuickSearchSheetState extends State<QuickSearchSheet> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return _QuickSearchBody(
-      controller: _controller,
-      showCloseButton: true,
-      onTopicSelected: (topic) {
-        Navigator.of(context).pop();
-        if (widget.onTopicSelected != null) {
-          widget.onTopicSelected!(topic);
-          return;
-        }
-        final lessonRoute = AppRoutes.lessonForTopic(topic.topicId);
-        if (Get.routeTree.matchRoute(lessonRoute).route != null) {
-          Get.toNamed(
+  Future<void> _handleTopicTap(QuickSearchTopicEntity topic) async {
+    if (_isOpeningTopic) return;
+    _isOpeningTopic = true;
+    try {
+      Navigator.of(context).pop();
+      if (widget.onTopicSelected != null) {
+        widget.onTopicSelected!(topic);
+        return;
+      }
+      final lessonRoute = AppRoutes.lessonForTopic(topic.topicId);
+      if (Get.routeTree.matchRoute(lessonRoute).route != null) {
+        await _controller.runLessonNavigation(() async {
+          await Get.toNamed(
             lessonRoute,
             arguments: LessonRouteArgs(
               subjectId: topic.subjectId,
@@ -74,12 +74,28 @@ class _QuickSearchSheetState extends State<QuickSearchSheet> {
               topicTitle: topic.topicTitle,
             ),
           );
-          return;
-        }
-        if (Get.isRegistered<MainShellController>()) {
-          Get.find<MainShellController>().selectTab(1);
-        }
-      },
+          if (Get.isRegistered<DashboardController>()) {
+            await Get.find<DashboardController>().refreshLanguageAndUser();
+          }
+        });
+        return;
+      }
+      if (Get.isRegistered<MainShellController>()) {
+        Get.find<MainShellController>().selectTab(1);
+      }
+    } finally {
+      if (mounted) {
+        _isOpeningTopic = false;
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return _QuickSearchBody(
+      controller: _controller,
+      showCloseButton: true,
+      onTopicSelected: _handleTopicTap,
     );
   }
 }

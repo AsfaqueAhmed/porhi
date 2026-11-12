@@ -18,6 +18,7 @@ class LessonController extends GetxController {
   final CompleteLessonUseCase _completeLessonUseCase;
   final GetLocalLessonNoteUseCase _getLocalLessonNoteUseCase;
   final SaveLocalLessonNoteUseCase _saveLocalLessonNoteUseCase;
+  final GetLocalTopicStateOverlayUseCase? _getLocalTopicStateOverlayUseCase;
   final ToggleBookmarkUseCase _toggleBookmarkUseCase;
   final PatchCachedBookmarkUseCase _patchCachedBookmarkUseCase;
   final SaveNoteUseCase _saveNoteUseCase;
@@ -39,6 +40,7 @@ class LessonController extends GetxController {
     required this._completeLessonUseCase,
     required this._getLocalLessonNoteUseCase,
     required this._saveLocalLessonNoteUseCase,
+    this._getLocalTopicStateOverlayUseCase,
     required this._toggleBookmarkUseCase,
     required this._patchCachedBookmarkUseCase,
     required this._saveNoteUseCase,
@@ -52,8 +54,6 @@ class LessonController extends GetxController {
     required this._getActiveSubjectIdUseCase,
   });
 
-  final TextEditingController noteController = TextEditingController();
-  final FocusNode noteFocusNode = FocusNode();
   final ScrollController scrollController = ScrollController();
 
   final Rx<AppLanguage> language = AppLanguage.bn.obs;
@@ -153,8 +153,14 @@ class LessonController extends GetxController {
     final trimmed = nextTopicId.trim();
     if (trimmed.isEmpty || trimmed == topicId.value) return;
     topicId.value = trimmed;
+    final expectedGeneration = _loadGeneration + 1;
+    if (scrollController.hasClients) {
+      scrollController.jumpTo(0);
+    }
     await loadTopic(trimmed);
-    if (!isClosed && scrollController.hasClients) {
+    if (!isClosed &&
+        _loadGeneration == expectedGeneration &&
+        scrollController.hasClients) {
       scrollController.jumpTo(0);
     }
   }
@@ -166,7 +172,9 @@ class LessonController extends GetxController {
     final generation = ++_loadGeneration;
     _openedAt = DateTime.now();
 
+    lesson.value = null;
     isLoading.value = true;
+    isOfflineMode.value = false;
     errorMessage.value = null;
     statusMessage.value = null;
     isStatusError.value = false;
@@ -178,7 +186,11 @@ class LessonController extends GetxController {
     isCompleted.value = false;
     isBookmarked.value = false;
     savedNote.value = '';
-    noteController.clear();
+    isCompleting.value = false;
+    isTogglingBookmark.value = false;
+    isSavingNote.value = false;
+    isSubmittingFeedback.value = false;
+    isSubmittingQuickCheck.value = false;
     _updateAdjacentTopics(activeTopicId);
 
     try {
@@ -288,7 +300,22 @@ class LessonController extends GetxController {
       final overviewNote = overview.lessonNotes[topicId];
       if (overviewNote != null && overviewNote.isNotEmpty) {
         savedNote.value = overviewNote;
-        noteController.text = overviewNote;
+      }
+    } else if (_getLocalTopicStateOverlayUseCase != null &&
+        activeSubject.isNotEmpty) {
+      final overlay = await _getLocalTopicStateOverlayUseCase(activeSubject);
+      if (isClosed || generation != _loadGeneration) return;
+      if (overlay != null) {
+        if (overlay.completedTopicIds.contains(topicId)) {
+          isCompleted.value = true;
+        }
+        if (overlay.bookmarkedTopicIds.contains(topicId)) {
+          isBookmarked.value = true;
+        }
+        final overlayNote = overlay.lessonNotes[topicId];
+        if (overlayNote != null && overlayNote.isNotEmpty) {
+          savedNote.value = overlayNote;
+        }
       }
     }
 
@@ -296,7 +323,6 @@ class LessonController extends GetxController {
     if (isClosed || generation != _loadGeneration) return;
     if (localNote != null) {
       savedNote.value = localNote;
-      noteController.text = localNote;
     }
   }
 
@@ -326,46 +352,7 @@ class LessonController extends GetxController {
       },
       (items) {
         if (items.isNotEmpty) {
-          if (cached.isEmpty) {
-            quickQuestions.assignAll(items);
-            return;
-          }
-          final cachedById = <String, QuickCheckQuestionEntity>{
-            for (final c in cached) c.id: c,
-          };
-          final merged = items.map((item) {
-            final local = cachedById[item.id];
-            if (local == null) return item;
-            final hasRemoteKey = item.options.any((o) => o.isCorrect != null);
-            final localCorrect = <String, bool>{
-              for (final o in local.options)
-                if (o.isCorrect != null) o.id: o.isCorrect!,
-            };
-            final mergedOptions = hasRemoteKey || localCorrect.isEmpty
-                ? item.options
-                : item.options
-                    .map(
-                      (o) => QuickCheckOptionEntity(
-                        id: o.id,
-                        text: o.text,
-                        isCorrect: o.isCorrect ?? localCorrect[o.id],
-                      ),
-                    )
-                    .toList();
-            final mergedExplanation =
-                (item.explanation != null && item.explanation!.isNotEmpty)
-                    ? item.explanation
-                    : local.explanation;
-            return QuickCheckQuestionEntity(
-              id: item.id,
-              topicId: item.topicId,
-              stem: item.stem,
-              options: mergedOptions,
-              explanation: mergedExplanation,
-              difficulty: item.difficulty,
-            );
-          }).toList();
-          quickQuestions.assignAll(merged);
+          quickQuestions.assignAll(items);
         }
       },
     );
@@ -474,11 +461,12 @@ class LessonController extends GetxController {
   }
 
   Future<void> completeLesson() async {
-    if (isCompleting.value) return;
+    if (isCompleting.value || isCompleted.value) return;
     final currentLesson = lesson.value;
     final activeTopicId = topicId.value;
     if (activeTopicId.isEmpty) return;
 
+    final generation = _loadGeneration;
     isCompleting.value = true;
     statusMessage.value = null;
     isStatusError.value = false;
@@ -486,18 +474,21 @@ class LessonController extends GetxController {
     try {
       final elapsed =
           DateTime.now().difference(_openedAt).inSeconds.clamp(1, 36000);
+      final resolvedChapterId = chapterId.value.isNotEmpty
+          ? chapterId.value
+          : (currentLesson?.chapterId ?? '');
+      final resolvedSubjectId = subjectId.value.isNotEmpty
+          ? subjectId.value
+          : (currentLesson?.subjectId ?? '');
+
       final result = await _completeLessonUseCase(
         topicId: activeTopicId,
         lessonId: currentLesson?.id,
-        chapterId: chapterId.value.isNotEmpty
-            ? chapterId.value
-            : currentLesson?.chapterId,
-        subjectId: subjectId.value.isNotEmpty
-            ? subjectId.value
-            : currentLesson?.subjectId,
+        chapterId: resolvedChapterId.isNotEmpty ? resolvedChapterId : null,
+        subjectId: resolvedSubjectId.isNotEmpty ? resolvedSubjectId : null,
         timeSpentSeconds: elapsed,
       );
-      if (isClosed) return;
+      if (isClosed || generation != _loadGeneration) return;
 
       result.fold(
         (err) {
@@ -528,7 +519,7 @@ class LessonController extends GetxController {
         },
       );
     } finally {
-      if (!isClosed) {
+      if (!isClosed && generation == _loadGeneration) {
         isCompleting.value = false;
       }
     }
@@ -540,6 +531,7 @@ class LessonController extends GetxController {
     final activeTopicId = topicId.value;
     if (activeTopicId.isEmpty) return;
 
+    final generation = _loadGeneration;
     isTogglingBookmark.value = true;
     statusMessage.value = null;
     isStatusError.value = false;
@@ -558,7 +550,7 @@ class LessonController extends GetxController {
         subtitleBangla: subtitle,
         href: href,
       );
-      if (isClosed) return;
+      if (isClosed || generation != _loadGeneration) return;
 
       await result.fold(
         (err) async {
@@ -595,30 +587,28 @@ class LessonController extends GetxController {
         },
       );
     } finally {
-      if (!isClosed) {
+      if (!isClosed && generation == _loadGeneration) {
         isTogglingBookmark.value = false;
       }
     }
   }
 
-  Future<bool> saveNote([String? overrideContent]) async {
-    if (isSavingNote.value) return false;
+  Future<String?> saveNote(String rawContent) async {
+    if (isSavingNote.value) return null;
     final activeTopicId = topicId.value;
-    if (activeTopicId.isEmpty) return false;
+    if (activeTopicId.isEmpty) return null;
 
-    final rawContent = overrideContent ?? noteController.text;
+    final generation = _loadGeneration;
     isSavingNote.value = true;
-    statusMessage.value = null;
-    isStatusError.value = false;
 
     try {
       final result = await _saveNoteUseCase(
         topicId: activeTopicId,
         content: rawContent,
       );
-      if (isClosed) return false;
+      if (isClosed || generation != _loadGeneration) return null;
 
-      var succeeded = false;
+      String? errorText;
       await result.fold(
         (err) async {
           if (err.data == ApiResponseErrorType.noInternet ||
@@ -628,22 +618,19 @@ class LessonController extends GetxController {
               content: rawContent,
               subjectId: subjectId.value,
             );
-            if (isClosed) return;
+            if (isClosed || generation != _loadGeneration) return;
             savedNote.value = rawContent;
-            noteController.text = rawContent;
             isStatusError.value = false;
             statusMessage.value = AppStrings.tr(
               'নোটটি ডিভাইসে অফলাইনে সংরক্ষিত হয়েছে।',
               'Note saved locally on device.',
               language.value,
             );
-            succeeded = true;
           } else {
-            isStatusError.value = true;
-            statusMessage.value = _resolveErrorMessage(
+            errorText = _resolveErrorMessage(
               err,
-              fallbackBn: 'নোট সংরক্ষণ করা যায়নি।',
-              fallbackEn: 'Could not save note.',
+              fallbackBn: 'নোট সংরক্ষণ করা যায়নি। আবার চেষ্টা করো।',
+              fallbackEn: 'Could not save note. Please try again.',
             );
           }
         },
@@ -653,9 +640,8 @@ class LessonController extends GetxController {
             content: saved,
             subjectId: subjectId.value,
           );
-          if (isClosed) return;
+          if (isClosed || generation != _loadGeneration) return;
           savedNote.value = saved;
-          noteController.text = saved;
           isStatusError.value = false;
           statusMessage.value = saved.trim().isEmpty
               ? AppStrings.tr('নোট মুছে ফেলা হয়েছে।', 'Note cleared.', language.value)
@@ -664,12 +650,11 @@ class LessonController extends GetxController {
                   'Personal note saved.',
                   language.value,
                 );
-          succeeded = true;
         },
       );
-      return succeeded;
+      return errorText;
     } finally {
-      if (!isClosed) {
+      if (!isClosed && generation == _loadGeneration) {
         isSavingNote.value = false;
       }
     }
@@ -680,6 +665,7 @@ class LessonController extends GetxController {
     final currentLesson = lesson.value;
     if (currentLesson == null || currentLesson.id.isEmpty) return;
 
+    final generation = _loadGeneration;
     isSubmittingFeedback.value = true;
     feedbackChoice.value = helpful;
 
@@ -689,7 +675,7 @@ class LessonController extends GetxController {
         contentId: currentLesson.id,
         helpful: helpful,
       );
-      if (isClosed) return;
+      if (isClosed || generation != _loadGeneration) return;
 
       result.fold(
         (err) {
@@ -710,7 +696,7 @@ class LessonController extends GetxController {
         },
       );
     } finally {
-      if (!isClosed) {
+      if (!isClosed && generation == _loadGeneration) {
         isSubmittingFeedback.value = false;
       }
     }
@@ -721,6 +707,7 @@ class LessonController extends GetxController {
     final question = currentQuickQuestion;
     if (question == null) return;
 
+    final generation = _loadGeneration;
     selectedOptionId.value = optionId;
     isSubmittingQuickCheck.value = true;
 
@@ -729,7 +716,7 @@ class LessonController extends GetxController {
         question: question,
         selectedOptionId: optionId,
       );
-      if (isClosed) return;
+      if (isClosed || generation != _loadGeneration) return;
 
       result.fold(
         (err) {
@@ -754,7 +741,7 @@ class LessonController extends GetxController {
         },
       );
     } finally {
-      if (!isClosed) {
+      if (!isClosed && generation == _loadGeneration) {
         isSubmittingQuickCheck.value = false;
       }
     }
@@ -782,8 +769,6 @@ class LessonController extends GetxController {
 
   @override
   void onClose() {
-    noteController.dispose();
-    noteFocusNode.dispose();
     scrollController.dispose();
     super.onClose();
   }

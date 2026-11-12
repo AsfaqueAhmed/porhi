@@ -43,4 +43,8 @@ abstract class LessonRepository {
     required String content,
     String? subjectId,
   });
+
+  Future<LocalTopicStateOverlayEntity?> getLocalTopicStateOverlay(
+    String subjectId,
+  );
 }

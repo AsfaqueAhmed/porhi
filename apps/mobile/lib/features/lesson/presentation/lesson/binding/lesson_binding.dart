@@ -25,6 +25,10 @@ class LessonBinding extends Bindings {
           completeLessonUseCase: Get.find<CompleteLessonUseCase>(),
           getLocalLessonNoteUseCase: Get.find<GetLocalLessonNoteUseCase>(),
           saveLocalLessonNoteUseCase: Get.find<SaveLocalLessonNoteUseCase>(),
+          getLocalTopicStateOverlayUseCase:
+              Get.isRegistered<GetLocalTopicStateOverlayUseCase>()
+                  ? Get.find<GetLocalTopicStateOverlayUseCase>()
+                  : null,
           toggleBookmarkUseCase: Get.find<ToggleBookmarkUseCase>(),
           patchCachedBookmarkUseCase: Get.find<PatchCachedBookmarkUseCase>(),
           saveNoteUseCase: Get.find<SaveNoteUseCase>(),

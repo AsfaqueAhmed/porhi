@@ -252,16 +252,18 @@ class DashboardView extends GetView<DashboardController> {
   }) async {
     final lessonRoute = AppRoutes.lessonForTopic(topicId);
     if (Get.routeTree.matchRoute(lessonRoute).route != null) {
-      await Get.toNamed(
-        lessonRoute,
-        arguments: LessonRouteArgs(
-          subjectId: subjectId,
-          chapterId: chapterId,
-          chapterTitle: chapterTitle,
-          topicTitle: topicTitle,
-        ),
-      );
-      await controller.refreshLanguageAndUser();
+      await controller.runLessonNavigation(() async {
+        await Get.toNamed(
+          lessonRoute,
+          arguments: LessonRouteArgs(
+            subjectId: subjectId,
+            chapterId: chapterId,
+            chapterTitle: chapterTitle,
+            topicTitle: topicTitle,
+          ),
+        );
+        await controller.refreshLanguageAndUser();
+      });
       return;
     }
     _selectShellTab(1);

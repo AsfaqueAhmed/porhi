@@ -113,7 +113,20 @@ class DashboardController extends GetxController {
       if (cachedOverview != null &&
           cachedOverview.subjectId == activeSubjectId.value) {
         overview.value = cachedOverview;
+        _syncSearchCatalogCompletion(cachedOverview.completedTopicIds);
       }
+    }
+  }
+
+  bool _isOpeningLesson = false;
+
+  Future<void> runLessonNavigation(Future<void> Function() action) async {
+    if (_isOpeningLesson) return;
+    _isOpeningLesson = true;
+    try {
+      await action();
+    } finally {
+      _isOpeningLesson = false;
     }
   }
 
