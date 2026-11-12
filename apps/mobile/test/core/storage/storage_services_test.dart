@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:common/common.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -106,6 +109,61 @@ void main() {
       expect(await service.readSecure('custom_key'), 'custom_value');
       verify(() => mockSecureStorage.read(key: 'custom_key')).called(1);
     });
+
+    test('init recovers from PlatformException and does not clobber concurrent writes', () async {
+      final refreshReadGate = Completer<String?>();
+      when(
+        () => mockSecureStorage.read(key: SecureStorageService.accessTokenKey),
+      ).thenThrow(PlatformException(code: 'BAD_DECRYPT'));
+      when(
+        () => mockSecureStorage.read(key: SecureStorageService.refreshTokenKey),
+      ).thenAnswer((_) => refreshReadGate.future);
+      when(
+        () => mockSecureStorage.read(key: SecureStorageService.cachedUserKey),
+      ).thenAnswer((_) async => null);
+
+      final initFuture = service.init();
+      final writeFuture = service.write(
+        SecureStorageService.refreshTokenKey,
+        'fresh-write-token',
+      );
+
+      refreshReadGate.complete('stale-disk-token');
+      await Future.wait([initFuture, writeFuture]);
+
+      expect(service.accessToken, isNull);
+      expect(service.refreshToken, 'fresh-write-token');
+      verify(
+        () => mockSecureStorage.delete(key: SecureStorageService.accessTokenKey),
+      ).called(1);
+    });
+
+    test('write does not update cache when FlutterSecureStorage throws PlatformException', () async {
+      when(
+        () => mockSecureStorage.write(
+          key: SecureStorageService.accessTokenKey,
+          value: any(named: 'value'),
+        ),
+      ).thenThrow(PlatformException(code: 'KEYSTORE_ERROR'));
+
+      await expectLater(
+        () => service.write(SecureStorageService.accessTokenKey, 'bad-token'),
+        throwsA(isA<PlatformException>()),
+      );
+      expect(service.accessToken, isNull);
+    });
+
+    test('saveTokens preserves existing refreshToken when null or empty is passed', () async {
+      await service.saveTokens(
+        accessToken: 'access-1',
+        refreshToken: 'refresh-1',
+      );
+      await service.saveTokens(accessToken: 'access-2', refreshToken: null);
+      await service.saveTokens(accessToken: 'access-3', refreshToken: '');
+
+      expect(service.accessToken, 'access-3');
+      expect(service.refreshToken, 'refresh-1');
+    });
   });
 
   group('PreferencesStorageService', () {
@@ -138,6 +196,30 @@ void main() {
       expect(await service.clear(), isTrue);
       expect(service.getBool('offline_only'), isFalse);
       expect(service.getInt('streak_days'), isNull);
+    });
+
+    test('handles mixed-type reads safely across read, getBool, and getInt', () async {
+      SharedPreferences.setMockInitialValues({
+        'flag_bool': true,
+        'count_int': 42,
+        'str_bool': 'true',
+        'str_int': '99',
+      });
+      final service = PreferencesStorageService();
+      await service.init();
+
+      // Reading bool/int keys through BaseStorageService.read() never throws TypeError
+      expect(service.read('flag_bool'), 'true');
+      expect(service.read('count_int'), '42');
+
+      // Reading string-encoded values through typed getters converts cleanly
+      expect(service.getBool('str_bool'), isTrue);
+      expect(service.getInt('str_int'), 99);
+
+      await service.setBool('flag_written_bool', false);
+      expect(service.read('flag_written_bool'), 'false');
+      await service.setInt('int_written', 7);
+      expect(service.read('int_written'), '7');
     });
   });
 }

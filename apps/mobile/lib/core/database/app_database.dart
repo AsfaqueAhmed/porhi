@@ -166,6 +166,8 @@ LazyDatabase _openConnection() {
   ],
 )
 class AppDatabase extends _$AppDatabase {
+  static const int _maxSqlVariableChunkSize = 500;
+
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
@@ -230,6 +232,7 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<void> upsertCachedLessons(List<CachedLessonInput> items) {
+    if (items.isEmpty) return Future.value();
     return batch((b) {
       b.insertAllOnConflictUpdate(
         cachedLessons,
@@ -259,11 +262,22 @@ class AppDatabase extends _$AppDatabase {
   }
 
   Future<CachedLesson?> getCachedLessonByTopic(String topicId) {
-    return (select(cachedLessons)..where((t) => t.topicId.equals(topicId)))
+    return (select(cachedLessons)
+          ..where((t) => t.topicId.equals(topicId))
+          ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)])
+          ..limit(1))
         .getSingleOrNull();
   }
 
+  Future<List<CachedLesson>> getCachedLessonsByTopic(String topicId) {
+    return (select(cachedLessons)
+          ..where((t) => t.topicId.equals(topicId))
+          ..orderBy([(t) => OrderingTerm.desc(t.updatedAt)]))
+        .get();
+  }
+
   Future<void> upsertCachedQuestions(List<CachedQuestionInput> items) {
+    if (items.isEmpty) return Future.value();
     return batch((b) {
       b.insertAllOnConflictUpdate(
         cachedQuestions,
@@ -310,20 +324,40 @@ class AppDatabase extends _$AppDatabase {
     DateTime? updatedAt,
   }) {
     final now = updatedAt ?? DateTime.now().toUtc();
-    return into(activeExamDrafts).insertOnConflictUpdate(
+    final encodedQuestionIds = jsonEncode(questionIds);
+    final encodedAnswers = jsonEncode(answers);
+    final encodedFlags = jsonEncode(flaggedQuestionIds);
+
+    return into(activeExamDrafts).insert(
       ActiveExamDraftsCompanion.insert(
         sessionId: sessionId,
         subjectId: subjectId,
         chapterId: Value(chapterId),
         testType: Value(testType),
-        questionIdsJson: jsonEncode(questionIds),
-        answersJson: Value(jsonEncode(answers)),
-        flaggedQuestionIdsJson: Value(jsonEncode(flaggedQuestionIds)),
+        questionIdsJson: encodedQuestionIds,
+        answersJson: Value(encodedAnswers),
+        flaggedQuestionIdsJson: Value(encodedFlags),
         remainingSeconds: remainingSeconds,
         totalDurationSeconds: totalDurationSeconds,
         currentIndex: Value(currentIndex),
         startedAt: startedAt ?? now,
         updatedAt: now,
+      ),
+      onConflict: DoUpdate(
+        (_) => ActiveExamDraftsCompanion(
+          subjectId: Value(subjectId),
+          chapterId: Value(chapterId),
+          testType: Value(testType),
+          questionIdsJson: Value(encodedQuestionIds),
+          answersJson: Value(encodedAnswers),
+          flaggedQuestionIdsJson: Value(encodedFlags),
+          remainingSeconds: Value(remainingSeconds),
+          totalDurationSeconds: Value(totalDurationSeconds),
+          currentIndex: Value(currentIndex),
+          startedAt:
+              startedAt != null ? Value(startedAt) : const Value.absent(),
+          updatedAt: Value(now),
+        ),
       ),
     );
   }
@@ -387,7 +421,17 @@ class AppDatabase extends _$AppDatabase {
 
   Future<int> deleteSyncItemsByIds(List<int> ids) {
     if (ids.isEmpty) return Future.value(0);
-    return (delete(syncQueue)..where((t) => t.id.isIn(ids))).go();
+    return transaction(() async {
+      var deletedCount = 0;
+      for (var i = 0; i < ids.length; i += _maxSqlVariableChunkSize) {
+        final end = (i + _maxSqlVariableChunkSize).clamp(0, ids.length);
+        final chunk = ids.sublist(i, end);
+        deletedCount += await (delete(syncQueue)
+              ..where((t) => t.id.isIn(chunk)))
+            .go();
+      }
+      return deletedCount;
+    });
   }
 
   Future<void> markSyncRetryFailed(
@@ -397,17 +441,19 @@ class AppDatabase extends _$AppDatabase {
   }) {
     if (ids.isEmpty) return Future.value();
     final now = attemptedAt ?? DateTime.now().toUtc();
-    return customUpdate(
-      'UPDATE sync_queue SET retry_count = retry_count + 1, '
-      'last_error = ?, last_attempt_at = ? '
-      'WHERE id IN (${List.filled(ids.length, '?').join(', ')})',
-      variables: [
-        Variable<String>(errorMessage),
-        Variable<DateTime>(now),
-        for (final id in ids) Variable<int>(id),
-      ],
-      updates: {syncQueue},
-    );
+    return transaction(() async {
+      for (var i = 0; i < ids.length; i += _maxSqlVariableChunkSize) {
+        final end = (i + _maxSqlVariableChunkSize).clamp(0, ids.length);
+        final chunk = ids.sublist(i, end);
+        await (update(syncQueue)..where((t) => t.id.isIn(chunk))).write(
+          SyncQueueCompanion.custom(
+            retryCount: syncQueue.retryCount + const Constant(1),
+            lastError: Variable<String>(errorMessage),
+            lastAttemptAt: Variable<DateTime>(now),
+          ),
+        );
+      }
+    });
   }
 
   // ---------------------------------------------------------------------------

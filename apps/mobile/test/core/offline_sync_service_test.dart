@@ -354,5 +354,137 @@ void main() {
         service.onClose();
       },
     );
+
+    test(
+      'quarantines malformed JSON and unknown eventType rows without blocking valid rows',
+      () async {
+        OfflineSyncPayload? captured;
+        final service = OfflineSyncService(
+          database: db,
+          syncHandler: (payload) async {
+            captured = payload;
+            return const Right(null);
+          },
+        );
+        await service.init();
+
+        await db.enqueueSyncItem(
+          eventId: 'bad-json',
+          eventType: OfflineSyncService.typeLessonComplete,
+          payloadJson: '{corrupt-json',
+        );
+        await db.enqueueSyncItem(
+          eventId: 'unknown-type',
+          eventType: 'future_event_type',
+          payloadJson: '{"foo":"bar"}',
+        );
+        await service.enqueueLessonComplete(
+          offlineEventId: 'good-lesson',
+          topicId: 'topic-ok',
+        );
+
+        final result = await service.flushPendingQueue();
+        expect(result.isRight(), isTrue);
+        expect(result.getOrElse(() => -1), 1);
+        expect(captured?.lessonCompletes, hasLength(1));
+        expect(captured?.lessonCompletes.first.offlineEventId, 'good-lesson');
+
+        final remaining = await db.getPendingSyncItems();
+        expect(remaining.map((r) => r.eventId).toList(), [
+          'bad-json',
+          'unknown-type',
+        ]);
+        expect(remaining.every((r) => r.retryCount == 1), isTrue);
+        expect(remaining.every((r) => r.lastError != null), isTrue);
+        expect(service.pendingCount.value, 2);
+
+        // Invalid-only flush returns Left without invoking syncHandler
+        var handlerInvoked = false;
+        service.setSyncHandler((_) async {
+          handlerInvoked = true;
+          return const Right(null);
+        });
+        final invalidOnlyResult = await service.flushPendingQueue();
+        expect(invalidOnlyResult.isLeft(), isTrue);
+        expect(handlerInvoked, isFalse);
+
+        service.onClose();
+      },
+    );
+
+    test(
+      'flushes SyncQueue in bounded batches of maxBatchSize and stops cleanly on batch failure',
+      () async {
+        final batchSizes = <int>[];
+        var batchNumber = 0;
+        final service = OfflineSyncService(
+          database: db,
+          syncHandler: (payload) async {
+            batchNumber++;
+            batchSizes.add(payload.lessonCompletes.length);
+            if (batchNumber == 2) {
+              return Left(
+                ErrorResponse.byErrorType(
+                  errorType: ApiResponseErrorType.serverError,
+                ),
+              );
+            }
+            return const Right(null);
+          },
+        );
+        await service.init();
+
+        for (var i = 0; i < 125; i++) {
+          await service.enqueueLessonComplete(topicId: 'topic-$i');
+        }
+
+        // Verify unique generated event IDs
+        final allBefore = await db.getPendingSyncItems();
+        expect(allBefore.map((e) => e.eventId).toSet(), hasLength(125));
+
+        final result = await service.flushPendingQueue();
+        expect(result.isLeft(), isTrue);
+        expect(batchSizes, [100, 25]);
+
+        // First 100 deleted; remaining 25 preserved with retryCount == 1
+        final remaining = await db.getPendingSyncItems();
+        expect(remaining, hasLength(25));
+        expect(remaining.every((r) => r.retryCount == 1), isTrue);
+        expect(service.pendingCount.value, 25);
+
+        service.onClose();
+      },
+    );
+
+    test('clamps negative exam durationSeconds to zero', () async {
+      OfflineSyncPayload? captured;
+      final service = OfflineSyncService(
+        database: db,
+        syncHandler: (payload) async {
+          captured = payload;
+          return const Right(null);
+        },
+      );
+      await service.init();
+
+      await service.enqueueExamSubmission(
+        offlineSessionId: 'exam-neg-duration',
+        subjectId: 'sub-1',
+        durationSeconds: -42,
+        answers: const [
+          OfflineExamAnswerItem(questionId: 'q1', selectedOptionId: 'a'),
+        ],
+      );
+
+      final result = await service.flushPendingQueue();
+      expect(result.isRight(), isTrue);
+      expect(captured?.examSubmissions.first.durationSeconds, 0);
+      expect(
+        captured?.toJson()['examSubmissions'][0]['durationSeconds'],
+        0,
+      );
+
+      service.onClose();
+    });
   });
 }

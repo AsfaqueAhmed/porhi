@@ -113,24 +113,27 @@ class OfflineExamSubmissionItem {
   final List<OfflineExamAnswerItem> answers;
   final String? submittedAt;
 
-  const OfflineExamSubmissionItem({
+  OfflineExamSubmissionItem({
     required this.offlineSessionId,
     required this.subjectId,
     this.chapterId,
     this.testType,
-    this.durationSeconds,
+    int? durationSeconds,
     required this.answers,
     this.submittedAt,
-  });
+  }) : durationSeconds =
+           durationSeconds == null ? null : (durationSeconds < 0 ? 0 : durationSeconds);
 
   factory OfflineExamSubmissionItem.fromJson(Map<String, dynamic> json) {
     final rawAnswers = json['answers'] as List<dynamic>? ?? const [];
+    final rawDuration = (json['durationSeconds'] as num?)?.toInt();
     return OfflineExamSubmissionItem(
       offlineSessionId: json['offlineSessionId'] as String,
       subjectId: json['subjectId'] as String,
       chapterId: json['chapterId'] as String?,
       testType: json['testType'] as String?,
-      durationSeconds: (json['durationSeconds'] as num?)?.toInt(),
+      durationSeconds:
+          rawDuration == null ? null : (rawDuration < 0 ? 0 : rawDuration),
       answers: rawAnswers
           .map(
             (e) => OfflineExamAnswerItem.fromJson(
@@ -147,7 +150,8 @@ class OfflineExamSubmissionItem {
         'subjectId': subjectId,
         if (chapterId != null) 'chapterId': chapterId,
         if (testType != null) 'testType': testType,
-        if (durationSeconds != null) 'durationSeconds': durationSeconds,
+        if (durationSeconds != null)
+          'durationSeconds': durationSeconds! < 0 ? 0 : durationSeconds,
         'answers': answers.map((a) => a.toJson()).toList(),
         if (submittedAt != null) 'submittedAt': submittedAt,
       };
@@ -186,6 +190,7 @@ class OfflineSyncService extends GetxService {
   static const String typeLessonComplete = 'lesson_complete';
   static const String typePracticeAttempt = 'practice_attempt';
   static const String typeExamSubmission = 'exam_submission';
+  static const int maxBatchSize = 100;
 
   final AppDatabase _database;
   SyncOfflineCallback? _syncHandler;
@@ -194,6 +199,7 @@ class OfflineSyncService extends GetxService {
   StreamSubscription<int>? _countSubscription;
   Future<Either<ErrorResponse, int>>? _inFlightFlush;
   final Random _random = Random();
+  int _eventSequence = 0;
 
   OfflineSyncService({
     required this._database,
@@ -218,8 +224,9 @@ class OfflineSyncService extends GetxService {
 
   String _generateEventId(String prefix) {
     final micros = DateTime.now().toUtc().microsecondsSinceEpoch;
+    final seq = _eventSequence++;
     final salt = _random.nextInt(1 << 20);
-    return '$prefix-$micros-$salt';
+    return '$prefix-$micros-$seq-$salt';
   }
 
   Future<void> enqueueLessonComplete({
@@ -339,62 +346,120 @@ class OfflineSyncService extends GetxService {
       );
     }
 
-    final payload = _buildPayload(pendingRows);
-    final rowIds = pendingRows.map((row) => row.id).toList();
+    var totalSynced = 0;
+    var invalidCount = 0;
+    String? lastQuarantineError;
 
-    Either<ErrorResponse, void> response;
-    try {
-      response = await handler(payload);
-    } catch (error) {
-      response = Left(
-        ErrorResponse(
-          message: error.toString(),
-          data: ApiResponseErrorType.serverError,
-        ),
-      );
-    }
+    for (var i = 0; i < pendingRows.length; i += maxBatchSize) {
+      final end = (i + maxBatchSize).clamp(0, pendingRows.length);
+      final chunk = pendingRows.sublist(i, end);
+      final built = _buildPayload(chunk);
 
-    switch (response) {
-      case Left<ErrorResponse, void>(value: final error):
-        await _database.markSyncRetryFailed(
-          rowIds,
-          errorMessage: error.message,
+      if (built.invalidErrors.isNotEmpty) {
+        invalidCount += built.invalidErrors.length;
+        for (final entry in built.invalidErrors.entries) {
+          lastQuarantineError = entry.value;
+          await _database.markSyncRetryFailed(
+            [entry.key],
+            errorMessage: entry.value,
+          );
+        }
+      }
+
+      if (built.validRowIds.isEmpty) {
+        continue;
+      }
+
+      Either<ErrorResponse, void> response;
+      try {
+        response = await handler(built.payload);
+      } catch (error) {
+        response = Left(
+          ErrorResponse(
+            message: error.toString(),
+            data: ApiResponseErrorType.serverError,
+          ),
         );
-        await refreshPendingCount();
-        return Left(error);
-      case Right<ErrorResponse, void>():
-        await _database.deleteSyncItemsByIds(rowIds);
-        await refreshPendingCount();
-        return Right(rowIds.length);
-    }
-  }
+      }
 
-  OfflineSyncPayload _buildPayload(List<SyncQueueData> rows) {
-    final lessons = <OfflineLessonCompleteItem>[];
-    final attempts = <OfflinePracticeAttemptItem>[];
-    final exams = <OfflineExamSubmissionItem>[];
-
-    for (final row in rows) {
-      final decoded = Map<String, dynamic>.from(
-        jsonDecode(row.payloadJson) as Map,
-      );
-      switch (row.eventType) {
-        case typeLessonComplete:
-          lessons.add(OfflineLessonCompleteItem.fromJson(decoded));
-          break;
-        case typePracticeAttempt:
-          attempts.add(OfflinePracticeAttemptItem.fromJson(decoded));
-          break;
-        case typeExamSubmission:
-          exams.add(OfflineExamSubmissionItem.fromJson(decoded));
-          break;
+      switch (response) {
+        case Left<ErrorResponse, void>(value: final error):
+          await _database.markSyncRetryFailed(
+            built.validRowIds,
+            errorMessage: error.message,
+          );
+          await refreshPendingCount();
+          return Left(error);
+        case Right<ErrorResponse, void>():
+          await _database.deleteSyncItemsByIds(built.validRowIds);
+          totalSynced += built.validRowIds.length;
       }
     }
 
-    return OfflineSyncPayload(
-      lessonCompletes: lessons,
-      practiceAttempts: attempts,
-      examSubmissions: exams,
+    await refreshPendingCount();
+    if (totalSynced == 0 && invalidCount > 0) {
+      return Left(
+        ErrorResponse(
+          message: lastQuarantineError ??
+              'Failed to decode $invalidCount offline sync item(s)',
+          data: ApiResponseErrorType.response,
+        ),
+      );
+    }
+    return Right(totalSynced);
+  }
+
+  ({
+    OfflineSyncPayload payload,
+    List<int> validRowIds,
+    Map<int, String> invalidErrors,
+  }) _buildPayload(List<SyncQueueData> rows) {
+    final lessons = <OfflineLessonCompleteItem>[];
+    final attempts = <OfflinePracticeAttemptItem>[];
+    final exams = <OfflineExamSubmissionItem>[];
+    final validRowIds = <int>[];
+    final invalidErrors = <int, String>{};
+
+    for (final row in rows) {
+      try {
+        final rawDecoded = jsonDecode(row.payloadJson);
+        if (rawDecoded is! Map) {
+          invalidErrors[row.id] = 'Malformed offline payload: expected JSON map';
+          continue;
+        }
+        final decoded = Map<String, dynamic>.from(rawDecoded);
+
+        switch (row.eventType) {
+          case typeLessonComplete:
+            lessons.add(OfflineLessonCompleteItem.fromJson(decoded));
+            validRowIds.add(row.id);
+            break;
+          case typePracticeAttempt:
+            attempts.add(OfflinePracticeAttemptItem.fromJson(decoded));
+            validRowIds.add(row.id);
+            break;
+          case typeExamSubmission:
+            exams.add(OfflineExamSubmissionItem.fromJson(decoded));
+            validRowIds.add(row.id);
+            break;
+          default:
+            invalidErrors[row.id] =
+                'Unknown offline sync eventType: ${row.eventType}';
+            break;
+        }
+      } catch (error) {
+        invalidErrors[row.id] = 'Malformed offline sync row: $error';
+      }
+    }
+
+    return (
+      payload: OfflineSyncPayload(
+        lessonCompletes: lessons,
+        practiceAttempts: attempts,
+        examSubmissions: exams,
+      ),
+      validRowIds: validRowIds,
+      invalidErrors: invalidErrors,
     );
   }
 

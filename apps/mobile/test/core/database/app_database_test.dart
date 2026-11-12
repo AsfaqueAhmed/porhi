@@ -150,5 +150,97 @@ void main() {
       expect(await db.getStudentCache('overview'), isNull);
       expect(await db.getPendingSyncItems(), isEmpty);
     });
+
+    test('upsertExamDraft preserves original startedAt when omitted on update', () async {
+      final originalStart = DateTime.utc(2026, 11, 12, 8, 0);
+      await db.upsertExamDraft(
+        sessionId: 'draft-preserve',
+        subjectId: 'sub-math',
+        questionIds: const ['q1', 'q2'],
+        answers: const {'q1': 'opt-a'},
+        flaggedQuestionIds: const ['q2'],
+        remainingSeconds: 500,
+        totalDurationSeconds: 600,
+        startedAt: originalStart,
+        updatedAt: originalStart,
+      );
+
+      final laterUpdate = DateTime.utc(2026, 11, 12, 8, 5);
+      await db.upsertExamDraft(
+        sessionId: 'draft-preserve',
+        subjectId: 'sub-math',
+        questionIds: const ['q1', 'q2'],
+        answers: const {'q1': 'opt-a', 'q2': 'opt-b'},
+        flaggedQuestionIds: const [],
+        remainingSeconds: 200,
+        totalDurationSeconds: 600,
+        currentIndex: 1,
+        updatedAt: laterUpdate,
+      );
+
+      final draft = await db.getExamDraft('draft-preserve');
+      expect(draft, isNotNull);
+      expect(draft!.startedAt.toUtc(), originalStart);
+      expect(draft.updatedAt.toUtc(), laterUpdate);
+      expect(draft.remainingSeconds, 200);
+      expect(draft.currentIndex, 1);
+    });
+
+    test('getCachedLessonByTopic handles multiple lessons per topic safely', () async {
+      final older = DateTime.utc(2026, 11, 12, 7, 0);
+      final newer = DateTime.utc(2026, 11, 12, 9, 0);
+      await db.upsertCachedLessons([
+        CachedLessonInput(
+          id: 'lesson-old',
+          topicId: 'shared-topic',
+          chapterId: 'ch-1',
+          titleBangla: 'পুরাতন পাঠ',
+          payloadJson: '{"v":1}',
+          updatedAt: older,
+        ),
+        CachedLessonInput(
+          id: 'lesson-new',
+          topicId: 'shared-topic',
+          chapterId: 'ch-1',
+          titleBangla: 'নতুন পাঠ',
+          payloadJson: '{"v":2}',
+          updatedAt: newer,
+        ),
+      ]);
+
+      final latest = await db.getCachedLessonByTopic('shared-topic');
+      expect(latest?.id, 'lesson-new');
+
+      final allForTopic = await db.getCachedLessonsByTopic('shared-topic');
+      expect(allForTopic.map((e) => e.id).toList(), ['lesson-new', 'lesson-old']);
+    });
+
+    test('chunked SyncQueue operations handle > 500 IDs and empty lists safely', () async {
+      await db.upsertCachedLessons(const []);
+      await db.upsertCachedQuestions(const []);
+      expect(await db.deleteSyncItemsByIds(const []), 0);
+      await db.markSyncRetryFailed(const []);
+
+      for (var i = 0; i < 600; i++) {
+        await db.enqueueSyncItem(
+          eventId: 'bulk-evt-$i',
+          eventType: 'lesson_complete',
+          payloadJson: '{"offlineEventId":"bulk-evt-$i","topicId":"t1"}',
+        );
+      }
+
+      final rows = await db.getPendingSyncItems();
+      expect(rows, hasLength(600));
+
+      final ids = rows.map((r) => r.id).toList();
+      await db.markSyncRetryFailed(ids, errorMessage: 'chunked error');
+      final updatedRows = await db.getPendingSyncItems();
+      expect(updatedRows.every((r) => r.retryCount == 1), isTrue);
+      expect(updatedRows.every((r) => r.lastError == 'chunked error'), isTrue);
+
+      final deleted = await db.deleteSyncItemsByIds(ids);
+      expect(deleted, 600);
+      expect(await db.getPendingSyncCount(), 0);
+    });
   });
 }
