@@ -5,6 +5,8 @@ import 'package:porhi/features/auth/presentation/login/binding/login_binding.dar
 import 'package:porhi/features/auth/presentation/login/view/login_view.dart';
 import 'package:porhi/features/auth/presentation/onboarding/binding/onboarding_binding.dart';
 import 'package:porhi/features/auth/presentation/onboarding/view/onboarding_view.dart';
+import 'package:porhi/features/board_archive/presentation/board_archive/binding/board_archive_binding.dart';
+import 'package:porhi/features/board_archive/presentation/board_archive/view/board_archive_view.dart';
 import 'package:porhi/features/curriculum/presentation/curriculum/binding/curriculum_binding.dart';
 import 'package:porhi/features/curriculum/presentation/curriculum/view/chapter_index_view.dart';
 import 'package:porhi/features/curriculum/presentation/subjects/binding/subjects_binding.dart';
@@ -22,6 +24,8 @@ import 'package:porhi/features/lesson/presentation/lesson/binding/lesson_binding
 import 'package:porhi/features/lesson/presentation/lesson/view/lesson_view.dart';
 import 'package:porhi/features/practice/presentation/practice/binding/practice_binding.dart';
 import 'package:porhi/features/practice/presentation/practice/view/practice_view.dart';
+import 'package:porhi/features/rehearsal/presentation/rehearsal/binding/rehearsal_binding.dart';
+import 'package:porhi/features/rehearsal/presentation/rehearsal/view/rehearsal_view.dart';
 import 'package:porhi/features/shell/presentation/main_shell/binding/main_shell_binding.dart';
 import 'package:porhi/features/shell/presentation/main_shell/view/main_shell_view.dart';
 
@@ -72,6 +76,11 @@ class AppPages {
       binding: CurriculumBinding(),
     ),
     GetPage(
+      name: AppRoutes.boardArchive,
+      page: () => const BoardArchiveView(),
+      binding: BoardArchiveBinding(),
+    ),
+    GetPage(
       name: AppRoutes.lesson,
       page: () => const LessonView(),
       binding: LessonBinding(),
@@ -85,6 +94,11 @@ class AppPages {
       name: AppRoutes.examSetup,
       page: () => const ExamSetupView(),
       binding: ExamSetupBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.examRehearsal,
+      page: () => const RehearsalView(),
+      binding: RehearsalBinding(),
     ),
     GetPage(
       name: AppRoutes.examRunner,

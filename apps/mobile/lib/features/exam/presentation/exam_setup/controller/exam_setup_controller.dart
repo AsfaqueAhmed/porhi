@@ -60,9 +60,20 @@ class ExamSetupController extends GetxController {
   final RxBool isResuming = false.obs;
   final RxBool isDiscarding = false.obs;
   final RxnString errorMessage = RxnString();
+  bool _isNavigatingToRehearsal = false;
 
   bool get isBusy =>
       isStarting.value || isResuming.value || isDiscarding.value;
+
+  Future<void> openMultiSubjectRehearsal() async {
+    if (isBusy || _isNavigatingToRehearsal) return;
+    _isNavigatingToRehearsal = true;
+    try {
+      await Get.toNamed(AppRoutes.examRehearsal);
+    } finally {
+      _isNavigatingToRehearsal = false;
+    }
+  }
 
   bool get isSubjectMode => testType.value == ExamTestType.subjectTest;
 

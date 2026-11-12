@@ -322,6 +322,34 @@ class ExamSetupView extends GetView<ExamSetupController> {
                   ),
                 ),
               ),
+              const SizedBox(height: 10),
+              SizedBox(
+                height: 46,
+                child: OutlinedButton.icon(
+                  key: const Key('exam_open_rehearsal_btn'),
+                  onPressed:
+                      isBusy ? null : controller.openMultiSubjectRehearsal,
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: PorhiTheme.indigo700,
+                    side: const BorderSide(color: Color(0xFFC7D2FE)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  icon: const Icon(Icons.layers_rounded, size: 18),
+                  label: Text(
+                    AppStrings.tr(
+                      'বহু-পত্র মডেল রিহার্সাল',
+                      'Multi-Subject Exam Rehearsal',
+                      lang,
+                    ),
+                    style: const TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         );

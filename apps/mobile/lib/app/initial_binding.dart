@@ -17,6 +17,10 @@ import 'package:porhi/features/auth/data/datasources/firebase_auth_gateway.dart'
 import 'package:porhi/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:porhi/features/auth/domain/repositories/auth_repository.dart';
 import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
+import 'package:porhi/features/board_archive/data/datasources/board_archive_remote_datasource.dart';
+import 'package:porhi/features/board_archive/data/repositories/board_archive_repository_impl.dart';
+import 'package:porhi/features/board_archive/domain/repositories/board_archive_repository.dart';
+import 'package:porhi/features/board_archive/domain/usecases/board_archive_usecases.dart';
 import 'package:porhi/features/curriculum/data/datasources/curriculum_local_datasource.dart';
 import 'package:porhi/features/curriculum/data/datasources/curriculum_remote_datasource.dart';
 import 'package:porhi/features/curriculum/data/repositories/curriculum_repository_impl.dart';
@@ -46,6 +50,10 @@ import 'package:porhi/features/practice/data/datasources/practice_remote_datasou
 import 'package:porhi/features/practice/data/repositories/practice_repository_impl.dart';
 import 'package:porhi/features/practice/domain/repositories/practice_repository.dart';
 import 'package:porhi/features/practice/domain/usecases/practice_usecases.dart';
+import 'package:porhi/features/rehearsal/data/datasources/rehearsal_remote_datasource.dart';
+import 'package:porhi/features/rehearsal/data/repositories/rehearsal_repository_impl.dart';
+import 'package:porhi/features/rehearsal/domain/repositories/rehearsal_repository.dart';
+import 'package:porhi/features/rehearsal/domain/usecases/rehearsal_usecases.dart';
 import 'package:porhi/routes/app_routes.dart';
 
 class InitialBinding extends Bindings {
@@ -447,6 +455,47 @@ class InitialBinding extends Bindings {
     );
     _lazyPutIfAbsent<ListMyContentReportsUseCase>(
       () => ListMyContentReportsUseCase(Get.find<ContentReportRepository>()),
+    );
+
+    _lazyPutIfAbsent<RehearsalRemoteDataSource>(
+      () => RehearsalRemoteDataSourceImpl(),
+    );
+    _lazyPutIfAbsent<RehearsalRepository>(
+      () => RehearsalRepositoryImpl(
+        remoteDataSource: Get.find<RehearsalRemoteDataSource>(),
+      ),
+    );
+    _lazyPutIfAbsent<StartRehearsalUseCase>(
+      () => StartRehearsalUseCase(Get.find<RehearsalRepository>()),
+    );
+    _lazyPutIfAbsent<GetRehearsalHistoryUseCase>(
+      () => GetRehearsalHistoryUseCase(Get.find<RehearsalRepository>()),
+    );
+    _lazyPutIfAbsent<GetRehearsalUseCase>(
+      () => GetRehearsalUseCase(Get.find<RehearsalRepository>()),
+    );
+    _lazyPutIfAbsent<StartRehearsalPaperUseCase>(
+      () => StartRehearsalPaperUseCase(Get.find<RehearsalRepository>()),
+    );
+    _lazyPutIfAbsent<SubmitRehearsalPaperUseCase>(
+      () => SubmitRehearsalPaperUseCase(Get.find<RehearsalRepository>()),
+    );
+
+    _lazyPutIfAbsent<BoardArchiveRemoteDataSource>(
+      () => BoardArchiveRemoteDataSourceImpl(),
+    );
+    _lazyPutIfAbsent<BoardArchiveRepository>(
+      () => BoardArchiveRepositoryImpl(
+        remoteDataSource: Get.find<BoardArchiveRemoteDataSource>(),
+      ),
+    );
+    _lazyPutIfAbsent<GetBoardArchiveFiltersUseCase>(
+      () => GetBoardArchiveFiltersUseCase(Get.find<BoardArchiveRepository>()),
+    );
+    _lazyPutIfAbsent<GetBoardArchiveQuestionsUseCase>(
+      () => GetBoardArchiveQuestionsUseCase(
+        Get.find<BoardArchiveRepository>(),
+      ),
     );
   }
 

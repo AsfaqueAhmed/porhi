@@ -11,6 +11,7 @@ abstract class AppRoutes {
   static const lesson = '/lesson/:topicId';
   static const practice = '/practice/:chapterId';
   static const examSetup = '/exam/setup';
+  static const examRehearsal = '/exam/rehearsal';
   static const examRunner = '/exam/runner';
   static const examResult = '/exam/result/:sessionId';
   static const exam = '/exam/:chapterId';
