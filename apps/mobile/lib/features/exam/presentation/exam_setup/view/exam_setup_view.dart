@@ -26,7 +26,7 @@ class ExamSetupView extends GetView<ExamSetupController> {
         final draft = controller.pendingDraft.value;
         final error = controller.errorMessage.value;
         final starting = controller.isStarting.value;
-        final resuming = controller.isResuming.value;
+        final isBusy = controller.isBusy;
         final activeType = controller.testType.value;
         final topics = controller.chapterTopics;
         final hasChapterContext = controller.chapterId.value.isNotEmpty;
@@ -47,7 +47,7 @@ class ExamSetupView extends GetView<ExamSetupController> {
                 _ResumeDraftBanner(
                   draft: draft,
                   lang: lang,
-                  isResuming: resuming,
+                  isBusy: isBusy,
                   onResume: controller.resumeDraft,
                   onDiscard: controller.discardDraft,
                 ),
@@ -123,8 +123,7 @@ class ExamSetupView extends GetView<ExamSetupController> {
                           ),
                         ],
                       ),
-                      if (activeType == ExamTestType.topicTest &&
-                          topics.isNotEmpty) ...<Widget>[
+                      if (activeType == ExamTestType.topicTest) ...<Widget>[
                         const SizedBox(height: 16),
                         _SectionLabel(
                           text: AppStrings.tr(
@@ -134,35 +133,59 @@ class ExamSetupView extends GetView<ExamSetupController> {
                           ),
                         ),
                         const SizedBox(height: 8),
-                        DropdownButtonFormField<String>(
-                          key: const Key('exam_topic_dropdown'),
-                          initialValue: topics.any(
-                                  (t) => t.id == controller.selectedTopicId.value)
-                              ? controller.selectedTopicId.value
-                              : topics.first.id,
-                          isExpanded: true,
-                          decoration: const InputDecoration(
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 10,
+                        if (topics.isNotEmpty)
+                          DropdownButtonFormField<String>(
+                            key: const Key('exam_topic_dropdown'),
+                            initialValue: topics.any((t) =>
+                                    t.id == controller.selectedTopicId.value)
+                                ? controller.selectedTopicId.value
+                                : topics.first.id,
+                            isExpanded: true,
+                            decoration: const InputDecoration(
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 10,
+                              ),
+                            ),
+                            items: topics
+                                .map(
+                                  (t) => DropdownMenuItem<String>(
+                                    value: t.id,
+                                    child: Text(
+                                      t.titleBangla,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (val) {
+                              if (val != null) controller.selectTopic(val);
+                            },
+                          )
+                        else
+                          Container(
+                            key: const Key('exam_no_topics_note'),
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: PorhiTheme.slate50,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: PorhiTheme.slate200),
+                            ),
+                            child: Text(
+                              AppStrings.tr(
+                                'এই অধ্যায়ের জন্য আলাদা টপিক পাওয়া যায়নি; সম্পূর্ণ অধ্যায় থেকে প্রশ্ন নেওয়া হবে।',
+                                'No topics found for this chapter; questions will be drawn from the whole chapter.',
+                                lang,
+                              ),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: PorhiTheme.slate600,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ),
-                          items: topics
-                              .map(
-                                (t) => DropdownMenuItem<String>(
-                                  value: t.id,
-                                  child: Text(
-                                    t.titleBangla,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                          onChanged: (val) {
-                            if (val != null) controller.selectTopic(val);
-                          },
-                        ),
                       ],
                       const SizedBox(height: 16),
                       _SectionLabel(
@@ -270,7 +293,7 @@ class ExamSetupView extends GetView<ExamSetupController> {
                 height: 50,
                 child: ElevatedButton.icon(
                   key: const Key('exam_start_btn'),
-                  onPressed: starting ? null : controller.startExam,
+                  onPressed: isBusy ? null : controller.startExam,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: PorhiTheme.indigo600,
                     foregroundColor: Colors.white,
@@ -383,14 +406,14 @@ class _SetupHeaderCard extends StatelessWidget {
 class _ResumeDraftBanner extends StatelessWidget {
   final ExamDraftEntity draft;
   final AppLanguage lang;
-  final bool isResuming;
+  final bool isBusy;
   final VoidCallback onResume;
   final VoidCallback onDiscard;
 
   const _ResumeDraftBanner({
     required this.draft,
     required this.lang,
-    required this.isResuming,
+    required this.isBusy,
     required this.onResume,
     required this.onDiscard,
   });
@@ -453,7 +476,7 @@ class _ResumeDraftBanner extends StatelessWidget {
             children: <Widget>[
               ElevatedButton(
                 key: const Key('exam_resume_btn'),
-                onPressed: isResuming ? null : onResume,
+                onPressed: isBusy ? null : onResume,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFD97706),
                   foregroundColor: Colors.white,
@@ -471,7 +494,7 @@ class _ResumeDraftBanner extends StatelessWidget {
               ),
               OutlinedButton(
                 key: const Key('exam_discard_draft_btn'),
-                onPressed: isResuming ? null : onDiscard,
+                onPressed: isBusy ? null : onDiscard,
                 style: OutlinedButton.styleFrom(
                   foregroundColor: const Color(0xFF92400E),
                   side: const BorderSide(color: Color(0xFFF59E0B)),

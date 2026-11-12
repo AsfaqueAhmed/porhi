@@ -110,6 +110,7 @@ class OfflineExamSubmissionItem {
   final String? chapterId;
   final String? testType;
   final int? durationSeconds;
+  final double? negativeRatio;
   final List<OfflineExamAnswerItem> answers;
   final String? submittedAt;
 
@@ -119,14 +120,20 @@ class OfflineExamSubmissionItem {
     this.chapterId,
     this.testType,
     int? durationSeconds,
+    double? negativeRatio,
     required this.answers,
     this.submittedAt,
-  }) : durationSeconds =
-           durationSeconds == null ? null : (durationSeconds < 0 ? 0 : durationSeconds);
+  })  : durationSeconds = durationSeconds == null
+            ? null
+            : (durationSeconds < 0 ? 0 : durationSeconds),
+        negativeRatio = negativeRatio == null || negativeRatio.isNaN
+            ? null
+            : negativeRatio.clamp(0.0, 1.0).toDouble();
 
   factory OfflineExamSubmissionItem.fromJson(Map<String, dynamic> json) {
     final rawAnswers = json['answers'] as List<dynamic>? ?? const [];
     final rawDuration = (json['durationSeconds'] as num?)?.toInt();
+    final rawNegativeRatio = (json['negativeRatio'] as num?)?.toDouble();
     return OfflineExamSubmissionItem(
       offlineSessionId: json['offlineSessionId'] as String,
       subjectId: json['subjectId'] as String,
@@ -134,6 +141,9 @@ class OfflineExamSubmissionItem {
       testType: json['testType'] as String?,
       durationSeconds:
           rawDuration == null ? null : (rawDuration < 0 ? 0 : rawDuration),
+      negativeRatio: rawNegativeRatio == null || rawNegativeRatio.isNaN
+          ? null
+          : rawNegativeRatio.clamp(0.0, 1.0).toDouble(),
       answers: rawAnswers
           .map(
             (e) => OfflineExamAnswerItem.fromJson(
@@ -152,6 +162,7 @@ class OfflineExamSubmissionItem {
         if (testType != null) 'testType': testType,
         if (durationSeconds != null)
           'durationSeconds': durationSeconds! < 0 ? 0 : durationSeconds,
+        if (negativeRatio != null) 'negativeRatio': negativeRatio,
         'answers': answers.map((a) => a.toJson()).toList(),
         if (submittedAt != null) 'submittedAt': submittedAt,
       };
@@ -287,6 +298,7 @@ class OfflineSyncService extends GetxService {
     String? chapterId,
     String? testType,
     int? durationSeconds,
+    double? negativeRatio,
     required List<OfflineExamAnswerItem> answers,
     DateTime? submittedAt,
   }) async {
@@ -296,6 +308,7 @@ class OfflineSyncService extends GetxService {
       chapterId: chapterId,
       testType: testType,
       durationSeconds: durationSeconds,
+      negativeRatio: negativeRatio,
       answers: answers,
       submittedAt: (submittedAt ?? DateTime.now().toUtc())
           .toUtc()

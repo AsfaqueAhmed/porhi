@@ -47,8 +47,10 @@ class ExamRunnerController extends GetxController {
 
   final Map<String, int> _questionTimeSpent = <String, int>{};
   Timer? _countdownTimer;
+  Future<void>? _inFlightAutosave;
   int _tickCounter = 0;
   bool _hasSubmitted = false;
+  bool _isDiscarding = false;
   bool _initialized = false;
 
   bool get hasActiveTimer => _countdownTimer?.isActive == true;
@@ -119,7 +121,11 @@ class ExamRunnerController extends GetxController {
     remainingSeconds.value = max(0, startRemaining);
 
     if (remainingSeconds.value <= 0) {
-      unawaited(submitExam(isAutoSubmit: true));
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!isClosed) {
+          unawaited(submitExam(isAutoSubmit: true));
+        }
+      });
       return;
     }
 
@@ -198,24 +204,41 @@ class ExamRunnerController extends GetxController {
 
   Future<void> autosaveDraft() async {
     final activeSession = session.value;
-    if (activeSession == null || isClosed || _hasSubmitted) return;
+    if (activeSession == null || isClosed || _hasSubmitted || _isDiscarding) {
+      return;
+    }
+    if (_inFlightAutosave != null) {
+      await _inFlightAutosave;
+      if (isClosed || _hasSubmitted || _isDiscarding) return;
+    }
 
-    await _saveExamDraftUseCase(
-      ExamDraftEntity(
-        sessionId: activeSession.sessionId,
-        subjectId: activeSession.subjectId,
-        chapterId: activeSession.chapterId,
-        testType: activeSession.testType,
-        questionIds: questions.map((q) => q.id).toList(),
-        answers: Map<String, String?>.from(answers),
-        flaggedQuestionIds: flaggedQuestionIds.toList(),
-        remainingSeconds: remainingSeconds.value,
-        totalDurationSeconds: activeSession.durationSeconds,
-        currentIndex: safeIndex,
-        startedAt: activeSession.startedAt,
-        updatedAt: DateTime.now().toUtc(),
-      ),
-    );
+    final completer = Completer<void>();
+    _inFlightAutosave = completer.future;
+    try {
+      await _saveExamDraftUseCase(
+        ExamDraftEntity(
+          sessionId: activeSession.sessionId,
+          subjectId: activeSession.subjectId,
+          chapterId: activeSession.chapterId,
+          testType: activeSession.testType,
+          questionIds: questions.map((q) => q.id).toList(),
+          answers: Map<String, String?>.from(answers),
+          flaggedQuestionIds: flaggedQuestionIds.toList(),
+          remainingSeconds: remainingSeconds.value,
+          totalDurationSeconds: activeSession.durationSeconds,
+          currentIndex: safeIndex,
+          startedAt: activeSession.startedAt,
+          updatedAt: DateTime.now().toUtc(),
+        ),
+      );
+    } finally {
+      if (identical(_inFlightAutosave, completer.future)) {
+        _inFlightAutosave = null;
+      }
+      if (!completer.isCompleted) {
+        completer.complete();
+      }
+    }
   }
 
   List<ExamAnswerInputEntity> _buildAnswerInputs() {
@@ -253,7 +276,7 @@ class ExamRunnerController extends GetxController {
   }
 
   Future<void> submitExam({bool isAutoSubmit = false}) async {
-    if (_hasSubmitted || isSubmitting.value) return;
+    if (_hasSubmitted || _isDiscarding || isSubmitting.value) return;
     final activeSession = session.value;
     if (activeSession == null) return;
 
@@ -265,6 +288,9 @@ class ExamRunnerController extends GetxController {
 
     final lang = language.value;
     try {
+      await _inFlightAutosave;
+      if (isClosed || _isDiscarding) return;
+
       final res = await _submitExamUseCase(
         sessionId: activeSession.sessionId,
         answers: _buildAnswerInputs(),
@@ -280,18 +306,25 @@ class ExamRunnerController extends GetxController {
 
       res.fold(
         (err) {
-          if (!isAutoSubmit) {
-            _hasSubmitted = false;
+          _hasSubmitted = false;
+          errorMessage.value = resolveExamErrorMessage(
+            err.message,
+            AppStrings.tr(
+              'উত্তরপত্র জমা দেওয়া যায়নি। আবার চেষ্টা করো।',
+              'Could not submit exam. Please try again.',
+              lang,
+            ),
+          );
+          if (remainingSeconds.value > 0 && _countdownTimer == null) {
+            _countdownTimer =
+                Timer.periodic(const Duration(seconds: 1), _onTick);
           }
-          errorMessage.value = err.message ??
-              AppStrings.tr(
-                'উত্তরপত্র জমা দেওয়া যায়নি। আবার চেষ্টা করো।',
-                'Could not submit exam. Please try again.',
-                lang,
-              );
         },
         (result) {
           if (Get.key.currentState != null) {
+            if (Get.isDialogOpen == true) {
+              Get.back<void>();
+            }
             Get.offNamed(
               AppRoutes.examResultForSession(result.sessionId),
               arguments: ExamResultArgs(
@@ -302,6 +335,11 @@ class ExamRunnerController extends GetxController {
           }
         },
       );
+    } catch (_) {
+      if (!isClosed) {
+        _hasSubmitted = false;
+      }
+      rethrow;
     } finally {
       if (!isClosed) {
         isSubmitting.value = false;
@@ -318,9 +356,11 @@ class ExamRunnerController extends GetxController {
 
   Future<void> discardAndExit() async {
     final activeSession = session.value;
+    _isDiscarding = true;
     _hasSubmitted = true;
     _countdownTimer?.cancel();
     _countdownTimer = null;
+    await _inFlightAutosave;
     if (activeSession != null) {
       await _deleteExamDraftUseCase(activeSession.sessionId);
     }

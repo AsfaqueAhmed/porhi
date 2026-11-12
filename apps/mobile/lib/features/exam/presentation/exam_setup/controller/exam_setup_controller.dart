@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
+import 'package:porhi/core/i18n/bangla_digits.dart';
 import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
 import 'package:porhi/features/curriculum/domain/entities/curriculum_entities.dart';
 import 'package:porhi/features/curriculum/domain/usecases/curriculum_usecases.dart';
@@ -57,7 +58,11 @@ class ExamSetupController extends GetxController {
   final Rxn<ExamDraftEntity> pendingDraft = Rxn<ExamDraftEntity>();
   final RxBool isStarting = false.obs;
   final RxBool isResuming = false.obs;
+  final RxBool isDiscarding = false.obs;
   final RxnString errorMessage = RxnString();
+
+  bool get isBusy =>
+      isStarting.value || isResuming.value || isDiscarding.value;
 
   bool get isSubjectMode => testType.value == ExamTestType.subjectTest;
 
@@ -155,6 +160,14 @@ class ExamSetupController extends GetxController {
         durationSeconds.value = 25 * 60;
       }
     }
+
+    if (chapterId.value.isEmpty &&
+        args?.testType == null &&
+        (rawType == null || rawType.isEmpty)) {
+      testType.value = ExamTestType.subjectTest;
+      questionLimit.value = 25;
+      durationSeconds.value = 25 * 60;
+    }
   }
 
   Future<void> _loadMetadataAndDraft() async {
@@ -240,13 +253,14 @@ class ExamSetupController extends GetxController {
     if (!isCustomDuration.value) {
       return durationSeconds.value;
     }
-    final parsedMinutes = int.tryParse(customMinutesController.text.trim());
+    final normalized = toAsciiDigits(customMinutesController.text.trim());
+    final parsedMinutes = int.tryParse(normalized);
     if (parsedMinutes == null) return null;
     return parsedMinutes * 60;
   }
 
   Future<void> startExam() async {
-    if (isStarting.value || isResuming.value) return;
+    if (isBusy) return;
 
     final lang = language.value;
     final effectiveDuration = _resolveEffectiveDurationSeconds();
@@ -279,12 +293,14 @@ class ExamSetupController extends GetxController {
 
       res.fold(
         (err) {
-          errorMessage.value = err.message ??
-              AppStrings.tr(
-                'পরীক্ষা শুরু করা যায়নি। আবার চেষ্টা করো।',
-                'Could not start exam. Please try again.',
-                lang,
-              );
+          errorMessage.value = resolveExamErrorMessage(
+            err.message,
+            AppStrings.tr(
+              'পরীক্ষা শুরু করা যায়নি। আবার চেষ্টা করো।',
+              'Could not start exam. Please try again.',
+              lang,
+            ),
+          );
         },
         (session) {
           Get.offNamed(
@@ -304,7 +320,7 @@ class ExamSetupController extends GetxController {
   }
 
   Future<void> resumeDraft() async {
-    if (isStarting.value || isResuming.value) return;
+    if (isBusy) return;
     final draft = pendingDraft.value;
     if (draft == null) return;
 
@@ -318,12 +334,14 @@ class ExamSetupController extends GetxController {
 
       res.fold(
         (err) {
-          errorMessage.value = err.message ??
-              AppStrings.tr(
-                'অসমাপ্ত পরীক্ষা পুনরায় চালু করা যায়নি।',
-                'Could not resume unfinished exam.',
-                lang,
-              );
+          errorMessage.value = resolveExamErrorMessage(
+            err.message,
+            AppStrings.tr(
+              'অসমাপ্ত পরীক্ষা পুনরায় চালু করা যায়নি।',
+              'Could not resume unfinished exam.',
+              lang,
+            ),
+          );
         },
         (resumeData) {
           if (resumeData.isCompleted && resumeData.completedResult != null) {
@@ -362,11 +380,20 @@ class ExamSetupController extends GetxController {
   }
 
   Future<void> discardDraft() async {
+    if (isBusy) return;
     final draft = pendingDraft.value;
     if (draft == null) return;
-    await _deleteExamDraftUseCase(draft.sessionId);
-    if (isClosed) return;
-    pendingDraft.value = null;
+    isDiscarding.value = true;
+    errorMessage.value = null;
+    try {
+      await _deleteExamDraftUseCase(draft.sessionId);
+      if (isClosed) return;
+      pendingDraft.value = null;
+    } finally {
+      if (!isClosed) {
+        isDiscarding.value = false;
+      }
+    }
   }
 
   @override

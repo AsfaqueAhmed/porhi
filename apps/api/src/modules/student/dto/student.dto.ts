@@ -7,6 +7,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
   Min,
   ValidateNested,
@@ -156,6 +157,13 @@ export class OfflineExamSubmissionDto {
   @IsNumber()
   @Min(0)
   durationSeconds?: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  @Min(0)
+  @Max(1.0)
+  negativeRatio?: number;
 
   @IsArray()
   @ValidateNested({ each: true })

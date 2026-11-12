@@ -10,6 +10,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:network/network.dart';
 import 'package:porhi/app/env.dart';
 import 'package:porhi/core/database/app_database.dart';
+import 'package:porhi/core/i18n/app_strings.dart';
 import 'package:porhi/core/sync/offline_sync_service.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
 import 'package:porhi/features/auth/domain/entities/auth_user_entity.dart';
@@ -22,6 +23,8 @@ import 'package:porhi/features/content_report/presentation/report_sheet/report_c
 import 'package:porhi/features/curriculum/domain/entities/curriculum_entities.dart';
 import 'package:porhi/features/curriculum/domain/repositories/curriculum_repository.dart';
 import 'package:porhi/features/curriculum/domain/usecases/curriculum_usecases.dart';
+import 'package:porhi/features/curriculum/presentation/curriculum/binding/curriculum_binding.dart';
+import 'package:porhi/features/curriculum/presentation/curriculum/view/chapter_index_view.dart';
 import 'package:porhi/features/dashboard/domain/repositories/student_repository.dart';
 import 'package:porhi/features/dashboard/domain/usecases/student_usecases.dart';
 import 'package:porhi/features/exam/data/datasources/exam_local_datasource.dart';
@@ -1325,6 +1328,788 @@ void main() {
       await tester.pump();
       expect(runnerCtrl.answers.containsKey('eq_1'), isFalse);
       expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('Task 10 Review Regression Tests', () {
+    late AppDatabase db;
+    late _MockExamRemoteDataSource remoteDataSource;
+    late ExamLocalDataSource localDataSource;
+    late OfflineSyncService offlineSyncService;
+    late ExamRepositoryImpl repository;
+
+    setUp(() async {
+      Get.reset();
+      Get.testMode = true;
+      await PorhiTheme.initCommon();
+
+      db = AppDatabase(NativeDatabase.memory());
+      remoteDataSource = _MockExamRemoteDataSource();
+      localDataSource = ExamLocalDataSourceImpl(database: db);
+      offlineSyncService = OfflineSyncService(database: db);
+      await offlineSyncService.init();
+      repository = ExamRepositoryImpl(
+        remoteDataSource: remoteDataSource,
+        localDataSource: localDataSource,
+        offlineSyncService: offlineSyncService,
+      );
+    });
+
+    tearDown(() async {
+      offlineSyncService.onClose();
+      await db.close();
+      Get.reset();
+    });
+
+    test('(a) 4xx/5xx startExam errors surface instead of falling back to CachedQuestions', () async {
+      await _seedCachedQuestions(
+        db,
+        chapterId: 'chap_1',
+        subjectId: 'sub_phys',
+        questions: <Map<String, dynamic>>[
+          _sampleExamQuestionJson(id: 'q_cached_1'),
+        ],
+      );
+
+      when(
+        () => remoteDataSource.startExam(
+          testType: any(named: 'testType'),
+          subjectId: any(named: 'subjectId'),
+          chapterId: any(named: 'chapterId'),
+          topicId: any(named: 'topicId'),
+          questionLimit: any(named: 'questionLimit'),
+          negativeRatio: any(named: 'negativeRatio'),
+          durationSeconds: any(named: 'durationSeconds'),
+        ),
+      ).thenAnswer(
+        (_) async => Left(
+          ErrorResponse(
+            statusCode: 400,
+            message: 'Invalid exam parameters',
+            data: ApiResponseErrorType.response,
+          ),
+        ),
+      );
+
+      final res = await repository.startExam(
+        testType: ExamTestType.chapterTest,
+        subjectId: 'sub_phys',
+        chapterId: 'chap_1',
+        questionLimit: 10,
+        negativeRatio: 0.25,
+        durationSeconds: 600,
+      );
+
+      expect(res.isLeft(), isTrue);
+      final err = (res as Left<ErrorResponse, ExamSessionStartEntity>).value;
+      expect(err.statusCode, 400);
+      expect(err.message, 'Invalid exam parameters');
+    });
+
+    test('(b) online startExam (negativeRatio 0.5) -> offline resume preserves 0.5 and enqueues negativeRatio in SyncQueue', () async {
+      await _seedCachedQuestions(
+        db,
+        chapterId: 'chap_1',
+        subjectId: 'sub_phys',
+        questions: <Map<String, dynamic>>[
+          _sampleExamQuestionJson(id: 'q_1', correctOptId: 'opt_a'),
+          _sampleExamQuestionJson(id: 'q_2', correctOptId: 'opt_a'),
+        ],
+      );
+
+      when(
+        () => remoteDataSource.startExam(
+          testType: any(named: 'testType'),
+          subjectId: any(named: 'subjectId'),
+          chapterId: any(named: 'chapterId'),
+          topicId: any(named: 'topicId'),
+          questionLimit: any(named: 'questionLimit'),
+          negativeRatio: any(named: 'negativeRatio'),
+          durationSeconds: any(named: 'durationSeconds'),
+        ),
+      ).thenAnswer(
+        (_) async => Right(
+          ExamSessionStartModel.fromJson(<String, dynamic>{
+            'sessionId': 'sess_online_neg_half',
+            'totalQuestions': 2,
+            'durationSeconds': 600,
+            'negativeRatio': 0.5,
+            'questions': <Map<String, dynamic>>[
+              _sampleExamQuestionJson(
+                id: 'q_1',
+                includeAnswerKey: false,
+                includeExplanation: false,
+              ),
+              _sampleExamQuestionJson(
+                id: 'q_2',
+                includeAnswerKey: false,
+                includeExplanation: false,
+              ),
+            ],
+          }),
+        ),
+      );
+
+      final startRes = await repository.startExam(
+        testType: ExamTestType.chapterTest,
+        subjectId: 'sub_phys',
+        chapterId: 'chap_1',
+        negativeRatio: 0.5,
+        durationSeconds: 600,
+      );
+      final started =
+          (startRes as Right<ErrorResponse, ExamSessionStartEntity>).value;
+      // Defense-in-depth: active runner questions do NOT expose answer keys.
+      expect(
+        started.questions.first.options.every((o) => o.isCorrect == null),
+        isTrue,
+      );
+      expect(started.questions.first.explanation, isNull);
+
+      await repository.saveExamDraft(
+        ExamDraftEntity(
+          sessionId: 'sess_online_neg_half',
+          subjectId: 'sub_phys',
+          chapterId: 'chap_1',
+          testType: ExamTestType.chapterTest,
+          questionIds: const <String>['q_1', 'q_2'],
+          answers: const <String, String?>{'q_1': 'opt_a'},
+          flaggedQuestionIds: const <String>[],
+          remainingSeconds: 500,
+          totalDurationSeconds: 600,
+          currentIndex: 0,
+          updatedAt: DateTime.now().toUtc(),
+        ),
+      );
+
+      when(() => remoteDataSource.getSession('sess_online_neg_half')).thenAnswer(
+        (_) async => Left(
+          ErrorResponse(
+            message: 'Offline',
+            data: ApiResponseErrorType.noInternet,
+          ),
+        ),
+      );
+
+      final draft = await repository.getExamDraft('sess_online_neg_half');
+      final resumeRes = await repository.getResumeSessionData(draft!);
+      final resumed =
+          (resumeRes as Right<ErrorResponse, ExamResumeDataEntity>).value;
+      expect(resumed.session?.negativeRatio, 0.5);
+
+      // Submit offline and verify SyncQueue item includes negativeRatio: 0.5
+      when(
+        () => remoteDataSource.submitExam(
+          sessionId: 'sess_online_neg_half',
+          answers: any(named: 'answers'),
+        ),
+      ).thenAnswer(
+        (_) async => Left(
+          ErrorResponse(
+            message: 'Offline',
+            data: ApiResponseErrorType.noInternet,
+          ),
+        ),
+      );
+
+      final submitRes = await repository.submitExam(
+        sessionId: 'sess_online_neg_half',
+        answers: const <ExamAnswerInputEntity>[
+          ExamAnswerInputEntity(questionId: 'q_1', selectedOptionId: 'opt_a'),
+          ExamAnswerInputEntity(questionId: 'q_2', selectedOptionId: 'opt_b'),
+        ],
+        subjectId: 'sub_phys',
+        chapterId: 'chap_1',
+        testType: ExamTestType.chapterTest,
+        durationSeconds: 600,
+        negativeRatio: resumed.session!.negativeRatio,
+        isOfflineSession: false,
+        questions: resumed.session!.questions,
+      );
+      final result = (submitRes as Right<ErrorResponse, ExamResultEntity>).value;
+      expect(result.score, 0.5); // 1 - 1*0.5 = 0.5
+      expect(result.isPendingServerGrading, isFalse);
+
+      final pending = await db.getPendingSyncItems();
+      expect(pending.length, 1);
+      final payload =
+          jsonDecode(pending.first.payloadJson) as Map<String, dynamic>;
+      expect(payload['negativeRatio'], 0.5);
+    });
+
+    test('(c) getSession returns cached result when server returns IN_PROGRESS & uncached offline submit sets isPendingServerGrading cleanly', () async {
+      // Uncached questions (no isCorrect keys anywhere locally)
+      final uncachedModel = ExamQuestionModel.fromJson(
+        _sampleExamQuestionJson(
+          id: 'q_uncached_1',
+          includeAnswerKey: false,
+          includeExplanation: false,
+        ),
+      ).toEntity();
+
+      when(
+        () => remoteDataSource.submitExam(
+          sessionId: 'sess_uncached_1',
+          answers: any(named: 'answers'),
+        ),
+      ).thenAnswer(
+        (_) async => Left(
+          ErrorResponse(
+            message: 'Offline',
+            data: ApiResponseErrorType.noInternet,
+          ),
+        ),
+      );
+
+      final submitRes = await repository.submitExam(
+        sessionId: 'sess_uncached_1',
+        answers: const <ExamAnswerInputEntity>[
+          ExamAnswerInputEntity(
+            questionId: 'q_uncached_1',
+            selectedOptionId: 'opt_a',
+          ),
+        ],
+        subjectId: 'sub_phys',
+        chapterId: 'chap_uncached',
+        testType: ExamTestType.chapterTest,
+        durationSeconds: 600,
+        negativeRatio: 0.25,
+        isOfflineSession: false,
+        questions: <ExamQuestionEntity>[uncachedModel],
+      );
+
+      final offlineResult =
+          (submitRes as Right<ErrorResponse, ExamResultEntity>).value;
+      expect(offlineResult.isPendingServerGrading, isTrue);
+      expect(offlineResult.isQueuedOffline, isTrue);
+      expect(offlineResult.wrongCount, 0);
+      expect(offlineResult.correctCount, 0);
+      expect(offlineResult.score, 0.0);
+
+      // Even if online GET /exam/session/:id still says IN_PROGRESS, getSession returns cached offline result
+      when(() => remoteDataSource.getSession('sess_uncached_1')).thenAnswer(
+        (_) async => Right(
+          ExamSessionDetailModel.fromJson(<String, dynamic>{
+            'sessionId': 'sess_uncached_1',
+            'status': 'IN_PROGRESS',
+            'testType': 'CHAPTER_TEST',
+            'subjectId': 'sub_phys',
+            'chapterId': 'chap_uncached',
+            'totalQuestions': 1,
+          }),
+        ),
+      );
+
+      final fetched = await repository.getSession('sess_uncached_1');
+      final fetchedResult =
+          (fetched as Right<ErrorResponse, ExamResultEntity>).value;
+      expect(fetchedResult.status, 'COMPLETED');
+      expect(fetchedResult.isPendingServerGrading, isTrue);
+      expect(fetchedResult.isQueuedOffline, isTrue);
+    });
+  });
+
+  group('Task 10 Review Regression - Controllers & UI', () {
+    setUp(() async {
+      Get.reset();
+      Get.testMode = true;
+      await PorhiTheme.initCommon();
+    });
+
+    tearDown(() {
+      Get.reset();
+    });
+
+    testWidgets('(c-ui) ExamResultView renders pending-grading banner instead of 0/N when isPendingServerGrading is true', (tester) async {
+      final mockRepo = _MockExamRepository();
+      final mockCurriculum = _MockCurriculumRepository();
+      final mockStudent = _MockStudentRepository();
+      final mockAuth = _MockAuthRepository();
+      when(() => mockAuth.getCachedUser()).thenReturn(null);
+      when(() => mockAuth.getLanguage()).thenReturn('en');
+      when(() => mockStudent.getActiveSubjectId(any())).thenReturn('sub_phys');
+      when(() => mockCurriculum.getCachedChapters(any()))
+          .thenAnswer((_) async => const <ChapterEntity>[]);
+
+      const pendingResult = ExamResultEntity(
+        sessionId: 'sess_uncached_1',
+        status: 'COMPLETED',
+        testType: ExamTestType.chapterTest,
+        subjectId: 'sub_phys',
+        chapterId: 'chap_uncached',
+        score: 0.0,
+        totalQuestions: 1,
+        correctCount: 0,
+        wrongCount: 0,
+        skippedCount: 0,
+        durationSeconds: 600,
+        negativeRatio: 0.25,
+        negativeDeduction: 0.0,
+        isQueuedOffline: true,
+        isPendingServerGrading: true,
+        answersWithExplanation: <ExamReviewedAnswerEntity>[
+          ExamReviewedAnswerEntity(
+            questionId: 'q_uncached_1',
+            stem: 'বেগের মাত্রা কোনটি?',
+            options: <ExamOptionEntity>[
+              ExamOptionEntity(id: 'opt_a', text: 'A'),
+              ExamOptionEntity(id: 'opt_b', text: 'B'),
+            ],
+            selectedOptionId: 'opt_a',
+            isCorrect: false,
+          ),
+        ],
+      );
+      when(() => mockRepo.getSession('sess_uncached_1'))
+          .thenAnswer((_) async => const Right(pendingResult));
+
+      Get.put<GetExamSessionUseCase>(GetExamSessionUseCase(mockRepo));
+      Get.put<GetCachedChaptersUseCase>(
+        GetCachedChaptersUseCase(mockCurriculum),
+      );
+      Get.put<GetCachedUserUseCase>(GetCachedUserUseCase(mockAuth));
+      Get.put<GetActiveSubjectIdUseCase>(
+        GetActiveSubjectIdUseCase(mockStudent),
+      );
+      Get.put<GetLanguageUseCase>(GetLanguageUseCase(mockAuth));
+      Get.put<EnvConfig>(const EnvConfig());
+
+      await tester.pumpWidget(
+        GetMaterialApp(
+          theme: PorhiTheme.light,
+          initialRoute: AppRoutes.examResultForSession('sess_uncached_1'),
+          getPages: AppPages.routes,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('exam_pending_grading_badge')), findsOneWidget);
+      expect(find.text('Pending Server Grading'), findsOneWidget);
+      expect(find.text('0 / 1'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    test('(d) auto-submit failure resets _hasSubmitted so manual retry works', () async {
+      final mockRepo = _MockExamRepository();
+      final mockAuth = _MockAuthRepository();
+      when(() => mockAuth.getLanguage()).thenReturn('en');
+      when(() => mockRepo.saveExamDraft(any())).thenAnswer((_) async {});
+
+      var attempt = 0;
+      when(
+        () => mockRepo.submitExam(
+          sessionId: any(named: 'sessionId'),
+          answers: any(named: 'answers'),
+          subjectId: any(named: 'subjectId'),
+          chapterId: any(named: 'chapterId'),
+          testType: any(named: 'testType'),
+          durationSeconds: any(named: 'durationSeconds'),
+          negativeRatio: any(named: 'negativeRatio'),
+          isOfflineSession: any(named: 'isOfflineSession'),
+          questions: any(named: 'questions'),
+        ),
+      ).thenAnswer((_) async {
+        attempt++;
+        if (attempt == 1) {
+          return Left(
+            ErrorResponse(
+              message: 'Server busy',
+              data: ApiResponseErrorType.response,
+            ),
+          );
+        }
+        return const Right(
+          ExamResultEntity(
+            sessionId: 'sess_auto_retry',
+            testType: ExamTestType.chapterTest,
+            subjectId: 'sub_phys',
+            chapterId: 'chap_1',
+            score: 1.0,
+            totalQuestions: 1,
+            correctCount: 1,
+            wrongCount: 0,
+            skippedCount: 0,
+            durationSeconds: 1,
+            negativeRatio: 0.25,
+            negativeDeduction: 0.0,
+          ),
+        );
+      });
+
+      final controller = ExamRunnerController(
+        heartbeatExamUseCase: HeartbeatExamUseCase(mockRepo),
+        submitExamUseCase: SubmitExamUseCase(mockRepo),
+        saveExamDraftUseCase: SaveExamDraftUseCase(mockRepo),
+        deleteExamDraftUseCase: DeleteExamDraftUseCase(mockRepo),
+        getLanguageUseCase: GetLanguageUseCase(mockAuth),
+        initialArgs: ExamRunnerArgs(
+          session: ExamSessionStartEntity(
+            sessionId: 'sess_auto_retry',
+            testType: ExamTestType.chapterTest,
+            subjectId: 'sub_phys',
+            chapterId: 'chap_1',
+            totalQuestions: 1,
+            durationSeconds: 1,
+            negativeRatio: 0.25,
+            questions: _sampleQuestions(count: 1),
+          ),
+        ),
+      );
+
+      controller.onInit();
+      await Future<void>.delayed(const Duration(milliseconds: 1200));
+
+      expect(attempt, 1);
+      expect(controller.errorMessage.value, 'Server busy');
+      expect(controller.isSubmitting.value, isFalse);
+
+      // Manual retry MUST succeed instead of being blocked by _hasSubmitted!
+      await controller.submitExam();
+      expect(attempt, 2);
+      controller.onClose();
+    });
+
+    test('(e) autosave vs delete-on-submit race prevention, saveAndExit, and discardAndExit', () async {
+      final mockRepo = _MockExamRepository();
+      final mockAuth = _MockAuthRepository();
+      when(() => mockAuth.getLanguage()).thenReturn('en');
+
+      final events = <String>[];
+      final saveCompleter = Completer<void>();
+      var saveCount = 0;
+
+      when(() => mockRepo.saveExamDraft(any())).thenAnswer((_) {
+        saveCount++;
+        events.add('save_start_$saveCount');
+        if (saveCount == 2) {
+          return saveCompleter.future.then((_) {
+            events.add('save_end_2');
+          });
+        }
+        events.add('save_end_$saveCount');
+        return Future<void>.value();
+      });
+
+      when(() => mockRepo.deleteExamDraft('sess_race')).thenAnswer((_) async {
+        events.add('delete_draft');
+      });
+
+      when(
+        () => mockRepo.submitExam(
+          sessionId: any(named: 'sessionId'),
+          answers: any(named: 'answers'),
+          subjectId: any(named: 'subjectId'),
+          chapterId: any(named: 'chapterId'),
+          testType: any(named: 'testType'),
+          durationSeconds: any(named: 'durationSeconds'),
+          negativeRatio: any(named: 'negativeRatio'),
+          isOfflineSession: any(named: 'isOfflineSession'),
+          questions: any(named: 'questions'),
+        ),
+      ).thenAnswer((_) async {
+        events.add('submit_repo_called');
+        await mockRepo.deleteExamDraft('sess_race');
+        return const Right(
+          ExamResultEntity(
+            sessionId: 'sess_race',
+            testType: ExamTestType.chapterTest,
+            subjectId: 'sub_phys',
+            chapterId: 'chap_1',
+            score: 1.0,
+            totalQuestions: 1,
+            correctCount: 1,
+            wrongCount: 0,
+            skippedCount: 0,
+            durationSeconds: 300,
+            negativeRatio: 0.25,
+            negativeDeduction: 0.0,
+          ),
+        );
+      });
+
+      final controller = ExamRunnerController(
+        heartbeatExamUseCase: HeartbeatExamUseCase(mockRepo),
+        submitExamUseCase: SubmitExamUseCase(mockRepo),
+        saveExamDraftUseCase: SaveExamDraftUseCase(mockRepo),
+        deleteExamDraftUseCase: DeleteExamDraftUseCase(mockRepo),
+        getLanguageUseCase: GetLanguageUseCase(mockAuth),
+        initialArgs: ExamRunnerArgs(
+          session: ExamSessionStartEntity(
+            sessionId: 'sess_race',
+            testType: ExamTestType.chapterTest,
+            subjectId: 'sub_phys',
+            chapterId: 'chap_1',
+            totalQuestions: 1,
+            durationSeconds: 300,
+            negativeRatio: 0.25,
+            questions: _sampleQuestions(count: 1),
+          ),
+        ),
+      );
+
+      controller.onInit();
+      await Future<void>.delayed(Duration.zero);
+      // Trigger second autosave which stalls on saveCompleter
+      controller.selectOption('eq_1', 'opt_a');
+      expect(saveCount, 2);
+
+      final submitFuture = controller.submitExam();
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      // submitExam must wait for in-flight autosave before deleting draft
+      expect(events.contains('submit_repo_called'), isFalse);
+
+      saveCompleter.complete();
+      await submitFuture;
+
+      expect(
+        events.indexOf('save_end_2'),
+        lessThan(events.indexOf('delete_draft')),
+      );
+      controller.onClose();
+
+      // Verify saveAndExit saves and discardAndExit deletes
+      final controller2 = ExamRunnerController(
+        heartbeatExamUseCase: HeartbeatExamUseCase(mockRepo),
+        submitExamUseCase: SubmitExamUseCase(mockRepo),
+        saveExamDraftUseCase: SaveExamDraftUseCase(mockRepo),
+        deleteExamDraftUseCase: DeleteExamDraftUseCase(mockRepo),
+        getLanguageUseCase: GetLanguageUseCase(mockAuth),
+        initialArgs: ExamRunnerArgs(
+          session: ExamSessionStartEntity(
+            sessionId: 'sess_race',
+            testType: ExamTestType.chapterTest,
+            subjectId: 'sub_phys',
+            chapterId: 'chap_1',
+            totalQuestions: 1,
+            durationSeconds: 300,
+            negativeRatio: 0.25,
+            questions: _sampleQuestions(count: 1),
+          ),
+        ),
+      );
+      controller2.onInit();
+      final countBeforeSaveAndExit = saveCount;
+      await controller2.saveAndExit();
+      expect(saveCount, greaterThan(countBeforeSaveAndExit));
+
+      await controller2.discardAndExit();
+      verify(() => mockRepo.deleteExamDraft('sess_race')).called(2);
+      controller2.onClose();
+    });
+
+    testWidgets('(f) /exam/setup empty args defaults to SUBJECT_TEST, accepts Bangla custom minutes ১৫, and ChapterIndexView.onExamTap forwards subjectId & chapterTitle', (tester) async {
+      final mockExamRepo = _MockExamRepository();
+      final mockCurriculumRepo = _MockCurriculumRepository();
+      final mockStudentRepo = _MockStudentRepository();
+      final mockAuthRepo = _MockAuthRepository();
+
+      when(() => mockAuthRepo.getCachedUser()).thenReturn(
+        const AuthUserEntity(
+          id: 'u_1',
+          email: 't@pori.app',
+          selectedClass: StudentTrack.ssc,
+        ),
+      );
+      when(() => mockAuthRepo.getLanguage()).thenReturn('bn');
+      when(() => mockStudentRepo.getActiveSubjectId(any()))
+          .thenReturn('sub_ssc_physics');
+      when(() => mockCurriculumRepo.getActiveSubjectId(any()))
+          .thenReturn('sub_hsc_chemistry_1');
+      when(
+        () => mockCurriculumRepo.getCachedSubjects(
+          program: any(named: 'program'),
+        ),
+      ).thenAnswer(
+        (_) async => const <SubjectEntity>[
+          SubjectEntity(
+            id: 'sub_ssc_physics',
+            code: 'PHYS',
+            nameBangla: 'পদার্থবিজ্ঞান',
+            program: StudentTrack.ssc,
+          ),
+          SubjectEntity(
+            id: 'sub_hsc_chemistry_1',
+            code: 'CHEM1',
+            nameBangla: 'রসায়ন ১ম পত্র',
+            program: StudentTrack.hsc,
+          ),
+        ],
+      );
+      when(() => mockCurriculumRepo.getCachedChapters(any())).thenAnswer(
+        (_) async => const <ChapterEntity>[
+          ChapterEntity(
+            id: 'chap_chem_1',
+            subjectId: 'sub_hsc_chemistry_1',
+            orderIndex: 1,
+            titleBangla: 'পরিমাণগত রসায়ন',
+          ),
+        ],
+      );
+      when(() => mockCurriculumRepo.getChapters(any())).thenAnswer(
+        (_) async => const Right(<ChapterEntity>[
+          ChapterEntity(
+            id: 'chap_chem_1',
+            subjectId: 'sub_hsc_chemistry_1',
+            orderIndex: 1,
+            titleBangla: 'পরিমাণগত রসায়ন',
+          ),
+        ]),
+      );
+      when(
+        () => mockCurriculumRepo.getDownloadedChapters(
+          subjectId: any(named: 'subjectId'),
+        ),
+      ).thenAnswer((_) async => const <DownloadedChapterEntity>[]);
+      when(() => mockCurriculumRepo.getOfflineChapterPack(any()))
+          .thenAnswer((_) async => null);
+      when(
+        () => mockStudentRepo.getCachedOverview(
+          subjectId: any(named: 'subjectId'),
+        ),
+      ).thenAnswer((_) async => null);
+      when(() => mockExamRepo.getLatestExamDraft()).thenAnswer((_) async => null);
+      when(() => mockExamRepo.deleteExamDraft(any())).thenAnswer((_) async {});
+      when(
+        () => mockExamRepo.startExam(
+          testType: any(named: 'testType'),
+          subjectId: any(named: 'subjectId'),
+          chapterId: any(named: 'chapterId'),
+          topicId: any(named: 'topicId'),
+          questionLimit: any(named: 'questionLimit'),
+          negativeRatio: any(named: 'negativeRatio'),
+          durationSeconds: any(named: 'durationSeconds'),
+        ),
+      ).thenAnswer(
+        (_) async => Left(
+          ErrorResponse(
+            message: 'Check duration stop',
+            data: ApiResponseErrorType.response,
+          ),
+        ),
+      );
+
+      Get.put<StartExamUseCase>(StartExamUseCase(mockExamRepo));
+      Get.put<HeartbeatExamUseCase>(HeartbeatExamUseCase(mockExamRepo));
+      Get.put<SubmitExamUseCase>(SubmitExamUseCase(mockExamRepo));
+      Get.put<GetExamSessionUseCase>(GetExamSessionUseCase(mockExamRepo));
+      Get.put<SaveExamDraftUseCase>(SaveExamDraftUseCase(mockExamRepo));
+      Get.put<GetLatestExamDraftUseCase>(GetLatestExamDraftUseCase(mockExamRepo));
+      Get.put<DeleteExamDraftUseCase>(DeleteExamDraftUseCase(mockExamRepo));
+      Get.put<ResumeExamSessionUseCase>(ResumeExamSessionUseCase(mockExamRepo));
+      Get.put<GetChaptersUseCase>(GetChaptersUseCase(mockCurriculumRepo));
+      Get.put<GetCachedChaptersUseCase>(GetCachedChaptersUseCase(mockCurriculumRepo));
+      Get.put<GetCachedSubjectsUseCase>(GetCachedSubjectsUseCase(mockCurriculumRepo));
+      Get.put<FilterChaptersUseCase>(const FilterChaptersUseCase());
+      Get.put<DownloadChapterPackUseCase>(DownloadChapterPackUseCase(mockCurriculumRepo));
+      Get.put<RemoveChapterPackUseCase>(RemoveChapterPackUseCase(mockCurriculumRepo));
+      Get.put<GetDownloadedChaptersUseCase>(GetDownloadedChaptersUseCase(mockCurriculumRepo));
+      Get.put<GetOfflineChapterPackUseCase>(GetOfflineChapterPackUseCase(mockCurriculumRepo));
+      Get.put<GetActiveCurriculumSubjectUseCase>(GetActiveCurriculumSubjectUseCase(mockCurriculumRepo));
+      Get.put<GetCachedOverviewUseCase>(GetCachedOverviewUseCase(mockStudentRepo));
+      Get.put<ToggleBookmarkUseCase>(ToggleBookmarkUseCase(mockStudentRepo));
+      Get.put<PatchCachedBookmarkUseCase>(PatchCachedBookmarkUseCase(mockStudentRepo));
+      Get.put<GetCachedUserUseCase>(GetCachedUserUseCase(mockAuthRepo));
+      Get.put<GetLanguageUseCase>(GetLanguageUseCase(mockAuthRepo));
+      Get.put<GetActiveSubjectIdUseCase>(GetActiveSubjectIdUseCase(mockStudentRepo));
+      Get.put<EnvConfig>(const EnvConfig());
+
+      // 1. Opening /exam/setup with empty args defaults to SUBJECT_TEST (25 Qs, 25m)
+      await tester.pumpWidget(
+        GetMaterialApp(
+          theme: PorhiTheme.light,
+          initialRoute: AppRoutes.examSetup,
+          getPages: AppPages.routes,
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final setupCtrl = Get.find<ExamSetupController>();
+      expect(setupCtrl.testType.value, ExamTestType.subjectTest);
+      expect(setupCtrl.questionLimit.value, 25);
+      expect(setupCtrl.durationSeconds.value, 1500);
+
+      // Bangla digits '১৫' custom duration parses to 900 seconds
+      setupCtrl.enableCustomDuration();
+      setupCtrl.customMinutesController.text = '১৫';
+      await setupCtrl.startExam();
+
+      verify(
+        () => mockExamRepo.startExam(
+          testType: ExamTestType.subjectTest,
+          subjectId: 'sub_ssc_physics',
+          chapterId: null,
+          topicId: null,
+          questionLimit: 25,
+          negativeRatio: 0.25,
+          durationSeconds: 900,
+        ),
+      ).called(1);
+
+      // 2. ChapterIndexView.onExamTap forwards subjectId & chapterTitle
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+      Get.delete<ExamSetupController>(force: true);
+
+      await tester.pumpWidget(
+        GetMaterialApp(
+          key: const Key('chapter_to_exam_app'),
+          theme: PorhiTheme.light,
+          initialRoute: AppRoutes.chaptersForSubject('sub_hsc_chemistry_1'),
+          getPages: <GetPage<dynamic>>[
+            GetPage<dynamic>(
+              name: AppRoutes.chapters,
+              page: () => const ChapterIndexView(),
+              binding: CurriculumBinding(),
+            ),
+            ...AppPages.routes.where((r) => r.name != AppRoutes.chapters),
+          ],
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.ensureVisible(
+        find.byKey(const Key('chapter_exam_btn_chap_chem_1')),
+      );
+      await tester.tap(find.byKey(const Key('chapter_exam_btn_chap_chem_1')));
+      await tester.pumpAndSettle();
+
+      final tappedSetupCtrl = Get.find<ExamSetupController>();
+      expect(tappedSetupCtrl.subjectId.value, 'sub_hsc_chemistry_1');
+      expect(tappedSetupCtrl.chapterId.value, 'chap_chem_1');
+      expect(tappedSetupCtrl.chapterTitle.value, 'পরিমাণগত রসায়ন');
+    });
+
+    test('(g) ExamResultController falls back when ErrorResponse.message is null or blank', () async {
+      final mockRepo = _MockExamRepository();
+      final mockCurriculum = _MockCurriculumRepository();
+      final mockStudent = _MockStudentRepository();
+      final mockAuth = _MockAuthRepository();
+
+      when(() => mockAuth.getLanguage()).thenReturn('en');
+      when(() => mockAuth.getCachedUser()).thenReturn(null);
+      when(() => mockStudent.getActiveSubjectId(any())).thenReturn('sub_1');
+      when(() => mockRepo.getSession('sess_blank_err')).thenAnswer(
+        (_) async => Left(
+          ErrorResponse(
+            message: '   ',
+            data: ApiResponseErrorType.response,
+          ),
+        ),
+      );
+
+      final ctrl = ExamResultController(
+        getExamSessionUseCase: GetExamSessionUseCase(mockRepo),
+        getCachedChaptersUseCase: GetCachedChaptersUseCase(mockCurriculum),
+        getCachedUserUseCase: GetCachedUserUseCase(mockAuth),
+        getActiveSubjectIdUseCase: GetActiveSubjectIdUseCase(mockStudent),
+        getLanguageUseCase: GetLanguageUseCase(mockAuth),
+      );
+      ctrl.language.value = AppLanguage.en;
+      ctrl.sessionId.value = 'sess_blank_err';
+      await ctrl.loadSession();
+
+      expect(ctrl.errorMessage.value, 'Could not load exam result.');
+      ctrl.onClose();
     });
   });
 }

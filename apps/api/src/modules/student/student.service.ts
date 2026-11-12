@@ -914,7 +914,14 @@ export class StudentService {
       }
 
       const totalQuestions = Math.max(submittedAnswers.length, evaluatedAnswers.length);
-      const negativeRatio = 0.25;
+      const rawNegativeRatio = exam.negativeRatio;
+      const negativeRatio =
+        typeof rawNegativeRatio === 'number' &&
+        Number.isFinite(rawNegativeRatio) &&
+        rawNegativeRatio >= 0 &&
+        rawNegativeRatio <= 1.0
+          ? rawNegativeRatio
+          : 0.25;
       const score = Math.max(
         0,
         parseFloat((correctCount - wrongCount * negativeRatio).toFixed(4)),

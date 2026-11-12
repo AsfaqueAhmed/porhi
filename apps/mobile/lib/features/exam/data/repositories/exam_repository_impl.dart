@@ -62,23 +62,6 @@ class ExamRepositoryImpl implements ExamRepository {
     );
   }
 
-  Future<List<ExamQuestionEntity>> _mergeQuestionsWithCache(
-    List<ExamQuestionEntity> remoteQuestions,
-  ) async {
-    if (remoteQuestions.isEmpty) return remoteQuestions;
-    final cachedById = await _localDataSource.getCachedQuestionsByIds(
-      remoteQuestions.map((q) => q.id).toList(),
-    );
-    if (cachedById.isEmpty) return remoteQuestions;
-
-    return remoteQuestions.map((remote) {
-      final local = cachedById[remote.id];
-      return local == null
-          ? remote
-          : _mergeLocalDetails(remote: remote, local: local);
-    }).toList();
-  }
-
   @override
   Future<Either<ErrorResponse, ExamSessionStartEntity>> startExam({
     required ExamTestType testType,
@@ -158,22 +141,11 @@ class ExamRepositoryImpl implements ExamRepository {
           chapterId: testType == ExamTestType.subjectTest ? null : chapterId,
           isOfflineSession: false,
         );
-        final mergedQuestions =
-            await _mergeQuestionsWithCache(rawEntity.questions);
-        return Right<ErrorResponse, ExamSessionStartEntity>(
-          ExamSessionStartEntity(
-            sessionId: rawEntity.sessionId,
-            testType: rawEntity.testType,
-            subjectId: rawEntity.subjectId,
-            chapterId: rawEntity.chapterId,
-            totalQuestions: rawEntity.totalQuestions,
-            durationSeconds: rawEntity.durationSeconds,
-            negativeRatio: rawEntity.negativeRatio,
-            questions: mergedQuestions,
-            isOfflineSession: false,
-            startedAt: rawEntity.startedAt,
-          ),
+        await _localDataSource.saveOfflineSessionMeta(
+          rawEntity.sessionId,
+          negativeRatio: rawEntity.negativeRatio,
         );
+        return Right<ErrorResponse, ExamSessionStartEntity>(rawEntity);
       },
     );
   }
@@ -293,7 +265,18 @@ class ExamRepositoryImpl implements ExamRepository {
     var correctCount = 0;
     var wrongCount = 0;
     var skippedCount = 0;
+    var hasMissingAnswerKeys = false;
     final reviewedAnswers = <ExamReviewedAnswerEntity>[];
+
+    if (orderedQuestions.isEmpty && answers.isNotEmpty) {
+      hasMissingAnswerKeys = true;
+      for (final ans in answers) {
+        if (ans.selectedOptionId == null ||
+            ans.selectedOptionId!.trim().isEmpty) {
+          skippedCount++;
+        }
+      }
+    }
 
     for (final q in orderedQuestions) {
       final userAns = answerByQuestionId[q.id];
@@ -303,18 +286,23 @@ class ExamRepositoryImpl implements ExamRepository {
               : null;
       final timeSpent = userAns?.timeSpent ?? 0;
 
+      final hasAnswerKey = q.options.any((opt) => opt.isCorrect != null);
       String? correctOptionId;
-      for (final opt in q.options) {
-        if (opt.isCorrect == true) {
-          correctOptionId = opt.id;
-          break;
+      if (hasAnswerKey) {
+        for (final opt in q.options) {
+          if (opt.isCorrect == true) {
+            correctOptionId = opt.id;
+            break;
+          }
         }
       }
 
       var isCorrect = false;
       if (selectedOptionId == null) {
         skippedCount++;
-      } else if (correctOptionId != null && selectedOptionId == correctOptionId) {
+      } else if (!hasAnswerKey || correctOptionId == null) {
+        hasMissingAnswerKeys = true;
+      } else if (selectedOptionId == correctOptionId) {
         correctCount++;
         isCorrect = true;
       } else {
@@ -339,10 +327,13 @@ class ExamRepositoryImpl implements ExamRepository {
     final totalQuestions = orderedQuestions.isNotEmpty
         ? orderedQuestions.length
         : answers.length;
-    final negativeDeduction =
-        double.parse((wrongCount * negativeRatio).toStringAsFixed(4));
+    final negativeDeduction = hasMissingAnswerKeys
+        ? 0.0
+        : double.parse((wrongCount * negativeRatio).toStringAsFixed(4));
     final rawScore = correctCount - negativeDeduction;
-    final score = max(0.0, double.parse(rawScore.toStringAsFixed(4)));
+    final score = hasMissingAnswerKeys
+        ? 0.0
+        : max(0.0, double.parse(rawScore.toStringAsFixed(4)));
     final now = DateTime.now().toUtc();
 
     final result = ExamResultEntity(
@@ -363,11 +354,30 @@ class ExamRepositoryImpl implements ExamRepository {
       completedAt: now,
       answersWithExplanation: reviewedAnswers,
       isQueuedOffline: true,
+      isPendingServerGrading: hasMissingAnswerKeys,
     );
 
     await _localDataSource.saveOfflineResult(result);
     await _localDataSource.deleteExamDraft(sessionId);
     await _localDataSource.deleteOfflineSessionMeta(sessionId);
+
+    final syncAnswers = orderedQuestions.isNotEmpty
+        ? orderedQuestions
+            .map(
+              (q) => OfflineExamAnswerItem(
+                questionId: q.id,
+                selectedOptionId: answerByQuestionId[q.id]?.selectedOptionId,
+              ),
+            )
+            .toList()
+        : answers
+            .map(
+              (a) => OfflineExamAnswerItem(
+                questionId: a.questionId,
+                selectedOptionId: a.selectedOptionId,
+              ),
+            )
+            .toList();
 
     await _offlineSyncService.enqueueExamSubmission(
       offlineSessionId: sessionId,
@@ -375,14 +385,8 @@ class ExamRepositoryImpl implements ExamRepository {
       chapterId: testType == ExamTestType.subjectTest ? null : chapterId,
       testType: testType.apiValue,
       durationSeconds: durationSeconds,
-      answers: orderedQuestions
-          .map(
-            (q) => OfflineExamAnswerItem(
-              questionId: q.id,
-              selectedOptionId: answerByQuestionId[q.id]?.selectedOptionId,
-            ),
-          )
-          .toList(),
+      negativeRatio: negativeRatio,
+      answers: syncAnswers,
       submittedAt: now,
     );
 
@@ -417,7 +421,15 @@ class ExamRepositoryImpl implements ExamRepository {
         }
         return Left<ErrorResponse, ExamResultEntity>(err);
       },
-      (model) => Right<ErrorResponse, ExamResultEntity>(model.toResultEntity()),
+      (model) async {
+        if (model.status != 'COMPLETED') {
+          final cached = await _localDataSource.getOfflineResult(sessionId);
+          if (cached != null) {
+            return Right<ErrorResponse, ExamResultEntity>(cached);
+          }
+        }
+        return Right<ErrorResponse, ExamResultEntity>(model.toResultEntity());
+      },
     );
   }
 
@@ -464,10 +476,12 @@ class ExamRepositoryImpl implements ExamRepository {
         }
 
         final serverSession = detail.toInProgressStartEntity();
-        final mergedQuestions =
-            await _mergeQuestionsWithCache(serverSession.questions);
+        await _localDataSource.saveOfflineSessionMeta(
+          serverSession.sessionId,
+          negativeRatio: serverSession.negativeRatio,
+        );
         final orderedQuestions = _orderQuestionsByIds(
-          mergedQuestions,
+          serverSession.questions,
           draft.questionIds,
         );
         final mergedAnswers = <String, String?>{

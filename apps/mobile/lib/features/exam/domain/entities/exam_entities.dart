@@ -257,6 +257,7 @@ class ExamResultEntity extends Equatable {
   final DateTime? completedAt;
   final List<ExamReviewedAnswerEntity> answersWithExplanation;
   final bool isQueuedOffline;
+  final bool isPendingServerGrading;
 
   const ExamResultEntity({
     required this.sessionId,
@@ -277,6 +278,7 @@ class ExamResultEntity extends Equatable {
     this.completedAt,
     this.answersWithExplanation = const <ExamReviewedAnswerEntity>[],
     this.isQueuedOffline = false,
+    this.isPendingServerGrading = false,
   });
 
   int get accuracyPercent {
@@ -304,6 +306,7 @@ class ExamResultEntity extends Equatable {
         completedAt,
         answersWithExplanation,
         isQueuedOffline,
+        isPendingServerGrading,
       ];
 }
 

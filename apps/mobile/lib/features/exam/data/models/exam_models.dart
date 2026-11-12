@@ -464,6 +464,7 @@ class ExamSessionDetailModel extends BaseResponseModel<ExamSessionDetailModel> {
   final Map<String, String?> inProgressAnswers;
   final List<ExamReviewedAnswerModel> answersWithExplanation;
   final bool isQueuedOffline;
+  final bool isPendingServerGrading;
 
   ExamSessionDetailModel({
     required this.sessionId,
@@ -486,6 +487,7 @@ class ExamSessionDetailModel extends BaseResponseModel<ExamSessionDetailModel> {
     this.inProgressAnswers = const <String, String?>{},
     this.answersWithExplanation = const <ExamReviewedAnswerModel>[],
     this.isQueuedOffline = false,
+    this.isPendingServerGrading = false,
     super.message,
   }) {
     data = this;
@@ -549,6 +551,7 @@ class ExamSessionDetailModel extends BaseResponseModel<ExamSessionDetailModel> {
       inProgressAnswers: inProgressMap,
       answersWithExplanation: reviewed,
       isQueuedOffline: _asBool(source['isQueuedOffline']),
+      isPendingServerGrading: _asBool(source['isPendingServerGrading']),
       message: _asNullableString(json['message']),
     );
   }
@@ -575,6 +578,7 @@ class ExamSessionDetailModel extends BaseResponseModel<ExamSessionDetailModel> {
           .map(ExamReviewedAnswerModel.fromEntity)
           .toList(),
       isQueuedOffline: entity.isQueuedOffline,
+      isPendingServerGrading: entity.isPendingServerGrading,
     );
   }
 
@@ -614,6 +618,7 @@ class ExamSessionDetailModel extends BaseResponseModel<ExamSessionDetailModel> {
       answersWithExplanation:
           answersWithExplanation.map((a) => a.toEntity()).toList(),
       isQueuedOffline: isQueuedOffline,
+      isPendingServerGrading: isPendingServerGrading,
     );
   }
 
@@ -638,6 +643,7 @@ class ExamSessionDetailModel extends BaseResponseModel<ExamSessionDetailModel> {
         'answersWithExplanation':
             answersWithExplanation.map((a) => a.toJson()).toList(),
         'isQueuedOffline': isQueuedOffline,
+        'isPendingServerGrading': isPendingServerGrading,
       };
 }
 

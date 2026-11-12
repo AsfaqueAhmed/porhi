@@ -82,6 +82,38 @@ class ExamResultView extends GetView<ExamResultController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
+                if (error != null) ...<Widget>[
+                  Container(
+                    key: const Key('exam_result_refresh_error_banner'),
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF1F2),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFFECDD3)),
+                    ),
+                    child: Row(
+                      children: <Widget>[
+                        const Icon(
+                          Icons.error_outline,
+                          size: 18,
+                          color: PorhiTheme.rose600,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            error,
+                            style: const TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                              color: PorhiTheme.rose600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
                 _ScoreSummaryCard(
                   result: res,
                   title: controller.headerTitle.value,
@@ -131,6 +163,7 @@ class ExamResultView extends GetView<ExamResultController> {
                         item: item,
                         lang: lang,
                         envConfig: controller.envConfig,
+                        isPendingServerGrading: res.isPendingServerGrading,
                         isExpanded: controller.expandedExplanationIds
                             .contains(item.questionId),
                         onToggleExplanation: () =>
@@ -206,21 +239,34 @@ class _ScoreSummaryCard extends StatelessWidget {
               const SizedBox(height: 4),
             ],
             Text(
-              '$formattedScore / $totalStr',
+              result.isPendingServerGrading
+                  ? AppStrings.tr(
+                      'সার্ভার মূল্যায়ন অপেক্ষমাণ',
+                      'Pending Server Grading',
+                      lang,
+                    )
+                  : '$formattedScore / $totalStr',
               key: const Key('exam_score_headline'),
-              style: const TextStyle(
-                fontSize: 26,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: result.isPendingServerGrading ? 20 : 26,
                 fontWeight: FontWeight.w900,
                 color: PorhiTheme.slate900,
               ),
             ),
             const SizedBox(height: 4),
             Text(
-              AppStrings.tr(
-                'সঠিকতার হার: $accuracyStr%',
-                'Accuracy: $accuracyStr%',
-                lang,
-              ),
+              result.isPendingServerGrading
+                  ? AppStrings.tr(
+                      'উত্তর দেওয়া হয়েছে: ${AppStrings.formatNumber(result.totalQuestions - result.skippedCount, lang)} / $totalStr',
+                      'Answered: ${result.totalQuestions - result.skippedCount} / ${result.totalQuestions}',
+                      lang,
+                    )
+                  : AppStrings.tr(
+                      'সঠিকতার হার: $accuracyStr%',
+                      'Accuracy: $accuracyStr%',
+                      lang,
+                    ),
               style: const TextStyle(
                 fontSize: 13.5,
                 fontWeight: FontWeight.w700,
@@ -258,6 +304,32 @@ class _ScoreSummaryCard extends StatelessWidget {
                       ),
                     ),
                   ),
+                if (result.isPendingServerGrading)
+                  Container(
+                    key: const Key('exam_pending_grading_badge'),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFFBEB),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: const Color(0xFFFDE68A)),
+                    ),
+                    child: Text(
+                      AppStrings.tr(
+                        'অফলাইন থাকায় উত্তরপত্র কিউতে জমা আছে। অনলাইন হলেই পূর্ণ নম্বর, পারসেন্টাইল ও ব্যাখ্যা আপডেট হবে।',
+                        'Your answers are saved offline. Final score, percentile, and explanations will update once synced with the server.',
+                        lang,
+                      ),
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF92400E),
+                      ),
+                    ),
+                  ),
                 if (result.isQueuedOffline)
                   Container(
                     key: const Key('exam_offline_queued_badge'),
@@ -286,7 +358,8 @@ class _ScoreSummaryCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 14),
-            Wrap(
+            if (!result.isPendingServerGrading)
+              Wrap(
               spacing: 8,
               runSpacing: 8,
               alignment: WrapAlignment.center,
@@ -397,11 +470,12 @@ class _BreakdownPill extends StatelessWidget {
   }
 }
 
-class _ReviewedQuestionCard extends StatelessWidget {
+class _ReviewedQuestionCard extends StatefulWidget {
   final int index;
   final ExamReviewedAnswerEntity item;
   final AppLanguage lang;
   final EnvConfig? envConfig;
+  final bool isPendingServerGrading;
   final bool isExpanded;
   final VoidCallback onToggleExplanation;
 
@@ -410,25 +484,69 @@ class _ReviewedQuestionCard extends StatelessWidget {
     required this.item,
     required this.lang,
     required this.envConfig,
+    this.isPendingServerGrading = false,
     required this.isExpanded,
     required this.onToggleExplanation,
   });
 
   @override
+  State<_ReviewedQuestionCard> createState() => _ReviewedQuestionCardState();
+}
+
+class _ReviewedQuestionCardState extends State<_ReviewedQuestionCard> {
+  bool _isOpeningReportSheet = false;
+
+  Future<void> _handleOpenReport() async {
+    if (_isOpeningReportSheet || !mounted) return;
+    _isOpeningReportSheet = true;
+    final item = widget.item;
+    try {
+      await ReportContentSheet.show(
+        context,
+        contentType: ReportContentType.question,
+        contentId: item.questionId,
+        topicId: item.topicId,
+        contentLabel:
+            item.stem.length > 80 ? item.stem.substring(0, 80) : item.stem,
+        language: widget.lang,
+      );
+    } finally {
+      if (mounted) {
+        _isOpeningReportSheet = false;
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final index = widget.index;
+    final item = widget.item;
+    final lang = widget.lang;
+    final envConfig = widget.envConfig;
+    final isExpanded = widget.isExpanded;
     final isSkipped =
         item.selectedOptionId == null || item.selectedOptionId!.isEmpty;
+    final hasLocalAnswerKey = item.correctOptionId != null ||
+        item.options.any((opt) => opt.isCorrect != null);
+    final isUngraded = widget.isPendingServerGrading && !hasLocalAnswerKey;
+
     final statusColor = isSkipped
         ? PorhiTheme.slate600
-        : (item.isCorrect ? PorhiTheme.emerald600 : PorhiTheme.rose600);
+        : isUngraded
+            ? PorhiTheme.indigo700
+            : (item.isCorrect ? PorhiTheme.emerald600 : PorhiTheme.rose600);
     final statusBg = isSkipped
         ? PorhiTheme.slate100
-        : (item.isCorrect ? PorhiTheme.emerald50 : const Color(0xFFFFF1F2));
+        : isUngraded
+            ? PorhiTheme.indigo50
+            : (item.isCorrect ? PorhiTheme.emerald50 : const Color(0xFFFFF1F2));
     final statusLabel = isSkipped
         ? AppStrings.tr('বাদ দেওয়া হয়েছে', 'Skipped', lang)
-        : (item.isCorrect
-            ? AppStrings.tr('সঠিক', 'Correct', lang)
-            : AppStrings.tr('ভুল', 'Wrong', lang));
+        : isUngraded
+            ? AppStrings.tr('উত্তরিত', 'Answered', lang)
+            : (item.isCorrect
+                ? AppStrings.tr('সঠিক', 'Correct', lang)
+                : AppStrings.tr('ভুল', 'Wrong', lang));
 
     final hasExplanation =
         item.explanation != null && item.explanation!.hasAnyContent;
@@ -466,16 +584,7 @@ class _ReviewedQuestionCard extends StatelessWidget {
                 IconButton(
                   key: Key('exam_report_q_${item.questionId}'),
                   tooltip: AppStrings.tr('রিপোর্ট করুন', 'Report Issue', lang),
-                  onPressed: () => ReportContentSheet.show(
-                    context,
-                    contentType: ReportContentType.question,
-                    contentId: item.questionId,
-                    topicId: item.topicId,
-                    contentLabel: item.stem.length > 80
-                        ? item.stem.substring(0, 80)
-                        : item.stem,
-                    language: lang,
-                  ),
+                  onPressed: _handleOpenReport,
                   icon: const Icon(
                     Icons.flag_outlined,
                     size: 18,
@@ -506,7 +615,14 @@ class _ReviewedQuestionCard extends StatelessWidget {
               IconData? icon;
               Color? iconColor;
 
-              if (isCorrect) {
+              if (isUngraded) {
+                if (isSelected) {
+                  bg = PorhiTheme.indigo50;
+                  border = PorhiTheme.indigo600;
+                  icon = Icons.radio_button_checked_rounded;
+                  iconColor = PorhiTheme.indigo600;
+                }
+              } else if (isCorrect) {
                 bg = PorhiTheme.emerald50;
                 border = PorhiTheme.emerald600;
                 icon = Icons.check_circle_rounded;
@@ -555,7 +671,7 @@ class _ReviewedQuestionCard extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: TextButton.icon(
                   key: Key('exam_toggle_exp_${item.questionId}'),
-                  onPressed: onToggleExplanation,
+                  onPressed: widget.onToggleExplanation,
                   icon: Icon(
                     isExpanded
                         ? Icons.keyboard_arrow_up_rounded

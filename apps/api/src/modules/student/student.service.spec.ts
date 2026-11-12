@@ -434,6 +434,72 @@ describe('StudentService', () => {
       });
     });
 
+    it('applies custom negativeRatio (0.5 and 0.0) on offline examSubmissions sync', async () => {
+      prisma.eventLog.findMany.mockResolvedValue([]);
+      prisma.eventLog.create.mockResolvedValue({ id: 'ev_neg_sync' });
+      prisma.revisionMistake.upsert = vi.fn().mockResolvedValue({ id: 'mistake_neg' });
+      prisma.question.findMany.mockResolvedValue([
+        {
+          id: 'q1',
+          topicId: 'top_1',
+          options: [
+            { id: 'opt_a', text: 'A', isCorrect: true },
+            { id: 'opt_b', text: 'B', isCorrect: false },
+          ],
+        },
+        {
+          id: 'q2',
+          topicId: 'top_1',
+          options: [
+            { id: 'opt_a', text: 'A', isCorrect: true },
+            { id: 'opt_b', text: 'B', isCorrect: false },
+          ],
+        },
+      ]);
+      prisma.examSession.create = vi.fn().mockResolvedValue({ id: 'sess_neg' });
+
+      const res = await (studentService as any).syncOfflineActivity('user-1', {
+        examSubmissions: [
+          {
+            offlineSessionId: 'off_neg_half',
+            subjectId: 'sub_1',
+            chapterId: 'chap_1',
+            negativeRatio: 0.5,
+            answers: [
+              { questionId: 'q1', selectedOptionId: 'opt_a' },
+              { questionId: 'q2', selectedOptionId: 'opt_b' },
+            ],
+            submittedAt: '2026-11-12T11:00:00Z',
+          },
+          {
+            offlineSessionId: 'off_neg_zero',
+            subjectId: 'sub_1',
+            chapterId: 'chap_1',
+            negativeRatio: 0,
+            answers: [
+              { questionId: 'q1', selectedOptionId: 'opt_a' },
+              { questionId: 'q2', selectedOptionId: 'opt_b' },
+            ],
+            submittedAt: '2026-11-12T11:05:00Z',
+          },
+        ],
+      });
+
+      expect(res.syncedExams).toBe(2);
+      expect(prisma.examSession.create).toHaveBeenNthCalledWith(1, {
+        data: expect.objectContaining({
+          negativeRatio: 0.5,
+          score: 0.5,
+        }),
+      });
+      expect(prisma.examSession.create).toHaveBeenNthCalledWith(2, {
+        data: expect.objectContaining({
+          negativeRatio: 0,
+          score: 1,
+        }),
+      });
+    });
+
     it('preserves CQ selfScores and skips revisionMistake.upsert for cq:k,kh,g,gh attempts', async () => {
       prisma.eventLog.findMany.mockResolvedValue([]);
       prisma.eventLog.create.mockResolvedValue({ id: 'ev_cq_sync' });

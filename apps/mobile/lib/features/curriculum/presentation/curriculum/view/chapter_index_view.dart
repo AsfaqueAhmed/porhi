@@ -5,6 +5,7 @@ import 'package:porhi/core/theme/porhi_theme.dart';
 import 'package:porhi/features/curriculum/domain/entities/curriculum_entities.dart';
 import 'package:porhi/features/curriculum/presentation/curriculum/controller/chapter_index_controller.dart';
 import 'package:porhi/features/curriculum/presentation/curriculum/widgets/chapter_accordion_card.dart';
+import 'package:porhi/features/exam/domain/entities/exam_entities.dart';
 import 'package:porhi/features/lesson/domain/entities/lesson_entities.dart';
 import 'package:porhi/features/practice/domain/entities/practice_entities.dart';
 import 'package:porhi/routes/app_routes.dart';
@@ -265,6 +266,10 @@ class ChapterIndexView extends GetView<ChapterIndexController> {
                         context,
                         AppRoutes.examForChapter(chapter.id),
                         lang,
+                        arguments: ExamSetupRouteArgs(
+                          subjectId: controller.subjectId.value,
+                          chapterTitle: chapter.titleBangla,
+                        ),
                       ),
                       onTopicTap: (topic) =>
                           _openTopicOrOfflinePreview(context, chapter, topic, lang),

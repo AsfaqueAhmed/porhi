@@ -9,43 +9,63 @@ import 'package:porhi/features/exam/domain/entities/exam_entities.dart';
 import 'package:porhi/features/exam/presentation/exam_runner/controller/exam_runner_controller.dart';
 import 'package:porhi/features/exam/presentation/exam_runner/widgets/question_navigator_sheet.dart';
 
-class ExamRunnerView extends GetView<ExamRunnerController> {
+class ExamRunnerView extends StatefulWidget {
   const ExamRunnerView({super.key});
 
+  @override
+  State<ExamRunnerView> createState() => _ExamRunnerViewState();
+}
+
+class _ExamRunnerViewState extends State<ExamRunnerView> {
+  bool _isExitDialogOpen = false;
+  bool _isSubmitDialogOpen = false;
+
+  ExamRunnerController get controller => Get.find<ExamRunnerController>();
+
   Future<void> _confirmExit(BuildContext context, AppLanguage lang) async {
-    final action = await showDialog<String>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(
-          AppStrings.tr('পরীক্ষা থেকে বের হতে চাও?', 'Leave Active Exam?', lang),
-        ),
-        content: Text(
-          AppStrings.tr(
-            'তোমার উত্তর ও সময় সংরক্ষিত আছে। পরে চাইলে আবার শুরু করতে পারবে।',
-            'Your answers and remaining time are saved so you can resume later.',
-            lang,
+    if (_isExitDialogOpen || _isSubmitDialogOpen || !mounted) return;
+    _isExitDialogOpen = true;
+    String? action;
+    try {
+      action = await showDialog<String>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(
+            AppStrings.tr('পরীক্ষা থেকে বের হতে চাও?', 'Leave Active Exam?', lang),
           ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop('stay'),
-            child: Text(AppStrings.tr('পরীক্ষায় থাকো', 'Stay', lang)),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop('discard'),
-            style: TextButton.styleFrom(foregroundColor: PorhiTheme.rose600),
-            child: Text(
-              AppStrings.tr('বাতিল করে বের হও', 'Discard & Exit', lang),
+          content: Text(
+            AppStrings.tr(
+              'তোমার উত্তর ও সময় সংরক্ষিত আছে। পরে চাইলে আবার শুরু করতে পারবে।',
+              'Your answers and remaining time are saved so you can resume later.',
+              lang,
             ),
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(ctx).pop('save'),
-            child: Text(AppStrings.tr('সংরক্ষণ করে বের হও', 'Save & Exit', lang)),
-          ),
-        ],
-      ),
-    );
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop('stay'),
+              child: Text(AppStrings.tr('পরীক্ষায় থাকো', 'Stay', lang)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop('discard'),
+              style: TextButton.styleFrom(foregroundColor: PorhiTheme.rose600),
+              child: Text(
+                AppStrings.tr('বাতিল করে বের হও', 'Discard & Exit', lang),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(ctx).pop('save'),
+              child: Text(
+                AppStrings.tr('সংরক্ষণ করে বের হও', 'Save & Exit', lang),
+              ),
+            ),
+          ],
+        ),
+      );
+    } finally {
+      _isExitDialogOpen = false;
+    }
 
+    if (!mounted) return;
     if (action == 'save') {
       await controller.saveAndExit();
     } else if (action == 'discard') {
@@ -54,43 +74,52 @@ class ExamRunnerView extends GetView<ExamRunnerController> {
   }
 
   Future<void> _confirmSubmit(BuildContext context, AppLanguage lang) async {
+    if (_isExitDialogOpen || _isSubmitDialogOpen || !mounted) return;
+    _isSubmitDialogOpen = true;
     final unanswered = controller.unansweredCount;
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(
-          AppStrings.tr('পরীক্ষা জমা দেবে?', 'Submit Exam?', lang),
-        ),
-        content: Text(
-          unanswered > 0
-              ? AppStrings.tr(
-                  'এখনো ${AppStrings.formatNumber(unanswered, lang)}টি প্রশ্নের উত্তর দেওয়া হয়নি। তবুও জমা দিতে চাও?',
-                  'You still have $unanswered unanswered question(s). Submit anyway?',
-                  lang,
-                )
-              : AppStrings.tr(
-                  'সবগুলো প্রশ্নের উত্তর দেওয়া হয়েছে। উত্তরপত্র জমা দিতে নিশ্চিত করো।',
-                  'All questions answered. Confirm to submit your exam.',
-                  lang,
-                ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(false),
-            child: Text(AppStrings.t('action.cancel', lang)),
+    bool? confirmed;
+    try {
+      confirmed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(
+            AppStrings.tr('পরীক্ষা জমা দেবে?', 'Submit Exam?', lang),
           ),
-          ElevatedButton(
-            key: const Key('exam_confirm_submit_btn'),
-            onPressed: () => Navigator.of(ctx).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: PorhiTheme.indigo600,
-              foregroundColor: Colors.white,
+          content: Text(
+            unanswered > 0
+                ? AppStrings.tr(
+                    'এখনো ${AppStrings.formatNumber(unanswered, lang)}টি প্রশ্নের উত্তর দেওয়া হয়নি। তবুও জমা দিতে চাও?',
+                    'You still have $unanswered unanswered question(s). Submit anyway?',
+                    lang,
+                  )
+                : AppStrings.tr(
+                    'সবগুলো প্রশ্নের উত্তর দেওয়া হয়েছে। উত্তরপত্র জমা দিতে নিশ্চিত করো।',
+                    'All questions answered. Confirm to submit your exam.',
+                    lang,
+                  ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: Text(AppStrings.t('action.cancel', lang)),
             ),
-            child: Text(AppStrings.tr('জমা দাও', 'Submit', lang)),
-          ),
-        ],
-      ),
-    );
+            ElevatedButton(
+              key: const Key('exam_confirm_submit_btn'),
+              onPressed: () => Navigator.of(ctx).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: PorhiTheme.indigo600,
+                foregroundColor: Colors.white,
+              ),
+              child: Text(AppStrings.tr('জমা দাও', 'Submit', lang)),
+            ),
+          ],
+        ),
+      );
+    } finally {
+      _isSubmitDialogOpen = false;
+    }
+
+    if (!mounted) return;
     if (confirmed == true) {
       await controller.submitExam();
     }

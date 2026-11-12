@@ -208,3 +208,13 @@ class ResumeExamSessionUseCase {
   ) =>
       _repository.getResumeSessionData(draft);
 }
+
+/// Returns a non-empty trimmed error message or [fallback] when [rawMessage]
+/// is null or blank.
+String resolveExamErrorMessage(String? rawMessage, String fallback) {
+  final trimmed = rawMessage?.trim();
+  if (trimmed != null && trimmed.isNotEmpty) {
+    return trimmed;
+  }
+  return fallback;
+}

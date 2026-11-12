@@ -73,6 +73,7 @@ class ExamResultController extends GetxController {
   }
 
   Future<void> loadSession() async {
+    if (isLoading.value) return;
     final id = sessionId.value.trim();
     final lang = language.value;
     if (id.isEmpty) {
@@ -93,12 +94,14 @@ class ExamResultController extends GetxController {
 
       res.fold(
         (err) {
-          errorMessage.value = err.message ??
-              AppStrings.tr(
-                'পরীক্ষার ফলাফল লোড করা যায়নি।',
-                'Could not load exam result.',
-                lang,
-              );
+          errorMessage.value = resolveExamErrorMessage(
+            err.message,
+            AppStrings.tr(
+              'পরীক্ষার ফলাফল লোড করা যায়নি।',
+              'Could not load exam result.',
+              lang,
+            ),
+          );
         },
         (data) {
           result.value = data;
@@ -165,6 +168,11 @@ class ExamResultController extends GetxController {
   }
 
   void goBackToChapterOrSubjects() {
+    if (Get.key.currentState?.canPop() == true ||
+        Get.previousRoute.isNotEmpty) {
+      Get.back<void>();
+      return;
+    }
     final res = result.value;
     if (res != null && res.subjectId.isNotEmpty) {
       Get.offNamed(AppRoutes.chaptersForSubject(res.subjectId));
