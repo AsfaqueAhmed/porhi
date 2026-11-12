@@ -22,20 +22,30 @@ enum ContentStatus {
   ARCHIVED
 }
 
+enum ReportStatus {
+  OPEN
+  IN_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
 model User {
-  id            String            @id @default(uuid())
-  guestId       String?           @unique
-  phoneNumber   String?           @unique
-  fullName      String?
-  passwordHash  String?
-  role          Role              @default(STUDENT)
-  selectedClass String            @default("SSC")
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-  sessions      ExamSession[]
-  mistakes      RevisionMistake[]
-  reviews       ContentReview[]
-  events        EventLog[]
+  id             String            @id @default(uuid())
+  guestId        String?           @unique
+  phoneNumber    String?           @unique
+  fullName       String?
+  passwordHash   String?
+  role           Role              @default(STUDENT)
+  selectedClass  String            @default("SSC")
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  sessions       ExamSession[]
+  mistakes       RevisionMistake[]
+  reviews        ContentReview[]
+  events         EventLog[]
+  bookmarks      StudentBookmark[]
+  notes          StudentNote[]
+  contentReports ContentReport[]
 }
 
 model Subject {
@@ -172,4 +182,53 @@ model EventLog {
   timestamp DateTime @default(now())
 
   @@index([userId, timestamp])
+}
+
+model StudentBookmark {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itemId         String
+  itemType       String   // "topic" | "question"
+  titleBangla    String
+  subtitleBangla String?
+  href           String
+  createdAt      DateTime @default(now())
+
+  @@unique([userId, itemId, itemType])
+  @@index([userId, createdAt])
+}
+
+model StudentNote {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topicId   String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, topicId])
+  @@index([userId, updatedAt])
+}
+
+model ContentReport {
+  id             String       @id @default(uuid())
+  userId         String?
+  user           User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  contentType    String       // "LESSON" | "QUESTION"
+  contentId      String
+  topicId        String?
+  category       String       // "WRONG_ANSWER" | "TYPO_OR_LATEX" | "UNCLEAR_EXPLANATION" | "CURRICULUM_MISMATCH" | "OTHER"
+  description    String
+  status         ReportStatus @default(OPEN)
+  resolutionNote String?
+  resolvedById   String?
+  resolvedAt     DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([status, createdAt])
+  @@index([contentType, contentId])
+  @@index([userId, createdAt])
 }

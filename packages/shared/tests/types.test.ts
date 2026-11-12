@@ -17,6 +17,11 @@ import {
   type AdminLessonItem,
   type LessonStatusCounts,
   type ListLessonsResponse,
+  ReportStatus,
+  type ReportCategory,
+  type ContentReportDTO,
+  type CqSelfAssessPayload,
+  type StudentBookmarkSyncItem,
 } from '../src';
 
 describe('Shared Constants and Enums', () => {
@@ -249,5 +254,41 @@ describe('Shared Type Structures', () => {
     expect(list.items[0].topic?.chapter.subject.code).toBe('ssc_physics');
     expect(list.statusCounts.PUBLISHED).toBe(2);
     expect(list.statusCounts.ARCHIVED).toBe(1);
+  });
+
+  it('should support ReportStatus, ContentReportDTO, CqSelfAssessPayload, and StudentBookmarkSyncItem', () => {
+    expect(ReportStatus.OPEN).toBe('OPEN');
+    expect(ReportStatus.IN_REVIEW).toBe('IN_REVIEW');
+    expect(ReportStatus.RESOLVED).toBe('RESOLVED');
+    expect(ReportStatus.DISMISSED).toBe('DISMISSED');
+
+    const category: ReportCategory = 'WRONG_ANSWER';
+    const report: ContentReportDTO = {
+      id: 'rep_1',
+      contentType: 'QUESTION',
+      contentId: 'q_1',
+      topicId: 'top_1',
+      category,
+      description: 'বিকল্প খ সঠিক হওয়া উচিত',
+      status: ReportStatus.OPEN,
+      createdAt: '2026-11-12T00:00:00Z',
+      updatedAt: '2026-11-12T00:00:00Z',
+    };
+    const cqAssess: CqSelfAssessPayload = {
+      questionId: 'q_cq_1',
+      selfScores: { ka: 1, kha: 2, ga: 3, gha: 3 },
+      totalScore: 9,
+      maxScore: 10,
+    };
+    const bookmark: StudentBookmarkSyncItem = {
+      itemId: 'top_1',
+      itemType: 'topic',
+      titleBangla: '১.১ পদার্থবিজ্ঞান',
+      href: '/lesson/top_1',
+    };
+
+    expect(report.category).toBe('WRONG_ANSWER');
+    expect(cqAssess.totalScore).toBe(9);
+    expect(bookmark.itemType).toBe('topic');
   });
 });
