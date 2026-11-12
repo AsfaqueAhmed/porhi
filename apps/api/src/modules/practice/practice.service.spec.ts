@@ -322,4 +322,98 @@ describe('PracticeService', () => {
       expect(prisma.eventLog.create).not.toHaveBeenCalled();
     });
   });
+
+  describe('CQ_CREATIVE practice and self-assessment', () => {
+    it('supports fetching CQ_CREATIVE questions with rubric and explanation when type=CQ_CREATIVE', async () => {
+      prisma.chapter.findUnique.mockResolvedValue({ id: 'chap_1' });
+      const sampleCq = {
+        id: 'q_cq_1',
+        topicId: 'top_1',
+        type: 'CQ_CREATIVE',
+        stem: 'একটি গাড়ি স্থির অবস্থান থেকে $2\\text{ ms}^{-2}$ সুষম ত্বরণে যাত্রা শুরু করল।',
+        options: null,
+        cqRubric: {
+          ka: 'ত্বরণের সংজ্ঞা দাও। (১)',
+          kha: 'সুষম বেগ ও অসম বেগের পার্থক্য লিখো। (২)',
+          ga: '১০ সেকেন্ড পর বেগ নির্ণয় করো। (৩)',
+          gha: 'অতিক্রান্ত দূরত্বের লেখচিত্র বিশ্লেষণ করো। (৪)',
+        },
+        explanation: {
+          directAnswer: 'গ: ২০ m/s',
+          coreConcept: '$v = u + at$',
+        },
+        difficulty: 'MEDIUM',
+        boardSource: 'ঢাকা বোর্ড ২০২৩',
+        isVerified: true,
+        version: 1,
+      };
+      prisma.question.findMany.mockResolvedValue([sampleCq]);
+
+      const questions = await (practiceService as any).getChapterQuestions(
+        'chap_1',
+        undefined,
+        undefined,
+        undefined,
+        'usr_1',
+        'CQ_CREATIVE',
+      );
+
+      expect(prisma.question.findMany).toHaveBeenCalledWith({
+        where: expect.objectContaining({
+          type: 'CQ_CREATIVE',
+          status: ContentStatus.PUBLISHED,
+        }),
+      });
+      expect(questions).toHaveLength(1);
+      expect(questions[0].cqRubric).toEqual(sampleCq.cqRubric);
+      expect(questions[0].explanation).toEqual(sampleCq.explanation);
+    });
+
+    it('records CQ self-assessment scores and rejects invalid score bounds', async () => {
+      prisma.question.findUnique.mockResolvedValue({
+        id: 'q_cq_1',
+        topicId: 'top_1',
+        type: 'CQ_CREATIVE',
+      });
+      prisma.eventLog.create.mockResolvedValue({ id: 'ev_cq' });
+
+      const result = await (practiceService as any).submitCqSelfAssess(
+        {
+          questionId: 'q_cq_1',
+          selfScores: { ka: 1, kha: 2, ga: 2, gha: 3 },
+        },
+        'usr_1',
+      );
+
+      expect(result).toEqual({
+        success: true,
+        questionId: 'q_cq_1',
+        selfScores: { ka: 1, kha: 2, ga: 2, gha: 3 },
+        totalScore: 8,
+        maxScore: 10,
+      });
+      expect(prisma.eventLog.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          userId: 'usr_1',
+          eventType: 'PRACTICE_ATTEMPT',
+          payload: expect.objectContaining({
+            questionId: 'q_cq_1',
+            type: 'CQ_CREATIVE',
+            totalScore: 8,
+            maxScore: 10,
+          }),
+        }),
+      });
+
+      await expect(
+        (practiceService as any).submitCqSelfAssess(
+          {
+            questionId: 'q_cq_1',
+            selfScores: { ka: 2, kha: 2, ga: 3, gha: 4 },
+          },
+          'usr_1',
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
 });

@@ -30,8 +30,8 @@ export class ExamService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async startExam(dto: StartExamDto, userId: string) {
-    if (!dto?.testType || !['CHAPTER_TEST', 'TOPIC_TEST'].includes(dto.testType)) {
-      throw new BadRequestException('testType must be CHAPTER_TEST or TOPIC_TEST');
+    if (!dto?.testType || !['CHAPTER_TEST', 'TOPIC_TEST', 'WEAK_AREA'].includes(dto.testType)) {
+      throw new BadRequestException('testType must be CHAPTER_TEST, TOPIC_TEST, or WEAK_AREA');
     }
 
     if (!dto?.subjectId || typeof dto.subjectId !== 'string') {
@@ -48,6 +48,10 @@ export class ExamService {
 
     if (dto.durationSeconds !== undefined && (dto.durationSeconds < 60 || dto.durationSeconds > 7200)) {
       throw new BadRequestException('durationSeconds must be between 60 and 7200');
+    }
+
+    if (dto.questionLimit !== undefined && (dto.questionLimit < 1 || dto.questionLimit > 50)) {
+      throw new BadRequestException('questionLimit must be between 1 and 50');
     }
 
     if (dto.chapterId) {
@@ -78,16 +82,54 @@ export class ExamService {
       where.topic = { chapterId: dto.chapterId };
     }
 
-    const questions = await this.prisma.question.findMany({
+    if (
+      dto.testType === 'WEAK_AREA' &&
+      !dto.topicId &&
+      typeof (this.prisma.revisionMistake as any)?.findMany === 'function'
+    ) {
+      const mistakes = await (this.prisma.revisionMistake as any)
+        .findMany({
+          where: { userId, resolved: false },
+          include: { question: { select: { topicId: true } } },
+          take: 50,
+        })
+        .catch(() => []);
+
+      const weakTopicIds = Array.from(
+        new Set(
+          (mistakes as any[])
+            .map((m) => m?.question?.topicId)
+            .filter((tid): tid is string => typeof tid === 'string' && tid.length > 0),
+        ),
+      );
+
+      if (weakTopicIds.length > 0) {
+        where.topicId = { in: weakTopicIds };
+      }
+    }
+
+    let questions = await this.prisma.question.findMany({
       where,
     });
+
+    if ((!questions || questions.length === 0) && dto.testType === 'WEAK_AREA' && where.topicId) {
+      const fallbackWhere = { ...where };
+      delete fallbackWhere.topicId;
+      questions = await this.prisma.question.findMany({
+        where: fallbackWhere,
+      });
+    }
 
     if (!questions || questions.length === 0) {
       throw new NotFoundException('No published questions found for this exam');
     }
 
     const shuffledQuestions = shuffle(questions);
-    const preparedQuestions = shuffledQuestions.map((q) => {
+    const limitedQuestions =
+      dto.questionLimit !== undefined && dto.questionLimit > 0
+        ? shuffledQuestions.slice(0, dto.questionLimit)
+        : shuffledQuestions;
+    const preparedQuestions = limitedQuestions.map((q) => {
       const rawOptions = Array.isArray(q.options) ? q.options : [];
       const shuffledOptions = shuffle(rawOptions);
       const sanitizedOptions = shuffledOptions.map((opt: any) => ({
@@ -102,7 +144,7 @@ export class ExamService {
       };
     });
 
-    const durationSeconds = dto.durationSeconds ?? Math.max(60, questions.length * 60);
+    const durationSeconds = dto.durationSeconds ?? Math.max(60, preparedQuestions.length * 60);
     const negativeRatio = dto.negativeRatio !== undefined ? dto.negativeRatio : 0.25;
 
     const initialAnswers = preparedQuestions.map((q) => ({
@@ -325,6 +367,10 @@ export class ExamService {
         questionId: qId,
         topicId: q.topicId,
         stem: q.stem,
+        options: (Array.isArray(q.options) ? q.options : []).map((opt: any) => ({
+          id: opt.id,
+          text: opt.text,
+        })),
         selectedOptionId,
         correctOptionId,
         isCorrect,
@@ -386,6 +432,7 @@ export class ExamService {
       wrongCount,
       skippedCount,
       durationSeconds: session.durationSeconds,
+      negativeRatio,
       negativeDeduction,
       answersWithExplanation,
     };
@@ -471,12 +518,16 @@ export class ExamService {
       return {
         sessionId: session.id,
         status: session.status,
+        testType: session.testType,
+        subjectId: session.subjectId,
+        chapterId: session.chapterId,
         score: session.score,
         totalQuestions: session.totalQuestions,
         correctCount,
         wrongCount,
         skippedCount,
         durationSeconds: session.durationSeconds,
+        negativeRatio: session.negativeRatio ?? 0.25,
         negativeDeduction,
         startedAt: session.startedAt,
         completedAt: session.completedAt,

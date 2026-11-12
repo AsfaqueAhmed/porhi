@@ -608,4 +608,60 @@ describe('ExamService', () => {
       ).rejects.toThrow(ForbiddenException);
     });
   });
+
+  describe('startExam questionLimit & WEAK_AREA mode', () => {
+    it('slices questions to questionLimit and adjusts default durationSeconds', async () => {
+      prisma.chapter.findUnique.mockResolvedValue({ id: 'chap1', subjectId: 'sub1' });
+      prisma.question.findMany.mockResolvedValue([sampleQuestion1, sampleQuestion2]);
+      prisma.examSession.create.mockImplementation(async ({ data }: any) => ({
+        id: 'session-limited',
+        ...data,
+      }));
+
+      const res = await examService.startExam(
+        {
+          testType: 'CHAPTER_TEST',
+          subjectId: 'sub1',
+          chapterId: 'chap1',
+          questionLimit: 1,
+        } as any,
+        'user-1',
+      );
+
+      expect(res.questions).toHaveLength(1);
+      expect(res.totalQuestions).toBe(1);
+      expect(res.durationSeconds).toBe(60);
+    });
+
+    it('prioritizes unresolved mistake topicIds when testType is WEAK_AREA', async () => {
+      prisma.chapter.findUnique.mockResolvedValue({ id: 'chap1', subjectId: 'sub1' });
+      (prisma.revisionMistake as any).findMany = vi.fn().mockResolvedValue([
+        { questionId: 'q1', question: { topicId: 'top_weak' } },
+      ]);
+      prisma.question.findMany.mockResolvedValue([sampleQuestion1]);
+      prisma.examSession.create.mockImplementation(async ({ data }: any) => ({
+        id: 'session-weak',
+        ...data,
+      }));
+
+      const res = await examService.startExam(
+        {
+          testType: 'WEAK_AREA',
+          subjectId: 'sub1',
+          chapterId: 'chap1',
+        } as any,
+        'user-1',
+      );
+
+      expect(prisma.question.findMany).toHaveBeenCalledWith({
+        where: expect.objectContaining({
+          type: 'MCQ',
+          status: ContentStatus.PUBLISHED,
+          topicId: { in: ['top_weak'] },
+          topic: { chapterId: 'chap1' },
+        }),
+      });
+      expect(res.sessionId).toBe('session-weak');
+    });
+  });
 });

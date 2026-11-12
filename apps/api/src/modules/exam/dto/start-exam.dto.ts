@@ -4,7 +4,7 @@ import { IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } fro
 export class StartExamDto {
   @IsNotEmpty()
   @IsString()
-  @IsIn(['CHAPTER_TEST', 'TOPIC_TEST'])
+  @IsIn(['CHAPTER_TEST', 'TOPIC_TEST', 'WEAK_AREA'])
   testType!: string;
 
   @IsNotEmpty()
@@ -18,6 +18,13 @@ export class StartExamDto {
   @IsOptional()
   @IsString()
   topicId?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  @Min(1)
+  @Max(50)
+  questionLimit?: number;
 
   @IsOptional()
   @IsNumber()

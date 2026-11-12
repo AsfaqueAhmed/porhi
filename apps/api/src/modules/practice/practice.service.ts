@@ -1,6 +1,7 @@
 import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { SubmitPracticeDto } from './dto/submit-practice.dto';
+import { CqSelfAssessDto } from './dto/cq-self-assess.dto';
 import { ContentStatus } from '@prisma/client';
 
 function shuffle<T>(array: T[]): T[] {
@@ -24,6 +25,7 @@ export class PracticeService {
     difficulty?: string,
     mode?: string,
     userId?: string,
+    type?: string,
   ) {
     let resolvedChapterId = chapterId;
     if (chapterId === 'ch-motion') {
@@ -62,8 +64,16 @@ export class PracticeService {
       throw new NotFoundException(`Chapter not found with id: ${chapterId}`);
     }
 
+    const normalizedType = type?.trim().toUpperCase();
+    const typeFilter =
+      normalizedType === 'CQ_CREATIVE'
+        ? 'CQ_CREATIVE'
+        : normalizedType === 'ALL'
+          ? { in: ['MCQ', 'CQ_CREATIVE'] }
+          : 'MCQ';
+
     const where: any = {
-      type: 'MCQ',
+      type: typeFilter,
       status: ContentStatus.PUBLISHED,
     };
 
@@ -96,6 +106,22 @@ export class PracticeService {
     const shuffledQuestions = shuffle(questions);
 
     return shuffledQuestions.map((q) => {
+      if (q.type === 'CQ_CREATIVE') {
+        return {
+          id: q.id,
+          topicId: q.topicId,
+          type: q.type,
+          stem: q.stem,
+          options: [],
+          cqRubric: q.cqRubric ?? null,
+          explanation: q.explanation ?? null,
+          difficulty: q.difficulty,
+          boardSource: q.boardSource,
+          isVerified: q.isVerified,
+          version: q.version,
+        };
+      }
+
       const options = Array.isArray(q.options) ? q.options : [];
       const shuffledOptions = shuffle(options);
       const sanitizedOptions = shuffledOptions.map((opt: any) => {
@@ -204,6 +230,77 @@ export class PracticeService {
       isCorrect,
       correctOptionId,
       explanation: question.explanation,
+    };
+  }
+
+  async submitCqSelfAssess(dto: CqSelfAssessDto, userId?: string) {
+    if (!dto?.questionId || typeof dto.questionId !== 'string' || !dto.questionId.trim()) {
+      throw new BadRequestException('questionId is required');
+    }
+
+    const scores = dto?.selfScores;
+    if (!scores || typeof scores !== 'object') {
+      throw new BadRequestException('selfScores object is required');
+    }
+
+    const { ka, kha, ga, gha } = scores;
+    const isValidScore = (v: unknown, max: number) =>
+      typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= max;
+
+    if (
+      !isValidScore(ka, 1) ||
+      !isValidScore(kha, 2) ||
+      !isValidScore(ga, 3) ||
+      !isValidScore(gha, 4)
+    ) {
+      throw new BadRequestException(
+        'Invalid CQ rubric scores: expected integer ka (0-1), kha (0-2), ga (0-3), gha (0-4)',
+      );
+    }
+
+    const question = await this.prisma.question.findUnique({
+      where: { id: dto.questionId },
+    });
+
+    if (!question) {
+      throw new NotFoundException(`Question not found with id: ${dto.questionId}`);
+    }
+
+    if (question.type !== 'CQ_CREATIVE') {
+      throw new BadRequestException('CQ self-assessment is only valid for CQ_CREATIVE questions');
+    }
+
+    const totalScore = ka + kha + ga + gha;
+    const maxScore = 10;
+
+    if (userId && typeof this.prisma.eventLog?.create === 'function') {
+      await this.prisma.eventLog
+        .create({
+          data: {
+            userId,
+            eventType: 'PRACTICE_ATTEMPT',
+            payload: {
+              questionId: question.id,
+              topicId: question.topicId,
+              type: 'CQ_CREATIVE',
+              selfScores: { ka, kha, ga, gha },
+              totalScore,
+              maxScore,
+              isCorrect: totalScore >= 6,
+            },
+          },
+        })
+        .catch((err) => {
+          this.logger.warn(`Failed to log CQ self-assessment: ${err?.message ?? err}`);
+        });
+    }
+
+    return {
+      success: true,
+      questionId: question.id,
+      selfScores: { ka, kha, ga, gha },
+      totalScore,
+      maxScore,
     };
   }
 }
