@@ -282,6 +282,7 @@ class LessonView extends GetView<LessonController> {
                   isSubmitting: controller.isSubmittingQuickCheck.value,
                   onSelectOption: controller.submitQuickCheckAnswer,
                   onNextQuestion: controller.nextQuickQuestion,
+                  envConfig: envConfig,
                 ),
               ],
               if (prev != null || next != null) ...<Widget>[

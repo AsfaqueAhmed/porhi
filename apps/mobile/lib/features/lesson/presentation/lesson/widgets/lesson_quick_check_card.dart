@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:porhi/app/env.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
 import 'package:porhi/core/widgets/rich_content/rich_content_view.dart';
@@ -14,6 +15,7 @@ class LessonQuickCheckCard extends StatelessWidget {
   final bool isSubmitting;
   final ValueChanged<String> onSelectOption;
   final VoidCallback onNextQuestion;
+  final EnvConfig? envConfig;
 
   const LessonQuickCheckCard({
     super.key,
@@ -26,6 +28,7 @@ class LessonQuickCheckCard extends StatelessWidget {
     required this.isSubmitting,
     required this.onSelectOption,
     required this.onNextQuestion,
+    this.envConfig,
   });
 
   @override
@@ -121,6 +124,7 @@ class LessonQuickCheckCard extends StatelessWidget {
             const Divider(height: 22),
             RichContentView(
               content: question.stem,
+              envConfig: envConfig,
               baseStyle: const TextStyle(
                 fontSize: 14.5,
                 fontWeight: FontWeight.w700,
@@ -215,6 +219,7 @@ class LessonQuickCheckCard extends StatelessWidget {
                       const SizedBox(height: 8),
                       RichContentView(
                         content: directAnswer,
+                        envConfig: envConfig,
                         baseStyle: const TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
@@ -226,6 +231,7 @@ class LessonQuickCheckCard extends StatelessWidget {
                       const SizedBox(height: 6),
                       RichContentView(
                         content: coreConcept,
+                        envConfig: envConfig,
                         baseStyle: const TextStyle(
                           fontSize: 12.5,
                           color: PorhiTheme.slate700,
@@ -326,6 +332,7 @@ class LessonQuickCheckCard extends StatelessWidget {
             Expanded(
               child: RichContentView(
                 content: option.text,
+                envConfig: envConfig,
                 baseStyle: const TextStyle(
                   fontSize: 13.5,
                   color: PorhiTheme.slate900,

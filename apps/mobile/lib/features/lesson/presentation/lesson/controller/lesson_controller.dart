@@ -326,7 +326,46 @@ class LessonController extends GetxController {
       },
       (items) {
         if (items.isNotEmpty) {
-          quickQuestions.assignAll(items);
+          if (cached.isEmpty) {
+            quickQuestions.assignAll(items);
+            return;
+          }
+          final cachedById = <String, QuickCheckQuestionEntity>{
+            for (final c in cached) c.id: c,
+          };
+          final merged = items.map((item) {
+            final local = cachedById[item.id];
+            if (local == null) return item;
+            final hasRemoteKey = item.options.any((o) => o.isCorrect != null);
+            final localCorrect = <String, bool>{
+              for (final o in local.options)
+                if (o.isCorrect != null) o.id: o.isCorrect!,
+            };
+            final mergedOptions = hasRemoteKey || localCorrect.isEmpty
+                ? item.options
+                : item.options
+                    .map(
+                      (o) => QuickCheckOptionEntity(
+                        id: o.id,
+                        text: o.text,
+                        isCorrect: o.isCorrect ?? localCorrect[o.id],
+                      ),
+                    )
+                    .toList();
+            final mergedExplanation =
+                (item.explanation != null && item.explanation!.isNotEmpty)
+                    ? item.explanation
+                    : local.explanation;
+            return QuickCheckQuestionEntity(
+              id: item.id,
+              topicId: item.topicId,
+              stem: item.stem,
+              options: mergedOptions,
+              explanation: mergedExplanation,
+              difficulty: item.difficulty,
+            );
+          }).toList();
+          quickQuestions.assignAll(merged);
         }
       },
     );
@@ -696,11 +735,19 @@ class LessonController extends GetxController {
         (err) {
           selectedOptionId.value = null;
           isStatusError.value = true;
-          statusMessage.value = _resolveErrorMessage(
-            err,
-            fallbackBn: 'উত্তর যাচাই করা যায়নি। আবার চেষ্টা করো।',
-            fallbackEn: 'Could not submit answer. Please try again.',
-          );
+          if (err.code == 'OFFLINE_NO_ANSWER_KEY') {
+            statusMessage.value = AppStrings.tr(
+              'অফলাইনে উত্তর যাচাইয়ের জন্য ইন্টারনেট সংযোগ চালু করো অথবা অধ্যায়ের অফলাইন প্যাক ডাউনলোড করো।',
+              'Connect to internet or download this chapter for offline practice checking.',
+              language.value,
+            );
+          } else {
+            statusMessage.value = _resolveErrorMessage(
+              err,
+              fallbackBn: 'উত্তর যাচাই করা যায়নি। আবার চেষ্টা করো।',
+              fallbackEn: 'Could not submit answer. Please try again.',
+            );
+          }
         },
         (outcome) {
           quickCheckResult.value = outcome;

@@ -22,6 +22,43 @@ class LessonRepositoryImpl implements LessonRepository {
         err.data == ApiResponseErrorType.slowOrNoInternet;
   }
 
+  QuickCheckQuestionEntity _mergeQuestionAnswerKeys({
+    required QuickCheckQuestionEntity remote,
+    required QuickCheckQuestionEntity local,
+  }) {
+    final localCorrectByOptionId = <String, bool>{
+      for (final opt in local.options)
+        if (opt.isCorrect != null) opt.id: opt.isCorrect!,
+    };
+    final hasRemoteAnswerKey = remote.options.any((opt) => opt.isCorrect != null);
+
+    final mergedOptions = hasRemoteAnswerKey || localCorrectByOptionId.isEmpty
+        ? remote.options
+        : remote.options
+            .map(
+              (opt) => QuickCheckOptionEntity(
+                id: opt.id,
+                text: opt.text,
+                isCorrect: opt.isCorrect ?? localCorrectByOptionId[opt.id],
+              ),
+            )
+            .toList();
+
+    final mergedExplanation =
+        (remote.explanation != null && remote.explanation!.isNotEmpty)
+            ? remote.explanation
+            : local.explanation;
+
+    return QuickCheckQuestionEntity(
+      id: remote.id,
+      topicId: remote.topicId,
+      stem: remote.stem,
+      options: mergedOptions,
+      explanation: mergedExplanation,
+      difficulty: remote.difficulty,
+    );
+  }
+
   @override
   Future<Either<ErrorResponse, LessonDetailEntity>> getLessonByTopic(
     String topicId,
@@ -75,16 +112,28 @@ class LessonRepositoryImpl implements LessonRepository {
       },
       (model) async {
         final entities = model.questions.map((q) => q.toEntity()).toList();
+        final cached = await _localDataSource.getCachedQuestionsByTopic(
+          chapterId: chapterId,
+          topicId: topicId,
+        );
         if (entities.isEmpty) {
-          final cached = await _localDataSource.getCachedQuestionsByTopic(
-            chapterId: chapterId,
-            topicId: topicId,
-          );
           if (cached.isNotEmpty) {
             return Right<ErrorResponse, List<QuickCheckQuestionEntity>>(cached);
           }
+          return Right<ErrorResponse, List<QuickCheckQuestionEntity>>(entities);
         }
-        return Right<ErrorResponse, List<QuickCheckQuestionEntity>>(entities);
+        if (cached.isEmpty) {
+          return Right<ErrorResponse, List<QuickCheckQuestionEntity>>(entities);
+        }
+        final cachedById = <String, QuickCheckQuestionEntity>{
+          for (final c in cached) c.id: c,
+        };
+        final merged = entities.map((remote) {
+          final local = cachedById[remote.id];
+          if (local == null) return remote;
+          return _mergeQuestionAnswerKeys(remote: remote, local: local);
+        }).toList();
+        return Right<ErrorResponse, List<QuickCheckQuestionEntity>>(merged);
       },
     );
   }
@@ -116,18 +165,51 @@ class LessonRepositoryImpl implements LessonRepository {
           return Left<ErrorResponse, QuickCheckSubmitResultEntity>(err);
         }
 
+        var resolvedQuestion = question;
+        var hasAnswerKey =
+            resolvedQuestion.options.any((opt) => opt.isCorrect == true);
+        if (!hasAnswerKey && resolvedQuestion.topicId.isNotEmpty) {
+          final cached = await _localDataSource.getCachedQuestionsByTopic(
+            chapterId: '',
+            topicId: resolvedQuestion.topicId,
+          );
+          for (final item in cached) {
+            if (item.id == resolvedQuestion.id &&
+                item.options.any((opt) => opt.isCorrect == true)) {
+              resolvedQuestion = _mergeQuestionAnswerKeys(
+                remote: resolvedQuestion,
+                local: item,
+              );
+              hasAnswerKey =
+                  resolvedQuestion.options.any((opt) => opt.isCorrect == true);
+              break;
+            }
+          }
+        }
+
+        if (!hasAnswerKey) {
+          return Left<ErrorResponse, QuickCheckSubmitResultEntity>(
+            ErrorResponse(
+              data: ApiResponseErrorType.noInternet,
+              code: 'OFFLINE_NO_ANSWER_KEY',
+              message:
+                  'Connect to internet or download this chapter for offline practice checking',
+            ),
+          );
+        }
+
         QuickCheckOptionEntity? selectedOpt;
         QuickCheckOptionEntity? correctOpt;
-        for (final opt in question.options) {
+        for (final opt in resolvedQuestion.options) {
           if (opt.id == selectedOptionId) selectedOpt = opt;
           if (opt.isCorrect == true) correctOpt = opt;
         }
         final isCorrect = selectedOpt?.isCorrect == true;
 
         await _offlineSyncService.enqueuePracticeAttempt(
-          questionId: question.id,
+          questionId: resolvedQuestion.id,
           isCorrect: isCorrect,
-          topicId: question.topicId,
+          topicId: resolvedQuestion.topicId,
           selectedOptionId: selectedOptionId,
         );
 
@@ -135,7 +217,7 @@ class LessonRepositoryImpl implements LessonRepository {
           QuickCheckSubmitResultEntity(
             isCorrect: isCorrect,
             correctOptionId: correctOpt?.id,
-            explanation: question.explanation,
+            explanation: resolvedQuestion.explanation,
             isQueuedOffline: true,
           ),
         );

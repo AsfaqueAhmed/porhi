@@ -8,12 +8,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:network/network.dart';
+import 'package:porhi/app/env.dart';
 import 'package:porhi/core/database/app_database.dart';
 import 'package:porhi/core/storage/preferences_storage_service.dart';
 import 'package:porhi/core/sync/offline_sync_service.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
 import 'package:porhi/core/widgets/lesson_audio_player.dart';
 import 'package:porhi/core/widgets/rich_content/audio_player_tile.dart';
+import 'package:porhi/core/widgets/rich_content/rich_content_view.dart';
 import 'package:porhi/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:porhi/features/auth/domain/repositories/auth_repository.dart';
 import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
@@ -44,6 +46,7 @@ import 'package:porhi/features/lesson/domain/usecases/lesson_usecases.dart';
 import 'package:porhi/features/lesson/presentation/lesson/binding/lesson_binding.dart';
 import 'package:porhi/features/lesson/presentation/lesson/controller/lesson_controller.dart';
 import 'package:porhi/features/lesson/presentation/lesson/view/lesson_view.dart';
+import 'package:porhi/features/lesson/presentation/lesson/widgets/lesson_quick_check_card.dart';
 import 'package:porhi/routes/app_routes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -492,6 +495,103 @@ void main() {
         OfflineSyncService.typePracticeAttempt,
       );
     });
+
+    test(
+        'getTopicQuickQuestions merges cached Drift answer keys onto online-fetched questions',
+        () async {
+      await db.upsertCachedQuestions(<CachedQuestionInput>[
+        CachedQuestionInput(
+          id: 'q_merged_1',
+          chapterId: 'chap_ssc_phy_2',
+          topicId: 'top_motion_eq',
+          questionType: 'MCQ',
+          payloadJson: jsonEncode(
+            _sampleQuickQuestionJson(
+              id: 'q_merged_1',
+              includeIsCorrect: true,
+              explanation: const <String, dynamic>{
+                'directAnswer': r'সঠিক উত্তর $10\text{ m/s}$',
+              },
+            ),
+          ),
+          updatedAt: DateTime.utc(2026, 11, 12),
+        ),
+      ]);
+
+      when(
+        () => mockRemote.getTopicQuestions(
+          chapterId: 'chap_ssc_phy_2',
+          topicId: 'top_motion_eq',
+        ),
+      ).thenAnswer(
+        (_) async => Right(
+          QuickCheckQuestionListModel.fromJson(<String, dynamic>{
+            'json': <Map<String, dynamic>>[
+              _sampleQuickQuestionJson(
+                id: 'q_merged_1',
+                includeIsCorrect: false,
+                explanation: null,
+              ),
+            ],
+          }),
+        ),
+      );
+
+      final res = await repository.getTopicQuickQuestions(
+        chapterId: 'chap_ssc_phy_2',
+        topicId: 'top_motion_eq',
+      );
+
+      expect(res.isRight(), isTrue);
+      final questions = res.getOrElse(() => const <QuickCheckQuestionEntity>[]);
+      expect(questions, hasLength(1));
+      final optB = questions.single.options.firstWhere((o) => o.id == 'opt_b');
+      expect(optB.isCorrect, isTrue);
+      expect(
+        questions.single.explanation?['directAnswer'],
+        r'সঠিক উত্তর $10\text{ m/s}$',
+      );
+    });
+
+    test(
+        'quick check fails cleanly with noInternet and does not enqueue SyncQueue when no offline answer key exists',
+        () async {
+      final onlineOnlyQuestion = LessonQuestionModel.fromJson(
+        _sampleQuickQuestionJson(
+          id: 'q_no_key_1',
+          includeIsCorrect: false,
+          explanation: null,
+        ),
+      ).toEntity();
+
+      when(
+        () => mockRemote.submitPracticeAttempt(
+          questionId: 'q_no_key_1',
+          selectedOptionId: 'opt_b',
+        ),
+      ).thenAnswer(
+        (_) async => Left(
+          ErrorResponse.byErrorType(errorType: ApiResponseErrorType.noInternet),
+        ),
+      );
+
+      final res = await repository.submitQuickCheckAttempt(
+        question: onlineOnlyQuestion,
+        selectedOptionId: 'opt_b',
+      );
+
+      expect(res.isLeft(), isTrue);
+      res.fold(
+        (err) {
+          expect(err.data, ApiResponseErrorType.noInternet);
+          expect(err.code, 'OFFLINE_NO_ANSWER_KEY');
+          expect(err.message, isNotEmpty);
+        },
+        (_) => fail('Expected Left(noInternet) when no offline answer key'),
+      );
+      expect(offlineSync.pendingCount.value, 0);
+      expect(await db.getPendingSyncItems(), isEmpty);
+    });
   });
 
   group('ContentReportRepositoryImpl & SubmitContentReportUseCase', () {
@@ -827,6 +927,7 @@ void main() {
               GetPage<dynamic>(
                 name: AppRoutes.lesson,
                 page: () => LessonView(
+                  envConfig: const EnvConfig(apiBaseUrl: 'https://api.porhi.test'),
                   audioBackendFactory: () => fakeAudio,
                   ttsBackendFactory: () => fakeTts,
                   webViewBuilder: (
@@ -865,9 +966,37 @@ void main() {
           250,
           scrollable: find.byType(Scrollable).first,
         );
+        final quickCheckCard = tester.widget<LessonQuickCheckCard>(
+          find.byType(LessonQuickCheckCard),
+        );
+        expect(quickCheckCard.envConfig?.apiBaseUrl, 'https://api.porhi.test');
+        final cardRichViews = tester.widgetList<RichContentView>(
+          find.descendant(
+            of: find.byType(LessonQuickCheckCard),
+            matching: find.byType(RichContentView),
+          ),
+        );
+        expect(
+          cardRichViews.every(
+            (v) => v.envConfig?.apiBaseUrl == 'https://api.porhi.test',
+          ),
+          isTrue,
+        );
         await tester.tap(find.byKey(const Key('quick_check_option_opt_b')));
         await tester.pumpAndSettle();
         expect(find.textContaining('সঠিক উত্তর ১০ মি/সে'), findsOneWidget);
+        final postAnswerRichViews = tester.widgetList<RichContentView>(
+          find.descendant(
+            of: find.byType(LessonQuickCheckCard),
+            matching: find.byType(RichContentView),
+          ),
+        );
+        expect(
+          postAnswerRichViews.every(
+            (v) => v.envConfig?.apiBaseUrl == 'https://api.porhi.test',
+          ),
+          isTrue,
+        );
 
         // Tap Helpful explanation feedback
         await tester.scrollUntilVisible(
@@ -1072,6 +1201,7 @@ void main() {
               GetPage<dynamic>(
                 name: AppRoutes.lesson,
                 page: () => LessonView(
+                  envConfig: const EnvConfig(apiBaseUrl: 'https://api.porhi.test'),
                   audioBackendFactory: () => fakeAudio,
                   ttsBackendFactory: () => fakeTts,
                   webViewBuilder: (
