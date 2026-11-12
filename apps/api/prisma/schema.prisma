@@ -46,6 +46,7 @@ model User {
   bookmarks      StudentBookmark[]
   notes          StudentNote[]
   contentReports ContentReport[]
+  studyPlanTasks StudyPlanTask[]
 }
 
 model Subject {
@@ -231,4 +232,23 @@ model ContentReport {
   @@index([status, createdAt])
   @@index([contentType, contentId])
   @@index([userId, createdAt])
+}
+
+model StudyPlanTask {
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjectId     String?
+  chapterId     String?
+  topicId       String?
+  titleBangla   String
+  scheduledDate String    // "YYYY-MM-DD"
+  reminderTime  String?   // "HH:mm"
+  targetType    String    @default("CUSTOM") // "LESSON" | "PRACTICE" | "MODEL_TEST" | "REVISION" | "CUSTOM"
+  completed     Boolean   @default(false)
+  completedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId, scheduledDate])
 }

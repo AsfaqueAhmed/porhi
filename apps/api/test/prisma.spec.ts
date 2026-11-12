@@ -33,6 +33,7 @@ describe('PrismaService', () => {
     expect(service.studentBookmark).toBeDefined();
     expect(service.studentNote).toBeDefined();
     expect(service.contentReport).toBeDefined();
+    expect(service.studyPlanTask).toBeDefined();
   });
 
   it('should connect on onModuleInit and disconnect on onModuleDestroy', async () => {
