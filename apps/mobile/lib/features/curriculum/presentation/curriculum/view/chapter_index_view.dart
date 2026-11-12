@@ -6,6 +6,7 @@ import 'package:porhi/features/curriculum/domain/entities/curriculum_entities.da
 import 'package:porhi/features/curriculum/presentation/curriculum/controller/chapter_index_controller.dart';
 import 'package:porhi/features/curriculum/presentation/curriculum/widgets/chapter_accordion_card.dart';
 import 'package:porhi/features/lesson/domain/entities/lesson_entities.dart';
+import 'package:porhi/features/practice/domain/entities/practice_entities.dart';
 import 'package:porhi/routes/app_routes.dart';
 
 class ChapterIndexView extends GetView<ChapterIndexController> {
@@ -255,6 +256,10 @@ class ChapterIndexView extends GetView<ChapterIndexController> {
                         context,
                         AppRoutes.practiceForChapter(chapter.id),
                         lang,
+                        arguments: PracticeRouteArgs(
+                          chapterTitle: chapter.titleBangla,
+                          subjectId: controller.subjectId.value,
+                        ),
                       ),
                       onExamTap: () => _openNamedRouteOrNotice(
                         context,
@@ -327,10 +332,11 @@ class ChapterIndexView extends GetView<ChapterIndexController> {
   void _openNamedRouteOrNotice(
     BuildContext context,
     String route,
-    AppLanguage lang,
-  ) {
+    AppLanguage lang, {
+    Object? arguments,
+  }) {
     if (_isRouteRegistered(route)) {
-      Get.toNamed(route);
+      Get.toNamed(route, arguments: arguments);
       return;
     }
     _showUpcomingModuleNotice(context, lang);

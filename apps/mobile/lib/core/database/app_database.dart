@@ -388,6 +388,11 @@ class AppDatabase extends _$AppDatabase {
         .get();
   }
 
+  Future<CachedQuestion?> getCachedQuestionById(String questionId) {
+    return (select(cachedQuestions)..where((t) => t.id.equals(questionId)))
+        .getSingleOrNull();
+  }
+
   // ---------------------------------------------------------------------------
   // ActiveExamDrafts
   // ---------------------------------------------------------------------------

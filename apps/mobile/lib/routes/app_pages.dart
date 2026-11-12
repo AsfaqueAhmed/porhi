@@ -14,6 +14,8 @@ import 'package:porhi/features/dashboard/presentation/dashboard/binding/dashboar
 import 'package:porhi/features/dashboard/presentation/shared/quick_search_sheet.dart';
 import 'package:porhi/features/lesson/presentation/lesson/binding/lesson_binding.dart';
 import 'package:porhi/features/lesson/presentation/lesson/view/lesson_view.dart';
+import 'package:porhi/features/practice/presentation/practice/binding/practice_binding.dart';
+import 'package:porhi/features/practice/presentation/practice/view/practice_view.dart';
 import 'package:porhi/features/shell/presentation/main_shell/binding/main_shell_binding.dart';
 import 'package:porhi/features/shell/presentation/main_shell/view/main_shell_view.dart';
 
@@ -67,6 +69,11 @@ class AppPages {
       name: AppRoutes.lesson,
       page: () => const LessonView(),
       binding: LessonBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.practice,
+      page: () => const PracticeView(),
+      binding: PracticeBinding(),
     ),
   ];
 }

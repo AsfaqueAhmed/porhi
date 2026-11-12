@@ -36,6 +36,11 @@ import 'package:porhi/features/lesson/data/datasources/lesson_remote_datasource.
 import 'package:porhi/features/lesson/data/repositories/lesson_repository_impl.dart';
 import 'package:porhi/features/lesson/domain/repositories/lesson_repository.dart';
 import 'package:porhi/features/lesson/domain/usecases/lesson_usecases.dart';
+import 'package:porhi/features/practice/data/datasources/practice_local_datasource.dart';
+import 'package:porhi/features/practice/data/datasources/practice_remote_datasource.dart';
+import 'package:porhi/features/practice/data/repositories/practice_repository_impl.dart';
+import 'package:porhi/features/practice/domain/repositories/practice_repository.dart';
+import 'package:porhi/features/practice/domain/usecases/practice_usecases.dart';
 import 'package:porhi/routes/app_routes.dart';
 
 class InitialBinding extends Bindings {
@@ -356,6 +361,34 @@ class InitialBinding extends Bindings {
     );
     _lazyPutIfAbsent<GetLocalTopicStateOverlayUseCase>(
       () => GetLocalTopicStateOverlayUseCase(Get.find<LessonRepository>()),
+    );
+
+    _lazyPutIfAbsent<PracticeRemoteDataSource>(
+      () => PracticeRemoteDataSourceImpl(),
+    );
+    _lazyPutIfAbsent<PracticeLocalDataSource>(
+      () => PracticeLocalDataSourceImpl(database: database),
+    );
+    _lazyPutIfAbsent<PracticeRepository>(
+      () => PracticeRepositoryImpl(
+        remoteDataSource: Get.find<PracticeRemoteDataSource>(),
+        localDataSource: Get.find<PracticeLocalDataSource>(),
+        offlineSyncService: offlineSyncService,
+      ),
+    );
+    _lazyPutIfAbsent<GetChapterPracticeQuestionsUseCase>(
+      () => GetChapterPracticeQuestionsUseCase(Get.find<PracticeRepository>()),
+    );
+    _lazyPutIfAbsent<GetCachedChapterPracticeQuestionsUseCase>(
+      () => GetCachedChapterPracticeQuestionsUseCase(
+        Get.find<PracticeRepository>(),
+      ),
+    );
+    _lazyPutIfAbsent<SubmitPracticeAnswerUseCase>(
+      () => SubmitPracticeAnswerUseCase(Get.find<PracticeRepository>()),
+    );
+    _lazyPutIfAbsent<SubmitCqSelfAssessUseCase>(
+      () => SubmitCqSelfAssessUseCase(Get.find<PracticeRepository>()),
     );
 
     _lazyPutIfAbsent<ContentReportRemoteDataSource>(
