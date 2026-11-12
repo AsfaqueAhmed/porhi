@@ -32,4 +32,10 @@ abstract class AuthRepository {
   AuthUserEntity? getCachedUser();
 
   bool hasStoredSession();
+
+  String getLanguage();
+
+  Future<void> setLanguage(String languageCode);
+
+  Future<void> clearOfflineData();
 }

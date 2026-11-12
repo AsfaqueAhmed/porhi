@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:porhi/core/database/app_database.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
-import 'package:porhi/core/storage/preferences_storage_service.dart';
 import 'package:porhi/features/auth/domain/entities/auth_user_entity.dart';
-import 'package:porhi/features/auth/domain/repositories/auth_repository.dart';
 import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
 import 'package:porhi/routes/app_routes.dart';
 
@@ -12,17 +9,19 @@ class AccountController extends GetxController {
   final GetMeUseCase _getMeUseCase;
   final UpdateProfileUseCase _updateProfileUseCase;
   final SignOutUseCase _signOutUseCase;
-  final AuthRepository _authRepository;
-  final PreferencesStorageService _preferencesStorage;
-  final AppDatabase _database;
+  final GetCachedUserUseCase _getCachedUserUseCase;
+  final GetLanguageUseCase _getLanguageUseCase;
+  final SetLanguageUseCase _setLanguageUseCase;
+  final ClearOfflineDataUseCase _clearOfflineDataUseCase;
 
   AccountController({
     required this._getMeUseCase,
     required this._updateProfileUseCase,
     required this._signOutUseCase,
-    required this._authRepository,
-    required this._preferencesStorage,
-    required this._database,
+    required this._getCachedUserUseCase,
+    required this._getLanguageUseCase,
+    required this._setLanguageUseCase,
+    required this._clearOfflineDataUseCase,
   });
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -44,8 +43,8 @@ class AccountController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    language.value = AppLanguage.fromCode(_preferencesStorage.getLanguage());
-    final cached = _authRepository.getCachedUser();
+    language.value = AppLanguage.fromCode(_getLanguageUseCase());
+    final cached = _getCachedUserUseCase();
     if (cached != null) {
       _applyUser(cached);
     }
@@ -89,7 +88,7 @@ class AccountController extends GetxController {
 
   Future<void> setLanguage(AppLanguage next) async {
     language.value = next;
-    await _preferencesStorage.setLanguage(next.code);
+    await _setLanguageUseCase(next.code);
   }
 
   Future<void> saveProfile() async {
@@ -138,7 +137,7 @@ class AccountController extends GetxController {
     statusMessage.value = null;
     isClearingCache.value = true;
     try {
-      await _database.clearAllOfflineData();
+      await _clearOfflineDataUseCase();
       statusMessage.value = AppStrings.tr(
         'অফলাইন ক্যাশ মুছে ফেলা হয়েছে।',
         'Offline cache cleared.',

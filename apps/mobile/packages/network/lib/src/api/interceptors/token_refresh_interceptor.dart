@@ -17,6 +17,8 @@ class TokenRefreshInterceptor extends Interceptor implements DioAware {
 
   final String Function(String token) authHeaderBuilder;
 
+  final bool Function(RequestOptions options)? shouldAttemptRefresh;
+
   TokenRefreshInterceptor({
     required this.onRefreshToken,
     this.onTokenRefreshed,
@@ -24,6 +26,7 @@ class TokenRefreshInterceptor extends Interceptor implements DioAware {
     this.unauthorizedStatusCodes = const {401},
     this.authHeaderKey = 'Authorization',
     this.authHeaderBuilder = _defaultAuthHeaderBuilder,
+    this.shouldAttemptRefresh,
   });
 
   static String _defaultAuthHeaderBuilder(String token) => 'Bearer $token';
@@ -46,7 +49,9 @@ class TokenRefreshInterceptor extends Interceptor implements DioAware {
     if (dio == null ||
         statusCode == null ||
         alreadyRetried ||
-        !unauthorizedStatusCodes.contains(statusCode)) {
+        !unauthorizedStatusCodes.contains(statusCode) ||
+        (shouldAttemptRefresh != null &&
+            !shouldAttemptRefresh!(err.requestOptions))) {
       handler.next(err);
       return;
     }

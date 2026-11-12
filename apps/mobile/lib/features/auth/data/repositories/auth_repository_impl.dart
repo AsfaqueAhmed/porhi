@@ -1,5 +1,6 @@
 import 'package:common/common.dart';
 import 'package:network/network.dart';
+import 'package:porhi/core/database/app_database.dart';
 import 'package:porhi/core/storage/preferences_storage_service.dart';
 import 'package:porhi/core/storage/secure_storage_service.dart';
 import 'package:porhi/features/auth/data/datasources/auth_remote_datasource.dart';
@@ -16,12 +17,14 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDataSource _remoteDataSource;
   final SecureStorageService _secureStorage;
   final PreferencesStorageService _preferencesStorage;
+  final AppDatabase? _database;
 
   AuthRepositoryImpl({
     required this._firebaseGateway,
     required this._remoteDataSource,
     required this._secureStorage,
     required this._preferencesStorage,
+    this._database,
   });
 
   @override
@@ -175,16 +178,6 @@ class AuthRepositoryImpl implements AuthRepository {
     String? boardName,
     int? dailyStudyGoalMinutes,
   }) async {
-    if (boardName != null) {
-      await _preferencesStorage.write(boardNameKey, boardName);
-    }
-    if (dailyStudyGoalMinutes != null) {
-      await _preferencesStorage.setInt(
-        dailyStudyGoalMinutesKey,
-        dailyStudyGoalMinutes,
-      );
-    }
-
     final result = await _remoteDataSource.updateProfile(
       fullName: fullName,
       selectedClass: selectedClass?.apiValue,
@@ -193,14 +186,20 @@ class AuthRepositoryImpl implements AuthRepository {
     return result.fold(
       (err) => Left<ErrorResponse, AuthUserEntity>(err),
       (model) async {
+        final trimmedBoard = boardName?.trim();
+        if (trimmedBoard == null || trimmedBoard.isEmpty) {
+          await _preferencesStorage.remove(boardNameKey);
+        } else {
+          await _preferencesStorage.write(boardNameKey, trimmedBoard);
+        }
+        if (dailyStudyGoalMinutes != null) {
+          await _preferencesStorage.setInt(
+            dailyStudyGoalMinutesKey,
+            dailyStudyGoalMinutes,
+          );
+        }
         await _secureStorage.saveUserMap(model.toJson());
-        return Right<ErrorResponse, AuthUserEntity>(
-          _hydrateLocalFields(
-            model,
-            boardOverride: boardName,
-            goalOverride: dailyStudyGoalMinutes,
-          ),
-        );
+        return Right<ErrorResponse, AuthUserEntity>(_hydrateLocalFields(model));
       },
     );
   }
@@ -225,6 +224,18 @@ class AuthRepositoryImpl implements AuthRepository {
   bool hasStoredSession() {
     final token = _secureStorage.accessToken;
     return token != null && token.trim().isNotEmpty;
+  }
+
+  @override
+  String getLanguage() => _preferencesStorage.getLanguage();
+
+  @override
+  Future<void> setLanguage(String languageCode) =>
+      _preferencesStorage.setLanguage(languageCode);
+
+  @override
+  Future<void> clearOfflineData() async {
+    await _database?.clearAllOfflineData();
   }
 
   Future<Either<ErrorResponse, AuthSessionEntity>> _exchangeFirebaseIdToken(
@@ -255,14 +266,9 @@ class AuthRepositoryImpl implements AuthRepository {
     );
   }
 
-  AuthUserEntity _hydrateLocalFields(
-    AuthUserModel model, {
-    String? boardOverride,
-    int? goalOverride,
-  }) {
-    final storedBoard = boardOverride ?? _preferencesStorage.read(boardNameKey);
-    final storedGoal =
-        goalOverride ?? _preferencesStorage.getInt(dailyStudyGoalMinutesKey);
+  AuthUserEntity _hydrateLocalFields(AuthUserModel model) {
+    final storedBoard = _preferencesStorage.read(boardNameKey);
+    final storedGoal = _preferencesStorage.getInt(dailyStudyGoalMinutesKey);
     return model.toEntity(
       boardName: (storedBoard != null && storedBoard.trim().isNotEmpty)
           ? storedBoard.trim()

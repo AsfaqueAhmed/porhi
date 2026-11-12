@@ -18,6 +18,7 @@ import 'package:porhi/core/network/auth_request_interceptor.dart';
 import 'package:porhi/core/network/auth_session_coordinator.dart';
 import 'package:porhi/core/storage/preferences_storage_service.dart';
 import 'package:porhi/core/storage/secure_storage_service.dart';
+import 'package:porhi/core/sync/offline_sync_service.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
 import 'package:porhi/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:porhi/features/auth/data/datasources/firebase_auth_gateway.dart';
@@ -274,6 +275,8 @@ void main() {
         final refreshInterceptor = TokenRefreshInterceptor(
           onRefreshToken: coordinator.refreshToken,
           onRefreshFailed: coordinator.handleRefreshFailure,
+          shouldAttemptRefresh: (options) =>
+              !options.path.trim().endsWith('/auth/firebase'),
         )..attachDio(dio);
 
         dio.interceptors.addAll(<Interceptor>[
@@ -291,6 +294,75 @@ void main() {
         expect(response.data, isA<ErrorResponse>());
       },
     );
+
+    test(
+      'TokenRefreshInterceptor skips refresh on /auth/firebase 401 (direct and re-entrant) without deadlocking',
+      () async {
+        final secureStorage = SecureStorageService(
+          secureStorage: _InMemoryFlutterSecureStorage(),
+        );
+        await secureStorage.saveTokens(accessToken: 'expired-jwt');
+
+        final dio = Dio();
+        dio.httpClientAdapter = _FakeHttpClientAdapter((options) async {
+          return _jsonResponse(
+            <String, dynamic>{'message': 'Unauthorized'},
+            statusCode: 401,
+          );
+        });
+
+        var refreshAttempts = 0;
+        var expiredCalled = 0;
+        late final AuthSessionCoordinator coordinator;
+        coordinator = AuthSessionCoordinator(
+          onRefreshSession: () async {
+            refreshAttempts += 1;
+            // Re-entrant POST /auth/firebase on the same Dio instance that also 401s.
+            final res = await dio.post<dynamic>(
+              '/auth/firebase',
+              data: <String, dynamic>{'idToken': 'bad-fb-token'},
+            );
+            if (res.data is ErrorResponse) {
+              return null;
+            }
+            return 'unexpected';
+          },
+          onSessionExpired: () async {
+            expiredCalled += 1;
+          },
+        );
+
+        final refreshInterceptor = TokenRefreshInterceptor(
+          onRefreshToken: coordinator.refreshToken,
+          onRefreshFailed: coordinator.handleRefreshFailure,
+          shouldAttemptRefresh: (options) =>
+              !options.path.trim().endsWith('/auth/firebase'),
+        )..attachDio(dio);
+
+        dio.interceptors.addAll(<Interceptor>[
+          AuthRequestInterceptor(
+            envConfig: const EnvConfig(apiBaseUrl: 'http://10.0.2.2:3001'),
+            secureStorage: secureStorage,
+          ),
+          refreshInterceptor,
+          ErrorInterceptor(),
+        ]);
+
+        // Direct 401 on /auth/firebase must not trigger refresh at all.
+        final directRes = await dio.post<dynamic>(
+          '/auth/firebase',
+          data: <String, dynamic>{'idToken': 'bad-fb-token'},
+        );
+        expect(directRes.data, isA<ErrorResponse>());
+        expect(refreshAttempts, 0);
+
+        // 401 on /auth/me triggers refresh -> /auth/firebase 401 -> no deadlock, expires cleanly.
+        final meRes = await dio.get<dynamic>('/auth/me');
+        expect(meRes.data, isA<ErrorResponse>());
+        expect(refreshAttempts, 1);
+        expect(expiredCalled, 1);
+      },
+    );
   });
 
   group('AuthRepositoryImpl & Auth UseCases', () {
@@ -298,6 +370,7 @@ void main() {
     late _MockAuthRemoteDataSource mockRemote;
     late SecureStorageService secureStorage;
     late PreferencesStorageService prefsStorage;
+    late AppDatabase db;
     late AuthRepositoryImpl repository;
 
     setUp(() async {
@@ -309,13 +382,19 @@ void main() {
       );
       prefsStorage = PreferencesStorageService();
       await prefsStorage.init();
+      db = AppDatabase(NativeDatabase.memory());
 
       repository = AuthRepositoryImpl(
         firebaseGateway: mockGateway,
         remoteDataSource: mockRemote,
         secureStorage: secureStorage,
         preferencesStorage: prefsStorage,
+        database: db,
       );
+    });
+
+    tearDown(() async {
+      await db.close();
     });
 
     test(
@@ -476,6 +555,71 @@ void main() {
           prefsStorage.getInt(AuthRepositoryImpl.dailyStudyGoalMinutesKey),
           45,
         );
+
+        // Failing API update must NOT mutate local prefs or cached user.
+        when(
+          () => mockRemote.updateProfile(
+            fullName: 'Failed Name',
+            selectedClass: 'HSC',
+          ),
+        ).thenAnswer(
+          (_) async => Left<ErrorResponse, AuthUserModel>(
+            ErrorResponse(
+              message: 'Server error',
+              data: ApiResponseErrorType.serverError,
+            ),
+          ),
+        );
+
+        final failed = await useCase(
+          const UpdateProfileParams(
+            fullName: 'Failed Name',
+            selectedClass: StudentTrack.hsc,
+            boardName: 'Chattogram',
+            dailyStudyGoalMinutes: 90,
+          ),
+        );
+        expect(failed.isLeft(), isTrue);
+        expect(prefsStorage.read(AuthRepositoryImpl.boardNameKey), 'Dhaka');
+        expect(
+          prefsStorage.getInt(AuthRepositoryImpl.dailyStudyGoalMinutesKey),
+          45,
+        );
+
+        // Clearing boardName removes boardNameKey on Right.
+        when(
+          () => mockRemote.updateProfile(
+            fullName: 'Nadia Islam',
+            selectedClass: 'SSC',
+          ),
+        ).thenAnswer(
+          (_) async => Right(
+            AuthUserModel(
+              id: 'user-2',
+              fullName: 'Nadia Islam',
+              role: 'STUDENT',
+              selectedClass: 'SSC',
+            ),
+          ),
+        );
+
+        final cleared = await useCase(
+          const UpdateProfileParams(
+            fullName: 'Nadia Islam',
+            selectedClass: StudentTrack.ssc,
+            boardName: '   ',
+            dailyStudyGoalMinutes: 60,
+          ),
+        );
+        expect(cleared.isRight(), isTrue);
+        final clearedUser =
+            (cleared as Right<ErrorResponse, AuthUserEntity>).value;
+        expect(clearedUser.boardName, isNull);
+        expect(prefsStorage.read(AuthRepositoryImpl.boardNameKey), isNull);
+        expect(
+          prefsStorage.getInt(AuthRepositoryImpl.dailyStudyGoalMinutesKey),
+          60,
+        );
       },
     );
 
@@ -503,6 +647,13 @@ void main() {
       await prefsStorage.init();
       when(() => mockRepository.getCachedUser()).thenReturn(null);
       when(() => mockRepository.hasStoredSession()).thenReturn(false);
+      when(() => mockRepository.getLanguage())
+          .thenAnswer((_) => prefsStorage.getLanguage());
+      when(() => mockRepository.setLanguage(any())).thenAnswer(
+        (invocation) =>
+            prefsStorage.setLanguage(invocation.positionalArguments[0] as String),
+      );
+      when(() => mockRepository.clearOfflineData()).thenAnswer((_) async {});
     });
 
     testWidgets(
@@ -513,7 +664,8 @@ void main() {
             signInWithGoogleUseCase: SignInWithGoogleUseCase(mockRepository),
             requestPhoneOtpUseCase: RequestPhoneOtpUseCase(mockRepository),
             verifyPhoneOtpUseCase: VerifyPhoneOtpUseCase(mockRepository),
-            preferencesStorage: prefsStorage,
+            getLanguageUseCase: GetLanguageUseCase(mockRepository),
+            setLanguageUseCase: SetLanguageUseCase(mockRepository),
           ),
         );
 
@@ -569,7 +721,8 @@ void main() {
             signInWithGoogleUseCase: SignInWithGoogleUseCase(mockRepository),
             requestPhoneOtpUseCase: RequestPhoneOtpUseCase(mockRepository),
             verifyPhoneOtpUseCase: VerifyPhoneOtpUseCase(mockRepository),
-            preferencesStorage: prefsStorage,
+            getLanguageUseCase: GetLanguageUseCase(mockRepository),
+            setLanguageUseCase: SetLanguageUseCase(mockRepository),
           ),
         );
 
@@ -624,10 +777,15 @@ void main() {
     );
 
     test(
-      'InitialBinding registers core services and auth dependencies without live Firebase',
+      'InitialBinding registers core services, hydrates OfflineSyncService, and registers all auth use cases',
       () async {
         final db = AppDatabase(NativeDatabase.memory());
         addTearDown(db.close);
+        await db.enqueueSyncItem(
+          eventId: 'evt-boot-1',
+          eventType: OfflineSyncService.typeLessonComplete,
+          payloadJson: '{"offlineEventId":"evt-boot-1","topicId":"t-1"}',
+        );
         final secureStorage = SecureStorageService(
           secureStorage: _InMemoryFlutterSecureStorage(),
         );
@@ -641,15 +799,22 @@ void main() {
         );
 
         binding.dependencies();
+        await Future<void>.delayed(const Duration(milliseconds: 20));
 
         expect(Get.isRegistered<EnvConfig>(), isTrue);
         expect(Get.isRegistered<SecureStorageService>(), isTrue);
         expect(Get.isRegistered<PreferencesStorageService>(), isTrue);
         expect(Get.isRegistered<AppDatabase>(), isTrue);
+        expect(Get.isRegistered<OfflineSyncService>(), isTrue);
+        expect(Get.find<OfflineSyncService>().pendingCount.value, 1);
         expect(Get.isRegistered<AuthSessionCoordinator>(), isTrue);
         expect(Get.isRegistered<SignInWithGoogleUseCase>(), isTrue);
         expect(Get.isRegistered<UpdateProfileUseCase>(), isTrue);
         expect(Get.isRegistered<SignOutUseCase>(), isTrue);
+        expect(Get.isRegistered<GetCachedUserUseCase>(), isTrue);
+        expect(Get.isRegistered<GetLanguageUseCase>(), isTrue);
+        expect(Get.isRegistered<SetLanguageUseCase>(), isTrue);
+        expect(Get.isRegistered<ClearOfflineDataUseCase>(), isTrue);
       },
     );
 
@@ -678,8 +843,9 @@ void main() {
         Get.put<OnboardingController>(
           OnboardingController(
             updateProfileUseCase: UpdateProfileUseCase(mockRepository),
-            authRepository: mockRepository,
-            preferencesStorage: prefsStorage,
+            getCachedUserUseCase: GetCachedUserUseCase(mockRepository),
+            getLanguageUseCase: GetLanguageUseCase(mockRepository),
+            setLanguageUseCase: SetLanguageUseCase(mockRepository),
           ),
         );
 
@@ -782,15 +948,20 @@ void main() {
           (_) async => const Right(null),
         );
 
+        when(() => mockRepository.clearOfflineData()).thenAnswer(
+          (_) => db.clearAllOfflineData(),
+        );
+
         var redirectedToLogin = false;
         Get.put<AccountController>(
           AccountController(
             getMeUseCase: GetMeUseCase(mockRepository),
             updateProfileUseCase: UpdateProfileUseCase(mockRepository),
             signOutUseCase: SignOutUseCase(mockRepository),
-            authRepository: mockRepository,
-            preferencesStorage: prefsStorage,
-            database: db,
+            getCachedUserUseCase: GetCachedUserUseCase(mockRepository),
+            getLanguageUseCase: GetLanguageUseCase(mockRepository),
+            setLanguageUseCase: SetLanguageUseCase(mockRepository),
+            clearOfflineDataUseCase: ClearOfflineDataUseCase(mockRepository),
           ),
         );
 

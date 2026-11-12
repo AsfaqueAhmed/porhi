@@ -194,3 +194,43 @@ class SignOutUseCase {
     return _repository.signOut();
   }
 }
+
+class GetCachedUserUseCase {
+  final AuthRepository _repository;
+
+  const GetCachedUserUseCase(this._repository);
+
+  AuthUserEntity? call() {
+    return _repository.getCachedUser();
+  }
+}
+
+class GetLanguageUseCase {
+  final AuthRepository _repository;
+
+  const GetLanguageUseCase(this._repository);
+
+  String call() {
+    return _repository.getLanguage();
+  }
+}
+
+class SetLanguageUseCase {
+  final AuthRepository _repository;
+
+  const SetLanguageUseCase(this._repository);
+
+  Future<void> call(String languageCode) {
+    return _repository.setLanguage(languageCode);
+  }
+}
+
+class ClearOfflineDataUseCase {
+  final AuthRepository _repository;
+
+  const ClearOfflineDataUseCase(this._repository);
+
+  Future<void> call() {
+    return _repository.clearOfflineData();
+  }
+}

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
-import 'package:porhi/core/storage/preferences_storage_service.dart';
 import 'package:porhi/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
 import 'package:porhi/routes/app_routes.dart';
@@ -14,13 +13,15 @@ class LoginController extends GetxController {
   final SignInWithGoogleUseCase _signInWithGoogleUseCase;
   final RequestPhoneOtpUseCase _requestPhoneOtpUseCase;
   final VerifyPhoneOtpUseCase _verifyPhoneOtpUseCase;
-  final PreferencesStorageService _preferencesStorage;
+  final GetLanguageUseCase _getLanguageUseCase;
+  final SetLanguageUseCase _setLanguageUseCase;
 
   LoginController({
     required this._signInWithGoogleUseCase,
     required this._requestPhoneOtpUseCase,
     required this._verifyPhoneOtpUseCase,
-    required this._preferencesStorage,
+    required this._getLanguageUseCase,
+    required this._setLanguageUseCase,
   });
 
   final TextEditingController phoneController = TextEditingController();
@@ -42,14 +43,14 @@ class LoginController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    language.value = AppLanguage.fromCode(_preferencesStorage.getLanguage());
+    language.value = AppLanguage.fromCode(_getLanguageUseCase());
   }
 
   Future<void> toggleLanguage() async {
     final next =
         language.value == AppLanguage.bn ? AppLanguage.en : AppLanguage.bn;
     language.value = next;
-    await _preferencesStorage.setLanguage(next.code);
+    await _setLanguageUseCase(next.code);
   }
 
   Future<void> signInWithGoogle() async {

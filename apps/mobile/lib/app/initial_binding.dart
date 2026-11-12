@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart' show Interceptor;
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
@@ -60,6 +62,7 @@ class InitialBinding extends Bindings {
       () => OfflineSyncService(database: database),
       permanent: true,
     );
+    unawaited(offlineSyncService.init());
     _putIfAbsent<FirebaseAuthGateway>(
       () => _firebaseGatewayOverride ?? FirebaseAuthGatewayImpl(),
       permanent: true,
@@ -92,6 +95,8 @@ class InitialBinding extends Bindings {
           TokenRefreshInterceptor(
             onRefreshToken: coordinator.refreshToken,
             onRefreshFailed: coordinator.handleRefreshFailure,
+            shouldAttemptRefresh: (options) =>
+                !options.path.trim().endsWith('/auth/firebase'),
           ),
           ErrorInterceptor(),
           if (kDebugMode) LogInterceptor(),
@@ -115,6 +120,7 @@ class InitialBinding extends Bindings {
           remoteDataSource: Get.find<AuthRemoteDataSource>(),
           secureStorage: secureStorage,
           preferencesStorage: preferencesStorage,
+          database: database,
         ),
         fenix: true,
       );
@@ -140,6 +146,18 @@ class InitialBinding extends Bindings {
     );
     _lazyPutIfAbsent<SignOutUseCase>(
       () => SignOutUseCase(Get.find<AuthRepository>()),
+    );
+    _lazyPutIfAbsent<GetCachedUserUseCase>(
+      () => GetCachedUserUseCase(Get.find<AuthRepository>()),
+    );
+    _lazyPutIfAbsent<GetLanguageUseCase>(
+      () => GetLanguageUseCase(Get.find<AuthRepository>()),
+    );
+    _lazyPutIfAbsent<SetLanguageUseCase>(
+      () => SetLanguageUseCase(Get.find<AuthRepository>()),
+    );
+    _lazyPutIfAbsent<ClearOfflineDataUseCase>(
+      () => ClearOfflineDataUseCase(Get.find<AuthRepository>()),
     );
   }
 

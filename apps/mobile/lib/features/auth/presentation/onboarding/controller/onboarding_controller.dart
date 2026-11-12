@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
-import 'package:porhi/core/storage/preferences_storage_service.dart';
 import 'package:porhi/features/auth/domain/entities/auth_user_entity.dart';
-import 'package:porhi/features/auth/domain/repositories/auth_repository.dart';
 import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
 import 'package:porhi/routes/app_routes.dart';
 
 class OnboardingController extends GetxController {
   final UpdateProfileUseCase _updateProfileUseCase;
-  final AuthRepository _authRepository;
-  final PreferencesStorageService _preferencesStorage;
+  final GetCachedUserUseCase _getCachedUserUseCase;
+  final GetLanguageUseCase _getLanguageUseCase;
+  final SetLanguageUseCase _setLanguageUseCase;
 
   OnboardingController({
     required this._updateProfileUseCase,
-    required this._authRepository,
-    required this._preferencesStorage,
+    required this._getCachedUserUseCase,
+    required this._getLanguageUseCase,
+    required this._setLanguageUseCase,
   });
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -31,8 +31,8 @@ class OnboardingController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    language.value = AppLanguage.fromCode(_preferencesStorage.getLanguage());
-    final cached = _authRepository.getCachedUser();
+    language.value = AppLanguage.fromCode(_getLanguageUseCase());
+    final cached = _getCachedUserUseCase();
     if (cached != null) {
       if (cached.fullName != null && cached.fullName!.trim().isNotEmpty) {
         nameController.text = cached.fullName!;
@@ -57,7 +57,7 @@ class OnboardingController extends GetxController {
 
   Future<void> setLanguage(AppLanguage next) async {
     language.value = next;
-    await _preferencesStorage.setLanguage(next.code);
+    await _setLanguageUseCase(next.code);
   }
 
   String? validateFullName(String? value) {
@@ -86,7 +86,7 @@ class OnboardingController extends GetxController {
     errorMessage.value = null;
     isSubmitting.value = true;
     try {
-      await _preferencesStorage.setLanguage(language.value.code);
+      await _setLanguageUseCase(language.value.code);
       final board = boardController.text.trim();
       final result = await _updateProfileUseCase(
         UpdateProfileParams(
