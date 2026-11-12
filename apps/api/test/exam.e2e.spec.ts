@@ -81,6 +81,10 @@ describe('ExamModule (e2e)', () => {
           if (where.status && q.status !== where.status) return false;
           if (where.topicId && q.topicId !== where.topicId) return false;
           if (where.topic?.chapterId && q.topic?.chapterId !== where.topic.chapterId) return false;
+          if (where.topic?.chapter?.subjectId) {
+            const ch = chapters.find((c) => c.id === q.topic?.chapterId);
+            if (!ch || ch.subjectId !== where.topic.chapter.subjectId) return false;
+          }
           return true;
         });
       },
@@ -88,6 +92,16 @@ describe('ExamModule (e2e)', () => {
     examSession: {
       findUnique: async ({ where }: any) => {
         return examSessions.find((s) => s.id === where.id) || null;
+      },
+      findMany: async ({ where }: any) => {
+        return examSessions.filter((s) => {
+          if (where.userId && s.userId !== where.userId) return false;
+          if (where.status && s.status !== where.status) return false;
+          if (where.subjectId && s.subjectId !== where.subjectId) return false;
+          if (where.chapterId && s.chapterId !== where.chapterId) return false;
+          if (where.testType && s.testType !== where.testType) return false;
+          return true;
+        });
       },
       create: async ({ data }: any) => {
         const session = {
@@ -542,6 +556,44 @@ describe('ExamModule (e2e)', () => {
           chapterId: 'chap-physics-force',
         })
         .expect(400);
+    });
+
+    it('supports SUBJECT_TEST start without chapterId, submit with percentile, and GET /exam/history', async () => {
+      const guestRes = await request(app.getHttpServer())
+        .post('/auth/guest')
+        .send({ guestId: 'subject-test-user' })
+        .expect(201);
+      const token = guestRes.body.accessToken;
+
+      const startRes = await request(app.getHttpServer())
+        .post('/exam/start')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          testType: 'SUBJECT_TEST',
+          subjectId: 'sub-ssc-physics',
+          questionLimit: 25,
+        })
+        .expect(201);
+
+      expect(startRes.body.sessionId).toBeDefined();
+      expect(startRes.body.questions.length).toBeGreaterThan(0);
+
+      const submitRes = await request(app.getHttpServer())
+        .post(`/exam/submit/${startRes.body.sessionId}`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ answers: [] })
+        .expect(201);
+
+      expect(submitRes.body.percentile).toBeTypeOf('number');
+
+      const historyRes = await request(app.getHttpServer())
+        .get('/exam/history?testType=SUBJECT_TEST')
+        .set('Authorization', `Bearer ${token}`)
+        .expect(200);
+
+      expect(historyRes.body.items).toHaveLength(1);
+      expect(historyRes.body.summary.subjectTestsCount).toBe(1);
+      expect(historyRes.body.trend).toHaveLength(1);
     });
   });
 });

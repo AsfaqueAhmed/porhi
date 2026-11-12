@@ -664,4 +664,159 @@ describe('ExamService', () => {
       expect(res.sessionId).toBe('session-weak');
     });
   });
+
+  describe('v1.1 SUBJECT_TEST, percentile & getHistory', () => {
+    it('starts SUBJECT_TEST without chapterId across all chapters of subjectId', async () => {
+      (prisma as any).subject = {
+        findUnique: vi.fn().mockResolvedValue({ id: 'sub1', nameBangla: 'পদার্থবিজ্ঞান' }),
+      };
+      prisma.question.findMany.mockResolvedValue([sampleQuestion1, sampleQuestion2]);
+      prisma.examSession.create.mockImplementation(async ({ data }: any) => ({
+        id: 'session-subject-1',
+        ...data,
+      }));
+
+      const res = await examService.startExam(
+        {
+          testType: 'SUBJECT_TEST',
+          subjectId: 'sub1',
+          questionLimit: 25,
+        } as any,
+        'user-1',
+      );
+
+      expect(prisma.chapter.findUnique).not.toHaveBeenCalled();
+      expect(prisma.question.findMany).toHaveBeenCalledWith({
+        where: expect.objectContaining({
+          type: 'MCQ',
+          status: ContentStatus.PUBLISHED,
+          topic: { chapter: { subjectId: 'sub1' } },
+        }),
+      });
+      expect(prisma.examSession.create).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          chapterId: null,
+          testType: 'SUBJECT_TEST',
+          subjectId: 'sub1',
+        }),
+      });
+      expect(res.sessionId).toBe('session-subject-1');
+    });
+
+    it('rejects CHAPTER_TEST when chapterId is missing', async () => {
+      await expect(
+        examService.startExam(
+          {
+            testType: 'CHAPTER_TEST',
+            subjectId: 'sub1',
+          } as any,
+          'user-1',
+        ),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('computes peer percentile on submitExam and getSession when completed sessions exist', async () => {
+      (prisma.examSession as any).findMany = vi.fn().mockResolvedValue([
+        { score: 0.5, answers: [1, 2] },
+        { score: 1.0, answers: [1, 2] },
+        { score: 1.5, answers: [1, 2] },
+        { score: 2.0, answers: [1, 2] },
+      ]);
+      prisma.examSession.findUnique.mockResolvedValue({
+        id: 'sess-pct',
+        userId: 'user-1',
+        subjectId: 'sub1',
+        chapterId: null,
+        testType: 'SUBJECT_TEST',
+        status: 'IN_PROGRESS',
+        startedAt: new Date(Date.now() - 60000),
+        durationSeconds: 1800,
+        negativeRatio: 0.25,
+        answers: [
+          { questionId: 'q1', selectedOptionId: 'opt_1a' },
+          { questionId: 'q2', selectedOptionId: 'opt_2a' },
+        ],
+      });
+      prisma.question.findMany.mockResolvedValue([sampleQuestion1, sampleQuestion2]);
+      prisma.examSession.update.mockResolvedValue({});
+
+      const submitted = await examService.submitExam(
+        'sess-pct',
+        {
+          answers: [
+            { questionId: 'q1', selectedOptionId: 'opt_1a' },
+            { questionId: 'q2', selectedOptionId: 'opt_2a' },
+          ],
+        },
+        'user-1',
+      );
+
+      expect((submitted as any).percentile).toBe(100);
+
+      prisma.examSession.findUnique.mockResolvedValue({
+        id: 'sess-pct',
+        userId: 'user-1',
+        subjectId: 'sub1',
+        chapterId: null,
+        testType: 'SUBJECT_TEST',
+        status: 'COMPLETED',
+        startedAt: new Date(Date.now() - 60000),
+        completedAt: new Date(),
+        durationSeconds: 1800,
+        negativeRatio: 0.25,
+        score: 2,
+        answers: [
+          { questionId: 'q1', selectedOptionId: 'opt_1a', isCorrect: true },
+          { questionId: 'q2', selectedOptionId: 'opt_2a', isCorrect: true },
+        ],
+      });
+
+      const fetched = await examService.getSession('sess-pct', 'user-1');
+      expect((fetched as any).percentile).toBe(100);
+    });
+
+    it('returns filtered exam history, summary, and trend from getHistory', async () => {
+      (prisma.examSession as any).findMany = vi.fn().mockResolvedValue([
+        {
+          id: 's-2',
+          testType: 'SUBJECT_TEST',
+          subjectId: 'sub1',
+          chapterId: null,
+          score: 2,
+          completedAt: new Date('2026-11-12T10:00:00Z'),
+          answers: [
+            { questionId: 'q1', isCorrect: true, skipped: false },
+            { questionId: 'q2', isCorrect: true, skipped: false },
+          ],
+          subject: { nameBangla: 'পদার্থবিজ্ঞান' },
+          chapter: null,
+        },
+        {
+          id: 's-1',
+          testType: 'CHAPTER_TEST',
+          subjectId: 'sub1',
+          chapterId: 'chap1',
+          score: 1,
+          completedAt: new Date('2026-11-10T10:00:00Z'),
+          answers: [
+            { questionId: 'q1', isCorrect: true, skipped: false },
+            { questionId: 'q2', isCorrect: false, skipped: false },
+          ],
+          subject: { nameBangla: 'পদার্থবিজ্ঞান' },
+          chapter: { titleBangla: 'গতি' },
+        },
+      ]);
+
+      const history = await (examService as any).getHistory('user-1', {
+        subjectId: 'sub1',
+      });
+
+      expect(history.items).toHaveLength(2);
+      expect(history.summary.totalTests).toBe(2);
+      expect(history.summary.averageAccuracy).toBe(75);
+      expect(history.summary.bestScorePercent).toBe(100);
+      expect(history.summary.subjectTestsCount).toBe(1);
+      expect(history.trend).toHaveLength(2);
+    });
+  });
 });

@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -52,5 +53,14 @@ export class ExamController {
     @Req() req: { user: { id: string } },
   ) {
     return this.examService.getSession(sessionId, req.user.id);
+  }
+
+  @Get('history')
+  async getHistory(
+    @Req() req: { user: { id: string } },
+    @Query('subjectId') subjectId?: string,
+    @Query('testType') testType?: string,
+  ) {
+    return this.examService.getHistory(req.user.id, { subjectId, testType });
   }
 }

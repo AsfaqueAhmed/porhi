@@ -30,15 +30,23 @@ export class ExamService {
   constructor(@Inject(PrismaService) private readonly prisma: PrismaService) {}
 
   async startExam(dto: StartExamDto, userId: string) {
-    if (!dto?.testType || !['CHAPTER_TEST', 'TOPIC_TEST', 'WEAK_AREA'].includes(dto.testType)) {
-      throw new BadRequestException('testType must be CHAPTER_TEST, TOPIC_TEST, or WEAK_AREA');
+    if (
+      !dto?.testType ||
+      !['CHAPTER_TEST', 'TOPIC_TEST', 'WEAK_AREA', 'SUBJECT_TEST'].includes(dto.testType)
+    ) {
+      throw new BadRequestException(
+        'testType must be CHAPTER_TEST, TOPIC_TEST, WEAK_AREA, or SUBJECT_TEST',
+      );
     }
 
     if (!dto?.subjectId || typeof dto.subjectId !== 'string') {
       throw new BadRequestException('subjectId is required');
     }
 
-    if (!dto?.chapterId || typeof dto.chapterId !== 'string') {
+    if (
+      dto.testType !== 'SUBJECT_TEST' &&
+      (!dto?.chapterId || typeof dto.chapterId !== 'string')
+    ) {
       throw new BadRequestException('chapterId is required');
     }
 
@@ -50,11 +58,20 @@ export class ExamService {
       throw new BadRequestException('durationSeconds must be between 60 and 7200');
     }
 
-    if (dto.questionLimit !== undefined && (dto.questionLimit < 1 || dto.questionLimit > 50)) {
-      throw new BadRequestException('questionLimit must be between 1 and 50');
+    if (dto.questionLimit !== undefined && (dto.questionLimit < 1 || dto.questionLimit > 100)) {
+      throw new BadRequestException('questionLimit must be between 1 and 100');
     }
 
-    if (dto.chapterId) {
+    if (dto.testType === 'SUBJECT_TEST') {
+      if (typeof (this.prisma as any).subject?.findUnique === 'function') {
+        const subject = await (this.prisma as any).subject
+          .findUnique({ where: { id: dto.subjectId } })
+          .catch(() => null);
+        if (!subject) {
+          throw new NotFoundException(`Subject not found with id: ${dto.subjectId}`);
+        }
+      }
+    } else if (dto.chapterId) {
       const chapter = await this.prisma.chapter.findUnique({
         where: { id: dto.chapterId },
       });
@@ -73,7 +90,9 @@ export class ExamService {
       status: ContentStatus.PUBLISHED,
     };
 
-    if (dto.topicId) {
+    if (dto.testType === 'SUBJECT_TEST') {
+      where.topic = { chapter: { subjectId: dto.subjectId } };
+    } else if (dto.topicId) {
       where.topicId = dto.topicId;
       if (dto.chapterId) {
         where.topic = { chapterId: dto.chapterId };
@@ -124,11 +143,16 @@ export class ExamService {
       throw new NotFoundException('No published questions found for this exam');
     }
 
-    const shuffledQuestions = shuffle(questions);
-    const limitedQuestions =
+    const effectiveLimit =
       dto.questionLimit !== undefined && dto.questionLimit > 0
-        ? shuffledQuestions.slice(0, dto.questionLimit)
-        : shuffledQuestions;
+        ? dto.questionLimit
+        : dto.testType === 'SUBJECT_TEST'
+          ? 25
+          : undefined;
+    const shuffledQuestions = shuffle(questions);
+    const limitedQuestions = effectiveLimit
+      ? shuffledQuestions.slice(0, effectiveLimit)
+      : shuffledQuestions;
     const preparedQuestions = limitedQuestions.map((q) => {
       const rawOptions = Array.isArray(q.options) ? q.options : [];
       const shuffledOptions = shuffle(rawOptions);
@@ -158,7 +182,7 @@ export class ExamService {
         userId,
         testType: dto.testType,
         subjectId: dto.subjectId,
-        chapterId: dto.chapterId ?? null,
+        chapterId: dto.testType === 'SUBJECT_TEST' ? null : (dto.chapterId ?? null),
         totalQuestions: preparedQuestions.length,
         durationSeconds,
         negativeRatio,
@@ -425,6 +449,13 @@ export class ExamService {
         this.logger.warn(`Failed to log TEST_SUBMIT event: ${err?.message ?? err}`);
       });
 
+    const percentile = await this.computePercentile(
+      session.subjectId,
+      session.chapterId,
+      session.testType,
+      score,
+    );
+
     return {
       score,
       totalQuestions,
@@ -434,6 +465,7 @@ export class ExamService {
       durationSeconds: session.durationSeconds,
       negativeRatio,
       negativeDeduction,
+      percentile: percentile ?? undefined,
       answersWithExplanation,
     };
   }
@@ -515,6 +547,13 @@ export class ExamService {
         (wrongCount * (session.negativeRatio || 0.0)).toFixed(4),
       );
 
+      const percentile = await this.computePercentile(
+        session.subjectId,
+        session.chapterId,
+        session.testType,
+        typeof session.score === 'number' ? session.score : 0,
+      );
+
       return {
         sessionId: session.id,
         status: session.status,
@@ -529,10 +568,176 @@ export class ExamService {
         durationSeconds: session.durationSeconds,
         negativeRatio: session.negativeRatio ?? 0.25,
         negativeDeduction,
+        percentile: percentile ?? undefined,
         startedAt: session.startedAt,
         completedAt: session.completedAt,
         answersWithExplanation,
       };
     }
+  }
+
+  private async computePercentile(
+    subjectId: string,
+    chapterId: string | null | undefined,
+    testType: string,
+    score: number,
+  ): Promise<number | null> {
+    if (typeof (this.prisma.examSession as any)?.findMany !== 'function') {
+      return null;
+    }
+
+    const where: any = {
+      status: 'COMPLETED',
+      subjectId,
+    };
+    if (testType === 'SUBJECT_TEST') {
+      where.testType = 'SUBJECT_TEST';
+    } else if (chapterId) {
+      where.chapterId = chapterId;
+    }
+
+    const peerSessions = await (this.prisma.examSession as any)
+      .findMany({
+        where,
+        select: { score: true },
+        take: 500,
+      })
+      .catch(() => null);
+
+    if (!Array.isArray(peerSessions) || peerSessions.length === 0) {
+      return null;
+    }
+
+    const belowOrEqual = peerSessions.filter(
+      (item: any) => typeof item?.score === 'number' && item.score <= score,
+    ).length;
+
+    return Math.round((belowOrEqual / peerSessions.length) * 100);
+  }
+
+  async getHistory(
+    userId: string,
+    filters?: { subjectId?: string; testType?: string },
+  ) {
+    if (!userId || typeof (this.prisma.examSession as any)?.findMany !== 'function') {
+      return {
+        items: [],
+        summary: {
+          totalTests: 0,
+          averageAccuracy: 0,
+          bestScorePercent: 0,
+          subjectTestsCount: 0,
+        },
+        trend: [],
+      };
+    }
+
+    const where: any = {
+      userId,
+      status: 'COMPLETED',
+    };
+    if (filters?.subjectId) {
+      where.subjectId = filters.subjectId;
+    }
+    if (filters?.testType && filters.testType !== 'ALL') {
+      where.testType = filters.testType;
+    }
+
+    const sessions = await (this.prisma.examSession as any)
+      .findMany({
+        where,
+        orderBy: { completedAt: 'desc' },
+        take: 50,
+        include: {
+          subject: { select: { nameBangla: true } },
+          chapter: { select: { titleBangla: true } },
+        },
+      })
+      .catch(() => []);
+
+    const items = (sessions || []).map((session: any) => {
+      const answers = Array.isArray(session.answers) ? session.answers : [];
+      let correctCount = 0;
+      let wrongCount = 0;
+      let skippedCount = 0;
+
+      for (const ans of answers) {
+        if (ans?.skipped === true || (!ans?.selectedOptionId && ans?.isCorrect === undefined)) {
+          skippedCount++;
+        } else if (ans?.isCorrect) {
+          correctCount++;
+        } else {
+          wrongCount++;
+        }
+      }
+
+      const totalQuestions = session.totalQuestions || answers.length || 0;
+      const accuracyPercent =
+        totalQuestions > 0 ? Math.round((correctCount / totalQuestions) * 100) : 0;
+
+      return {
+        sessionId: session.id,
+        testType: session.testType,
+        subjectId: session.subjectId,
+        subjectNameBangla: session.subject?.nameBangla ?? undefined,
+        chapterId: session.chapterId ?? null,
+        chapterTitleBangla: session.chapter?.titleBangla ?? null,
+        totalQuestions,
+        correctCount,
+        wrongCount,
+        skippedCount,
+        score: typeof session.score === 'number' ? session.score : 0,
+        accuracyPercent,
+        completedAt: new Date(session.completedAt || session.startedAt || Date.now()).toISOString(),
+      };
+    });
+
+    const totalTests = items.length;
+    const averageAccuracy =
+      totalTests > 0
+        ? Math.round(
+            items.reduce((sum: number, item: any) => sum + item.accuracyPercent, 0) /
+              totalTests,
+          )
+        : 0;
+    const bestScorePercent =
+      totalTests > 0
+        ? Math.max(...items.map((item: any) => item.accuracyPercent))
+        : 0;
+    const subjectTestsCount = items.filter(
+      (item: any) => item.testType === 'SUBJECT_TEST',
+    ).length;
+
+    const trend = [...items]
+      .slice(0, 20)
+      .reverse()
+      .map((item: any) => {
+        const d = new Date(item.completedAt);
+        const date = Number.isNaN(d.getTime())
+          ? ''
+          : d.toISOString().slice(0, 10);
+        const label =
+          item.chapterTitleBangla ||
+          item.subjectNameBangla ||
+          date;
+        return {
+          sessionId: item.sessionId,
+          label,
+          date,
+          accuracyPercent: item.accuracyPercent,
+          testType: item.testType,
+        };
+      });
+
+    return {
+      items,
+      summary: {
+        totalTests,
+        averageAccuracy,
+        bestScorePercent,
+        subjectTestsCount,
+      },
+      trend,
+    };
   }
 }

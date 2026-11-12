@@ -22,6 +22,10 @@ import {
   type ContentReportDTO,
   type CqSelfAssessPayload,
   type StudentBookmarkSyncItem,
+  type ExamHistoryResponseDTO,
+  type StudyPlanTaskDTO,
+  type OfflineChapterPackDTO,
+  type OfflineSyncPayload,
 } from '../src';
 
 describe('Shared Constants and Enums', () => {
@@ -290,5 +294,79 @@ describe('Shared Type Structures', () => {
     expect(report.category).toBe('WRONG_ANSWER');
     expect(cqAssess.totalScore).toBe(9);
     expect(bookmark.itemType).toBe('topic');
+  });
+
+  it('should support v1.1 ExamHistoryResponseDTO, StudyPlanTaskDTO, OfflineChapterPackDTO, and OfflineSyncPayload', () => {
+    const history: ExamHistoryResponseDTO = {
+      items: [
+        {
+          sessionId: 'sess_1',
+          testType: 'SUBJECT_TEST',
+          subjectId: 'sub_phy',
+          subjectNameBangla: 'পদার্থবিজ্ঞান',
+          chapterId: null,
+          totalQuestions: 25,
+          correctCount: 20,
+          wrongCount: 3,
+          skippedCount: 2,
+          score: 19.25,
+          accuracyPercent: 80,
+          percentile: 85,
+          completedAt: '2026-11-12T10:00:00Z',
+        },
+      ],
+      summary: {
+        totalTests: 1,
+        averageAccuracy: 80,
+        bestScorePercent: 80,
+        subjectTestsCount: 1,
+      },
+      trend: [
+        {
+          sessionId: 'sess_1',
+          label: '১২ নভে',
+          date: '2026-11-12',
+          accuracyPercent: 80,
+          testType: 'SUBJECT_TEST',
+        },
+      ],
+    };
+
+    const task: StudyPlanTaskDTO = {
+      id: 'task_1',
+      titleBangla: 'নিউটনের সূত্র রিভিশন',
+      scheduledDate: '2026-11-12',
+      reminderTime: '18:30',
+      targetType: 'REVISION',
+      completed: false,
+    };
+
+    const pack: OfflineChapterPackDTO = {
+      chapterId: 'chap_1',
+      subjectId: 'sub_phy',
+      titleBangla: 'গতি',
+      versionHash: 'v1',
+      downloadedAt: '2026-11-12T10:00:00Z',
+      topics: [{ id: 'top_1', titleBangla: 'সরণ ও বেগ', orderIndex: 1 }],
+      lessons: [],
+      questions: [],
+    };
+
+    const syncPayload: OfflineSyncPayload = {
+      lessonCompletes: [
+        {
+          offlineEventId: 'ev_1',
+          topicId: 'top_1',
+          completedAt: '2026-11-12T10:05:00Z',
+        },
+      ],
+      practiceAttempts: [],
+      examSubmissions: [],
+    };
+
+    expect(history.items[0].percentile).toBe(85);
+    expect(task.targetType).toBe('REVISION');
+    expect(pack.chapterId).toBe('chap_1');
+    expect(syncPayload.lessonCompletes).toHaveLength(1);
   });
 });

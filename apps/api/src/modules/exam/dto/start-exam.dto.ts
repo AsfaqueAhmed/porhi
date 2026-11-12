@@ -1,19 +1,30 @@
 import { Type } from 'class-transformer';
-import { IsIn, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Max, Min } from 'class-validator';
+import {
+  IsIn,
+  IsInt,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+  ValidateIf,
+} from 'class-validator';
 
 export class StartExamDto {
   @IsNotEmpty()
   @IsString()
-  @IsIn(['CHAPTER_TEST', 'TOPIC_TEST', 'WEAK_AREA'])
+  @IsIn(['CHAPTER_TEST', 'TOPIC_TEST', 'WEAK_AREA', 'SUBJECT_TEST'])
   testType!: string;
 
   @IsNotEmpty()
   @IsString()
   subjectId!: string;
 
+  @ValidateIf((o) => o.testType !== 'SUBJECT_TEST')
   @IsNotEmpty()
   @IsString()
-  chapterId!: string;
+  chapterId?: string;
 
   @IsOptional()
   @IsString()
@@ -23,7 +34,7 @@ export class StartExamDto {
   @IsInt()
   @Type(() => Number)
   @Min(1)
-  @Max(50)
+  @Max(100)
   questionLimit?: number;
 
   @IsOptional()
