@@ -231,6 +231,45 @@ class AppDatabase extends _$AppDatabase {
     });
   }
 
+  /// Atomically replaces cached lessons/questions for [chapterId] and saves
+  /// the downloaded chapter metadata, lessons, and questions in one transaction.
+  Future<void> saveOfflineChapterPack({
+    required String chapterId,
+    required String subjectId,
+    required String titleBangla,
+    String? titleEnglish,
+    int version = 1,
+    int lessonCount = 0,
+    int questionCount = 0,
+    int sizeBytes = 0,
+    DateTime? downloadedAt,
+    String? metadataJson,
+    required List<CachedLessonInput> lessons,
+    required List<CachedQuestionInput> questions,
+  }) {
+    return transaction(() async {
+      await (delete(cachedLessons)..where((t) => t.chapterId.equals(chapterId)))
+          .go();
+      await (delete(cachedQuestions)
+            ..where((t) => t.chapterId.equals(chapterId)))
+          .go();
+      await upsertDownloadedChapter(
+        id: chapterId,
+        subjectId: subjectId,
+        titleBangla: titleBangla,
+        titleEnglish: titleEnglish,
+        version: version,
+        lessonCount: lessonCount,
+        questionCount: questionCount,
+        sizeBytes: sizeBytes,
+        downloadedAt: downloadedAt,
+        metadataJson: metadataJson,
+      );
+      await upsertCachedLessons(lessons);
+      await upsertCachedQuestions(questions);
+    });
+  }
+
   Future<void> upsertCachedLessons(List<CachedLessonInput> items) {
     if (items.isEmpty) return Future.value();
     return batch((b) {

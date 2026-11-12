@@ -17,6 +17,11 @@ import 'package:porhi/features/auth/data/datasources/firebase_auth_gateway.dart'
 import 'package:porhi/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:porhi/features/auth/domain/repositories/auth_repository.dart';
 import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
+import 'package:porhi/features/curriculum/data/datasources/curriculum_local_datasource.dart';
+import 'package:porhi/features/curriculum/data/datasources/curriculum_remote_datasource.dart';
+import 'package:porhi/features/curriculum/data/repositories/curriculum_repository_impl.dart';
+import 'package:porhi/features/curriculum/domain/repositories/curriculum_repository.dart';
+import 'package:porhi/features/curriculum/domain/usecases/curriculum_usecases.dart';
 import 'package:porhi/features/dashboard/data/datasources/student_local_datasource.dart';
 import 'package:porhi/features/dashboard/data/datasources/student_remote_datasource.dart';
 import 'package:porhi/features/dashboard/data/repositories/student_repository_impl.dart';
@@ -243,6 +248,61 @@ class InitialBinding extends Bindings {
     );
     _lazyPutIfAbsent<SetActiveSubjectIdUseCase>(
       () => SetActiveSubjectIdUseCase(Get.find<StudentRepository>()),
+    );
+
+    _lazyPutIfAbsent<CurriculumRemoteDataSource>(
+      () => CurriculumRemoteDataSourceImpl(),
+    );
+    _lazyPutIfAbsent<CurriculumLocalDataSource>(
+      () => CurriculumLocalDataSourceImpl(
+        database: database,
+        preferencesStorage: preferencesStorage,
+      ),
+    );
+    _lazyPutIfAbsent<CurriculumRepository>(
+      () => CurriculumRepositoryImpl(
+        remoteDataSource: Get.find<CurriculumRemoteDataSource>(),
+        localDataSource: Get.find<CurriculumLocalDataSource>(),
+      ),
+    );
+    _lazyPutIfAbsent<GetSubjectsUseCase>(
+      () => GetSubjectsUseCase(Get.find<CurriculumRepository>()),
+    );
+    _lazyPutIfAbsent<GetCachedSubjectsUseCase>(
+      () => GetCachedSubjectsUseCase(Get.find<CurriculumRepository>()),
+    );
+    _lazyPutIfAbsent<FilterSubjectsUseCase>(
+      () => const FilterSubjectsUseCase(),
+    );
+    _lazyPutIfAbsent<GetChaptersUseCase>(
+      () => GetChaptersUseCase(Get.find<CurriculumRepository>()),
+    );
+    _lazyPutIfAbsent<GetCachedChaptersUseCase>(
+      () => GetCachedChaptersUseCase(Get.find<CurriculumRepository>()),
+    );
+    _lazyPutIfAbsent<FilterChaptersUseCase>(
+      () => const FilterChaptersUseCase(),
+    );
+    _lazyPutIfAbsent<DownloadChapterPackUseCase>(
+      () => DownloadChapterPackUseCase(Get.find<CurriculumRepository>()),
+    );
+    _lazyPutIfAbsent<RemoveChapterPackUseCase>(
+      () => RemoveChapterPackUseCase(Get.find<CurriculumRepository>()),
+    );
+    _lazyPutIfAbsent<IsChapterDownloadedUseCase>(
+      () => IsChapterDownloadedUseCase(Get.find<CurriculumRepository>()),
+    );
+    _lazyPutIfAbsent<GetDownloadedChaptersUseCase>(
+      () => GetDownloadedChaptersUseCase(Get.find<CurriculumRepository>()),
+    );
+    _lazyPutIfAbsent<GetOfflineChapterPackUseCase>(
+      () => GetOfflineChapterPackUseCase(Get.find<CurriculumRepository>()),
+    );
+    _lazyPutIfAbsent<GetActiveCurriculumSubjectUseCase>(
+      () => GetActiveCurriculumSubjectUseCase(Get.find<CurriculumRepository>()),
+    );
+    _lazyPutIfAbsent<SetActiveCurriculumSubjectUseCase>(
+      () => SetActiveCurriculumSubjectUseCase(Get.find<CurriculumRepository>()),
     );
   }
 

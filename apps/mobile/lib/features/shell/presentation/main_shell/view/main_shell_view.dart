@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
+import 'package:porhi/features/curriculum/presentation/subjects/view/subjects_view.dart';
 import 'package:porhi/features/dashboard/presentation/dashboard/controller/dashboard_controller.dart';
 import 'package:porhi/features/dashboard/presentation/dashboard/view/dashboard_view.dart';
 import 'package:porhi/features/shell/presentation/main_shell/controller/main_shell_controller.dart';
@@ -28,7 +29,7 @@ class MainShellTabBuilders {
       const DashboardView();
 
   static Widget _defaultSubjectsBuilder(BuildContext context) =>
-      const SubjectsTabSlot();
+      const SubjectsView();
 
   static Widget _defaultPlannerBuilder(BuildContext context) =>
       const PlannerTabSlot();
@@ -103,23 +104,6 @@ class MainShellView extends GetView<MainShellController> {
           ],
         );
       }),
-    );
-  }
-}
-
-/// Dedicated placeholder slot for the Subjects tab (replaced in Task 7).
-class SubjectsTabSlot extends StatelessWidget {
-  const SubjectsTabSlot({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const _ShellPlaceholderSlot(
-      icon: Icons.menu_book_rounded,
-      titleBn: 'বিষয় ও অধ্যায় সূচি',
-      titleEn: 'Subjects & Curriculum',
-      subtitleBn: 'তোমার ট্র্যাকের সকল বিষয়, অধ্যায় ও অফলাইন প্যাক এখানে থাকবে।',
-      subtitleEn:
-          'Browse your track subjects, chapters, and offline study packs here.',
     );
   }
 }

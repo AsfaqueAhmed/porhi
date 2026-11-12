@@ -864,9 +864,9 @@ void main() {
 
         expect(find.text('এসএসসি পদার্থ টপিক'), findsOneWidget);
 
-        // Switch to Subjects placeholder slot and navigate to /account from there
+        // Switch to Planner placeholder slot and navigate to /account from there
         // to also verify cross-tab refresh on return.
-        await tester.tap(find.text(AppStrings.t('nav.subjects', AppLanguage.bn)));
+        await tester.tap(find.text(AppStrings.t('nav.planner', AppLanguage.bn)));
         await tester.pumpAndSettle();
         await tester.tap(find.byKey(const Key('slot_account_button')));
         await tester.pumpAndSettle();

@@ -5,6 +5,10 @@ import 'package:porhi/features/auth/presentation/login/binding/login_binding.dar
 import 'package:porhi/features/auth/presentation/login/view/login_view.dart';
 import 'package:porhi/features/auth/presentation/onboarding/binding/onboarding_binding.dart';
 import 'package:porhi/features/auth/presentation/onboarding/view/onboarding_view.dart';
+import 'package:porhi/features/curriculum/presentation/curriculum/binding/curriculum_binding.dart';
+import 'package:porhi/features/curriculum/presentation/curriculum/view/chapter_index_view.dart';
+import 'package:porhi/features/curriculum/presentation/subjects/binding/subjects_binding.dart';
+import 'package:porhi/features/curriculum/presentation/subjects/view/subjects_view.dart';
 import 'package:porhi/features/dashboard/domain/entities/student_overview_entity.dart';
 import 'package:porhi/features/dashboard/presentation/dashboard/binding/dashboard_binding.dart';
 import 'package:porhi/features/dashboard/presentation/shared/quick_search_sheet.dart';
@@ -46,6 +50,16 @@ class AppPages {
       name: AppRoutes.search,
       page: () => const QuickSearchPage(),
       binding: QuickSearchBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.subjects,
+      page: () => const SubjectsView(),
+      binding: SubjectsBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.chapters,
+      page: () => const ChapterIndexView(),
+      binding: CurriculumBinding(),
     ),
   ];
 }

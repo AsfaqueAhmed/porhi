@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
+import 'package:porhi/features/curriculum/presentation/subjects/binding/subjects_binding.dart';
 import 'package:porhi/features/dashboard/domain/usecases/student_usecases.dart';
 import 'package:porhi/features/dashboard/presentation/dashboard/binding/dashboard_binding.dart';
 import 'package:porhi/features/shell/presentation/main_shell/controller/main_shell_controller.dart';
@@ -26,6 +27,7 @@ class MainShellBinding extends Bindings {
     }
 
     DashboardBinding.registerDependencies();
+    SubjectsBinding.registerDependencies();
 
     for (final binding in tabBindings) {
       binding.dependencies();
