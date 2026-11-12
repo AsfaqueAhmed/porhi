@@ -15,12 +15,14 @@ import {
   Zap,
   CheckCircle2,
   User,
+  CalendarDays,
 } from 'lucide-react';
 import { useUserStore } from '@/store/user-store';
 import { useLanguageStore } from '@/store/language-store';
 import { LanguageToggle } from '@/components/navigation/LanguageToggle';
 import { toBanglaDigits } from '@/lib/formatters';
 import { DEFAULT_CHAPTERS } from '@/lib/curriculum-data';
+import { getDueTasks } from '@/lib/reminders';
 
 export { toBanglaDigits };
 
@@ -33,6 +35,7 @@ export const PersistentNav: React.FC<PersistentNavProps> = ({ currentPath: propP
   const activePath = propPath || pathname || '/dashboard';
   const activeSubject = useUserStore((s) => s.activeSubject);
   const streakDays = useUserStore((s) => s.streakDays);
+  const studyPlanTasks = useUserStore((s) => s.studyPlanTasks);
   const bookmarks = useUserStore((s) => s.bookmarks);
   const completedTopics = useUserStore((s) => s.completedTopics);
   const toggleBookmark = useUserStore((s) => s.toggleBookmark);
@@ -289,6 +292,24 @@ export const PersistentNav: React.FC<PersistentNavProps> = ({ currentPath: propP
           <div className="hidden md:block">
             <LanguageToggle />
           </div>
+
+          <Link
+            href="/planner"
+            aria-label={lang === 'en' ? 'Study Planner' : 'স্টাডি রুটিন'}
+            className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-colors ${
+              activePath === '/planner'
+                ? 'bg-indigo-100 text-indigo-800 border-indigo-200'
+                : 'bg-slate-100 hover:bg-slate-200/80 text-slate-700 border-slate-200'
+            }`}
+          >
+            <CalendarDays className="w-3.5 h-3.5 text-indigo-600" />
+            <span className="hidden lg:inline">{lang === 'en' ? 'Planner' : 'রুটিন'}</span>
+            {getDueTasks(studyPlanTasks || []).length > 0 && (
+              <span className="bg-amber-500 text-white text-[10px] font-bold px-1.5 rounded-full">
+                {formatDigits(getDueTasks(studyPlanTasks || []).length)}
+              </span>
+            )}
+          </Link>
 
           <Link
             href="/account"

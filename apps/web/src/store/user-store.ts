@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import type { StudyPlanTaskDTO } from '@pori/shared';
 
 export interface ActiveSubject {
   id: string;
@@ -178,6 +179,7 @@ interface UserState {
   lessonNotes: Record<string, string>;
   reportedIssues: ReportedIssueItem[];
   studyDates: string[];
+  studyPlanTasks: StudyPlanTaskDTO[];
 
   setGuestId: (id: string | null) => void;
   setToken: (token: string | null) => void;
@@ -206,6 +208,10 @@ interface UserState {
   toggleBookmark: (item: Omit<BookmarkItem, 'createdAt'>) => void;
   saveLessonNote: (topicId: string, note: string) => void;
   addReportedIssue: (issue: ReportedIssueItem) => void;
+  setStudyPlanTasks: (tasks: StudyPlanTaskDTO[]) => void;
+  addStudyPlanTask: (task: StudyPlanTaskDTO) => void;
+  toggleStudyPlanTask: (taskId: string) => void;
+  removeStudyPlanTask: (taskId: string) => void;
   hydrateFromServerOverview: (overview: ServerOverviewPayload) => void;
 }
 
@@ -242,6 +248,7 @@ export const useUserStore = create<UserState>()(
       lessonNotes: {},
       reportedIssues: [],
       studyDates: [],
+      studyPlanTasks: [],
 
       setGuestId: (id) => set({ guestId: id }),
       setToken: (token) => {
@@ -605,6 +612,34 @@ export const useUserStore = create<UserState>()(
                 : state.streakDays,
           };
         }),
+
+      setStudyPlanTasks: (tasks) => set({ studyPlanTasks: tasks }),
+
+      addStudyPlanTask: (task) =>
+        set((state) => ({
+          studyPlanTasks: [
+            task,
+            ...(state.studyPlanTasks || []).filter((t) => t.id !== task.id),
+          ],
+        })),
+
+      toggleStudyPlanTask: (taskId) =>
+        set((state) => ({
+          studyPlanTasks: (state.studyPlanTasks || []).map((t) =>
+            t.id === taskId
+              ? {
+                  ...t,
+                  completed: !t.completed,
+                  completedAt: !t.completed ? new Date().toISOString() : null,
+                }
+              : t
+          ),
+        })),
+
+      removeStudyPlanTask: (taskId) =>
+        set((state) => ({
+          studyPlanTasks: (state.studyPlanTasks || []).filter((t) => t.id !== taskId),
+        })),
     }),
     {
       name: 'pori-user-storage',
@@ -623,6 +658,7 @@ export const useUserStore = create<UserState>()(
         lessonNotes: state.lessonNotes,
         reportedIssues: state.reportedIssues,
         studyDates: state.studyDates,
+        studyPlanTasks: state.studyPlanTasks,
       }),
     }
   )

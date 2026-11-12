@@ -13,6 +13,7 @@ import {
   BarChart2,
   CheckCircle2,
   Bookmark,
+  CalendarDays,
 } from 'lucide-react';
 import { useUserStore, ServerOverviewPayload } from '@/store/user-store';
 import { useLanguageStore } from '@/store/language-store';
@@ -20,6 +21,8 @@ import { toBanglaDigits } from '@/lib/formatters';
 import { DEFAULT_CHAPTERS } from '@/lib/curriculum-data';
 import { apiClient } from '@/lib/api-client';
 import { ensureGuestSession } from '@/lib/guest-session';
+import { getDueTasks } from '@/lib/reminders';
+import type { StudyPlanTaskDTO } from '@pori/shared';
 
 export default function DashboardPage() {
   const {
@@ -30,6 +33,8 @@ export default function DashboardPage() {
     savedMistakes,
     bookmarks,
     studyDates,
+    studyPlanTasks,
+    setStudyPlanTasks,
     hydrateFromServerOverview,
   } = useUserStore();
   const { tr, language } = useLanguageStore();
@@ -39,19 +44,34 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchOverview() {
       try {
-        await ensureGuestSession().catch(() => {});
-        const res = await apiClient.get<ServerOverviewPayload>(
-          `/student/overview?subjectId=${encodeURIComponent(subjectId)}`
-        );
+        await Promise.resolve(ensureGuestSession()).catch(() => {});
+        const [res, plannerRes] = await Promise.all([
+          Promise.resolve(
+            apiClient.get<ServerOverviewPayload>(
+              `/student/overview?subjectId=${encodeURIComponent(subjectId)}`
+            )
+          ).catch(() => null),
+          Promise.resolve(
+            apiClient.get<{ tasks?: StudyPlanTaskDTO[] }>('/planner')
+          ).catch(() => null),
+        ]);
         if (res) {
           hydrateFromServerOverview(res);
+        }
+        if (plannerRes && Array.isArray(plannerRes.tasks)) {
+          setStudyPlanTasks(plannerRes.tasks);
         }
       } catch {
         // Offline / guest fallback: use local learning store
       }
     }
     fetchOverview();
-  }, [subjectId, hydrateFromServerOverview]);
+  }, [subjectId, hydrateFromServerOverview, setStudyPlanTasks]);
+
+  const duePlannerTasks = useMemo(
+    () => getDueTasks(studyPlanTasks || []),
+    [studyPlanTasks]
+  );
 
   const currentSubjectTitle = tr(activeSubject?.nameBangla || 'পদার্থবিজ্ঞান', 'Physics');
   const currentProgram = activeSubject?.program || 'SSC';
@@ -373,6 +393,40 @@ export default function DashboardPage() {
             </div>
           )}
 
+          {/* Today's Study Plan & Due Reminders */}
+          <div className="bg-amber-50/70 p-3 rounded-xl border border-amber-200/80 space-y-1.5">
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[11px] font-bold text-amber-900 flex items-center gap-1.5">
+                <CalendarDays className="w-3.5 h-3.5 text-amber-600" />
+                <span>
+                  {tr('আজকের স্টাডি রুটিন', "Today's Study Plan")} (
+                  {language === 'bn'
+                    ? toBanglaDigits(duePlannerTasks.length)
+                    : duePlannerTasks.length}
+                  )
+                </span>
+              </span>
+              <Link
+                href="/planner"
+                className="text-[11px] font-bold text-indigo-700 hover:underline shrink-0"
+              >
+                {tr('স্টাডি প্ল্যানার দেখো', 'Open Planner')}
+              </Link>
+            </div>
+            {duePlannerTasks.length > 0 ? (
+              <p className="text-xs font-semibold text-slate-800 truncate">
+                {duePlannerTasks[0].titleBangla}
+              </p>
+            ) : (
+              <p className="text-[11px] text-amber-800/80">
+                {tr(
+                  '৭ দিনের স্মার্ট স্টাডি রুটিন সাজাতে প্ল্যানারে যাও।',
+                  'Set daily goals & reminders inside the planner.'
+                )}
+              </p>
+            )}
+          </div>
+
           <div className="grid grid-cols-2 gap-2 text-xs">
             <Link
               href={`/curriculum/${subjectId}`}
@@ -382,11 +436,11 @@ export default function DashboardPage() {
               <span>{tr('অধ্যায় ও টপিক সূচি', 'Curriculum Index')}</span>
             </Link>
             <Link
-              href={`/exam/${recommendedTarget.chapterId}`}
+              href={`/exam/subject/${subjectId}`}
               className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 font-semibold text-slate-800 flex flex-col gap-1 transition-colors"
             >
               <Trophy className="w-4 h-4 text-amber-600" />
-              <span>{tr('অধ্যায়ভিত্তিক পরীক্ষা', 'Chapter Model Test')}</span>
+              <span>{tr('পূর্ণ বিষয় মডেল টেস্ট', 'Full Subject Test')}</span>
             </Link>
             <Link
               href="/progress"
@@ -396,11 +450,11 @@ export default function DashboardPage() {
               <span>{tr('দুর্বলতা ও প্রগ্রেস', 'Progress & Weaknesses')}</span>
             </Link>
             <Link
-              href="/subjects"
+              href={`/exam/${recommendedTarget.chapterId}`}
               className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 font-semibold text-slate-800 flex flex-col gap-1 transition-colors"
             >
               <AlertCircle className="w-4 h-4 text-purple-600" />
-              <span>{tr('বিষয় পরিবর্তন', 'Switch Subject')}</span>
+              <span>{tr('অধ্যায়ভিত্তিক পরীক্ষা', 'Chapter Model Test')}</span>
             </Link>
           </div>
         </div>
