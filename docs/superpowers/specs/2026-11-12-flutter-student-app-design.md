@@ -64,8 +64,8 @@ This project brings the **entire student-facing experience** to a native **porhi
 
 ## 4. Approaches Considered
 
-1. **Approach 1 (Selected): Monorepo `apps/mobile` + Native-First Flutter + Backend Token-Exchange (`POST /auth/firebase`)**
-   - Feature-first Flutter app (`flutter_riverpod`, `go_router`, `dio`, `drift`, `flutter_math_fork`, `just_audio`, `flutter_tts`, `flutter_local_notifications`, `webview_flutter` for HTML labs only) exchanging Firebase ID tokens for porhi JWTs at `POST /auth/firebase`.
+1. **Approach 1 (Selected): Monorepo `apps/mobile` + Native-First Flutter + Clean Architecture/GetX + Shared Dart Packages + Backend Token-Exchange (`POST /auth/firebase`)**
+   - Feature-first Flutter app using GetX for observable presentation state, dependency injection, bindings, and named routing. Reuse porhi's custom Dart `common` and `network` packages through local path dependencies; use Drift and native media packages for mobile-specific capabilities. Exchange Firebase ID tokens for porhi JWTs at `POST /auth/firebase`.
    - *Why chosen:* Preserves all existing NestJS guards and web/admin auth flows untouched, delivers fast native UX and low memory usage on budget Android phones, keeps API/docs unified in one repo, and isolates porhi JWT lifetime from 1-hour Firebase ID token expiries during offline sessions.
 2. **Approach 2: Monorepo `apps/mobile` + WebView-Backed Content Renderer + Backend Token-Exchange**
    - Same architecture except all lesson explanations, tables, media tags, and 6-layer explanations render inside an embedded HTML/KaTeX WebView template.
@@ -83,6 +83,13 @@ This project brings the **entire student-facing experience** to a native **porhi
 ```text
 apps/mobile/                         # Dart package: porhi | Android ID: com.porhi.app
 ├── pubspec.yaml                     # name: porhi
+├── packages/
+│   ├── common/                       # Dart package: common (path dependency)
+│   │   ├── pubspec.yaml
+│   │   └── lib/                      # Either, normalized ErrorResponse, generic utilities/widgets
+│   └── network/                      # Dart package: network (path dependency on common)
+│       ├── pubspec.yaml
+│       └── lib/                      # Dio client, BaseRepository, interceptors, response parsing
 ├── android/                         # applicationId "com.porhi.app", app label "porhi"
 ├── ios/                             # Flutter standard iOS runner (deferred App Store release)
 ├── assets/
@@ -91,26 +98,28 @@ apps/mobile/                         # Dart package: porhi | Android ID: com.por
 ├── lib/
 │   ├── main.dart
 │   ├── app/
-│   │   ├── app.dart                 # MaterialApp.router, theme, localization (title: 'porhi')
-│   │   ├── router.dart              # go_router with auth guard & 4-tab shell
+│   │   ├── app.dart                 # GetMaterialApp, theme, localization
+│   │   ├── initial_binding.dart     # Shared service and repository registrations
 │   │   └── env.dart                 # API_BASE_URL & WEB_BASE_URL flavor config
+│   ├── routes/
+│   │   ├── app_routes.dart          # Named route constants
+│   │   └── app_pages.dart           # GetPage definitions and route bindings
 │   ├── core/
-│   │   ├── network/                 # Dio client, JWT + Firebase refresh interceptor
-│   │   ├── storage/                 # flutter_secure_storage + SharedPreferences
+│   │   ├── storage/                 # flutter_secure_storage + SharedPreferences adapters
 │   │   ├── database/                # Drift (SQLite) schema, DAOs, migrations
-│   │   ├── sync/                    # Connectivity listener & OfflineSyncService
+│   │   ├── sync/                    # Connectivity listener & OfflineSyncService coordinator
 │   │   ├── notifications/           # flutter_local_notifications + timezone scheduler
 │   │   ├── i18n/                    # bn/en strings + Bangla digit formatter
 │   │   ├── theme/                   # Indigo/Emerald/Slate Material 3 theme
-│   │   └── widgets/
+│   │   └── widgets/                 # App-specific cross-feature widgets
 │   │       ├── rich_content/        # Tag tokenizer (<audio>, <video>, ![img]), Markdown + KaTeX
 │   │       ├── interactive_lab/     # webview_flutter simulation card + fullscreen + cache
 │   │       ├── lesson_audio_player.dart # just_audio + flutter_tts fallback
 │   │       └── streak_pill.dart
 │   └── features/
-│       ├── auth/                    # Firebase Google + Phone OTP, onboarding, Account
-│       ├── dashboard/               # Home command center + Quick Search modal
-│       ├── curriculum/              # Subjects (5 tracks), Chapters, Topics, Offline download
+│       ├── auth/                    # data/domain + presentation screens: Firebase login, onboarding, Account
+│       ├── dashboard/               # data/domain + presentation screens: Home command center, Quick Search
+│       ├── curriculum/              # data/domain + presentation screens: Subjects, Chapters, Topics, downloads
 │       ├── lesson/                  # Lesson reader, terms, worked example, quick practice, notes
 │       ├── practice/                # Smart MCQ runner, 6-layer explanation, CQ self-assess
 │       ├── exam/                    # Chapter/Topic/Weak/Subject Model Test + Result + Percentile
@@ -121,6 +130,20 @@ apps/mobile/                         # Dart package: porhi | Android ID: com.por
 │       └── content_report/          # Report error sheet & My Reports list
 └── test/
 ```
+
+#### Clean Architecture and GetX rules
+
+- Dependencies point inward: presentation depends on domain abstractions; data implements domain repositories. Domain must not import Flutter UI, Dio, or data-layer models.
+- Each feature owns its `data/{datasources,models,repositories}`, `domain/{entities,repositories,usecases}`, and `presentation/` code. Multi-screen features use one presentation subfolder per screen; state shared by screens in a feature belongs in `presentation/shared/`.
+- Data models are JSON DTOs. Repository implementations map DTOs to immutable domain entities and normalize transport failures into the shared `ErrorResponse` contract from `common`.
+- API data sources use `BaseRepository` from `network` and return `Either<ErrorResponse, Model>`. Domain repository interfaces return `Either<ErrorResponse, Entity>`; use cases depend on repository interfaces and expose one operation each.
+- `common` owns reusable, app-independent result/error types, utilities, and generic widgets. It must not depend on porhi features or contain Dio/network transport code. `network` owns Dio, `BaseRepository`, endpoint execution, interceptors, and response parsing; it depends on `common` and must not contain feature DTOs or presentation logic.
+- The porhi app injects an auth-session/token-provider abstraction into `network`. The package must not import Firebase Auth or know about porhi's profile/session screens. On a 401, the app-provided refresh strategy may exchange a refreshed Firebase ID token for a porhi JWT and retry once.
+- Register shared API services and repository implementations under their domain interfaces in `app/initial_binding.dart` with lazy GetX registrations. Screen/route bindings register that screen's use cases and controller, resolving repositories by interface.
+- GetX controllers extend `GetxController`, receive use cases only, and own presentation state/actions. Views use `GetView` and `Obx` only around reactive reads. Controllers surface failures as view state and clear loading flags in `finally`; controllers dispose owned text/scroll/focus controllers in `onClose`.
+- Use GetX named routes (`GetMaterialApp`, `GetPage`, bindings). The four-tab shell keeps its root stacks/state alive with an `IndexedStack`; pushed study routes use named routes. Bindings own controller lifetime; use `permanent` only for a deliberately app-lifetime service, not as a general tab-state workaround.
+- Drift tables and drivers live in the app's core database layer. Feature data sources/repositories own local-vs-remote reads and writes. `OfflineSyncService` coordinates connectivity and queued work through feature use cases/repositories, preserving retry/idempotency behavior without calling Dio or feature APIs directly from widgets.
+- `common` and `network` are Dart packages under `apps/mobile/packages/`, referenced from `apps/mobile/pubspec.yaml` with `path:` dependencies. Keep them free of JavaScript `package.json` files so `pnpm -r` workspace discovery remains unchanged. Keep the existing TypeScript `packages/shared` separate.
 
 ---
 
@@ -169,9 +192,9 @@ Keep all existing auth flows (`guest`, `request-otp`, `verify-otp`, `admin/login
 
 ---
 
-### 5.4 Navigation & Screen Map (`go_router`)
+### 5.4 Navigation & Screen Map (GetX)
 
-- **Bottom `NavigationBar` (4 primary tabs via `StatefulShellRoute`):**
+- **Bottom `NavigationBar` (4 primary tabs in a persistent `IndexedStack` shell):**
   1. **হোম (`Home`)** -> `/home`: Streak & 7-day activity strip, active subject pill + switcher, "Continue Where You Left Off" card, Due Mistake Revision queue, Today's Study Plan card, Quick Hub (Board Archive, Multi-Paper Rehearsal, Bookmarks).
   2. **বিষয়সমূহ (`Subjects`)** -> `/subjects`: Program filter chips (`সকল`, `ষষ্ঠ–অষ্টম`, `SSC`, `HSC`, `ভর্তি প্রস্তুতি`, `BCS`), search input, Ready vs Coming Soon subject cards with live chapter/topic/question counts and mastery progress.
   3. **রুটিন (`Planner`)** -> `/planner`: Today / 7-Day agenda, custom task creator modal, `"স্মার্ট ৭-দিনের রুটিন তৈরি করো"` auto-generator, reminder time picker + device notification toggle, direct launch into target lesson/practice/test.
@@ -229,7 +252,7 @@ Keep all existing auth flows (`guest`, `request-otp`, `verify-otp`, `admin/login
 - Whenever tasks are fetched from `GET /planner`, created (`POST /planner` / `POST /planner/auto-generate`), updated (`PATCH /planner/:id`), or deleted (`DELETE /planner/:id`):
   - Schedule exact/inexact local notifications for incomplete tasks matching `scheduledDate >= today` and having `reminderTime` (`HH:mm`).
   - Cancel notifications when tasks are marked `completed: true` or deleted.
-  - Tapping a notification deep-links via `go_router` to `/planner` (or directly to the task's topic/chapter if attached).
+  - Tapping a notification deep-links via a registered GetX route to `/planner` (or directly to the task's topic/chapter if attached).
 
 ---
 
@@ -246,6 +269,6 @@ Keep all existing auth flows (`guest`, `request-otp`, `verify-otp`, `admin/login
 
 - Select exact pub package versions in `apps/mobile/pubspec.yaml` compatible with Flutter `3.44.8` and Android build targets (Kotlin/Gradle settings, plus clean iOS project scaffolding).
 - Design the visual layout, component spacing, animations, and typography pairings within **porhi**'s existing indigo/emerald/slate + Bengali-first design language.
-- Structure internal Riverpod providers, Drift table definitions/generated code, and DTO JSON serialization models (`json_serializable` / `freezed` or manual `fromJson`/`toJson`).
+- Implement GetX bindings/controllers, Drift table definitions/generated code, and DTO JSON serialization models (`json_serializable` / `freezed` or manual `fromJson`/`toJson`).
 - Decide local media cache eviction thresholds and HTTP retry backoff timings.
 - Document Firebase Console setup steps (`google-services.json`, SHA-1/SHA-256 for `com.porhi.app`, Play Integrity for Phone Auth, and `FIREBASE_SERVICE_ACCOUNT_JSON`) in `apps/mobile/README.md` / `.env.example`.
