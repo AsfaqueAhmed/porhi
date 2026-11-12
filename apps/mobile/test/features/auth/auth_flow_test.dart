@@ -363,6 +363,140 @@ void main() {
         expect(expiredCalled, 1);
       },
     );
+
+    test(
+      'TokenRefreshInterceptor coalesces concurrent 401s into one refresh call',
+      () async {
+        final secureStorage = SecureStorageService(
+          secureStorage: _InMemoryFlutterSecureStorage(),
+        );
+        await secureStorage.saveTokens(accessToken: 'expired-jwt');
+
+        var refreshCount = 0;
+        var meCalls = 0;
+        var subjectsCalls = 0;
+        final dio = Dio();
+        dio.httpClientAdapter = _FakeHttpClientAdapter((options) async {
+          if (options.path.endsWith('/me')) {
+            meCalls += 1;
+            if (meCalls == 1) {
+              return _jsonResponse(<String, dynamic>{}, statusCode: 401);
+            }
+            return _jsonResponse(<String, dynamic>{'id': 'stu-1'});
+          }
+          subjectsCalls += 1;
+          if (subjectsCalls == 1) {
+            return _jsonResponse(<String, dynamic>{}, statusCode: 401);
+          }
+          return _jsonResponse(<String, dynamic>{'items': <dynamic>[]});
+        });
+
+        final coordinator = AuthSessionCoordinator(
+          onRefreshSessionResult: () async {
+            refreshCount += 1;
+            await Future<void>.delayed(const Duration(milliseconds: 20));
+            await secureStorage.saveTokens(accessToken: 'fresh-jwt');
+            return (token: 'fresh-jwt', isTerminalFailure: false);
+          },
+          onSessionExpired: () async {},
+        );
+
+        final refreshInterceptor = TokenRefreshInterceptor(
+          onRefreshToken: coordinator.refreshToken,
+          onRefreshFailed: coordinator.handleRefreshFailureIfTerminal,
+        )..attachDio(dio);
+
+        dio.interceptors.addAll(<Interceptor>[
+          AuthRequestInterceptor(
+            envConfig: const EnvConfig(apiBaseUrl: 'http://10.0.2.2:3001'),
+            secureStorage: secureStorage,
+          ),
+          refreshInterceptor,
+          ErrorInterceptor(),
+        ]);
+
+        final responses = await Future.wait(<Future<Response<dynamic>>>[
+          dio.get<dynamic>('/auth/me'),
+          dio.get<dynamic>('/subjects'),
+        ]);
+
+        expect(refreshCount, 1);
+        expect(responses[0].data, <String, dynamic>{'id': 'stu-1'});
+        expect(responses[1].data, <String, dynamic>{'items': <dynamic>[]});
+      },
+    );
+
+    test(
+      'Transient noInternet/500 during refresh preserves session; terminal 401 awaits cleanup',
+      () async {
+        final secureStorage = SecureStorageService(
+          secureStorage: _InMemoryFlutterSecureStorage(),
+        );
+        await secureStorage.saveTokens(accessToken: 'valid-cached-jwt');
+
+        var expiredCalled = 0;
+        final transientCoordinator = AuthSessionCoordinator(
+          onRefreshSessionResult: () async {
+            final err = ErrorResponse.byErrorType(
+              errorType: ApiResponseErrorType.noInternet,
+            );
+            return (
+              token: null,
+              isTerminalFailure: InitialBinding.isTerminalAuthError(err),
+            );
+          },
+          onSessionExpired: () async {
+            expiredCalled += 1;
+            await secureStorage.clearSession();
+          },
+        );
+
+        final transientToken = await transientCoordinator.refreshToken();
+        await transientCoordinator.handleRefreshFailureIfTerminal();
+        expect(transientToken, isNull);
+        expect(expiredCalled, 0);
+        expect(secureStorage.accessToken, 'valid-cached-jwt');
+
+        final serverErr = ErrorResponse.byErrorType(
+          errorType: ApiResponseErrorType.serverError,
+          statusCode: 500,
+        );
+        expect(InitialBinding.isTerminalAuthError(serverErr), isFalse);
+
+        final terminalErr = ErrorResponse(
+          message: 'Forbidden',
+          data: ApiResponseErrorType.response,
+          statusCode: 403,
+        );
+        expect(InitialBinding.isTerminalAuthError(terminalErr), isTrue);
+
+        final missingUserErr = ErrorResponse(
+          message: 'Expired',
+          data: ApiResponseErrorType.response,
+          code: 'unauthenticated',
+        );
+        expect(InitialBinding.isTerminalAuthError(missingUserErr), isTrue);
+
+        var sessionClearedBeforeReturn = false;
+        final terminalCoordinator = AuthSessionCoordinator(
+          onRefreshSessionResult: () async => (
+            token: null,
+            isTerminalFailure: true,
+          ),
+          onSessionExpired: () async {
+            await Future<void>.delayed(const Duration(milliseconds: 15));
+            await secureStorage.clearSession();
+            expiredCalled += 1;
+          },
+        );
+
+        final res = await terminalCoordinator.refreshToken();
+        sessionClearedBeforeReturn = secureStorage.accessToken == null;
+        expect(res, isNull);
+        expect(sessionClearedBeforeReturn, isTrue);
+        expect(expiredCalled, 1);
+      },
+    );
   });
 
   group('AuthRepositoryImpl & Auth UseCases', () {
@@ -623,17 +757,173 @@ void main() {
       },
     );
 
-    test('SignOutUseCase clears Firebase session and secure storage', () async {
-      await secureStorage.saveTokens(accessToken: 'jwt-to-clear');
-      when(() => mockGateway.signOut()).thenAnswer((_) async {});
+    test(
+      'SignOutUseCase clears user-scoped DB tables, user prefs, and session even if Firebase throws while preserving languageKey and downloaded chapters',
+      () async {
+        await secureStorage.saveTokens(accessToken: 'jwt-to-clear');
+        await prefsStorage.setLanguage('en');
+        await prefsStorage.write(AuthRepositoryImpl.boardNameKey, 'Dhaka');
+        await prefsStorage.setInt(
+          AuthRepositoryImpl.dailyStudyGoalMinutesKey,
+          45,
+        );
+        await prefsStorage.setLastSyncAt(DateTime.utc(2026, 11, 12));
+        await prefsStorage.write(
+          PreferencesStorageService.activeSubjectIdKey,
+          'sub-math',
+        );
+        await db.upsertDownloadedChapter(
+          id: 'ch-keep',
+          subjectId: 'sub-1',
+          titleBangla: 'অধ্যায় ১',
+        );
+        await db.enqueueSyncItem(
+          eventId: 'evt-user-1',
+          eventType: OfflineSyncService.typeLessonComplete,
+          payloadJson: '{"offlineEventId":"evt-user-1","topicId":"t-1"}',
+        );
+        await db.upsertExamDraft(
+          sessionId: 'draft-1',
+          subjectId: 'sub-1',
+          questionIds: const <String>['q1'],
+          answers: const <String, String?>{},
+          flaggedQuestionIds: const <String>[],
+          remainingSeconds: 120,
+          totalDurationSeconds: 300,
+        );
+        await db.putStudentCache('dashboard', '{"streak":5}');
 
-      final useCase = SignOutUseCase(repository);
-      final result = await useCase();
+        when(() => mockGateway.signOut()).thenThrow(Exception('Play Services unavailable'));
 
-      expect(result.isRight(), isTrue);
-      expect(secureStorage.accessToken, isNull);
-      verify(() => mockGateway.signOut()).called(1);
-    });
+        final useCase = SignOutUseCase(repository);
+        final result = await useCase();
+
+        expect(result.isRight(), isTrue);
+        expect(secureStorage.accessToken, isNull);
+        expect(prefsStorage.read(AuthRepositoryImpl.boardNameKey), isNull);
+        expect(
+          prefsStorage.getInt(AuthRepositoryImpl.dailyStudyGoalMinutesKey),
+          isNull,
+        );
+        expect(prefsStorage.getLastSyncAt(), isNull);
+        expect(
+          prefsStorage.read(PreferencesStorageService.activeSubjectIdKey),
+          isNull,
+        );
+        // Language preference & device-wide downloaded content survive logout.
+        expect(prefsStorage.getLanguage(), 'en');
+        expect(await db.getDownloadedChapters(), hasLength(1));
+        // User-scoped offline data is cleared.
+        expect(await db.getPendingSyncItems(), isEmpty);
+        expect(await db.getExamDraft('draft-1'), isNull);
+        expect(await db.getStudentCache('dashboard'), isNull);
+      },
+    );
+
+    test(
+      'Bangla digits are accepted for phone normalization and OTP verification, and PhoneOtpAutoVerified exchanges token',
+      () async {
+        when(
+          () => mockGateway.verifyPhoneNumber(
+            phoneNumber: '+8801712345678',
+            forceResendingToken: null,
+          ),
+        ).thenAnswer(
+          (_) async => const FirebasePhoneOtpAutoVerified(
+            idToken: 'auto-fb-token',
+          ),
+        );
+        when(
+          () => mockRemote.firebaseLogin(
+            idToken: 'auto-fb-token',
+            fullName: null,
+            selectedClass: null,
+          ),
+        ).thenAnswer(
+          (_) async => Right(
+            AuthLoginResponseModel(
+              accessToken: 'auto-jwt-1',
+              isNewUser: false,
+              user: AuthUserModel(
+                id: 'stu-auto',
+                fullName: 'Auto User',
+                role: 'STUDENT',
+                selectedClass: 'SSC',
+              ),
+            ),
+          ),
+        );
+
+        final requestUseCase = RequestPhoneOtpUseCase(repository);
+        final autoResult = await requestUseCase('০১৭১২৩৪৫৬৭৮');
+        expect(autoResult.isRight(), isTrue);
+        final auto = (autoResult as Right<ErrorResponse, PhoneOtpResult>).value;
+        expect(auto, isA<PhoneOtpAutoVerified>());
+        expect(secureStorage.accessToken, 'auto-jwt-1');
+
+        when(
+          () => mockGateway.confirmPhoneOtpAndGetIdToken(
+            verificationId: 'verif-bn',
+            smsCode: '123456',
+          ),
+        ).thenAnswer((_) async => 'bn-otp-fb-token');
+        when(
+          () => mockRemote.firebaseLogin(
+            idToken: 'bn-otp-fb-token',
+            fullName: null,
+            selectedClass: null,
+          ),
+        ).thenAnswer(
+          (_) async => Right(
+            AuthLoginResponseModel(
+              accessToken: 'bn-jwt-1',
+              isNewUser: false,
+              user: AuthUserModel(id: 'stu-bn', role: 'STUDENT'),
+            ),
+          ),
+        );
+
+        final verifyUseCase = VerifyPhoneOtpUseCase(repository);
+        final verifyRes = await verifyUseCase(
+          verificationId: 'verif-bn',
+          smsCode: '১২৩৪৫৬',
+        );
+        expect(verifyRes.isRight(), isTrue);
+        expect(secureStorage.accessToken, 'bn-jwt-1');
+      },
+    );
+
+    test(
+      'GetMeUseCase refreshes cached user and hydrates local boardName and daily goal',
+      () async {
+        await prefsStorage.write(AuthRepositoryImpl.boardNameKey, 'Sylhet');
+        await prefsStorage.setInt(
+          AuthRepositoryImpl.dailyStudyGoalMinutesKey,
+          60,
+        );
+        when(() => mockRemote.getMe()).thenAnswer(
+          (_) async => Right(
+            AuthUserModel(
+              id: 'stu-me',
+              fullName: 'Mehedi Hasan',
+              role: 'STUDENT',
+              selectedClass: 'ADMISSION',
+            ),
+          ),
+        );
+
+        final useCase = GetMeUseCase(repository);
+        final res = await useCase();
+
+        expect(res.isRight(), isTrue);
+        final user = (res as Right<ErrorResponse, AuthUserEntity>).value;
+        expect(user.fullName, 'Mehedi Hasan');
+        expect(user.selectedClass, StudentTrack.admission);
+        expect(user.boardName, 'Sylhet');
+        expect(user.dailyStudyGoalMinutes, 60);
+        expect(secureStorage.getCachedUserMap()?['id'], 'stu-me');
+      },
+    );
   });
 
   group('Auth Presentation Views', () {
@@ -773,6 +1063,74 @@ void main() {
           () => mockRepository.verifyPhoneOtp('verif-abc', '123456'),
         ).called(1);
         expect(navigatedToOnboarding, isTrue);
+      },
+    );
+
+    testWidgets(
+      'LoginView resend OTP passes forceResendingToken after cooldown elapses',
+      (tester) async {
+        when(
+          () => mockRepository.requestPhoneOtp(
+            '+8801712345678',
+            forceResendingToken: null,
+          ),
+        ).thenAnswer(
+          (_) async => const Right(
+            PhoneOtpCodeSent(verificationId: 'verif-1', resendToken: 42),
+          ),
+        );
+        when(
+          () => mockRepository.requestPhoneOtp(
+            '+8801712345678',
+            forceResendingToken: 42,
+          ),
+        ).thenAnswer(
+          (_) async => const Right(
+            PhoneOtpCodeSent(verificationId: 'verif-2', resendToken: 43),
+          ),
+        );
+
+        final controller = Get.put<LoginController>(
+          LoginController(
+            signInWithGoogleUseCase: SignInWithGoogleUseCase(mockRepository),
+            requestPhoneOtpUseCase: RequestPhoneOtpUseCase(mockRepository),
+            verifyPhoneOtpUseCase: VerifyPhoneOtpUseCase(mockRepository),
+            getLanguageUseCase: GetLanguageUseCase(mockRepository),
+            setLanguageUseCase: SetLanguageUseCase(mockRepository),
+          ),
+        );
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            home: const LoginView(),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.enterText(
+          find.byKey(const Key('phone_input_field')),
+          '01712345678',
+        );
+        await tester.ensureVisible(find.byKey(const Key('send_otp_button')));
+        await tester.tap(find.byKey(const Key('send_otp_button')));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+
+        // Advance past the 60s cooldown so resend button becomes enabled.
+        await tester.pump(const Duration(seconds: 61));
+        await tester.ensureVisible(find.byKey(const Key('resend_otp_button')));
+        await tester.tap(find.byKey(const Key('resend_otp_button')));
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 50));
+
+        verify(
+          () => mockRepository.requestPhoneOtp(
+            '+8801712345678',
+            forceResendingToken: 42,
+          ),
+        ).called(1);
+        controller.editPhoneNumber();
       },
     );
 
@@ -1005,6 +1363,49 @@ void main() {
         await tester.pumpAndSettle();
         expect(await db.getDownloadedChapters(), isEmpty);
 
+        // Save profile updates via UpdateProfileUseCase.
+        when(
+          () => mockRepository.updateProfile(
+            fullName: 'Arif Updated',
+            selectedClass: StudentTrack.hsc,
+            boardName: 'Dhaka',
+            dailyStudyGoalMinutes: 30,
+          ),
+        ).thenAnswer(
+          (_) async => const Right(
+            AuthUserEntity(
+              id: 'stu-9',
+              fullName: 'Arif Updated',
+              phoneNumber: '+8801712345678',
+              role: 'STUDENT',
+              selectedClass: StudentTrack.hsc,
+              boardName: 'Dhaka',
+              dailyStudyGoalMinutes: 30,
+            ),
+          ),
+        );
+        await tester.ensureVisible(
+          find.byKey(const Key('account_name_field')),
+        );
+        await tester.enterText(
+          find.byKey(const Key('account_name_field')),
+          'Arif Updated',
+        );
+        await tester.ensureVisible(
+          find.byKey(const Key('account_save_button')),
+        );
+        await tester.tap(find.byKey(const Key('account_save_button')));
+        await tester.pumpAndSettle();
+
+        verify(
+          () => mockRepository.updateProfile(
+            fullName: 'Arif Updated',
+            selectedClass: StudentTrack.hsc,
+            boardName: 'Dhaka',
+            dailyStudyGoalMinutes: 30,
+          ),
+        ).called(1);
+
         // Logout redirects to /login.
         await tester.ensureVisible(find.byKey(const Key('logout_button')));
         await tester.tap(find.byKey(const Key('logout_button')));
@@ -1012,6 +1413,57 @@ void main() {
 
         verify(() => mockRepository.signOut()).called(1);
         expect(redirectedToLogin, isTrue);
+      },
+    );
+
+    test(
+      'AccountController preserves dirty form edits when in-flight getMe resolves',
+      () async {
+        const initial = AuthUserEntity(
+          id: 'stu-dirty',
+          fullName: 'Original Name',
+          selectedClass: StudentTrack.ssc,
+          boardName: 'Dhaka',
+          dailyStudyGoalMinutes: 30,
+        );
+        const remote = AuthUserEntity(
+          id: 'stu-dirty',
+          fullName: 'Stale Server Name',
+          selectedClass: StudentTrack.hsc,
+          boardName: 'Comilla',
+          dailyStudyGoalMinutes: 60,
+        );
+
+        when(() => mockRepository.getCachedUser()).thenReturn(initial);
+        when(() => mockRepository.getMe()).thenAnswer((_) async {
+          await Future<void>.delayed(const Duration(milliseconds: 30));
+          return const Right(remote);
+        });
+
+        final controller = AccountController(
+          getMeUseCase: GetMeUseCase(mockRepository),
+          updateProfileUseCase: UpdateProfileUseCase(mockRepository),
+          signOutUseCase: SignOutUseCase(mockRepository),
+          getCachedUserUseCase: GetCachedUserUseCase(mockRepository),
+          getLanguageUseCase: GetLanguageUseCase(mockRepository),
+          setLanguageUseCase: SetLanguageUseCase(mockRepository),
+          clearOfflineDataUseCase: ClearOfflineDataUseCase(mockRepository),
+        );
+        controller.onInit();
+
+        // Simulate user editing name and track before remote getMe finishes.
+        controller.nameController.text = 'Edited By User';
+        controller.selectTrack(StudentTrack.bcs);
+
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+
+        expect(controller.nameController.text, 'Edited By User');
+        expect(controller.selectedTrack.value, StudentTrack.bcs);
+        // Untouched fields (boardName, dailyGoal) still refresh from server.
+        expect(controller.boardController.text, 'Comilla');
+        expect(controller.dailyStudyGoalMinutes.value, 60);
+
+        controller.onClose();
       },
     );
   });

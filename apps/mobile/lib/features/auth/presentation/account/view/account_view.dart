@@ -24,6 +24,14 @@ class AccountView extends GetView<AccountController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
+                Obx(
+                  () => controller.isLoading.value
+                      ? const Padding(
+                          padding: EdgeInsets.only(bottom: 12),
+                          child: LinearProgressIndicator(minHeight: 2),
+                        )
+                      : const SizedBox.shrink(),
+                ),
                 Obx(() {
                   final u = controller.user.value;
                   final lang = controller.language.value;
@@ -86,16 +94,7 @@ class AccountView extends GetView<AccountController> {
                             key: const Key('account_name_field'),
                             controller: controller.nameController,
                             maxLength: 80,
-                            validator: (v) {
-                              if (v == null || v.trim().isEmpty) {
-                                return AppStrings.tr(
-                                  'পূর্ণ নাম লিখুন',
-                                  'Full name is required',
-                                  lang,
-                                );
-                              }
-                              return null;
-                            },
+                            validator: controller.validateFullName,
                             decoration: InputDecoration(
                               labelText: AppStrings.tr(
                                 'পূর্ণ নাম',

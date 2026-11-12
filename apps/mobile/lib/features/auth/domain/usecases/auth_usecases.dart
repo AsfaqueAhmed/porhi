@@ -1,6 +1,7 @@
 import 'package:common/common.dart';
 import 'package:equatable/equatable.dart';
 import 'package:network/network.dart';
+import 'package:porhi/core/i18n/bangla_digits.dart';
 import 'package:porhi/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:porhi/features/auth/domain/repositories/auth_repository.dart';
 
@@ -40,7 +41,8 @@ class RequestPhoneOtpUseCase {
 
   /// Normalizes local (`01XXXXXXXXX`) or E.164 (`+8801XXXXXXXXX`) BD mobile numbers.
   static String? normalizeBangladeshPhone(String input) {
-    final stripped = input.replaceAll(RegExp(r'[\s\-\(\)]'), '').trim();
+    final ascii = toAsciiDigits(input);
+    final stripped = ascii.replaceAll(RegExp(r'[\s\-\(\)]'), '').trim();
     if (stripped.isEmpty) return null;
 
     var candidate = stripped;
@@ -70,7 +72,7 @@ class VerifyPhoneOtpUseCase {
     required String smsCode,
   }) async {
     final trimmedId = verificationId.trim();
-    final trimmedCode = smsCode.trim();
+    final trimmedCode = toAsciiDigits(smsCode).trim();
     if (trimmedId.isEmpty) {
       return Left<ErrorResponse, AuthSessionEntity>(
         ErrorResponse(

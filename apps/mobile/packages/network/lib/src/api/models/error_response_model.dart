@@ -10,15 +10,23 @@ enum ApiResponseErrorType {
 class ErrorResponse extends BaseResponseModel<ApiResponseErrorType> {
   dynamic responseData;
   String? cancelReason;
+  int? statusCode;
+  String? code;
 
   ErrorResponse({
     required super.message,
     required super.data,
     this.responseData,
     this.cancelReason,
+    this.statusCode,
+    this.code,
   });
 
-  factory ErrorResponse.byErrorType({required ApiResponseErrorType errorType}) {
+  factory ErrorResponse.byErrorType({
+    required ApiResponseErrorType errorType,
+    int? statusCode,
+    String? code,
+  }) {
     String message;
     switch (errorType) {
       case ApiResponseErrorType.response:
@@ -37,14 +45,37 @@ class ErrorResponse extends BaseResponseModel<ApiResponseErrorType> {
     return ErrorResponse(
       message: message,
       data: errorType,
+      statusCode: statusCode,
+      code: code,
     );
   }
 
-  factory ErrorResponse.fromApiResponse(Map<String, dynamic> json) {
+  factory ErrorResponse.fromApiResponse(
+    Map<String, dynamic> json, {
+    int? statusCode,
+  }) {
     return ErrorResponse(
-      message: json["message"],
+      message: extractMessage(json),
       data: ApiResponseErrorType.response,
       responseData: json,
+      statusCode: statusCode,
     );
+  }
+
+  static String? extractMessage(dynamic payload) {
+    if (payload is! Map) return null;
+    final raw = payload['message'];
+    if (raw is String) {
+      final trimmed = raw.trim();
+      return trimmed.isEmpty ? null : trimmed;
+    }
+    if (raw is List) {
+      final parts = raw
+          .map((e) => e?.toString().trim() ?? '')
+          .where((s) => s.isNotEmpty)
+          .toList();
+      return parts.isEmpty ? null : parts.join(', ');
+    }
+    return null;
   }
 }

@@ -486,6 +486,16 @@ class AppDatabase extends _$AppDatabase {
         .go();
   }
 
+  /// Clears user-scoped offline state (sync queue, active exam drafts, and
+  /// student cache) while preserving device-wide downloaded curriculum content.
+  Future<void> clearUserOfflineData() {
+    return transaction(() async {
+      await delete(activeExamDrafts).go();
+      await delete(syncQueue).go();
+      await delete(localStudentCache).go();
+    });
+  }
+
   Future<void> clearAllOfflineData() {
     return transaction(() async {
       await delete(downloadedChapters).go();

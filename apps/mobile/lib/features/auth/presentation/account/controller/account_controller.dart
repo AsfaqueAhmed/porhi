@@ -40,9 +40,17 @@ class AccountController extends GetxController {
   final RxnString statusMessage = RxnString();
   final RxnString errorMessage = RxnString();
 
+  bool _isApplyingUser = false;
+  bool _isNameDirty = false;
+  bool _isBoardDirty = false;
+  bool _isTrackDirty = false;
+  bool _isGoalDirty = false;
+
   @override
   void onInit() {
     super.onInit();
+    nameController.addListener(_onNameChanged);
+    boardController.addListener(_onBoardChanged);
     language.value = AppLanguage.fromCode(_getLanguageUseCase());
     final cached = _getCachedUserUseCase();
     if (cached != null) {
@@ -51,13 +59,41 @@ class AccountController extends GetxController {
     loadProfile();
   }
 
-  void _applyUser(AuthUserEntity entity) {
+  void _onNameChanged() {
+    if (!_isApplyingUser) {
+      _isNameDirty = true;
+    }
+  }
+
+  void _onBoardChanged() {
+    if (!_isApplyingUser) {
+      _isBoardDirty = true;
+    }
+  }
+
+  void _applyUser(AuthUserEntity entity, {bool respectDirty = false}) {
     user.value = entity;
-    nameController.text = entity.fullName ?? '';
-    selectedTrack.value = entity.selectedClass;
-    boardController.text = entity.boardName ?? '';
-    if (entity.dailyStudyGoalMinutes != null) {
+    _isApplyingUser = true;
+    try {
+      if (!respectDirty || !_isNameDirty) {
+        nameController.text = entity.fullName ?? '';
+        _isNameDirty = false;
+      }
+      if (!respectDirty || !_isBoardDirty) {
+        boardController.text = entity.boardName ?? '';
+        _isBoardDirty = false;
+      }
+    } finally {
+      _isApplyingUser = false;
+    }
+    if (!respectDirty || !_isTrackDirty) {
+      selectedTrack.value = entity.selectedClass;
+      _isTrackDirty = false;
+    }
+    if ((!respectDirty || !_isGoalDirty) &&
+        entity.dailyStudyGoalMinutes != null) {
       dailyStudyGoalMinutes.value = entity.dailyStudyGoalMinutes!;
+      _isGoalDirty = false;
     }
   }
 
@@ -65,30 +101,55 @@ class AccountController extends GetxController {
     isLoading.value = true;
     try {
       final result = await _getMeUseCase();
+      if (isClosed) return;
       result.fold(
         (err) {
           if (user.value == null) {
             errorMessage.value = err.message;
           }
         },
-        _applyUser,
+        (entity) => _applyUser(entity, respectDirty: true),
       );
     } finally {
-      isLoading.value = false;
+      if (!isClosed) {
+        isLoading.value = false;
+      }
     }
   }
 
   void selectTrack(StudentTrack track) {
+    _isTrackDirty = true;
     selectedTrack.value = track;
   }
 
   void selectDailyGoal(int minutes) {
+    _isGoalDirty = true;
     dailyStudyGoalMinutes.value = minutes;
   }
 
   Future<void> setLanguage(AppLanguage next) async {
     language.value = next;
     await _setLanguageUseCase(next.code);
+    if (isClosed) return;
+  }
+
+  String? validateFullName(String? value) {
+    final trimmed = value?.trim() ?? '';
+    if (trimmed.isEmpty) {
+      return AppStrings.tr(
+        'পূর্ণ নাম লিখুন',
+        'Full name is required',
+        language.value,
+      );
+    }
+    if (trimmed.length > 80) {
+      return AppStrings.tr(
+        'নাম সর্বোচ্চ ৮০ অক্ষরের মধ্যে হতে হবে',
+        'Name must be 80 characters or fewer',
+        language.value,
+      );
+    }
+    return null;
   }
 
   Future<void> saveProfile() async {
@@ -108,6 +169,7 @@ class AccountController extends GetxController {
           dailyStudyGoalMinutes: dailyStudyGoalMinutes.value,
         ),
       );
+      if (isClosed) return;
       result.fold(
         (err) {
           errorMessage.value = err.message ??
@@ -118,6 +180,10 @@ class AccountController extends GetxController {
               );
         },
         (updated) {
+          _isNameDirty = false;
+          _isBoardDirty = false;
+          _isTrackDirty = false;
+          _isGoalDirty = false;
           _applyUser(updated);
           statusMessage.value = AppStrings.tr(
             'প্রোফাইল সংরক্ষিত হয়েছে।',
@@ -127,7 +193,9 @@ class AccountController extends GetxController {
         },
       );
     } finally {
-      isSaving.value = false;
+      if (!isClosed) {
+        isSaving.value = false;
+      }
     }
   }
 
@@ -138,15 +206,20 @@ class AccountController extends GetxController {
     isClearingCache.value = true;
     try {
       await _clearOfflineDataUseCase();
+      if (isClosed) return;
       statusMessage.value = AppStrings.tr(
         'অফলাইন ক্যাশ মুছে ফেলা হয়েছে।',
         'Offline cache cleared.',
         language.value,
       );
     } catch (e) {
-      errorMessage.value = e.toString();
+      if (!isClosed) {
+        errorMessage.value = e.toString();
+      }
     } finally {
-      isClearingCache.value = false;
+      if (!isClosed) {
+        isClearingCache.value = false;
+      }
     }
   }
 
@@ -155,14 +228,20 @@ class AccountController extends GetxController {
     isLoggingOut.value = true;
     try {
       await _signOutUseCase();
-      Get.offAllNamed(AppRoutes.login);
+    } catch (_) {
+      // Always redirect to login even if sign-out throws unexpectedly.
     } finally {
-      isLoggingOut.value = false;
+      if (!isClosed) {
+        isLoggingOut.value = false;
+      }
+      Get.offAllNamed(AppRoutes.login);
     }
   }
 
   @override
   void onClose() {
+    nameController.removeListener(_onNameChanged);
+    boardController.removeListener(_onBoardChanged);
     nameController.dispose();
     boardController.dispose();
     super.onClose();

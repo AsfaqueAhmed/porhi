@@ -58,6 +58,7 @@ class OnboardingController extends GetxController {
   Future<void> setLanguage(AppLanguage next) async {
     language.value = next;
     await _setLanguageUseCase(next.code);
+    if (isClosed) return;
   }
 
   String? validateFullName(String? value) {
@@ -87,6 +88,7 @@ class OnboardingController extends GetxController {
     isSubmitting.value = true;
     try {
       await _setLanguageUseCase(language.value.code);
+      if (isClosed) return;
       final board = boardController.text.trim();
       final result = await _updateProfileUseCase(
         UpdateProfileParams(
@@ -96,6 +98,7 @@ class OnboardingController extends GetxController {
           dailyStudyGoalMinutes: dailyStudyGoalMinutes.value,
         ),
       );
+      if (isClosed) return;
 
       result.fold(
         (err) {
@@ -111,7 +114,9 @@ class OnboardingController extends GetxController {
         },
       );
     } finally {
-      isSubmitting.value = false;
+      if (!isClosed) {
+        isSubmitting.value = false;
+      }
     }
   }
 

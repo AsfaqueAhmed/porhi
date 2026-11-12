@@ -49,10 +49,18 @@ class ErrorInterceptor extends Interceptor {
         break;
     }
 
-    final errorResponse = ErrorResponse.byErrorType(errorType: errorType);
-    if (cancelReason != null) {
-      errorResponse.cancelReason = cancelReason;
-    }
+    final rawData = err.response?.data;
+    final statusCode = err.response?.statusCode;
+    final backendMessage = ErrorResponse.extractMessage(rawData);
+    final fallback = ErrorResponse.byErrorType(errorType: errorType);
+
+    final errorResponse = ErrorResponse(
+      message: backendMessage ?? fallback.message,
+      data: errorType,
+      responseData: rawData,
+      cancelReason: cancelReason,
+      statusCode: (statusCode != null && statusCode > 0) ? statusCode : null,
+    );
 
     handler.resolve(
       Response(

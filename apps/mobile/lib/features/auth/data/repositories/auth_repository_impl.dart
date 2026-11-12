@@ -33,12 +33,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final idToken = await _firebaseGateway.signInWithGoogleAndGetIdToken();
       return _exchangeFirebaseIdToken(idToken);
     } on FirebaseAuthGatewayException catch (e) {
-      return Left<ErrorResponse, AuthSessionEntity>(
-        ErrorResponse(
-          message: e.message,
-          data: ApiResponseErrorType.response,
-        ),
-      );
+      return Left<ErrorResponse, AuthSessionEntity>(_mapGatewayException(e));
     } catch (e) {
       return Left<ErrorResponse, AuthSessionEntity>(
         ErrorResponse(
@@ -78,12 +73,7 @@ class AuthRepositoryImpl implements AuthRepository {
           );
       }
     } on FirebaseAuthGatewayException catch (e) {
-      return Left<ErrorResponse, PhoneOtpResult>(
-        ErrorResponse(
-          message: e.message,
-          data: ApiResponseErrorType.response,
-        ),
-      );
+      return Left<ErrorResponse, PhoneOtpResult>(_mapGatewayException(e));
     } catch (e) {
       return Left<ErrorResponse, PhoneOtpResult>(
         ErrorResponse(
@@ -106,12 +96,7 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       return _exchangeFirebaseIdToken(idToken);
     } on FirebaseAuthGatewayException catch (e) {
-      return Left<ErrorResponse, AuthSessionEntity>(
-        ErrorResponse(
-          message: e.message,
-          data: ApiResponseErrorType.response,
-        ),
-      );
+      return Left<ErrorResponse, AuthSessionEntity>(_mapGatewayException(e));
     } catch (e) {
       return Left<ErrorResponse, AuthSessionEntity>(
         ErrorResponse(
@@ -133,6 +118,7 @@ class AuthRepositoryImpl implements AuthRepository {
           ErrorResponse(
             message: 'Firebase session expired. Please log in again.',
             data: ApiResponseErrorType.response,
+            code: 'unauthenticated',
           ),
         );
       }
@@ -143,12 +129,7 @@ class AuthRepositoryImpl implements AuthRepository {
         (session) => Right<ErrorResponse, String>(session.accessToken),
       );
     } on FirebaseAuthGatewayException catch (e) {
-      return Left<ErrorResponse, String>(
-        ErrorResponse(
-          message: e.message,
-          data: ApiResponseErrorType.response,
-        ),
-      );
+      return Left<ErrorResponse, String>(_mapGatewayException(e));
     } catch (e) {
       return Left<ErrorResponse, String>(
         ErrorResponse(
@@ -206,9 +187,51 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Either<ErrorResponse, void>> signOut() async {
-    await _firebaseGateway.signOut();
-    await _secureStorage.clearSession();
+    try {
+      await _firebaseGateway.signOut();
+    } catch (_) {
+      // Best-effort remote sign-out; local cleanup must always proceed.
+    } finally {
+      await _runBestEffort(_secureStorage.clearSession);
+      await _runBestEffort(() => _preferencesStorage.remove(boardNameKey));
+      await _runBestEffort(
+        () => _preferencesStorage.remove(dailyStudyGoalMinutesKey),
+      );
+      await _runBestEffort(
+        () => _preferencesStorage.remove(PreferencesStorageService.lastSyncAtKey),
+      );
+      await _runBestEffort(
+        () => _preferencesStorage.remove(
+          PreferencesStorageService.activeSubjectIdKey,
+        ),
+      );
+      final db = _database;
+      if (db != null) {
+        await _runBestEffort(db.clearUserOfflineData);
+      }
+    }
     return const Right<ErrorResponse, void>(null);
+  }
+
+  Future<void> _runBestEffort(Future<Object?> Function() action) async {
+    try {
+      await action();
+    } catch (_) {
+      // Ignore individual cleanup errors so remaining steps still execute.
+    }
+  }
+
+  ErrorResponse _mapGatewayException(FirebaseAuthGatewayException e) {
+    final code = e.code?.toLowerCase();
+    final isNetwork =
+        code == 'network-request-failed' || code == 'network_error';
+    return ErrorResponse(
+      message: e.message,
+      data: isNetwork
+          ? ApiResponseErrorType.noInternet
+          : ApiResponseErrorType.response,
+      code: e.code,
+    );
   }
 
   @override

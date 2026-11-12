@@ -70,9 +70,15 @@ class InitialBinding extends Bindings {
 
     final coordinator = _putIfAbsent<AuthSessionCoordinator>(
       () => AuthSessionCoordinator(
-        onRefreshSession: () async {
+        onRefreshSessionResult: () async {
           final result = await Get.find<RefreshBackendSessionUseCase>()();
-          return result.fold((_) => null, (token) => token);
+          return result.fold(
+            (err) => (
+              token: null,
+              isTerminalFailure: isTerminalAuthError(err),
+            ),
+            (token) => (token: token, isTerminalFailure: false),
+          );
         },
         onSessionExpired: () async {
           await Get.find<SignOutUseCase>()();
@@ -94,7 +100,7 @@ class InitialBinding extends Bindings {
           ),
           TokenRefreshInterceptor(
             onRefreshToken: coordinator.refreshToken,
-            onRefreshFailed: coordinator.handleRefreshFailure,
+            onRefreshFailed: coordinator.handleRefreshFailureIfTerminal,
             shouldAttemptRefresh: (options) =>
                 !options.path.trim().endsWith('/auth/firebase'),
           ),
@@ -172,5 +178,25 @@ class InitialBinding extends Bindings {
     if (!Get.isRegistered<T>()) {
       Get.lazyPut<T>(builder, fenix: true);
     }
+  }
+
+  static const Set<String> _terminalAuthCodes = <String>{
+    'unauthenticated',
+    'user-disabled',
+    'user-token-expired',
+    'invalid-user-token',
+  };
+
+  static bool isTerminalAuthError(ErrorResponse err) {
+    if (err.data == ApiResponseErrorType.noInternet ||
+        err.data == ApiResponseErrorType.slowOrNoInternet ||
+        err.data == ApiResponseErrorType.serverError) {
+      return false;
+    }
+    if (err.statusCode == 401 || err.statusCode == 403) {
+      return true;
+    }
+    final code = err.code?.trim().toLowerCase();
+    return code != null && _terminalAuthCodes.contains(code);
   }
 }

@@ -9,7 +9,7 @@ class TokenRefreshInterceptor extends Interceptor implements DioAware {
 
   final void Function(String token)? onTokenRefreshed;
 
-  final void Function()? onRefreshFailed;
+  final FutureOr<void> Function()? onRefreshFailed;
 
   final Set<int> unauthorizedStatusCodes;
 
@@ -59,7 +59,7 @@ class TokenRefreshInterceptor extends Interceptor implements DioAware {
     try {
       final token = await _refreshToken();
       if (token == null) {
-        onRefreshFailed?.call();
+        await onRefreshFailed?.call();
         handler.next(err);
         return;
       }

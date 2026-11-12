@@ -51,6 +51,7 @@ class LoginController extends GetxController {
         language.value == AppLanguage.bn ? AppLanguage.en : AppLanguage.bn;
     language.value = next;
     await _setLanguageUseCase(next.code);
+    if (isClosed) return;
   }
 
   Future<void> signInWithGoogle() async {
@@ -59,6 +60,7 @@ class LoginController extends GetxController {
     isGoogleLoading.value = true;
     try {
       final result = await _signInWithGoogleUseCase();
+      if (isClosed) return;
       result.fold(
         (err) {
           errorMessage.value = err.message ??
@@ -71,7 +73,9 @@ class LoginController extends GetxController {
         _handleAuthenticatedSession,
       );
     } finally {
-      isGoogleLoading.value = false;
+      if (!isClosed) {
+        isGoogleLoading.value = false;
+      }
     }
   }
 
@@ -86,6 +90,7 @@ class LoginController extends GetxController {
         phoneController.text,
         forceResendingToken: isResend ? _resendToken : null,
       );
+      if (isClosed) return;
       result.fold(
         (err) {
           errorMessage.value = err.message ??
@@ -109,7 +114,9 @@ class LoginController extends GetxController {
         },
       );
     } finally {
-      isOtpLoading.value = false;
+      if (!isClosed) {
+        isOtpLoading.value = false;
+      }
     }
   }
 
@@ -122,6 +129,7 @@ class LoginController extends GetxController {
         verificationId: _verificationId ?? '',
         smsCode: otpController.text,
       );
+      if (isClosed) return;
       result.fold(
         (err) {
           errorMessage.value = err.message ??
@@ -134,7 +142,9 @@ class LoginController extends GetxController {
         _handleAuthenticatedSession,
       );
     } finally {
-      isOtpLoading.value = false;
+      if (!isClosed) {
+        isOtpLoading.value = false;
+      }
     }
   }
 

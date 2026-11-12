@@ -14,7 +14,8 @@ class PhoneOtpSection extends StatelessWidget {
     return Obx(() {
       final lang = controller.language.value;
       final otpSent = controller.otpSent.value;
-      final isLoading = controller.isOtpLoading.value;
+      final isOtpLoading = controller.isOtpLoading.value;
+      final isBusy = controller.isBusy;
       final remaining = controller.resendSecondsRemaining.value;
 
       return Column(
@@ -36,7 +37,7 @@ class PhoneOtpSection extends StatelessWidget {
           TextField(
             key: const Key('phone_input_field'),
             controller: controller.phoneController,
-            enabled: !otpSent && !isLoading,
+            enabled: !otpSent && !isBusy,
             keyboardType: TextInputType.phone,
             decoration: InputDecoration(
               labelText: AppStrings.tr(
@@ -53,7 +54,7 @@ class PhoneOtpSection extends StatelessWidget {
             TextField(
               key: const Key('otp_input_field'),
               controller: controller.otpController,
-              enabled: !isLoading,
+              enabled: !isBusy,
               keyboardType: TextInputType.number,
               maxLength: 6,
               decoration: InputDecoration(
@@ -71,14 +72,14 @@ class PhoneOtpSection extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 TextButton(
-                  onPressed: isLoading ? null : controller.editPhoneNumber,
+                  onPressed: isBusy ? null : controller.editPhoneNumber,
                   child: Text(
                     AppStrings.tr('নম্বর পরিবর্তন', 'Change number', lang),
                   ),
                 ),
                 TextButton(
                   key: const Key('resend_otp_button'),
-                  onPressed: (isLoading || remaining > 0)
+                  onPressed: (isBusy || remaining > 0)
                       ? null
                       : () => controller.requestPhoneOtp(isResend: true),
                   child: Text(
@@ -97,10 +98,10 @@ class PhoneOtpSection extends StatelessWidget {
           const SizedBox(height: 12),
           ElevatedButton(
             key: Key(otpSent ? 'verify_otp_button' : 'send_otp_button'),
-            onPressed: isLoading
+            onPressed: isBusy
                 ? null
                 : (otpSent ? controller.verifyOtp : controller.requestPhoneOtp),
-            child: isLoading
+            child: isOtpLoading
                 ? const SizedBox(
                     width: 20,
                     height: 20,
