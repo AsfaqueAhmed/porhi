@@ -78,6 +78,8 @@ describe('LessonPage - MCQ অনুশীলন and Navigation', () => {
     vi.clearAllMocks();
     mockTopicParam = 'top_ssc_physics_ch1_1';
     useUserStore.setState({
+      token: null,
+      guestId: null,
       completedTopics: [],
       lastVisitedTopic: null,
       topicMastery: {},
@@ -231,5 +233,46 @@ describe('LessonPage - MCQ অনুশীলন and Navigation', () => {
     const noteInput = screen.getByPlaceholderText(/এই পাঠের মূল সূত্র বা নোট লিখে রাখো/i);
     fireEvent.change(noteInput, { target: { value: 'ক্লাসিক্যাল ও মডার্ন ফিজিক্স' } });
     expect(useUserStore.getState().lessonNotes['top_ssc_physics_ch1_2']).toBe('ক্লাসিক্যাল ও মডার্ন ফিজিক্স');
+  });
+
+  it('tracks active reading time on lesson-complete, sends Bengali explanation feedback, and opens content error report modal', async () => {
+    useUserStore.setState({ token: 'stu_tok_1' } as any);
+    vi.mocked(apiClient.get).mockImplementation(async (endpoint: string) => {
+      if (endpoint.startsWith('/lessons/topic/')) {
+        return sampleLessonCh1 as any;
+      }
+      return [] as any;
+    });
+    vi.mocked(apiClient.post).mockResolvedValue({ success: true });
+
+    render(<LessonPage />);
+
+    await waitFor(() => {
+      expect(screen.getByText('১.১ পদার্থবিজ্ঞান (Physics)')).toBeDefined();
+    });
+
+    // Lesson complete sends timeSpentSeconds
+    fireEvent.click(screen.getByRole('button', { name: /পাঠ সম্পন্ন করুন/i }));
+    await waitFor(() => {
+      expect(apiClient.post).toHaveBeenCalledWith('/student/lesson-complete', {
+        topicId: 'top_ssc_physics_ch1_1',
+        lessonId: 'les_ch1_1',
+        timeSpentSeconds: expect.any(Number),
+      });
+    });
+
+    // Bengali explanation feedback
+    fireEvent.click(screen.getByRole('button', { name: /হ্যাঁ, পরিষ্কার/i }));
+    await waitFor(() => {
+      expect(apiClient.post).toHaveBeenCalledWith('/student/feedback', {
+        contentType: 'LESSON',
+        contentId: 'les_ch1_1',
+        helpful: true,
+      });
+    });
+
+    // Report error modal trigger
+    fireEvent.click(screen.getByRole('button', { name: /ভুল রিপোর্ট/i }));
+    expect(screen.getByText(/কনটেন্ট ভুল রিপোর্ট করো/i)).toBeDefined();
   });
 });

@@ -15,8 +15,10 @@ import {
   Bookmark,
   RotateCcw,
   Award,
+  Flag,
 } from 'lucide-react';
 import { LatexRenderer } from '@/components/math/latex-renderer';
+import { ReportContentModal } from '@/components/student/report-content-modal';
 import { apiClient } from '@/lib/api-client';
 import { QuestionDTO, QuestionType, ContentStatus } from '@pori/shared';
 import { toBanglaDigits } from '@/lib/formatters';
@@ -127,6 +129,7 @@ export default function PracticeRunnerPage() {
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
   const [difficultyFilter, setDifficultyFilter] = useState<DifficultyFilter>('ALL');
   const [practiceMode, setPracticeMode] = useState<'ALL' | 'MISTAKES'>(initialMode);
+  const [isReportOpen, setIsReportOpen] = useState(false);
   const [openLayers, setOpenLayers] = useState<Record<string, boolean>>({
     direct: true,
     concept: true,
@@ -444,28 +447,39 @@ export default function PracticeRunnerPage() {
                   : tr('মধ্যম', 'Medium')}
               </span>
 
-              <button
-                type="button"
-                aria-label="প্রশ্ন বুকমার্ক"
-                onClick={() =>
-                  currentQ &&
-                  toggleBookmark({
-                    id: currentQ.id,
-                    type: 'question',
-                    titleBangla: currentQ.stem.slice(0, 80),
-                    subtitleBangla: chapterTitle,
-                    href: `/practice/${chapterId}${topicId ? `?topicId=${topicId}` : ''}`,
-                  })
-                }
-                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors ${
-                  isQuestionBookmarked
-                    ? 'bg-indigo-50 border-indigo-200 text-indigo-700'
-                    : 'bg-white border-slate-200 text-slate-500 hover:text-indigo-600'
-                }`}
-              >
-                <Bookmark className={`w-3.5 h-3.5 ${isQuestionBookmarked ? 'fill-indigo-600' : ''}`} />
-                <span>{tr('বুকমার্ক', 'Bookmark')}</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  aria-label="প্রশ্ন বুকমার্ক"
+                  onClick={() =>
+                    currentQ &&
+                    toggleBookmark({
+                      id: currentQ.id,
+                      type: 'question',
+                      titleBangla: currentQ.stem.slice(0, 80),
+                      subtitleBangla: chapterTitle,
+                      href: `/practice/${chapterId}${topicId ? `?topicId=${topicId}` : ''}`,
+                    })
+                  }
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border transition-colors ${
+                    isQuestionBookmarked
+                      ? 'bg-indigo-50 border-indigo-200 text-indigo-700'
+                      : 'bg-white border-slate-200 text-slate-500 hover:text-indigo-600'
+                  }`}
+                >
+                  <Bookmark className={`w-3.5 h-3.5 ${isQuestionBookmarked ? 'fill-indigo-600' : ''}`} />
+                  <span>{tr('বুকমার্ক', 'Bookmark')}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsReportOpen(true)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold border border-rose-200 bg-rose-50/70 text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer"
+                >
+                  <Flag className="w-3.5 h-3.5" />
+                  <span>{tr('ভুল রিপোর্ট', 'Report Error')}</span>
+                </button>
+              </div>
             </div>
 
             {/* Stem */}
@@ -738,6 +752,14 @@ export default function PracticeRunnerPage() {
           </div>
         </>
       )}
+      <ReportContentModal
+        isOpen={isReportOpen && Boolean(currentQ)}
+        onClose={() => setIsReportOpen(false)}
+        contentType="QUESTION"
+        contentId={currentQ?.id || ''}
+        topicId={currentQ?.topicId || topicId}
+        contentLabel={currentQ?.stem?.slice(0, 80)}
+      />
     </div>
   );
 }

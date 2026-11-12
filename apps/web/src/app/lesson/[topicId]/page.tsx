@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import {
@@ -16,11 +16,16 @@ import {
   XCircle,
   StickyNote,
   ChevronRight,
+  Flag,
+  ThumbsUp,
+  ThumbsDown,
 } from 'lucide-react';
 import { LatexRenderer } from '@/components/math/latex-renderer';
 import { RichContentRenderer } from '@/components/content/rich-content-renderer';
 import { InteractiveSimulationRunner } from '@/components/content/interactive-simulation-runner';
+import { ReportContentModal } from '@/components/student/report-content-modal';
 import { apiClient } from '@/lib/api-client';
+import { ensureGuestSession } from '@/lib/guest-session';
 import { LessonDTO, ContentStatus, QuestionDTO } from '@pori/shared';
 import { useLanguageStore } from '@/store/language-store';
 import { useUserStore } from '@/store/user-store';
@@ -111,6 +116,9 @@ export default function LessonPage() {
   const [lesson, setLesson] = useState<LessonDTO>(SAMPLE_LESSON);
   const [isLoadingLesson, setIsLoadingLesson] = useState(true);
   const [isNoteOpen, setIsNoteOpen] = useState(false);
+  const [isReportOpen, setIsReportOpen] = useState(false);
+  const [feedbackChoice, setFeedbackChoice] = useState<'HELPFUL' | 'UNCLEAR' | null>(null);
+  const openedAtRef = useRef<number>(Date.now());
 
   const fallbackHierarchy = findTopicHierarchy(topicId);
   const chapterId = lesson?.topic?.chapter?.id || fallbackHierarchy.chapterId;
@@ -131,6 +139,8 @@ export default function LessonPage() {
   } | null>(null);
 
   useEffect(() => {
+    openedAtRef.current = Date.now();
+    setFeedbackChoice(null);
     async function fetchLesson() {
       setIsLoadingLesson(true);
       try {
@@ -187,13 +197,38 @@ export default function LessonPage() {
 
   const handleMarkComplete = async () => {
     markTopicCompleted(topicId, lesson.titleBangla, chapterId, chapterTitle);
+    const timeSpentSeconds = Math.max(1, Math.round((Date.now() - openedAtRef.current) / 1000));
     try {
-      await apiClient.post('/student/lesson-complete', {
-        topicId,
-        lessonId: lesson.id,
-      });
+      if (!useUserStore.getState().token) {
+        await ensureGuestSession().catch(() => {});
+      }
+      await Promise.resolve(
+        apiClient.post('/student/lesson-complete', {
+          topicId,
+          lessonId: lesson.id,
+          timeSpentSeconds,
+        }),
+      );
     } catch {
       // Offline fallback: local store already updated
+    }
+  };
+
+  const handleExplanationFeedback = async (helpful: boolean) => {
+    setFeedbackChoice(helpful ? 'HELPFUL' : 'UNCLEAR');
+    try {
+      if (!useUserStore.getState().token) {
+        await ensureGuestSession().catch(() => {});
+      }
+      await Promise.resolve(
+        apiClient.post('/student/feedback', {
+          contentType: 'LESSON',
+          contentId: lesson.id,
+          helpful,
+        }),
+      );
+    } catch {
+      // Offline safe
     }
   };
 
@@ -333,6 +368,15 @@ export default function LessonPage() {
               <StickyNote className="w-3.5 h-3.5" />
               <span>{tr('আমার নোট', 'My Note')}</span>
             </button>
+
+            <button
+              type="button"
+              onClick={() => setIsReportOpen(true)}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold border border-rose-200 bg-rose-50/70 text-rose-700 hover:bg-rose-100 transition-colors cursor-pointer"
+            >
+              <Flag className="w-3.5 h-3.5" />
+              <span>{tr('ভুল রিপোর্ট', 'Report Error')}</span>
+            </button>
           </div>
         </div>
 
@@ -396,6 +440,39 @@ export default function LessonPage() {
         </div>
         <div className="text-slate-800 leading-relaxed text-sm sm:text-base space-y-3 sm:space-y-4">
           <RichContentRenderer content={lesson.explanation} />
+        </div>
+
+        {/* Bengali Explanation Helpfulness Feedback */}
+        <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
+          <span className="font-semibold text-slate-600">
+            {tr('এই বাংলা ব্যাখ্যাটি কি পরিষ্কার ও সহজবোধ্য?', 'Was this Bengali explanation clear and helpful?')}
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleExplanationFeedback(true)}
+              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full font-bold border transition-colors cursor-pointer ${
+                feedbackChoice === 'HELPFUL'
+                  ? 'bg-emerald-100 border-emerald-300 text-emerald-800'
+                  : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-emerald-50'
+              }`}
+            >
+              <ThumbsUp className="w-3.5 h-3.5" />
+              <span>{tr('হ্যাঁ, পরিষ্কার', 'Yes, Clear')}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleExplanationFeedback(false)}
+              className={`inline-flex items-center gap-1 px-3 py-1 rounded-full font-bold border transition-colors cursor-pointer ${
+                feedbackChoice === 'UNCLEAR'
+                  ? 'bg-amber-100 border-amber-300 text-amber-800'
+                  : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-amber-50'
+              }`}
+            >
+              <ThumbsDown className="w-3.5 h-3.5" />
+              <span>{tr('আরো সহজ দরকার', 'Needs Simplifying')}</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -636,6 +713,15 @@ export default function LessonPage() {
           <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         </Link>
       </div>
+
+      <ReportContentModal
+        isOpen={isReportOpen}
+        onClose={() => setIsReportOpen(false)}
+        contentType="LESSON"
+        contentId={lesson.id}
+        topicId={topicId}
+        contentLabel={lesson.titleBangla}
+      />
     </div>
   );
 }

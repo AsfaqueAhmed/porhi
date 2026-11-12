@@ -113,6 +113,8 @@ export function AdminTopbar({
       segments.push({ label: 'মডেল টেস্ট ম্যানেজার', href: '/admin/model-tests' });
     } else if (normalizedPath.includes('/reviews')) {
       segments.push({ label: 'রিভিউ ও অডিট কনসোল', href: '/admin/reviews' });
+    } else if (normalizedPath.includes('/reports')) {
+      segments.push({ label: 'কনটেন্ট রিপোর্ট', href: '/admin/reports' });
     }
 
     return segments;

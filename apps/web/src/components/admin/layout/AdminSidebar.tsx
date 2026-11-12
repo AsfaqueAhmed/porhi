@@ -9,6 +9,7 @@ import {
   ChevronRight,
   ExternalLink,
   FileQuestion,
+  Flag,
   GitFork,
   GraduationCap,
   LayoutDashboard,
@@ -102,6 +103,12 @@ function getNavItems(lang: Language): SidebarNavGroup[] {
       href: '/admin/reviews',
       icon: ShieldCheck,
       badge: lang === 'bn' ? 'অনুমোদন' : 'Approvals',
+    },
+    {
+      label: lang === 'bn' ? 'কনটেন্ট রিপোর্ট' : 'Content Reports',
+      href: '/admin/reports',
+      icon: Flag,
+      badge: lang === 'bn' ? 'ত্রুটি' : 'Issues',
     },
   ];
 }
