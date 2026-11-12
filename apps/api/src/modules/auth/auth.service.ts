@@ -3,6 +3,7 @@ import {
   Inject,
   Optional,
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -443,6 +444,20 @@ export class AuthService {
     return user;
   }
 
+  private formatProfileResponse(user: User) {
+    return {
+      id: user.id,
+      guestId: user.guestId,
+      firebaseUid: user.firebaseUid ?? null,
+      phoneNumber: user.phoneNumber,
+      email: user.email ?? null,
+      fullName: user.fullName ?? null,
+      role: user.role,
+      selectedClass: user.selectedClass,
+      isGuest: !user.phoneNumber && !!user.guestId,
+    };
+  }
+
   async updateProfile(
     userId: string,
     dto: { fullName?: string; selectedClass?: string },
@@ -468,15 +483,7 @@ export class AuthService {
 
     if (Object.keys(data).length === 0) {
       const existing = await this.getUserById(userId);
-      return {
-        id: existing.id,
-        guestId: existing.guestId,
-        phoneNumber: existing.phoneNumber,
-        fullName: existing.fullName ?? null,
-        role: existing.role,
-        selectedClass: existing.selectedClass,
-        isGuest: !existing.phoneNumber && !!existing.guestId,
-      };
+      return this.formatProfileResponse(existing);
     }
 
     const updated = await this.prisma.user.update({
@@ -484,15 +491,7 @@ export class AuthService {
       data,
     });
 
-    return {
-      id: updated.id,
-      guestId: updated.guestId,
-      phoneNumber: updated.phoneNumber,
-      fullName: updated.fullName ?? null,
-      role: updated.role,
-      selectedClass: updated.selectedClass,
-      isGuest: !updated.phoneNumber && !!updated.guestId,
-    };
+    return this.formatProfileResponse(updated);
   }
 
   async firebaseLogin(dto: {
@@ -531,7 +530,10 @@ export class AuthService {
       }
     }
 
-    const normalizedEmail = decoded.email ? decoded.email.trim().toLowerCase() : null;
+    const verifiedEmail =
+      decoded.email && decoded.emailVerified === true
+        ? decoded.email.trim().toLowerCase()
+        : null;
 
     let user = await this.prisma.user.findUnique({
       where: { firebaseUid: decoded.uid },
@@ -543,9 +545,9 @@ export class AuthService {
       });
     }
 
-    if (!user && normalizedEmail) {
+    if (!user && verifiedEmail) {
       user = await this.prisma.user.findUnique({
-        where: { email: normalizedEmail },
+        where: { email: verifiedEmail },
       });
     }
 
@@ -560,13 +562,19 @@ export class AuthService {
         data: {
           firebaseUid: decoded.uid,
           phoneNumber: normalizedPhone,
-          email: normalizedEmail,
+          email: verifiedEmail,
           fullName: resolvedFullName ? resolvedFullName.slice(0, 80) : null,
           role: Role.STUDENT,
           selectedClass: (dto.selectedClass as ProgramTrack | undefined) ?? 'SSC',
         },
       });
     } else {
+      if (user.firebaseUid && user.firebaseUid !== decoded.uid) {
+        throw new ConflictException(
+          'Account is already linked to a different Firebase user',
+        );
+      }
+
       const updateData: {
         firebaseUid?: string;
         phoneNumber?: string;
@@ -578,10 +586,26 @@ export class AuthService {
         updateData.firebaseUid = decoded.uid;
       }
       if (normalizedPhone && !user.phoneNumber) {
+        const existingByPhone = await this.prisma.user.findUnique({
+          where: { phoneNumber: normalizedPhone },
+        });
+        if (existingByPhone && existingByPhone.id !== user.id) {
+          throw new ConflictException(
+            'Phone number is already associated with another account',
+          );
+        }
         updateData.phoneNumber = normalizedPhone;
       }
-      if (normalizedEmail && !user.email) {
-        updateData.email = normalizedEmail;
+      if (verifiedEmail && !user.email) {
+        const existingByEmail = await this.prisma.user.findUnique({
+          where: { email: verifiedEmail },
+        });
+        if (existingByEmail && existingByEmail.id !== user.id) {
+          throw new ConflictException(
+            'Email is already associated with another account',
+          );
+        }
+        updateData.email = verifiedEmail;
       }
       if (!user.fullName && resolvedFullName) {
         updateData.fullName = resolvedFullName.slice(0, 80);

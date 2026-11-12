@@ -6,6 +6,7 @@ export interface VerifiedFirebaseToken {
   uid: string;
   phoneNumber?: string;
   email?: string;
+  emailVerified: boolean;
   name?: string;
 }
 
@@ -78,6 +79,7 @@ export class FirebaseVerifierService {
         uid: decoded.uid,
         phoneNumber: typeof decoded.phone_number === 'string' ? decoded.phone_number : undefined,
         email: typeof decoded.email === 'string' ? decoded.email : undefined,
+        emailVerified: decoded.email_verified === true,
         name: typeof decoded.name === 'string' ? decoded.name : undefined,
       };
     } catch (error) {

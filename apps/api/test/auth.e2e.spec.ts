@@ -164,6 +164,7 @@ describe('AuthModule (e2e)', () => {
         return {
           uid: 'fb_e2e_uid_1',
           email: 'e2estudent@example.com',
+          emailVerified: true,
           name: 'E2E Student',
         };
       }
@@ -546,6 +547,16 @@ describe('AuthModule (e2e)', () => {
         .expect(200);
 
       expect(patchRes.body.selectedClass).toBe('BCS');
+      expect(patchRes.body.firebaseUid).toBe('fb_e2e_uid_1');
+      expect(patchRes.body.email).toBe('e2estudent@example.com');
+
+      const meRes = await request(app.getHttpServer())
+        .get('/auth/me')
+        .set('Authorization', `Bearer ${createRes.body.accessToken}`)
+        .expect(200);
+
+      expect(meRes.body.firebaseUid).toBe('fb_e2e_uid_1');
+      expect(meRes.body.email).toBe('e2estudent@example.com');
 
       await request(app.getHttpServer())
         .patch('/auth/profile')

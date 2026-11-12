@@ -43,7 +43,9 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     return {
       id: user.id,
       guestId: user.guestId,
+      firebaseUid: user.firebaseUid ?? null,
       phoneNumber: user.phoneNumber,
+      email: user.email ?? null,
       fullName: user.fullName,
       role: user.role,
       selectedClass: user.selectedClass,

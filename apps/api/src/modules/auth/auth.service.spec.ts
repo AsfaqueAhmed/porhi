@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { BadRequestException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { FirebaseVerifierService } from './firebase-verifier.service';
 import { PrismaService } from '../../database/prisma.service';
@@ -779,6 +779,7 @@ describe('AuthService', () => {
         uid: 'fb-uid-1',
         phoneNumber: '+8801712345678',
         email: 'rafi@example.com',
+        emailVerified: true,
         name: 'Firebase Name',
       });
       prisma.user.findUnique
@@ -837,6 +838,7 @@ describe('AuthService', () => {
         uid: 'fb-uid-link',
         phoneNumber: '+8801712345678',
         email: 'rafi@example.com',
+        emailVerified: true,
       });
       prisma.user.findUnique
         .mockResolvedValueOnce(null) // firebaseUid
@@ -849,7 +851,8 @@ describe('AuthService', () => {
           passwordHash: null,
           role: 'STUDENT',
           selectedClass: 'SSC',
-        });
+        })
+        .mockResolvedValueOnce(null); // email collision check
       prisma.user.update.mockResolvedValue({
         id: 'u-existing-student',
         firebaseUid: 'fb-uid-link',
@@ -912,6 +915,7 @@ describe('AuthService', () => {
       firebaseVerifier.verifyIdToken.mockResolvedValue({
         uid: 'fb-uid-student-pw',
         email: 'pwstudent@example.com',
+        emailVerified: true,
       });
       prisma.user.findUnique
         .mockResolvedValueOnce(null) // firebaseUid
@@ -933,6 +937,7 @@ describe('AuthService', () => {
       firebaseVerifier.verifyIdToken.mockResolvedValue({
         uid: 'fb-uid-email',
         email: '  Student@Example.com ',
+        emailVerified: true,
       });
       prisma.user.findUnique
         .mockResolvedValueOnce(null) // firebaseUid
@@ -976,6 +981,128 @@ describe('AuthService', () => {
           selectedClass: 'INVALID_TRACK',
         }),
       ).rejects.toThrow(BadRequestException);
+    });
+
+    it('does not look up, link, or save email when emailVerified is false', async () => {
+      firebaseVerifier.verifyIdToken.mockResolvedValue({
+        uid: 'fb-uid-unverified',
+        email: 'victim@example.com',
+        emailVerified: false,
+        name: 'Unverified User',
+      });
+      prisma.user.findUnique.mockResolvedValueOnce(null); // firebaseUid only
+      prisma.user.create.mockResolvedValue({
+        id: 'u-fb-unverified',
+        firebaseUid: 'fb-uid-unverified',
+        phoneNumber: null,
+        email: null,
+        fullName: 'Unverified User',
+        role: 'STUDENT',
+        selectedClass: 'SSC',
+      });
+
+      const result = await authService.firebaseLogin({
+        idToken: 'unverified-email-token',
+      });
+
+      expect(prisma.user.findUnique).toHaveBeenCalledTimes(1);
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+        where: { firebaseUid: 'fb-uid-unverified' },
+      });
+      expect(prisma.user.create).toHaveBeenCalledWith({
+        data: {
+          firebaseUid: 'fb-uid-unverified',
+          phoneNumber: null,
+          email: null,
+          fullName: 'Unverified User',
+          role: 'STUDENT',
+          selectedClass: 'SSC',
+        },
+      });
+      expect(result.isNewUser).toBe(true);
+      expect(result.user.email).toBeNull();
+    });
+
+    it('throws ConflictException when matched user already has a different firebaseUid', async () => {
+      firebaseVerifier.verifyIdToken.mockResolvedValue({
+        uid: 'fb-uid-new',
+        phoneNumber: '+8801712345678',
+      });
+      prisma.user.findUnique
+        .mockResolvedValueOnce(null) // firebaseUid
+        .mockResolvedValueOnce({
+          id: 'u-existing',
+          firebaseUid: 'fb-uid-original',
+          phoneNumber: '01712345678',
+          email: null,
+          passwordHash: null,
+          role: 'STUDENT',
+          selectedClass: 'SSC',
+        });
+
+      await expect(
+        authService.firebaseLogin({ idToken: 'token-mismatch' }),
+      ).rejects.toThrow(ConflictException);
+      expect(prisma.user.update).not.toHaveBeenCalled();
+      expect(jwtService.sign).not.toHaveBeenCalled();
+    });
+
+    it('throws ConflictException when linking phoneNumber or email already owned by another user', async () => {
+      // Case A: matched by firebaseUid, phoneNumber belongs to another user
+      firebaseVerifier.verifyIdToken.mockResolvedValue({
+        uid: 'fb-uid-1',
+        phoneNumber: '+8801712345678',
+      });
+      prisma.user.findUnique
+        .mockResolvedValueOnce({
+          id: 'u-1',
+          firebaseUid: 'fb-uid-1',
+          phoneNumber: null,
+          email: null,
+          passwordHash: null,
+          role: 'STUDENT',
+          selectedClass: 'SSC',
+        })
+        .mockResolvedValueOnce({
+          id: 'u-other-phone-owner',
+          phoneNumber: '01712345678',
+          role: 'STUDENT',
+        });
+
+      await expect(
+        authService.firebaseLogin({ idToken: 'token-phone-collision' }),
+      ).rejects.toThrow(ConflictException);
+      expect(prisma.user.update).not.toHaveBeenCalled();
+
+      // Case B: matched by phoneNumber, verified email belongs to another user
+      firebaseVerifier.verifyIdToken.mockResolvedValue({
+        uid: 'fb-uid-2',
+        phoneNumber: '+8801799998888',
+        email: 'taken@example.com',
+        emailVerified: true,
+      });
+      prisma.user.findUnique
+        .mockResolvedValueOnce(null) // firebaseUid
+        .mockResolvedValueOnce({
+          id: 'u-2',
+          firebaseUid: null,
+          phoneNumber: '01799998888',
+          email: null,
+          passwordHash: null,
+          role: 'STUDENT',
+          selectedClass: 'SSC',
+        })
+        .mockResolvedValueOnce({
+          id: 'u-other-email-owner',
+          email: 'taken@example.com',
+          role: 'ADMIN',
+        });
+
+      await expect(
+        authService.firebaseLogin({ idToken: 'token-email-collision' }),
+      ).rejects.toThrow(ConflictException);
+      expect(prisma.user.update).not.toHaveBeenCalled();
+      expect(jwtService.sign).not.toHaveBeenCalled();
     });
   });
 });

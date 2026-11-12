@@ -64,6 +64,7 @@ describe('FirebaseVerifierService', () => {
       uid: 'uid-123',
       phone_number: '+8801712345678',
       email: 'student@example.com',
+      email_verified: true,
       name: 'Student Name',
     });
 
@@ -79,8 +80,17 @@ describe('FirebaseVerifierService', () => {
       uid: 'uid-123',
       phoneNumber: '+8801712345678',
       email: 'student@example.com',
+      emailVerified: true,
       name: 'Student Name',
     });
+
+    mockVerifyIdToken.mockResolvedValueOnce({
+      uid: 'uid-unverified',
+      email: 'unverified@example.com',
+      email_verified: false,
+    });
+    const unverified = await service.verifyIdToken('unverified-jwt');
+    expect(unverified.emailVerified).toBe(false);
   });
 
   it('initializes lazily from FIREBASE_PROJECT_ID and throws UnauthorizedException if verifyIdToken fails', async () => {
