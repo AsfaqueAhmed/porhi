@@ -141,7 +141,7 @@ apps/mobile/                         # Dart package: porhi | Android ID: com.por
 - The porhi app injects an auth-session/token-provider abstraction into `network`. The package must not import Firebase Auth or know about porhi's profile/session screens. On a 401, the app-provided refresh strategy may exchange a refreshed Firebase ID token for a porhi JWT and retry once.
 - Register shared API services and repository implementations under their domain interfaces in `app/initial_binding.dart` with lazy GetX registrations. Screen/route bindings register that screen's use cases and controller, resolving repositories by interface.
 - GetX controllers extend `GetxController`, receive use cases only, and own presentation state/actions. Views use `GetView` and `Obx` only around reactive reads. Controllers surface failures as view state and clear loading flags in `finally`; controllers dispose owned text/scroll/focus controllers in `onClose`.
-- Use GetX named routes (`GetMaterialApp`, `GetPage`, bindings). The four-tab shell keeps its root stacks/state alive with an `IndexedStack`; pushed study routes use named routes. Bindings own controller lifetime; use `permanent` only for a deliberately app-lifetime service, not as a general tab-state workaround.
+- Use GetX named routes (`GetMaterialApp`, `GetPage`, bindings). The four-tab shell renders only the currently active tab dynamically via `Obx` (no `IndexedStack`), while `MainShellBinding` owns the tab controllers' lifetime and pushed study routes use root named routes. Use `permanent` only for a deliberately app-lifetime service, not as a general tab-state workaround.
 - Drift tables and drivers live in the app's core database layer. Feature data sources/repositories own local-vs-remote reads and writes. `OfflineSyncService` coordinates connectivity and queued work through feature use cases/repositories, preserving retry/idempotency behavior without calling Dio or feature APIs directly from widgets.
 - `common` and `network` are Dart packages under `apps/mobile/packages/`, referenced from `apps/mobile/pubspec.yaml` with `path:` dependencies. Keep them free of JavaScript `package.json` files so `pnpm -r` workspace discovery remains unchanged. Keep the existing TypeScript `packages/shared` separate.
 
@@ -194,7 +194,7 @@ Keep all existing auth flows (`guest`, `request-otp`, `verify-otp`, `admin/login
 
 ### 5.4 Navigation & Screen Map (GetX)
 
-- **Bottom `NavigationBar` (4 primary tabs in a persistent `IndexedStack` shell):**
+- **Bottom `NavigationBar` (4 primary tabs rendered dynamically on selection via `Obx`, without `IndexedStack`):**
   1. **হোম (`Home`)** -> `/home`: Streak & 7-day activity strip, active subject pill + switcher, "Continue Where You Left Off" card, Due Mistake Revision queue, Today's Study Plan card, Quick Hub (Board Archive, Multi-Paper Rehearsal, Bookmarks).
   2. **বিষয়সমূহ (`Subjects`)** -> `/subjects`: Program filter chips (`সকল`, `ষষ্ঠ–অষ্টম`, `SSC`, `HSC`, `ভর্তি প্রস্তুতি`, `BCS`), search input, Ready vs Coming Soon subject cards with live chapter/topic/question counts and mastery progress.
   3. **রুটিন (`Planner`)** -> `/planner`: Today / 7-Day agenda, custom task creator modal, `"স্মার্ট ৭-দিনের রুটিন তৈরি করো"` auto-generator, reminder time picker + device notification toggle, direct launch into target lesson/practice/test.
