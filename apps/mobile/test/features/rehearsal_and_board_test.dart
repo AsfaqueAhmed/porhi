@@ -11,6 +11,7 @@ import 'package:porhi/core/theme/porhi_theme.dart';
 import 'package:porhi/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:porhi/features/auth/domain/repositories/auth_repository.dart';
 import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
+import 'package:porhi/features/board_archive/data/models/board_archive_models.dart';
 import 'package:porhi/features/board_archive/domain/entities/board_archive_entities.dart';
 import 'package:porhi/features/board_archive/domain/repositories/board_archive_repository.dart';
 import 'package:porhi/features/board_archive/domain/usecases/board_archive_usecases.dart';
@@ -21,9 +22,15 @@ import 'package:porhi/features/board_archive/presentation/board_archive/view/boa
 import 'package:porhi/features/curriculum/domain/entities/curriculum_entities.dart';
 import 'package:porhi/features/curriculum/domain/repositories/curriculum_repository.dart';
 import 'package:porhi/features/curriculum/domain/usecases/curriculum_usecases.dart';
+import 'package:porhi/features/curriculum/presentation/curriculum/controller/chapter_index_controller.dart';
+import 'package:porhi/features/curriculum/presentation/curriculum/view/chapter_index_view.dart';
 import 'package:porhi/features/dashboard/domain/repositories/student_repository.dart';
 import 'package:porhi/features/dashboard/domain/usecases/student_usecases.dart';
 import 'package:porhi/features/exam/domain/entities/exam_entities.dart';
+import 'package:porhi/features/exam/domain/repositories/exam_repository.dart';
+import 'package:porhi/features/exam/domain/usecases/exam_usecases.dart';
+import 'package:porhi/features/exam/presentation/exam_setup/controller/exam_setup_controller.dart';
+import 'package:porhi/features/exam/presentation/exam_setup/view/exam_setup_view.dart';
 import 'package:porhi/features/practice/domain/entities/practice_entities.dart';
 import 'package:porhi/features/practice/domain/repositories/practice_repository.dart';
 import 'package:porhi/features/practice/domain/usecases/practice_usecases.dart';
@@ -51,6 +58,8 @@ class _MockPracticeRepository extends Mock implements PracticeRepository {}
 class _MockStudentRepository extends Mock implements StudentRepository {}
 
 class _MockAuthRepository extends Mock implements AuthRepository {}
+
+class _MockExamRepository extends Mock implements ExamRepository {}
 
 List<SubjectEntity> _sampleSubjects() => const <SubjectEntity>[
       SubjectEntity(
@@ -220,6 +229,13 @@ BoardArchiveFiltersEntity _sampleFilters() => const BoardArchiveFiltersEntity(
           program: 'SSC',
           count: 15,
         ),
+        BoardSubjectFacetEntity(
+          id: 'sub_hsc_chem',
+          code: 'hsc_chemistry',
+          nameBangla: 'উচ্চমাধ্যমিক রসায়ন',
+          program: 'HSC',
+          count: 5,
+        ),
       ],
       totalVerifiedQuestions: 20,
     );
@@ -366,6 +382,7 @@ void main() {
       expect(matchesBoardYearFilter(2025, '2024+'), isTrue);
       expect(matchesBoardYearFilter(2023, '2024+'), isFalse);
       expect(matchesBoardYearFilter(2024, '২০২৪'), isTrue);
+      expect(matchesBoardYearFilter(2024, '2024.5'), isFalse);
       expect(matchesBoardYearFilter(2023, '২০২৪'), isFalse);
     });
   });
@@ -998,6 +1015,8 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('board_retry_btn')), findsOneWidget);
+      await tester.ensureVisible(find.byKey(const Key('board_retry_btn')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('board_retry_btn')));
       await tester.pumpAndSettle();
 
@@ -1124,6 +1143,733 @@ void main() {
         // Verify binding types exist cleanly
         expect(RehearsalBinding(), isA<Bindings>());
         expect(BoardArchiveBinding(), isA<Bindings>());
+      },
+    );
+  });
+
+  group('Fix Round 1: Model parsing & CQ subQuestions', () {
+    test(
+      'MultiExamRehearsalListModel unwraps {json: {items: [...]}} and {json: [...]} cleanly',
+      () {
+        final mapWrapped = MultiExamRehearsalListModel.fromJson(<String, dynamic>{
+          'json': <String, dynamic>{
+            'items': <Map<String, dynamic>>[
+              <String, dynamic>{
+                'id': 'reh_wrap_1',
+                'titleBangla': 'Wrapped Rehearsal',
+                'papers': <Map<String, dynamic>>[],
+              },
+            ],
+          },
+        });
+        expect(mapWrapped.items.length, 1);
+        expect(mapWrapped.items.first.id, 'reh_wrap_1');
+
+        final listWrapped = MultiExamRehearsalListModel.fromJson(<String, dynamic>{
+          'json': <Map<String, dynamic>>[
+            <String, dynamic>{
+              'id': 'reh_wrap_2',
+              'titleBangla': 'Array Wrapped',
+              'papers': <Map<String, dynamic>>[],
+            },
+          ],
+        });
+        expect(listWrapped.items.length, 1);
+        expect(listWrapped.items.first.id, 'reh_wrap_2');
+      },
+    );
+
+    test(
+      'RehearsalSessionEnvelopeModel & RehearsalPaperSubmitResultModel parse wrapped responses',
+      () {
+        final env = RehearsalSessionEnvelopeModel.fromJson(<String, dynamic>{
+          'json': <String, dynamic>{
+            'rehearsal': <String, dynamic>{
+              'id': 'reh_m1',
+              'titleBangla': 'মডেল রিহার্সাল',
+              'status': 'IN_PROGRESS',
+              'currentPaperIndex': 0,
+              'totalMarks': 2,
+              'papers': <Map<String, dynamic>>[
+                <String, dynamic>{
+                  'paperIndex': 0,
+                  'subjectId': 'sub_phy',
+                  'labelBangla': 'পত্র ১',
+                  'questionCount': 2,
+                  'durationMinutes': 5,
+                  'status': 'ACTIVE',
+                  'sessionId': 'sess_1',
+                },
+              ],
+            },
+            'activeSession': <String, dynamic>{
+              'sessionId': 'sess_1',
+              'durationSeconds': 300,
+              'questions': <Map<String, dynamic>>[
+                <String, dynamic>{
+                  'id': 'q_1',
+                  'stem': 'প্রশ্ন ১',
+                  'options': <Map<String, dynamic>>[
+                    <String, dynamic>{'id': 'a', 'text': 'উত্তর ক'},
+                  ],
+                },
+              ],
+            },
+          },
+        }).toEntity();
+
+        expect(env.rehearsal.id, 'reh_m1');
+        expect(env.activeSession, isNotNull);
+        expect(env.activeSession!.questions.first.id, 'q_1');
+
+        final submit = RehearsalPaperSubmitResultModel.fromJson(<String, dynamic>{
+          'json': <String, dynamic>{
+            'rehearsal': <String, dynamic>{
+              'id': 'reh_m1',
+              'titleBangla': 'মডেল রিহার্সাল',
+              'status': 'INTERMISSION',
+              'currentPaperIndex': 1,
+              'totalMarks': 2,
+              'papers': <Map<String, dynamic>>[
+                <String, dynamic>{
+                  'paperIndex': 0,
+                  'subjectId': 'sub_phy',
+                  'labelBangla': 'পত্র ১',
+                  'questionCount': 2,
+                  'durationMinutes': 5,
+                  'status': 'SUBMITTED',
+                  'sessionId': 'sess_1',
+                  'score': 2,
+                  'totalMarks': 2,
+                },
+              ],
+            },
+            'paperResult': <String, dynamic>{
+              'score': 2,
+              'totalMarks': 2,
+              'correctCount': 2,
+              'wrongCount': 0,
+              'unansweredCount': 0,
+              'results': <Map<String, dynamic>>[],
+            },
+          },
+        }).toEntity(paperIndex: 0);
+
+        expect(submit.rehearsal.status, MultiRehearsalStatus.intermission);
+        expect(submit.paperResult.score, 2);
+      },
+    );
+
+    test(
+      'BoardArchiveResponseModel preserves questionText and modelAnswer alongside criteria in CQ subQuestions',
+      () {
+        final model = BoardArchiveResponseModel.fromJson(<String, dynamic>{
+          'json': <String, dynamic>{
+            'total': 1,
+            'page': 1,
+            'limit': 15,
+            'totalPages': 1,
+            'items': <Map<String, dynamic>>[
+              <String, dynamic>{
+                'id': 'bq_cq_merge',
+                'type': 'CQ_CREATIVE',
+                'stem': 'উদ্দীপক',
+                'boardSource': 'ঢাকা বোর্ড ২০২৪',
+                'cqRubric': <String, dynamic>{
+                  'subQuestions': <Map<String, dynamic>>[
+                    <String, dynamic>{
+                      'marks': 1,
+                      'questionText': 'বেগ কাকে বলে?',
+                      'modelAnswer': 'নির্দিষ্ট দিকে সরণের হার।',
+                      'criteria': 'সংজ্ঞা সঠিক হতে হবে।',
+                    },
+                    <String, dynamic>{
+                      'marks': 2,
+                      'criteria': 'ব্যাখ্যা থাকতে হবে।',
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        });
+        final item = model.toEntity().items.first;
+        expect(item.cqRubric, isNotNull);
+        expect(item.cqRubric!.ka, isNotNull);
+        expect(item.cqRubric!.ka!.mark, 1);
+        expect(item.cqRubric!.ka!.criteria, contains('বেগ কাকে বলে?'));
+        expect(item.cqRubric!.ka!.criteria, contains('নির্দিষ্ট দিকে সরণের হার।'));
+        expect(item.cqRubric!.ka!.criteria, contains('সংজ্ঞা সঠিক হতে হবে।'));
+        expect(item.cqRubric!.kha!.criteria, 'ব্যাখ্যা থাকতে হবে।');
+      },
+    );
+  });
+
+  group('Fix Round 1: BoardArchiveController edge cases & program filter', () {
+    late _MockBoardArchiveRepository boardRepo;
+    late _MockPracticeRepository practiceRepo;
+    late _MockStudentRepository studentRepo;
+    late _MockAuthRepository authRepo;
+
+    setUp(() {
+      boardRepo = _MockBoardArchiveRepository();
+      practiceRepo = _MockPracticeRepository();
+      studentRepo = _MockStudentRepository();
+      authRepo = _MockAuthRepository();
+
+      when(() => authRepo.getLanguage()).thenReturn('bn');
+      when(() => boardRepo.getFilters())
+          .thenAnswer((_) async => Right(_sampleFilters()));
+      when(() => boardRepo.getQuestions(any())).thenAnswer(
+        (_) async => Right(
+          BoardArchivePageEntity(
+            items: <BoardQuestionItemEntity>[
+              _sampleBoardMcq(),
+              _sampleBoardCq(),
+            ],
+            total: 2,
+            page: 1,
+            limit: 15,
+            totalPages: 2,
+          ),
+        ),
+      );
+    });
+
+    BoardArchiveController buildController() => BoardArchiveController(
+          getFiltersUseCase: GetBoardArchiveFiltersUseCase(boardRepo),
+          getQuestionsUseCase: GetBoardArchiveQuestionsUseCase(boardRepo),
+          submitCqSelfAssessUseCase: SubmitCqSelfAssessUseCase(practiceRepo),
+          toggleBookmarkUseCase: ToggleBookmarkUseCase(studentRepo),
+          getLanguageUseCase: GetLanguageUseCase(authRepo),
+          envConfig: const EnvConfig(
+            apiBaseUrl: 'https://example.test',
+          ),
+        );
+
+    test(
+      'selectedProgram forwards program param, clears mismatched subject, and resetFilters clears it',
+      () async {
+        final c = Get.put(buildController());
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+
+        c.selectSubject('sub_phy');
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        expect(c.selectedSubjectId.value, 'sub_phy');
+
+        c.selectProgram('HSC');
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+
+        expect(c.selectedProgram.value, 'HSC');
+        expect(c.selectedSubjectId.value, 'ALL');
+        final captured = verify(() => boardRepo.getQuestions(captureAny()))
+            .captured
+            .cast<BoardArchiveQueryParams>();
+        expect(captured.last.program, 'HSC');
+
+        c.resetFilters();
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        expect(c.selectedProgram.value, isNull);
+      },
+    );
+
+    test(
+      'search debounce is cancelled when selectBoard/goToPage/selectProgram runs',
+      () async {
+        final c = Get.put(buildController());
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        clearInteractions(boardRepo);
+
+        c.onSearchChanged('ভেক্টর');
+        c.selectBoard('DHAKA');
+        await Future<void>.delayed(const Duration(milliseconds: 420));
+
+        // Only the explicit selectBoard load ran, debounce did NOT double-fire
+        verify(() => boardRepo.getQuestions(any())).called(1);
+      },
+    );
+
+    test(
+      'submitSearch, clearSearch, toggleBookmark double-tap guard, and submitCqSelfAssess error surfacing',
+      () async {
+        final bookmarkCompleter = Completer<Either<ErrorResponse, bool>>();
+        final cqCompleter =
+            Completer<Either<ErrorResponse, CqSelfAssessResultEntity>>();
+
+        when(
+          () => studentRepo.toggleBookmark(
+            itemId: any(named: 'itemId'),
+            itemType: any(named: 'itemType'),
+            titleBangla: any(named: 'titleBangla'),
+            subtitleBangla: any(named: 'subtitleBangla'),
+            href: any(named: 'href'),
+          ),
+        ).thenAnswer((_) => bookmarkCompleter.future);
+
+        when(
+          () => practiceRepo.submitCqSelfAssess(
+            questionId: any(named: 'questionId'),
+            selfScores: any(named: 'selfScores'),
+            topicId: any(named: 'topicId'),
+          ),
+        ).thenAnswer((_) => cqCompleter.future);
+
+        final c = Get.put(buildController());
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+
+        c.searchController.text = 'তরঙ্গ';
+        c.submitSearch();
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        expect(c.searchQuery.value, 'তরঙ্গ');
+
+        c.clearSearch();
+        await Future<void>.delayed(const Duration(milliseconds: 10));
+        expect(c.searchQuery.value, isEmpty);
+
+        final mcq = _sampleBoardMcq();
+        final b1 = c.toggleBookmark(mcq);
+        final b2 = c.toggleBookmark(mcq);
+        bookmarkCompleter.complete(const Right(true));
+        await Future.wait(<Future<void>>[b1, b2]);
+        expect(c.bookmarkedIds.contains(mcq.id), isTrue);
+        verify(
+          () => studentRepo.toggleBookmark(
+            itemId: mcq.id,
+            itemType: 'QUESTION',
+            titleBangla: any(named: 'titleBangla'),
+            subtitleBangla: any(named: 'subtitleBangla'),
+            href: any(named: 'href'),
+          ),
+        ).called(1);
+
+        final cq = _sampleBoardCq();
+        final s1 = c.submitCqSelfAssess(
+          cq,
+          const CqSelfScoresEntity(ka: 1, kha: 0, ga: 0, gha: 0),
+        );
+        final s2 = c.submitCqSelfAssess(
+          cq,
+          const CqSelfScoresEntity(ka: 1, kha: 0, ga: 0, gha: 0),
+        );
+        cqCompleter.complete(
+          Left(
+            ErrorResponse(
+              message: '   ',
+              data: ApiResponseErrorType.serverError,
+            ),
+          ),
+        );
+        await Future.wait(<Future<void>>[s1, s2]);
+        verify(
+          () => practiceRepo.submitCqSelfAssess(
+            questionId: cq.id,
+            selfScores: any(named: 'selfScores'),
+            topicId: cq.topicId,
+          ),
+        ).called(1);
+        expect(c.cqErrorMessage.value, isNotNull);
+        expect(c.cqErrorMessage.value!.trim(), isNotEmpty);
+        expect(c.cqResults[cq.id]?.totalScore, 1);
+      },
+    );
+
+    test(
+      'goToPage rolls back / keeps previous currentPage on error and clears interaction state on success',
+      () async {
+        var page2ShouldFail = true;
+        when(() => boardRepo.getQuestions(any())).thenAnswer((invocation) async {
+          final q =
+              invocation.positionalArguments.first as BoardArchiveQueryParams;
+          if (q.page == 2 && page2ShouldFail) {
+            return Left(
+              ErrorResponse(
+                message: '   ',
+                data: ApiResponseErrorType.serverError,
+              ),
+            );
+          }
+          return Right(
+            BoardArchivePageEntity(
+              items: <BoardQuestionItemEntity>[
+                _sampleBoardMcq(id: 'bq_p${q.page}'),
+              ],
+              total: 30,
+              page: q.page,
+              limit: 15,
+              totalPages: 2,
+            ),
+          );
+        });
+
+        final c = Get.put(buildController());
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        c.selectMcqOption(_sampleBoardMcq(id: 'bq_p1'), 'opt_a');
+        expect(c.selectedMcqOptions['bq_p1'], 'opt_a');
+
+        c.goToPage(2);
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        expect(c.currentPage.value, 1);
+        expect(c.errorMessage.value, isNotNull);
+        expect(c.errorMessage.value!.trim(), isNotEmpty);
+        expect(c.selectedMcqOptions['bq_p1'], 'opt_a');
+
+        page2ShouldFail = false;
+        c.goToPage(2);
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        expect(c.currentPage.value, 2);
+        expect(c.selectedMcqOptions, isEmpty);
+      },
+    );
+
+    testWidgets(
+      'BoardArchiveView renders program chips, updates total badge to totalQuestions, and has zero 320dp + 1.3x textScale overflow',
+      (tester) async {
+        tester.view.physicalSize = const Size(320, 760);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        when(() => boardRepo.getQuestions(any())).thenAnswer(
+          (_) async => Right(
+            BoardArchivePageEntity(
+              items: <BoardQuestionItemEntity>[
+                _sampleBoardMcq(),
+                _sampleBoardCq(),
+              ],
+              total: 7,
+              page: 1,
+              limit: 15,
+              totalPages: 1,
+            ),
+          ),
+        );
+
+        Get.put(buildController());
+        await tester.pumpWidget(
+          MediaQuery(
+            data: const MediaQueryData(textScaler: TextScaler.linear(1.3)),
+            child: GetMaterialApp(
+              theme: PorhiTheme.light,
+              home: const BoardArchiveView(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          find.byKey(const Key('board_archive_program_chip_HSC')),
+          findsOneWidget,
+        );
+        expect(find.textContaining('৭'), findsWidgets);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  });
+
+  group('Fix Round 1: RehearsalController & RehearsalView fixes', () {
+    late _MockRehearsalRepository rehearsalRepo;
+    late _MockCurriculumRepository curriculumRepo;
+    late _MockAuthRepository authRepo;
+
+    setUp(() {
+      rehearsalRepo = _MockRehearsalRepository();
+      curriculumRepo = _MockCurriculumRepository();
+      authRepo = _MockAuthRepository();
+
+      when(() => authRepo.getLanguage()).thenReturn('bn');
+      when(() => curriculumRepo.getCachedSubjects())
+          .thenAnswer((_) async => _sampleSubjects());
+      when(() => curriculumRepo.getSubjects())
+          .thenAnswer((_) async => Right(_sampleSubjects()));
+      when(() => rehearsalRepo.getRehearsalHistory())
+          .thenAnswer((_) async => const Right(<MultiExamRehearsalEntity>[]));
+    });
+
+    RehearsalController buildController() => RehearsalController(
+          startRehearsalUseCase: StartRehearsalUseCase(rehearsalRepo),
+          getRehearsalHistoryUseCase:
+              GetRehearsalHistoryUseCase(rehearsalRepo),
+          getRehearsalUseCase: GetRehearsalUseCase(rehearsalRepo),
+          startRehearsalPaperUseCase:
+              StartRehearsalPaperUseCase(rehearsalRepo),
+          submitRehearsalPaperUseCase:
+              SubmitRehearsalPaperUseCase(rehearsalRepo),
+          getSubjectsUseCase: GetSubjectsUseCase(curriculumRepo),
+          getCachedSubjectsUseCase: GetCachedSubjectsUseCase(curriculumRepo),
+          getLanguageUseCase: GetLanguageUseCase(authRepo),
+          envConfig: const EnvConfig(
+            apiBaseUrl: 'https://example.test',
+          ),
+        );
+
+    testWidgets(
+      'PaperConfigCard preserves Bangla numeral typing, blocks empty field on Start, and preset card applies template',
+      (tester) async {
+        final controller = Get.put(buildController());
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            home: const RehearsalView(),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Tap preset chip
+        await tester.ensureVisible(
+          find.byKey(const Key('rehearsal_preset_hsc_triple_mock')),
+        );
+        await tester.tap(
+          find.byKey(const Key('rehearsal_preset_hsc_triple_mock')),
+        );
+        await tester.pumpAndSettle();
+        expect(controller.papers.length, 3);
+        expect(controller.papers.first.questionCount, 25);
+
+        // Type Bangla numeral '১৫' into paper 0 question count -> must stay '১৫'
+        final qFieldFinder = find.byKey(const Key('rehearsal_paper_qcount_0'));
+        await tester.ensureVisible(qFieldFinder);
+        await tester.enterText(qFieldFinder, '১৫');
+        await tester.pump();
+        final qField = tester.widget<TextField>(qFieldFinder);
+        expect(qField.controller?.text, '১৫');
+        expect(controller.papers.first.questionCount, 15);
+        expect(controller.papers.first.hasValidQuestionCount, isTrue);
+
+        // Clear field -> must mark invalid and block startRehearsal()
+        await tester.enterText(qFieldFinder, '');
+        await tester.pump();
+        expect(controller.papers.first.hasValidQuestionCount, isFalse);
+
+        await controller.startRehearsal();
+        await tester.pump();
+        expect(controller.errorMessage.value, isNotNull);
+        verifyNever(
+          () => rehearsalRepo.startRehearsal(
+            titleBangla: any(named: 'titleBangla'),
+            program: any(named: 'program'),
+            negativeRatio: any(named: 'negativeRatio'),
+            papers: any(named: 'papers'),
+          ),
+        );
+      },
+    );
+
+    testWidgets(
+      'inProgress with activeSession == null renders recovery card instead of summary, resetToSetup clears busy flags, and stepper + stages fit 320dp',
+      (tester) async {
+        tester.view.physicalSize = const Size(320, 760);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+
+        final controller = Get.put(buildController());
+        await tester.pumpWidget(
+          MediaQuery(
+            data: const MediaQueryData(textScaler: TextScaler.linear(1.3)),
+            child: GetMaterialApp(
+              theme: PorhiTheme.light,
+              home: const RehearsalView(),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // 1. inProgress with activeSession == null -> recovery view, NOT summary
+        controller.rehearsal.value = _sampleRehearsal(
+          status: MultiRehearsalStatus.inProgress,
+          currentPaperIndex: 0,
+        );
+        controller.activeSession.value = null;
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('rehearsal_recovery_view')), findsOneWidget);
+        expect(find.byKey(const Key('rehearsal_summary_view')), findsNothing);
+        expect(tester.takeException(), isNull);
+
+        // 2. Active runner with stepper at 320dp
+        controller.activeSession.value = _samplePaperSession(
+          sessionId: 'sess_p1',
+          subjectId: 'sub_phy',
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('rehearsal_active_stepper')), findsOneWidget);
+        expect(find.byKey(const Key('rehearsal_step_chip_0')), findsOneWidget);
+        expect(find.byKey(const Key('rehearsal_step_chip_1')), findsOneWidget);
+        expect(tester.takeException(), isNull);
+
+        // 3. Intermission at 320dp
+        controller.rehearsal.value = _sampleRehearsal(
+          status: MultiRehearsalStatus.intermission,
+          currentPaperIndex: 1,
+        );
+        controller.activeSession.value = null;
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const Key('rehearsal_intermission_view')),
+          findsOneWidget,
+        );
+        expect(tester.takeException(), isNull);
+
+        // 4. Final Summary at 320dp + resetToSetup clears stuck busy flags
+        controller.rehearsal.value = _sampleRehearsal(
+          status: MultiRehearsalStatus.completed,
+          currentPaperIndex: 1,
+          totalScore: 3.5,
+        );
+        controller.isStarting.value = true;
+        controller.isSubmitting.value = true;
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('rehearsal_summary_view')), findsOneWidget);
+        expect(tester.takeException(), isNull);
+
+        controller.resetToSetup();
+        expect(controller.isStarting.value, isFalse);
+        expect(controller.isSubmitting.value, isFalse);
+        expect(controller.rehearsal.value, isNull);
+      },
+    );
+  });
+
+  group('Entry navigation & double-tap guards', () {
+    testWidgets(
+      'ExamSetupController.openMultiSubjectRehearsal and ChapterIndexView board_archive_btn guard against double-tap',
+      (tester) async {
+        final examRepo = _MockExamRepository();
+        final curriculumRepo = _MockCurriculumRepository();
+        final studentRepo = _MockStudentRepository();
+        final authRepo = _MockAuthRepository();
+        final rehearsalRepo = _MockRehearsalRepository();
+        final boardRepo = _MockBoardArchiveRepository();
+        final practiceRepo = _MockPracticeRepository();
+
+        when(() => authRepo.getLanguage()).thenReturn('bn');
+        when(() => authRepo.getCachedUser()).thenReturn(null);
+        when(() => curriculumRepo.getSubjects())
+            .thenAnswer((_) async => Right(_sampleSubjects()));
+        when(() => curriculumRepo.getCachedSubjects())
+            .thenAnswer((_) async => _sampleSubjects());
+        when(() => curriculumRepo.getCachedChapters(any()))
+            .thenAnswer((_) async => const <ChapterEntity>[]);
+        when(() => curriculumRepo.getChapters(any()))
+            .thenAnswer((_) async => const Right(<ChapterEntity>[]));
+        when(() => curriculumRepo.getActiveSubjectId(any()))
+            .thenReturn('sub_phy');
+        when(
+          () => curriculumRepo.getDownloadedChapters(
+            subjectId: any(named: 'subjectId'),
+          ),
+        ).thenAnswer((_) async => const <DownloadedChapterEntity>[]);
+        when(
+          () => studentRepo.getCachedOverview(
+            subjectId: any(named: 'subjectId'),
+          ),
+        ).thenAnswer((_) async => null);
+        when(() => studentRepo.getActiveSubjectId(any()))
+            .thenReturn('sub_phy');
+        when(() => examRepo.getLatestExamDraft())
+            .thenAnswer((_) async => null);
+        when(() => rehearsalRepo.getRehearsalHistory())
+            .thenAnswer((_) async => const Right(<MultiExamRehearsalEntity>[]));
+        when(() => boardRepo.getFilters())
+            .thenAnswer((_) async => Right(_sampleFilters()));
+        when(() => boardRepo.getQuestions(any())).thenAnswer(
+          (_) async => const Right(
+            BoardArchivePageEntity(
+              items: <BoardQuestionItemEntity>[],
+              total: 0,
+              page: 1,
+              limit: 15,
+              totalPages: 1,
+            ),
+          ),
+        );
+
+        Get.put(StartRehearsalUseCase(rehearsalRepo));
+        Get.put(GetRehearsalHistoryUseCase(rehearsalRepo));
+        Get.put(GetRehearsalUseCase(rehearsalRepo));
+        Get.put(StartRehearsalPaperUseCase(rehearsalRepo));
+        Get.put(SubmitRehearsalPaperUseCase(rehearsalRepo));
+        Get.put(GetSubjectsUseCase(curriculumRepo));
+        Get.put(GetCachedSubjectsUseCase(curriculumRepo));
+        Get.put(GetBoardArchiveFiltersUseCase(boardRepo));
+        Get.put(GetBoardArchiveQuestionsUseCase(boardRepo));
+        Get.put(SubmitCqSelfAssessUseCase(practiceRepo));
+        Get.put(ToggleBookmarkUseCase(studentRepo));
+        Get.put(GetLanguageUseCase(authRepo));
+
+        final examSetup = Get.put(
+          ExamSetupController(
+            startExamUseCase: StartExamUseCase(examRepo),
+            getLatestExamDraftUseCase: GetLatestExamDraftUseCase(examRepo),
+            deleteExamDraftUseCase: DeleteExamDraftUseCase(examRepo),
+            resumeExamSessionUseCase: ResumeExamSessionUseCase(examRepo),
+            getCachedChaptersUseCase: GetCachedChaptersUseCase(curriculumRepo),
+            getCachedSubjectsUseCase: GetCachedSubjectsUseCase(curriculumRepo),
+            getCachedUserUseCase: GetCachedUserUseCase(authRepo),
+            getActiveSubjectIdUseCase:
+                GetActiveSubjectIdUseCase(studentRepo),
+            getLanguageUseCase: GetLanguageUseCase(authRepo),
+          ),
+        );
+
+        Get.put(
+          ChapterIndexController(
+            getChaptersUseCase: GetChaptersUseCase(curriculumRepo),
+            getCachedChaptersUseCase: GetCachedChaptersUseCase(curriculumRepo),
+            filterChaptersUseCase: FilterChaptersUseCase(),
+            downloadChapterPackUseCase:
+                DownloadChapterPackUseCase(curriculumRepo),
+            removeChapterPackUseCase: RemoveChapterPackUseCase(curriculumRepo),
+            getDownloadedChaptersUseCase:
+                GetDownloadedChaptersUseCase(curriculumRepo),
+            getOfflineChapterPackUseCase:
+                GetOfflineChapterPackUseCase(curriculumRepo),
+            getActiveSubjectUseCase:
+                GetActiveCurriculumSubjectUseCase(curriculumRepo),
+            getCachedOverviewUseCase: GetCachedOverviewUseCase(studentRepo),
+            toggleBookmarkUseCase: ToggleBookmarkUseCase(studentRepo),
+            patchCachedBookmarkUseCase: PatchCachedBookmarkUseCase(studentRepo),
+            getCachedUserUseCase: GetCachedUserUseCase(authRepo),
+            getLanguageUseCase: GetLanguageUseCase(authRepo),
+          ),
+        );
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            initialRoute: '/chapter-entry',
+            getPages: <GetPage<dynamic>>[
+              GetPage(
+                name: '/chapter-entry',
+                page: () => const ChapterIndexView(),
+              ),
+              GetPage(
+                name: '/exam-setup-entry',
+                page: () => const ExamSetupView(),
+              ),
+              ...AppPages.routes,
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Double-tap board_archive_btn in ChapterIndexView -> navigates once
+        final boardBtn = find.byKey(const Key('board_archive_btn'));
+        expect(boardBtn, findsOneWidget);
+        await tester.tap(boardBtn);
+        await tester.tap(boardBtn, warnIfMissed: false);
+        await tester.pumpAndSettle();
+        expect(find.byType(BoardArchiveView), findsOneWidget);
+        verify(() => boardRepo.getQuestions(any())).called(1);
+
+        Get.back<void>();
+        await tester.pumpAndSettle();
+
+        // Test ExamSetupController.openMultiSubjectRehearsal double-tap guard
+        unawaited(examSetup.openMultiSubjectRehearsal());
+        unawaited(examSetup.openMultiSubjectRehearsal());
+        await tester.pumpAndSettle();
+        expect(find.byType(RehearsalView), findsOneWidget);
+        verify(() => rehearsalRepo.getRehearsalHistory()).called(1);
       },
     );
   });

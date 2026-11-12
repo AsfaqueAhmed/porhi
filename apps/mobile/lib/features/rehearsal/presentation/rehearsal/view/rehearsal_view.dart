@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:porhi/app/env.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
+import 'package:porhi/core/i18n/bangla_digits.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
 import 'package:porhi/core/widgets/rich_content/rich_content_view.dart';
 import 'package:porhi/features/curriculum/domain/entities/curriculum_entities.dart';
@@ -75,13 +77,20 @@ class RehearsalView extends GetView<RehearsalController> {
                   session: session,
                   lang: lang,
                 )
+              else if (current.status == MultiRehearsalStatus.inProgress &&
+                  session == null)
+                _MissingSessionRecoveryStage(
+                  controller: controller,
+                  rehearsal: current,
+                  lang: lang,
+                )
               else if (current.status == MultiRehearsalStatus.intermission)
                 _IntermissionStage(
                   controller: controller,
                   rehearsal: current,
                   lang: lang,
                 )
-              else
+              else if (current.status == MultiRehearsalStatus.completed)
                 _FinalSummaryStage(
                   controller: controller,
                   rehearsal: current,
@@ -156,6 +165,62 @@ class _SetupAndHistoryStage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 14),
+        if (subjects.isNotEmpty) ...<Widget>[
+          Text(
+            AppStrings.tr('দ্রুত প্রিসেট টেমপ্লেট', 'Quick Presets', lang),
+            style: const TextStyle(
+              fontSize: 13.5,
+              fontWeight: FontWeight.w800,
+              color: PorhiTheme.slate900,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: RehearsalController.presetTemplates.map((preset) {
+              return ActionChip(
+                key: Key('rehearsal_preset_${preset.id}'),
+                avatar: const Icon(
+                  Icons.bolt_rounded,
+                  size: 16,
+                  color: PorhiTheme.indigo600,
+                ),
+                label: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      lang == AppLanguage.en
+                          ? preset.titleEnglish
+                          : preset.titleBangla,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: PorhiTheme.slate900,
+                      ),
+                    ),
+                    Text(
+                      lang == AppLanguage.en
+                          ? preset.subtitleEnglish
+                          : preset.subtitleBangla,
+                      style: const TextStyle(
+                        fontSize: 10.5,
+                        color: PorhiTheme.slate600,
+                      ),
+                    ),
+                  ],
+                ),
+                backgroundColor: PorhiTheme.indigo50,
+                side: const BorderSide(color: Color(0xFFC7D2FE)),
+                onPressed: isStarting
+                    ? null
+                    : () => controller.applyPreset(preset.id),
+              );
+            }).toList(),
+          ),
+          const SizedBox(height: 14),
+        ],
         Card(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -425,15 +490,26 @@ class _PaperConfigCardState extends State<_PaperConfigCard> {
         TextEditingController(text: '${widget.paper.durationMinutes}');
   }
 
+  int? _parseCurrentInt(String raw) {
+    final normalized = toAsciiDigits(raw).trim();
+    if (normalized.isEmpty) return null;
+    return int.tryParse(normalized);
+  }
+
   @override
   void didUpdateWidget(covariant _PaperConfigCard oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.paper.questionCount != widget.paper.questionCount &&
-        _questionController.text != '${widget.paper.questionCount}') {
+    final localIdChanged = oldWidget.paper.localId != widget.paper.localId;
+    if (localIdChanged ||
+        (widget.paper.hasValidQuestionCount &&
+            _parseCurrentInt(_questionController.text) !=
+                widget.paper.questionCount)) {
       _questionController.text = '${widget.paper.questionCount}';
     }
-    if (oldWidget.paper.durationMinutes != widget.paper.durationMinutes &&
-        _durationController.text != '${widget.paper.durationMinutes}') {
+    if (localIdChanged ||
+        (widget.paper.hasValidDuration &&
+            _parseCurrentInt(_durationController.text) !=
+                widget.paper.durationMinutes)) {
       _durationController.text = '${widget.paper.durationMinutes}';
     }
   }
@@ -525,6 +601,9 @@ class _PaperConfigCardState extends State<_PaperConfigCard> {
                   onChanged: widget.onQuestionCountChanged,
                   decoration: InputDecoration(
                     labelText: AppStrings.tr('প্রশ্ন (১-৫০)', 'Qs (1-50)', lang),
+                    errorText: widget.paper.hasValidQuestionCount
+                        ? null
+                        : AppStrings.tr('১-৫০ দিন', '1-50', lang),
                     isDense: true,
                   ),
                 ),
@@ -539,6 +618,9 @@ class _PaperConfigCardState extends State<_PaperConfigCard> {
                   decoration: InputDecoration(
                     labelText:
                         AppStrings.tr('মিনিট (১-১২০)', 'Min (1-120)', lang),
+                    errorText: widget.paper.hasValidDuration
+                        ? null
+                        : AppStrings.tr('১-১২০ দিন', '1-120', lang),
                     isDense: true,
                   ),
                 ),
@@ -607,6 +689,8 @@ class _ActivePaperRunnerStage extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
+        _ActivePaperStepper(rehearsal: rehearsal, lang: lang),
+        const SizedBox(height: 10),
         Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
@@ -814,11 +898,195 @@ class _ActivePaperRunnerStage extends StatelessWidget {
   }
 }
 
+class _ActivePaperStepper extends StatelessWidget {
+  final MultiExamRehearsalEntity rehearsal;
+  final AppLanguage lang;
+
+  const _ActivePaperStepper({
+    required this.rehearsal,
+    required this.lang,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      key: const Key('rehearsal_active_stepper'),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: PorhiTheme.slate200),
+      ),
+      child: Wrap(
+        spacing: 6,
+        runSpacing: 6,
+        children: <Widget>[
+          for (var i = 0; i < rehearsal.papers.length; i++)
+            Builder(
+              builder: (context) {
+                final paper = rehearsal.papers[i];
+                final isCompleted =
+                    paper.status == RehearsalPaperStatus.submitted;
+                final isCurrent = i == rehearsal.currentPaperIndex;
+                final bg = isCompleted
+                    ? PorhiTheme.emerald50
+                    : isCurrent
+                        ? PorhiTheme.indigo600
+                        : PorhiTheme.slate100;
+                final fg = isCompleted
+                    ? PorhiTheme.emerald600
+                    : isCurrent
+                        ? Colors.white
+                        : PorhiTheme.slate600;
+                final borderColor = isCompleted
+                    ? PorhiTheme.emerald600
+                    : isCurrent
+                        ? PorhiTheme.indigo600
+                        : PorhiTheme.slate200;
+
+                return Container(
+                  key: Key('rehearsal_step_chip_$i'),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: bg,
+                    borderRadius: BorderRadius.circular(999),
+                    border: Border.all(color: borderColor),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: <Widget>[
+                      if (isCompleted) ...<Widget>[
+                        Icon(Icons.check_circle_rounded, size: 13, color: fg),
+                        const SizedBox(width: 4),
+                      ],
+                      Text(
+                        AppStrings.tr(
+                          'পত্র ${AppStrings.formatNumber(i + 1, lang)}',
+                          'Paper ${i + 1}',
+                          lang,
+                        ),
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          color: fg,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MissingSessionRecoveryStage extends StatelessWidget {
+  final RehearsalController controller;
+  final MultiExamRehearsalEntity rehearsal;
+  final AppLanguage lang;
+
+  const _MissingSessionRecoveryStage({
+    required this.controller,
+    required this.rehearsal,
+    required this.lang,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isBusy = controller.isStarting.value;
+    final currentPaper = rehearsal.currentPaper;
+    return Card(
+      key: const Key('rehearsal_recovery_view'),
+      child: Padding(
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            const Icon(
+              Icons.sync_problem_rounded,
+              size: 40,
+              color: Color(0xFFD97706),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              AppStrings.tr(
+                'সক্রিয় পত্রের সেশন পাওয়া যায়নি',
+                'Active Paper Session Unavailable',
+                lang,
+              ),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+                color: PorhiTheme.slate900,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              currentPaper != null
+                  ? AppStrings.tr(
+                      '${currentPaper.labelBangla} এখনো সম্পন্ন হয়নি। সেশনটি পুনরায় চালু বা রিলোড করো।',
+                      '${currentPaper.labelBangla} is still in progress. Reload or start the paper session.',
+                      lang,
+                    )
+                  : AppStrings.tr(
+                      'চলমান রিহার্সালের সেশন রিলোড করো।',
+                      'Reload or resume this in-progress rehearsal.',
+                      lang,
+                    ),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 13,
+                color: PorhiTheme.slate600,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              key: const Key('rehearsal_recover_reload_btn'),
+              onPressed: isBusy
+                  ? null
+                  : () => controller.resumeOrViewRehearsal(rehearsal.id),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: PorhiTheme.indigo600,
+                foregroundColor: Colors.white,
+              ),
+              icon: const Icon(Icons.refresh_rounded),
+              label: Text(
+                AppStrings.tr('সেশন রিলোড করো', 'Reload Rehearsal', lang),
+              ),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              key: const Key('rehearsal_recover_start_btn'),
+              onPressed: isBusy ? null : controller.startNextPaper,
+              icon: const Icon(Icons.play_arrow_rounded),
+              label: Text(
+                AppStrings.tr('পত্র শুরু করো', 'Start Current Paper', lang),
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextButton(
+              onPressed: controller.resetToSetup,
+              child: Text(
+                AppStrings.tr('নতুন রিহার্সালে ফিরে যাও', 'Back to Setup', lang),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _OptionTile extends StatelessWidget {
   final String label;
   final ExamOptionEntity option;
   final bool selected;
-  final dynamic envConfig;
+  final EnvConfig? envConfig;
   final VoidCallback? onTap;
 
   const _OptionTile({

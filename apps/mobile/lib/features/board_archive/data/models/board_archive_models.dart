@@ -135,57 +135,63 @@ class BoardArchiveFiltersModel
 
 CqRubricEntity? _parseBoardCqRubric(Object? raw) {
   if (raw == null) return null;
-  final parsed = CqRubricModel.fromDynamic(raw)?.toEntity();
-  if (parsed != null && !parsed.isEmpty) {
-    return parsed;
-  }
-  if (raw is! Map) return null;
-  final map = _asMap(raw);
+  if (raw is Map) {
+    final map = _asMap(raw);
 
-  CqRubricPartEntity? buildRichPart(Object? item, int defaultMark) {
-    if (item == null) return null;
-    if (item is String) {
-      final t = item.trim();
-      return t.isEmpty ? null : CqRubricPartEntity(mark: defaultMark, criteria: t);
+    CqRubricPartEntity? buildRichPart(Object? item, int defaultMark) {
+      if (item == null) return null;
+      if (item is String) {
+        final t = item.trim();
+        return t.isEmpty
+            ? null
+            : CqRubricPartEntity(mark: defaultMark, criteria: t);
+      }
+      if (item is! Map) return null;
+      final m = _asMap(item);
+      final seen = <String>{};
+      final parts = <String>[];
+      void addPart(String value) {
+        final trimmed = value.trim();
+        if (trimmed.isNotEmpty && seen.add(trimmed)) {
+          parts.add(trimmed);
+        }
+      }
+
+      addPart(_asString(m['questionText']));
+      addPart(_asString(m['modelAnswer']));
+      addPart(_asString(m['markingCriteria']));
+      addPart(_asString(m['criteria']));
+
+      final combined = parts.join('\n');
+      if (combined.trim().isEmpty) return null;
+      return CqRubricPartEntity(
+        mark: _asNullableInt(m['mark'] ?? m['marks']) ?? defaultMark,
+        criteria: combined,
+      );
     }
-    if (item is! Map) return null;
-    final m = _asMap(item);
-    final parts = <String>[
-      if (_asString(m['questionText']).trim().isNotEmpty)
-        _asString(m['questionText']).trim(),
-      if (_asString(m['modelAnswer']).trim().isNotEmpty)
-        _asString(m['modelAnswer']).trim(),
-      if (_asString(m['markingCriteria']).trim().isNotEmpty)
-        _asString(m['markingCriteria']).trim(),
-      if (_asString(m['criteria']).trim().isNotEmpty)
-        _asString(m['criteria']).trim(),
-    ];
-    final combined = parts.join('\n');
-    if (combined.trim().isEmpty) return null;
-    return CqRubricPartEntity(
-      mark: _asNullableInt(m['mark'] ?? m['marks']) ?? defaultMark,
-      criteria: combined,
-    );
-  }
 
-  if (map['subQuestions'] is List) {
-    final subs = _asList(map['subQuestions']);
+    if (map['subQuestions'] is List) {
+      final subs = _asList(map['subQuestions']);
+      final rubric = CqRubricEntity(
+        ka: subs.isNotEmpty ? buildRichPart(subs[0], 1) : null,
+        kha: subs.length > 1 ? buildRichPart(subs[1], 2) : null,
+        ga: subs.length > 2 ? buildRichPart(subs[2], 3) : null,
+        gha: subs.length > 3 ? buildRichPart(subs[3], 4) : null,
+      );
+      if (!rubric.isEmpty) return rubric;
+    }
+
     final rubric = CqRubricEntity(
-      ka: subs.isNotEmpty ? buildRichPart(subs[0], 1) : null,
-      kha: subs.length > 1 ? buildRichPart(subs[1], 2) : null,
-      ga: subs.length > 2 ? buildRichPart(subs[2], 3) : null,
-      gha: subs.length > 3 ? buildRichPart(subs[3], 4) : null,
+      ka: buildRichPart(map['ka'], 1),
+      kha: buildRichPart(map['kha'], 2),
+      ga: buildRichPart(map['ga'], 3),
+      gha: buildRichPart(map['gha'], 4),
     );
-    return rubric.isEmpty ? null : rubric;
+    if (!rubric.isEmpty) return rubric;
   }
 
-  final rubric = CqRubricEntity(
-    ka: buildRichPart(map['ka'], 1),
-    kha: buildRichPart(map['kha'], 2),
-    ga: buildRichPart(map['ga'], 3),
-    gha: buildRichPart(map['gha'], 4),
-  );
-  return rubric.isEmpty ? null : rubric;
+  final parsed = CqRubricModel.fromDynamic(raw)?.toEntity();
+  return (parsed != null && !parsed.isEmpty) ? parsed : null;
 }
 
 class BoardQuestionItemModel {

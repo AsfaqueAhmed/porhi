@@ -310,5 +310,5 @@ bool matchesBoardYearFilter(int? questionYear, String? filterYear) {
   if (exactYear == null || !exactYear.isFinite) {
     return true;
   }
-  return questionYear == exactYear.toInt();
+  return questionYear == exactYear;
 }

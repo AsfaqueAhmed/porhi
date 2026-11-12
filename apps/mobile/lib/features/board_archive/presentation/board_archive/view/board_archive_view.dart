@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:porhi/app/env.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
 import 'package:porhi/core/widgets/rich_content/rich_content_view.dart';
@@ -35,16 +36,24 @@ class BoardArchiveView extends GetView<BoardArchiveController> {
         final lang = controller.language.value;
         final isLoading = controller.isLoading.value;
         final error = controller.errorMessage.value;
+        final cqError = controller.cqErrorMessage.value;
         final items = controller.questions;
 
         return RefreshIndicator(
           onRefresh: controller.refreshAll,
           child: ListView(
             controller: controller.scrollController,
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 28),
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 28),
             children: <Widget>[
               _BoardFilterPanel(controller: controller, lang: lang),
-              const SizedBox(height: 14),
+              const SizedBox(height: 10),
+              if (cqError != null) ...<Widget>[
+                _InlineErrorBanner(
+                  key: const Key('board_cq_error_banner'),
+                  message: cqError,
+                ),
+                const SizedBox(height: 10),
+              ],
               if (isLoading && items.isEmpty)
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: 40),
@@ -114,78 +123,90 @@ class _BoardFilterPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final filters = controller.filters.value;
     final boards = filters?.boards ?? const <BoardFacetItemEntity>[];
-    final subjects = filters?.subjects ?? const <BoardSubjectFacetEntity>[];
+    final subjects = controller.filteredSubjects;
+    final programs = controller.availablePrograms;
     final years = controller.availableYears;
     final selectedBoard = controller.selectedBoard.value;
     final selectedYear = controller.selectedYear.value;
+    final selectedProgram = controller.selectedProgram.value;
     final selectedSubject = controller.selectedSubjectId.value;
     final selectedType = controller.selectedType.value;
     final verifiedOnly = controller.verifiedOnly.value;
     final searchQuery = controller.searchQuery.value;
     final totalBadgeCount =
-        filters?.totalVerifiedQuestions ?? controller.totalQuestions.value;
+        (controller.hasActiveFilters || controller.hasLoadedQuestions.value)
+            ? controller.totalQuestions.value
+            : (filters?.totalVerifiedQuestions ??
+                controller.totalQuestions.value);
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Wrap(
-              spacing: 8,
-              runSpacing: 6,
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
+        padding: const EdgeInsets.all(12),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: <Widget>[
-                    const Icon(
-                      Icons.verified_rounded,
-                      size: 18,
-                      color: PorhiTheme.emerald600,
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          const Icon(
+                            Icons.verified_rounded,
+                            size: 18,
+                            color: PorhiTheme.emerald600,
+                          ),
+                          const SizedBox(width: 6),
+                          Flexible(
+                            child: Text(
+                              AppStrings.tr(
+                                'বোর্ড ও বছর ফিল্টার',
+                                'Board & Year Filters',
+                                lang,
+                              ),
+                              style: const TextStyle(
+                                fontSize: 13.5,
+                                fontWeight: FontWeight.w800,
+                                color: PorhiTheme.slate900,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    const SizedBox(width: 6),
-                    Flexible(
+                    Container(
+                      key: const Key('board_total_badge'),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: PorhiTheme.emerald50,
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(color: const Color(0xFFA7F3D0)),
+                      ),
                       child: Text(
                         AppStrings.tr(
-                          'বোর্ড ও বছর ফিল্টার',
-                          'Board & Year Filters',
+                          'মোট: ${AppStrings.formatNumber(totalBadgeCount, lang)}টি',
+                          'Total: $totalBadgeCount',
                           lang,
                         ),
                         style: const TextStyle(
-                          fontSize: 13.5,
+                          fontSize: 11.5,
                           fontWeight: FontWeight.w800,
-                          color: PorhiTheme.slate900,
+                          color: PorhiTheme.emerald600,
                         ),
                       ),
                     ),
                   ],
                 ),
-                Container(
-                  key: const Key('board_total_badge'),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: PorhiTheme.emerald50,
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(color: const Color(0xFFA7F3D0)),
-                  ),
-                  child: Text(
-                    AppStrings.tr(
-                      'মোট: ${AppStrings.formatNumber(totalBadgeCount, lang)}টি',
-                      'Total: $totalBadgeCount',
-                      lang,
-                    ),
-                    style: const TextStyle(
-                      fontSize: 11.5,
-                      fontWeight: FontWeight.w800,
-                      color: PorhiTheme.emerald600,
-                    ),
-                  ),
-                ),
-              ],
-            ),
             const SizedBox(height: 10),
             TextField(
               key: const Key('board_search_input'),
@@ -280,13 +301,48 @@ class _BoardFilterPanel extends StatelessWidget {
                   ),
               ],
             ),
+            const SizedBox(height: 12),
+            Text(
+              AppStrings.tr('প্রোগ্রাম / বিভাগ', 'Program', lang),
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                color: PorhiTheme.slate600,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: <Widget>[
+                _FilterPill(
+                  key: const Key('board_archive_program_chip_ALL'),
+                  label: AppStrings.tr('সব প্রোগ্রাম', 'All Programs', lang),
+                  selected: selectedProgram == null,
+                  activeColor: PorhiTheme.indigo600,
+                  onTap: () => controller.selectProgram(null),
+                ),
+                for (final prog in programs)
+                  _FilterPill(
+                    key: Key('board_archive_program_chip_$prog'),
+                    label: prog,
+                    selected: selectedProgram == prog,
+                    activeColor: PorhiTheme.indigo600,
+                    onTap: () => controller.selectProgram(prog),
+                  ),
+              ],
+            ),
             if (subjects.isNotEmpty) ...<Widget>[
               const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                key: const Key('board_subject_dropdown'),
-                initialValue: subjects.any((s) => s.id == selectedSubject)
-                    ? selectedSubject
-                    : 'ALL',
+              KeyedSubtree(
+                key: ValueKey<String>(
+                  'board_subject_wrap_${selectedProgram ?? 'ALL'}_$selectedSubject',
+                ),
+                child: DropdownButtonFormField<String>(
+                  key: const Key('board_subject_dropdown'),
+                  initialValue: subjects.any((s) => s.id == selectedSubject)
+                      ? selectedSubject
+                      : 'ALL',
                 isExpanded: true,
                 decoration: InputDecoration(
                   labelText: AppStrings.tr('বিষয়', 'Subject', lang),
@@ -310,6 +366,7 @@ class _BoardFilterPanel extends StatelessWidget {
                 onChanged: (val) {
                   if (val != null) controller.selectSubject(val);
                 },
+                ),
               ),
             ],
             const SizedBox(height: 12),
@@ -363,6 +420,8 @@ class _BoardFilterPanel extends StatelessWidget {
               ],
             ),
           ],
+        );
+          },
         ),
       ),
     );
@@ -389,7 +448,7 @@ class _FilterPill extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(999),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
           color: selected ? activeColor : PorhiTheme.slate100,
           borderRadius: BorderRadius.circular(999),
@@ -477,103 +536,113 @@ class _BoardQuestionCardState extends State<_BoardQuestionCard> {
               ? '${q.boardLabelBangla} ${AppStrings.formatNumber(q.boardYear!, lang)}'
               : q.boardLabelBangla;
 
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                alignment: WrapAlignment.spaceBetween,
-                crossAxisAlignment: WrapCrossAlignment.center,
+          return LayoutBuilder(
+            builder: (context, cardConstraints) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: <Widget>[
                   Wrap(
                     spacing: 6,
                     runSpacing: 6,
+                    alignment: WrapAlignment.spaceBetween,
+                    crossAxisAlignment: WrapCrossAlignment.center,
                     children: <Widget>[
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 9,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: q.isVerifiedBoard
-                              ? PorhiTheme.emerald50
-                              : PorhiTheme.slate100,
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            if (q.isVerifiedBoard) ...<Widget>[
-                              const Icon(
-                                Icons.verified_rounded,
-                                size: 13,
-                                color: PorhiTheme.emerald600,
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children: <Widget>[
+                          ConstrainedBox(
+                            constraints: BoxConstraints(
+                              maxWidth: cardConstraints.maxWidth,
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 9,
+                                vertical: 4,
                               ),
-                              const SizedBox(width: 4),
-                            ],
-                            Text(
-                              boardText,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
+                              decoration: BoxDecoration(
                                 color: q.isVerifiedBoard
-                                    ? PorhiTheme.emerald600
-                                    : PorhiTheme.slate700,
+                                    ? PorhiTheme.emerald50
+                                    : PorhiTheme.slate100,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  if (q.isVerifiedBoard) ...<Widget>[
+                                    const Icon(
+                                      Icons.verified_rounded,
+                                      size: 13,
+                                      color: PorhiTheme.emerald600,
+                                    ),
+                                    const SizedBox(width: 4),
+                                  ],
+                                  Flexible(
+                                    child: Text(
+                                      boardText,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w800,
+                                        color: q.isVerifiedBoard
+                                            ? PorhiTheme.emerald600
+                                            : PorhiTheme.slate700,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                          _SmallBadge(
+                            text: q.isCq
+                                ? AppStrings.tr('সৃজনশীল (CQ)', 'CQ', lang)
+                                : 'MCQ',
+                            bg: PorhiTheme.indigo50,
+                            fg: PorhiTheme.indigo700,
+                          ),
+                          _SmallBadge(
+                            text: q.difficulty,
+                            bg: PorhiTheme.slate100,
+                            fg: PorhiTheme.slate700,
+                          ),
+                        ],
                       ),
-                      _SmallBadge(
-                        text: q.isCq
-                            ? AppStrings.tr('সৃজনশীল (CQ)', 'CQ', lang)
-                            : 'MCQ',
-                        bg: PorhiTheme.indigo50,
-                        fg: PorhiTheme.indigo700,
-                      ),
-                      _SmallBadge(
-                        text: q.difficulty,
-                        bg: PorhiTheme.slate100,
-                        fg: PorhiTheme.slate700,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          IconButton(
+                            key: Key('board_bookmark_btn_${q.id}'),
+                            visualDensity: VisualDensity.compact,
+                            tooltip:
+                                AppStrings.tr('বুকমার্ক', 'Bookmark', lang),
+                            onPressed: isTogglingBookmark
+                                ? null
+                                : () => controller.toggleBookmark(q),
+                            icon: Icon(
+                              isBookmarked
+                                  ? Icons.bookmark_rounded
+                                  : Icons.bookmark_border_rounded,
+                              size: 20,
+                              color: isBookmarked
+                                  ? PorhiTheme.indigo600
+                                  : PorhiTheme.slate600,
+                            ),
+                          ),
+                          IconButton(
+                            key: Key('board_report_btn_${q.id}'),
+                            visualDensity: VisualDensity.compact,
+                            tooltip: AppStrings.tr('ভুল রিপোর্ট', 'Report', lang),
+                            onPressed: _openReportSheet,
+                            icon: const Icon(
+                              Icons.flag_outlined,
+                              size: 19,
+                              color: PorhiTheme.slate600,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      IconButton(
-                        key: Key('board_bookmark_btn_${q.id}'),
-                        visualDensity: VisualDensity.compact,
-                        tooltip: AppStrings.tr('বুকমার্ক', 'Bookmark', lang),
-                        onPressed: isTogglingBookmark
-                            ? null
-                            : () => controller.toggleBookmark(q),
-                        icon: Icon(
-                          isBookmarked
-                              ? Icons.bookmark_rounded
-                              : Icons.bookmark_border_rounded,
-                          size: 20,
-                          color: isBookmarked
-                              ? PorhiTheme.indigo600
-                              : PorhiTheme.slate600,
-                        ),
-                      ),
-                      IconButton(
-                        key: Key('board_report_btn_${q.id}'),
-                        visualDensity: VisualDensity.compact,
-                        tooltip: AppStrings.tr('ভুল রিপোর্ট', 'Report', lang),
-                        onPressed: _openReportSheet,
-                        icon: const Icon(
-                          Icons.flag_outlined,
-                          size: 19,
-                          color: PorhiTheme.slate600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
               const SizedBox(height: 4),
               Text(
                 '#${AppStrings.formatNumber(widget.indexNumber, lang)} • ${<String>[
@@ -697,6 +766,8 @@ class _BoardQuestionCardState extends State<_BoardQuestionCard> {
               ],
             ],
           );
+            },
+          );
         }),
       ),
     );
@@ -709,7 +780,7 @@ class _BoardMcqOptionTile extends StatelessWidget {
   final bool hasAnswered;
   final bool isChosen;
   final bool isCorrect;
-  final dynamic envConfig;
+  final EnvConfig? envConfig;
   final VoidCallback onTap;
 
   const _BoardMcqOptionTile({
@@ -935,7 +1006,7 @@ class _BoardErrorState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(18),
         child: Column(
           children: <Widget>[
             const Icon(
@@ -966,7 +1037,7 @@ class _BoardErrorState extends StatelessWidget {
 class _InlineErrorBanner extends StatelessWidget {
   final String message;
 
-  const _InlineErrorBanner({required this.message});
+  const _InlineErrorBanner({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {

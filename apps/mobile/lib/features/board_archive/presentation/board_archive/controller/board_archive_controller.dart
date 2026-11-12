@@ -50,6 +50,7 @@ class BoardArchiveController extends GetxController {
 
   final RxString selectedBoard = 'ALL'.obs;
   final RxString selectedYear = 'ALL'.obs;
+  final RxnString selectedProgram = RxnString();
   final RxString selectedSubjectId = 'ALL'.obs;
   final RxString selectedType = 'ALL'.obs;
   final RxBool verifiedOnly = true.obs;
@@ -58,10 +59,12 @@ class BoardArchiveController extends GetxController {
   final RxInt currentPage = 1.obs;
   final RxInt totalPages = 1.obs;
   final RxInt totalQuestions = 0.obs;
+  final RxBool hasLoadedQuestions = false.obs;
 
   final RxBool isLoading = false.obs;
   final RxBool isLoadingFilters = false.obs;
   final RxnString errorMessage = RxnString();
+  final RxnString cqErrorMessage = RxnString();
 
   final RxMap<String, String> selectedMcqOptions = <String, String>{}.obs;
   final RxSet<String> expandedExplanations = <String>{}.obs;
@@ -75,10 +78,59 @@ class BoardArchiveController extends GetxController {
   int _filtersGeneration = 0;
   Timer? _searchDebounce;
 
+  static const List<String> fallbackPrograms = <String>[
+    'SSC',
+    'HSC',
+    'ADMISSION',
+  ];
+
   List<int> get availableYears {
     final dynamicYears =
         filters.value?.years.map((y) => y.year).toList() ?? const <int>[];
     return dynamicYears.isNotEmpty ? dynamicYears : fallbackYears;
+  }
+
+  List<String> get availablePrograms {
+    final subjects = filters.value?.subjects ?? const <BoardSubjectFacetEntity>[];
+    final seen = <String>{};
+    final result = <String>[];
+    for (final s in subjects) {
+      final p = s.program.trim().toUpperCase();
+      if (p.isNotEmpty && seen.add(p)) {
+        result.add(p);
+      }
+    }
+    return result.isNotEmpty ? result : fallbackPrograms;
+  }
+
+  List<BoardSubjectFacetEntity> get filteredSubjects {
+    final all = filters.value?.subjects ?? const <BoardSubjectFacetEntity>[];
+    final prog = selectedProgram.value?.trim().toUpperCase();
+    if (prog == null || prog.isEmpty) return all;
+    return all
+        .where((s) => s.program.trim().toUpperCase() == prog)
+        .toList();
+  }
+
+  bool get hasActiveFilters =>
+      selectedBoard.value != 'ALL' ||
+      selectedYear.value != 'ALL' ||
+      (selectedProgram.value != null && selectedProgram.value!.isNotEmpty) ||
+      selectedSubjectId.value != 'ALL' ||
+      selectedType.value != 'ALL' ||
+      !verifiedOnly.value ||
+      searchQuery.value.trim().isNotEmpty;
+
+  String _nonBlankError(String? raw, String fallback) {
+    final trimmed = raw?.trim() ?? '';
+    return trimmed.isNotEmpty ? trimmed : fallback;
+  }
+
+  void _clearQuestionInteractionState() {
+    selectedMcqOptions.clear();
+    expandedExplanations.clear();
+    cqResults.clear();
+    cqErrorMessage.value = null;
   }
 
   @override
@@ -106,19 +158,24 @@ class BoardArchiveController extends GetxController {
     }
   }
 
-  Future<void> loadQuestions() async {
+  Future<void> loadQuestions({
+    int? requestedPage,
+    bool clearInteractionsOnSuccess = false,
+  }) async {
     final generation = ++_loadGeneration;
+    final pageToLoad = requestedPage ?? currentPage.value;
     isLoading.value = true;
     errorMessage.value = null;
 
     final query = BoardArchiveQueryParams(
       board: selectedBoard.value,
       year: selectedYear.value,
+      program: selectedProgram.value,
       subjectId: selectedSubjectId.value,
       type: selectedType.value,
       verifiedOnly: verifiedOnly.value,
       search: searchQuery.value.trim(),
-      page: currentPage.value,
+      page: pageToLoad,
       limit: defaultLimit,
     );
 
@@ -128,18 +185,27 @@ class BoardArchiveController extends GetxController {
 
       res.fold(
         (err) {
-          errorMessage.value = err.message ??
-              AppStrings.tr(
-                'বোর্ড প্রশ্ন লোড করা যায়নি।',
-                'Could not load board archive questions.',
-                language.value,
-              );
+          errorMessage.value = _nonBlankError(
+            err.message,
+            AppStrings.tr(
+              'বোর্ড প্রশ্ন লোড করা যায়নি।',
+              'Could not load board archive questions.',
+              language.value,
+            ),
+          );
         },
         (pageData) {
           questions.assignAll(pageData.items);
           totalQuestions.value = pageData.total;
           currentPage.value = max(1, pageData.page);
           totalPages.value = max(1, pageData.totalPages);
+          hasLoadedQuestions.value = true;
+          if (clearInteractionsOnSuccess) {
+            _clearQuestionInteractionState();
+            if (scrollController.hasClients) {
+              scrollController.jumpTo(0);
+            }
+          }
         },
       );
     } catch (_) {
@@ -158,37 +224,78 @@ class BoardArchiveController extends GetxController {
   }
 
   void selectBoard(String board) {
+    _searchDebounce?.cancel();
     if (selectedBoard.value == board) return;
     selectedBoard.value = board;
     currentPage.value = 1;
+    _clearQuestionInteractionState();
     unawaited(loadQuestions());
   }
 
   void selectYear(String year) {
+    _searchDebounce?.cancel();
     if (selectedYear.value == year) return;
     selectedYear.value = year;
     currentPage.value = 1;
+    _clearQuestionInteractionState();
+    unawaited(loadQuestions());
+  }
+
+  void selectProgram(String? program) {
+    _searchDebounce?.cancel();
+    final trimmed = program?.trim().toUpperCase() ?? '';
+    final normalized = (trimmed.isEmpty || trimmed == 'ALL') ? null : trimmed;
+    if (selectedProgram.value == normalized) return;
+    selectedProgram.value = normalized;
+    if (normalized != null &&
+        selectedSubjectId.value != 'ALL' &&
+        !filteredSubjects.any((s) => s.id == selectedSubjectId.value)) {
+      selectedSubjectId.value = 'ALL';
+    }
+    currentPage.value = 1;
+    _clearQuestionInteractionState();
     unawaited(loadQuestions());
   }
 
   void selectSubject(String subjectId) {
+    _searchDebounce?.cancel();
     if (selectedSubjectId.value == subjectId) return;
     selectedSubjectId.value = subjectId;
     currentPage.value = 1;
+    _clearQuestionInteractionState();
     unawaited(loadQuestions());
   }
 
   void selectType(String type) {
+    _searchDebounce?.cancel();
     if (selectedType.value == type) return;
     selectedType.value = type;
     currentPage.value = 1;
+    _clearQuestionInteractionState();
     unawaited(loadQuestions());
   }
 
   void toggleVerifiedOnly(bool value) {
+    _searchDebounce?.cancel();
     if (verifiedOnly.value == value) return;
     verifiedOnly.value = value;
     currentPage.value = 1;
+    _clearQuestionInteractionState();
+    unawaited(loadQuestions());
+  }
+
+  void resetFilters() {
+    _searchDebounce?.cancel();
+    searchController.clear();
+    selectedBoard.value = 'ALL';
+    selectedYear.value = 'ALL';
+    selectedProgram.value = null;
+    selectedSubjectId.value = 'ALL';
+    selectedType.value = 'ALL';
+    verifiedOnly.value = true;
+    searchQuery.value = '';
+    currentPage.value = 1;
+    _clearQuestionInteractionState();
     unawaited(loadQuestions());
   }
 
@@ -198,6 +305,7 @@ class BoardArchiveController extends GetxController {
     _searchDebounce = Timer(const Duration(milliseconds: 350), () {
       if (isClosed) return;
       currentPage.value = 1;
+      _clearQuestionInteractionState();
       unawaited(loadQuestions());
     });
   }
@@ -206,6 +314,7 @@ class BoardArchiveController extends GetxController {
     _searchDebounce?.cancel();
     searchQuery.value = searchController.text;
     currentPage.value = 1;
+    _clearQuestionInteractionState();
     unawaited(loadQuestions());
   }
 
@@ -215,17 +324,20 @@ class BoardArchiveController extends GetxController {
     if (searchQuery.value.isEmpty) return;
     searchQuery.value = '';
     currentPage.value = 1;
+    _clearQuestionInteractionState();
     unawaited(loadQuestions());
   }
 
   void goToPage(int page) {
+    _searchDebounce?.cancel();
     final target = page.clamp(1, max(1, totalPages.value)).toInt();
     if (target == currentPage.value) return;
-    currentPage.value = target;
-    if (scrollController.hasClients) {
-      scrollController.jumpTo(0);
-    }
-    unawaited(loadQuestions());
+    unawaited(
+      loadQuestions(
+        requestedPage: target,
+        clearInteractionsOnSuccess: true,
+      ),
+    );
   }
 
   void nextPage() => goToPage(currentPage.value + 1);
@@ -265,6 +377,7 @@ class BoardArchiveController extends GetxController {
   ) async {
     if (submittingCqIds.contains(question.id)) return;
     submittingCqIds.add(question.id);
+    cqErrorMessage.value = null;
     try {
       final res = await _submitCqSelfAssessUseCase(
         questionId: question.id,
@@ -274,7 +387,15 @@ class BoardArchiveController extends GetxController {
       if (isClosed) return;
       res.fold(
         (err) {
-          // Allow local feedback even if offline/unauthenticated while showing error
+          cqErrorMessage.value = _nonBlankError(
+            err.message,
+            AppStrings.tr(
+              'মূল্যায়ন সংরক্ষণ করা যায়নি।',
+              'Could not save self-assessment.',
+              language.value,
+            ),
+          );
+          // Allow local feedback even if offline/unauthenticated while surfacing error
           cqResults[question.id] = CqSelfAssessResultEntity(
             questionId: question.id,
             selfScores: scores,
@@ -282,6 +403,7 @@ class BoardArchiveController extends GetxController {
           );
         },
         (result) {
+          cqErrorMessage.value = null;
           cqResults[question.id] = result;
         },
       );

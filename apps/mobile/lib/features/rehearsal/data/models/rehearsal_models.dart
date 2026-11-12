@@ -218,8 +218,12 @@ class MultiExamRehearsalListModel
   }
 
   factory MultiExamRehearsalListModel.fromJson(Map<String, dynamic> json) {
+    final rawEnvelope = json['json'];
+    final source = rawEnvelope is Map ? _asMap(rawEnvelope) : json;
     final rawList = _asList(
-      json['json'] ?? json['items'] ?? json['rehearsals'],
+      source['items'] ??
+          source['rehearsals'] ??
+          (rawEnvelope is List ? rawEnvelope : null),
     );
     return MultiExamRehearsalListModel(
       items: rawList

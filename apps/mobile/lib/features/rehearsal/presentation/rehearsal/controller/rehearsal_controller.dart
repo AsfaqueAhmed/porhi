@@ -19,6 +19,8 @@ class RehearsalPaperDraft {
   final String labelBangla;
   final int questionCount;
   final int durationMinutes;
+  final bool hasValidQuestionCount;
+  final bool hasValidDuration;
 
   const RehearsalPaperDraft({
     required this.localId,
@@ -26,6 +28,8 @@ class RehearsalPaperDraft {
     required this.labelBangla,
     this.questionCount = 5,
     this.durationMinutes = 10,
+    this.hasValidQuestionCount = true,
+    this.hasValidDuration = true,
   });
 
   RehearsalPaperDraft copyWith({
@@ -33,6 +37,8 @@ class RehearsalPaperDraft {
     String? labelBangla,
     int? questionCount,
     int? durationMinutes,
+    bool? hasValidQuestionCount,
+    bool? hasValidDuration,
   }) {
     return RehearsalPaperDraft(
       localId: localId,
@@ -40,12 +46,126 @@ class RehearsalPaperDraft {
       labelBangla: labelBangla ?? this.labelBangla,
       questionCount: questionCount ?? this.questionCount,
       durationMinutes: durationMinutes ?? this.durationMinutes,
+      hasValidQuestionCount:
+          hasValidQuestionCount ?? this.hasValidQuestionCount,
+      hasValidDuration: hasValidDuration ?? this.hasValidDuration,
     );
   }
 }
 
+class RehearsalPresetSpec {
+  final List<String> keywords;
+  final int questionCount;
+  final int durationMinutes;
+
+  const RehearsalPresetSpec({
+    required this.keywords,
+    required this.questionCount,
+    required this.durationMinutes,
+  });
+}
+
+class RehearsalPresetTemplate {
+  final String id;
+  final String titleBangla;
+  final String titleEnglish;
+  final String subtitleBangla;
+  final String subtitleEnglish;
+  final String? preferredProgram;
+  final double negativeRatio;
+  final List<RehearsalPresetSpec> specs;
+
+  const RehearsalPresetTemplate({
+    required this.id,
+    required this.titleBangla,
+    required this.titleEnglish,
+    required this.subtitleBangla,
+    required this.subtitleEnglish,
+    this.preferredProgram,
+    required this.negativeRatio,
+    required this.specs,
+  });
+}
+
 class RehearsalController extends GetxController {
   static const List<double> presetNegativeRatios = <double>[0.0, 0.25, 0.5];
+
+  static const List<RehearsalPresetTemplate> presetTemplates =
+      <RehearsalPresetTemplate>[
+    RehearsalPresetTemplate(
+      id: 'ssc_science_double',
+      titleBangla: 'SSC বিজ্ঞান ডাবল পেপার',
+      titleEnglish: 'SSC Science Double Paper',
+      subtitleBangla: '২ পত্র • ২০ প্রশ্ন • ২০ মি.',
+      subtitleEnglish: '2 papers • 20 Qs • 20 min',
+      preferredProgram: 'SSC',
+      negativeRatio: 0.25,
+      specs: <RehearsalPresetSpec>[
+        RehearsalPresetSpec(
+          keywords: <String>['phy', 'পদার্থ'],
+          questionCount: 20,
+          durationMinutes: 20,
+        ),
+        RehearsalPresetSpec(
+          keywords: <String>['chem', 'রসায়ন'],
+          questionCount: 20,
+          durationMinutes: 20,
+        ),
+      ],
+    ),
+    RehearsalPresetTemplate(
+      id: 'hsc_triple_mock',
+      titleBangla: 'HSC ৩-পত্র মডেল টেস্ট',
+      titleEnglish: 'HSC Triple Mock',
+      subtitleBangla: '৩ পত্র • ২৫ প্রশ্ন • ২৫ মি.',
+      subtitleEnglish: '3 papers • 25 Qs • 25 min',
+      preferredProgram: 'HSC',
+      negativeRatio: 0.25,
+      specs: <RehearsalPresetSpec>[
+        RehearsalPresetSpec(
+          keywords: <String>['phy', 'পদার্থ'],
+          questionCount: 25,
+          durationMinutes: 25,
+        ),
+        RehearsalPresetSpec(
+          keywords: <String>['chem', 'রসায়ন'],
+          questionCount: 25,
+          durationMinutes: 25,
+        ),
+        RehearsalPresetSpec(
+          keywords: <String>['math', 'গণিত'],
+          questionCount: 25,
+          durationMinutes: 25,
+        ),
+      ],
+    ),
+    RehearsalPresetTemplate(
+      id: 'admission_sprint',
+      titleBangla: 'অ্যাডমিশন স্প্রিন্ট',
+      titleEnglish: 'Admission Sprint',
+      subtitleBangla: '৩ পত্র • -০.৫০ নেগেটিভ',
+      subtitleEnglish: '3 papers • -0.50 negative',
+      preferredProgram: 'ADMISSION',
+      negativeRatio: 0.5,
+      specs: <RehearsalPresetSpec>[
+        RehearsalPresetSpec(
+          keywords: <String>['phy', 'পদার্থ'],
+          questionCount: 15,
+          durationMinutes: 10,
+        ),
+        RehearsalPresetSpec(
+          keywords: <String>['chem', 'রসায়ন'],
+          questionCount: 15,
+          durationMinutes: 10,
+        ),
+        RehearsalPresetSpec(
+          keywords: <String>['bio', 'math', 'জীব', 'গণিত'],
+          questionCount: 15,
+          durationMinutes: 10,
+        ),
+      ],
+    ),
+  ];
 
   final StartRehearsalUseCase _startRehearsalUseCase;
   final GetRehearsalHistoryUseCase _getRehearsalHistoryUseCase;
@@ -175,12 +295,14 @@ class RehearsalController extends GetxController {
       subjectsRes.fold(
         (err) {
           if (subjects.isEmpty) {
-            errorMessage.value = err.message ??
-                AppStrings.tr(
-                  'বিষয় তালিকা লোড করা যায়নি।',
-                  'Could not load subjects.',
-                  language.value,
-                );
+            errorMessage.value = _nonBlankError(
+              err.message,
+              AppStrings.tr(
+                'বিষয় তালিকা লোড করা যায়নি।',
+                'Could not load subjects.',
+                language.value,
+              ),
+            );
           }
         },
         (List<SubjectEntity> loaded) {
@@ -226,6 +348,67 @@ class RehearsalController extends GetxController {
     }
   }
 
+  String _nonBlankError(String? raw, String fallback) {
+    final trimmed = raw?.trim() ?? '';
+    return trimmed.isNotEmpty ? trimmed : fallback;
+  }
+
+  void applyPreset(String presetId) {
+    final preset = presetTemplates.firstWhereOrNull((p) => p.id == presetId);
+    if (preset == null || subjects.isEmpty) return;
+
+    final preferred = preset.preferredProgram;
+    final programMatches = preferred == null
+        ? const <SubjectEntity>[]
+        : subjects
+            .where((s) => s.program.apiValue.toUpperCase() == preferred)
+            .toList();
+    final pool = programMatches.isNotEmpty ? programMatches : subjects.toList();
+
+    final usedIds = <String>{};
+    final built = <RehearsalPaperDraft>[];
+
+    for (var i = 0; i < preset.specs.length; i++) {
+      final spec = preset.specs[i];
+      SubjectEntity? matched = pool.firstWhereOrNull((s) {
+        if (usedIds.contains(s.id)) return false;
+        final haystack = '${s.code} ${s.nameBangla}'.toLowerCase();
+        return spec.keywords.any((kw) => haystack.contains(kw.toLowerCase()));
+      });
+      matched ??= subjects.firstWhereOrNull((s) {
+        if (usedIds.contains(s.id)) return false;
+        final haystack = '${s.code} ${s.nameBangla}'.toLowerCase();
+        return spec.keywords.any((kw) => haystack.contains(kw.toLowerCase()));
+      });
+      matched ??= pool.firstWhereOrNull((s) => !usedIds.contains(s.id));
+      matched ??= subjects.firstWhereOrNull((s) => !usedIds.contains(s.id));
+      matched ??= pool[i % pool.length];
+
+      usedIds.add(matched.id);
+      built.add(
+        RehearsalPaperDraft(
+          localId: _nextPaperLocalId++,
+          subjectId: matched.id,
+          labelBangla: 'পত্র ${i + 1}: ${matched.nameBangla}',
+          questionCount: spec.questionCount.clamp(
+            StartRehearsalUseCase.minQuestionCount,
+            StartRehearsalUseCase.maxQuestionCount,
+          ),
+          durationMinutes: spec.durationMinutes.clamp(
+            StartRehearsalUseCase.minDurationMinutes,
+            StartRehearsalUseCase.maxDurationMinutes,
+          ),
+        ),
+      );
+    }
+
+    titleController.text =
+        language.value == AppLanguage.en ? preset.titleEnglish : preset.titleBangla;
+    negativeRatio.value = preset.negativeRatio;
+    papers.assignAll(built);
+    errorMessage.value = null;
+  }
+
   void selectNegativeRatio(double ratio) {
     negativeRatio.value = ratio;
   }
@@ -267,24 +450,30 @@ class RehearsalController extends GetxController {
   void updatePaperQuestionCount(int index, Object raw) {
     if (index < 0 || index >= papers.length) return;
     final parsed = _parsePositiveBanglaOrAsciiInt(raw);
-    if (parsed == null) return;
+    if (parsed == null ||
+        parsed < StartRehearsalUseCase.minQuestionCount ||
+        parsed > StartRehearsalUseCase.maxQuestionCount) {
+      papers[index] = papers[index].copyWith(hasValidQuestionCount: false);
+      return;
+    }
     papers[index] = papers[index].copyWith(
-      questionCount: parsed.clamp(
-        StartRehearsalUseCase.minQuestionCount,
-        StartRehearsalUseCase.maxQuestionCount,
-      ),
+      questionCount: parsed,
+      hasValidQuestionCount: true,
     );
   }
 
   void updatePaperDurationMinutes(int index, Object raw) {
     if (index < 0 || index >= papers.length) return;
     final parsed = _parsePositiveBanglaOrAsciiInt(raw);
-    if (parsed == null) return;
+    if (parsed == null ||
+        parsed < StartRehearsalUseCase.minDurationMinutes ||
+        parsed > StartRehearsalUseCase.maxDurationMinutes) {
+      papers[index] = papers[index].copyWith(hasValidDuration: false);
+      return;
+    }
     papers[index] = papers[index].copyWith(
-      durationMinutes: parsed.clamp(
-        StartRehearsalUseCase.minDurationMinutes,
-        StartRehearsalUseCase.maxDurationMinutes,
-      ),
+      durationMinutes: parsed,
+      hasValidDuration: true,
     );
   }
 
@@ -330,6 +519,15 @@ class RehearsalController extends GetxController {
       return;
     }
 
+    if (papers.any((p) => !p.hasValidQuestionCount || !p.hasValidDuration)) {
+      errorMessage.value = AppStrings.tr(
+        'প্রতিটি পত্রের প্রশ্ন সংখ্যা (১-৫০) এবং সময়সীমা (১-১২০ মি.) সঠিকভাবে দিন।',
+        'Enter valid question counts (1-50) and durations (1-120 min) for every paper.',
+        lang,
+      );
+      return;
+    }
+
     final generation = ++_sessionGeneration;
     isStarting.value = true;
     errorMessage.value = null;
@@ -356,12 +554,14 @@ class RehearsalController extends GetxController {
 
       res.fold(
         (err) {
-          errorMessage.value = err.message ??
-              AppStrings.tr(
-                'রিহার্সাল শুরু করা যায়নি।',
-                'Could not start rehearsal.',
-                lang,
-              );
+          errorMessage.value = _nonBlankError(
+            err.message,
+            AppStrings.tr(
+              'রিহার্সাল শুরু করা যায়নি।',
+              'Could not start rehearsal.',
+              lang,
+            ),
+          );
         },
         (envelope) => _applyEnvelope(envelope, generation),
       );
@@ -385,12 +585,14 @@ class RehearsalController extends GetxController {
 
       res.fold(
         (err) {
-          errorMessage.value = err.message ??
-              AppStrings.tr(
-                'রিহার্সাল লোড করা যায়নি।',
-                'Could not load rehearsal.',
-                language.value,
-              );
+          errorMessage.value = _nonBlankError(
+            err.message,
+            AppStrings.tr(
+              'রিহার্সাল লোড করা যায়নি।',
+              'Could not load rehearsal.',
+              language.value,
+            ),
+          );
         },
         (envelope) => _applyEnvelope(envelope, generation),
       );
@@ -536,12 +738,14 @@ class RehearsalController extends GetxController {
       res.fold(
         (err) {
           _hasSubmittedPaper = false;
-          errorMessage.value = err.message ??
-              AppStrings.tr(
-                'পত্র জমা দেওয়া যায়নি। আবার চেষ্টা করো।',
-                'Could not submit paper. Please try again.',
-                language.value,
-              );
+          errorMessage.value = _nonBlankError(
+            err.message,
+            AppStrings.tr(
+              'পত্র জমা দেওয়া যায়নি। আবার চেষ্টা করো।',
+              'Could not submit paper. Please try again.',
+              language.value,
+            ),
+          );
           if (remainingSeconds.value > 0 && _countdownTimer == null) {
             _startTimer(generation);
           }
@@ -596,12 +800,14 @@ class RehearsalController extends GetxController {
 
       res.fold(
         (err) {
-          errorMessage.value = err.message ??
-              AppStrings.tr(
-                'পরবর্তী পত্র শুরু করা যায়নি।',
-                'Could not start next paper.',
-                language.value,
-              );
+          errorMessage.value = _nonBlankError(
+            err.message,
+            AppStrings.tr(
+              'পরবর্তী পত্র শুরু করা যায়নি।',
+              'Could not start next paper.',
+              language.value,
+            ),
+          );
         },
         (envelope) => _applyEnvelope(envelope, generation),
       );
@@ -622,6 +828,8 @@ class RehearsalController extends GetxController {
     _sessionGeneration++;
     _cancelTimer();
     _hasSubmittedPaper = false;
+    isStarting.value = false;
+    isSubmitting.value = false;
     _questionTimeSpent.clear();
     rehearsal.value = null;
     activeSession.value = null;
