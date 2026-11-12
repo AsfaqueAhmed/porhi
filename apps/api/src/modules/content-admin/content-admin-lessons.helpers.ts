@@ -96,6 +96,27 @@ export function normalizeInteractiveWidgetUrl(raw: unknown): string | null {
   return trimmed ? trimmed : null;
 }
 
+export function normalizeAudioUrl(raw: unknown): string | null {
+  if (raw === undefined || raw === null) {
+    return null;
+  }
+  if (typeof raw !== 'string') {
+    throw new BadRequestException('audioUrl must be a string or null');
+  }
+  const trimmed = raw.trim();
+  return trimmed ? trimmed : null;
+}
+
+export function normalizeAudioDurationSeconds(raw: unknown): number | null {
+  if (raw === undefined || raw === null) {
+    return null;
+  }
+  if (typeof raw !== 'number' || !Number.isFinite(raw) || raw < 0) {
+    throw new BadRequestException('audioDurationSeconds must be a non-negative number or null');
+  }
+  return Math.round(raw);
+}
+
 export function validateRequiredLessonStrings(payload: {
   topicId?: unknown;
   titleBangla?: unknown;
@@ -176,6 +197,12 @@ export async function createLessonRecord(
   const workedExample = normalizeWorkedExample(dto?.workedExample);
   const memoryAid = normalizeMemoryAid(dto?.memoryAid);
   const interactiveWidgetUrl = normalizeInteractiveWidgetUrl(dto?.interactiveWidgetUrl);
+  const audioUrl =
+    dto?.audioUrl !== undefined ? normalizeAudioUrl(dto.audioUrl) : undefined;
+  const audioDurationSeconds =
+    dto?.audioDurationSeconds !== undefined
+      ? normalizeAudioDurationSeconds(dto.audioDurationSeconds)
+      : undefined;
 
   const topic = await prisma.topic.findUnique({
     where: { id: strings.topicId },
@@ -191,6 +218,8 @@ export async function createLessonRecord(
       learningGoal: strings.learningGoal,
       explanation: strings.explanation,
       interactiveWidgetUrl,
+      ...(audioUrl !== undefined ? { audioUrl } : {}),
+      ...(audioDurationSeconds !== undefined ? { audioDurationSeconds } : {}),
       importantTerms: importantTerms as unknown as Prisma.InputJsonValue,
       workedExample:
         workedExample !== null

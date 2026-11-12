@@ -16,6 +16,8 @@ import {
 } from './admin-content-query.util';
 import {
   createLessonRecord,
+  normalizeAudioDurationSeconds,
+  normalizeAudioUrl,
   normalizeImportantTerms,
   normalizeInteractiveWidgetUrl,
   normalizeMemoryAid,
@@ -172,6 +174,12 @@ export class ContentAdminLessonsService {
       dto.interactiveWidgetUrl !== undefined
         ? normalizeInteractiveWidgetUrl(dto.interactiveWidgetUrl)
         : existing.interactiveWidgetUrl;
+    const mergedAudioUrl =
+      dto.audioUrl !== undefined ? normalizeAudioUrl(dto.audioUrl) : undefined;
+    const mergedAudioDurationSeconds =
+      dto.audioDurationSeconds !== undefined
+        ? normalizeAudioDurationSeconds(dto.audioDurationSeconds)
+        : undefined;
 
     const topic = await this.prisma.topic.findUnique({
       where: { id: mergedStrings.topicId },
@@ -201,6 +209,10 @@ export class ContentAdminLessonsService {
             : (mergedWorkedExample as unknown as Prisma.InputJsonValue),
         memoryAid: mergedMemoryAid,
         interactiveWidgetUrl: mergedInteractiveWidgetUrl,
+        ...(mergedAudioUrl !== undefined ? { audioUrl: mergedAudioUrl } : {}),
+        ...(mergedAudioDurationSeconds !== undefined
+          ? { audioDurationSeconds: mergedAudioDurationSeconds }
+          : {}),
         status: nextStatus,
         version: { increment: 1 },
       },

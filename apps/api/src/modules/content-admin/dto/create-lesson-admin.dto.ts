@@ -1,4 +1,4 @@
-import { ArrayMinSize, IsArray, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { ArrayMinSize, IsArray, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
 
 export class CreateLessonAdminDto {
   @IsNotEmpty()
@@ -31,4 +31,13 @@ export class CreateLessonAdminDto {
   @IsOptional()
   @IsString()
   interactiveWidgetUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  audioUrl?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  audioDurationSeconds?: number;
 }

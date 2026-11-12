@@ -9,6 +9,10 @@ const SUBJECT_CODE_ALIASES: Record<string, string> = {
   sub_ssc_chemistry: 'ssc_chemistry',
   'sub-ssc-chem': 'ssc_chemistry',
   'chem-ssc': 'ssc_chemistry',
+  sub_class8_science: 'class8_science',
+  sub_hsc_physics_1: 'hsc_physics_1',
+  sub_admission_physics: 'admission_ka_physics',
+  sub_bcs_preliminary: 'bcs_preliminary',
 };
 
 @Injectable()
@@ -43,9 +47,17 @@ export class CurriculumService {
     return subject;
   }
 
-  async getSubjects(classLevel?: string) {
+  async getSubjects(classLevel?: string, program?: string) {
+    const where: Record<string, any> = {};
+    if (classLevel) {
+      where.classLevel = classLevel;
+    }
+    if (program && program !== 'ALL') {
+      where.program = program;
+    }
+
     const subjects = await this.prisma.subject.findMany({
-      where: classLevel ? { classLevel } : {},
+      where,
       include: {
         _count: {
           select: { chapters: true },
@@ -249,6 +261,8 @@ export class CurriculumService {
             workedExample: lesson.workedExample ?? null,
             memoryAid: lesson.memoryAid ?? null,
             interactiveWidgetUrl: lesson.interactiveWidgetUrl ?? null,
+            audioUrl: lesson.audioUrl ?? null,
+            audioDurationSeconds: lesson.audioDurationSeconds ?? null,
             version: lesson.version ?? 1,
           });
         }

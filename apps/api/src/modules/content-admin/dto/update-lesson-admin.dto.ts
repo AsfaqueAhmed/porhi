@@ -2,9 +2,11 @@ import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
+  IsInt,
   IsObject,
   IsOptional,
   IsString,
+  Min,
   ValidateIf,
 } from 'class-validator';
 
@@ -44,6 +46,17 @@ export class UpdateLessonAdminDto {
   @ValidateIf((_, value) => value !== null)
   @IsString()
   interactiveWidgetUrl?: string | null;
+
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @IsString()
+  audioUrl?: string | null;
+
+  @IsOptional()
+  @ValidateIf((_, value) => value !== null)
+  @IsInt()
+  @Min(0)
+  audioDurationSeconds?: number | null;
 
   @IsOptional()
   @IsBoolean()

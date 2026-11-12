@@ -10,6 +10,7 @@ import { MediaAdminModule } from './modules/media-admin/media-admin.module';
 import { StudentModule } from './modules/student/student.module';
 import { ContentReportModule } from './modules/content-report/content-report.module';
 import { PlannerModule } from './modules/planner/planner.module';
+import { BoardArchiveModule } from './modules/board-archive/board-archive.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { PlannerModule } from './modules/planner/planner.module';
     StudentModule,
     ContentReportModule,
     PlannerModule,
+    BoardArchiveModule,
   ],
   controllers: [],
   providers: [],

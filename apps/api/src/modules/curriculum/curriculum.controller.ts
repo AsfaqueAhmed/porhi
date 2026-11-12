@@ -6,8 +6,11 @@ export class CurriculumController {
   constructor(@Inject(CurriculumService) private readonly curriculumService: CurriculumService) {}
 
   @Get('subjects')
-  async getSubjects(@Query('classLevel') classLevel?: string) {
-    return this.curriculumService.getSubjects(classLevel);
+  async getSubjects(
+    @Query('classLevel') classLevel?: string,
+    @Query('program') program?: string,
+  ) {
+    return this.curriculumService.getSubjects(classLevel, program);
   }
 
   @Get('subjects/:subjectId/chapters')
