@@ -8,6 +8,7 @@ import 'package:porhi/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
 import 'package:porhi/features/dashboard/domain/entities/student_overview_entity.dart';
 import 'package:porhi/features/dashboard/domain/usecases/student_usecases.dart';
+import 'package:porhi/features/lesson/domain/usecases/lesson_usecases.dart';
 
 class ActivityDayEntry {
   final String isoDate;
@@ -39,6 +40,7 @@ class DashboardController extends GetxController {
   final GetCachedUserUseCase _getCachedUserUseCase;
   final GetLanguageUseCase _getLanguageUseCase;
   final GetActiveSubjectIdUseCase _getActiveSubjectIdUseCase;
+  final GetLocalTopicStateOverlayUseCase? _getLocalTopicStateOverlayUseCase;
 
   DashboardController({
     required this._getOverviewUseCase,
@@ -54,9 +56,11 @@ class DashboardController extends GetxController {
     required this._getCachedUserUseCase,
     required this._getLanguageUseCase,
     required this._getActiveSubjectIdUseCase,
+    this._getLocalTopicStateOverlayUseCase,
   });
 
   final TextEditingController searchQueryController = TextEditingController();
+  final Set<String> _overlayCompletedTopicIds = <String>{};
 
   final Rxn<StudentOverviewEntity> overview = Rxn<StudentOverviewEntity>();
   final Rxn<PlannerOverviewEntity> plannerSummary =
@@ -106,15 +110,17 @@ class DashboardController extends GetxController {
     if (subjectChanged) {
       _resetSubjectScopedState();
       await loadDashboard();
-    } else if (overview.value != null) {
-      final cachedOverview =
-          await _getCachedOverviewUseCase(subjectId: activeSubjectId.value);
-      if (isClosed) return;
-      if (cachedOverview != null &&
-          cachedOverview.subjectId == activeSubjectId.value) {
-        overview.value = cachedOverview;
-        _syncSearchCatalogCompletion(cachedOverview.completedTopicIds);
+    } else {
+      if (overview.value != null) {
+        final cachedOverview =
+            await _getCachedOverviewUseCase(subjectId: activeSubjectId.value);
+        if (isClosed) return;
+        if (cachedOverview != null &&
+            cachedOverview.subjectId == activeSubjectId.value) {
+          overview.value = cachedOverview;
+        }
       }
+      await _refreshOverlayAndSyncSearch();
     }
   }
 
@@ -150,6 +156,7 @@ class DashboardController extends GetxController {
     errorMessage.value = null;
     _loadedOverviewSubjectId = null;
     _loadedSearchSubjectId = null;
+    _overlayCompletedTopicIds.clear();
     searchCatalog.clear();
     filteredSearchResults.clear();
     searchErrorMessage.value = null;
@@ -165,6 +172,27 @@ class DashboardController extends GetxController {
       return message;
     }
     return AppStrings.tr(fallbackBn, fallbackEn, language.value);
+  }
+
+  Future<void> _refreshOverlayAndSyncSearch({
+    List<String>? overviewCompletedIds,
+  }) async {
+    final targetSubject = activeSubjectId.value;
+    if (_getLocalTopicStateOverlayUseCase != null && targetSubject.isNotEmpty) {
+      final overlay = await _getLocalTopicStateOverlayUseCase(targetSubject);
+      if (isClosed || targetSubject != activeSubjectId.value) return;
+      _overlayCompletedTopicIds
+        ..clear()
+        ..addAll(overlay?.completedTopicIds ?? const <String>[]);
+    } else {
+      _overlayCompletedTopicIds.clear();
+    }
+
+    final merged = <String>{
+      ...?(overviewCompletedIds ?? overview.value?.completedTopicIds),
+      ..._overlayCompletedTopicIds,
+    }.toList();
+    _syncSearchCatalogCompletion(merged);
   }
 
   void _syncSearchCatalogCompletion(List<String> completedTopicIds) {
@@ -209,8 +237,9 @@ class DashboardController extends GetxController {
         overview.value = cachedOverview;
         isOfflineCache.value = true;
         _loadedOverviewSubjectId = subjectId;
-        _syncSearchCatalogCompletion(cachedOverview.completedTopicIds);
       }
+      await _refreshOverlayAndSyncSearch();
+      if (isClosed || generation != _loadGeneration) return;
 
       final cachedPlanner = await _getCachedPlannerSummaryUseCase();
       if (isClosed || generation != _loadGeneration) return;
@@ -237,9 +266,10 @@ class DashboardController extends GetxController {
           overview.value = entity;
           isOfflineCache.value = entity.isFromCache;
           _loadedOverviewSubjectId = subjectId;
-          _syncSearchCatalogCompletion(entity.completedTopicIds);
         },
       );
+      await _refreshOverlayAndSyncSearch();
+      if (isClosed || generation != _loadGeneration) return;
 
       final plannerResult = await plannerFuture;
       if (isClosed || generation != _loadGeneration) return;
@@ -335,6 +365,8 @@ class DashboardController extends GetxController {
         if (cached.isNotEmpty) {
           searchCatalog.assignAll(cached);
           _loadedSearchSubjectId = subjectId;
+          await _refreshOverlayAndSyncSearch();
+          if (isClosed || generation != _searchGeneration) return;
           _applySearchFilter(searchQueryController.text);
         }
       }
@@ -357,6 +389,9 @@ class DashboardController extends GetxController {
           _applySearchFilter(searchQueryController.text);
         },
       );
+      if (searchCatalog.isNotEmpty) {
+        await _refreshOverlayAndSyncSearch();
+      }
     } finally {
       if (!isClosed && generation == _searchGeneration) {
         isLoadingSearch.value = false;
@@ -376,8 +411,10 @@ class DashboardController extends GetxController {
   }
 
   void _applySearchFilter(String query) {
-    final completedIds =
-        overview.value?.completedTopicIds.toSet() ?? const <String>{};
+    final completedIds = <String>{
+      ...?overview.value?.completedTopicIds,
+      ..._overlayCompletedTopicIds,
+    };
     final filtered = _filterQuickSearchTopicsUseCase(
       items: searchCatalog,
       query: query,

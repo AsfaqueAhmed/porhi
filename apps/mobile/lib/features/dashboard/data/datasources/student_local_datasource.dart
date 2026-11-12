@@ -57,6 +57,7 @@ class StudentLocalDataSourceImpl implements StudentLocalDataSource {
     var finalJson = model.toJson();
     final deltaKey = '$_localDeltaPrefix$trimmedSubject';
     final deltaRow = await _database.getStudentCache(deltaKey);
+    var remainingBookmarks = const <String>[];
     if (deltaRow != null && deltaRow.payloadJson.trim().isNotEmpty) {
       try {
         final decoded = jsonDecode(deltaRow.payloadJson);
@@ -86,11 +87,31 @@ class StudentLocalDataSourceImpl implements StudentLocalDataSource {
             }
           }
           finalJson['lessonNotes'] = notes;
+
+          final serverBookmarkIds = model.bookmarks
+              .map((b) => b['id']?.toString() ?? '')
+              .where((s) => s.isNotEmpty)
+              .toSet();
+          if (delta['bookmarkedTopicIds'] is List) {
+            remainingBookmarks = (delta['bookmarkedTopicIds'] as List)
+                .map((e) => e.toString())
+                .where((s) => s.isNotEmpty && !serverBookmarkIds.contains(s))
+                .toList();
+          }
         }
       } catch (_) {
         // Ignore malformed delta JSON.
       }
-      await _database.deleteStudentCache(deltaKey);
+      if (remainingBookmarks.isEmpty) {
+        await _database.deleteStudentCache(deltaKey);
+      } else {
+        await _database.putStudentCache(
+          deltaKey,
+          jsonEncode(<String, dynamic>{
+            'bookmarkedTopicIds': remainingBookmarks,
+          }),
+        );
+      }
     }
 
     await _database.putStudentCache(
@@ -224,7 +245,17 @@ class StudentLocalDataSourceImpl implements StudentLocalDataSource {
     } else {
       list.remove(itemId);
     }
-    map['bookmarkedTopicIds'] = list;
-    await _database.putStudentCache(key, jsonEncode(map));
+    if (list.isEmpty) {
+      map.remove('bookmarkedTopicIds');
+    } else {
+      map['bookmarkedTopicIds'] = list;
+    }
+    final hasCompleted = (map['completedTopicIds'] as List?)?.isNotEmpty == true;
+    final hasNotes = (map['lessonNotes'] as Map?)?.isNotEmpty == true;
+    if (!hasCompleted && !hasNotes && map['bookmarkedTopicIds'] == null) {
+      await _database.deleteStudentCache(key);
+    } else {
+      await _database.putStudentCache(key, jsonEncode(map));
+    }
   }
 }

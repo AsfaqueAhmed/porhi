@@ -187,6 +187,14 @@ class StudentRepositoryImpl implements StudentRepository {
         'createdAt': DateTime.now().toUtc().toIso8601String(),
       });
     }
+    if (!bookmarked) {
+      await _localDataSource.patchLocalBookmarkDelta(
+        subjectId: subjectId,
+        itemId: itemId,
+        itemType: itemType,
+        bookmarked: false,
+      );
+    }
     final updatedModel = StudentOverviewModel(
       subjectId: cached.subjectId,
       curriculumTotals: cached.curriculumTotals,

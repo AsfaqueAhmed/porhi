@@ -649,7 +649,8 @@ void main() {
       expect(overlay.bookmarkedTopicIds, contains('top_motion_eq'));
       expect(overlay.lessonNotes['top_motion_eq'], 'অফলাইন নোট');
 
-      // When real server overview later arrives, overlay merges and clears cleanly
+      // When real server overview later arrives, completed/notes merge & clear,
+      // while bookmarkedTopicIds delta survives until un-bookmarked.
       await studentLocal.cacheOverview(
         'sub_ssc_physics',
         StudentOverviewModel(
@@ -671,6 +672,35 @@ void main() {
         containsAll(<String>['top_prev', 'top_motion_eq']),
       );
       expect(mergedOverview.lessonNotes['top_motion_eq'], 'অফলাইন নোট');
+
+      final remainingOverlay =
+          await repository.getLocalTopicStateOverlay('sub_ssc_physics');
+      expect(remainingOverlay, isNotNull);
+      expect(remainingOverlay!.completedTopicIds, isEmpty);
+      expect(remainingOverlay.lessonNotes, isEmpty);
+      expect(remainingOverlay.bookmarkedTopicIds, contains('top_motion_eq'));
+
+      // Once bookmark is removed and another overview arrives, delta row clears.
+      await studentRepo.syncCachedBookmark(
+        subjectId: 'sub_ssc_physics',
+        itemId: 'top_motion_eq',
+        itemType: 'topic',
+        titleBangla: 'গতির সমীকরণসমূহ',
+        href: '/lesson/top_motion_eq',
+        bookmarked: false,
+      );
+      await studentLocal.cacheOverview(
+        'sub_ssc_physics',
+        StudentOverviewModel(
+          subjectId: 'sub_ssc_physics',
+          curriculumTotals: <String, dynamic>{
+            'totalChapters': 5,
+            'totalTopics': 25,
+          },
+          completedTopicIds: <String>['top_prev', 'top_motion_eq'],
+          lessonNotes: <String, String>{},
+        ),
+      );
       expect(await db.getStudentCache('local_lesson_state_sub_ssc_physics'), isNull);
     });
   });
@@ -1715,7 +1745,6 @@ void main() {
       (tester) async {
         final lesson1 = LessonDetailModel.fromJson(_sampleLessonJson()).toEntity();
         var overlay = const LocalTopicStateOverlayEntity();
-        StudentOverviewEntity? seededOverview;
 
         when(() => mockLessonRepo.getLessonByTopic('top_motion_eq'))
             .thenAnswer((_) async => Right(lesson1));
@@ -1740,12 +1769,6 @@ void main() {
             completedTopicIds: <String>['top_motion_eq'],
             bookmarkedTopicIds: <String>['top_motion_eq'],
           );
-          if (seededOverview != null) {
-            seededOverview = StudentOverviewEntity(
-              subjectId: 'sub_ssc_physics',
-              completedTopicIds: overlay.completedTopicIds,
-            );
-          }
           return const Right(
             LessonCompleteResultEntity(
               topicId: 'top_motion_eq',
@@ -1757,7 +1780,7 @@ void main() {
           () => mockStudentRepo.getCachedOverview(
             subjectId: any(named: 'subjectId'),
           ),
-        ).thenAnswer((_) async => seededOverview);
+        ).thenAnswer((_) async => null);
         when(() => mockCurriculumRepo.getDownloadedChapters(
               subjectId: any(named: 'subjectId'),
             )).thenAnswer((_) async => const <DownloadedChapterEntity>[]);
@@ -1781,10 +1804,9 @@ void main() {
             .thenAnswer((_) async => const <ChapterEntity>[]);
         when(() => mockStudentRepo.getOverview(subjectId: 'sub_ssc_physics'))
             .thenAnswer(
-          (_) async => Right(
-            StudentOverviewEntity(
-              subjectId: 'sub_ssc_physics',
-              completedTopicIds: overlay.completedTopicIds,
+          (_) async => Left(
+            ErrorResponse.byErrorType(
+              errorType: ApiResponseErrorType.noInternet,
             ),
           ),
         );
@@ -1927,26 +1949,35 @@ void main() {
         );
 
         // QuickSearchSheet selection -> LessonView -> return triggers DashboardController refresh
+        // even when overview.value remains null (unseeded cache + offline getOverview failure).
+        overlay = const LocalTopicStateOverlayEntity();
         DashboardBinding().dependencies();
         final dashController = Get.find<DashboardController>();
         await dashController.loadDashboard();
-        seededOverview = dashController.overview.value;
         await tester.pumpAndSettle();
+        expect(dashController.overview.value, isNull);
+
         unawaited(QuickSearchSheet.show(Get.context!));
         await tester.pumpAndSettle();
+        expect(dashController.searchCatalog.first.isCompleted, isFalse);
+        expect(dashController.filteredSearchResults.first.isCompleted, isFalse);
+
         await tester.tap(find.text('গতির সমীকরণসমূহ').last);
         await tester.pumpAndSettle();
         expect(find.byType(LessonView), findsOneWidget);
 
-        // Simulate lesson completed after opening from search, then pop back
-        seededOverview = const StudentOverviewEntity(
-          subjectId: 'sub_ssc_physics',
-          completedTopicIds: <String>['top_motion_eq'],
-        );
+        await tester.tap(find.byKey(const Key('lesson_complete_btn')));
+        await tester.pumpAndSettle();
+
         Get.back<void>();
         await tester.pumpAndSettle();
+        expect(dashController.overview.value, isNull);
         expect(
           dashController.searchCatalog.first.isCompleted,
+          isTrue,
+        );
+        expect(
+          dashController.filteredSearchResults.first.isCompleted,
           isTrue,
         );
       },
