@@ -15,7 +15,6 @@ import {
   Save,
   Sparkles,
 } from 'lucide-react';
-import { PersistentNav } from '@/components/navigation/persistent-nav';
 import { LanguageToggle } from '@/components/navigation/LanguageToggle';
 import { apiClient } from '@/lib/api-client';
 import { ensureGuestSession } from '@/lib/guest-session';
@@ -207,10 +206,7 @@ export default function AccountPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24 md:pb-12">
-      <PersistentNav currentPath="/account" />
-
-      <main className="max-w-3xl mx-auto px-4 pt-6 space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6 pb-12">
         {/* Identity Header Card */}
         <section className="bg-white rounded-2xl border border-slate-200 shadow-xs p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
@@ -475,7 +471,6 @@ export default function AccountPage() {
             <span>{tr('সেশন লগ আউট', 'Sign Out')}</span>
           </button>
         </section>
-      </main>
     </div>
   );
 }

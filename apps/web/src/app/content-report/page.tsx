@@ -4,7 +4,6 @@ import React, { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Flag, Send, CheckCircle2, ArrowLeft } from 'lucide-react';
-import { PersistentNav } from '@/components/navigation/persistent-nav';
 import { apiClient } from '@/lib/api-client';
 import { ensureGuestSession } from '@/lib/guest-session';
 import { useUserStore, ReportedIssueItem } from '@/store/user-store';
@@ -88,7 +87,7 @@ function ContentReportForm() {
   }, [serverReports, reportedIssues]);
 
   return (
-    <main className="max-w-3xl mx-auto px-4 pt-6 space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6 pb-12">
       <div className="flex items-center justify-between gap-2">
         <Link
           href="/account"
@@ -224,17 +223,14 @@ function ContentReportForm() {
           </ul>
         </section>
       )}
-    </main>
+    </div>
   );
 }
 
 export default function ContentReportPage() {
   return (
-    <div className="min-h-screen bg-slate-50 pb-24 md:pb-12">
-      <PersistentNav currentPath="/content-report" />
-      <Suspense fallback={<div className="max-w-3xl mx-auto p-6 text-xs text-slate-500">লোড হচ্ছে...</div>}>
-        <ContentReportForm />
-      </Suspense>
-    </div>
+    <Suspense fallback={<div className="max-w-3xl mx-auto p-6 text-xs text-slate-500">লোড হচ্ছে...</div>}>
+      <ContentReportForm />
+    </Suspense>
   );
 }
