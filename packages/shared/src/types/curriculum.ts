@@ -1,11 +1,17 @@
 export enum ProgramType {
+  CLASS_6_8 = 'CLASS_6_8',
   SSC = 'SSC',
   HSC = 'HSC',
+  ADMISSION = 'ADMISSION',
+  BCS = 'BCS',
 }
 
 export enum EducationLevel {
+  CLASS_6_8 = 'CLASS_6_8',
   CLASS_9_10 = 'CLASS_9_10',
   CLASS_11_12 = 'CLASS_11_12',
+  ADMISSION = 'ADMISSION',
+  BCS = 'BCS',
 }
 
 export interface TopicDTO {
@@ -27,7 +33,8 @@ export interface SubjectDTO {
   id: string;
   code: string;
   nameBangla: string;
-  classLevel: EducationLevel;
+  classLevel: EducationLevel | string;
+  program?: ProgramType | string;
   syllabusYear: number;
   isReady: boolean;
   chapters?: ChapterDTO[];
