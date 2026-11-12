@@ -47,6 +47,40 @@ model User {
   notes          StudentNote[]
   contentReports ContentReport[]
   studyPlanTasks StudyPlanTask[]
+  rehearsals     MultiExamRehearsal[]
+  guardianShareLinks GuardianShareLink[]
+}
+
+model MultiExamRehearsal {
+  id                String    @id @default(uuid())
+  userId            String
+  user              User      @relation(fields: [userId], references: [id])
+  titleBangla       String
+  program           String    @default("SSC")
+  papers            Json
+  currentPaperIndex Int       @default(0)
+  status            String    @default("IN_PROGRESS")
+  totalScore        Float?
+  totalMarks        Int       @default(0)
+  startedAt         DateTime  @default(now())
+  submittedAt       DateTime?
+
+  @@index([userId, startedAt])
+}
+
+model GuardianShareLink {
+  id             String    @id @default(uuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id])
+  shareCode      String    @unique
+  audience       String    @default("PARENT")
+  recipientLabel String?
+  isActive       Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+  revokedAt      DateTime?
+  lastViewedAt   DateTime?
+
+  @@index([userId, isActive])
 }
 
 model Subject {
@@ -54,9 +88,12 @@ model Subject {
   code         String    @unique // e.g. "ssc_physics"
   nameBangla   String    // "পদার্থবিজ্ঞান"
   classLevel   String    // "CLASS_9_10"
+  program      String    @default("SSC")
   syllabusYear Int       @default(2026)
   isReady      Boolean   @default(false)
   chapters     Chapter[]
+
+  @@index([program, isReady])
 }
 
 model Chapter {
@@ -92,6 +129,8 @@ model Lesson {
   learningGoal         String
   explanation          String        // Formatted Markdown with KaTeX math & inline media tags
   interactiveWidgetUrl String?       // Optional URL to sandboxed HTML simulation
+  audioUrl             String?
+  audioDurationSeconds Int?
   importantTerms       Json          // Array of { termBangla, termEnglish, definition }
   workedExample        Json?         // { problem, stepByStepSolution }
   memoryAid            String?       // Mnemonics or high-yield summary

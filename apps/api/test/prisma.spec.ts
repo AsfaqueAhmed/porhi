@@ -19,7 +19,7 @@ describe('PrismaService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should expose all 10 schema models', () => {
+  it('should expose all Phase 2 schema models', () => {
     expect(service.user).toBeDefined();
     expect(service.subject).toBeDefined();
     expect(service.chapter).toBeDefined();
@@ -34,6 +34,8 @@ describe('PrismaService', () => {
     expect(service.studentNote).toBeDefined();
     expect(service.contentReport).toBeDefined();
     expect(service.studyPlanTask).toBeDefined();
+    expect(service.multiExamRehearsal).toBeDefined();
+    expect(service.guardianShareLink).toBeDefined();
   });
 
   it('should connect on onModuleInit and disconnect on onModuleDestroy', async () => {

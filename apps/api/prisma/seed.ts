@@ -15,6 +15,7 @@ import { seedChapter9 } from './seed-chapter-9';
 import { seedChapter10 } from './seed-chapter-10';
 import { seedChapter11 } from './seed-chapter-11';
 import { seedChapter12 } from './seed-chapter-12';
+import { seedPhase2 } from './seed-phase2';
 
 export const sscPhysicsSubject = {
   id: 'sub_ssc_physics',
@@ -462,6 +463,9 @@ export async function seed(prisma: PrismaClient) {
 
   // 17. Seed Chapter 12 full curriculum and question bank
   await seedChapter12(prisma);
+
+  // 18. Seed Phase 2 tracks, 2020-2025 board questions, and pilot lesson audio
+  await seedPhase2(prisma);
 }
 
 async function main() {
