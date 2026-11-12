@@ -23,9 +23,12 @@ import 'package:porhi/features/dashboard/data/repositories/student_repository_im
 import 'package:porhi/features/dashboard/domain/entities/student_overview_entity.dart';
 import 'package:porhi/features/dashboard/domain/repositories/student_repository.dart';
 import 'package:porhi/features/dashboard/domain/usecases/student_usecases.dart';
+import 'package:porhi/features/dashboard/presentation/dashboard/binding/dashboard_binding.dart';
+import 'package:porhi/features/dashboard/presentation/dashboard/controller/dashboard_controller.dart';
 import 'package:porhi/features/dashboard/presentation/dashboard/view/dashboard_view.dart';
 import 'package:porhi/features/dashboard/presentation/shared/quick_search_sheet.dart';
 import 'package:porhi/features/shell/presentation/main_shell/binding/main_shell_binding.dart';
+import 'package:porhi/features/shell/presentation/main_shell/controller/main_shell_controller.dart';
 import 'package:porhi/features/shell/presentation/main_shell/view/main_shell_view.dart';
 import 'package:porhi/routes/app_pages.dart';
 import 'package:porhi/routes/app_routes.dart';
@@ -608,5 +611,427 @@ void main() {
       expect(homeRoute.binding, isA<MainShellBinding>());
       expect(searchRoute.name, '/search');
     });
+  });
+
+  group('Model defensive parsing', () {
+    test(
+      'QuickSearchCatalogModel.fromJson parses BaseWrapperModel json array and cached items',
+      () {
+        final wrapped = QuickSearchCatalogModel.fromJson(<String, dynamic>{
+          'json': <Map<String, dynamic>>[
+            <String, dynamic>{
+              'id': 'ch_1',
+              'subjectId': 'sub_ssc_physics',
+              'titleBangla': 'ভৌত রাশি ও পরিমাপ',
+              'topics': <Map<String, dynamic>>[
+                <String, dynamic>{
+                  'id': 'top_1',
+                  'titleBangla': 'পরিমাপের ত্রুটি',
+                  'hasInteractiveLab': true,
+                  'lessonCount': '2',
+                  'questionCount': 5,
+                },
+              ],
+            },
+          ],
+        });
+        final wrappedEntities = wrapped.toEntities();
+        expect(wrappedEntities.length, 1);
+        expect(wrappedEntities.single.topicId, 'top_1');
+        expect(wrappedEntities.single.chapterTitle, 'ভৌত রাশি ও পরিমাপ');
+        expect(wrappedEntities.single.hasInteractiveLab, isTrue);
+        expect(wrappedEntities.single.lessonCount, 2);
+        expect(wrappedEntities.single.questionCount, 5);
+
+        final cached = QuickSearchCatalogModel.fromJson(wrapped.toJson());
+        expect(cached.toEntities(), wrappedEntities);
+      },
+    );
+
+    test('PlannerOverviewModel.fromJson handles nullable/mixed backend fields', () {
+      final model = PlannerOverviewModel.fromJson(<String, dynamic>{
+        'todayDueCount': '2',
+        'tasks': <Map<String, dynamic>>[
+          <String, dynamic>{
+            'id': 't1',
+            'titleBangla': 'তাপগতিবিদ্যা পড়া',
+            'scheduledDate': '2026-11-12',
+            'completed': 0,
+          },
+        ],
+      });
+      final entity = model.toEntity();
+      expect(entity.todayDueCount, 2);
+      expect(entity.tasks.single.titleBangla, 'তাপগতিবিদ্যা পড়া');
+      expect(entity.tasks.single.completed, isFalse);
+    });
+  });
+
+  group('Review regression fixes', () {
+    late _MockStudentRepository mockStudentRepo;
+    late _MockAuthRepository mockAuthRepo;
+
+    setUp(() {
+      mockStudentRepo = _MockStudentRepository();
+      mockAuthRepo = _MockAuthRepository();
+
+      when(() => mockAuthRepo.getLanguage()).thenReturn('bn');
+      when(() => mockAuthRepo.getCachedUser()).thenReturn(
+        const AuthUserEntity(
+          id: 'stu_1',
+          fullName: 'রাফি আহমেদ',
+          selectedClass: StudentTrack.ssc,
+        ),
+      );
+      when(() => mockStudentRepo.getActiveSubjectId(any()))
+          .thenReturn('sub_ssc_physics');
+      when(() => mockStudentRepo.pendingSyncCount).thenReturn(0);
+      when(() => mockStudentRepo.watchPendingSyncCount())
+          .thenAnswer((_) => Stream<int>.value(0));
+      when(() => mockStudentRepo.getCachedOverview(
+            subjectId: any(named: 'subjectId'),
+          )).thenAnswer((_) async => null);
+      when(() => mockStudentRepo.getCachedPlannerSummary())
+          .thenAnswer((_) async => null);
+      when(() => mockStudentRepo.getCachedQuickSearchCatalog(
+            subjectId: any(named: 'subjectId'),
+          )).thenAnswer((_) async => const <QuickSearchTopicEntity>[]);
+    });
+
+    void registerDependencies() {
+      Get.put<StudentRepository>(mockStudentRepo);
+      Get.put<AuthRepository>(mockAuthRepo);
+      Get.put<GetLanguageUseCase>(GetLanguageUseCase(mockAuthRepo));
+      Get.put<GetCachedUserUseCase>(GetCachedUserUseCase(mockAuthRepo));
+      Get.put<GetOverviewUseCase>(GetOverviewUseCase(mockStudentRepo));
+      Get.put<GetCachedOverviewUseCase>(
+        GetCachedOverviewUseCase(mockStudentRepo),
+      );
+      Get.put<GetPlannerSummaryUseCase>(
+        GetPlannerSummaryUseCase(mockStudentRepo),
+      );
+      Get.put<GetCachedPlannerSummaryUseCase>(
+        GetCachedPlannerSummaryUseCase(mockStudentRepo),
+      );
+      Get.put<GetQuickSearchCatalogUseCase>(
+        GetQuickSearchCatalogUseCase(mockStudentRepo),
+      );
+      Get.put<GetCachedQuickSearchCatalogUseCase>(
+        GetCachedQuickSearchCatalogUseCase(mockStudentRepo),
+      );
+      Get.put<FilterQuickSearchTopicsUseCase>(
+        const FilterQuickSearchTopicsUseCase(),
+      );
+      Get.put<FlushOfflineSyncUseCase>(
+        FlushOfflineSyncUseCase(mockStudentRepo),
+      );
+      Get.put<GetPendingSyncCountUseCase>(
+        GetPendingSyncCountUseCase(mockStudentRepo),
+      );
+      Get.put<WatchPendingSyncCountUseCase>(
+        WatchPendingSyncCountUseCase(mockStudentRepo),
+      );
+      Get.put<GetActiveSubjectIdUseCase>(
+        GetActiveSubjectIdUseCase(mockStudentRepo),
+      );
+    }
+
+    testWidgets(
+      'Logout from /account via offAllNamed(/login) does not resurrect DashboardController or MainShellController',
+      (tester) async {
+        final overview = StudentOverviewModel.fromJson(
+          _sampleOverviewJson(),
+        ).toEntity();
+        when(() => mockStudentRepo.getOverview(
+              subjectId: any(named: 'subjectId'),
+            )).thenAnswer((_) async => Right(overview));
+        when(() => mockStudentRepo.getPlannerSummary()).thenAnswer(
+          (_) async => const Right(
+            PlannerOverviewEntity(tasks: [], todayDueCount: 0),
+          ),
+        );
+
+        registerDependencies();
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            initialRoute: AppRoutes.home,
+            getPages: <GetPage<dynamic>>[
+              GetPage<dynamic>(
+                name: AppRoutes.home,
+                page: () => const MainShellView(),
+                binding: MainShellBinding(),
+              ),
+              GetPage<dynamic>(
+                name: AppRoutes.account,
+                page: () => Scaffold(
+                  body: ElevatedButton(
+                    key: const Key('mock_logout_btn'),
+                    onPressed: () => Get.offAllNamed(AppRoutes.login),
+                    child: const Text('Logout'),
+                  ),
+                ),
+              ),
+              GetPage<dynamic>(
+                name: AppRoutes.login,
+                page: () => const Scaffold(body: Text('Login Route')),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        verify(() => mockStudentRepo.getOverview(subjectId: 'sub_ssc_physics'))
+            .called(1);
+
+        await tester.tap(find.byKey(const Key('dashboard_account_button')));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('mock_logout_btn')), findsOneWidget);
+
+        await tester.tap(find.byKey(const Key('mock_logout_btn')));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Login Route'), findsOneWidget);
+        expect(Get.isRegistered<DashboardController>(), isFalse);
+        expect(Get.isRegistered<MainShellController>(), isFalse);
+        verifyNever(() => mockStudentRepo.getOverview(
+              subjectId: any(named: 'subjectId'),
+            ));
+      },
+    );
+
+    testWidgets(
+      'Returning from /account after track and language change updates DashboardController and clears stale subject cache',
+      (tester) async {
+        final sscOverview = StudentOverviewModel.fromJson(
+          _sampleOverviewJson(topicTitle: 'এসএসসি পদার্থ টপিক'),
+        ).toEntity();
+        final hscOverview = StudentOverviewModel.fromJson(<String, dynamic>{
+          ..._sampleOverviewJson(topicTitle: 'এইচএসসি ভেক্টর টপিক'),
+          'subjectId': 'sub_hsc_physics_1',
+        }).toEntity();
+
+        when(() => mockStudentRepo.getOverview(subjectId: 'sub_ssc_physics'))
+            .thenAnswer((_) async => Right(sscOverview));
+        when(() => mockStudentRepo.getOverview(subjectId: 'sub_hsc_physics_1'))
+            .thenAnswer((_) async => Right(hscOverview));
+        when(() => mockStudentRepo.getPlannerSummary()).thenAnswer(
+          (_) async => const Right(
+            PlannerOverviewEntity(tasks: [], todayDueCount: 0),
+          ),
+        );
+
+        registerDependencies();
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            initialRoute: AppRoutes.home,
+            getPages: <GetPage<dynamic>>[
+              GetPage<dynamic>(
+                name: AppRoutes.home,
+                page: () => const MainShellView(),
+                binding: MainShellBinding(),
+              ),
+              GetPage<dynamic>(
+                name: AppRoutes.account,
+                page: () => Scaffold(
+                  body: ElevatedButton(
+                    key: const Key('mock_save_track_btn'),
+                    onPressed: () {
+                      when(() => mockAuthRepo.getLanguage()).thenReturn('en');
+                      when(() => mockAuthRepo.getCachedUser()).thenReturn(
+                        const AuthUserEntity(
+                          id: 'stu_1',
+                          fullName: 'রাফি আহমেদ',
+                          selectedClass: StudentTrack.hsc,
+                        ),
+                      );
+                      when(() => mockStudentRepo.getActiveSubjectId(
+                            StudentTrack.hsc,
+                          )).thenReturn('sub_hsc_physics_1');
+                      Get.back<void>();
+                    },
+                    child: const Text('Save & Back'),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('এসএসসি পদার্থ টপিক'), findsOneWidget);
+
+        // Switch to Subjects placeholder slot and navigate to /account from there
+        // to also verify cross-tab refresh on return.
+        await tester.tap(find.text(AppStrings.t('nav.subjects', AppLanguage.bn)));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('slot_account_button')));
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byKey(const Key('mock_save_track_btn')));
+        await tester.pumpAndSettle();
+
+        // Bottom nav label should now be English ('Home').
+        await tester.tap(
+          find.descendant(
+            of: find.byType(NavigationBar),
+            matching: find.text(AppStrings.t('nav.home', AppLanguage.en)),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('এইচএসসি ভেক্টর টপিক'), findsOneWidget);
+        expect(find.text('এসএসসি পদার্থ টপিক'), findsNothing);
+        verify(() => mockStudentRepo.getOverview(subjectId: 'sub_hsc_physics_1'))
+            .called(1);
+      },
+    );
+
+    testWidgets(
+      'Null ErrorResponse.message shows Retry UI and failed offline sync renders error banner without redundant reload',
+      (tester) async {
+        when(() => mockStudentRepo.getOverview(
+              subjectId: any(named: 'subjectId'),
+            )).thenAnswer(
+          (_) async => Left<ErrorResponse, StudentOverviewEntity>(
+            ErrorResponse(
+              message: null,
+              data: ApiResponseErrorType.noInternet,
+            ),
+          ),
+        );
+        when(() => mockStudentRepo.getPlannerSummary()).thenAnswer(
+          (_) async => const Right(
+            PlannerOverviewEntity(tasks: [], todayDueCount: 0),
+          ),
+        );
+
+        registerDependencies();
+        MainShellBinding().dependencies();
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            home: const MainShellView(),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Retry button appears even when ErrorResponse.message was null.
+        expect(
+          find.text(AppStrings.t('action.retry', AppLanguage.bn)),
+          findsOneWidget,
+        );
+
+        // Now resolve overview and test syncNow() failure banner.
+        final overview = StudentOverviewModel.fromJson(
+          _sampleOverviewJson(),
+        ).toEntity();
+        when(() => mockStudentRepo.getOverview(
+              subjectId: any(named: 'subjectId'),
+            )).thenAnswer((_) async => Right(overview));
+        when(() => mockStudentRepo.syncOffline()).thenAnswer(
+          (_) async => Left<ErrorResponse, int>(
+            ErrorResponse(
+              message: null,
+              data: ApiResponseErrorType.noInternet,
+            ),
+          ),
+        );
+
+        await tester.tap(find.text(AppStrings.t('action.retry', AppLanguage.bn)));
+        await tester.pumpAndSettle();
+        clearInteractions(mockStudentRepo);
+
+        await tester.tap(find.byKey(const Key('sync_badge_button')));
+        await tester.pumpAndSettle();
+
+        expect(find.byKey(const Key('sync_status_banner')), findsOneWidget);
+        expect(find.byIcon(Icons.error_outline_rounded), findsOneWidget);
+        expect(
+          find.byIcon(Icons.check_circle_outline_rounded),
+          findsNothing,
+        );
+        // Should NOT call getOverview redundantly after noInternet sync error.
+        verifyNever(() => mockStudentRepo.getOverview(
+              subjectId: any(named: 'subjectId'),
+            ));
+      },
+    );
+
+    testWidgets(
+      'QuickSearchPage (/search) returns selected topic result via Get.back',
+      (tester) async {
+        final overview = StudentOverviewModel.fromJson(
+          _sampleOverviewJson(),
+        ).toEntity();
+        when(() => mockStudentRepo.getOverview(
+              subjectId: any(named: 'subjectId'),
+            )).thenAnswer((_) async => Right(overview));
+        when(() => mockStudentRepo.getPlannerSummary()).thenAnswer(
+          (_) async => const Right(
+            PlannerOverviewEntity(tasks: [], todayDueCount: 0),
+          ),
+        );
+        when(() => mockStudentRepo.getQuickSearchCatalog(
+              subjectId: any(named: 'subjectId'),
+            )).thenAnswer(
+          (_) async => const Right<ErrorResponse, List<QuickSearchTopicEntity>>(
+            <QuickSearchTopicEntity>[
+              QuickSearchTopicEntity(
+                topicId: 'top_wave',
+                topicTitle: 'তরঙ্গ ও শব্দ',
+                chapterId: 'ch_7',
+                chapterTitle: 'তরঙ্গ',
+                subjectId: 'sub_ssc_physics',
+                hasInteractiveLab: true,
+              ),
+            ],
+          ),
+        );
+
+        registerDependencies();
+        QuickSearchTopicEntity? returnedResult;
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            getPages: <GetPage<dynamic>>[
+              GetPage<QuickSearchTopicEntity?>(
+                name: AppRoutes.search,
+                page: () => const QuickSearchPage(),
+                binding: QuickSearchBinding(),
+              ),
+            ],
+            home: Builder(
+              builder: (context) => Scaffold(
+                body: ElevatedButton(
+                  key: const Key('open_search_route_btn'),
+                  onPressed: () async {
+                    final result = await Get.toNamed(AppRoutes.search);
+                    returnedResult =
+                        result is QuickSearchTopicEntity ? result : null;
+                  },
+                  child: const Text('Open Search'),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byKey(const Key('open_search_route_btn')));
+        await tester.pumpAndSettle();
+
+        expect(find.text('তরঙ্গ ও শব্দ'), findsOneWidget);
+        await tester.tap(find.text('তরঙ্গ ও শব্দ'));
+        await tester.pumpAndSettle();
+
+        expect(returnedResult?.topicId, 'top_wave');
+      },
+    );
   });
 }

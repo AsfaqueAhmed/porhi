@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:network/network.dart' show ApiResponseErrorType, ErrorResponse;
 import 'package:porhi/core/i18n/app_strings.dart';
 import 'package:porhi/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
@@ -67,6 +68,7 @@ class DashboardController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxBool isSyncing = false.obs;
   final RxBool isOfflineCache = false.obs;
+  final RxBool isSyncError = false.obs;
   final RxInt pendingSyncCount = 0.obs;
   final RxnString errorMessage = RxnString();
   final RxnString syncMessage = RxnString();
@@ -79,11 +81,15 @@ class DashboardController extends GetxController {
   final RxnString searchErrorMessage = RxnString();
 
   StreamSubscription<int>? _syncCountSubscription;
+  String? _loadedOverviewSubjectId;
+  String? _loadedSearchSubjectId;
+  int _loadGeneration = 0;
+  int _searchGeneration = 0;
 
   @override
   void onInit() {
     super.onInit();
-    refreshLanguageAndUser();
+    _applyPreferencesFromStorage();
     pendingSyncCount.value = _getPendingSyncCountUseCase();
     _syncCountSubscription = _watchPendingSyncCountUseCase().listen((count) {
       if (!isClosed) {
@@ -93,30 +99,100 @@ class DashboardController extends GetxController {
     loadDashboard();
   }
 
-  void refreshLanguageAndUser() {
+  /// Syncs cached user/language/subject preferences; returns `true` if the
+  /// active subject changed so callers or tests can observe reloads.
+  Future<void> refreshLanguageAndUser() async {
+    final subjectChanged = _applyPreferencesFromStorage();
+    if (subjectChanged) {
+      _resetSubjectScopedState();
+      await loadDashboard();
+    }
+  }
+
+  bool _applyPreferencesFromStorage() {
     language.value = AppLanguage.fromCode(_getLanguageUseCase());
     final cachedUser = _getCachedUserUseCase();
     user.value = cachedUser;
-    activeSubjectId.value = _getActiveSubjectIdUseCase(cachedUser?.selectedClass);
+    final nextSubjectId = _getActiveSubjectIdUseCase(cachedUser?.selectedClass);
+    final previousSubjectId = activeSubjectId.value;
+    activeSubjectId.value = nextSubjectId;
+
+    return nextSubjectId != previousSubjectId ||
+        (_loadedOverviewSubjectId != null &&
+            _loadedOverviewSubjectId != nextSubjectId) ||
+        (overview.value != null && overview.value!.subjectId != nextSubjectId);
+  }
+
+  void _resetSubjectScopedState() {
+    overview.value = null;
+    isOfflineCache.value = false;
+    errorMessage.value = null;
+    _loadedOverviewSubjectId = null;
+    _loadedSearchSubjectId = null;
+    searchCatalog.clear();
+    filteredSearchResults.clear();
+    searchErrorMessage.value = null;
+  }
+
+  String _resolveErrorMessage(
+    ErrorResponse err, {
+    required String fallbackBn,
+    required String fallbackEn,
+  }) {
+    final message = err.message?.trim();
+    if (message != null && message.isNotEmpty) {
+      return message;
+    }
+    return AppStrings.tr(fallbackBn, fallbackEn, language.value);
+  }
+
+  void _syncSearchCatalogCompletion(List<String> completedTopicIds) {
+    if (searchCatalog.isEmpty) return;
+    final completedSet = completedTopicIds.toSet();
+    var changed = false;
+    final updated = searchCatalog.map((item) {
+      final completed = completedSet.contains(item.topicId);
+      if (completed != item.isCompleted) {
+        changed = true;
+        return item.copyWith(isCompleted: completed);
+      }
+      return item;
+    }).toList();
+    if (changed) {
+      searchCatalog.assignAll(updated);
+      _applySearchFilter(searchQueryController.text);
+    }
   }
 
   Future<void> loadDashboard() async {
+    final generation = ++_loadGeneration;
+    final subjectId = activeSubjectId.value;
+
+    if ((_loadedOverviewSubjectId != null &&
+            _loadedOverviewSubjectId != subjectId) ||
+        (overview.value != null && overview.value!.subjectId != subjectId)) {
+      overview.value = null;
+      isOfflineCache.value = false;
+      _loadedOverviewSubjectId = null;
+    }
+
     isLoading.value = true;
     errorMessage.value = null;
-    final subjectId = activeSubjectId.value;
 
     try {
       // Show cached dashboard & planner immediately for instant offline UX.
       final cachedOverview =
           await _getCachedOverviewUseCase(subjectId: subjectId);
-      if (isClosed) return;
+      if (isClosed || generation != _loadGeneration) return;
       if (cachedOverview != null && overview.value == null) {
         overview.value = cachedOverview;
         isOfflineCache.value = true;
+        _loadedOverviewSubjectId = subjectId;
+        _syncSearchCatalogCompletion(cachedOverview.completedTopicIds);
       }
 
       final cachedPlanner = await _getCachedPlannerSummaryUseCase();
-      if (isClosed) return;
+      if (isClosed || generation != _loadGeneration) return;
       if (cachedPlanner != null && plannerSummary.value == null) {
         plannerSummary.value = cachedPlanner;
       }
@@ -125,21 +201,27 @@ class DashboardController extends GetxController {
       final plannerFuture = _getPlannerSummaryUseCase();
 
       final overviewResult = await overviewFuture;
-      if (isClosed) return;
+      if (isClosed || generation != _loadGeneration) return;
       overviewResult.fold(
         (err) {
           if (overview.value == null) {
-            errorMessage.value = err.message;
+            errorMessage.value = _resolveErrorMessage(
+              err,
+              fallbackBn: 'ড্যাশবোর্ড তথ্য লোড করা যায়নি। আবার চেষ্টা করুন।',
+              fallbackEn: 'Could not load dashboard data. Please try again.',
+            );
           }
         },
         (entity) {
           overview.value = entity;
           isOfflineCache.value = entity.isFromCache;
+          _loadedOverviewSubjectId = subjectId;
+          _syncSearchCatalogCompletion(entity.completedTopicIds);
         },
       );
 
       final plannerResult = await plannerFuture;
-      if (isClosed) return;
+      if (isClosed || generation != _loadGeneration) return;
       plannerResult.fold(
         (_) {},
         (summary) {
@@ -147,7 +229,7 @@ class DashboardController extends GetxController {
         },
       );
     } finally {
-      if (!isClosed) {
+      if (!isClosed && generation == _loadGeneration) {
         isLoading.value = false;
       }
     }
@@ -156,16 +238,28 @@ class DashboardController extends GetxController {
   Future<void> syncNow() async {
     if (isSyncing.value) return;
     isSyncing.value = true;
+    isSyncError.value = false;
     syncMessage.value = null;
 
+    var shouldReloadDashboard = false;
     try {
       final result = await _flushOfflineSyncUseCase();
       if (isClosed) return;
       result.fold(
         (err) {
-          syncMessage.value = err.message;
+          isSyncError.value = true;
+          syncMessage.value = _resolveErrorMessage(
+            err,
+            fallbackBn: 'অফলাইন তথ্য সিঙ্ক করা যায়নি।',
+            fallbackEn: 'Could not sync offline data.',
+          );
+          final isConnectivityFailure =
+              err.data == ApiResponseErrorType.noInternet ||
+                  err.data == ApiResponseErrorType.slowOrNoInternet;
+          shouldReloadDashboard = !isConnectivityFailure;
         },
         (syncedCount) {
+          isSyncError.value = false;
           final lang = language.value;
           syncMessage.value = syncedCount > 0
               ? AppStrings.tr(
@@ -178,9 +272,12 @@ class DashboardController extends GetxController {
                   'Everything is up to date',
                   lang,
                 );
+          shouldReloadDashboard = true;
         },
       );
-      await loadDashboard();
+      if (shouldReloadDashboard) {
+        await loadDashboard();
+      }
     } finally {
       if (!isClosed) {
         isSyncing.value = false;
@@ -197,36 +294,50 @@ class DashboardController extends GetxController {
   }
 
   Future<void> loadQuickSearchCatalog() async {
+    final generation = ++_searchGeneration;
+    final subjectId = activeSubjectId.value;
+
+    if (_loadedSearchSubjectId != null && _loadedSearchSubjectId != subjectId) {
+      searchCatalog.clear();
+      filteredSearchResults.clear();
+      _loadedSearchSubjectId = null;
+    }
+
     isLoadingSearch.value = true;
     searchErrorMessage.value = null;
-    final subjectId = activeSubjectId.value;
 
     try {
       if (searchCatalog.isEmpty) {
         final cached =
             await _getCachedQuickSearchCatalogUseCase(subjectId: subjectId);
-        if (isClosed) return;
+        if (isClosed || generation != _searchGeneration) return;
         if (cached.isNotEmpty) {
           searchCatalog.assignAll(cached);
+          _loadedSearchSubjectId = subjectId;
           _applySearchFilter(searchQueryController.text);
         }
       }
 
       final result = await _getQuickSearchCatalogUseCase(subjectId: subjectId);
-      if (isClosed) return;
+      if (isClosed || generation != _searchGeneration) return;
       result.fold(
         (err) {
           if (searchCatalog.isEmpty) {
-            searchErrorMessage.value = err.message;
+            searchErrorMessage.value = _resolveErrorMessage(
+              err,
+              fallbackBn: 'টপিক তালিকা লোড করা যায়নি। আবার চেষ্টা করুন।',
+              fallbackEn: 'Could not load topic catalog. Please try again.',
+            );
           }
         },
         (items) {
           searchCatalog.assignAll(items);
+          _loadedSearchSubjectId = subjectId;
           _applySearchFilter(searchQueryController.text);
         },
       );
     } finally {
-      if (!isClosed) {
+      if (!isClosed && generation == _searchGeneration) {
         isLoadingSearch.value = false;
       }
     }
@@ -237,7 +348,9 @@ class DashboardController extends GetxController {
   }
 
   void clearSearchQuery() {
-    searchQueryController.clear();
+    if (searchQueryController.text.isNotEmpty) {
+      searchQueryController.clear();
+    }
     _applySearchFilter('');
   }
 

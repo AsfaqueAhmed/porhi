@@ -59,6 +59,8 @@ class DashboardView extends GetView<DashboardController> {
                   ),
                   child: Text(
                     AppStrings.t('common.offline', lang),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -109,9 +111,15 @@ class DashboardView extends GetView<DashboardController> {
               icon: const Icon(Icons.person_outline_rounded),
               onPressed: () async {
                 await Get.toNamed(AppRoutes.account);
-                controller.refreshLanguageAndUser();
+                if (!context.mounted || Get.currentRoute != AppRoutes.home) {
+                  return;
+                }
                 if (Get.isRegistered<MainShellController>()) {
                   Get.find<MainShellController>().refreshPreferences();
+                }
+                if (Get.isRegistered<DashboardController>()) {
+                  await Get.find<DashboardController>()
+                      .refreshLanguageAndUser();
                 }
               },
             );
@@ -124,6 +132,7 @@ class DashboardView extends GetView<DashboardController> {
         final isLoading = controller.isLoading.value;
         final error = controller.errorMessage.value;
         final syncMessage = controller.syncMessage.value;
+        final isSyncError = controller.isSyncError.value;
 
         if (isLoading && overview == null) {
           return const Center(child: CircularProgressIndicator());
@@ -174,7 +183,10 @@ class DashboardView extends GetView<DashboardController> {
             padding: const EdgeInsets.all(16),
             children: <Widget>[
               if (syncMessage != null) ...<Widget>[
-                _SyncStatusBanner(message: syncMessage),
+                _SyncStatusBanner(
+                  message: syncMessage,
+                  isError: isSyncError,
+                ),
                 const SizedBox(height: 12),
               ],
               DashboardBannerCard(
@@ -222,33 +234,43 @@ class DashboardView extends GetView<DashboardController> {
 
 class _SyncStatusBanner extends StatelessWidget {
   final String message;
+  final bool isError;
 
-  const _SyncStatusBanner({required this.message});
+  const _SyncStatusBanner({
+    required this.message,
+    required this.isError,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final bgColor = isError ? const Color(0xFFFFF1F2) : PorhiTheme.emerald50;
+    final borderColor =
+        isError ? const Color(0xFFFECDD3) : const Color(0xFFA7F3D0);
+    final iconColor = isError ? PorhiTheme.rose600 : PorhiTheme.emerald600;
+    final textColor = isError ? PorhiTheme.rose600 : PorhiTheme.slate900;
+    final icon = isError
+        ? Icons.error_outline_rounded
+        : Icons.check_circle_outline_rounded;
+
     return Container(
+      key: const Key('sync_status_banner'),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: PorhiTheme.emerald50,
+        color: bgColor,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFA7F3D0)),
+        border: Border.all(color: borderColor),
       ),
       child: Row(
         children: <Widget>[
-          const Icon(
-            Icons.check_circle_outline_rounded,
-            size: 18,
-            color: PorhiTheme.emerald600,
-          ),
+          Icon(icon, size: 18, color: iconColor),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w600,
-                color: PorhiTheme.slate900,
+                color: textColor,
               ),
             ),
           ),
@@ -303,6 +325,8 @@ class _ContinueLearningCard extends StatelessWidget {
                                   'Recommended Next Lesson',
                                   lang,
                                 ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
@@ -313,25 +337,31 @@ class _ContinueLearningCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                if (topic != null)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: PorhiTheme.emerald50,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      topic.chapterTitle,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
-                        color: PorhiTheme.emerald600,
+                if (topic != null) ...<Widget>[
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: PorhiTheme.emerald50,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        topic.chapterTitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          color: PorhiTheme.emerald600,
+                        ),
                       ),
                     ),
                   ),
+                ],
               ],
             ),
             const SizedBox(height: 10),
@@ -433,6 +463,8 @@ class _RevisionDueCard extends StatelessWidget {
                           'Revision Due (Spaced Repetition)',
                           lang,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -443,6 +475,7 @@ class _RevisionDueCard extends StatelessWidget {
                   ],
                 ),
               ),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 8,
@@ -454,6 +487,8 @@ class _RevisionDueCard extends StatelessWidget {
                 ),
                 child: Text(
                   lang == AppLanguage.bn ? '$countTextটি প্রশ্ন' : '$countText due',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -526,6 +561,8 @@ class _RevisionDueCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           '${mistake.topicTitle} • ${mistake.chapterTitle}',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 11.5,
                             color: Color(0xFFB45309),
@@ -575,12 +612,16 @@ class _PlannerAndHubCard extends StatelessWidget {
                   color: PorhiTheme.indigo600,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  AppStrings.tr('কুইক স্টাডি হাব', 'Quick Study Hub', lang),
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: PorhiTheme.slate900,
+                Expanded(
+                  child: Text(
+                    AppStrings.tr('কুইক স্টাডি হাব', 'Quick Study Hub', lang),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                      color: PorhiTheme.slate900,
+                    ),
                   ),
                 ),
               ],
@@ -600,18 +641,25 @@ class _PlannerAndHubCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Text(
-                        '${AppStrings.tr('আজকের স্টাডি রুটিন', "Today's Study Plan", lang)} (${AppStrings.formatNumber(dueCount, lang)})',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: Color(0xFF78350F),
+                      Expanded(
+                        child: Text(
+                          '${AppStrings.tr('আজকের স্টাডি রুটিন', "Today's Study Plan", lang)} (${AppStrings.formatNumber(dueCount, lang)})',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF78350F),
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 8),
                       InkWell(
                         onTap: () => onSelectTab(2),
                         child: Text(
                           AppStrings.tr('প্ল্যানার দেখো', 'Open Planner', lang),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,

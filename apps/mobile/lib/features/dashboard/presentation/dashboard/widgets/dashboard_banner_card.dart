@@ -61,6 +61,8 @@ class DashboardBannerCard extends StatelessWidget {
                       ),
                       child: Text(
                         trackLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
                           color: Color(0xFFE0E7FF),
                           fontSize: 11,
@@ -144,26 +146,35 @@ class DashboardBannerCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              Text(
-                AppStrings.tr(
-                  'সামগ্রিক সিলেবাস অগ্রগতি',
-                  'Overall Syllabus Progress',
-                  lang,
-                ),
-                style: const TextStyle(
-                  color: Color(0xFFE0E7FF),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+              Expanded(
+                child: Text(
+                  AppStrings.tr(
+                    'সামগ্রিক সিলেবাস অগ্রগতি',
+                    'Overall Syllabus Progress',
+                    lang,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Color(0xFFE0E7FF),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
-              Text(
-                lang == AppLanguage.bn
-                    ? '$completedStr/$totalStr টপিক ($pctStr%)'
-                    : '$completedStr/$totalStr Topics ($pctStr%)',
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  lang == AppLanguage.bn
+                      ? '$completedStr/$totalStr টপিক ($pctStr%)'
+                      : '$completedStr/$totalStr Topics ($pctStr%)',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
@@ -209,6 +220,8 @@ class DashboardBannerCard extends StatelessWidget {
                     children: <Widget>[
                       Text(
                         lang == AppLanguage.bn ? day.labelBn : day.labelEn,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.w700,

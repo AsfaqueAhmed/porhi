@@ -5,6 +5,7 @@ import 'package:porhi/features/auth/presentation/login/binding/login_binding.dar
 import 'package:porhi/features/auth/presentation/login/view/login_view.dart';
 import 'package:porhi/features/auth/presentation/onboarding/binding/onboarding_binding.dart';
 import 'package:porhi/features/auth/presentation/onboarding/view/onboarding_view.dart';
+import 'package:porhi/features/dashboard/domain/entities/student_overview_entity.dart';
 import 'package:porhi/features/dashboard/presentation/dashboard/binding/dashboard_binding.dart';
 import 'package:porhi/features/dashboard/presentation/shared/quick_search_sheet.dart';
 import 'package:porhi/features/shell/presentation/main_shell/binding/main_shell_binding.dart';
@@ -41,7 +42,7 @@ class AppPages {
       page: () => const MainShellView(),
       binding: MainShellBinding(),
     ),
-    GetPage(
+    GetPage<QuickSearchTopicEntity?>(
       name: AppRoutes.search,
       page: () => const QuickSearchPage(),
       binding: QuickSearchBinding(),

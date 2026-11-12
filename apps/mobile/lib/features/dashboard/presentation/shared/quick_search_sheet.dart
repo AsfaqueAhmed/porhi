@@ -44,6 +44,7 @@ class _QuickSearchSheetState extends State<QuickSearchSheet> {
     _controller = Get.find<DashboardController>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        _controller.clearSearchQuery();
         _controller.loadQuickSearchCatalog();
       }
     });
@@ -83,6 +84,7 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
     _controller = Get.find<DashboardController>();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        _controller.clearSearchQuery();
         _controller.loadQuickSearchCatalog();
       }
     });
@@ -105,7 +107,8 @@ class _QuickSearchPageState extends State<QuickSearchPage> {
       body: _QuickSearchBody(
         controller: _controller,
         showCloseButton: false,
-        onTopicSelected: (_) => Get.back<void>(),
+        onTopicSelected: (topic) =>
+            Get.back<QuickSearchTopicEntity?>(result: topic),
       ),
     );
   }
@@ -131,28 +134,39 @@ class _QuickSearchBody extends StatelessWidget {
           child: Row(
             children: <Widget>[
               Expanded(
-                child: Obx(() {
-                  final lang = controller.language.value;
-                  return TextField(
-                    key: const Key('quick_search_input'),
-                    controller: controller.searchQueryController,
-                    autofocus: true,
-                    onChanged: controller.onSearchQueryChanged,
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.search_rounded),
-                      hintText: AppStrings.tr(
-                        'টপিক, অধ্যায় বা "ল্যাব" খুঁজুন...',
-                        'Search topics, chapters, or "lab"...',
-                        lang,
-                      ),
-                      suffixIcon: IconButton(
-                        tooltip: AppStrings.t('action.cancel', lang),
-                        icon: const Icon(Icons.clear_rounded, size: 18),
-                        onPressed: controller.clearSearchQuery,
-                      ),
-                    ),
-                  );
-                }),
+                child: ValueListenableBuilder<TextEditingValue>(
+                  valueListenable: controller.searchQueryController,
+                  builder: (context, value, _) {
+                    return Obx(() {
+                      final lang = controller.language.value;
+                      return TextField(
+                        key: const Key('quick_search_input'),
+                        controller: controller.searchQueryController,
+                        autofocus: true,
+                        onChanged: controller.onSearchQueryChanged,
+                        decoration: InputDecoration(
+                          prefixIcon: const Icon(Icons.search_rounded),
+                          hintText: AppStrings.tr(
+                            'টপিক, অধ্যায় বা "ল্যাব" খুঁজুন...',
+                            'Search topics, chapters, or "lab"...',
+                            lang,
+                          ),
+                          suffixIcon: value.text.isEmpty
+                              ? null
+                              : IconButton(
+                                  key: const Key('quick_search_clear_button'),
+                                  tooltip: AppStrings.tr('মুছুন', 'Clear', lang),
+                                  icon: const Icon(
+                                    Icons.clear_rounded,
+                                    size: 18,
+                                  ),
+                                  onPressed: controller.clearSearchQuery,
+                                ),
+                        ),
+                      );
+                    });
+                  },
+                ),
               ),
               if (showCloseButton)
                 IconButton(

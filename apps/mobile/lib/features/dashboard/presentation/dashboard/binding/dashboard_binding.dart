@@ -3,10 +3,10 @@ import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
 import 'package:porhi/features/dashboard/domain/usecases/student_usecases.dart';
 import 'package:porhi/features/dashboard/presentation/dashboard/controller/dashboard_controller.dart';
 
-/// Standalone binding for `/search` route when opened outside [MainShellBinding].
-class QuickSearchBinding extends Bindings {
-  @override
-  void dependencies() {
+/// Registers [DashboardController] without `fenix: true` so popped `/home`
+/// and `/search` controllers are disposed cleanly on logout.
+class DashboardBinding extends Bindings {
+  static void registerDependencies() {
     if (!Get.isRegistered<DashboardController>()) {
       Get.lazyPut<DashboardController>(
         () => DashboardController(
@@ -29,8 +29,20 @@ class QuickSearchBinding extends Bindings {
           getLanguageUseCase: Get.find<GetLanguageUseCase>(),
           getActiveSubjectIdUseCase: Get.find<GetActiveSubjectIdUseCase>(),
         ),
-        fenix: true,
       );
     }
+  }
+
+  @override
+  void dependencies() {
+    registerDependencies();
+  }
+}
+
+/// Standalone binding for `/search` route when opened outside [MainShellBinding].
+class QuickSearchBinding extends Bindings {
+  @override
+  void dependencies() {
+    DashboardBinding.registerDependencies();
   }
 }

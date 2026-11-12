@@ -12,6 +12,29 @@ List<dynamic> _asList(Object? raw) {
   return const <dynamic>[];
 }
 
+String _asString(Object? raw, {String fallback = ''}) {
+  if (raw == null) return fallback;
+  if (raw is String) return raw;
+  return raw.toString();
+}
+
+String? _asNullableString(Object? raw) {
+  if (raw == null) return null;
+  if (raw is String) return raw;
+  return raw.toString();
+}
+
+bool _asBool(Object? raw, {bool fallback = false}) {
+  if (raw is bool) return raw;
+  if (raw is num) return raw != 0;
+  if (raw is String) {
+    final normalized = raw.trim().toLowerCase();
+    if (normalized == 'true' || normalized == '1') return true;
+    if (normalized == 'false' || normalized == '0') return false;
+  }
+  return fallback;
+}
+
 int _asInt(Object? raw, {int fallback = 0}) {
   if (raw is int) return raw;
   if (raw is num) return raw.toInt();
@@ -65,23 +88,29 @@ class StudentOverviewModel extends BaseResponseModel<StudentOverviewModel> {
     final notesRaw = _asMap(json['lessonNotes']);
 
     return StudentOverviewModel(
-      subjectId: (json['subjectId'] ?? 'sub_ssc_physics').toString(),
+      subjectId: _asString(json['subjectId'], fallback: 'sub_ssc_physics'),
       curriculumTotals: _asMap(json['curriculumTotals']),
-      completedTopicIds: completedRaw.map((e) => e.toString()).toList(),
+      completedTopicIds: completedRaw
+          .map((e) => _asString(e))
+          .where((e) => e.isNotEmpty)
+          .toList(),
       lastStudiedTopic: json['lastStudiedTopic'] is Map
           ? _asMap(json['lastStudiedTopic'])
           : null,
       practiceStats: _asMap(json['practiceStats']),
       streakDays: _asInt(json['streakDays']),
-      studyDates: studyDatesRaw.map((e) => e.toString()).toList(),
+      studyDates: studyDatesRaw
+          .map((e) => _asString(e))
+          .where((e) => e.isNotEmpty)
+          .toList(),
       dueMistakes: _asList(json['dueMistakes']).map(_asMap).toList(),
       weakTopics: _asList(json['weakTopics']).map(_asMap).toList(),
       recentExams: _asList(json['recentExams']).map(_asMap).toList(),
       bookmarks: _asList(json['bookmarks']).map(_asMap).toList(),
       lessonNotes: notesRaw.map(
-        (key, value) => MapEntry<String, String>(key, (value ?? '').toString()),
+        (key, value) => MapEntry<String, String>(key, _asString(value)),
       ),
-      message: json['message'] as String?,
+      message: _asNullableString(json['message']),
     );
   }
 
@@ -127,11 +156,11 @@ class StudentOverviewModel extends BaseResponseModel<StudentOverviewModel> {
       lastStudiedTopic: lastTopic == null
           ? null
           : LastStudiedTopicEntity(
-              topicId: (lastTopic['topicId'] ?? '').toString(),
-              topicTitle: (lastTopic['topicTitle'] ?? '').toString(),
-              chapterId: (lastTopic['chapterId'] ?? '').toString(),
-              chapterTitle: (lastTopic['chapterTitle'] ?? '').toString(),
-              timestamp: (lastTopic['timestamp'] ?? '').toString(),
+              topicId: _asString(lastTopic['topicId']),
+              topicTitle: _asString(lastTopic['topicTitle']),
+              chapterId: _asString(lastTopic['chapterId']),
+              chapterTitle: _asString(lastTopic['chapterTitle']),
+              timestamp: _asString(lastTopic['timestamp']),
             ),
       practiceStats: PracticeStatsEntity(
         totalAttempts: _asInt(practiceStats['totalAttempts']),
@@ -144,27 +173,27 @@ class StudentOverviewModel extends BaseResponseModel<StudentOverviewModel> {
       dueMistakes: dueMistakes
           .map(
             (m) => DueMistakeEntity(
-              id: (m['id'] ?? '').toString(),
-              questionId: (m['questionId'] ?? '').toString(),
+              id: _asString(m['id']),
+              questionId: _asString(m['questionId']),
               attemptCount: _asInt(m['attemptCount'], fallback: 1),
-              updatedAt: (m['updatedAt'] ?? '').toString(),
-              topicId: (m['topicId'] ?? '').toString(),
-              topicTitle: (m['topicTitle'] ?? '').toString(),
-              chapterId: (m['chapterId'] ?? '').toString(),
-              chapterTitle: (m['chapterTitle'] ?? '').toString(),
-              stem: (m['stem'] ?? '').toString(),
-              correctOptionText: (m['correctOptionText'] ?? '').toString(),
-              conceptNote: (m['conceptNote'] ?? '').toString(),
+              updatedAt: _asString(m['updatedAt']),
+              topicId: _asString(m['topicId']),
+              topicTitle: _asString(m['topicTitle']),
+              chapterId: _asString(m['chapterId']),
+              chapterTitle: _asString(m['chapterTitle']),
+              stem: _asString(m['stem']),
+              correctOptionText: _asString(m['correctOptionText']),
+              conceptNote: _asString(m['conceptNote']),
             ),
           )
           .toList(),
       weakTopics: weakTopics
           .map(
             (w) => WeakTopicEntity(
-              topicId: (w['topicId'] ?? '').toString(),
-              topicTitle: (w['topicTitle'] ?? '').toString(),
-              chapterId: (w['chapterId'] ?? '').toString(),
-              chapterTitle: (w['chapterTitle'] ?? '').toString(),
+              topicId: _asString(w['topicId']),
+              topicTitle: _asString(w['topicTitle']),
+              chapterId: _asString(w['chapterId']),
+              chapterTitle: _asString(w['chapterTitle']),
               accuracy: _asInt(w['accuracy']),
               mistakeCount: _asInt(w['mistakeCount']),
             ),
@@ -173,25 +202,25 @@ class StudentOverviewModel extends BaseResponseModel<StudentOverviewModel> {
       recentExams: recentExams
           .map(
             (e) => RecentExamEntity(
-              sessionId: (e['sessionId'] ?? '').toString(),
-              chapterId: e['chapterId'] as String?,
-              subjectId: (e['subjectId'] ?? subjectId).toString(),
+              sessionId: _asString(e['sessionId']),
+              chapterId: _asNullableString(e['chapterId']),
+              subjectId: _asString(e['subjectId'], fallback: subjectId),
               score: _asDouble(e['score']),
               totalQuestions: _asInt(e['totalQuestions']),
               durationSeconds: _asInt(e['durationSeconds']),
-              completedAt: e['completedAt'] as String?,
+              completedAt: _asNullableString(e['completedAt']),
             ),
           )
           .toList(),
       bookmarks: bookmarks
           .map(
             (b) => StudentBookmarkEntity(
-              id: (b['id'] ?? '').toString(),
-              type: (b['type'] ?? 'topic').toString(),
-              titleBangla: (b['titleBangla'] ?? '').toString(),
-              subtitleBangla: b['subtitleBangla'] as String?,
-              href: (b['href'] ?? '').toString(),
-              createdAt: (b['createdAt'] ?? '').toString(),
+              id: _asString(b['id']),
+              type: _asString(b['type'], fallback: 'topic'),
+              titleBangla: _asString(b['titleBangla']),
+              subtitleBangla: _asNullableString(b['subtitleBangla']),
+              href: _asString(b['href']),
+              createdAt: _asString(b['createdAt']),
             ),
           )
           .toList(),
@@ -218,7 +247,7 @@ class PlannerOverviewModel extends BaseResponseModel<PlannerOverviewModel> {
     return PlannerOverviewModel(
       tasks: _asList(json['tasks']).map(_asMap).toList(),
       todayDueCount: _asInt(json['todayDueCount']),
-      message: json['message'] as String?,
+      message: _asNullableString(json['message']),
     );
   }
 
@@ -233,15 +262,15 @@ class PlannerOverviewModel extends BaseResponseModel<PlannerOverviewModel> {
       tasks: tasks
           .map(
             (t) => PlannerTaskSummaryEntity(
-              id: (t['id'] ?? '').toString(),
-              titleBangla: (t['titleBangla'] ?? '').toString(),
-              scheduledDate: (t['scheduledDate'] ?? '').toString(),
-              reminderTime: t['reminderTime'] as String?,
-              targetType: (t['targetType'] ?? 'CUSTOM').toString(),
-              subjectId: t['subjectId'] as String?,
-              chapterId: t['chapterId'] as String?,
-              topicId: t['topicId'] as String?,
-              completed: t['completed'] as bool? ?? false,
+              id: _asString(t['id']),
+              titleBangla: _asString(t['titleBangla']),
+              scheduledDate: _asString(t['scheduledDate']),
+              reminderTime: _asNullableString(t['reminderTime']),
+              targetType: _asString(t['targetType'], fallback: 'CUSTOM'),
+              subjectId: _asNullableString(t['subjectId']),
+              chapterId: _asNullableString(t['chapterId']),
+              topicId: _asNullableString(t['topicId']),
+              completed: _asBool(t['completed']),
             ),
           )
           .toList(),
@@ -267,12 +296,10 @@ class QuickSearchCatalogModel
     Map<String, dynamic> json, {
     String fallbackSubjectId = 'sub_ssc_physics',
   }) {
-    // Handles both cached normalized payload (`items`) and raw backend array
-    // wrapped by BaseWrapperModel (`json`).
     if (json['items'] is List) {
       return QuickSearchCatalogModel(
         items: _asList(json['items']).map(_asMap).toList(),
-        message: json['message'] as String?,
+        message: _asNullableString(json['message']),
       );
     }
 
@@ -281,22 +308,22 @@ class QuickSearchCatalogModel
 
     for (final rawChapter in rawChapters) {
       final ch = _asMap(rawChapter);
-      final chapterId = (ch['id'] ?? '').toString();
-      final chapterTitle = (ch['titleBangla'] ?? '').toString();
-      final subjectId = (ch['subjectId'] ?? fallbackSubjectId).toString();
+      final chapterId = _asString(ch['id']);
+      final chapterTitle = _asString(ch['titleBangla']);
+      final subjectId = _asString(ch['subjectId'], fallback: fallbackSubjectId);
       final topics = _asList(ch['topics']);
 
       for (final rawTopic in topics) {
         final top = _asMap(rawTopic);
-        final topicId = (top['id'] ?? '').toString();
+        final topicId = _asString(top['id']);
         if (topicId.isEmpty) continue;
         flattened.add(<String, dynamic>{
           'topicId': topicId,
-          'topicTitle': (top['titleBangla'] ?? '').toString(),
+          'topicTitle': _asString(top['titleBangla']),
           'chapterId': chapterId,
           'chapterTitle': chapterTitle,
           'subjectId': subjectId,
-          'hasInteractiveLab': top['hasInteractiveLab'] as bool? ?? false,
+          'hasInteractiveLab': _asBool(top['hasInteractiveLab']),
           'lessonCount': _asInt(top['lessonCount']),
           'questionCount': _asInt(top['questionCount']),
         });
@@ -305,7 +332,7 @@ class QuickSearchCatalogModel
 
     return QuickSearchCatalogModel(
       items: flattened,
-      message: json['message'] as String?,
+      message: _asNullableString(json['message']),
     );
   }
 
@@ -316,12 +343,15 @@ class QuickSearchCatalogModel
     return items
         .map(
           (item) => QuickSearchTopicEntity(
-            topicId: (item['topicId'] ?? '').toString(),
-            topicTitle: (item['topicTitle'] ?? '').toString(),
-            chapterId: (item['chapterId'] ?? '').toString(),
-            chapterTitle: (item['chapterTitle'] ?? '').toString(),
-            subjectId: (item['subjectId'] ?? 'sub_ssc_physics').toString(),
-            hasInteractiveLab: item['hasInteractiveLab'] as bool? ?? false,
+            topicId: _asString(item['topicId']),
+            topicTitle: _asString(item['topicTitle']),
+            chapterId: _asString(item['chapterId']),
+            chapterTitle: _asString(item['chapterTitle']),
+            subjectId: _asString(
+              item['subjectId'],
+              fallback: 'sub_ssc_physics',
+            ),
+            hasInteractiveLab: _asBool(item['hasInteractiveLab']),
             lessonCount: _asInt(item['lessonCount']),
             questionCount: _asInt(item['questionCount']),
           ),
@@ -358,16 +388,16 @@ class GuardianShareLinkModel extends BaseResponseModel<GuardianShareLinkModel> {
 
   factory GuardianShareLinkModel.fromJson(Map<String, dynamic> json) {
     return GuardianShareLinkModel(
-      id: (json['id'] ?? '').toString(),
-      shareCode: (json['shareCode'] ?? '').toString(),
-      audience: (json['audience'] ?? 'PARENT').toString(),
-      recipientLabel: json['recipientLabel'] as String?,
-      isActive: json['isActive'] as bool? ?? false,
-      sharePath: (json['sharePath'] ?? '').toString(),
-      createdAt: (json['createdAt'] ?? '').toString(),
-      revokedAt: json['revokedAt'] as String?,
-      lastViewedAt: json['lastViewedAt'] as String?,
-      message: json['message'] as String?,
+      id: _asString(json['id']),
+      shareCode: _asString(json['shareCode']),
+      audience: _asString(json['audience'], fallback: 'PARENT'),
+      recipientLabel: _asNullableString(json['recipientLabel']),
+      isActive: _asBool(json['isActive']),
+      sharePath: _asString(json['sharePath']),
+      createdAt: _asString(json['createdAt']),
+      revokedAt: _asNullableString(json['revokedAt']),
+      lastViewedAt: _asNullableString(json['lastViewedAt']),
+      message: _asNullableString(json['message']),
     );
   }
 
@@ -413,7 +443,7 @@ class GuardianShareLinkListModel
       links: raw
           .map((e) => GuardianShareLinkModel.fromJson(_asMap(e)))
           .toList(),
-      message: json['message'] as String?,
+      message: _asNullableString(json['message']),
     );
   }
 
@@ -433,8 +463,8 @@ class ToggleBookmarkResponseModel
 
   factory ToggleBookmarkResponseModel.fromJson(Map<String, dynamic> json) {
     return ToggleBookmarkResponseModel(
-      bookmarked: json['bookmarked'] as bool? ?? false,
-      message: json['message'] as String?,
+      bookmarked: _asBool(json['bookmarked']),
+      message: _asNullableString(json['message']),
     );
   }
 
@@ -458,10 +488,10 @@ class SaveNoteResponseModel extends BaseResponseModel<SaveNoteResponseModel> {
 
   factory SaveNoteResponseModel.fromJson(Map<String, dynamic> json) {
     return SaveNoteResponseModel(
-      success: json['success'] as bool? ?? true,
-      topicId: (json['topicId'] ?? '').toString(),
-      content: (json['content'] ?? '').toString(),
-      message: json['message'] as String?,
+      success: _asBool(json['success'], fallback: true),
+      topicId: _asString(json['topicId']),
+      content: _asString(json['content']),
+      message: _asNullableString(json['message']),
     );
   }
 
@@ -482,8 +512,8 @@ class StudentAckModel extends BaseResponseModel<StudentAckModel> {
 
   factory StudentAckModel.fromJson(Map<String, dynamic> json) {
     return StudentAckModel(
-      success: json['success'] as bool? ?? true,
-      message: json['message'] as String?,
+      success: _asBool(json['success'], fallback: true),
+      message: _asNullableString(json['message']),
     );
   }
 
