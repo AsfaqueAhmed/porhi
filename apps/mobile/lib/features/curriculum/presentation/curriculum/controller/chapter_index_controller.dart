@@ -356,6 +356,23 @@ class ChapterIndexController extends GetxController {
     }
   }
 
+  Future<void> refreshOverviewStateFromCache() async {
+    final activeId = subjectId.value;
+    if (activeId.isEmpty) return;
+
+    final cachedOverview = await _getCachedOverviewUseCase(subjectId: activeId);
+    if (isClosed) return;
+    if (cachedOverview != null) {
+      completedTopicIds.assignAll(cachedOverview.completedTopicIds);
+      bookmarkedTopicIds.assignAll(
+        cachedOverview.bookmarks
+            .where((b) => b.type == 'topic')
+            .map((b) => b.id),
+      );
+      _applyFilters();
+    }
+  }
+
   void _applyFilters() {
     final filtered = _filterChaptersUseCase(
       chapters: allChapters,

@@ -6,6 +6,7 @@ import 'package:porhi/features/dashboard/domain/entities/student_overview_entity
 import 'package:porhi/features/dashboard/presentation/dashboard/controller/dashboard_controller.dart';
 import 'package:porhi/features/dashboard/presentation/dashboard/widgets/dashboard_banner_card.dart';
 import 'package:porhi/features/dashboard/presentation/shared/quick_search_sheet.dart';
+import 'package:porhi/features/lesson/domain/entities/lesson_entities.dart';
 import 'package:porhi/features/shell/presentation/main_shell/controller/main_shell_controller.dart';
 import 'package:porhi/routes/app_routes.dart';
 
@@ -203,6 +204,15 @@ class DashboardView extends GetView<DashboardController> {
                 lang: lang,
                 lastStudiedTopic: data.lastStudiedTopic,
                 onOpenSubjects: () => _selectShellTab(1),
+                onContinueLesson: data.lastStudiedTopic == null
+                    ? null
+                    : () => _openLesson(
+                          topicId: data.lastStudiedTopic!.topicId,
+                          subjectId: data.subjectId,
+                          chapterId: data.lastStudiedTopic!.chapterId,
+                          chapterTitle: data.lastStudiedTopic!.chapterTitle,
+                          topicTitle: data.lastStudiedTopic!.topicTitle,
+                        ),
               ),
               const SizedBox(height: 16),
               _RevisionDueCard(
@@ -216,6 +226,14 @@ class DashboardView extends GetView<DashboardController> {
                 bookmarks: data.bookmarks,
                 onSelectTab: _selectShellTab,
                 onOpenSearch: () => QuickSearchSheet.show(context),
+                onOpenBookmark: data.bookmarks.isNotEmpty &&
+                        data.bookmarks.first.type == 'topic'
+                    ? () => _openLesson(
+                          topicId: data.bookmarks.first.id,
+                          subjectId: data.subjectId,
+                          topicTitle: data.bookmarks.first.titleBangla,
+                        )
+                    : null,
               ),
               const SizedBox(height: 24),
             ],
@@ -223,6 +241,30 @@ class DashboardView extends GetView<DashboardController> {
         );
       }),
     );
+  }
+
+  Future<void> _openLesson({
+    required String topicId,
+    required String subjectId,
+    String? chapterId,
+    String? chapterTitle,
+    String? topicTitle,
+  }) async {
+    final lessonRoute = AppRoutes.lessonForTopic(topicId);
+    if (Get.routeTree.matchRoute(lessonRoute).route != null) {
+      await Get.toNamed(
+        lessonRoute,
+        arguments: LessonRouteArgs(
+          subjectId: subjectId,
+          chapterId: chapterId,
+          chapterTitle: chapterTitle,
+          topicTitle: topicTitle,
+        ),
+      );
+      await controller.refreshLanguageAndUser();
+      return;
+    }
+    _selectShellTab(1);
   }
 
   void _selectShellTab(int index) {
@@ -284,11 +326,13 @@ class _ContinueLearningCard extends StatelessWidget {
   final AppLanguage lang;
   final LastStudiedTopicEntity? lastStudiedTopic;
   final VoidCallback onOpenSubjects;
+  final VoidCallback? onContinueLesson;
 
   const _ContinueLearningCard({
     required this.lang,
     required this.lastStudiedTopic,
     required this.onOpenSubjects,
+    this.onContinueLesson,
   });
 
   @override
@@ -397,7 +441,7 @@ class _ContinueLearningCard extends StatelessWidget {
               runSpacing: 8,
               children: <Widget>[
                 ElevatedButton.icon(
-                  onPressed: onOpenSubjects,
+                  onPressed: onContinueLesson ?? onOpenSubjects,
                   icon: const Icon(Icons.arrow_forward_rounded, size: 18),
                   label: Text(
                     AppStrings.tr('পড়া চালিয়ে যান', 'Continue Learning', lang),
@@ -584,6 +628,7 @@ class _PlannerAndHubCard extends StatelessWidget {
   final List<StudentBookmarkEntity> bookmarks;
   final ValueChanged<int> onSelectTab;
   final VoidCallback onOpenSearch;
+  final VoidCallback? onOpenBookmark;
 
   const _PlannerAndHubCard({
     required this.lang,
@@ -591,6 +636,7 @@ class _PlannerAndHubCard extends StatelessWidget {
     required this.bookmarks,
     required this.onSelectTab,
     required this.onOpenSearch,
+    this.onOpenBookmark,
   });
 
   @override
@@ -690,35 +736,45 @@ class _PlannerAndHubCard extends StatelessWidget {
             ),
             if (bookmarks.isNotEmpty) ...<Widget>[
               const SizedBox(height: 10),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: PorhiTheme.slate50,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: PorhiTheme.slate200),
-                ),
-                child: Row(
-                  children: <Widget>[
-                    const Icon(
-                      Icons.bookmark_rounded,
-                      size: 16,
-                      color: PorhiTheme.indigo600,
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        bookmarks.first.titleBangla,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w700,
-                          color: PorhiTheme.indigo700,
+              InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: onOpenBookmark,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: PorhiTheme.slate50,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: PorhiTheme.slate200),
+                  ),
+                  child: Row(
+                    children: <Widget>[
+                      const Icon(
+                        Icons.bookmark_rounded,
+                        size: 16,
+                        color: PorhiTheme.indigo600,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          bookmarks.first.titleBangla,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w700,
+                            color: PorhiTheme.indigo700,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                      if (onOpenBookmark != null)
+                        const Icon(
+                          Icons.chevron_right_rounded,
+                          size: 18,
+                          color: PorhiTheme.slate400,
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ],

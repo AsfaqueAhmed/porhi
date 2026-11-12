@@ -4,7 +4,9 @@ import 'package:porhi/core/i18n/app_strings.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
 import 'package:porhi/features/dashboard/domain/entities/student_overview_entity.dart';
 import 'package:porhi/features/dashboard/presentation/dashboard/controller/dashboard_controller.dart';
+import 'package:porhi/features/lesson/domain/entities/lesson_entities.dart';
 import 'package:porhi/features/shell/presentation/main_shell/controller/main_shell_controller.dart';
+import 'package:porhi/routes/app_routes.dart';
 
 /// Quick Search modal bottom sheet searching chapters, topics, and interactive labs.
 class QuickSearchSheet extends StatefulWidget {
@@ -59,7 +61,22 @@ class _QuickSearchSheetState extends State<QuickSearchSheet> {
         Navigator.of(context).pop();
         if (widget.onTopicSelected != null) {
           widget.onTopicSelected!(topic);
-        } else if (Get.isRegistered<MainShellController>()) {
+          return;
+        }
+        final lessonRoute = AppRoutes.lessonForTopic(topic.topicId);
+        if (Get.routeTree.matchRoute(lessonRoute).route != null) {
+          Get.toNamed(
+            lessonRoute,
+            arguments: LessonRouteArgs(
+              subjectId: topic.subjectId,
+              chapterId: topic.chapterId,
+              chapterTitle: topic.chapterTitle,
+              topicTitle: topic.topicTitle,
+            ),
+          );
+          return;
+        }
+        if (Get.isRegistered<MainShellController>()) {
           Get.find<MainShellController>().selectTab(1);
         }
       },

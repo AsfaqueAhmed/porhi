@@ -349,6 +349,11 @@ class AppDatabase extends _$AppDatabase {
         .get();
   }
 
+  Future<int> markCachedLessonCompleted(String topicId) {
+    return (update(cachedLessons)..where((t) => t.topicId.equals(topicId)))
+        .write(const CachedLessonsCompanion(isCompleted: Value(true)));
+  }
+
   Future<void> upsertCachedQuestions(List<CachedQuestionInput> items) {
     if (items.isEmpty) return Future.value();
     return batch((b) {
@@ -375,6 +380,11 @@ class AppDatabase extends _$AppDatabase {
   Future<List<CachedQuestion>> getCachedQuestionsByChapter(String chapterId) {
     return (select(cachedQuestions)
           ..where((t) => t.chapterId.equals(chapterId)))
+        .get();
+  }
+
+  Future<List<CachedQuestion>> getCachedQuestionsByTopic(String topicId) {
+    return (select(cachedQuestions)..where((t) => t.topicId.equals(topicId)))
         .get();
   }
 

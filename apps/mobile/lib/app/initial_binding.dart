@@ -22,11 +22,20 @@ import 'package:porhi/features/curriculum/data/datasources/curriculum_remote_dat
 import 'package:porhi/features/curriculum/data/repositories/curriculum_repository_impl.dart';
 import 'package:porhi/features/curriculum/domain/repositories/curriculum_repository.dart';
 import 'package:porhi/features/curriculum/domain/usecases/curriculum_usecases.dart';
+import 'package:porhi/features/content_report/data/datasources/content_report_remote_datasource.dart';
+import 'package:porhi/features/content_report/data/repositories/content_report_repository_impl.dart';
+import 'package:porhi/features/content_report/domain/repositories/content_report_repository.dart';
+import 'package:porhi/features/content_report/domain/usecases/content_report_usecases.dart';
 import 'package:porhi/features/dashboard/data/datasources/student_local_datasource.dart';
 import 'package:porhi/features/dashboard/data/datasources/student_remote_datasource.dart';
 import 'package:porhi/features/dashboard/data/repositories/student_repository_impl.dart';
 import 'package:porhi/features/dashboard/domain/repositories/student_repository.dart';
 import 'package:porhi/features/dashboard/domain/usecases/student_usecases.dart';
+import 'package:porhi/features/lesson/data/datasources/lesson_local_datasource.dart';
+import 'package:porhi/features/lesson/data/datasources/lesson_remote_datasource.dart';
+import 'package:porhi/features/lesson/data/repositories/lesson_repository_impl.dart';
+import 'package:porhi/features/lesson/domain/repositories/lesson_repository.dart';
+import 'package:porhi/features/lesson/domain/usecases/lesson_usecases.dart';
 import 'package:porhi/routes/app_routes.dart';
 
 class InitialBinding extends Bindings {
@@ -306,6 +315,59 @@ class InitialBinding extends Bindings {
     );
     _lazyPutIfAbsent<SetActiveCurriculumSubjectUseCase>(
       () => SetActiveCurriculumSubjectUseCase(Get.find<CurriculumRepository>()),
+    );
+
+    _lazyPutIfAbsent<LessonRemoteDataSource>(
+      () => LessonRemoteDataSourceImpl(),
+    );
+    _lazyPutIfAbsent<LessonLocalDataSource>(
+      () => LessonLocalDataSourceImpl(database: database),
+    );
+    _lazyPutIfAbsent<LessonRepository>(
+      () => LessonRepositoryImpl(
+        remoteDataSource: Get.find<LessonRemoteDataSource>(),
+        localDataSource: Get.find<LessonLocalDataSource>(),
+        offlineSyncService: offlineSyncService,
+      ),
+    );
+    _lazyPutIfAbsent<GetLessonByTopicUseCase>(
+      () => GetLessonByTopicUseCase(Get.find<LessonRepository>()),
+    );
+    _lazyPutIfAbsent<GetCachedLessonByTopicUseCase>(
+      () => GetCachedLessonByTopicUseCase(Get.find<LessonRepository>()),
+    );
+    _lazyPutIfAbsent<GetTopicQuickQuestionsUseCase>(
+      () => GetTopicQuickQuestionsUseCase(Get.find<LessonRepository>()),
+    );
+    _lazyPutIfAbsent<GetCachedTopicQuickQuestionsUseCase>(
+      () => GetCachedTopicQuickQuestionsUseCase(Get.find<LessonRepository>()),
+    );
+    _lazyPutIfAbsent<SubmitQuickCheckAttemptUseCase>(
+      () => SubmitQuickCheckAttemptUseCase(Get.find<LessonRepository>()),
+    );
+    _lazyPutIfAbsent<CompleteLessonUseCase>(
+      () => CompleteLessonUseCase(Get.find<LessonRepository>()),
+    );
+    _lazyPutIfAbsent<GetLocalLessonNoteUseCase>(
+      () => GetLocalLessonNoteUseCase(Get.find<LessonRepository>()),
+    );
+    _lazyPutIfAbsent<SaveLocalLessonNoteUseCase>(
+      () => SaveLocalLessonNoteUseCase(Get.find<LessonRepository>()),
+    );
+
+    _lazyPutIfAbsent<ContentReportRemoteDataSource>(
+      () => ContentReportRemoteDataSourceImpl(),
+    );
+    _lazyPutIfAbsent<ContentReportRepository>(
+      () => ContentReportRepositoryImpl(
+        remoteDataSource: Get.find<ContentReportRemoteDataSource>(),
+      ),
+    );
+    _lazyPutIfAbsent<SubmitContentReportUseCase>(
+      () => SubmitContentReportUseCase(Get.find<ContentReportRepository>()),
+    );
+    _lazyPutIfAbsent<ListMyContentReportsUseCase>(
+      () => ListMyContentReportsUseCase(Get.find<ContentReportRepository>()),
     );
   }
 

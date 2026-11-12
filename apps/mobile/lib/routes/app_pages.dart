@@ -12,6 +12,8 @@ import 'package:porhi/features/curriculum/presentation/subjects/view/subjects_vi
 import 'package:porhi/features/dashboard/domain/entities/student_overview_entity.dart';
 import 'package:porhi/features/dashboard/presentation/dashboard/binding/dashboard_binding.dart';
 import 'package:porhi/features/dashboard/presentation/shared/quick_search_sheet.dart';
+import 'package:porhi/features/lesson/presentation/lesson/binding/lesson_binding.dart';
+import 'package:porhi/features/lesson/presentation/lesson/view/lesson_view.dart';
 import 'package:porhi/features/shell/presentation/main_shell/binding/main_shell_binding.dart';
 import 'package:porhi/features/shell/presentation/main_shell/view/main_shell_view.dart';
 
@@ -60,6 +62,11 @@ class AppPages {
       name: AppRoutes.chapters,
       page: () => const ChapterIndexView(),
       binding: CurriculumBinding(),
+    ),
+    GetPage(
+      name: AppRoutes.lesson,
+      page: () => const LessonView(),
+      binding: LessonBinding(),
     ),
   ];
 }

@@ -5,6 +5,7 @@ import 'package:porhi/core/theme/porhi_theme.dart';
 import 'package:porhi/features/curriculum/domain/entities/curriculum_entities.dart';
 import 'package:porhi/features/curriculum/presentation/curriculum/controller/chapter_index_controller.dart';
 import 'package:porhi/features/curriculum/presentation/curriculum/widgets/chapter_accordion_card.dart';
+import 'package:porhi/features/lesson/domain/entities/lesson_entities.dart';
 import 'package:porhi/routes/app_routes.dart';
 
 class ChapterIndexView extends GetView<ChapterIndexController> {
@@ -283,7 +284,28 @@ class ChapterIndexView extends GetView<ChapterIndexController> {
   ) async {
     final lessonRoute = AppRoutes.lessonForTopic(topic.id);
     if (_isRouteRegistered(lessonRoute)) {
-      await Get.toNamed(lessonRoute);
+      final siblingTopics = chapter.topics
+          .map(
+            (item) => LessonSiblingTopicEntity(
+              id: item.id,
+              chapterId: chapter.id,
+              orderIndex: item.orderIndex,
+              titleBangla: item.titleBangla,
+              hasInteractiveLab: item.hasInteractiveLab,
+            ),
+          )
+          .toList();
+      await Get.toNamed(
+        lessonRoute,
+        arguments: LessonRouteArgs(
+          subjectId: controller.subjectId.value,
+          chapterId: chapter.id,
+          chapterTitle: chapter.titleBangla,
+          topicTitle: topic.titleBangla,
+          siblingTopics: siblingTopics,
+        ),
+      );
+      await controller.refreshOverviewStateFromCache();
       return;
     }
 
