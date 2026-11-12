@@ -72,6 +72,13 @@ describe('PersistentNav', () => {
     expect(topicLinks.length).toBeGreaterThanOrEqual(1);
     expect(topicLinks[0].getAttribute('href')).toBe('/lesson/top_ssc_physics_ch1_1');
   });
+
+  it('renders compact Account & Settings link pointing to /account', () => {
+    render(<PersistentNav currentPath="/dashboard" />);
+
+    const accountLink = screen.getByRole('link', { name: /অ্যাকাউন্ট ও সেটিংস|Account/i });
+    expect(accountLink.getAttribute('href')).toBe('/account');
+  });
 });
 
 describe('useUserStore & curriculum-data helpers', () => {

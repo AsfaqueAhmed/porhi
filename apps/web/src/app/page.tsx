@@ -32,18 +32,22 @@ export default function LandingPage() {
       setGuestLoading(true);
       const generatedGuestId = 'guest_' + Math.random().toString(36).substring(2, 9);
       try {
+        setGuestId(generatedGuestId);
         const res = await apiClient.post<{ accessToken?: string; user?: any }>('/auth/guest', {
           guestId: generatedGuestId,
         });
-        if (res.accessToken) {
+        if (res?.accessToken) {
           setToken(res.accessToken);
         }
-        if (res.user) {
+        if (res?.user?.guestId) {
+          setGuestId(res.user.guestId);
+        }
+        if (res?.user) {
           setUser(res.user);
         }
       } catch {
         setGuestId(generatedGuestId);
-        setUser({ id: generatedGuestId, isGuest: true });
+        setUser({ id: generatedGuestId, guestId: generatedGuestId, isGuest: true });
       }
       router.push('/dashboard');
     } finally {

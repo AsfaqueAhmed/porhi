@@ -17,6 +17,7 @@ import { toBanglaDigits } from '@/lib/formatters';
 import { LatexRenderer } from '@/components/math/latex-renderer';
 import { DEFAULT_CHAPTERS, findTopicHierarchy } from '@/lib/curriculum-data';
 import { apiClient } from '@/lib/api-client';
+import { ensureGuestSession } from '@/lib/guest-session';
 
 export default function ProgressPage() {
   const {
@@ -37,6 +38,7 @@ export default function ProgressPage() {
   useEffect(() => {
     async function loadServerProgress() {
       try {
+        await ensureGuestSession().catch(() => {});
         const res = await apiClient.get<ServerOverviewPayload>(
           `/student/overview?subjectId=${encodeURIComponent(subjectId)}`
         );

@@ -11,9 +11,24 @@ export interface ActiveSubject {
 
 export interface UserProfile {
   id: string;
-  phoneNumber?: string;
+  guestId?: string | null;
+  phoneNumber?: string | null;
+  fullName?: string | null;
   role?: string;
+  selectedClass?: string;
   isGuest?: boolean;
+}
+
+export interface ReportedIssueItem {
+  id: string;
+  contentType: 'LESSON' | 'QUESTION';
+  contentId: string;
+  topicId?: string | null;
+  category: string;
+  description: string;
+  status: string;
+  resolutionNote?: string | null;
+  createdAt: string;
 }
 
 export interface TopicMasteryStats {
@@ -138,6 +153,12 @@ export interface ServerOverviewPayload {
       completedAt?: string | null;
     }
   >;
+  bookmarks?: Array<
+    BookmarkItem & {
+      subtitleBangla?: string | null;
+    }
+  >;
+  lessonNotes?: Record<string, string>;
 }
 
 interface UserState {
@@ -155,6 +176,7 @@ interface UserState {
   examHistory: ExamHistoryItem[];
   bookmarks: BookmarkItem[];
   lessonNotes: Record<string, string>;
+  reportedIssues: ReportedIssueItem[];
   studyDates: string[];
 
   setGuestId: (id: string | null) => void;
@@ -183,6 +205,7 @@ interface UserState {
   resolveMistake: (questionId: string) => void;
   toggleBookmark: (item: Omit<BookmarkItem, 'createdAt'>) => void;
   saveLessonNote: (topicId: string, note: string) => void;
+  addReportedIssue: (issue: ReportedIssueItem) => void;
   hydrateFromServerOverview: (overview: ServerOverviewPayload) => void;
 }
 
@@ -197,7 +220,7 @@ function addStudyDate(existing: string[], dateStr = getTodayIsoDate()): string[]
 
 export const useUserStore = create<UserState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       guestId: null,
       token: null,
       user: null,
@@ -217,6 +240,7 @@ export const useUserStore = create<UserState>()(
       examHistory: [],
       bookmarks: [],
       lessonNotes: {},
+      reportedIssues: [],
       studyDates: [],
 
       setGuestId: (id) => set({ guestId: id }),
@@ -362,22 +386,61 @@ export const useUserStore = create<UserState>()(
           ),
         })),
 
-      toggleBookmark: (item) =>
+      toggleBookmark: (item) => {
         set((state) => {
           const exists = state.bookmarks.some((b) => b.id === item.id && b.type === item.type);
           const bookmarks = exists
             ? state.bookmarks.filter((b) => !(b.id === item.id && b.type === item.type))
             : [{ ...item, createdAt: new Date().toISOString() }, ...state.bookmarks];
           return { bookmarks };
-        }),
+        });
 
-      saveLessonNote: (topicId, note) =>
+        if (get().token) {
+          import('@/lib/api-client')
+            .then(({ apiClient }) =>
+              Promise.resolve(
+                apiClient.post('/student/bookmarks/toggle', {
+                  itemId: item.id,
+                  itemType: item.type,
+                  titleBangla: item.titleBangla,
+                  subtitleBangla: item.subtitleBangla,
+                  href: item.href,
+                }),
+              ).catch(() => {}),
+            )
+            .catch(() => {});
+        }
+      },
+
+      saveLessonNote: (topicId, note) => {
         set((state) => ({
           lessonNotes: {
             ...state.lessonNotes,
             [topicId]: note,
           },
-        })),
+        }));
+
+        if (get().token) {
+          import('@/lib/api-client')
+            .then(({ apiClient }) =>
+              Promise.resolve(
+                apiClient.post('/student/notes', {
+                  topicId,
+                  content: note,
+                }),
+              ).catch(() => {}),
+            )
+            .catch(() => {});
+        }
+      },
+
+      addReportedIssue: (issue) =>
+        set((state) => {
+          const filtered = state.reportedIssues.filter((r) => r.id !== issue.id);
+          return {
+            reportedIssues: [issue, ...filtered].slice(0, 30),
+          };
+        }),
 
       hydrateFromServerOverview: (overview) =>
         set((state) => {
@@ -506,11 +569,34 @@ export const useUserStore = create<UserState>()(
                 }
               : null);
 
+          const mergedBookmarks = [...state.bookmarks];
+          if (Array.isArray(overview.bookmarks)) {
+            for (const srvBm of overview.bookmarks) {
+              if (!mergedBookmarks.some((b) => b.id === srvBm.id && b.type === srvBm.type)) {
+                mergedBookmarks.push({
+                  id: srvBm.id,
+                  type: srvBm.type,
+                  titleBangla: srvBm.titleBangla,
+                  subtitleBangla: srvBm.subtitleBangla ?? undefined,
+                  href: srvBm.href,
+                  createdAt: srvBm.createdAt || new Date().toISOString(),
+                });
+              }
+            }
+          }
+
+          const mergedLessonNotes: Record<string, string> = {
+            ...(overview.lessonNotes || {}),
+            ...state.lessonNotes,
+          };
+
           return {
             completedTopics: Array.from(mergedCompleted),
             topicMastery: mergedMastery,
             savedMistakes: mergedMistakes,
             examHistory: mergedExams.slice(0, 20),
+            bookmarks: mergedBookmarks,
+            lessonNotes: mergedLessonNotes,
             studyDates: mergedStudyDates,
             lastVisitedTopic,
             streakDays:
@@ -535,6 +621,7 @@ export const useUserStore = create<UserState>()(
         examHistory: state.examHistory,
         bookmarks: state.bookmarks,
         lessonNotes: state.lessonNotes,
+        reportedIssues: state.reportedIssues,
         studyDates: state.studyDates,
       }),
     }

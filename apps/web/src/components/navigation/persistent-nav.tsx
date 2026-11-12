@@ -14,6 +14,7 @@ import {
   X,
   Zap,
   CheckCircle2,
+  User,
 } from 'lucide-react';
 import { useUserStore } from '@/store/user-store';
 import { useLanguageStore } from '@/store/language-store';
@@ -35,6 +36,7 @@ export const PersistentNav: React.FC<PersistentNavProps> = ({ currentPath: propP
   const bookmarks = useUserStore((s) => s.bookmarks);
   const completedTopics = useUserStore((s) => s.completedTopics);
   const toggleBookmark = useUserStore((s) => s.toggleBookmark);
+  const user = useUserStore((s) => s.user);
 
   const t = useLanguageStore((s) => s.t);
   const formatDigits = useLanguageStore((s) => s.formatDigits);
@@ -287,6 +289,21 @@ export const PersistentNav: React.FC<PersistentNavProps> = ({ currentPath: propP
           <div className="hidden md:block">
             <LanguageToggle />
           </div>
+
+          <Link
+            href="/account"
+            aria-label={lang === 'en' ? 'Account & Settings' : 'অ্যাকাউন্ট ও সেটিংস'}
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold border transition-colors ${
+              activePath === '/account'
+                ? 'bg-indigo-100 text-indigo-800 border-indigo-200'
+                : 'bg-slate-100 hover:bg-slate-200/80 text-slate-700 border-slate-200'
+            }`}
+          >
+            <User className="w-3.5 h-3.5 text-indigo-600" />
+            <span className="hidden sm:inline max-w-[90px] truncate">
+              {user?.fullName || (lang === 'en' ? 'Account' : 'অ্যাকাউন্ট')}
+            </span>
+          </Link>
         </div>
       </div>
 

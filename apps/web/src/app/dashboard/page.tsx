@@ -19,6 +19,7 @@ import { useLanguageStore } from '@/store/language-store';
 import { toBanglaDigits } from '@/lib/formatters';
 import { DEFAULT_CHAPTERS } from '@/lib/curriculum-data';
 import { apiClient } from '@/lib/api-client';
+import { ensureGuestSession } from '@/lib/guest-session';
 
 export default function DashboardPage() {
   const {
@@ -38,6 +39,7 @@ export default function DashboardPage() {
   useEffect(() => {
     async function fetchOverview() {
       try {
+        await ensureGuestSession().catch(() => {});
         const res = await apiClient.get<ServerOverviewPayload>(
           `/student/overview?subjectId=${encodeURIComponent(subjectId)}`
         );
