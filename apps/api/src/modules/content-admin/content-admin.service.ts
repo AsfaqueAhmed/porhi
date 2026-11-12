@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ContentStatus, Prisma, Role } from '@prisma/client';
+import { ContentStatus, Prisma, ReportStatus, Role } from '@prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import { CreateLessonAdminDto } from './dto/create-lesson-admin.dto';
 import { CreateQuestionAdminDto } from './dto/create-question-admin.dto';
@@ -15,6 +15,10 @@ import { CreateTopicAdminDto } from './dto/create-topic-admin.dto';
 import { CreateSubjectAdminDto } from './dto/create-subject-admin.dto';
 import { ListQuestionsQueryDto } from './dto/list-questions-query.dto';
 import { UpdateQuestionAdminDto } from './dto/update-question-admin.dto';
+import {
+  ListContentReportsQueryDto,
+  ResolveContentReportDto,
+} from './dto/content-reports-admin.dto';
 import { CONTENT_HIERARCHY_INCLUDE } from './admin-content-query.util';
 import { createLessonRecord } from './content-admin-lessons.helpers';
 
@@ -769,6 +773,230 @@ export class ContentAdminService {
         isVerified: false,
       },
       include: QUESTION_HIERARCHY_INCLUDE,
+    });
+  }
+
+  async listContentReports(query: ListContentReportsQueryDto = {}) {
+    if (typeof (this.prisma as any).contentReport?.findMany !== 'function') {
+      return {
+        items: [],
+        summary: {
+          total: 0,
+          openCount: 0,
+          inReviewCount: 0,
+          resolvedCount: 0,
+          dismissedCount: 0,
+          avgResolutionHours: null,
+        },
+      };
+    }
+
+    const where: Record<string, any> = {};
+    if (query.status) where.status = query.status;
+    if (query.category) where.category = query.category;
+    if (query.contentType) where.contentType = query.contentType;
+
+    const [filteredRows, allRows] = await Promise.all([
+      (this.prisma as any).contentReport.findMany({
+        where,
+        include: {
+          user: { select: { id: true, phoneNumber: true, fullName: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        take: 100,
+      }),
+      (this.prisma as any).contentReport.findMany({
+        where: {},
+        orderBy: { createdAt: 'desc' },
+        take: 500,
+      }),
+    ]);
+
+    const lessonIds = Array.from(
+      new Set(
+        (filteredRows as any[])
+          .filter((r) => r.contentType === 'LESSON')
+          .map((r) => r.contentId),
+      ),
+    );
+    const questionIds = Array.from(
+      new Set(
+        (filteredRows as any[])
+          .filter((r) => r.contentType === 'QUESTION')
+          .map((r) => r.contentId),
+      ),
+    );
+
+    const [lessons, questions] = await Promise.all([
+      lessonIds.length > 0 && typeof (this.prisma.lesson as any)?.findMany === 'function'
+        ? (this.prisma.lesson as any)
+            .findMany({
+              where: { id: { in: lessonIds } },
+              include: { topic: { include: { chapter: true } } },
+            })
+            .catch(() => [])
+        : Promise.resolve([]),
+      questionIds.length > 0 && typeof (this.prisma.question as any)?.findMany === 'function'
+        ? (this.prisma.question as any)
+            .findMany({
+              where: { id: { in: questionIds } },
+              include: { topic: { include: { chapter: true } } },
+            })
+            .catch(() => [])
+        : Promise.resolve([]),
+    ]);
+
+    const lessonMap = new Map<string, any>((lessons as any[]).map((l) => [l.id, l]));
+    const questionMap = new Map<string, any>((questions as any[]).map((q) => [q.id, q]));
+
+    const items = (filteredRows as any[]).map((r) => {
+      const lesson = r.contentType === 'LESSON' ? lessonMap.get(r.contentId) : null;
+      const question = r.contentType === 'QUESTION' ? questionMap.get(r.contentId) : null;
+      const target = lesson || question;
+      return {
+        id: r.id,
+        userId: r.userId ?? null,
+        reporterName: r.user?.fullName || r.user?.phoneNumber || null,
+        contentType: r.contentType,
+        contentId: r.contentId,
+        topicId: r.topicId ?? target?.topicId ?? null,
+        contentTitle: lesson?.titleBangla || question?.stem || r.contentId,
+        contentStatus: target?.status ?? null,
+        topicTitleBangla: target?.topic?.titleBangla ?? null,
+        chapterTitleBangla: target?.topic?.chapter?.titleBangla ?? null,
+        category: r.category,
+        description: r.description,
+        status: r.status,
+        resolutionNote: r.resolutionNote ?? null,
+        resolvedById: r.resolvedById ?? null,
+        resolvedAt: r.resolvedAt ? new Date(r.resolvedAt).toISOString() : null,
+        createdAt: r.createdAt ? new Date(r.createdAt).toISOString() : new Date().toISOString(),
+      };
+    });
+
+    let openCount = 0;
+    let inReviewCount = 0;
+    let resolvedCount = 0;
+    let dismissedCount = 0;
+    let totalResolutionMs = 0;
+    let resolvedWithTimestamps = 0;
+
+    for (const r of allRows as any[]) {
+      if (r.status === ReportStatus.OPEN) openCount++;
+      else if (r.status === ReportStatus.IN_REVIEW) inReviewCount++;
+      else if (r.status === ReportStatus.RESOLVED) resolvedCount++;
+      else if (r.status === ReportStatus.DISMISSED) dismissedCount++;
+
+      if (
+        (r.status === ReportStatus.RESOLVED || r.status === ReportStatus.DISMISSED) &&
+        r.resolvedAt &&
+        r.createdAt
+      ) {
+        const diff = new Date(r.resolvedAt).getTime() - new Date(r.createdAt).getTime();
+        if (diff >= 0) {
+          totalResolutionMs += diff;
+          resolvedWithTimestamps++;
+        }
+      }
+    }
+
+    const avgResolutionHours =
+      resolvedWithTimestamps > 0
+        ? Math.round((totalResolutionMs / resolvedWithTimestamps / 3600000) * 10) / 10
+        : null;
+
+    return {
+      items,
+      summary: {
+        total: (allRows as any[]).length,
+        openCount,
+        inReviewCount,
+        resolvedCount,
+        dismissedCount,
+        avgResolutionHours,
+      },
+    };
+  }
+
+  async resolveContentReport(
+    id: string,
+    dto: ResolveContentReportDto,
+    actorId: string,
+    actorRole: Role,
+  ) {
+    if (
+      !([ReportStatus.OPEN, ReportStatus.IN_REVIEW, ReportStatus.RESOLVED, ReportStatus.DISMISSED] as ReportStatus[]).includes(
+        dto.status,
+      )
+    ) {
+      throw new BadRequestException('Invalid report status');
+    }
+
+    const existing = await (this.prisma as any).contentReport.findUnique({
+      where: { id },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(`ContentReport with id ${id} not found`);
+    }
+
+    const isFinalStatus =
+      dto.status === ReportStatus.RESOLVED || dto.status === ReportStatus.DISMISSED;
+
+    return this.prisma.$transaction(async (tx: any) => {
+      let movedToCorrection = false;
+
+      if (dto.moveContentToCorrection === true) {
+        if (!([Role.ADMIN, Role.REVIEWER, Role.EDITOR] as Role[]).includes(actorRole)) {
+          throw new ForbiddenException('Insufficient permissions to move content to correction');
+        }
+        if (existing.contentType === 'LESSON' && typeof tx.lesson?.updateMany === 'function') {
+          const res = await tx.lesson.updateMany({
+            where: { id: existing.contentId },
+            data: { status: ContentStatus.CORRECTION, isVerified: false },
+          });
+          movedToCorrection = (res?.count ?? 0) > 0;
+        } else if (
+          existing.contentType === 'QUESTION' &&
+          typeof tx.question?.updateMany === 'function'
+        ) {
+          const res = await tx.question.updateMany({
+            where: { id: existing.contentId },
+            data: { status: ContentStatus.CORRECTION, isVerified: false },
+          });
+          movedToCorrection = (res?.count ?? 0) > 0;
+        }
+      }
+
+      const updated = await tx.contentReport.update({
+        where: { id },
+        data: {
+          status: dto.status,
+          resolutionNote:
+            dto.resolutionNote !== undefined
+              ? dto.resolutionNote.trim() || null
+              : existing.resolutionNote,
+          resolvedById: isFinalStatus ? actorId : null,
+          resolvedAt: isFinalStatus ? new Date() : null,
+        },
+      });
+
+      return {
+        report: {
+          id: updated.id,
+          contentType: updated.contentType,
+          contentId: updated.contentId,
+          topicId: updated.topicId ?? null,
+          category: updated.category,
+          description: updated.description,
+          status: updated.status,
+          resolutionNote: updated.resolutionNote ?? null,
+          resolvedById: updated.resolvedById ?? null,
+          resolvedAt: updated.resolvedAt ? new Date(updated.resolvedAt).toISOString() : null,
+          createdAt: updated.createdAt ? new Date(updated.createdAt).toISOString() : null,
+        },
+        movedToCorrection,
+      };
     });
   }
 }

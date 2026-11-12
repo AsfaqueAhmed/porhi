@@ -28,6 +28,10 @@ import { ListQuestionsQueryDto } from './dto/list-questions-query.dto';
 import { UpdateQuestionAdminDto } from './dto/update-question-admin.dto';
 import { ListLessonsQueryDto } from './dto/list-lessons-query.dto';
 import { UpdateLessonAdminDto } from './dto/update-lesson-admin.dto';
+import {
+  ListContentReportsQueryDto,
+  ResolveContentReportDto,
+} from './dto/content-reports-admin.dto';
 
 @Controller('admin/content')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -164,5 +168,26 @@ export class ContentAdminController {
   @Roles(Role.EDITOR, Role.REVIEWER, Role.ADMIN)
   async getTopicContent(@Param('topicId') topicId: string) {
     return this.contentAdminService.getTopicContent(topicId);
+  }
+
+  @Get('reports')
+  @Roles(Role.EDITOR, Role.REVIEWER, Role.ADMIN)
+  async listContentReports(@Query() query: ListContentReportsQueryDto) {
+    return this.contentAdminService.listContentReports(query);
+  }
+
+  @Patch('reports/:id')
+  @Roles(Role.EDITOR, Role.REVIEWER, Role.ADMIN)
+  async resolveContentReport(
+    @Param('id') id: string,
+    @Body() dto: ResolveContentReportDto,
+    @Req() req: { user: { id: string; role: Role } },
+  ) {
+    return this.contentAdminService.resolveContentReport(
+      id,
+      dto,
+      req.user.id,
+      req.user.role,
+    );
   }
 }

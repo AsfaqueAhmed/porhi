@@ -8,6 +8,7 @@ import { ExamModule } from './modules/exam/exam.module';
 import { ContentAdminModule } from './modules/content-admin/content-admin.module';
 import { MediaAdminModule } from './modules/media-admin/media-admin.module';
 import { StudentModule } from './modules/student/student.module';
+import { ContentReportModule } from './modules/content-report/content-report.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { StudentModule } from './modules/student/student.module';
     ContentAdminModule,
     MediaAdminModule,
     StudentModule,
+    ContentReportModule,
   ],
   controllers: [],
   providers: [],
