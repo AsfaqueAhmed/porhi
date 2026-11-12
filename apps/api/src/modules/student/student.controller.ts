@@ -1,7 +1,8 @@
-import { Body, Controller, Get, Inject, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { StudentService } from './student.service';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import {
+  CreateGuardianShareLinkDto,
   LessonCompleteDto,
   SaveNoteDto,
   SubmitFeedbackDto,
@@ -68,5 +69,26 @@ export class StudentController {
     @Req() req?: { user?: any },
   ) {
     return this.studentService.syncOfflineActivity(req?.user?.id, body);
+  }
+
+  @Post('share-links')
+  async createShareLink(
+    @Body() body: CreateGuardianShareLinkDto,
+    @Req() req?: { user?: any },
+  ) {
+    return this.studentService.createShareLink(req?.user?.id, body);
+  }
+
+  @Get('share-links')
+  async listShareLinks(@Req() req?: { user?: any }) {
+    return this.studentService.listShareLinks(req?.user?.id);
+  }
+
+  @Delete('share-links/:id')
+  async revokeShareLink(
+    @Param('id') id: string,
+    @Req() req?: { user?: any },
+  ) {
+    return this.studentService.revokeShareLink(req?.user?.id, id);
   }
 }

@@ -1,4 +1,5 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { randomBytes } from 'crypto';
 import { PrismaService } from '../../database/prisma.service';
 import { ContentStatus } from '@prisma/client';
 
@@ -9,6 +10,10 @@ const SUBJECT_CODE_ALIASES: Record<string, string> = {
   sub_ssc_chemistry: 'ssc_chemistry',
   'sub-ssc-chem': 'ssc_chemistry',
   'chem-ssc': 'ssc_chemistry',
+  sub_class8_science: 'class8_science',
+  sub_hsc_physics_1: 'hsc_physics_1',
+  sub_admission_physics: 'admission_ka_physics',
+  sub_bcs_preliminary: 'bcs_preliminary',
 };
 
 export interface StudentOverviewResponse {
@@ -918,5 +923,71 @@ export class StudentService {
     }
 
     return { syncedLessons, syncedAttempts, syncedExams };
+  }
+
+  private formatShareLink(link: any) {
+    return {
+      id: link.id,
+      shareCode: link.shareCode,
+      audience: link.audience === 'TEACHER' ? 'TEACHER' : 'PARENT',
+      recipientLabel: link.recipientLabel ?? null,
+      isActive: Boolean(link.isActive),
+      sharePath: `/guardian/${link.shareCode}`,
+      createdAt: new Date(link.createdAt || Date.now()).toISOString(),
+      revokedAt: link.revokedAt ? new Date(link.revokedAt).toISOString() : null,
+      lastViewedAt: link.lastViewedAt ? new Date(link.lastViewedAt).toISOString() : null,
+    };
+  }
+
+  async createShareLink(
+    userId: string | undefined,
+    dto: { audience: 'PARENT' | 'TEACHER'; recipientLabel?: string },
+  ) {
+    if (!userId) {
+      throw new UnauthorizedException('অগ্রগতি শেয়ার লিংক তৈরি করতে সক্রিয় সেশন প্রয়োজন।');
+    }
+    const shareCode = randomBytes(6).toString('hex');
+    const created = await (this.prisma as any).guardianShareLink.create({
+      data: {
+        userId,
+        shareCode,
+        audience: dto.audience === 'TEACHER' ? 'TEACHER' : 'PARENT',
+        recipientLabel: dto.recipientLabel?.trim() || null,
+        isActive: true,
+      },
+    });
+    return this.formatShareLink(created);
+  }
+
+  async listShareLinks(userId: string | undefined) {
+    if (!userId) {
+      return [];
+    }
+    const links = await (this.prisma as any).guardianShareLink.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      take: 20,
+    });
+    return (links as any[]).map((link) => this.formatShareLink(link));
+  }
+
+  async revokeShareLink(userId: string | undefined, id: string) {
+    if (!userId) {
+      throw new UnauthorizedException('লিংক বাতিল করতে সক্রিয় সেশন প্রয়োজন।');
+    }
+    const existing = await (this.prisma as any).guardianShareLink.findUnique({
+      where: { id },
+    });
+    if (!existing || existing.userId !== userId) {
+      throw new NotFoundException('শেয়ার লিংক পাওয়া যায়নি।');
+    }
+    const updated = await (this.prisma as any).guardianShareLink.update({
+      where: { id },
+      data: {
+        isActive: false,
+        revokedAt: new Date(),
+      },
+    });
+    return this.formatShareLink(updated);
   }
 }

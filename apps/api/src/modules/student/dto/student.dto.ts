@@ -186,3 +186,13 @@ export class SyncOfflineDto {
   @Type(() => OfflineExamSubmissionDto)
   examSubmissions?: OfflineExamSubmissionDto[];
 }
+
+export class CreateGuardianShareLinkDto {
+  @IsIn(['PARENT', 'TEACHER'])
+  audience!: 'PARENT' | 'TEACHER';
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  recipientLabel?: string;
+}

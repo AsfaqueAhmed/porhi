@@ -819,4 +819,91 @@ describe('ExamService', () => {
       expect(history.trend).toHaveLength(2);
     });
   });
+
+  describe('Multi-Subject Exam Rehearsal', () => {
+    it('runs a 2-paper rehearsal with intermission transition and combined scoring', async () => {
+      let storedRehearsal: any = null;
+      const rehearsalPrisma: any = {
+        ...prisma,
+        subject: {
+          findMany: vi.fn().mockResolvedValue([
+            { id: 'sub_phy', code: 'ssc_physics', nameBangla: 'পদার্থবিজ্ঞান', program: 'SSC' },
+            { id: 'sub_chem', code: 'ssc_chemistry', nameBangla: 'রসায়ন', program: 'SSC' },
+          ]),
+        },
+        multiExamRehearsal: {
+          create: vi.fn().mockImplementation(async ({ data }: any) => {
+            storedRehearsal = { id: 'reh_1', startedAt: new Date(), ...data };
+            return storedRehearsal;
+          }),
+          findUnique: vi.fn().mockImplementation(async () => storedRehearsal),
+          update: vi.fn().mockImplementation(async ({ data }: any) => {
+            storedRehearsal = { ...storedRehearsal, ...data };
+            return storedRehearsal;
+          }),
+          findMany: vi.fn().mockResolvedValue([]),
+        },
+        examSession: {
+          ...prisma.examSession,
+          create: vi.fn().mockImplementation(async ({ data }: any) => ({
+            id: data.subjectId === 'sub_phy' ? 'sess_p1' : 'sess_p2',
+            ...data,
+            startedAt: new Date(),
+          })),
+          findUnique: vi.fn().mockImplementation(async ({ where }: any) => ({
+            id: where.id,
+            userId: 'user-1',
+            subjectId: where.id === 'sess_p1' ? 'sub_phy' : 'sub_chem',
+            chapterId: null,
+            testType: 'SUBJECT_TEST',
+            durationSeconds: 300,
+            negativeRatio: 0,
+            startedAt: new Date(),
+            status: 'IN_PROGRESS',
+            answers: [{ questionId: 'q1', selectedOptionId: null, timeSpent: 0 }],
+          })),
+          update: vi.fn().mockResolvedValue({}),
+          findMany: vi.fn().mockResolvedValue([]),
+        },
+        question: {
+          findMany: vi.fn().mockResolvedValue([sampleQuestion1]),
+        },
+      };
+
+      const svc = new ExamService(rehearsalPrisma as unknown as PrismaService);
+      const started = await svc.startRehearsal('user-1', {
+        titleBangla: 'SSC বিজ্ঞান ডাবল পেপার',
+        program: 'SSC',
+        papers: [
+          { subjectId: 'sub_phy', labelBangla: 'পত্র ১: পদার্থ', questionCount: 1, durationMinutes: 5 },
+          { subjectId: 'sub_chem', labelBangla: 'পত্র ২: রসায়ন', questionCount: 1, durationMinutes: 5 },
+        ],
+      });
+
+      expect(started.rehearsal.status).toBe('IN_PROGRESS');
+      expect(started.rehearsal.papers).toHaveLength(2);
+      expect(started.rehearsal.papers[0].status).toBe('ACTIVE');
+      expect(started.rehearsal.papers[1].status).toBe('PENDING');
+      expect(started.activeSession?.sessionId).toBe('sess_p1');
+
+      const afterPaper1 = await svc.submitRehearsalPaper('reh_1', 0, 'user-1', {
+        answers: [{ questionId: 'q1', selectedOptionId: 'opt_1a', timeSpent: 10 }],
+      });
+      expect(afterPaper1.rehearsal.status).toBe('INTERMISSION');
+      expect(afterPaper1.rehearsal.currentPaperIndex).toBe(1);
+      expect(afterPaper1.rehearsal.papers[0].status).toBe('SUBMITTED');
+      expect(afterPaper1.rehearsal.papers[0].score).toBe(1);
+
+      const startedPaper2 = await svc.startRehearsalPaper('reh_1', 1, 'user-1');
+      expect(startedPaper2.rehearsal.status).toBe('IN_PROGRESS');
+      expect(startedPaper2.activeSession.sessionId).toBe('sess_p2');
+
+      const completed = await svc.submitRehearsalPaper('reh_1', 1, 'user-1', {
+        answers: [{ questionId: 'q1', selectedOptionId: 'opt_1a', timeSpent: 12 }],
+      });
+      expect(completed.rehearsal.status).toBe('COMPLETED');
+      expect(completed.rehearsal.totalScore).toBe(2);
+      expect(completed.rehearsal.totalMarks).toBe(2);
+    });
+  });
 });

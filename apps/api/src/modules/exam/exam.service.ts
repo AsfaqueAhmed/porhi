@@ -11,6 +11,8 @@ import { ContentStatus } from '@prisma/client';
 import { StartExamDto } from './dto/start-exam.dto';
 import { HeartbeatAnswerDto, HeartbeatExamDto } from './dto/heartbeat-exam.dto';
 import { ExamAnswerDto, SubmitExamDto } from './dto/submit-exam.dto';
+import { StartRehearsalDto } from './dto/rehearsal.dto';
+import type { MultiExamRehearsalDTO, RehearsalPaperStateDTO } from '@pori/shared';
 
 const GRACE_PERIOD_SECONDS = 120;
 
@@ -738,6 +740,257 @@ export class ExamService {
         subjectTestsCount,
       },
       trend,
+    };
+  }
+
+  private formatRehearsal(row: any): MultiExamRehearsalDTO {
+    return {
+      id: row.id,
+      titleBangla: row.titleBangla,
+      program: row.program ?? 'SSC',
+      currentPaperIndex: row.currentPaperIndex ?? 0,
+      status: row.status,
+      totalScore: typeof row.totalScore === 'number' ? row.totalScore : null,
+      totalMarks: typeof row.totalMarks === 'number' ? row.totalMarks : 0,
+      startedAt: new Date(row.startedAt || Date.now()).toISOString(),
+      submittedAt: row.submittedAt ? new Date(row.submittedAt).toISOString() : null,
+      papers: Array.isArray(row.papers) ? (row.papers as RehearsalPaperStateDTO[]) : [],
+    };
+  }
+
+  async startRehearsal(userId: string, dto: StartRehearsalDto) {
+    if (!dto?.papers || dto.papers.length < 2 || dto.papers.length > 5) {
+      throw new BadRequestException('রিহার্সালের জন্য কমপক্ষে ২টি এবং সর্বোচ্চ ৫টি পত্র নির্বাচন করুন।');
+    }
+
+    const requestedIds = Array.from(new Set(dto.papers.map((p) => p.subjectId)));
+    const subjects = await this.prisma.subject.findMany({
+      where: {
+        OR: [{ id: { in: requestedIds } }, { code: { in: requestedIds } }],
+      },
+      select: { id: true, code: true, nameBangla: true, program: true },
+    });
+
+    const subjectLookup = new Map<string, any>();
+    for (const s of subjects) {
+      subjectLookup.set(s.id, s);
+      subjectLookup.set(s.code, s);
+    }
+
+    const resolvedPapers: RehearsalPaperStateDTO[] = dto.papers.map((paper, idx) => {
+      const subject = subjectLookup.get(paper.subjectId);
+      if (!subject) {
+        throw new NotFoundException(`Subject not found: ${paper.subjectId}`);
+      }
+      return {
+        paperIndex: idx,
+        subjectId: subject.id,
+        subjectCode: subject.code,
+        subjectNameBangla: subject.nameBangla,
+        labelBangla: paper.labelBangla?.trim() || `পত্র ${idx + 1}: ${subject.nameBangla}`,
+        questionCount: Math.max(1, Math.min(50, Number(paper.questionCount) || 5)),
+        durationMinutes: Math.max(1, Math.min(120, Number(paper.durationMinutes) || 10)),
+        status: 'PENDING',
+        sessionId: null,
+        score: null,
+        totalMarks: null,
+        correctCount: null,
+        wrongCount: null,
+        unansweredCount: null,
+        timeSpentSeconds: null,
+        startedAt: null,
+        submittedAt: null,
+      };
+    });
+
+    const firstPaper = resolvedPapers[0];
+    const activeSession = await this.startExam(
+      {
+        testType: 'SUBJECT_TEST',
+        subjectId: firstPaper.subjectId,
+        questionLimit: firstPaper.questionCount,
+        durationSeconds: Math.max(60, Math.min(7200, firstPaper.durationMinutes * 60)),
+        negativeRatio: dto.negativeRatio ?? 0.25,
+      },
+      userId,
+    );
+
+    firstPaper.status = 'ACTIVE';
+    firstPaper.sessionId = activeSession.sessionId;
+    firstPaper.totalMarks = activeSession.totalQuestions;
+    firstPaper.startedAt = new Date().toISOString();
+
+    const created = await (this.prisma as any).multiExamRehearsal.create({
+      data: {
+        userId,
+        titleBangla: dto.titleBangla.trim(),
+        program: dto.program?.trim() || subjects[0]?.program || 'SSC',
+        papers: resolvedPapers as any,
+        currentPaperIndex: 0,
+        status: 'IN_PROGRESS',
+        totalMarks: activeSession.totalQuestions,
+      },
+    });
+
+    return {
+      rehearsal: this.formatRehearsal(created),
+      activeSession,
+    };
+  }
+
+  async getRehearsalHistory(userId: string): Promise<MultiExamRehearsalDTO[]> {
+    const rows = await (this.prisma as any).multiExamRehearsal.findMany({
+      where: { userId },
+      orderBy: { startedAt: 'desc' },
+      take: 15,
+    });
+    return (rows as any[]).map((row) => this.formatRehearsal(row));
+  }
+
+  async getRehearsal(rehearsalId: string, userId: string) {
+    const row = await (this.prisma as any).multiExamRehearsal.findUnique({
+      where: { id: rehearsalId },
+    });
+    if (!row) {
+      throw new NotFoundException(`Rehearsal not found with id: ${rehearsalId}`);
+    }
+    if (row.userId !== userId) {
+      throw new ForbiddenException('You do not have access to this exam rehearsal');
+    }
+
+    const rehearsal = this.formatRehearsal(row);
+    const activePaper = rehearsal.papers.find((p) => p.status === 'ACTIVE' && p.sessionId);
+    let activeSession: any = null;
+    if (activePaper?.sessionId) {
+      activeSession = await this.getSession(activePaper.sessionId, userId).catch(() => null);
+    }
+
+    return { rehearsal, activeSession };
+  }
+
+  async startRehearsalPaper(rehearsalId: string, paperIndex: number, userId: string) {
+    const row = await (this.prisma as any).multiExamRehearsal.findUnique({
+      where: { id: rehearsalId },
+    });
+    if (!row) {
+      throw new NotFoundException(`Rehearsal not found with id: ${rehearsalId}`);
+    }
+    if (row.userId !== userId) {
+      throw new ForbiddenException('You do not have access to this exam rehearsal');
+    }
+
+    const papers = Array.isArray(row.papers) ? ([...row.papers] as RehearsalPaperStateDTO[]) : [];
+    const target = papers[paperIndex];
+    if (!target) {
+      throw new BadRequestException(`Invalid paper index: ${paperIndex}`);
+    }
+    if (target.status === 'ACTIVE' && target.sessionId) {
+      const existingSession = await this.getSession(target.sessionId, userId);
+      return { rehearsal: this.formatRehearsal(row), activeSession: existingSession };
+    }
+    if (target.status !== 'PENDING' || paperIndex !== row.currentPaperIndex) {
+      throw new BadRequestException('এই পত্রটি এখনো শুরু করার উপযোগী নয়।');
+    }
+
+    const activeSession = await this.startExam(
+      {
+        testType: 'SUBJECT_TEST',
+        subjectId: target.subjectId,
+        questionLimit: target.questionCount,
+        durationSeconds: Math.max(60, Math.min(7200, target.durationMinutes * 60)),
+      },
+      userId,
+    );
+
+    papers[paperIndex] = {
+      ...target,
+      status: 'ACTIVE',
+      sessionId: activeSession.sessionId,
+      totalMarks: activeSession.totalQuestions,
+      startedAt: new Date().toISOString(),
+    };
+
+    const totalMarks = papers.reduce((sum, p) => sum + (p.totalMarks ?? 0), 0);
+
+    const updated = await (this.prisma as any).multiExamRehearsal.update({
+      where: { id: rehearsalId },
+      data: {
+        papers: papers as any,
+        status: 'IN_PROGRESS',
+        currentPaperIndex: paperIndex,
+        totalMarks,
+      },
+    });
+
+    return {
+      rehearsal: this.formatRehearsal(updated),
+      activeSession,
+    };
+  }
+
+  async submitRehearsalPaper(
+    rehearsalId: string,
+    paperIndex: number,
+    userId: string,
+    dto: SubmitExamDto | ExamAnswerDto[],
+  ) {
+    const row = await (this.prisma as any).multiExamRehearsal.findUnique({
+      where: { id: rehearsalId },
+    });
+    if (!row) {
+      throw new NotFoundException(`Rehearsal not found with id: ${rehearsalId}`);
+    }
+    if (row.userId !== userId) {
+      throw new ForbiddenException('You do not have access to this exam rehearsal');
+    }
+
+    const papers = Array.isArray(row.papers) ? ([...row.papers] as RehearsalPaperStateDTO[]) : [];
+    const target = papers[paperIndex];
+    if (!target || target.status !== 'ACTIVE' || !target.sessionId) {
+      throw new BadRequestException('এই পত্রটি সক্রিয় অবস্থায় নেই।');
+    }
+
+    const result = await this.submitExam(target.sessionId, dto, userId);
+    const nowIso = new Date().toISOString();
+    const startedMs = target.startedAt ? new Date(target.startedAt).getTime() : Date.now();
+    const timeSpentSeconds = Math.max(0, Math.round((Date.now() - startedMs) / 1000));
+
+    papers[paperIndex] = {
+      ...target,
+      status: 'SUBMITTED',
+      score: result.score,
+      totalMarks: result.totalQuestions,
+      correctCount: result.correctCount,
+      wrongCount: result.wrongCount,
+      unansweredCount: result.skippedCount,
+      timeSpentSeconds,
+      submittedAt: nowIso,
+    };
+
+    const hasNextPaper = paperIndex + 1 < papers.length;
+    const totalScore = parseFloat(
+      papers.reduce((sum, p) => sum + (typeof p.score === 'number' ? p.score : 0), 0).toFixed(4),
+    );
+    const totalMarks = papers.reduce(
+      (sum, p) => sum + (typeof p.totalMarks === 'number' ? p.totalMarks : p.questionCount),
+      0,
+    );
+
+    const updated = await (this.prisma as any).multiExamRehearsal.update({
+      where: { id: rehearsalId },
+      data: {
+        papers: papers as any,
+        currentPaperIndex: hasNextPaper ? paperIndex + 1 : paperIndex,
+        status: hasNextPaper ? 'INTERMISSION' : 'COMPLETED',
+        totalScore: hasNextPaper ? null : totalScore,
+        totalMarks,
+        submittedAt: hasNextPaper ? null : new Date(),
+      },
+    });
+
+    return {
+      rehearsal: this.formatRehearsal(updated),
+      paperResult: result,
     };
   }
 }

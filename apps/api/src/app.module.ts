@@ -11,6 +11,7 @@ import { StudentModule } from './modules/student/student.module';
 import { ContentReportModule } from './modules/content-report/content-report.module';
 import { PlannerModule } from './modules/planner/planner.module';
 import { BoardArchiveModule } from './modules/board-archive/board-archive.module';
+import { GuardianModule } from './modules/guardian/guardian.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { BoardArchiveModule } from './modules/board-archive/board-archive.module
     ContentReportModule,
     PlannerModule,
     BoardArchiveModule,
+    GuardianModule,
   ],
   controllers: [],
   providers: [],
