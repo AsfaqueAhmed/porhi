@@ -84,16 +84,16 @@ graph TD
 **Interfaces:**
 - Produces in `@pori/shared`: `ReportStatus`, `ReportCategory`, `ContentReportDTO`, `CqSelfAssessPayload`, `StudentBookmarkSyncItem`
 
-- [ ] **Step 1: Add failing type assertion test in `packages/shared/tests/types.test.ts`**
+- [x] **Step 1: Add failing type assertion test in `packages/shared/tests/types.test.ts`**
   Add a test checking `ReportStatus` enum values (`OPEN`, `IN_REVIEW`, `RESOLVED`, `DISMISSED`) and `ContentReportDTO` shape.
-- [ ] **Step 2: Run shared tests to verify failure**
+- [x] **Step 2: Run shared tests to verify failure**
   Run: `pnpm --filter @pori/shared test` -> FAIL (`ReportStatus` not exported).
-- [ ] **Step 3: Update `packages/shared/src/types/content.ts` and `apps/api/prisma/schema.prisma`**
+- [x] **Step 3: Update `packages/shared/src/types/content.ts` and `apps/api/prisma/schema.prisma`**
   - Export `ReportStatus`, `ReportCategory`, `ContentReportDTO`, `CqSelfAssessPayload`, `StudentBookmarkSyncItem` from `packages/shared/src/types/content.ts`.
   - Add `ReportStatus` enum and `StudentBookmark`, `StudentNote`, `ContentReport` models + relations on `User` in `apps/api/prisma/schema.prisma`.
-- [ ] **Step 4: Build `@pori/shared`, generate Prisma client, and verify tests pass**
+- [x] **Step 4: Build `@pori/shared`, generate Prisma client, and verify tests pass**
   Run: `pnpm --filter @pori/shared build && pnpm --filter @pori/shared test && pnpm --filter @pori/api prisma:generate && pnpm --filter @pori/api test test/prisma.spec.ts` -> PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
   Commit `packages/shared` and `apps/api/prisma/schema.prisma`.
 
 ---
@@ -115,16 +115,16 @@ graph TD
   - `POST /student/feedback` (`{ contentType, contentId, helpful: boolean, comment?: string }`) -> `{ success: true }`
   - `StudentOverviewResponse` optional `bookmarks?` & `lessonNotes?`
 
-- [ ] **Step 1: Write failing unit tests**
+- [x] **Step 1: Write failing unit tests**
   - In `auth.service.spec.ts`: test `updateProfile(userId, dto)` updates `fullName`/`selectedClass` and rejects invalid class values; test `verifyOtp` guest merge carries over `StudentBookmark` & `StudentNote` without failing when optional tables are absent in mocks.
   - In `student.service.spec.ts`: test `toggleBookmark`, `saveLessonNote`, `recordExplanationFeedback`, and `getOverview` returning `bookmarks` & `lessonNotes` when mocked (and safe empty/omitted fallback when not mocked).
-- [ ] **Step 2: Run unit tests to verify failure**
+- [x] **Step 2: Run unit tests to verify failure**
   Run: `pnpm --filter @pori/api test src/modules/auth/auth.service.spec.ts src/modules/student/student.service.spec.ts` -> FAIL.
-- [ ] **Step 3: Implement `AuthService.updateProfile`, guest merge extension, and `StudentService` sync/feedback endpoints**
+- [x] **Step 3: Implement `AuthService.updateProfile`, guest merge extension, and `StudentService` sync/feedback endpoints**
   Keep all existing `EventLog` queries and return shapes strictly unchanged.
-- [ ] **Step 4: Run API tests to verify pass**
+- [x] **Step 4: Run API tests to verify pass**
   Run: `pnpm --filter @pori/api test src/modules/auth/auth.service.spec.ts src/modules/student/student.service.spec.ts test/auth.e2e.spec.ts` -> PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ---
 
@@ -147,14 +147,14 @@ graph TD
   - `GET /admin/content/reports?status=...` (`@Roles(Role.EDITOR, Role.REVIEWER, Role.ADMIN)`) -> `{ items, counts, avgResolutionHours }`
   - `PATCH /admin/content/reports/:id` (`{ status, resolutionNote?, moveContentToCorrection?: boolean }`)
 
-- [ ] **Step 1: Write failing unit & e2e tests**
+- [x] **Step 1: Write failing unit & e2e tests**
   Test guest/authenticated submission (`POST /content-reports`), `GET /content-reports/mine`, `GET /admin/content/reports` avg correction-time calculation, `PATCH /admin/content/reports/:id` setting `resolvedAt` & optionally moving linked `Lesson`/`Question` to `CORRECTION`, and 403 rejection for `STUDENT` role.
-- [ ] **Step 2: Run tests to verify failure**
+- [x] **Step 2: Run tests to verify failure**
   Run: `pnpm --filter @pori/api test src/modules/content-report/content-report.service.spec.ts test/content-report.e2e.spec.ts` -> FAIL.
-- [ ] **Step 3: Implement `ContentReportModule` and `ContentAdminService`/`Controller` report endpoints**
-- [ ] **Step 4: Run tests to verify pass**
+- [x] **Step 3: Implement `ContentReportModule` and `ContentAdminService`/`Controller` report endpoints**
+- [x] **Step 4: Run tests to verify pass**
   Run: `pnpm --filter @pori/api test src/modules/content-report/content-report.service.spec.ts test/content-report.e2e.spec.ts test/content-admin.e2e.spec.ts` -> PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ---
 
@@ -173,15 +173,15 @@ graph TD
   - `GET /practice/chapter/:chapterId/questions?type=MCQ|CQ_CREATIVE|ALL` (defaults to `'MCQ'`)
   - `POST /practice/cq-self-assess` (`{ questionId, selfScores: { ka, kha, ga, gha }, totalScore, maxScore }`)
 
-- [ ] **Step 1: Write failing tests in `exam.service.spec.ts` and `practice.service.spec.ts`**
+- [x] **Step 1: Write failing tests in `exam.service.spec.ts` and `practice.service.spec.ts`**
   - `ExamService`: `startExam` with `questionLimit` slices shuffled questions; `mode: 'WEAK_AREA'` filters/prioritizes unresolved mistakes; default calls still query `{ type: 'MCQ', status: ContentStatus.PUBLISHED, topic: { chapterId } }` identically.
   - `PracticeService`: `?type=CQ_CREATIVE` returns CQ items with `cqRubric` & `explanation`, while `MCQ` queries never expose `isCorrect` or `explanation`; `submitCqSelfAssess` logs `CQ_SELF_ASSESS` event and updates `RevisionMistake`.
-- [ ] **Step 2: Run tests to verify failure**
+- [x] **Step 2: Run tests to verify failure**
   Run: `pnpm --filter @pori/api test src/modules/exam/exam.service.spec.ts src/modules/practice/practice.service.spec.ts` -> FAIL.
-- [ ] **Step 3: Implement `StartExamDto`/`ExamService` enhancements and `PracticeController`/`PracticeService` CQ endpoints**
-- [ ] **Step 4: Run all API tests to verify pass**
+- [x] **Step 3: Implement `StartExamDto`/`ExamService` enhancements and `PracticeController`/`PracticeService` CQ endpoints**
+- [x] **Step 4: Run all API tests to verify pass**
   Run: `pnpm --filter @pori/api test` -> ALL PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ---
 
@@ -198,17 +198,17 @@ graph TD
   - `ensureGuestSession(): Promise<string | null>`
   - `/account` page with Guest-to-OTP upgrade/merge (`guestId`), `PATCH /auth/profile`, bookmarks/notes management, link to `/content-report`, and logout.
 
-- [ ] **Step 1: Write failing tests in `apps/web/tests/account-sync.test.tsx` and `apps/web/tests/navigation.test.tsx`**
+- [x] **Step 1: Write failing tests in `apps/web/tests/account-sync.test.tsx` and `apps/web/tests/navigation.test.tsx`**
   - Verify `LandingPage` `handleGuestStart` persists `guestId` when `/auth/guest` succeeds.
   - Verify `ensureGuestSession()` requests `/auth/guest` once when no token is present and stores `token` + `guestId`.
   - Verify `/account` renders guest badge, links guest session via OTP passing `guestId`, updates profile (`PATCH /auth/profile`), and lists bookmarks & lesson notes.
   - Verify `PersistentNav` includes `/account` link without breaking existing destination tests.
-- [ ] **Step 2: Run web tests to verify failure**
+- [x] **Step 2: Run web tests to verify failure**
   Run: `pnpm --filter @pori/web test tests/account-sync.test.tsx tests/navigation.test.tsx` -> FAIL.
-- [ ] **Step 3: Implement `guest-session.ts`, `user-store.ts` server sync extensions, `page.tsx` fix, `persistent-nav.tsx` link, and `account/page.tsx`**
-- [ ] **Step 4: Run tests to verify pass**
+- [x] **Step 3: Implement `guest-session.ts`, `user-store.ts` server sync extensions, `page.tsx` fix, `persistent-nav.tsx` link, and `account/page.tsx`**
+- [x] **Step 4: Run tests to verify pass**
   Run: `pnpm --filter @pori/web test tests/account-sync.test.tsx tests/navigation.test.tsx` -> PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ---
 
@@ -225,14 +225,14 @@ graph TD
 - Consumes: `POST /content-reports`, `GET /content-reports/mine`, `POST /student/feedback`, `GET /admin/content/reports`, `PATCH /admin/content/reports/:id`.
 - Produces: `ReportContentModal`, `/content-report`, `/admin/reports`.
 
-- [ ] **Step 1: Write failing tests in `content-report.test.tsx` and update `student-lesson-page.test.tsx`**
+- [x] **Step 1: Write failing tests in `content-report.test.tsx` and update `student-lesson-page.test.tsx`**
   Test submitting an error report via modal and `/content-report`, Bengali helpfulness feedback toggle on `/lesson/[topicId]` (`POST /student/feedback`), active reading `timeSpentSeconds` sent on `lesson-complete`, and `/admin/reports` resolving a report (`PATCH /admin/content/reports/:id`).
-- [ ] **Step 2: Run tests to verify failure**
+- [x] **Step 2: Run tests to verify failure**
   Run: `pnpm --filter @pori/web test tests/content-report.test.tsx tests/student-lesson-page.test.tsx` -> FAIL.
-- [ ] **Step 3: Implement `ReportContentModal`, `/content-report`, `/lesson/[topicId]` & `/practice/[chapterId]` triggers, `/admin/reports`, and admin sidebar/topbar integration**
-- [ ] **Step 4: Run tests to verify pass**
+- [x] **Step 3: Implement `ReportContentModal`, `/content-report`, `/lesson/[topicId]` & `/practice/[chapterId]` triggers, `/admin/reports`, and admin sidebar/topbar integration**
+- [x] **Step 4: Run tests to verify pass**
   Run: `pnpm --filter @pori/web test tests/content-report.test.tsx tests/student-lesson-page.test.tsx tests/admin-layout.test.tsx` -> PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ---
 
@@ -246,15 +246,15 @@ graph TD
 **Interfaces:**
 - Consumes: `ensureGuestSession()`, `POST /exam/start`, `PUT /exam/heartbeat/:sessionId`, `POST /exam/submit/:sessionId`, `GET /exam/session/:sessionId`, `GET /practice/chapter/:chapterId/questions?type=CQ_CREATIVE`, `POST /practice/cq-self-assess`, `ReportContentModal`.
 
-- [ ] **Step 1: Write failing tests in `exam-runner.test.tsx` and `practice-runner.test.tsx`**
+- [x] **Step 1: Write failing tests in `exam-runner.test.tsx` and `practice-runner.test.tsx`**
   - `exam-runner.test.tsx`: test setup screen (chapter vs topic vs weak-area, question count, negative marking), calling `ensureGuestSession()` before `/exam/start`, saving & resuming an active session from `localStorage` + `GET /exam/session/:sessionId`, expired session graceful fallback, net score with negative deduction + per-question time + `/lesson/[topicId]` link + report modal in results, and `/exam/result/[sessionId]` rendering a stored session.
   - `practice-runner.test.tsx`: preserve all 4 existing MCQ tests untouched, plus add test for switching to `সৃজনশীল (CQ)` tab, revealing `cqRubric` (`ক/খ/গ/ঘ`), and submitting self-assessment (`POST /practice/cq-self-assess`).
-- [ ] **Step 2: Run tests to verify failure**
+- [x] **Step 2: Run tests to verify failure**
   Run: `pnpm --filter @pori/web test tests/exam-runner.test.tsx tests/practice-runner.test.tsx` -> FAIL.
-- [ ] **Step 3: Implement upgraded `exam/[chapterId]/page.tsx`, `exam/result/[sessionId]/page.tsx`, `progress/page.tsx` result links, and `practice/[chapterId]/page.tsx` CQ mode**
-- [ ] **Step 4: Run full monorepo test, lint, and build verification**
+- [x] **Step 3: Implement upgraded `exam/[chapterId]/page.tsx`, `exam/result/[sessionId]/page.tsx`, `progress/page.tsx` result links, and `practice/[chapterId]/page.tsx` CQ mode**
+- [x] **Step 4: Run full monorepo test, lint, and build verification**
   Run: `pnpm --filter @pori/shared build && pnpm test && pnpm lint && pnpm build` -> ALL PASS.
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ---
 
