@@ -38,7 +38,7 @@ export const PersistentNav: React.FC<PersistentNavProps> = ({ currentPath: propP
 
   const t = useLanguageStore((s) => s.t);
   const formatDigits = useLanguageStore((s) => s.formatDigits);
-  const lang = useLanguageStore((s) => s.lang);
+  const lang = useLanguageStore((s) => s.language);
 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
