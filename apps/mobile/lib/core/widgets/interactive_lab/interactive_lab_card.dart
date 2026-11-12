@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
 import 'package:porhi/app/env.dart';
 import 'package:porhi/core/content/media_url_resolver.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
@@ -27,12 +28,29 @@ class ResolvedLabSource {
   bool get isEmpty => source.trim().isEmpty;
 }
 
+bool _looksLikeDevicePath(String rawUrl) {
+  return rawUrl.startsWith('/data/') ||
+      rawUrl.startsWith('/storage/') ||
+      rawUrl.startsWith('/var/') ||
+      rawUrl.startsWith('/Users/') ||
+      rawUrl.startsWith('/tmp/');
+}
+
+bool _hasExplicitScheme(String value) {
+  final colonIdx = value.indexOf(':');
+  if (colonIdx <= 0) return false;
+  final prefix = value.substring(0, colonIdx);
+  return RegExp(r'^[a-zA-Z][a-zA-Z0-9+.-]*$').hasMatch(prefix);
+}
+
 /// Resolves an interactive lab URL, local offline HTML path, or inline HTML snippet.
+/// Rejects dangerous schemes (`javascript:`, `intent:`, `data:`, `blob:`, etc.).
 ResolvedLabSource resolveInteractiveLabSource({
   String? widgetUrl,
   String? htmlContent,
   EnvConfig? envConfig,
   bool forceLocalFile = false,
+  bool allowLocalFile = true,
 }) {
   final rawHtml = htmlContent?.trim() ?? '';
   if (rawHtml.isNotEmpty) {
@@ -52,22 +70,34 @@ ResolvedLabSource resolveInteractiveLabSource({
     );
   }
 
-  if (rawUrl.startsWith('file://')) {
+  if (rawUrl.toLowerCase().startsWith('file://')) {
+    if (!allowLocalFile) {
+      return const ResolvedLabSource(source: '', isLocalFile: false, isHtml: false);
+    }
+    final localPath = tryParseLocalFilePath(rawUrl);
+    if (localPath == null) {
+      return const ResolvedLabSource(source: '', isLocalFile: false, isHtml: false);
+    }
     return ResolvedLabSource(
-      source: Uri.parse(rawUrl).toFilePath(),
+      source: localPath,
       isLocalFile: true,
       isHtml: false,
     );
   }
 
-  final looksLikeDevicePath = forceLocalFile ||
-      rawUrl.startsWith('/data/') ||
-      rawUrl.startsWith('/storage/') ||
-      rawUrl.startsWith('/var/') ||
-      rawUrl.startsWith('/Users/') ||
-      rawUrl.startsWith('/tmp/');
+  if (_hasExplicitScheme(rawUrl) || rawUrl.startsWith('//')) {
+    final webUri = tryParseAllowedWebUri(rawUrl);
+    if (webUri == null) {
+      return const ResolvedLabSource(source: '', isLocalFile: false, isHtml: false);
+    }
+    return ResolvedLabSource(
+      source: webUri.toString(),
+      isLocalFile: false,
+      isHtml: false,
+    );
+  }
 
-  if (looksLikeDevicePath) {
+  if (allowLocalFile && (forceLocalFile || _looksLikeDevicePath(rawUrl))) {
     return ResolvedLabSource(
       source: rawUrl,
       isLocalFile: true,
@@ -75,11 +105,71 @@ ResolvedLabSource resolveInteractiveLabSource({
     );
   }
 
+  final resolved = resolvePorhiMediaUrl(rawUrl, envConfig: envConfig);
+  final webUri = tryParseAllowedWebUri(resolved);
+  if (webUri == null) {
+    return const ResolvedLabSource(source: '', isLocalFile: false, isHtml: false);
+  }
+
   return ResolvedLabSource(
-    source: resolvePorhiMediaUrl(rawUrl, envConfig: envConfig),
+    source: webUri.toString(),
     isLocalFile: false,
     isHtml: false,
   );
+}
+
+/// Navigation guard for [InteractiveLabWebView].
+/// Blocks `javascript:`, `intent:`, `data:`, unexpected `file://`, and cross-origin redirects.
+NavigationDecision decideInteractiveLabNavigation(
+  String url, {
+  Uri? initialUri,
+  String? initialLocalFilePath,
+  required bool isLocalFile,
+  required bool isHtml,
+}) {
+  final trimmed = url.trim();
+  if (trimmed == 'about:blank') {
+    return NavigationDecision.navigate;
+  }
+
+  if (isHtml) {
+    return NavigationDecision.prevent;
+  }
+
+  final uri = Uri.tryParse(trimmed);
+  if (uri == null) {
+    return NavigationDecision.prevent;
+  }
+  final scheme = uri.scheme.toLowerCase();
+
+  if (isLocalFile) {
+    if (scheme != 'file' || initialLocalFilePath == null) {
+      return NavigationDecision.prevent;
+    }
+    final targetPath = tryParseLocalFilePath(trimmed);
+    if (targetPath == null) {
+      return NavigationDecision.prevent;
+    }
+    final normalizedRoot = p.normalize(p.dirname(initialLocalFilePath));
+    final normalizedTarget = p.normalize(targetPath);
+    if (normalizedTarget == normalizedRoot ||
+        p.isWithin(normalizedRoot, normalizedTarget)) {
+      return NavigationDecision.navigate;
+    }
+    return NavigationDecision.prevent;
+  }
+
+  if ((scheme != 'http' && scheme != 'https') || initialUri == null) {
+    return NavigationDecision.prevent;
+  }
+
+  if (uri.scheme.toLowerCase() == initialUri.scheme.toLowerCase() &&
+      uri.host.toLowerCase() == initialUri.host.toLowerCase() &&
+      uri.port == initialUri.port) {
+    return NavigationDecision.navigate;
+  }
+
+  return NavigationDecision.prevent;
 }
 
 /// Sandboxed HTML5 interactive lab runner with reload, offline `loadFile`, and fullscreen mode.
@@ -89,6 +179,7 @@ class InteractiveLabWebView extends StatefulWidget {
   final String title;
   final double height;
   final bool forceLocalFile;
+  final bool allowLocalFile;
   final EnvConfig? envConfig;
   final InteractiveWebViewBuilder? webViewBuilder;
   final VoidCallback? onReloadCallback;
@@ -100,6 +191,7 @@ class InteractiveLabWebView extends StatefulWidget {
     this.title = 'ইন্টারেক্টিভ ল্যাব সিমুলেশন',
     this.height = 360,
     this.forceLocalFile = false,
+    this.allowLocalFile = true,
     this.envConfig,
     this.webViewBuilder,
     this.onReloadCallback,
@@ -111,8 +203,8 @@ class InteractiveLabWebView extends StatefulWidget {
 
 class _InteractiveLabWebViewState extends State<InteractiveLabWebView> {
   WebViewController? _controller;
-  int _reloadTick = 0;
-  bool _isLoading = false;
+  final ValueNotifier<int> _reloadTickNotifier = ValueNotifier<int>(0);
+  final ValueNotifier<bool> _isLoadingNotifier = ValueNotifier<bool>(false);
   bool _isFullscreenOpen = false;
   bool _disposed = false;
 
@@ -121,6 +213,7 @@ class _InteractiveLabWebViewState extends State<InteractiveLabWebView> {
         htmlContent: widget.htmlContent,
         envConfig: widget.envConfig,
         forceLocalFile: widget.forceLocalFile,
+        allowLocalFile: widget.allowLocalFile,
       );
 
   @override
@@ -136,7 +229,8 @@ class _InteractiveLabWebViewState extends State<InteractiveLabWebView> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.widgetUrl != widget.widgetUrl ||
         oldWidget.htmlContent != widget.htmlContent ||
-        oldWidget.forceLocalFile != widget.forceLocalFile) {
+        oldWidget.forceLocalFile != widget.forceLocalFile ||
+        oldWidget.allowLocalFile != widget.allowLocalFile) {
       if (widget.webViewBuilder == null && !_resolved.isEmpty) {
         if (_controller == null) {
           _initWebViewController();
@@ -153,17 +247,29 @@ class _InteractiveLabWebViewState extends State<InteractiveLabWebView> {
       ..setBackgroundColor(PorhiTheme.slate50)
       ..setNavigationDelegate(
         NavigationDelegate(
+          onNavigationRequest: (request) {
+            final current = _resolved;
+            return decideInteractiveLabNavigation(
+              request.url,
+              initialUri: !current.isLocalFile && !current.isHtml
+                  ? Uri.tryParse(current.source)
+                  : null,
+              initialLocalFilePath: current.isLocalFile ? current.source : null,
+              isLocalFile: current.isLocalFile,
+              isHtml: current.isHtml,
+            );
+          },
           onPageStarted: (_) {
             if (!mounted || _disposed) return;
-            setState(() => _isLoading = true);
+            _isLoadingNotifier.value = true;
           },
           onPageFinished: (_) {
             if (!mounted || _disposed) return;
-            setState(() => _isLoading = false);
+            _isLoadingNotifier.value = false;
           },
           onWebResourceError: (_) {
             if (!mounted || _disposed) return;
-            setState(() => _isLoading = false);
+            _isLoadingNotifier.value = false;
           },
         ),
       );
@@ -176,7 +282,7 @@ class _InteractiveLabWebViewState extends State<InteractiveLabWebView> {
     ResolvedLabSource resolved,
   ) async {
     if (!mounted || _disposed || resolved.isEmpty) return;
-    setState(() => _isLoading = true);
+    _isLoadingNotifier.value = true;
     try {
       if (resolved.isHtml) {
         await controller.loadHtmlString(resolved.source);
@@ -187,13 +293,13 @@ class _InteractiveLabWebViewState extends State<InteractiveLabWebView> {
       }
     } catch (_) {
       if (!mounted || _disposed) return;
-      setState(() => _isLoading = false);
+      _isLoadingNotifier.value = false;
     }
   }
 
   void _reload() {
     widget.onReloadCallback?.call();
-    setState(() => _reloadTick++);
+    _reloadTickNotifier.value = _reloadTickNotifier.value + 1;
     if (_controller != null) {
       unawaited(_loadIntoController(_controller!, _resolved));
     }
@@ -235,40 +341,53 @@ class _InteractiveLabWebViewState extends State<InteractiveLabWebView> {
   }
 
   Widget _buildWebViewContent(BuildContext context, ResolvedLabSource resolved) {
-    if (widget.webViewBuilder != null) {
-      return KeyedSubtree(
-        key: ValueKey('lab-$_reloadTick'),
-        child: widget.webViewBuilder!(
-          context,
-          resolved.source,
-          isLocalFile: resolved.isLocalFile,
-          isHtml: resolved.isHtml,
-        ),
-      );
-    }
+    return ListenableBuilder(
+      listenable: Listenable.merge([_reloadTickNotifier, _isLoadingNotifier]),
+      builder: (context, _) {
+        if (widget.webViewBuilder != null) {
+          return KeyedSubtree(
+            key: ValueKey('lab-${_reloadTickNotifier.value}'),
+            child: widget.webViewBuilder!(
+              context,
+              resolved.source,
+              isLocalFile: resolved.isLocalFile,
+              isHtml: resolved.isHtml,
+            ),
+          );
+        }
 
-    if (_controller == null) {
-      return const SizedBox.shrink();
-    }
+        if (_controller == null) {
+          return const SizedBox.shrink();
+        }
 
-    return Stack(
-      children: [
-        WebViewWidget(controller: _controller!),
-        if (_isLoading)
-          const Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: LinearProgressIndicator(minHeight: 2),
-          ),
-      ],
+        return Stack(
+          children: [
+            WebViewWidget(controller: _controller!),
+            if (_isLoadingNotifier.value)
+              const Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: LinearProgressIndicator(minHeight: 2),
+              ),
+          ],
+        );
+      },
     );
   }
 
   @override
   void dispose() {
     _disposed = true;
+    final controller = _controller;
     _controller = null;
+    if (controller != null) {
+      try {
+        unawaited(controller.loadRequest(Uri.parse('about:blank')));
+      } catch (_) {}
+    }
+    _reloadTickNotifier.dispose();
+    _isLoadingNotifier.dispose();
     super.dispose();
   }
 
@@ -325,6 +444,7 @@ class InteractiveLabCard extends InteractiveLabWebView {
     super.title = 'ইন্টারেক্টিভ ল্যাব সিমুলেশন',
     super.height = 360,
     super.forceLocalFile = false,
+    super.allowLocalFile = true,
     super.envConfig,
     super.webViewBuilder,
     super.onReloadCallback,

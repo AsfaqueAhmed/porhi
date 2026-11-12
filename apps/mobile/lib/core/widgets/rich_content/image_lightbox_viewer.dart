@@ -31,7 +31,8 @@ class ImageLightboxViewer extends StatelessWidget {
       return imageBuilder!(context, resolvedUrl);
     }
     if (resolvedUrl.startsWith('file://')) {
-      final path = Uri.parse(resolvedUrl).toFilePath();
+      final path = tryParseLocalFilePath(resolvedUrl);
+      if (path == null) return _errorPlaceholder();
       return Image.file(
         File(path),
         fit: fit,

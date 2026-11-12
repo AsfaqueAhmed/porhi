@@ -34,7 +34,11 @@ class FlutterTtsLessonBackend implements LessonTtsBackend {
   Future<void> setLanguage(String language) => _tts.setLanguage(language);
 
   @override
-  Future<void> setSpeechRate(double rate) => _tts.setSpeechRate(rate);
+  Future<void> setSpeechRate(double rate) {
+    // flutter_tts expects 0.0..1.0 where 0.5 corresponds to 1.0x normal speed.
+    final normalized = (rate * 0.5).clamp(0.1, 1.0);
+    return _tts.setSpeechRate(normalized);
+  }
 
   @override
   Future<void> speak(String text) => _tts.speak(text);
@@ -86,6 +90,7 @@ class _LessonAudioPlayerState extends State<LessonAudioPlayer> {
   Duration _position = Duration.zero;
   Duration _duration = Duration.zero;
   bool _disposed = false;
+  int _loadGeneration = 0;
 
   bool get _hasAudioUrl =>
       widget.audioUrl != null && widget.audioUrl!.trim().isNotEmpty;
@@ -125,17 +130,19 @@ class _LessonAudioPlayerState extends State<LessonAudioPlayer> {
       _duration = Duration(seconds: widget.audioDurationSeconds!);
     }
     if (oldWidget.audioUrl != widget.audioUrl) {
+      _loadGeneration++;
+      unawaited(_audioBackend?.pause());
+      setState(() {
+        _isPlayingAudio = false;
+        _position = Duration.zero;
+        _duration = Duration(seconds: widget.audioDurationSeconds ?? 0);
+      });
       if (_hasAudioUrl) {
         if (_audioBackend == null) {
           _initAudio();
         } else {
           unawaited(_loadAudioSource());
         }
-      } else {
-        unawaited(_audioBackend?.pause());
-        _isPlayingAudio = false;
-        _position = Duration.zero;
-        _duration = Duration(seconds: widget.audioDurationSeconds ?? 0);
       }
     }
   }
@@ -170,17 +177,18 @@ class _LessonAudioPlayerState extends State<LessonAudioPlayer> {
   }
 
   Future<void> _loadAudioSource() async {
+    final gen = ++_loadGeneration;
     final raw = widget.audioUrl;
     if (raw == null || raw.trim().isEmpty || _audioBackend == null) return;
     final resolved = resolvePorhiMediaUrl(raw, envConfig: widget.envConfig);
     try {
       final loaded = await _audioBackend!.setUrl(resolved);
-      if (!mounted || _disposed) return;
+      if (!mounted || _disposed || gen != _loadGeneration) return;
       if (loaded != null && loaded > Duration.zero) {
         setState(() => _duration = loaded);
       }
     } catch (_) {
-      if (!mounted || _disposed) return;
+      if (!mounted || _disposed || gen != _loadGeneration) return;
       setState(() => _isPlayingAudio = false);
     }
   }

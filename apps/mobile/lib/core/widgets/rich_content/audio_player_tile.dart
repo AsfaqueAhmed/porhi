@@ -85,6 +85,7 @@ class _AudioPlayerTileState extends State<AudioPlayerTile> {
   bool _isPlaying = false;
   bool _hasError = false;
   bool _disposed = false;
+  int _loadGeneration = 0;
 
   @override
   void initState() {
@@ -96,6 +97,13 @@ class _AudioPlayerTileState extends State<AudioPlayerTile> {
   void didUpdateWidget(covariant AudioPlayerTile oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.src != widget.src) {
+      setState(() {
+        _position = Duration.zero;
+        _duration = Duration.zero;
+        _hasError = false;
+        _isPlaying = false;
+      });
+      unawaited(_backend?.pause());
       unawaited(_loadCurrentSource());
     }
   }
@@ -121,12 +129,13 @@ class _AudioPlayerTileState extends State<AudioPlayerTile> {
   }
 
   Future<void> _loadCurrentSource() async {
+    final gen = ++_loadGeneration;
     final resolved = resolvePorhiMediaUrl(widget.src, envConfig: widget.envConfig);
     if (resolved.isEmpty || _backend == null) return;
 
     try {
       final loadedDuration = await _backend!.setUrl(resolved);
-      if (!mounted || _disposed) return;
+      if (!mounted || _disposed || gen != _loadGeneration) return;
       setState(() {
         _hasError = false;
         if (loadedDuration != null) {
@@ -134,7 +143,7 @@ class _AudioPlayerTileState extends State<AudioPlayerTile> {
         }
       });
     } catch (_) {
-      if (!mounted || _disposed) return;
+      if (!mounted || _disposed || gen != _loadGeneration) return;
       setState(() {
         _hasError = true;
         _isPlaying = false;

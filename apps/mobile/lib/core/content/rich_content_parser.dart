@@ -305,11 +305,12 @@ final RegExp _attrRegex = RegExp(
 );
 
 final RegExp _richTokenPattern = RegExp(
-  r'<audio\b[^>]*>(?:[\s\S]*?</audio>)?'
-  r'|<video\b[^>]*>(?:[\s\S]*?</video>)?'
-  r'|<iframe\b[^>]*>(?:[\s\S]*?</iframe>)?'
+  r'<audio\b[^\n>]*>(?:[^\n<]*</audio>)?'
+  r'|<video\b[^\n>]*>(?:[^\n<]*</video>)?'
+  r'|<iframe\b[^\n>]*>(?:[^\n<]*</iframe>)?'
   r'|!\[([^\]]*)\]\(([^)\n]+)\)'
-  r'|\[(IMAGE|AUDIO|VIDEO|YOUTUBE|INTERACTIVE)\s*:\s*([^\]]+)\]',
+  r'|\[(IMAGE|AUDIO|VIDEO|YOUTUBE)\s*:\s*([^\n\]]+)\]'
+  r'|\[(INTERACTIVE)\s*:\s*((?:<html\b[^>]*>[\s\S]*?</html>|[^\n\]]+)(?:\s*\|\s*[^\n\]]*)?)\]',
   caseSensitive: false,
 );
 
@@ -319,7 +320,7 @@ final RegExp _youtubeUrlRegex = RegExp(
   caseSensitive: false,
 );
 
-final RegExp _dividerRegex = RegExp(r'^(\s*[-*_]\s*){3,}$');
+final RegExp _dividerRegex = RegExp(r'^\s*(?:[-*_]\s*){3,}$');
 final RegExp _headingRegex = RegExp(r'^(#{1,4})\s+(.+)$');
 final RegExp _unorderedListRegex = RegExp(r'^\s*[-*]\s+');
 final RegExp _orderedListRegex = RegExp(r'^\s*(\d+|[০-৯]+)\.\s+(.*)$');
@@ -410,6 +411,10 @@ List<RichContentToken> parseRichTokens(String raw) {
       final kind = match.group(3)!.toUpperCase();
       final payload = match.group(4) ?? '';
       tokens.add(_parseBracketToken(kind, payload));
+    } else if (match.group(5) != null) {
+      final kind = match.group(5)!.toUpperCase();
+      final payload = match.group(6) ?? '';
+      tokens.add(_parseBracketToken(kind, payload));
     }
 
     lastIndex = match.end;
@@ -431,7 +436,9 @@ String _stripMarkdownImageTitle(String rawSrc) {
 }
 
 RichContentToken _parseBracketToken(String kind, String payload) {
-  final sepIndex = payload.indexOf('|');
+  final sepIndex = kind == 'INTERACTIVE'
+      ? _findInteractiveTitleSeparator(payload)
+      : payload.indexOf('|');
   final source = (sepIndex == -1 ? payload : payload.substring(0, sepIndex))
       .trim();
   final label = sepIndex == -1 ? '' : payload.substring(sepIndex + 1).trim();
@@ -459,6 +466,17 @@ RichContentToken _parseBracketToken(String kind, String payload) {
     default:
       return RichContentToken.text(payload);
   }
+}
+
+int _findInteractiveTitleSeparator(String payload) {
+  final lastPipe = payload.lastIndexOf('|');
+  if (lastPipe == -1) return -1;
+  final trailing = payload.substring(lastPipe + 1);
+  // If the trailing segment contains HTML tags, the '|' was inside script/HTML, not a title separator.
+  if (trailing.contains('<') || trailing.contains('>')) {
+    return -1;
+  }
+  return lastPipe;
 }
 
 /// Parses a plain-text Markdown segment into structured [MarkdownBlock] items.

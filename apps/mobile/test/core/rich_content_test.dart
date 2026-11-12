@@ -3,8 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:get/get.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:porhi/app/env.dart';
+import 'package:porhi/core/content/media_url_resolver.dart';
 import 'package:porhi/core/content/rich_content_parser.dart';
 import 'package:porhi/core/widgets/interactive_lab/interactive_lab_card.dart';
 import 'package:porhi/core/widgets/lesson_audio_player.dart';
@@ -13,6 +16,8 @@ import 'package:porhi/core/widgets/rich_content/image_lightbox_viewer.dart';
 import 'package:porhi/core/widgets/rich_content/rich_content_tokenizer.dart';
 import 'package:porhi/core/widgets/rich_content/rich_content_view.dart';
 import 'package:porhi/core/widgets/rich_content/video_player_tile.dart';
+import 'package:video_player/video_player.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 class _FakeAudioBackend implements LessonAudioBackend {
   final StreamController<Duration> _positionController =
@@ -753,7 +758,409 @@ $$
       await tester.pump();
       expect(tappedHref, 'https://porhi.app/wiki');
     });
+
+    test('divider parser handles worst-case non-matching line without ReDoS', () {
+      final adversarial = '${'-' * 2000}!';
+      final sw = Stopwatch()..start();
+      final blocks = parseMarkdownBlocks(adversarial);
+      sw.stop();
+
+      expect(blocks, hasLength(1));
+      expect(blocks.first, isA<ParagraphBlock>());
+      expect(sw.elapsedMilliseconds, lessThan(200));
+    });
+
+    test('parseRichTokens handles [INTERACTIVE:] with JS brackets/|| and unclosed <audio', () {
+      const raw = '''
+<audio src="/a.mp3"
+পরবর্তী প্যারাগ্রাফ
+[INTERACTIVE: <html><script>const x = arr[0] || 1;</script></html> | সিমুলেশন]
+''';
+      final tokens = parseRichTokens(raw);
+      final interactive = tokens.whereType<InteractiveContentToken>().single;
+      expect(interactive.html, contains('arr[0] || 1'));
+      expect(interactive.title, 'সিমুলেশন');
+      expect(tokens.whereType<AudioContentToken>(), isEmpty);
+    });
+
+    test('tryParseLocalFilePath and tryParseAllowedWebUri handle malformed and dangerous URIs', () {
+      expect(
+        tryParseLocalFilePath('file:///data/user/0/lab/index.html'),
+        '/data/user/0/lab/index.html',
+      );
+      expect(tryParseLocalFilePath('file://localhost/etc/passwd'), isNull);
+      expect(tryParseLocalFilePath('file:///%E0%A4%A'), isNull);
+      expect(tryParseLocalFilePath('https://porhi.app/img.png'), isNull);
+
+      expect(tryParseAllowedWebUri('javascript:alert(1)'), isNull);
+      expect(tryParseAllowedWebUri('intent://scan/#Intent;end'), isNull);
+      expect(tryParseAllowedWebUri('data:text/html,<script>1</script>'), isNull);
+      expect(tryParseAllowedWebUri('file:///etc/passwd'), isNull);
+      expect(
+        tryParseAllowedWebUri('//cdn.porhi.app/a.png')?.toString(),
+        'https://cdn.porhi.app/a.png',
+      );
+    });
+
+    test('InteractiveLab & YouTube WebView navigation guards reject unsafe schemes and origins', () {
+      expect(
+        resolveInteractiveLabSource(widgetUrl: 'javascript:alert(1)').isEmpty,
+        isTrue,
+      );
+      expect(
+        resolveInteractiveLabSource(widgetUrl: 'intent://foo').isEmpty,
+        isTrue,
+      );
+      expect(
+        resolveInteractiveLabSource(widgetUrl: 'data:text/html,hi').isEmpty,
+        isTrue,
+      );
+      expect(
+        resolveInteractiveLabSource(
+          widgetUrl: 'file:///data/lab/index.html',
+          allowLocalFile: false,
+        ).isEmpty,
+        isTrue,
+      );
+
+      final initialUri = Uri.parse('https://api.porhi.app/uploads/sim/index.html');
+      expect(
+        decideInteractiveLabNavigation(
+          'https://api.porhi.app/uploads/sim/app.js',
+          initialUri: initialUri,
+          isLocalFile: false,
+          isHtml: false,
+        ),
+        NavigationDecision.navigate,
+      );
+      expect(
+        decideInteractiveLabNavigation(
+          'https://evil.example/phish',
+          initialUri: initialUri,
+          isLocalFile: false,
+          isHtml: false,
+        ),
+        NavigationDecision.prevent,
+      );
+      expect(
+        decideInteractiveLabNavigation(
+          'intent://launch',
+          initialUri: initialUri,
+          isLocalFile: false,
+          isHtml: false,
+        ),
+        NavigationDecision.prevent,
+      );
+      expect(
+        decideInteractiveLabNavigation(
+          'file:///data/lab/sub/asset.js',
+          initialLocalFilePath: '/data/lab/index.html',
+          isLocalFile: true,
+          isHtml: false,
+        ),
+        NavigationDecision.navigate,
+      );
+      expect(
+        decideInteractiveLabNavigation(
+          'file:///etc/passwd',
+          initialLocalFilePath: '/data/lab/index.html',
+          isLocalFile: true,
+          isHtml: false,
+        ),
+        NavigationDecision.prevent,
+      );
+
+      expect(buildYoutubeEmbedUri('bad?id=1'), isNull);
+      expect(
+        buildYoutubeEmbedUri('dQw4w9WgXcQ')?.toString(),
+        'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1',
+      );
+      expect(
+        decideYoutubeNavigation('https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ'),
+        NavigationDecision.navigate,
+      );
+      expect(
+        decideYoutubeNavigation('http://www.youtube.com/watch?v=dQw4w9WgXcQ'),
+        NavigationDecision.prevent,
+      );
+      expect(
+        decideYoutubeNavigation('https://evil.example/watch'),
+        NavigationDecision.prevent,
+      );
+    });
+
+    testWidgets('LatexText groups inline text and \$...\$ on one RichText alongside \$\$...\$\$', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: LatexText(
+              content: r'যদি $u = 0$ হয় তবে $$v = at$$ এবং বেগ $v$ হবে।',
+              style: TextStyle(fontSize: 15),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(tester.takeException(), isNull);
+      // Should be 2 Text.rich runs (before and after $$v = at$$) + 3 Math widgets, not 5 separate lines.
+      expect(
+        find.byWidgetPredicate((w) => w is Text && w.textSpan != null),
+        findsNWidgets(2),
+      );
+      expect(find.byType(Math), findsNWidgets(3));
+    });
+
+    testWidgets('RichContentView ignores unsafe javascript: links and unclickable links', (
+      tester,
+    ) async {
+      var tapped = false;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: RichContentView(
+              content: 'এখানে [XSS](javascript:alert(1)) এবং [নিরাপদ](https://porhi.app)',
+              onLinkTap: (_) => tapped = true,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Unsafe link is rendered as plain inline text (not a clickable Text('XSS') GestureDetector).
+      expect(find.text('XSS'), findsNothing);
+      await tester.tap(find.textContaining('XSS'));
+      expect(tapped, isFalse);
+
+      await tester.tap(find.text('নিরাপদ'));
+      expect(tapped, isTrue);
+    });
+
+    testWidgets('InteractiveLabCard fullscreen dialog rebuilds on reload inside fullscreen', (
+      tester,
+    ) async {
+      var buildCount = 0;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: InteractiveLabCard(
+              widgetUrl: '/uploads/sim/motion.html',
+              envConfig: const EnvConfig(apiBaseUrl: 'https://api.porhi.app'),
+              webViewBuilder: (context, source, {required isLocalFile, required isHtml}) {
+                buildCount++;
+                return Text('BUILD:$buildCount');
+              },
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(buildCount, 1);
+
+      await tester.tap(find.byTooltip('পূর্ণস্ক্রীন'));
+      await tester.pumpAndSettle();
+      expect(find.text('BUILD:2'), findsOneWidget);
+
+      await tester.tap(find.byTooltip('পুনরায় শুরু').last);
+      await tester.pumpAndSettle();
+      expect(find.text('BUILD:3'), findsOneWidget);
+    });
+
+    testWidgets('YoutubeVideoTile opens embed on tap and resets on videoId change', (
+      tester,
+    ) async {
+      Uri? seenEmbed;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: YoutubeVideoTile(
+              videoId: 'dQw4w9WgXcQ',
+              title: 'প্রথম ভিডিও',
+              embedBuilder: (_, uri) {
+                seenEmbed = uri;
+                return Text('EMBED:$uri');
+              },
+            ),
+          ),
+        ),
+      );
+
+      await tester.tap(find.textContaining('ভিডিও চালাতে ট্যাপ করুন'));
+      await tester.pump();
+      expect(
+        seenEmbed?.toString(),
+        'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1',
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: YoutubeVideoTile(
+              videoId: 'abcDEF12345',
+              title: 'দ্বিতীয় ভিডিও',
+              embedBuilder: (_, uri) => Text('EMBED:$uri'),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.textContaining('abcDEF12345'), findsOneWidget);
+      expect(find.textContaining('EMBED:'), findsNothing);
+    });
+
+    testWidgets('VideoPlayerTile discards stale controller when src updates mid-init', (
+      tester,
+    ) async {
+      final firstInit = Completer<void>();
+      final secondInit = Completer<void>();
+      final firstController = _FakeVideoController(firstInit.future);
+      final secondController = _FakeVideoController(secondInit.future);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: VideoPlayerTile(
+              src: '/uploads/v1.mp4',
+              envConfig: const EnvConfig(apiBaseUrl: 'https://api.porhi.app'),
+              controllerFactory: (_, _, _) => firstController,
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: VideoPlayerTile(
+              src: '/uploads/v2.mp4',
+              envConfig: const EnvConfig(apiBaseUrl: 'https://api.porhi.app'),
+              controllerFactory: (_, _, _) => secondController,
+            ),
+          ),
+        ),
+      );
+
+      firstInit.complete();
+      await tester.pump();
+      expect(firstController.disposed, isTrue);
+
+      secondInit.completeError(Exception('no platform'));
+      await tester.pumpAndSettle();
+      expect(secondController.disposed, isTrue);
+    });
+
+    test('FlutterTtsLessonBackend maps 1.0x rate to 0.5 flutter_tts scale', () async {
+      final mockTts = _MockFlutterTts();
+      when(() => mockTts.setSpeechRate(any())).thenAnswer((_) async => 1);
+      final backend = FlutterTtsLessonBackend(tts: mockTts);
+
+      await backend.setSpeechRate(1.0);
+      verify(() => mockTts.setSpeechRate(0.5)).called(1);
+
+      await backend.setSpeechRate(1.5);
+      verify(() => mockTts.setSpeechRate(0.75)).called(1);
+    });
+
+    testWidgets('LessonAudioPlayer and AudioPlayerTile ignore stale async loads on src update', (
+      tester,
+    ) async {
+      final firstLoadCompleter = Completer<Duration?>();
+      final racingAudio = _RacingAudioBackend(firstLoadCompleter);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: AudioPlayerTile(
+              src: '/audio/one.mp3',
+              envConfig: const EnvConfig(apiBaseUrl: 'https://api.porhi.app'),
+              backendFactory: () => racingAudio,
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: AudioPlayerTile(
+              src: '/audio/two.mp3',
+              envConfig: const EnvConfig(apiBaseUrl: 'https://api.porhi.app'),
+              backendFactory: () => racingAudio,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+
+      // First (stale) load fails after second load already completed.
+      firstLoadCompleter.completeError(Exception('stale failure'));
+      await tester.pumpAndSettle();
+      expect(racingAudio.loadedUrl, 'https://api.porhi.app/audio/two.mp3');
+      expect(find.text('অডিও লোড করা যায়নি'), findsNothing);
+
+      final lessonAudio = _FakeAudioBackend();
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: LessonAudioPlayer(
+              audioUrl: '/audio/ch1.mp3',
+              title: 'পাঠ ১',
+              narrationText: 'বিষয়বস্তু',
+              envConfig: const EnvConfig(apiBaseUrl: 'https://api.porhi.app'),
+              audioBackendFactory: () => lessonAudio,
+              ttsBackendFactory: _FakeTtsBackend.new,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(find.text('অডিও চালাও'), findsOneWidget);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: LessonAudioPlayer(
+              audioUrl: null,
+              title: 'পাঠ ১',
+              narrationText: 'বিষয়বস্তু',
+              envConfig: const EnvConfig(apiBaseUrl: 'https://api.porhi.app'),
+              audioBackendFactory: () => lessonAudio,
+              ttsBackendFactory: _FakeTtsBackend.new,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(lessonAudio.pauseCalled, isTrue);
+      expect(find.text('অডিও চালাও'), findsNothing);
+    });
   });
+}
+
+class _MockFlutterTts extends Mock implements FlutterTts {}
+
+class _FakeVideoController extends Fake implements VideoPlayerController {
+  final Future<void> _initFuture;
+  bool disposed = false;
+
+  _FakeVideoController(this._initFuture);
+
+  @override
+  VideoPlayerValue get value => const VideoPlayerValue(
+        duration: Duration(seconds: 10),
+        size: Size(160, 90),
+        isInitialized: true,
+      );
+
+  @override
+  Future<void> initialize() => _initFuture;
+
+  @override
+  Future<void> dispose() async {
+    disposed = true;
+  }
 }
 
 class _DelayedAudioBackend extends _FakeAudioBackend {
@@ -763,4 +1170,20 @@ class _DelayedAudioBackend extends _FakeAudioBackend {
 
   @override
   Future<Duration?> setUrl(String url) => _completer.future;
+}
+
+class _RacingAudioBackend extends _FakeAudioBackend {
+  final Completer<Duration?> _firstCompleter;
+  int _calls = 0;
+
+  _RacingAudioBackend(this._firstCompleter);
+
+  @override
+  Future<Duration?> setUrl(String url) {
+    _calls++;
+    if (_calls == 1) {
+      return _firstCompleter.future;
+    }
+    return super.setUrl(url);
+  }
 }

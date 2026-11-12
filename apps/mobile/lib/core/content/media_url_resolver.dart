@@ -9,6 +9,40 @@ String resolvePorhiMediaUrl(String rawUrl, {EnvConfig? envConfig}) {
   return effectiveEnv.resolveMediaUrl(rawUrl);
 }
 
+/// Safely parses a hostless `file://` URI into a local filesystem path.
+/// Returns `null` on non-file URIs, hostful `file://localhost/...` URIs,
+/// or malformed percent-encoding.
+String? tryParseLocalFilePath(String url) {
+  final trimmed = url.trim();
+  if (!trimmed.toLowerCase().startsWith('file://')) return null;
+  try {
+    final uri = Uri.tryParse(trimmed);
+    if (uri == null || uri.scheme.toLowerCase() != 'file') return null;
+    if (uri.host.isNotEmpty) return null;
+    final path = uri.toFilePath();
+    return path.isEmpty ? null : path;
+  } catch (_) {
+    return null;
+  }
+}
+
+/// Validates and normalizes an external/media HTTP(S) URI.
+/// Rejects dangerous schemes (`javascript:`, `intent:`, `data:`, `file:`, etc.)
+/// and URIs without a valid host.
+Uri? tryParseAllowedWebUri(String url) {
+  var trimmed = url.trim();
+  if (trimmed.isEmpty) return null;
+  if (trimmed.startsWith('//')) {
+    trimmed = 'https:$trimmed';
+  }
+  final uri = Uri.tryParse(trimmed);
+  if (uri == null) return null;
+  final scheme = uri.scheme.toLowerCase();
+  if (scheme != 'http' && scheme != 'https') return null;
+  if (uri.host.trim().isEmpty) return null;
+  return uri;
+}
+
 /// Formats seconds or a [Duration] into `m:ss` (matching web `formatTime`).
 String formatMediaDuration(Duration duration) {
   final totalSeconds = duration.inSeconds;

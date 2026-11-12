@@ -142,6 +142,7 @@ class RichContentView extends StatelessWidget {
                     title: title.isNotEmpty
                         ? title
                         : 'ইন্টারেক্টিভ ল্যাব সিমুলেশন',
+                    allowLocalFile: false,
                     envConfig: envConfig,
                   ),
           );
@@ -637,13 +638,33 @@ class LatexText extends StatelessWidget {
 
     if (content.contains(r'$$')) {
       final segments = parseLatexSegments(content);
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: segments.map((seg) {
-          switch (seg.type) {
-            case LatexSegmentType.block:
-              return Padding(
+      final hasBlock = segments.any((s) => s.type == LatexSegmentType.block);
+      if (!hasBlock) {
+        return _buildInlineRichText(content);
+      }
+
+      final children = <Widget>[];
+      final inlineRun = <InlineSpan>[];
+
+      void flushInlineRun() {
+        if (inlineRun.isEmpty) return;
+        children.add(
+          Text.rich(
+            TextSpan(
+              style: style,
+              children: List<InlineSpan>.from(inlineRun),
+            ),
+          ),
+        );
+        inlineRun.clear();
+      }
+
+      for (final seg in segments) {
+        switch (seg.type) {
+          case LatexSegmentType.block:
+            flushInlineRun();
+            children.add(
+              Padding(
                 padding: const EdgeInsets.symmetric(vertical: 6),
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
@@ -654,18 +675,23 @@ class LatexText extends StatelessWidget {
                     style: style,
                   ),
                 ),
-              );
-            case LatexSegmentType.inline:
-              return _SafeMathView(
-                math: seg.math,
-                raw: seg.raw,
-                display: false,
-                style: style,
-              );
-            case LatexSegmentType.text:
-              return _buildInlineRichText(seg.raw);
-          }
-        }).toList(),
+              ),
+            );
+          case LatexSegmentType.inline:
+            inlineRun.add(_buildMathSpan(seg.math, seg.raw, style));
+          case LatexSegmentType.text:
+            if (seg.raw.trim().isEmpty && inlineRun.isEmpty) {
+              continue;
+            }
+            inlineRun.addAll(_buildInlineSpans(parseInlineTokens(seg.raw), style));
+        }
+      }
+      flushInlineRun();
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: children,
       );
     }
 
@@ -739,42 +765,50 @@ class LatexText extends StatelessWidget {
             ),
           );
         case InlineTokenType.math:
-          spans.add(
-            WidgetSpan(
-              alignment: PlaceholderAlignment.middle,
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2),
-                child: _SafeMathView(
-                  math: token.content,
-                  raw: token.raw,
-                  display: false,
-                  style: currentStyle,
-                ),
-              ),
-            ),
-          );
+          spans.add(_buildMathSpan(token.content, token.raw, currentStyle));
         case InlineTokenType.link:
-          spans.add(
-            WidgetSpan(
-              alignment: PlaceholderAlignment.baseline,
-              baseline: TextBaseline.alphabetic,
-              child: GestureDetector(
-                onTap: () => onLinkTap?.call(token.href),
-                child: Text(
-                  token.content,
-                  style: currentStyle.copyWith(
-                    color: PorhiTheme.indigo600,
-                    fontWeight: FontWeight.w600,
-                    decoration: TextDecoration.underline,
+          final validUri =
+              onLinkTap != null ? tryParseAllowedWebUri(token.href) : null;
+          if (validUri != null) {
+            spans.add(
+              WidgetSpan(
+                alignment: PlaceholderAlignment.baseline,
+                baseline: TextBaseline.alphabetic,
+                child: GestureDetector(
+                  onTap: () => onLinkTap!.call(validUri.toString()),
+                  child: Text(
+                    token.content,
+                    style: currentStyle.copyWith(
+                      color: PorhiTheme.indigo600,
+                      fontWeight: FontWeight.w600,
+                      decoration: TextDecoration.underline,
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
+            );
+          } else {
+            spans.add(TextSpan(text: token.content, style: currentStyle));
+          }
       }
     }
 
     return spans;
+  }
+
+  InlineSpan _buildMathSpan(String math, String raw, TextStyle currentStyle) {
+    return WidgetSpan(
+      alignment: PlaceholderAlignment.middle,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        child: _SafeMathView(
+          math: math,
+          raw: raw,
+          display: false,
+          style: currentStyle,
+        ),
+      ),
+    );
   }
 }
 

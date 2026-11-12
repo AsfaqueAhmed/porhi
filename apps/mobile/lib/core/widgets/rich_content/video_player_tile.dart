@@ -5,6 +5,7 @@ import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:porhi/app/env.dart';
 import 'package:porhi/core/content/media_url_resolver.dart';
+import 'package:porhi/core/content/rich_content_parser.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
 import 'package:video_player/video_player.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -21,12 +22,57 @@ typedef YoutubeWidgetBuilder = Widget Function(
   String title,
 );
 
+typedef VideoControllerFactory = VideoPlayerController Function(
+  String resolvedUrl,
+  String? localFilePath,
+  Uri? webUri,
+);
+
+const Set<String> _allowedYoutubeHosts = <String>{
+  'www.youtube-nocookie.com',
+  'youtube-nocookie.com',
+  'www.youtube.com',
+  'youtube.com',
+  'm.youtube.com',
+  'youtu.be',
+};
+
+/// Validates [videoId] strictly and builds a `youtube-nocookie.com` embed URI.
+Uri? buildYoutubeEmbedUri(String videoId) {
+  final validId = extractYouTubeVideoId(videoId);
+  if (validId == null || !RegExp(r'^[a-zA-Z0-9_-]{11}$').hasMatch(validId)) {
+    return null;
+  }
+  return Uri.https(
+    'www.youtube-nocookie.com',
+    '/embed/$validId',
+    const <String, String>{'autoplay': '1'},
+  );
+}
+
+/// Enforces `https` + YouTube-only origins inside [YoutubeVideoTile]'s WebView.
+NavigationDecision decideYoutubeNavigation(String url) {
+  final trimmed = url.trim();
+  if (trimmed == 'about:blank') {
+    return NavigationDecision.navigate;
+  }
+  final uri = Uri.tryParse(trimmed);
+  if (uri == null || uri.scheme.toLowerCase() != 'https') {
+    return NavigationDecision.prevent;
+  }
+  if (!_allowedYoutubeHosts.contains(uri.host.toLowerCase())) {
+    return NavigationDecision.prevent;
+  }
+  return NavigationDecision.navigate;
+}
+
 /// Inline 16:9 video player card mirroring web `VideoCard` (`video_player` + `chewie`).
 class VideoPlayerTile extends StatefulWidget {
   final String src;
   final String title;
   final EnvConfig? envConfig;
   final VideoPlayerWidgetBuilder? playerBuilder;
+  final VideoControllerFactory? controllerFactory;
 
   const VideoPlayerTile({
     super.key,
@@ -34,6 +80,7 @@ class VideoPlayerTile extends StatefulWidget {
     this.title = '',
     this.envConfig,
     this.playerBuilder,
+    this.controllerFactory,
   });
 
   @override
@@ -48,6 +95,7 @@ class _VideoPlayerTileState extends State<VideoPlayerTile> {
   bool _isLoading = true;
   bool _hasError = false;
   bool _disposed = false;
+  int _initGeneration = 0;
 
   String get _resolvedUrl =>
       resolvePorhiMediaUrl(widget.src, envConfig: widget.envConfig);
@@ -78,9 +126,21 @@ class _VideoPlayerTileState extends State<VideoPlayerTile> {
   }
 
   Future<void> _initializeNativePlayer() async {
+    final gen = ++_initGeneration;
     final url = _resolvedUrl;
     if (url.isEmpty) {
-      if (!mounted || _disposed) return;
+      if (!mounted || _disposed || gen != _initGeneration) return;
+      setState(() {
+        _isLoading = false;
+        _hasError = true;
+      });
+      return;
+    }
+
+    final localPath = tryParseLocalFilePath(url);
+    final webUri = localPath == null ? tryParseAllowedWebUri(url) : null;
+    if (localPath == null && webUri == null) {
+      if (!mounted || _disposed || gen != _initGeneration) return;
       setState(() {
         _isLoading = false;
         _hasError = true;
@@ -90,12 +150,16 @@ class _VideoPlayerTileState extends State<VideoPlayerTile> {
 
     VideoPlayerController? controller;
     try {
-      controller = url.startsWith('file://')
-          ? VideoPlayerController.file(File(Uri.parse(url).toFilePath()))
-          : VideoPlayerController.networkUrl(Uri.parse(url));
+      if (widget.controllerFactory != null) {
+        controller = widget.controllerFactory!(url, localPath, webUri);
+      } else if (localPath != null) {
+        controller = VideoPlayerController.file(File(localPath));
+      } else {
+        controller = VideoPlayerController.networkUrl(webUri!);
+      }
 
       await controller.initialize();
-      if (!mounted || _disposed) {
+      if (!mounted || _disposed || gen != _initGeneration) {
         await controller.dispose();
         return;
       }
@@ -118,7 +182,7 @@ class _VideoPlayerTileState extends State<VideoPlayerTile> {
       });
     } catch (_) {
       await controller?.dispose();
-      if (!mounted || _disposed) return;
+      if (!mounted || _disposed || gen != _initGeneration) return;
       setState(() {
         _isLoading = false;
         _hasError = true;
@@ -127,6 +191,7 @@ class _VideoPlayerTileState extends State<VideoPlayerTile> {
   }
 
   void _disposeControllers() {
+    _initGeneration++;
     _customDispose?.call();
     _customDispose = null;
     final chewie = _chewieController;
@@ -244,12 +309,14 @@ class YoutubeVideoTile extends StatefulWidget {
   final String videoId;
   final String title;
   final YoutubeWidgetBuilder? youtubeBuilder;
+  final Widget Function(BuildContext context, Uri embedUri)? embedBuilder;
 
   const YoutubeVideoTile({
     super.key,
     required this.videoId,
     this.title = '',
     this.youtubeBuilder,
+    this.embedBuilder,
   });
 
   @override
@@ -260,15 +327,50 @@ class _YoutubeVideoTileState extends State<YoutubeVideoTile> {
   bool _showEmbed = false;
   WebViewController? _controller;
 
+  Uri? get _embedUri => buildYoutubeEmbedUri(widget.videoId);
+
+  void _releaseWebView() {
+    final controller = _controller;
+    _controller = null;
+    if (controller != null) {
+      try {
+        unawaited(controller.loadRequest(Uri.parse('about:blank')));
+      } catch (_) {
+        // Ignore teardown errors when platform WebView is already detached.
+      }
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant YoutubeVideoTile oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.videoId != widget.videoId) {
+      _releaseWebView();
+      setState(() => _showEmbed = false);
+    }
+  }
+
   void _openEmbed() {
-    if (widget.videoId.isEmpty) return;
-    final embedUri = Uri.parse(
-      'https://www.youtube-nocookie.com/embed/${widget.videoId}?autoplay=1',
-    );
-    _controller ??= WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..loadRequest(embedUri);
+    final embedUri = _embedUri;
+    if (embedUri == null) return;
+    if (widget.embedBuilder == null) {
+      _controller ??= WebViewController()
+        ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..setNavigationDelegate(
+          NavigationDelegate(
+            onNavigationRequest: (request) =>
+                decideYoutubeNavigation(request.url),
+          ),
+        )
+        ..loadRequest(embedUri);
+    }
     setState(() => _showEmbed = true);
+  }
+
+  @override
+  void dispose() {
+    _releaseWebView();
+    super.dispose();
   }
 
   @override
@@ -276,7 +378,8 @@ class _YoutubeVideoTileState extends State<YoutubeVideoTile> {
     if (widget.youtubeBuilder != null) {
       return widget.youtubeBuilder!(context, widget.videoId, widget.title);
     }
-    if (widget.videoId.isEmpty) return const SizedBox.shrink();
+    final embedUri = _embedUri;
+    if (embedUri == null) return const SizedBox.shrink();
 
     final displayTitle = widget.title.trim().isNotEmpty
         ? widget.title.trim()
@@ -321,8 +424,12 @@ class _YoutubeVideoTileState extends State<YoutubeVideoTile> {
           ),
           AspectRatio(
             aspectRatio: 16 / 9,
-            child: _showEmbed && _controller != null
-                ? WebViewWidget(controller: _controller!)
+            child: _showEmbed
+                ? (widget.embedBuilder != null
+                    ? widget.embedBuilder!(context, embedUri)
+                    : (_controller != null
+                        ? WebViewWidget(controller: _controller!)
+                        : const SizedBox.shrink()))
                 : InkWell(
                     onTap: _openEmbed,
                     child: Container(
@@ -346,7 +453,7 @@ class _YoutubeVideoTileState extends State<YoutubeVideoTile> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'ভিডিও চালাতে ট্যাপ করুন (${widget.videoId})',
+                            'ভিডিও চালাতে ট্যাপ করুন (${extractYouTubeVideoId(widget.videoId)})',
                             style: const TextStyle(
                               color: Colors.white70,
                               fontSize: 12,
