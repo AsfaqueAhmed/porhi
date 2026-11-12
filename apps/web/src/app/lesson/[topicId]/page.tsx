@@ -32,6 +32,11 @@ import { useUserStore } from '@/store/user-store';
 import { findTopicHierarchy, findAdjacentTopics } from '@/lib/curriculum-data';
 import { toBanglaDigits } from '@/lib/formatters';
 import { LessonPageSkeleton } from '@/components/ui/shimmer';
+import {
+  findOfflineLessonByTopic,
+  getOfflinePackQuestions,
+  enqueueLessonComplete,
+} from '@/lib/offline-store';
 
 const SAMPLE_LESSON: LessonDTO = {
   id: 'lesson-motion-equations',
@@ -141,9 +146,33 @@ export default function LessonPage() {
   useEffect(() => {
     openedAtRef.current = Date.now();
     setFeedbackChoice(null);
+    async function loadOfflineOrFallbackLesson() {
+      const offlineLesson = await findOfflineLessonByTopic(topicId).catch(() => null);
+      if (offlineLesson && offlineLesson.titleBangla) {
+        setLesson(offlineLesson);
+        recordLessonVisit(
+          topicId,
+          offlineLesson.titleBangla,
+          fallbackHierarchy.chapterId,
+          fallbackHierarchy.chapterTitle,
+        );
+        return;
+      }
+      recordLessonVisit(
+        topicId,
+        fallbackHierarchy.topicTitle,
+        fallbackHierarchy.chapterId,
+        fallbackHierarchy.chapterTitle,
+      );
+    }
+
     async function fetchLesson() {
       setIsLoadingLesson(true);
       try {
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+          await loadOfflineOrFallbackLesson();
+          return;
+        }
         const res = await apiClient.get<LessonDTO>(`/lessons/topic/${topicId}`);
         if (res && res.titleBangla) {
           setLesson(res);
@@ -154,20 +183,10 @@ export default function LessonPage() {
             res?.topic?.chapter?.titleBangla || fallbackHierarchy.chapterTitle
           );
         } else {
-          recordLessonVisit(
-            topicId,
-            fallbackHierarchy.topicTitle,
-            fallbackHierarchy.chapterId,
-            fallbackHierarchy.chapterTitle
-          );
+          await loadOfflineOrFallbackLesson();
         }
       } catch {
-        recordLessonVisit(
-          topicId,
-          fallbackHierarchy.topicTitle,
-          fallbackHierarchy.chapterId,
-          fallbackHierarchy.chapterTitle
-        );
+        await loadOfflineOrFallbackLesson();
       } finally {
         setIsLoadingLesson(false);
       }
@@ -177,19 +196,34 @@ export default function LessonPage() {
 
   useEffect(() => {
     async function fetchQuestions() {
+      const applyQuestion = (questions: QuestionDTO[] | null | undefined) => {
+        if (!questions || questions.length === 0) return false;
+        const match = questions.find((q) => q.topicId === topicId) || questions[0];
+        setQuickQuestion(match);
+        setSelectedOptId(null);
+        setIsAnswered(false);
+        setSubmitResult(null);
+        return true;
+      };
+
       try {
-        const questions = await apiClient.get<QuestionDTO[]>(
-          `/practice/chapter/${chapterId}/questions?topicId=${encodeURIComponent(topicId)}`
-        );
-        if (questions && questions.length > 0) {
-          const match = questions.find((q) => q.topicId === topicId) || questions[0];
-          setQuickQuestion(match);
-          setSelectedOptId(null);
-          setIsAnswered(false);
-          setSubmitResult(null);
+        if (typeof navigator === 'undefined' || navigator.onLine) {
+          const questions = await apiClient.get<QuestionDTO[]>(
+            `/practice/chapter/${chapterId}/questions?topicId=${encodeURIComponent(topicId)}`
+          );
+          if (applyQuestion(questions)) return;
         }
+        const offlineQuestions = await getOfflinePackQuestions(chapterId, {
+          type: 'MCQ',
+          topicId,
+        }).catch(() => []);
+        applyQuestion(offlineQuestions);
       } catch {
-        // Fallback: keep null
+        const offlineQuestions = await getOfflinePackQuestions(chapterId, {
+          type: 'MCQ',
+          topicId,
+        }).catch(() => []);
+        applyQuestion(offlineQuestions);
       }
     }
     fetchQuestions();
@@ -198,6 +232,20 @@ export default function LessonPage() {
   const handleMarkComplete = async () => {
     markTopicCompleted(topicId, lesson.titleBangla, chapterId, chapterTitle);
     const timeSpentSeconds = Math.max(1, Math.round((Date.now() - openedAtRef.current) / 1000));
+    const queueLesson = () =>
+      enqueueLessonComplete({
+        offlineEventId: `lesson_${topicId}_${Date.now()}`,
+        topicId,
+        chapterId,
+        subjectId,
+        completedAt: new Date().toISOString(),
+      }).catch(() => {});
+
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      await queueLesson();
+      return;
+    }
+
     try {
       if (!useUserStore.getState().token) {
         await ensureGuestSession().catch(() => {});
@@ -210,7 +258,7 @@ export default function LessonPage() {
         }),
       );
     } catch {
-      // Offline fallback: local store already updated
+      await queueLesson();
     }
   };
 

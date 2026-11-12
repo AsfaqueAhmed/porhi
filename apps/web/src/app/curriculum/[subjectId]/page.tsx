@@ -13,6 +13,8 @@ import {
   Search,
   Bookmark,
   Zap,
+  Download,
+  CheckCircle2,
 } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { toBanglaDigits } from '@/lib/formatters';
@@ -20,6 +22,12 @@ import { useLanguageStore } from '@/store/language-store';
 import { useUserStore } from '@/store/user-store';
 import { DEFAULT_CHAPTERS, ChapterItem, TopicItem } from '@/lib/curriculum-data';
 import { CurriculumPageSkeleton } from '@/components/ui/shimmer';
+import {
+  listDownloadedPacks,
+  saveChapterPack,
+  removeChapterPack,
+} from '@/lib/offline-store';
+import type { OfflineChapterPackDTO } from '@pori/shared';
 
 type TopicFilterMode = 'ALL' | 'LAB' | 'INCOMPLETE' | 'BOOKMARKED';
 
@@ -34,6 +42,44 @@ export default function CurriculumPage() {
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [filterMode, setFilterMode] = useState<TopicFilterMode>('ALL');
+  const [downloadedChapterIds, setDownloadedChapterIds] = useState<Set<string>>(new Set());
+  const [downloadingChapterId, setDownloadingChapterId] = useState<string | null>(null);
+
+  useEffect(() => {
+    listDownloadedPacks()
+      .then((packs) => {
+        setDownloadedChapterIds(new Set(packs.map((p) => p.chapterId)));
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleToggleOfflinePack = async (chapter: ChapterItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (downloadedChapterIds.has(chapter.id)) {
+      await removeChapterPack(chapter.id);
+      setDownloadedChapterIds((prev) => {
+        const next = new Set(prev);
+        next.delete(chapter.id);
+        return next;
+      });
+      return;
+    }
+
+    setDownloadingChapterId(chapter.id);
+    try {
+      const pack = await apiClient.get<OfflineChapterPackDTO>(
+        `/curriculum/chapter/${chapter.id}/offline-pack`
+      );
+      if (pack && pack.chapterId) {
+        await saveChapterPack(pack);
+        setDownloadedChapterIds((prev) => new Set(prev).add(chapter.id));
+      }
+    } catch {
+      // Ignore download errors cleanly
+    } finally {
+      setDownloadingChapterId(null);
+    }
+  };
 
   useEffect(() => {
     async function fetchChapters() {
@@ -333,7 +379,34 @@ export default function CurriculumPage() {
                 </div>
 
                 {/* Action buttons & Collapse Icon */}
-                <div className="flex items-center gap-2 self-start md:self-auto shrink-0">
+                <div className="flex flex-wrap items-center gap-2 self-start md:self-auto shrink-0">
+                  <button
+                    type="button"
+                    onClick={(e) => handleToggleOfflinePack(chapter, e)}
+                    disabled={downloadingChapterId === chapter.id}
+                    className={`inline-flex items-center gap-1.5 text-xs font-bold px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl transition-colors border cursor-pointer disabled:opacity-60 ${
+                      downloadedChapterIds.has(chapter.id)
+                        ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200'
+                        : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                    }`}
+                  >
+                    {downloadedChapterIds.has(chapter.id) ? (
+                      <>
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>{tr('অফলাইন সংরক্ষিত', 'Saved Offline')}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-3.5 h-3.5 text-indigo-600" />
+                        <span>
+                          {downloadingChapterId === chapter.id
+                            ? tr('ডাউনলোড হচ্ছে...', 'Saving...')
+                            : tr('অফলাইন ডাউনলোড', 'Save Offline')}
+                        </span>
+                      </>
+                    )}
+                  </button>
+
                   <Link
                     href={`/practice/${chapter.id}`}
                     onClick={(e) => e.stopPropagation()}

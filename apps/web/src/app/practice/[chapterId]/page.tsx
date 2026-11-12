@@ -27,6 +27,7 @@ import { useUserStore } from '@/store/user-store';
 import { useLanguageStore } from '@/store/language-store';
 import { findTopicHierarchy, DEFAULT_CHAPTERS } from '@/lib/curriculum-data';
 import { PracticePageSkeleton } from '@/components/ui/shimmer';
+import { getOfflinePackQuestions, enqueuePracticeAttempt } from '@/lib/offline-store';
 
 const SAMPLE_QUESTIONS: QuestionDTO[] = [
   {
@@ -201,9 +202,37 @@ export default function PracticeRunnerPage() {
   const chapterTitle = resolvedChapter?.titleBangla || 'অধ্যায় অনুশীলন';
 
   useEffect(() => {
+    async function loadOfflineOrSampleQuestions() {
+      const packQuestions = await getOfflinePackQuestions(chapterId, {
+        type: questionTypeMode,
+        topicId: topicId || undefined,
+      }).catch(() => []);
+      if (packQuestions.length > 0) {
+        setQuestions(packQuestions);
+        setIsSampleCqFallback(false);
+        return;
+      }
+
+      if (questionTypeMode === 'CQ_CREATIVE') {
+        setQuestions(SAMPLE_CQ_QUESTIONS);
+        setIsSampleCqFallback(true);
+      } else if (topicId) {
+        const topicFiltered = SAMPLE_QUESTIONS.filter((q) => q.topicId === topicId);
+        setQuestions(topicFiltered);
+        setIsSampleCqFallback(false);
+      } else {
+        setQuestions(SAMPLE_QUESTIONS);
+        setIsSampleCqFallback(false);
+      }
+    }
+
     async function loadQuestions() {
       setIsLoading(true);
       try {
+        if (typeof navigator !== 'undefined' && !navigator.onLine) {
+          await loadOfflineOrSampleQuestions();
+          return;
+        }
         let query = '';
         if (questionTypeMode === 'CQ_CREATIVE') {
           const qs = new URLSearchParams({ type: 'CQ_CREATIVE' });
@@ -225,19 +254,11 @@ export default function PracticeRunnerPage() {
             setQuestions(filtered);
             setIsSampleCqFallback(false);
           }
+        } else {
+          await loadOfflineOrSampleQuestions();
         }
       } catch {
-        if (questionTypeMode === 'CQ_CREATIVE') {
-          setQuestions(SAMPLE_CQ_QUESTIONS);
-          setIsSampleCqFallback(true);
-        } else if (topicId) {
-          const topicFiltered = SAMPLE_QUESTIONS.filter((q) => q.topicId === topicId);
-          setQuestions(topicFiltered);
-          setIsSampleCqFallback(false);
-        } else {
-          setQuestions(SAMPLE_QUESTIONS);
-          setIsSampleCqFallback(false);
-        }
+        await loadOfflineOrSampleQuestions();
       } finally {
         setIsLoading(false);
       }
@@ -277,39 +298,53 @@ export default function PracticeRunnerPage() {
     let correctOptionIdResult = currentQ.options?.find((o) => o.isCorrect)?.id || optId;
     let explanationResult: any = currentQ.explanation;
 
-    try {
-      const res = await apiClient.post<{
-        isCorrect: boolean;
-        correctOptionId: string;
-        explanation: any;
-      }>('/practice/submit', {
+    const queueAttemptOffline = () =>
+      enqueuePracticeAttempt({
+        offlineEventId: `practice_${currentQ.id}_${Date.now()}`,
         questionId: currentQ.id,
+        topicId: currentQ.topicId,
+        isCorrect: isCorrectResult,
         selectedOptionId: optId,
-      });
+        attemptedAt: new Date().toISOString(),
+      }).catch(() => {});
 
-      if (res) {
-        isCorrectResult = res.isCorrect;
-        correctOptionIdResult = res.correctOptionId;
-        if (res.explanation) {
-          explanationResult = res.explanation;
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      await queueAttemptOffline();
+    } else {
+      try {
+        const res = await apiClient.post<{
+          isCorrect: boolean;
+          correctOptionId: string;
+          explanation: any;
+        }>('/practice/submit', {
+          questionId: currentQ.id,
+          selectedOptionId: optId,
+        });
+
+        if (res) {
+          isCorrectResult = res.isCorrect;
+          correctOptionIdResult = res.correctOptionId;
+          if (res.explanation) {
+            explanationResult = res.explanation;
+          }
+          setQuestions((prev) =>
+            prev.map((q) =>
+              q.id === currentQ.id
+                ? {
+                    ...q,
+                    explanation: res.explanation || q.explanation,
+                    options: q.options?.map((o) => ({
+                      ...o,
+                      isCorrect: o.id === res.correctOptionId,
+                    })),
+                  }
+                : q
+            )
+          );
         }
-        setQuestions((prev) =>
-          prev.map((q) =>
-            q.id === currentQ.id
-              ? {
-                  ...q,
-                  explanation: res.explanation || q.explanation,
-                  options: q.options?.map((o) => ({
-                    ...o,
-                    isCorrect: o.id === res.correctOptionId,
-                  })),
-                }
-              : q
-          )
-        );
+      } catch {
+        await queueAttemptOffline();
       }
-    } catch {
-      // Offline fallback: keep local questions
     }
 
     const selectedOptText =

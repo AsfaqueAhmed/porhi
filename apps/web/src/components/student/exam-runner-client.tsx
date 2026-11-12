@@ -23,6 +23,11 @@ import { useLanguageStore } from '@/store/language-store';
 import { DEFAULT_CHAPTERS, findTopicHierarchy } from '@/lib/curriculum-data';
 import { ExamPageSkeleton } from '@/components/ui/shimmer';
 import {
+  getOfflinePackQuestions,
+  getOfflineSubjectQuestions,
+  enqueueExamSubmission,
+} from '@/lib/offline-store';
+import {
   ExamResultView,
   ExamResultData,
   ExamResultAnswerItem,
@@ -405,7 +410,44 @@ export function ExamRunnerClient({
     setIsStarting(true);
     setWasResumed(false);
     isSubmittingRef.current = false;
+
+    const resolveFallbackQuestions = async (): Promise<QuestionDTO[]> => {
+      const cachedQs = isSubjectMode
+        ? await getOfflineSubjectQuestions(subjectIdToSend, 'MCQ').catch(() => [])
+        : await getOfflinePackQuestions(chapterId, {
+            type: 'MCQ',
+            topicId: testType === 'TOPIC_TEST' && selectedTopicId ? selectedTopicId : undefined,
+          }).catch(() => []);
+      const sourcePool = cachedQs.length > 0 ? cachedQs : FALLBACK_EXAM_QUESTIONS;
+      return questionLimit !== undefined ? sourcePool.slice(0, questionLimit) : sourcePool;
+    };
+
+    const activateSession = (
+      loadedQs: QuestionDTO[],
+      nextSessionId?: string,
+      effDuration: number = durationSeconds,
+      effNegRatio: number = negativeRatio,
+    ) => {
+      setSessionId(nextSessionId || `local_sess_${Date.now()}`);
+      setQuestions(loadedQs);
+      setDurationSeconds(effDuration);
+      setNegativeRatio(effNegRatio);
+      setStartedAtIso(new Date().toISOString());
+      setAnswers({});
+      setFlagged({});
+      questionTimesRef.current = {};
+      setQuestionTimes({});
+      setCurrentIndex(0);
+      setTimeLeft(effDuration);
+      activeQuestionEnteredAtRef.current = Date.now();
+      setPhase('ACTIVE');
+    };
+
     try {
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        activateSession(await resolveFallbackQuestions());
+        return;
+      }
       await ensureGuestSession();
       const body: Record<string, unknown> = {
         testType: isSubjectMode ? 'SUBJECT_TEST' : testType,
@@ -432,41 +474,17 @@ export function ExamRunnerClient({
       }>('/exam/start', body);
 
       const loadedQs =
-        res?.questions && res.questions.length > 0 ? res.questions : FALLBACK_EXAM_QUESTIONS;
-      const effDuration = res?.durationSeconds ?? durationSeconds;
-      const effNegRatio = res?.negativeRatio ?? negativeRatio;
-      const nowIso = new Date().toISOString();
-
-      setSessionId(res?.sessionId || `local_sess_${Date.now()}`);
-      setQuestions(loadedQs);
-      setDurationSeconds(effDuration);
-      setNegativeRatio(effNegRatio);
-      setStartedAtIso(nowIso);
-      setAnswers({});
-      setFlagged({});
-      questionTimesRef.current = {};
-      setQuestionTimes({});
-      setCurrentIndex(0);
-      setTimeLeft(effDuration);
-      activeQuestionEnteredAtRef.current = Date.now();
-      setPhase('ACTIVE');
+        res?.questions && res.questions.length > 0
+          ? res.questions
+          : await resolveFallbackQuestions();
+      activateSession(
+        loadedQs,
+        res?.sessionId,
+        res?.durationSeconds ?? durationSeconds,
+        res?.negativeRatio ?? negativeRatio,
+      );
     } catch {
-      const nowIso = new Date().toISOString();
-      const fallbackQs =
-        questionLimit !== undefined
-          ? FALLBACK_EXAM_QUESTIONS.slice(0, questionLimit)
-          : FALLBACK_EXAM_QUESTIONS;
-      setSessionId(`local_sess_${Date.now()}`);
-      setQuestions(fallbackQs);
-      setStartedAtIso(nowIso);
-      setAnswers({});
-      setFlagged({});
-      questionTimesRef.current = {};
-      setQuestionTimes({});
-      setCurrentIndex(0);
-      setTimeLeft(durationSeconds);
-      activeQuestionEnteredAtRef.current = Date.now();
-      setPhase('ACTIVE');
+      activateSession(await resolveFallbackQuestions());
     } finally {
       setIsStarting(false);
     }
@@ -518,7 +536,26 @@ export function ExamRunnerClient({
       answersWithExplanation: localAnswersWithExplanation,
     };
 
-    if (sessionId && !sessionId.startsWith('local_sess_')) {
+    const queueOfflineExam = async () => {
+      await enqueueExamSubmission({
+        offlineSessionId: sessionId || `local_sess_${Date.now()}`,
+        subjectId: subjectIdToSend,
+        chapterId: isSubjectMode ? null : chapterId,
+        testType: isSubjectMode ? 'SUBJECT_TEST' : testType,
+        durationSeconds,
+        answers: questions.map((q) => ({
+          questionId: q.id,
+          selectedOptionId: answers[q.id] ?? null,
+        })),
+        submittedAt: new Date().toISOString(),
+      }).catch(() => {});
+    };
+
+    if (
+      sessionId &&
+      !sessionId.startsWith('local_sess_') &&
+      (typeof navigator === 'undefined' || navigator.onLine)
+    ) {
       try {
         const formattedAnswers = questions.map((q) => ({
           questionId: q.id,
@@ -549,8 +586,11 @@ export function ExamRunnerClient({
           };
         }
       } catch {
-        // Offline / fallback result already computed above
+        // Offline / fallback result already computed above; enqueue replay for later sync
+        await queueOfflineExam();
       }
+    } else {
+      await queueOfflineExam();
     }
 
     const totalForPct = finalResult.totalQuestions || 1;
