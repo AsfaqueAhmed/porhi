@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Inject, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Get, Inject, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Role } from '@prisma/client';
 import { AuthService } from './auth.service';
 import { AdminLoginDto } from './dto/admin-login.dto';
 import { FirebaseLoginDto } from './dto/firebase-login.dto';
 import { GuestLoginDto } from './dto/guest-login.dto';
 import { RequestOtpDto } from './dto/request-otp.dto';
+import { UpdateAuthConfigDto } from './dto/update-auth-config.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -11,6 +13,23 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 @Controller('auth')
 export class AuthController {
   constructor(@Inject(AuthService) private readonly authService: AuthService) {}
+
+  @Get('config')
+  async getAuthConfig() {
+    return this.authService.getAuthConfig();
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('admin/config')
+  async updateAuthConfig(
+    @Req() req: { user: { id: string; role: Role } },
+    @Body() dto: UpdateAuthConfigDto,
+  ) {
+    if (req.user?.role !== Role.ADMIN) {
+      throw new ForbiddenException('Admin access required to update auth configuration');
+    }
+    return this.authService.updateAuthConfig(dto);
+  }
 
   @Post('guest')
   async guestLogin(@Body() dto: GuestLoginDto) {

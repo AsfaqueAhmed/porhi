@@ -45,12 +45,18 @@ export interface AdminAuthResult {
 
 export interface GuestAuthResult {
   accessToken: string;
+  isNewUser?: boolean;
   user: {
     id: string;
     guestId: string | null;
     role: Role;
     selectedClass: string;
+    isGuest?: boolean;
   };
+}
+
+export interface AuthConfigResult {
+  guestLoginEnabled: boolean;
 }
 
 export interface VerifyOtpResult {
@@ -116,7 +122,66 @@ export class AuthService {
     return this.normalizePhoneNumber(phone);
   }
 
+  static readonly GUEST_LOGIN_CONFIG_KEY = 'guest_login_enabled';
+
+  private isEnvGuestLoginEnabled(): boolean {
+    const raw = process.env.ENABLE_GUEST_LOGIN?.trim().toLowerCase();
+    if (raw === 'false' || raw === '0' || raw === 'no' || raw === 'off') {
+      return false;
+    }
+    return true;
+  }
+
+  async isGuestLoginEnabled(): Promise<boolean> {
+    try {
+      const systemConfigModel = (this.prisma as any).systemConfig;
+      if (typeof systemConfigModel?.findUnique === 'function') {
+        const record = await systemConfigModel.findUnique({
+          where: { key: AuthService.GUEST_LOGIN_CONFIG_KEY },
+        });
+        if (record && typeof record.value === 'string') {
+          const val = record.value.trim().toLowerCase();
+          if (val === 'true' || val === '1') return true;
+          if (val === 'false' || val === '0') return false;
+        }
+      }
+    } catch {
+      // Fallback to environment variable if table/query is unavailable
+    }
+    return this.isEnvGuestLoginEnabled();
+  }
+
+  async getAuthConfig(): Promise<AuthConfigResult> {
+    const guestLoginEnabled = await this.isGuestLoginEnabled();
+    return { guestLoginEnabled };
+  }
+
+  async updateAuthConfig(dto: { guestLoginEnabled: boolean }): Promise<AuthConfigResult> {
+    if (typeof dto?.guestLoginEnabled !== 'boolean') {
+      throw new BadRequestException('guestLoginEnabled must be a boolean');
+    }
+    const systemConfigModel = (this.prisma as any).systemConfig;
+    if (typeof systemConfigModel?.upsert === 'function') {
+      await systemConfigModel.upsert({
+        where: { key: AuthService.GUEST_LOGIN_CONFIG_KEY },
+        update: { value: String(dto.guestLoginEnabled) },
+        create: {
+          key: AuthService.GUEST_LOGIN_CONFIG_KEY,
+          value: String(dto.guestLoginEnabled),
+        },
+      });
+    } else {
+      process.env.ENABLE_GUEST_LOGIN = String(dto.guestLoginEnabled);
+    }
+    return { guestLoginEnabled: dto.guestLoginEnabled };
+  }
+
   async createGuestSession(guestId: string): Promise<GuestAuthResult> {
+    const enabled = await this.isGuestLoginEnabled();
+    if (!enabled) {
+      throw new ForbiddenException('Guest login is currently disabled');
+    }
+
     if (!guestId || typeof guestId !== 'string') {
       throw new BadRequestException('guestId is required');
     }
@@ -231,118 +296,7 @@ export class AuthService {
           user = existingUserWithPhone;
           progressMigrated = false;
         } else {
-          // Merge progress into existing permanent user and delete guest user
-          await this.prisma.$transaction(async (tx) => {
-            await tx.examSession.updateMany({
-              where: { userId: guestUser.id },
-              data: { userId: existingUserWithPhone.id },
-            });
-
-            await tx.eventLog.updateMany({
-              where: { userId: guestUser.id },
-              data: { userId: existingUserWithPhone.id },
-            });
-
-            const guestMistakes = await tx.revisionMistake.findMany({
-              where: { userId: guestUser.id },
-            });
-            const existingMistakes = await tx.revisionMistake.findMany({
-              where: { userId: existingUserWithPhone.id },
-            });
-            const existingQuestionIds = new Set(existingMistakes.map((m: { questionId: string }) => m.questionId));
-
-            const newMistakes = guestMistakes
-              .filter((m: { questionId: string }) => !existingQuestionIds.has(m.questionId))
-              .map((m: { questionId: string; attemptCount: number; resolved: boolean }) => ({
-                userId: existingUserWithPhone.id,
-                questionId: m.questionId,
-                attemptCount: m.attemptCount,
-                resolved: m.resolved,
-              }));
-
-            if (newMistakes.length > 0) {
-              await tx.revisionMistake.createMany({
-                data: newMistakes,
-              });
-            }
-
-            await tx.revisionMistake.deleteMany({
-              where: { userId: guestUser.id },
-            });
-
-            if (typeof (tx as any).studentBookmark?.findMany === 'function') {
-              const guestBookmarks = await (tx as any).studentBookmark.findMany({
-                where: { userId: guestUser.id },
-              });
-              const existingBookmarks = await (tx as any).studentBookmark.findMany({
-                where: { userId: existingUserWithPhone.id },
-              });
-              const existingKeys = new Set(
-                existingBookmarks.map(
-                  (b: { itemId: string; itemType: string }) => `${b.itemType}:${b.itemId}`,
-                ),
-              );
-              const newBookmarks = guestBookmarks
-                .filter(
-                  (b: { itemId: string; itemType: string }) =>
-                    !existingKeys.has(`${b.itemType}:${b.itemId}`),
-                )
-                .map(
-                  (b: {
-                    itemId: string;
-                    itemType: string;
-                    titleBangla: string;
-                    subtitleBangla?: string | null;
-                    href: string;
-                  }) => ({
-                    userId: existingUserWithPhone.id,
-                    itemId: b.itemId,
-                    itemType: b.itemType,
-                    titleBangla: b.titleBangla,
-                    subtitleBangla: b.subtitleBangla ?? null,
-                    href: b.href,
-                  }),
-                );
-
-              if (newBookmarks.length > 0) {
-                await (tx as any).studentBookmark.createMany({ data: newBookmarks });
-              }
-              await (tx as any).studentBookmark.deleteMany({
-                where: { userId: guestUser.id },
-              });
-            }
-
-            if (typeof (tx as any).studentNote?.findMany === 'function') {
-              const guestNotes = await (tx as any).studentNote.findMany({
-                where: { userId: guestUser.id },
-              });
-              const existingNotes = await (tx as any).studentNote.findMany({
-                where: { userId: existingUserWithPhone.id },
-              });
-              const existingTopicIds = new Set(
-                existingNotes.map((n: { topicId: string }) => n.topicId),
-              );
-              const newNotes = guestNotes
-                .filter((n: { topicId: string }) => !existingTopicIds.has(n.topicId))
-                .map((n: { topicId: string; content: string }) => ({
-                  userId: existingUserWithPhone.id,
-                  topicId: n.topicId,
-                  content: n.content,
-                }));
-
-              if (newNotes.length > 0) {
-                await (tx as any).studentNote.createMany({ data: newNotes });
-              }
-              await (tx as any).studentNote.deleteMany({
-                where: { userId: guestUser.id },
-              });
-            }
-
-            await tx.user.delete({
-              where: { id: guestUser.id },
-            });
-          });
-
+          await this.mergeGuestDataIntoUser(guestUser.id, existingUserWithPhone.id);
           user = existingUserWithPhone;
           progressMigrated = true;
         }
@@ -392,6 +346,119 @@ export class AuthService {
       },
       progressMigrated,
     };
+  }
+
+  private async mergeGuestDataIntoUser(guestUserId: string, targetUserId: string): Promise<void> {
+    await this.prisma.$transaction(async (tx) => {
+      await tx.examSession.updateMany({
+        where: { userId: guestUserId },
+        data: { userId: targetUserId },
+      });
+
+      await tx.eventLog.updateMany({
+        where: { userId: guestUserId },
+        data: { userId: targetUserId },
+      });
+
+      const guestMistakes = await tx.revisionMistake.findMany({
+        where: { userId: guestUserId },
+      });
+      const existingMistakes = await tx.revisionMistake.findMany({
+        where: { userId: targetUserId },
+      });
+      const existingQuestionIds = new Set(existingMistakes.map((m: { questionId: string }) => m.questionId));
+
+      const newMistakes = guestMistakes
+        .filter((m: { questionId: string }) => !existingQuestionIds.has(m.questionId))
+        .map((m: { questionId: string; attemptCount: number; resolved: boolean }) => ({
+          userId: targetUserId,
+          questionId: m.questionId,
+          attemptCount: m.attemptCount,
+          resolved: m.resolved,
+        }));
+
+      if (newMistakes.length > 0) {
+        await tx.revisionMistake.createMany({
+          data: newMistakes,
+        });
+      }
+
+      await tx.revisionMistake.deleteMany({
+        where: { userId: guestUserId },
+      });
+
+      if (typeof (tx as any).studentBookmark?.findMany === 'function') {
+        const guestBookmarks = await (tx as any).studentBookmark.findMany({
+          where: { userId: guestUserId },
+        });
+        const existingBookmarks = await (tx as any).studentBookmark.findMany({
+          where: { userId: targetUserId },
+        });
+        const existingKeys = new Set(
+          existingBookmarks.map(
+            (b: { itemId: string; itemType: string }) => `${b.itemType}:${b.itemId}`,
+          ),
+        );
+        const newBookmarks = guestBookmarks
+          .filter(
+            (b: { itemId: string; itemType: string }) =>
+              !existingKeys.has(`${b.itemType}:${b.itemId}`),
+          )
+          .map(
+            (b: {
+              itemId: string;
+              itemType: string;
+              titleBangla: string;
+              subtitleBangla?: string | null;
+              href: string;
+            }) => ({
+              userId: targetUserId,
+              itemId: b.itemId,
+              itemType: b.itemType,
+              titleBangla: b.titleBangla,
+              subtitleBangla: b.subtitleBangla ?? null,
+              href: b.href,
+            }),
+          );
+
+        if (newBookmarks.length > 0) {
+          await (tx as any).studentBookmark.createMany({ data: newBookmarks });
+        }
+        await (tx as any).studentBookmark.deleteMany({
+          where: { userId: guestUserId },
+        });
+      }
+
+      if (typeof (tx as any).studentNote?.findMany === 'function') {
+        const guestNotes = await (tx as any).studentNote.findMany({
+          where: { userId: guestUserId },
+        });
+        const existingNotes = await (tx as any).studentNote.findMany({
+          where: { userId: targetUserId },
+        });
+        const existingTopicIds = new Set(
+          existingNotes.map((n: { topicId: string }) => n.topicId),
+        );
+        const newNotes = guestNotes
+          .filter((n: { topicId: string }) => !existingTopicIds.has(n.topicId))
+          .map((n: { topicId: string; content: string }) => ({
+            userId: targetUserId,
+            topicId: n.topicId,
+            content: n.content,
+          }));
+
+        if (newNotes.length > 0) {
+          await (tx as any).studentNote.createMany({ data: newNotes });
+        }
+        await (tx as any).studentNote.deleteMany({
+          where: { userId: guestUserId },
+        });
+      }
+
+      await tx.user.delete({
+        where: { id: guestUserId },
+      });
+    });
   }
 
   async adminLogin(phoneNumber: string, password: string): Promise<AdminAuthResult> {
@@ -498,6 +565,7 @@ export class AuthService {
     idToken: string;
     fullName?: string;
     selectedClass?: string;
+    guestId?: string;
   }): Promise<FirebaseAuthResult> {
     if (dto.selectedClass !== undefined && !STUDENT_TRACKS.includes(dto.selectedClass as ProgramTrack)) {
       throw new BadRequestException(
@@ -553,10 +621,37 @@ export class AuthService {
 
     this.assertOtpAllowed(user);
 
+    const trimmedGuestId = dto.guestId?.trim();
+    let guestUser: User | null = null;
+    if (trimmedGuestId) {
+      guestUser = await this.prisma.user.findUnique({
+        where: { guestId: trimmedGuestId },
+      });
+      this.assertOtpAllowed(guestUser);
+    }
+
     const resolvedFullName = requestedFullName ?? (decoded.name?.trim() || null);
     let isNewUser = false;
 
-    if (!user) {
+    if (!user && guestUser) {
+      // Upgrade guest account in place to permanent Firebase user
+      isNewUser = !guestUser.fullName && !resolvedFullName;
+      user = await this.prisma.user.update({
+        where: { id: guestUser.id },
+        data: {
+          guestId: null,
+          firebaseUid: decoded.uid,
+          phoneNumber: normalizedPhone ?? guestUser.phoneNumber,
+          email: verifiedEmail ?? guestUser.email,
+          fullName: resolvedFullName
+            ? resolvedFullName.slice(0, 80)
+            : guestUser.fullName,
+          selectedClass:
+              (dto.selectedClass as ProgramTrack | undefined) ??
+              guestUser.selectedClass,
+        },
+      });
+    } else if (!user) {
       isNewUser = true;
       user = await this.prisma.user.create({
         data: {
@@ -573,6 +668,10 @@ export class AuthService {
         throw new ConflictException(
           'Account is already linked to a different Firebase user',
         );
+      }
+
+      if (guestUser && guestUser.id !== user.id) {
+        await this.mergeGuestDataIntoUser(guestUser.id, user.id);
       }
 
       const updateData: {

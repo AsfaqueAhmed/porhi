@@ -4,6 +4,10 @@ import 'package:porhi/features/auth/domain/entities/auth_user_entity.dart';
 
 /// Domain contract for student authentication, session refresh, and profile sync.
 abstract class AuthRepository {
+  Future<Either<ErrorResponse, AuthConfigEntity>> getAuthConfig();
+
+  Future<Either<ErrorResponse, AuthSessionEntity>> signInAsGuest();
+
   Future<Either<ErrorResponse, AuthSessionEntity>> signInWithGoogle();
 
   Future<Either<ErrorResponse, PhoneOtpResult>> requestPhoneOtp(

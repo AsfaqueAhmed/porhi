@@ -152,6 +152,41 @@ describe('AuthService', () => {
       });
       expect(result.user.id).toBe('u-guest-existing');
     });
+
+    it('throws ForbiddenException when guest login is disabled via env or SystemConfig', async () => {
+      process.env.ENABLE_GUEST_LOGIN = 'false';
+      await expect(authService.createGuestSession('guest-uuid-disabled')).rejects.toThrow(
+        ForbiddenException,
+      );
+
+      process.env.ENABLE_GUEST_LOGIN = 'true';
+      (prisma as any).systemConfig = {
+        findUnique: vi.fn().mockResolvedValue({
+          key: 'guest_login_enabled',
+          value: 'false',
+        }),
+        upsert: vi.fn(),
+      };
+
+      const config = await authService.getAuthConfig();
+      expect(config).toEqual({ guestLoginEnabled: false });
+      await expect(authService.createGuestSession('guest-uuid-disabled')).rejects.toThrow(
+        ForbiddenException,
+      );
+
+      // Admin enables guest login via updateAuthConfig
+      (prisma as any).systemConfig.findUnique.mockResolvedValue({
+        key: 'guest_login_enabled',
+        value: 'true',
+      });
+      const updated = await authService.updateAuthConfig({ guestLoginEnabled: true });
+      expect(updated).toEqual({ guestLoginEnabled: true });
+      expect((prisma as any).systemConfig.upsert).toHaveBeenCalledWith({
+        where: { key: 'guest_login_enabled' },
+        update: { value: 'true' },
+        create: { key: 'guest_login_enabled', value: 'true' },
+      });
+    });
   });
 
   describe('requestOtp', () => {
@@ -1103,6 +1138,58 @@ describe('AuthService', () => {
       ).rejects.toThrow(ConflictException);
       expect(prisma.user.update).not.toHaveBeenCalled();
       expect(jwtService.sign).not.toHaveBeenCalled();
+    });
+
+    it('upgrades a guest user in-place when firebaseLogin is called with guestId for a new Firebase identity', async () => {
+      firebaseVerifier.verifyIdToken.mockResolvedValue({
+        uid: 'fb-uid-from-guest',
+        email: 'upgraded@example.com',
+        emailVerified: true,
+        name: 'Upgraded Student',
+      });
+      prisma.user.findUnique
+        .mockResolvedValueOnce(null) // firebaseUid
+        .mockResolvedValueOnce(null) // email
+        .mockResolvedValueOnce({
+          id: 'u-guest-upgrade',
+          guestId: 'guest_mobile_123',
+          firebaseUid: null,
+          phoneNumber: null,
+          email: null,
+          fullName: 'Guest Name',
+          passwordHash: null,
+          role: 'STUDENT',
+          selectedClass: 'HSC',
+        });
+      prisma.user.update.mockResolvedValue({
+        id: 'u-guest-upgrade',
+        guestId: null,
+        firebaseUid: 'fb-uid-from-guest',
+        phoneNumber: null,
+        email: 'upgraded@example.com',
+        fullName: 'Upgraded Student',
+        role: 'STUDENT',
+        selectedClass: 'HSC',
+      });
+
+      const res = await authService.firebaseLogin({
+        idToken: 'fb-token-upgrade',
+        guestId: 'guest_mobile_123',
+      });
+
+      expect(prisma.user.update).toHaveBeenCalledWith({
+        where: { id: 'u-guest-upgrade' },
+        data: {
+          guestId: null,
+          firebaseUid: 'fb-uid-from-guest',
+          phoneNumber: null,
+          email: 'upgraded@example.com',
+          fullName: 'Upgraded Student',
+          selectedClass: 'HSC',
+        },
+      });
+      expect(res.user.id).toBe('u-guest-upgrade');
+      expect(res.isNewUser).toBe(false);
     });
   });
 });

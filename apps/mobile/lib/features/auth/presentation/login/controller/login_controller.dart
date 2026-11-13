@@ -15,6 +15,8 @@ class LoginController extends GetxController {
   final VerifyPhoneOtpUseCase _verifyPhoneOtpUseCase;
   final GetLanguageUseCase _getLanguageUseCase;
   final SetLanguageUseCase _setLanguageUseCase;
+  final GetAuthConfigUseCase? _getAuthConfigUseCase;
+  final SignInAsGuestUseCase? _signInAsGuestUseCase;
 
   LoginController({
     required this._signInWithGoogleUseCase,
@@ -22,13 +24,22 @@ class LoginController extends GetxController {
     required this._verifyPhoneOtpUseCase,
     required this._getLanguageUseCase,
     required this._setLanguageUseCase,
-  });
+    GetAuthConfigUseCase? getAuthConfigUseCase,
+    SignInAsGuestUseCase? signInAsGuestUseCase,
+    bool? initialGuestLoginEnabled,
+  })  : _getAuthConfigUseCase = getAuthConfigUseCase,
+        _signInAsGuestUseCase = signInAsGuestUseCase {
+    isGuestLoginEnabled.value =
+        initialGuestLoginEnabled ?? (getAuthConfigUseCase != null);
+  }
 
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController otpController = TextEditingController();
 
   final RxBool isGoogleLoading = false.obs;
   final RxBool isOtpLoading = false.obs;
+  final RxBool isGuestLoading = false.obs;
+  final RxBool isGuestLoginEnabled = false.obs;
   final RxBool otpSent = false.obs;
   final RxInt resendSecondsRemaining = 0.obs;
   final RxnString errorMessage = RxnString();
@@ -38,12 +49,58 @@ class LoginController extends GetxController {
   int? _resendToken;
   Timer? _resendTimer;
 
-  bool get isBusy => isGoogleLoading.value || isOtpLoading.value;
+  bool get isBusy =>
+      isGoogleLoading.value || isOtpLoading.value || isGuestLoading.value;
 
   @override
   void onInit() {
     super.onInit();
     language.value = AppLanguage.fromCode(_getLanguageUseCase());
+    unawaited(loadAuthConfig());
+  }
+
+  Future<void> loadAuthConfig() async {
+    final getConfig = _getAuthConfigUseCase;
+    if (getConfig == null) return;
+    final result = await getConfig();
+    if (isClosed) return;
+    result.fold(
+      (_) {},
+      (config) {
+        isGuestLoginEnabled.value = config.guestLoginEnabled;
+      },
+    );
+  }
+
+  Future<void> signInAsGuest() async {
+    if (isBusy) return;
+    final guestUseCase = _signInAsGuestUseCase;
+    if (guestUseCase == null) return;
+
+    errorMessage.value = null;
+    isGuestLoading.value = true;
+    try {
+      final result = await guestUseCase();
+      if (isClosed) return;
+      result.fold(
+        (err) {
+          if (err.statusCode == 403) {
+            isGuestLoginEnabled.value = false;
+          }
+          errorMessage.value = err.message ??
+              AppStrings.tr(
+                'গেস্ট লগইন ব্যর্থ হয়েছে। আবার চেষ্টা করুন।',
+                'Guest sign-in failed. Please try again.',
+                language.value,
+              );
+        },
+        _handleAuthenticatedSession,
+      );
+    } finally {
+      if (!isClosed) {
+        isGuestLoading.value = false;
+      }
+    }
   }
 
   Future<void> toggleLanguage() async {
@@ -174,7 +231,8 @@ class LoginController extends GetxController {
     _resendTimer?.cancel();
     _resendTimer = null;
     resendSecondsRemaining.value = 0;
-    if (session.isNewUser || session.user.needsOnboarding) {
+    if (!session.user.isGuest &&
+        (session.isNewUser || session.user.needsOnboarding)) {
       Get.offAllNamed(AppRoutes.onboarding);
     } else {
       Get.offAllNamed(AppRoutes.home);

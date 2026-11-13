@@ -19,7 +19,11 @@ class AuthRequestInterceptor extends Interceptor {
       options.baseUrl = _envConfig.normalizedApiBaseUrl;
     }
 
-    final isAuthExchange = options.path.trim().endsWith('/auth/firebase');
+    final trimmedPath = options.path.trim();
+    final isAuthExchange =
+        trimmedPath.endsWith('/auth/firebase') ||
+        trimmedPath.endsWith('/auth/guest') ||
+        trimmedPath.endsWith('/auth/config');
     if (options.extra['_skipAuth'] != true && !isAuthExchange) {
       final isRetryWithFreshHeader =
           options.extra['_retriedAfterRefresh'] == true &&

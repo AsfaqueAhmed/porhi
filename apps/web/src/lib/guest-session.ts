@@ -2,6 +2,27 @@ import { apiClient } from '@/lib/api-client';
 import { useUserStore } from '@/store/user-store';
 
 let inFlightGuestPromise: Promise<{ token: string; guestId: string } | null> | null = null;
+let cachedGuestLoginEnabled: boolean | null = null;
+
+export async function fetchGuestLoginEnabled(): Promise<boolean> {
+  if (cachedGuestLoginEnabled !== null) {
+    return cachedGuestLoginEnabled;
+  }
+  try {
+    const res = await apiClient.get<{ guestLoginEnabled?: boolean }>('/auth/config');
+    if (typeof res?.guestLoginEnabled === 'boolean') {
+      cachedGuestLoginEnabled = res.guestLoginEnabled;
+      return res.guestLoginEnabled;
+    }
+  } catch {
+    // Fallback to enabled if backend is unreachable
+  }
+  return true;
+}
+
+export function resetGuestLoginConfigCache(): void {
+  cachedGuestLoginEnabled = null;
+}
 
 /**
  * Ensures the browser session has a valid guest or student JWT before invoking
@@ -59,7 +80,11 @@ export async function ensureGuestSession(): Promise<{ token: string; guestId: st
         });
       }
       return null;
-    } catch {
+    } catch (err: any) {
+      if (err?.status === 403 || String(err?.message || '').toLowerCase().includes('disabled')) {
+        cachedGuestLoginEnabled = false;
+        return null;
+      }
       if (!useUserStore.getState().user) {
         useUserStore.getState().setUser({
           id: guestId,

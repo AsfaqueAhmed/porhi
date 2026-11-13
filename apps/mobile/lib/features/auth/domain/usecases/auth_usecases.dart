@@ -5,6 +5,26 @@ import 'package:porhi/core/i18n/bangla_digits.dart';
 import 'package:porhi/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:porhi/features/auth/domain/repositories/auth_repository.dart';
 
+class GetAuthConfigUseCase {
+  final AuthRepository _repository;
+
+  const GetAuthConfigUseCase(this._repository);
+
+  Future<Either<ErrorResponse, AuthConfigEntity>> call() {
+    return _repository.getAuthConfig();
+  }
+}
+
+class SignInAsGuestUseCase {
+  final AuthRepository _repository;
+
+  const SignInAsGuestUseCase(this._repository);
+
+  Future<Either<ErrorResponse, AuthSessionEntity>> call() {
+    return _repository.signInAsGuest();
+  }
+}
+
 class SignInWithGoogleUseCase {
   final AuthRepository _repository;
 

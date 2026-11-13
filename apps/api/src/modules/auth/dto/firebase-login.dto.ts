@@ -16,4 +16,8 @@ export class FirebaseLoginDto {
     message: 'selectedClass must be one of CLASS_6_8, SSC, HSC, ADMISSION, BCS',
   })
   selectedClass?: ProgramTrack;
+
+  @IsOptional()
+  @IsString()
+  guestId?: string;
 }

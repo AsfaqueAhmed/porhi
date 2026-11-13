@@ -1,10 +1,11 @@
 import 'package:network/network.dart';
 import 'package:porhi/features/auth/domain/entities/auth_user_entity.dart';
 
-/// DTO matching `apps/api`'s user payload from `/auth/firebase`, `/auth/me`,
-/// and `/auth/profile`.
+/// DTO matching `apps/api`'s user payload from `/auth/firebase`, `/auth/guest`,
+/// `/auth/me`, and `/auth/profile`.
 class AuthUserModel extends BaseResponseModel<AuthUserModel> {
   final String id;
+  final String? guestId;
   final String? firebaseUid;
   final String? phoneNumber;
   final String? email;
@@ -15,6 +16,7 @@ class AuthUserModel extends BaseResponseModel<AuthUserModel> {
 
   AuthUserModel({
     required this.id,
+    this.guestId,
     this.firebaseUid,
     this.phoneNumber,
     this.email,
@@ -32,15 +34,24 @@ class AuthUserModel extends BaseResponseModel<AuthUserModel> {
         ? Map<String, dynamic>.from(json['user'] as Map)
         : json;
 
+    final guestId = payload['guestId'] as String?;
+    final phoneNumber = payload['phoneNumber'] as String?;
+    final explicitIsGuest = payload['isGuest'] as bool?;
+    final resolvedIsGuest = explicitIsGuest ??
+        (guestId != null &&
+            guestId.trim().isNotEmpty &&
+            (phoneNumber == null || phoneNumber.trim().isEmpty));
+
     return AuthUserModel(
       id: (payload['id'] ?? '').toString(),
+      guestId: guestId,
       firebaseUid: payload['firebaseUid'] as String?,
-      phoneNumber: payload['phoneNumber'] as String?,
+      phoneNumber: phoneNumber,
       email: payload['email'] as String?,
       fullName: payload['fullName'] as String?,
       role: (payload['role'] ?? 'STUDENT').toString(),
       selectedClass: (payload['selectedClass'] ?? 'SSC').toString(),
-      isGuest: payload['isGuest'] as bool? ?? false,
+      isGuest: resolvedIsGuest,
       message: json['message'] as String?,
     );
   }
@@ -48,6 +59,7 @@ class AuthUserModel extends BaseResponseModel<AuthUserModel> {
   @override
   Map<String, dynamic> toJson() => <String, dynamic>{
         'id': id,
+        'guestId': guestId,
         'firebaseUid': firebaseUid,
         'phoneNumber': phoneNumber,
         'email': email,
@@ -63,12 +75,14 @@ class AuthUserModel extends BaseResponseModel<AuthUserModel> {
   }) {
     return AuthUserEntity(
       id: id,
+      guestId: guestId,
       firebaseUid: firebaseUid,
       phoneNumber: phoneNumber,
       email: email,
       fullName: fullName,
       role: role,
       selectedClass: StudentTrack.fromApiValue(selectedClass),
+      isGuest: isGuest,
       boardName: boardName,
       dailyStudyGoalMinutes: dailyStudyGoalMinutes,
     );
@@ -110,4 +124,32 @@ class AuthLoginResponseModel extends BaseResponseModel<AuthLoginResponseModel> {
         'isNewUser': isNewUser,
         'user': user.toJson(),
       };
+}
+
+/// DTO matching `apps/api`'s `AuthConfigResult` from `GET /auth/config`.
+class AuthConfigModel extends BaseResponseModel<AuthConfigModel> {
+  final bool guestLoginEnabled;
+
+  AuthConfigModel({
+    required this.guestLoginEnabled,
+    super.message,
+  }) {
+    data = this;
+  }
+
+  factory AuthConfigModel.fromJson(Map<String, dynamic> json) {
+    return AuthConfigModel(
+      guestLoginEnabled: json['guestLoginEnabled'] as bool? ?? true,
+      message: json['message'] as String?,
+    );
+  }
+
+  @override
+  Map<String, dynamic> toJson() => <String, dynamic>{
+        'guestLoginEnabled': guestLoginEnabled,
+      };
+
+  AuthConfigEntity toEntity() => AuthConfigEntity(
+        guestLoginEnabled: guestLoginEnabled,
+      );
 }

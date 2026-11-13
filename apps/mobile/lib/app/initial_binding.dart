@@ -150,8 +150,12 @@ class InitialBinding extends Bindings {
           TokenRefreshInterceptor(
             onRefreshToken: coordinator.refreshToken,
             onRefreshFailed: coordinator.handleRefreshFailureIfTerminal,
-            shouldAttemptRefresh: (options) =>
-                !options.path.trim().endsWith('/auth/firebase'),
+            shouldAttemptRefresh: (options) {
+              final path = options.path.trim();
+              return !path.endsWith('/auth/firebase') &&
+                  !path.endsWith('/auth/guest') &&
+                  !path.endsWith('/auth/config');
+            },
           ),
           ErrorInterceptor(),
           if (kDebugMode) LogInterceptor(),
@@ -186,6 +190,12 @@ class InitialBinding extends Bindings {
       );
     }
 
+    _lazyPutIfAbsent<GetAuthConfigUseCase>(
+      () => GetAuthConfigUseCase(Get.find<AuthRepository>()),
+    );
+    _lazyPutIfAbsent<SignInAsGuestUseCase>(
+      () => SignInAsGuestUseCase(Get.find<AuthRepository>()),
+    );
     _lazyPutIfAbsent<SignInWithGoogleUseCase>(
       () => SignInWithGoogleUseCase(Get.find<AuthRepository>()),
     );

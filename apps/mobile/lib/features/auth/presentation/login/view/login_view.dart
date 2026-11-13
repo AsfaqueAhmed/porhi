@@ -177,6 +177,80 @@ class LoginView extends GetView<LoginController> {
                       }),
                       const SizedBox(height: 18),
                       PhoneOtpSection(controller: controller),
+                      Obx(() {
+                        if (!controller.isGuestLoginEnabled.value) {
+                          return const SizedBox.shrink();
+                        }
+                        final lang = controller.language.value;
+                        final loading = controller.isGuestLoading.value;
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            const SizedBox(height: 18),
+                            Row(
+                              children: <Widget>[
+                                const Expanded(child: Divider()),
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                  ),
+                                  child: Text(
+                                    AppStrings.tr('অথবা', 'OR', lang),
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: PorhiTheme.slate400,
+                                    ),
+                                  ),
+                                ),
+                                const Expanded(child: Divider()),
+                              ],
+                            ),
+                            const SizedBox(height: 18),
+                            OutlinedButton.icon(
+                              key: const Key('guest_signin_button'),
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size(0, 50),
+                                backgroundColor: PorhiTheme.indigo50,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                side: const BorderSide(
+                                  color: PorhiTheme.indigo600,
+                                ),
+                              ),
+                              onPressed: controller.isBusy
+                                  ? null
+                                  : controller.signInAsGuest,
+                              icon: loading
+                                  ? const SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                      ),
+                                    )
+                                  : const Icon(
+                                      Icons.bolt_rounded,
+                                      size: 22,
+                                      color: PorhiTheme.indigo600,
+                                    ),
+                              label: Text(
+                                AppStrings.tr(
+                                  'গেস্ট হিসেবে শুরু করুন',
+                                  'Continue as Guest',
+                                  lang,
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: PorhiTheme.indigo600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
                     ],
                   ),
                 ),

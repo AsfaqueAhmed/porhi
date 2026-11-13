@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { BookOpen, CheckCircle, ArrowRight, Flame, Award, Zap, Layers } from 'lucide-react';
@@ -19,6 +19,24 @@ export default function LandingPage() {
   const [otpStep, setOtpStep] = useState<'PHONE' | 'OTP'>('PHONE');
   const [loading, setLoading] = useState(false);
   const [guestLoading, setGuestLoading] = useState(false);
+  const [guestLoginEnabled, setGuestLoginEnabled] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+    apiClient
+      .get<{ guestLoginEnabled?: boolean }>('/auth/config')
+      .then((res) => {
+        if (active && typeof res?.guestLoginEnabled === 'boolean') {
+          setGuestLoginEnabled(res.guestLoginEnabled);
+        }
+      })
+      .catch(() => {
+        // Default to true on network error
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const totalChapters = DEFAULT_CHAPTERS.length;
   const totalTopics = DEFAULT_CHAPTERS.reduce((sum, ch) => sum + ch.topics.length, 0);
@@ -45,7 +63,11 @@ export default function LandingPage() {
         if (res?.user) {
           setUser(res.user);
         }
-      } catch {
+      } catch (err: any) {
+        if (err?.status === 403) {
+          setGuestLoginEnabled(false);
+          return;
+        }
         setGuestId(generatedGuestId);
         setUser({ id: generatedGuestId, guestId: generatedGuestId, isGuest: true });
       }
@@ -142,26 +164,30 @@ export default function LandingPage() {
           </Link>
         )}
 
-        <button
-          onClick={handleGuestStart}
-          disabled={guestLoading}
-          className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-xl shadow transition-all flex items-center justify-center gap-2 disabled:opacity-70"
-        >
-          {guestLoading ? (
-            <span>{tr('প্রবেশ করা হচ্ছে...', 'Entering...')}</span>
-          ) : (
-            <>
-              <span>{tr('গেস্ট হিসেবে সরাসরি শুরু করো', 'Start Directly as Guest')}</span>
-              <ArrowRight className="w-4 h-4" />
-            </>
-          )}
-        </button>
+        {guestLoginEnabled && (
+          <>
+            <button
+              onClick={handleGuestStart}
+              disabled={guestLoading}
+              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-4 rounded-xl shadow transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+            >
+              {guestLoading ? (
+                <span>{tr('প্রবেশ করা হচ্ছে...', 'Entering...')}</span>
+              ) : (
+                <>
+                  <span>{tr('গেস্ট হিসেবে সরাসরি শুরু করো', 'Start Directly as Guest')}</span>
+                  <ArrowRight className="w-4 h-4" />
+                </>
+              )}
+            </button>
 
-        <div className="relative flex items-center justify-center">
-          <div className="border-t border-slate-200 w-full" />
-          <span className="bg-white px-3 text-xs text-slate-400 font-medium uppercase">{tr('অথবা', 'OR')}</span>
-          <div className="border-t border-slate-200 w-full" />
-        </div>
+            <div className="relative flex items-center justify-center">
+              <div className="border-t border-slate-200 w-full" />
+              <span className="bg-white px-3 text-xs text-slate-400 font-medium uppercase">{tr('অথবা', 'OR')}</span>
+              <div className="border-t border-slate-200 w-full" />
+            </div>
+          </>
+        )}
 
         <form onSubmit={handlePhoneSubmit} className="space-y-2">
           <label htmlFor="phone" className="block text-xs font-semibold text-slate-700">

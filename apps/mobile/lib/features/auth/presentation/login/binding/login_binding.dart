@@ -12,6 +12,12 @@ class LoginBinding extends Bindings {
         verifyPhoneOtpUseCase: Get.find<VerifyPhoneOtpUseCase>(),
         getLanguageUseCase: Get.find<GetLanguageUseCase>(),
         setLanguageUseCase: Get.find<SetLanguageUseCase>(),
+        getAuthConfigUseCase: Get.isRegistered<GetAuthConfigUseCase>()
+            ? Get.find<GetAuthConfigUseCase>()
+            : null,
+        signInAsGuestUseCase: Get.isRegistered<SignInAsGuestUseCase>()
+            ? Get.find<SignInAsGuestUseCase>()
+            : null,
       ),
     );
   }

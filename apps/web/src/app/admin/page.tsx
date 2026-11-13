@@ -24,16 +24,24 @@ interface SubjectWithCount extends SubjectDTO {
 export default function AdminOverviewPage() {
   const [subjects, setSubjects] = useState<SubjectWithCount[]>([]);
   const [loading, setLoading] = useState(true);
+  const [guestLoginEnabled, setGuestLoginEnabled] = useState<boolean>(true);
+  const [togglingGuestLogin, setTogglingGuestLogin] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
     const fetchSummary = async () => {
       try {
-        const data = await apiClient.get<SubjectWithCount[]>('/curriculum/subjects', {
-          scope: 'admin',
-        });
+        const [data, authConfig] = await Promise.all([
+          apiClient.get<SubjectWithCount[]>('/curriculum/subjects', {
+            scope: 'admin',
+          }),
+          apiClient.get<{ guestLoginEnabled?: boolean }>('/auth/config').catch(() => null),
+        ]);
         if (isMounted && Array.isArray(data)) {
           setSubjects(data);
+        }
+        if (isMounted && typeof authConfig?.guestLoginEnabled === 'boolean') {
+          setGuestLoginEnabled(authConfig.guestLoginEnabled);
         }
       } catch {
         // Fallback or empty state
@@ -49,6 +57,28 @@ export default function AdminOverviewPage() {
       isMounted = false;
     };
   }, []);
+
+  const handleToggleGuestLogin = async () => {
+    if (togglingGuestLogin) return;
+    const nextValue = !guestLoginEnabled;
+    setTogglingGuestLogin(true);
+    try {
+      const res = await apiClient.patch<{ guestLoginEnabled?: boolean }>(
+        '/auth/admin/config',
+        { guestLoginEnabled: nextValue },
+        { scope: 'admin' },
+      );
+      if (typeof res?.guestLoginEnabled === 'boolean') {
+        setGuestLoginEnabled(res.guestLoginEnabled);
+      } else {
+        setGuestLoginEnabled(nextValue);
+      }
+    } catch {
+      // Ignore toggle error
+    } finally {
+      setTogglingGuestLogin(false);
+    }
+  };
 
   const totalChapters = subjects.reduce((acc, s) => acc + (s.chapterCount || 0), 0);
   const readySubjects = subjects.filter((s) => s.isReady).length;
@@ -176,6 +206,46 @@ export default function AdminOverviewPage() {
           </div>
           <p className="mt-2 text-[11px] text-slate-500">অনুমোদনের অপেক্ষায় থাকা কনটেন্ট</p>
         </div>
+      </div>
+
+      {/* Platform Access & Guest Login Control Card */}
+      <div className="bg-white rounded-2xl border border-slate-200/90 p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <h2 className="text-sm font-bold text-slate-900">
+              গেস্ট লগইন অ্যাক্সেস (Guest Login Control)
+            </h2>
+            <span
+              className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
+                guestLoginEnabled
+                  ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                  : 'bg-slate-100 text-slate-600 border-slate-200'
+              }`}
+            >
+              {guestLoginEnabled ? 'সক্রিয় (Enabled)' : 'নিষ্ক্রিয় (Disabled)'}
+            </span>
+          </div>
+          <p className="text-xs text-slate-500">
+            সক্রিয় থাকলে মোবাইল ও ওয়েব অ্যাপে শিক্ষার্থীরা লগইন ছাড়াই গেস্ট হিসেবে পড়াশোনা শুরু করতে পারবে এবং পরে অ্যাকাউন্ট আপগ্রেড করতে পারবে।
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={handleToggleGuestLogin}
+          disabled={togglingGuestLogin}
+          data-testid="toggle-guest-login-btn"
+          className={`shrink-0 px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer disabled:opacity-60 ${
+            guestLoginEnabled
+              ? 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200'
+              : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs'
+          }`}
+        >
+          {togglingGuestLogin
+            ? 'আপডেট হচ্ছে...'
+            : guestLoginEnabled
+              ? 'গেস্ট লগইন বন্ধ করুন (Disable)'
+              : 'গেস্ট লগইন চালু করুন (Enable)'}
+        </button>
       </div>
 
       {/* Quick Action Hub */}

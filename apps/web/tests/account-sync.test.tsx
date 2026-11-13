@@ -3,7 +3,11 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { useUserStore } from '../src/store/user-store';
 import { apiClient } from '../src/lib/api-client';
-import { ensureGuestSession } from '../src/lib/guest-session';
+import {
+  ensureGuestSession,
+  fetchGuestLoginEnabled,
+  resetGuestLoginConfigCache,
+} from '../src/lib/guest-session';
 import AccountPage from '../src/app/account/page';
 
 vi.mock('next/navigation', () => ({
@@ -24,6 +28,7 @@ vi.mock('../src/lib/api-client', () => ({
 describe('Guest session bootstrap, bookmark/note hydration & /account page', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    resetGuestLoginConfigCache();
     if (typeof localStorage !== 'undefined') {
       localStorage.clear();
     }
@@ -60,6 +65,22 @@ describe('Guest session bootstrap, bookmark/note hydration & /account page', () 
     const second = await ensureGuestSession();
     expect(second?.token).toBe('guest_jwt_123');
     expect(apiClient.post).not.toHaveBeenCalled();
+  });
+
+  it('fetchGuestLoginEnabled reads backend config and ensureGuestSession returns null when guest login is disabled', async () => {
+    vi.mocked(apiClient.get).mockResolvedValueOnce({
+      guestLoginEnabled: false,
+    });
+    const enabled = await fetchGuestLoginEnabled(true);
+    expect(enabled).toBe(false);
+    expect(apiClient.get).toHaveBeenCalledWith('/auth/config');
+
+    vi.mocked(apiClient.post).mockRejectedValueOnce(
+      new Error('Guest login is currently disabled (403)'),
+    );
+    const session = await ensureGuestSession();
+    expect(session).toBeNull();
+    expect(useUserStore.getState().user).toBeNull();
   });
 
   it('hydrates bookmarks and lessonNotes from server overview without duplicates', () => {

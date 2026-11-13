@@ -34,8 +34,14 @@ Future<void> main() async {
       secureStorage.accessToken != null &&
       secureStorage.accessToken!.trim().isNotEmpty;
   final cachedUser = secureStorage.getCachedUserMap();
+  final isGuestSession =
+      cachedUser != null &&
+      ((cachedUser['isGuest'] == true) ||
+          ((cachedUser['guestId']?.toString().trim().isNotEmpty ?? false) &&
+              (cachedUser['phoneNumber']?.toString().trim().isEmpty ?? true)));
   final needsOnboarding =
       cachedUser != null &&
+      !isGuestSession &&
       (cachedUser['fullName']?.toString().trim().isEmpty ?? true);
 
   final initialRoute = !hasSession

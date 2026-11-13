@@ -37,48 +37,57 @@ enum StudentTrack {
 /// Domain representation of an authenticated student profile.
 class AuthUserEntity extends Equatable {
   final String id;
+  final String? guestId;
   final String? firebaseUid;
   final String? phoneNumber;
   final String? email;
   final String? fullName;
   final String role;
   final StudentTrack selectedClass;
+  final bool isGuest;
   final String? boardName;
   final int? dailyStudyGoalMinutes;
 
   const AuthUserEntity({
     required this.id,
+    this.guestId,
     this.firebaseUid,
     this.phoneNumber,
     this.email,
     this.fullName,
     this.role = 'STUDENT',
     this.selectedClass = StudentTrack.ssc,
+    this.isGuest = false,
     this.boardName,
     this.dailyStudyGoalMinutes,
   });
 
-  bool get needsOnboarding => fullName == null || fullName!.trim().isEmpty;
+  bool get needsOnboarding =>
+      !isGuest && (fullName == null || fullName!.trim().isEmpty);
 
   AuthUserEntity copyWith({
     String? id,
+    String? guestId,
     String? firebaseUid,
     String? phoneNumber,
     String? email,
     String? fullName,
     String? role,
     StudentTrack? selectedClass,
+    bool? isGuest,
     String? boardName,
     int? dailyStudyGoalMinutes,
   }) {
     return AuthUserEntity(
       id: id ?? this.id,
+      guestId: guestId ?? this.guestId,
       firebaseUid: firebaseUid ?? this.firebaseUid,
       phoneNumber: phoneNumber ?? this.phoneNumber,
       email: email ?? this.email,
       fullName: fullName ?? this.fullName,
       role: role ?? this.role,
       selectedClass: selectedClass ?? this.selectedClass,
+      isGuest: isGuest ?? this.isGuest,
       boardName: boardName ?? this.boardName,
       dailyStudyGoalMinutes:
           dailyStudyGoalMinutes ?? this.dailyStudyGoalMinutes,
@@ -88,15 +97,29 @@ class AuthUserEntity extends Equatable {
   @override
   List<Object?> get props => <Object?>[
         id,
+        guestId,
         firebaseUid,
         phoneNumber,
         email,
         fullName,
         role,
         selectedClass,
+        isGuest,
         boardName,
         dailyStudyGoalMinutes,
       ];
+}
+
+/// Public authentication configuration returned by `GET /auth/config`.
+class AuthConfigEntity extends Equatable {
+  final bool guestLoginEnabled;
+
+  const AuthConfigEntity({
+    required this.guestLoginEnabled,
+  });
+
+  @override
+  List<Object?> get props => <Object?>[guestLoginEnabled];
 }
 
 /// Authenticated backend session returned by `POST /auth/firebase`.

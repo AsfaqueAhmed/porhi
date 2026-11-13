@@ -35,7 +35,10 @@ class AccountView extends GetView<AccountController> {
                 Obx(() {
                   final u = controller.user.value;
                   final lang = controller.language.value;
-                  final contact = u?.phoneNumber ?? u?.email ?? '';
+                  final isGuest = u?.isGuest == true;
+                  final contact = isGuest
+                      ? (u?.guestId ?? '')
+                      : (u?.phoneNumber ?? u?.email ?? '');
                   return Card(
                     child: ListTile(
                       leading: CircleAvatar(
@@ -48,7 +51,17 @@ class AccountView extends GetView<AccountController> {
                       title: Text(
                         u?.fullName?.isNotEmpty == true
                             ? u!.fullName!
-                            : AppStrings.tr('শিক্ষার্থী', 'Student', lang),
+                            : (isGuest
+                                  ? AppStrings.tr(
+                                      'অতিথি শিক্ষার্থী',
+                                      'Guest Student',
+                                      lang,
+                                    )
+                                  : AppStrings.tr(
+                                      'শিক্ষার্থী',
+                                      'Student',
+                                      lang,
+                                    )),
                         style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       subtitle: contact.isNotEmpty ? Text(contact) : null,

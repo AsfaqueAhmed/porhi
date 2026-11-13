@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:common/common.dart';
 import 'package:network/network.dart';
 import 'package:porhi/core/database/app_database.dart';
@@ -12,6 +14,7 @@ import 'package:porhi/features/auth/domain/repositories/auth_repository.dart';
 class AuthRepositoryImpl implements AuthRepository {
   static const String boardNameKey = 'porhi_board_name';
   static const String dailyStudyGoalMinutesKey = 'porhi_daily_goal_minutes';
+  static const String guestIdKey = 'porhi_guest_id';
 
   final FirebaseAuthGateway _firebaseGateway;
   final AuthRemoteDataSource _remoteDataSource;
@@ -28,6 +31,108 @@ class AuthRepositoryImpl implements AuthRepository {
     this._database,
     this._onSignOutCleanup,
   });
+
+  @override
+  Future<Either<ErrorResponse, AuthConfigEntity>> getAuthConfig() async {
+    final result = await _remoteDataSource.getAuthConfig();
+    return result.fold(
+      (err) => Left<ErrorResponse, AuthConfigEntity>(err),
+      (model) => Right<ErrorResponse, AuthConfigEntity>(model.toEntity()),
+    );
+  }
+
+  @override
+  Future<Either<ErrorResponse, AuthSessionEntity>> signInAsGuest() async {
+    try {
+      final cachedUser = getCachedUser();
+      final existingGuestId =
+          _preferencesStorage.read(guestIdKey)?.trim() ??
+          cachedUser?.guestId?.trim();
+      final guestId =
+          (existingGuestId != null && existingGuestId.isNotEmpty)
+              ? existingGuestId
+              : _generateGuestId();
+
+      await _preferencesStorage.write(guestIdKey, guestId);
+
+      final response = await _remoteDataSource.guestLogin(guestId: guestId);
+      return response.fold(
+        (err) async {
+          final isForbidden =
+              err.statusCode == 403 ||
+              (err.message?.toLowerCase().contains('disabled') ?? false);
+          if (isForbidden) {
+            return Left<ErrorResponse, AuthSessionEntity>(err);
+          }
+          // Offline / unreachable backend fallback so guest mode works offline.
+          final fallbackModel = AuthUserModel(
+            id: guestId,
+            guestId: guestId,
+            isGuest: true,
+            fullName: 'অতিথি শিক্ষার্থী',
+            role: 'STUDENT',
+            selectedClass: 'HSC',
+          );
+          final fallbackToken = 'offline_$guestId';
+          await _secureStorage.saveTokens(accessToken: fallbackToken);
+          await _secureStorage.saveUserMap(fallbackModel.toJson());
+          return Right<ErrorResponse, AuthSessionEntity>(
+            AuthSessionEntity(
+              accessToken: fallbackToken,
+              isNewUser: false,
+              user: _hydrateLocalFields(fallbackModel),
+            ),
+          );
+        },
+        (loginModel) async {
+          if (loginModel.accessToken.trim().isEmpty) {
+            return Left<ErrorResponse, AuthSessionEntity>(
+              ErrorResponse(
+                message: 'Empty access token returned from server.',
+                data: ApiResponseErrorType.response,
+              ),
+            );
+          }
+          final resolvedGuestId = loginModel.user.guestId?.trim().isNotEmpty == true
+              ? loginModel.user.guestId!.trim()
+              : guestId;
+          await _preferencesStorage.write(guestIdKey, resolvedGuestId);
+
+          final userJson = loginModel.user.toJson()
+            ..['guestId'] = resolvedGuestId
+            ..['isGuest'] = true;
+          final hydratedModel = AuthUserModel.fromJson(userJson);
+
+          await _secureStorage.saveTokens(accessToken: loginModel.accessToken);
+          await _secureStorage.saveUserMap(hydratedModel.toJson());
+          return Right<ErrorResponse, AuthSessionEntity>(
+            AuthSessionEntity(
+              accessToken: loginModel.accessToken,
+              isNewUser: false,
+              user: _hydrateLocalFields(hydratedModel),
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      return Left<ErrorResponse, AuthSessionEntity>(
+        ErrorResponse(
+          message: e.toString(),
+          data: ApiResponseErrorType.response,
+        ),
+      );
+    }
+  }
+
+  static String _generateGuestId() {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    final rand = Random();
+    final suffix = List<String>.generate(
+      10,
+      (_) => chars[rand.nextInt(chars.length)],
+    ).join();
+    return 'guest_$suffix';
+  }
 
   @override
   Future<Either<ErrorResponse, AuthSessionEntity>> signInWithGoogle() async {
@@ -112,6 +217,20 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<ErrorResponse, String>> refreshBackendSession() async {
     try {
+      final cached = getCachedUser();
+      final storedGuestId =
+          cached?.guestId?.trim() ??
+          _preferencesStorage.read(guestIdKey)?.trim();
+      if ((cached?.isGuest ?? false) &&
+          storedGuestId != null &&
+          storedGuestId.isNotEmpty) {
+        final guestResult = await signInAsGuest();
+        return guestResult.fold(
+          (err) => Left<ErrorResponse, String>(err),
+          (session) => Right<ErrorResponse, String>(session.accessToken),
+        );
+      }
+
       final idToken = await _firebaseGateway.getCurrentIdToken(
         forceRefresh: true,
       );
@@ -195,6 +314,7 @@ class AuthRepositoryImpl implements AuthRepository {
       // Best-effort remote sign-out; local cleanup must always proceed.
     } finally {
       await _runBestEffort(_secureStorage.clearSession);
+      await _runBestEffort(() => _preferencesStorage.remove(guestIdKey));
       await _runBestEffort(() => _preferencesStorage.remove(boardNameKey));
       await _runBestEffort(
         () => _preferencesStorage.remove(dailyStudyGoalMinutesKey),
@@ -275,7 +395,19 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Either<ErrorResponse, AuthSessionEntity>> _exchangeFirebaseIdToken(
     String idToken,
   ) async {
-    final response = await _remoteDataSource.firebaseLogin(idToken: idToken);
+    final cached = getCachedUser();
+    final storedGuestId =
+        _preferencesStorage.read(guestIdKey)?.trim() ??
+        cached?.guestId?.trim();
+    final activeGuestId =
+        (storedGuestId != null && storedGuestId.isNotEmpty)
+            ? storedGuestId
+            : null;
+
+    final response = await _remoteDataSource.firebaseLogin(
+      idToken: idToken,
+      guestId: activeGuestId,
+    );
     return response.fold(
       (err) => Left<ErrorResponse, AuthSessionEntity>(err),
       (loginModel) async {
@@ -286,6 +418,9 @@ class AuthRepositoryImpl implements AuthRepository {
               data: ApiResponseErrorType.response,
             ),
           );
+        }
+        if (activeGuestId != null) {
+          await _preferencesStorage.remove(guestIdKey);
         }
         await _secureStorage.saveTokens(accessToken: loginModel.accessToken);
         await _secureStorage.saveUserMap(loginModel.user.toJson());

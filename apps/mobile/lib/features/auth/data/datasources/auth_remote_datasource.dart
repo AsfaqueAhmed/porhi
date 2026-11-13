@@ -3,10 +3,17 @@ import 'package:network/network.dart';
 import 'package:porhi/features/auth/data/models/auth_models.dart';
 
 abstract class AuthRemoteDataSource {
+  Future<Either<ErrorResponse, AuthConfigModel>> getAuthConfig();
+
+  Future<Either<ErrorResponse, AuthLoginResponseModel>> guestLogin({
+    required String guestId,
+  });
+
   Future<Either<ErrorResponse, AuthLoginResponseModel>> firebaseLogin({
     required String idToken,
     String? fullName,
     String? selectedClass,
+    String? guestId,
   });
 
   Future<Either<ErrorResponse, AuthUserModel>> getMe();
@@ -20,15 +27,36 @@ abstract class AuthRemoteDataSource {
 class AuthRemoteDataSourceImpl extends BaseRepository
     implements AuthRemoteDataSource {
   @override
+  Future<Either<ErrorResponse, AuthConfigModel>> getAuthConfig() {
+    return get<AuthConfigModel>(
+      path: '/auth/config',
+      responseCompiler: AuthConfigModel.fromJson,
+    );
+  }
+
+  @override
+  Future<Either<ErrorResponse, AuthLoginResponseModel>> guestLogin({
+    required String guestId,
+  }) {
+    return post<AuthLoginResponseModel>(
+      path: '/auth/guest',
+      data: <String, dynamic>{'guestId': guestId},
+      responseCompiler: AuthLoginResponseModel.fromJson,
+    );
+  }
+
+  @override
   Future<Either<ErrorResponse, AuthLoginResponseModel>> firebaseLogin({
     required String idToken,
     String? fullName,
     String? selectedClass,
+    String? guestId,
   }) {
     final body = <String, dynamic>{
       'idToken': idToken,
       'fullName': ?fullName,
       'selectedClass': ?selectedClass,
+      'guestId': ?guestId,
     };
 
     return post<AuthLoginResponseModel>(

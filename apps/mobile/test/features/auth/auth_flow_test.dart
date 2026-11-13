@@ -924,6 +924,90 @@ void main() {
         expect(secureStorage.getCachedUserMap()?['id'], 'stu-me');
       },
     );
+
+    test(
+      'GetAuthConfigUseCase & SignInAsGuestUseCase create guest session and upgrade it on Firebase login',
+      () async {
+        when(() => mockRemote.getAuthConfig()).thenAnswer(
+          (_) async => Right(AuthConfigModel(guestLoginEnabled: true)),
+        );
+        when(
+          () => mockRemote.guestLogin(guestId: any(named: 'guestId')),
+        ).thenAnswer(
+          (invocation) async {
+            final gId = invocation.namedArguments[#guestId] as String;
+            return Right(
+              AuthLoginResponseModel(
+                accessToken: 'guest-jwt-1',
+                isNewUser: true,
+                user: AuthUserModel(
+                  id: 'stu-guest-1',
+                  guestId: gId,
+                  isGuest: true,
+                  fullName: 'অতিথি শিক্ষার্থী',
+                  role: 'STUDENT',
+                  selectedClass: 'HSC',
+                ),
+              ),
+            );
+          },
+        );
+
+        final configUseCase = GetAuthConfigUseCase(repository);
+        final configRes = await configUseCase();
+        expect(configRes.isRight(), isTrue);
+        expect(
+          (configRes as Right<ErrorResponse, AuthConfigEntity>)
+              .value
+              .guestLoginEnabled,
+          isTrue,
+        );
+
+        final guestUseCase = SignInAsGuestUseCase(repository);
+        final guestRes = await guestUseCase();
+        expect(guestRes.isRight(), isTrue);
+        final guestSession =
+            (guestRes as Right<ErrorResponse, AuthSessionEntity>).value;
+        expect(guestSession.user.isGuest, isTrue);
+        expect(guestSession.user.needsOnboarding, isFalse);
+        final savedGuestId = prefsStorage.read(AuthRepositoryImpl.guestIdKey);
+        expect(savedGuestId, isNotNull);
+        expect(savedGuestId, startsWith('guest_'));
+
+        // Upgrading guest session via Google Sign-In passes guestId and clears guestIdKey.
+        when(() => mockGateway.signInWithGoogleAndGetIdToken()).thenAnswer(
+          (_) async => 'fb-upgrade-token',
+        );
+        when(
+          () => mockRemote.firebaseLogin(
+            idToken: 'fb-upgrade-token',
+            fullName: null,
+            selectedClass: null,
+            guestId: savedGuestId,
+          ),
+        ).thenAnswer(
+          (_) async => Right(
+            AuthLoginResponseModel(
+              accessToken: 'upgraded-jwt-1',
+              isNewUser: false,
+              user: AuthUserModel(
+                id: 'stu-guest-1',
+                firebaseUid: 'fb-uid-up',
+                fullName: 'Upgraded Student',
+                role: 'STUDENT',
+                selectedClass: 'HSC',
+              ),
+            ),
+          ),
+        );
+
+        final googleUseCase = SignInWithGoogleUseCase(repository);
+        final upgradedRes = await googleUseCase();
+        expect(upgradedRes.isRight(), isTrue);
+        expect(prefsStorage.read(AuthRepositoryImpl.guestIdKey), isNull);
+        expect(secureStorage.accessToken, 'upgraded-jwt-1');
+      },
+    );
   });
 
   group('Auth Presentation Views', () {
@@ -971,9 +1055,75 @@ void main() {
         expect(find.byKey(const Key('phone_input_field')), findsOneWidget);
         expect(find.byKey(const Key('send_otp_button')), findsOneWidget);
 
-        // Strictly NO guest mode on mobile.
+        // Strictly NO guest mode on mobile when guest login is not enabled.
         expect(find.textContaining('Guest'), findsNothing);
         expect(find.textContaining('অতিথি'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'LoginView displays Guest sign-in button when backend config enables guest login and routes to /home',
+      (tester) async {
+        when(() => mockRepository.getAuthConfig()).thenAnswer(
+          (_) async => const Right(AuthConfigEntity(guestLoginEnabled: true)),
+        );
+        when(() => mockRepository.signInAsGuest()).thenAnswer(
+          (_) async => const Right(
+            AuthSessionEntity(
+              accessToken: 'guest-jwt-ui',
+              isNewUser: true,
+              user: AuthUserEntity(
+                id: 'stu-guest-ui',
+                guestId: 'porhi_guest_ui_1234',
+                isGuest: true,
+                selectedClass: StudentTrack.hsc,
+              ),
+            ),
+          ),
+        );
+
+        var navigatedToHome = false;
+        Get.put<LoginController>(
+          LoginController(
+            signInWithGoogleUseCase: SignInWithGoogleUseCase(mockRepository),
+            requestPhoneOtpUseCase: RequestPhoneOtpUseCase(mockRepository),
+            verifyPhoneOtpUseCase: VerifyPhoneOtpUseCase(mockRepository),
+            getLanguageUseCase: GetLanguageUseCase(mockRepository),
+            setLanguageUseCase: SetLanguageUseCase(mockRepository),
+            getAuthConfigUseCase: GetAuthConfigUseCase(mockRepository),
+            signInAsGuestUseCase: SignInAsGuestUseCase(mockRepository),
+          ),
+        );
+
+        await tester.pumpWidget(
+          GetMaterialApp(
+            theme: PorhiTheme.light,
+            initialRoute: AppRoutes.login,
+            getPages: <GetPage<dynamic>>[
+              GetPage<dynamic>(
+                name: AppRoutes.login,
+                page: () => const LoginView(),
+              ),
+              GetPage<dynamic>(
+                name: AppRoutes.home,
+                page: () {
+                  navigatedToHome = true;
+                  return const Scaffold(body: Text('Home'));
+                },
+              ),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final guestBtn = find.byKey(const Key('guest_signin_button'));
+        expect(guestBtn, findsOneWidget);
+
+        await tester.ensureVisible(guestBtn);
+        await tester.tap(guestBtn);
+        await tester.pumpAndSettle();
+
+        expect(navigatedToHome, isTrue);
       },
     );
 
