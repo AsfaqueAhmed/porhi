@@ -1,5 +1,6 @@
 import 'package:get/get.dart';
 import 'package:porhi/features/auth/domain/usecases/auth_usecases.dart';
+import 'package:porhi/features/auth/presentation/account/binding/account_binding.dart';
 import 'package:porhi/features/curriculum/presentation/subjects/binding/subjects_binding.dart';
 import 'package:porhi/features/curriculum/presentation/subjects/controller/subjects_controller.dart';
 import 'package:porhi/features/dashboard/domain/usecases/student_usecases.dart';
@@ -21,75 +22,71 @@ class MainShellBinding extends Bindings {
   @override
   void dependencies() {
     if (!Get.isRegistered<MainShellController>()) {
-      Get.lazyPut<MainShellController>(
-        () {
-          final shell = MainShellController(
-            getLanguageUseCase: Get.find<GetLanguageUseCase>(),
-            getCachedUserUseCase: Get.find<GetCachedUserUseCase>(),
-            getPendingSyncCountUseCase: Get.find<GetPendingSyncCountUseCase>(),
-            watchPendingSyncCountUseCase:
-                Get.find<WatchPendingSyncCountUseCase>(),
-          );
-          bool isInstantiated<T>() =>
-              Get.isRegistered<T>() && !Get.isPrepared<T>();
+      Get.lazyPut<MainShellController>(() {
+        final shell = MainShellController(
+          getLanguageUseCase: Get.find<GetLanguageUseCase>(),
+          getCachedUserUseCase: Get.find<GetCachedUserUseCase>(),
+          getPendingSyncCountUseCase: Get.find<GetPendingSyncCountUseCase>(),
+          watchPendingSyncCountUseCase:
+              Get.find<WatchPendingSyncCountUseCase>(),
+        );
+        bool isInstantiated<T>() =>
+            Get.isRegistered<T>() && !Get.isPrepared<T>();
 
-          shell.registerTabHooks(
-            index: 0,
-            onAccountReturn: () async {
-              if (isInstantiated<DashboardController>()) {
-                await Get.find<DashboardController>()
-                    .refreshLanguageAndUser();
-              }
-            },
-            onTabActivated: () async {
-              if (isInstantiated<DashboardController>()) {
-                await Get.find<DashboardController>()
-                    .refreshLanguageAndUser();
-              }
-            },
-          );
-          shell.registerTabHooks(
-            index: 1,
-            onAccountReturn: () async {
-              if (isInstantiated<SubjectsController>()) {
-                await Get.find<SubjectsController>().refreshFromAccount();
-              }
-            },
-            onTabActivated: () async {
-              if (isInstantiated<SubjectsController>()) {
-                await Get.find<SubjectsController>().refreshFromAccount();
-              }
-            },
-          );
-          shell.registerTabHooks(
-            index: 2,
-            onAccountReturn: () async {
-              if (isInstantiated<PlannerController>()) {
-                await Get.find<PlannerController>().refreshFromShell();
-              }
-            },
-            onTabActivated: () async {
-              if (isInstantiated<PlannerController>()) {
-                await Get.find<PlannerController>().refreshFromShell();
-              }
-            },
-          );
-          shell.registerTabHooks(
-            index: 3,
-            onAccountReturn: () async {
-              if (isInstantiated<ProgressController>()) {
-                await Get.find<ProgressController>().refreshFromShell();
-              }
-            },
-            onTabActivated: () async {
-              if (isInstantiated<ProgressController>()) {
-                await Get.find<ProgressController>().refreshFromShell();
-              }
-            },
-          );
-          return shell;
-        },
-      );
+        shell.registerTabHooks(
+          index: 0,
+          onAccountReturn: () async {
+            if (isInstantiated<DashboardController>()) {
+              await Get.find<DashboardController>().refreshLanguageAndUser();
+            }
+          },
+          onTabActivated: () async {
+            if (isInstantiated<DashboardController>()) {
+              await Get.find<DashboardController>().refreshLanguageAndUser();
+            }
+          },
+        );
+        shell.registerTabHooks(
+          index: 1,
+          onAccountReturn: () async {
+            if (isInstantiated<SubjectsController>()) {
+              await Get.find<SubjectsController>().refreshFromAccount();
+            }
+          },
+          onTabActivated: () async {
+            if (isInstantiated<SubjectsController>()) {
+              await Get.find<SubjectsController>().refreshFromAccount();
+            }
+          },
+        );
+        shell.registerTabHooks(
+          index: 2,
+          onAccountReturn: () async {
+            if (isInstantiated<PlannerController>()) {
+              await Get.find<PlannerController>().refreshFromShell();
+            }
+          },
+          onTabActivated: () async {
+            if (isInstantiated<PlannerController>()) {
+              await Get.find<PlannerController>().refreshFromShell();
+            }
+          },
+        );
+        shell.registerTabHooks(
+          index: 3,
+          onAccountReturn: () async {
+            if (isInstantiated<ProgressController>()) {
+              await Get.find<ProgressController>().refreshFromShell();
+            }
+          },
+          onTabActivated: () async {
+            if (isInstantiated<ProgressController>()) {
+              await Get.find<ProgressController>().refreshFromShell();
+            }
+          },
+        );
+        return shell;
+      });
     }
 
     DashboardBinding.registerDependencies();
@@ -111,6 +108,7 @@ class MainShellBinding extends Bindings {
       },
     );
     ProgressBinding.registerDependencies();
+    AccountBinding.registerDependencies();
 
     for (final binding in tabBindings) {
       binding.dependencies();

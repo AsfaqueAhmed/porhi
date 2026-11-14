@@ -56,57 +56,79 @@ class LoginView extends GetView<LoginController> {
                     }),
                   ),
                   const SizedBox(height: 12),
-                  Center(
-                    child: Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        gradient: PorhiTheme.brandGradient,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: PorhiTheme.brandShadow,
-                      ),
-                      alignment: Alignment.center,
-                      child: const Text(
-                        'পড়ি',
-                        style: TextStyle(
-                          fontSize: 34,
-                          fontWeight: FontWeight.w900,
-                          color: Colors.white,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 18),
                   Obx(() {
                     final lang = controller.language.value;
-                    return Column(
-                      children: <Widget>[
-                        Text(
-                          AppStrings.appName(lang),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.5,
-                            color: PorhiTheme.slate900,
+                    return Container(
+                      clipBehavior: Clip.antiAlias,
+                      padding: const EdgeInsets.all(22),
+                      decoration: BoxDecoration(
+                        gradient: PorhiTheme.heroGradient,
+                        borderRadius: BorderRadius.circular(28),
+                      ),
+                      child: Stack(
+                        children: <Widget>[
+                          Positioned(
+                            right: -42,
+                            top: -50,
+                            child: Container(
+                              width: 145,
+                              height: 145,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.09),
+                                  width: 22,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          AppStrings.tr(
-                            'আপনার পড়াশোনা চালিয়ে যেতে লগইন করুন',
-                            'Sign in to continue your learning journey',
-                            lang,
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Container(
+                                width: 49,
+                                height: 49,
+                                decoration: BoxDecoration(
+                                  color: PorhiTheme.citrus,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                alignment: Alignment.center,
+                                child: const Text(
+                                  'পড়ি',
+                                  style: TextStyle(
+                                    fontSize: 21,
+                                    fontWeight: FontWeight.w900,
+                                    color: PorhiTheme.indigo900,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                AppStrings.appName(lang),
+                                style: const TextStyle(
+                                  fontSize: 27,
+                                  height: 1.1,
+                                  fontWeight: FontWeight.w900,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                AppStrings.tr(
+                                  'নিজের গতিতে শেখো। প্রতিদিন একটু এগিয়ে যাও।',
+                                  'Learn at your pace. Make today count.',
+                                  lang,
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 13.5,
+                                  height: 1.4,
+                                  color: Color(0xFFD2E6D9),
+                                ),
+                              ),
+                            ],
                           ),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 14.5,
-                            color: PorhiTheme.slate600,
-                            height: 1.4,
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     );
                   }),
                   const SizedBox(height: 24),
@@ -154,7 +176,7 @@ class LoginView extends GetView<LoginController> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFE8ECF4)),
+                      border: Border.all(color: PorhiTheme.slate200),
                       boxShadow: PorhiTheme.cardShadow,
                     ),
                     padding: const EdgeInsets.all(22),
@@ -273,8 +295,9 @@ class LoginView extends GetView<LoginController> {
                                       ),
                                       decoration: BoxDecoration(
                                         color: PorhiTheme.slate100,
-                                        borderRadius:
-                                            BorderRadius.circular(999),
+                                        borderRadius: BorderRadius.circular(
+                                          999,
+                                        ),
                                       ),
                                       child: Text(
                                         AppStrings.tr('অথবা', 'OR', lang),

@@ -4,9 +4,9 @@ import 'package:porhi/core/i18n/app_strings.dart';
 import 'package:porhi/core/i18n/bangla_digits.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
 import 'package:porhi/core/utils/date_time_parser.dart';
+import 'package:porhi/core/widgets/feature_intro_card.dart';
 import 'package:porhi/features/planner/domain/entities/planner_entities.dart';
 import 'package:porhi/features/planner/presentation/planner/controller/planner_controller.dart';
-import 'package:porhi/routes/app_routes.dart';
 
 class PlannerView extends GetView<PlannerController> {
   final Future<void> Function()? onAccountTap;
@@ -54,17 +54,6 @@ class PlannerView extends GetView<PlannerController> {
             ],
           );
         }),
-        actions: <Widget>[
-          Obx(() {
-            final lang = controller.language.value;
-            return IconButton(
-              key: const Key('planner_account_button'),
-              tooltip: AppStrings.t('nav.account', lang),
-              icon: const Icon(Icons.person_outline_rounded),
-              onPressed: () => _handleAccountTap(context),
-            );
-          }),
-        ],
       ),
       body: Obx(() {
         final lang = controller.language.value;
@@ -125,6 +114,25 @@ class PlannerView extends GetView<PlannerController> {
                 _StatusBanner(message: status, isError: isStatusErr),
                 const SizedBox(height: 12),
               ],
+              FeatureIntroCard(
+                icon: Icons.calendar_month_rounded,
+                eyebrow: AppStrings.tr(
+                  'ছোট লক্ষ্য, নিয়মিত অগ্রগতি',
+                  'YOUR STUDY RHYTHM',
+                  lang,
+                ),
+                title: AppStrings.tr(
+                  'আজকের পড়া গুছিয়ে নাও',
+                  'Make today feel manageable',
+                  lang,
+                ),
+                description: AppStrings.tr(
+                  'একটি কাজ বেছে নাও, শেষ হলে টিক দাও—পরের ধাপটি পরিষ্কার থাকবে।',
+                  'Choose one task, check it off, and keep your next step clear.',
+                  lang,
+                ),
+              ),
+              const SizedBox(height: 14),
               _PlannerSummaryCard(controller: controller, lang: lang),
               const SizedBox(height: 14),
               _CreateTaskCard(
@@ -187,18 +195,6 @@ class PlannerView extends GetView<PlannerController> {
     );
   }
 
-  Future<void> _handleAccountTap(BuildContext context) async {
-    final handler = onAccountTap;
-    if (handler != null) {
-      await handler();
-      return;
-    }
-    await Get.toNamed<dynamic>(AppRoutes.account);
-    if (context.mounted) {
-      await controller.refreshFromShell();
-    }
-  }
-
   Future<void> _pickDate(BuildContext context) async {
     final now = DateTime.now();
     final parsed = DateTimeParser.normalizeYyyyMmDd(
@@ -236,10 +232,7 @@ class _PlannerSummaryCard extends StatelessWidget {
   final PlannerController controller;
   final AppLanguage lang;
 
-  const _PlannerSummaryCard({
-    required this.controller,
-    required this.lang,
-  });
+  const _PlannerSummaryCard({required this.controller, required this.lang});
 
   @override
   Widget build(BuildContext context) {
@@ -401,135 +394,542 @@ class _CreateTaskCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Text(
-              AppStrings.tr(
-                'নতুন স্টাডি টাস্ক যোগ করো',
-                'Add New Study Task',
-                lang,
-              ),
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: PorhiTheme.slate900,
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              key: const Key('planner_title_input'),
-              controller: controller.titleController,
-              decoration: InputDecoration(
-                labelText: AppStrings.tr('কাজের শিরোনাম', 'Task Title', lang),
-                hintText: AppStrings.tr(
-                  'যেমন: নিউটনের ২য় সূত্র অনুশীলন',
-                  'e.g. Newton 2nd law practice',
-                  lang,
+      child: InkWell(
+        key: const Key('planner_open_task_composer_btn'),
+        onTap: () => _openComposer(context),
+        borderRadius: BorderRadius.circular(24),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: <Widget>[
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: PorhiTheme.selectedSurface,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(
+                  Icons.add_task_rounded,
+                  color: PorhiTheme.selectedForeground,
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                final textScale = MediaQuery.textScalerOf(context).scale(1.0);
-                final stackVertically =
-                    constraints.maxWidth < 320 || textScale > 1.15;
-                final dateField = TextField(
-                  key: const Key('planner_date_input'),
-                  controller: controller.dateController,
-                  decoration: InputDecoration(
-                    labelText: AppStrings.tr(
-                      'তারিখ (YYYY-MM-DD)',
-                      'Date (YYYY-MM-DD)',
-                      lang,
-                    ),
-                    suffixIcon: IconButton(
-                      tooltip: AppStrings.tr('তারিখ বাছাই', 'Pick date', lang),
-                      icon: const Icon(Icons.calendar_today_outlined, size: 18),
-                      onPressed: onPickDate,
-                    ),
-                  ),
-                );
-                final timeField = TextField(
-                  key: const Key('planner_time_input'),
-                  controller: controller.reminderTimeController,
-                  decoration: InputDecoration(
-                    labelText: AppStrings.tr(
-                      'সময় (HH:mm)',
-                      'Time (HH:mm)',
-                      lang,
-                    ),
-                    hintText: AppStrings.tr('১৮:৩০', '18:30', lang),
-                    suffixIcon: IconButton(
-                      tooltip: AppStrings.tr('সময় বাছাই', 'Pick time', lang),
-                      icon: const Icon(Icons.schedule_rounded, size: 18),
-                      onPressed: onPickTime,
-                    ),
-                  ),
-                );
-                if (stackVertically) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      dateField,
-                      const SizedBox(height: 10),
-                      timeField,
-                    ],
-                  );
-                }
-                return Row(
+              const SizedBox(width: 13),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Expanded(child: dateField),
-                    const SizedBox(width: 8),
-                    Expanded(child: timeField),
+                    Text(
+                      AppStrings.tr(
+                        'নতুন স্টাডি টাস্ক যোগ করো',
+                        'Add a study task',
+                        lang,
+                      ),
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        color: PorhiTheme.slate900,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      AppStrings.tr(
+                        'ছোট একটি লক্ষ্য দিয়ে শুরু করো',
+                        'Start with one clear next step',
+                        lang,
+                      ),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: PorhiTheme.slate600,
+                      ),
+                    ),
                   ],
-                );
-              },
-            ),
-            const SizedBox(height: 10),
-            Obx(() {
-              final selected = controller.selectedTargetType.value;
-              return Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: PlannerTargetType.values.map((type) {
-                  final label =
-                      lang == AppLanguage.bn ? type.labelBn : type.labelEn;
-                  return ChoiceChip(
-                    label: Text(label),
-                    selected: selected == type.apiValue,
-                    onSelected: (_) => controller.setTargetType(type.apiValue),
-                  );
-                }).toList(),
-              );
-            }),
-            const SizedBox(height: 12),
-            Obx(() {
-              final submitting = controller.isSubmitting.value;
-              return SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  key: const Key('planner_create_submit_btn'),
-                  onPressed: submitting ? null : controller.createTask,
-                  icon: submitting
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.add_task_rounded, size: 18),
-                  label: Text(
-                    AppStrings.tr('টাস্ক সংরক্ষণ করো', 'Save Study Task', lang),
-                  ),
                 ),
-              );
-            }),
-          ],
+              ),
+              const SizedBox(width: 8),
+              const Icon(
+                Icons.arrow_forward_rounded,
+                color: PorhiTheme.selectedBorder,
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Future<void> _openComposer(BuildContext context) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      showDragHandle: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      builder: (sheetContext) => _TaskComposerSheet(
+        controller: controller,
+        language: lang,
+        onPickDate: onPickDate,
+        onPickTime: onPickTime,
+        onSubmit: () async {
+          await controller.createTask();
+          final succeeded =
+              controller.statusMessage.value != null &&
+              !controller.isStatusError.value;
+          if (succeeded && sheetContext.mounted) {
+            Navigator.of(sheetContext).pop();
+          }
+        },
+      ),
+    );
+  }
+}
+
+class _TaskComposerSheet extends StatelessWidget {
+  final PlannerController controller;
+  final AppLanguage language;
+  final VoidCallback onPickDate;
+  final VoidCallback onPickTime;
+  final Future<void> Function() onSubmit;
+
+  const _TaskComposerSheet({
+    required this.controller,
+    required this.language,
+    required this.onPickDate,
+    required this.onPickTime,
+    required this.onSubmit,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottomInset),
+      child: SafeArea(
+        top: false,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(context).height * 0.84,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 2, 12, 14),
+                child: Row(
+                  children: <Widget>[
+                    Container(
+                      width: 46,
+                      height: 46,
+                      decoration: BoxDecoration(
+                        color: PorhiTheme.selectedSurface,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      child: const Icon(
+                        Icons.add_task_rounded,
+                        color: PorhiTheme.selectedForeground,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            AppStrings.tr(
+                              'নতুন পড়ার লক্ষ্য',
+                              'Plan a study task',
+                              language,
+                            ),
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                          Text(
+                            AppStrings.tr(
+                              'কী পড়বে এবং কখন—দুটিই ঠিক করো',
+                              'Choose what to study and when',
+                              language,
+                            ),
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: AppStrings.tr('বন্ধ করুন', 'Close', language),
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: const Icon(Icons.close_rounded),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              Flexible(
+                fit: FlexFit.loose,
+                child: SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: <Widget>[
+                      TextField(
+                        key: const Key('planner_title_input'),
+                        controller: controller.titleController,
+                        textCapitalization: TextCapitalization.sentences,
+                        decoration: InputDecoration(
+                          labelText: AppStrings.tr(
+                            'কাজের শিরোনাম',
+                            'What will you study?',
+                            language,
+                          ),
+                          hintText: AppStrings.tr(
+                            'যেমন: নিউটনের ২য় সূত্র অনুশীলন',
+                            'e.g. Practice Newton’s second law',
+                            language,
+                          ),
+                          prefixIcon: const Icon(Icons.edit_note_rounded),
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      _ComposerSectionLabel(
+                        icon: Icons.event_available_rounded,
+                        label: AppStrings.tr(
+                          'কখন পড়বে?',
+                          'WHEN WILL YOU STUDY?',
+                          language,
+                        ),
+                      ),
+                      const SizedBox(height: 9),
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final stackVertically =
+                              constraints.maxWidth < 340 ||
+                              MediaQuery.textScalerOf(context).scale(1) > 1.15;
+                          final dateField = _SchedulePickTile(
+                            key: const Key('planner_date_input'),
+                            controller: controller.dateController,
+                            icon: Icons.calendar_today_rounded,
+                            label: AppStrings.tr('তারিখ', 'DATE', language),
+                            emptyLabel: AppStrings.tr(
+                              'তারিখ বেছে নাও',
+                              'Choose a date',
+                              language,
+                            ),
+                            onTap: onPickDate,
+                          );
+                          final timeField = _SchedulePickTile(
+                            key: const Key('planner_time_input'),
+                            controller: controller.reminderTimeController,
+                            icon: Icons.schedule_rounded,
+                            label: AppStrings.tr(
+                              'রিমাইন্ডার',
+                              'REMINDER',
+                              language,
+                            ),
+                            emptyLabel: AppStrings.tr(
+                              'সময় যোগ করো',
+                              'Add a time',
+                              language,
+                            ),
+                            onTap: onPickTime,
+                          );
+                          if (stackVertically) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: <Widget>[
+                                dateField,
+                                const SizedBox(height: 10),
+                                timeField,
+                              ],
+                            );
+                          }
+                          return Row(
+                            children: <Widget>[
+                              Expanded(child: dateField),
+                              const SizedBox(width: 10),
+                              Expanded(child: timeField),
+                            ],
+                          );
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      _ComposerSectionLabel(
+                        icon: Icons.category_outlined,
+                        label: AppStrings.tr(
+                          'কাজের ধরন',
+                          'TASK TYPE',
+                          language,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final tileWidth = (constraints.maxWidth - 10) / 2;
+                          return Obx(() {
+                            final selected =
+                                controller.selectedTargetType.value;
+                            return Wrap(
+                              spacing: 10,
+                              runSpacing: 8,
+                              children: PlannerTargetType.values.map((type) {
+                                final label = language == AppLanguage.bn
+                                    ? type.labelBn
+                                    : type.labelEn;
+                                return SizedBox(
+                                  width: type == PlannerTargetType.custom
+                                      ? constraints.maxWidth
+                                      : tileWidth,
+                                  child: _TaskTypeTile(
+                                    type: type,
+                                    label: label,
+                                    selected: selected == type.apiValue,
+                                    onTap: () =>
+                                        controller.setTargetType(type.apiValue),
+                                  ),
+                                );
+                              }).toList(),
+                            );
+                          });
+                        },
+                      ),
+                      Obx(() {
+                        final error = controller.isStatusError.value
+                            ? controller.statusMessage.value
+                            : null;
+                        if (error == null) return const SizedBox.shrink();
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 14),
+                          child: _StatusBanner(message: error, isError: true),
+                        );
+                      }),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 14),
+                child: Obx(() {
+                  final submitting = controller.isSubmitting.value;
+                  return SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      key: const Key('planner_create_submit_btn'),
+                      onPressed: submitting ? null : onSubmit,
+                      icon: submitting
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.check_rounded),
+                      label: Text(
+                        AppStrings.tr(
+                          'টাস্ক যোগ করো',
+                          'Add to planner',
+                          language,
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SchedulePickTile extends StatelessWidget {
+  final TextEditingController controller;
+  final IconData icon;
+  final String label;
+  final String emptyLabel;
+  final VoidCallback onTap;
+
+  const _SchedulePickTile({
+    super.key,
+    required this.controller,
+    required this.icon,
+    required this.label,
+    required this.emptyLabel,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: PorhiTheme.slate50,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 66),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: PorhiTheme.slate200),
+          ),
+          child: Row(
+            children: <Widget>[
+              Icon(icon, size: 19, color: PorhiTheme.selectedBorder),
+              const SizedBox(width: 9),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(
+                      label,
+                      style: const TextStyle(
+                        color: PorhiTheme.slate600,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.55,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    ValueListenableBuilder<TextEditingValue>(
+                      valueListenable: controller,
+                      builder: (context, value, _) {
+                        final text = value.text.trim();
+                        return Text(
+                          text.isEmpty ? emptyLabel : text,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: text.isEmpty
+                                ? PorhiTheme.slate500
+                                : PorhiTheme.slate900,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 4),
+              const Icon(
+                Icons.expand_more_rounded,
+                size: 19,
+                color: PorhiTheme.slate500,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TaskTypeTile extends StatelessWidget {
+  final PlannerTargetType type;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _TaskTypeTile({
+    required this.type,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: selected ? PorhiTheme.selectedSurface : PorhiTheme.slate50,
+      borderRadius: BorderRadius.circular(15),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(15),
+        child: Container(
+          height: 50,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(
+              color: selected ? PorhiTheme.selectedBorder : PorhiTheme.slate200,
+              width: selected ? 1.5 : 1,
+            ),
+          ),
+          child: Row(
+            children: <Widget>[
+              Icon(
+                _icon,
+                size: 17,
+                color: selected
+                    ? PorhiTheme.selectedBorder
+                    : PorhiTheme.slate500,
+              ),
+              const SizedBox(width: 7),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: selected
+                        ? PorhiTheme.selectedForeground
+                        : PorhiTheme.slate700,
+                    fontSize: 12,
+                    fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                  ),
+                ),
+              ),
+              if (selected) ...<Widget>[
+                const SizedBox(width: 5),
+                const Icon(
+                  Icons.check_circle_rounded,
+                  size: 17,
+                  color: PorhiTheme.selectedBorder,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  IconData get _icon => switch (type) {
+    PlannerTargetType.lesson => Icons.menu_book_rounded,
+    PlannerTargetType.practice => Icons.edit_note_rounded,
+    PlannerTargetType.modelTest => Icons.quiz_outlined,
+    PlannerTargetType.revision => Icons.replay_rounded,
+    PlannerTargetType.custom => Icons.tune_rounded,
+  };
+}
+
+class _ComposerSectionLabel extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _ComposerSectionLabel({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: <Widget>[
+        Icon(icon, size: 17, color: PorhiTheme.selectedBorder),
+        const SizedBox(width: 7),
+        Text(
+          label,
+          style: const TextStyle(
+            color: PorhiTheme.slate700,
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.4,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -538,10 +938,7 @@ class _FilterChipsBar extends StatelessWidget {
   final PlannerController controller;
   final AppLanguage lang;
 
-  const _FilterChipsBar({
-    required this.controller,
-    required this.lang,
-  });
+  const _FilterChipsBar({required this.controller, required this.lang});
 
   @override
   Widget build(BuildContext context) {
@@ -564,7 +961,8 @@ class _FilterChipsBar extends StatelessWidget {
           ChoiceChip(
             label: Text(AppStrings.tr('সম্পন্ন', 'Completed', lang)),
             selected: active == PlannerTaskFilter.completed,
-            onSelected: (_) => controller.setFilter(PlannerTaskFilter.completed),
+            onSelected: (_) =>
+                controller.setFilter(PlannerTaskFilter.completed),
           ),
         ],
       );
@@ -594,15 +992,16 @@ class _PlannerTaskCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final targetType = PlannerTargetType.fromApiValue(task.targetType);
-    final typeLabel =
-        lang == AppLanguage.bn ? targetType.labelBn : targetType.labelEn;
+    final typeLabel = lang == AppLanguage.bn
+        ? targetType.labelBn
+        : targetType.labelEn;
     final dateText = lang == AppLanguage.bn
         ? toBanglaDigits(task.scheduledDate)
         : task.scheduledDate;
     final timeText = task.reminderTime != null && task.reminderTime!.isNotEmpty
         ? (lang == AppLanguage.bn
-            ? toBanglaDigits(task.reminderTime!)
-            : task.reminderTime!)
+              ? toBanglaDigits(task.reminderTime!)
+              : task.reminderTime!)
         : null;
 
     return Card(
@@ -749,16 +1148,14 @@ class _StatusBanner extends StatelessWidget {
   final String message;
   final bool isError;
 
-  const _StatusBanner({
-    required this.message,
-    required this.isError,
-  });
+  const _StatusBanner({required this.message, required this.isError});
 
   @override
   Widget build(BuildContext context) {
     final bgColor = isError ? const Color(0xFFFFF1F2) : PorhiTheme.emerald50;
-    final borderColor =
-        isError ? const Color(0xFFFECDD3) : const Color(0xFFA7F3D0);
+    final borderColor = isError
+        ? const Color(0xFFFECDD3)
+        : const Color(0xFFA7F3D0);
     final textColor = isError ? PorhiTheme.rose600 : PorhiTheme.slate900;
     final iconColor = isError ? PorhiTheme.rose600 : PorhiTheme.emerald600;
 

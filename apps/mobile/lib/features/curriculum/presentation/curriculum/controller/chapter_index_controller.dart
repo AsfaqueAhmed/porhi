@@ -111,14 +111,16 @@ class ChapterIndexController extends GetxController {
     errorMessage.value = null;
 
     try {
-      final downloadedFuture =
-          _getDownloadedChaptersUseCase(subjectId: activeId);
+      final downloadedFuture = _getDownloadedChaptersUseCase(
+        subjectId: activeId,
+      );
       final overviewFuture = _getCachedOverviewUseCase(subjectId: activeId);
       final cachedChapters = await _getCachedChaptersUseCase(activeId);
       if (isClosed || generation != _loadGeneration) return;
 
       if (cachedChapters.isNotEmpty && allChapters.isEmpty) {
         allChapters.assignAll(cachedChapters);
+        _collapseAllChapters();
         isOfflineMode.value = true;
         _applyFilters();
       }
@@ -165,6 +167,7 @@ class ChapterIndexController extends GetxController {
         (chapters) {
           isOfflineMode.value = false;
           allChapters.assignAll(chapters);
+          _collapseAllChapters();
           _applyFilters();
         },
       );
@@ -205,33 +208,33 @@ class ChapterIndexController extends GetxController {
 
   void toggleChapterExpanded(String chapterId) {
     if (collapsedChapterIds.contains(chapterId)) {
+      _collapseAllChapters();
       collapsedChapterIds.remove(chapterId);
     } else {
       collapsedChapterIds.add(chapterId);
     }
   }
 
+  void _collapseAllChapters() {
+    collapsedChapterIds.assignAll(allChapters.map((chapter) => chapter.id));
+  }
+
   bool get allCollapsed =>
       allChapters.isNotEmpty &&
       collapsedChapterIds.length >= allChapters.length;
 
-  void toggleExpandCollapseAll() {
-    if (allCollapsed) {
-      collapsedChapterIds.clear();
-    } else {
-      collapsedChapterIds.assignAll(allChapters.map((c) => c.id));
-    }
+  void collapseAllChapters() {
+    _collapseAllChapters();
   }
 
   int get totalTopics =>
       allChapters.fold<int>(0, (sum, ch) => sum + ch.topics.length);
 
   int get completedTopicsCount => allChapters.fold<int>(
-        0,
-        (sum, ch) =>
-            sum +
-            ch.topics.where((t) => completedTopicIds.contains(t.id)).length,
-      );
+    0,
+    (sum, ch) =>
+        sum + ch.topics.where((t) => completedTopicIds.contains(t.id)).length,
+  );
 
   int get overallProgressPercent {
     final total = totalTopics;

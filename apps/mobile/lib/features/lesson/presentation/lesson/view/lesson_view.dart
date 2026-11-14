@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:porhi/app/env.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
+import 'package:porhi/core/content/rich_content_parser.dart';
 import 'package:porhi/core/widgets/interactive_lab/interactive_lab_card.dart';
 import 'package:porhi/core/widgets/lesson_audio_player.dart';
 import 'package:porhi/core/widgets/rich_content/audio_player_tile.dart';
@@ -38,7 +39,7 @@ class LessonView extends GetView<LessonController> {
           final title = controller.chapterTitle.value.isNotEmpty
               ? controller.chapterTitle.value
               : (controller.lesson.value?.titleBangla ??
-                  AppStrings.tr('পাঠ', 'Lesson', lang));
+                    AppStrings.tr('পাঠ', 'Lesson', lang));
           return Row(
             children: <Widget>[
               Flexible(
@@ -74,54 +75,6 @@ class LessonView extends GetView<LessonController> {
             ],
           );
         }),
-        actions: <Widget>[
-          Obx(() {
-            final bookmarked = controller.isBookmarked.value;
-            final busy = controller.isTogglingBookmark.value;
-            final lang = controller.language.value;
-            return IconButton(
-              key: const Key('lesson_appbar_bookmark_btn'),
-              tooltip: AppStrings.tr('বুকমার্ক', 'Bookmark', lang),
-              onPressed: busy || controller.lesson.value == null
-                  ? null
-                  : controller.toggleBookmark,
-              icon: Icon(
-                bookmarked
-                    ? Icons.bookmark_rounded
-                    : Icons.bookmark_border_rounded,
-                color: bookmarked ? const Color(0xFFD97706) : null,
-              ),
-            );
-          }),
-          Obx(() {
-            final hasNote = controller.savedNote.value.trim().isNotEmpty;
-            final lang = controller.language.value;
-            return IconButton(
-              key: const Key('lesson_appbar_notes_btn'),
-              tooltip: AppStrings.tr('আমার নোট', 'My Note', lang),
-              onPressed: controller.lesson.value == null
-                  ? null
-                  : () => LessonNotesSheet.show(context, controller: controller),
-              icon: Badge(
-                isLabelVisible: hasNote,
-                smallSize: 8,
-                child: const Icon(Icons.sticky_note_2_outlined),
-              ),
-            );
-          }),
-          Obx(() {
-            final lang = controller.language.value;
-            final currentLesson = controller.lesson.value;
-            return IconButton(
-              key: const Key('lesson_appbar_report_btn'),
-              tooltip: AppStrings.tr('ভুল রিপোর্ট', 'Report Error', lang),
-              onPressed: currentLesson == null
-                  ? null
-                  : () => _openReportSheet(context, currentLesson, lang),
-              icon: const Icon(Icons.flag_outlined),
-            );
-          }),
-        ],
       ),
       body: Obx(() {
         final lang = controller.language.value;
@@ -206,28 +159,6 @@ class LessonView extends GetView<LessonController> {
                 ),
                 const SizedBox(height: 12),
               ],
-              LessonAudioPlayer(
-                key: ValueKey<String>('lesson_audio_${currentLesson.id}'),
-                audioUrl: currentLesson.audioUrl,
-                audioDurationSeconds: currentLesson.audioDurationSeconds,
-                title: currentLesson.titleBangla,
-                narrationText:
-                    '${currentLesson.learningGoal}\n\n${currentLesson.explanation}',
-                languageCode: lang.code,
-                envConfig: envConfig,
-                audioBackendFactory: audioBackendFactory,
-                ttsBackendFactory: ttsBackendFactory,
-              ),
-              if (currentLesson.interactiveWidgetUrl != null &&
-                  currentLesson.interactiveWidgetUrl!.trim().isNotEmpty)
-                InteractiveLabCard(
-                  key: ValueKey<String>('lesson_lab_${currentLesson.id}'),
-                  widgetUrl: currentLesson.interactiveWidgetUrl,
-                  title: currentLesson.titleBangla,
-                  envConfig: envConfig,
-                  webViewBuilder: webViewBuilder,
-                ),
-              const SizedBox(height: 8),
               _ExplanationCard(
                 lesson: currentLesson,
                 language: lang,
@@ -235,17 +166,7 @@ class LessonView extends GetView<LessonController> {
                 feedbackChoice: controller.feedbackChoice.value,
                 isSubmittingFeedback: controller.isSubmittingFeedback.value,
                 onSubmitFeedback: controller.submitExplanationFeedback,
-                interactiveBuilder: webViewBuilder == null
-                    ? null
-                    : (context, resolvedUrl, htmlContent, title) {
-                        return InteractiveLabCard(
-                          widgetUrl: resolvedUrl,
-                          htmlContent: htmlContent,
-                          title: title,
-                          envConfig: envConfig,
-                          webViewBuilder: webViewBuilder,
-                        );
-                      },
+                interactiveBuilder: (_, _, _, _) => const SizedBox.shrink(),
               ),
               if (currentLesson.importantTerms.isNotEmpty) ...<Widget>[
                 const SizedBox(height: 14),
@@ -300,6 +221,20 @@ class LessonView extends GetView<LessonController> {
           ),
         );
       }),
+      floatingActionButton: Obx(() {
+        final currentLesson = controller.lesson.value;
+        if (currentLesson == null || _findLessonLab(currentLesson) == null) {
+          return const SizedBox.shrink();
+        }
+        final lang = controller.language.value;
+        return FloatingActionButton.extended(
+          key: const Key('lesson_lab_fab'),
+          heroTag: 'lesson_lab_fab',
+          onPressed: () => _openLessonLab(context, currentLesson, lang),
+          icon: const Icon(Icons.science_rounded),
+          label: Text(AppStrings.tr('ল্যাব দেখুন', 'Open lab', lang)),
+        );
+      }),
       bottomNavigationBar: Obx(() {
         final currentLesson = controller.lesson.value;
         if (currentLesson == null) return const SizedBox.shrink();
@@ -335,8 +270,7 @@ class LessonView extends GetView<LessonController> {
                       disabledBackgroundColor: completed
                           ? PorhiTheme.emerald600
                           : null,
-                      disabledForegroundColor:
-                          completed ? Colors.white : null,
+                      disabledForegroundColor: completed ? Colors.white : null,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
                         vertical: 12,
@@ -374,8 +308,9 @@ class LessonView extends GetView<LessonController> {
                 IconButton.outlined(
                   key: const Key('lesson_footer_bookmark_btn'),
                   tooltip: AppStrings.tr('বুকমার্ক', 'Bookmark', lang),
-                  onPressed:
-                      togglingBookmark ? null : controller.toggleBookmark,
+                  onPressed: togglingBookmark
+                      ? null
+                      : controller.toggleBookmark,
                   icon: Icon(
                     bookmarked
                         ? Icons.bookmark_rounded
@@ -433,6 +368,64 @@ class LessonView extends GetView<LessonController> {
       language: lang,
     );
   }
+
+  Future<void> _openLessonLab(
+    BuildContext context,
+    LessonDetailEntity lesson,
+    AppLanguage language,
+  ) async {
+    final lab = _findLessonLab(lesson);
+    if (lab == null) return;
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        fullscreenDialog: true,
+        builder: (screenContext) => Scaffold(
+          backgroundColor: PorhiTheme.slate900,
+          body: SafeArea(
+            child: InteractiveLabCard(
+              key: ValueKey<String>('lesson_lab_screen_${lesson.id}'),
+              widgetUrl: lab.url,
+              htmlContent: lab.html,
+              title: lab.title.isEmpty ? lesson.titleBangla : lab.title,
+              envConfig: envConfig,
+              allowLocalFile: false,
+              fullScreen: true,
+              onCloseCallback: () => Navigator.of(screenContext).pop(),
+              webViewBuilder: webViewBuilder,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LessonLabSource {
+  final String? url;
+  final String? html;
+  final String title;
+
+  const _LessonLabSource({this.url, this.html, this.title = ''});
+}
+
+_LessonLabSource? _findLessonLab(LessonDetailEntity lesson) {
+  final url = lesson.interactiveWidgetUrl?.trim() ?? '';
+  if (url.isNotEmpty) return _LessonLabSource(url: url);
+
+  for (final token in parseRichTokens(lesson.explanation)) {
+    if (token is InteractiveContentToken) {
+      if (token.src.trim().isNotEmpty) {
+        return _LessonLabSource(
+          url: token.src.trim(),
+          title: token.title.trim(),
+        );
+      }
+      if (token.html.trim().isNotEmpty) {
+        return _LessonLabSource(html: token.html, title: token.title.trim());
+      }
+    }
+  }
+  return null;
 }
 
 class _StatusBanner extends StatelessWidget {
@@ -1167,11 +1160,7 @@ class _PrevNextTopicRow extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
                         Text(
-                          AppStrings.tr(
-                            'পরবর্তী টপিক',
-                            'Next Topic',
-                            language,
-                          ),
+                          AppStrings.tr('পরবর্তী টপিক', 'Next Topic', language),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(

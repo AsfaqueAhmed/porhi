@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
-import 'package:porhi/features/auth/domain/entities/auth_user_entity.dart';
 import 'package:porhi/features/curriculum/domain/entities/curriculum_entities.dart';
 import 'package:porhi/features/curriculum/presentation/subjects/controller/subjects_controller.dart';
 import 'package:porhi/features/curriculum/presentation/subjects/widgets/subject_card.dart';
@@ -54,17 +53,6 @@ class SubjectsView extends GetView<SubjectsController> {
             ],
           );
         }),
-        actions: <Widget>[
-          Obx(() {
-            final lang = controller.language.value;
-            return IconButton(
-              key: const Key('subjects_account_button'),
-              tooltip: AppStrings.t('nav.account', lang),
-              icon: const Icon(Icons.person_outline_rounded),
-              onPressed: () => _handleAccountTap(context),
-            );
-          }),
-        ],
       ),
       body: Obx(() {
         final lang = controller.language.value;
@@ -73,7 +61,6 @@ class SubjectsView extends GetView<SubjectsController> {
         final allCount = controller.allSubjects.length;
         final error = controller.errorMessage.value;
         final activeId = controller.activeSubjectId.value;
-        final selectedTrack = controller.selectedTrackFilter.value;
         final downloaded = controller.downloadedChapters;
 
         if (isLoading && allCount == 0 && downloaded.isEmpty) {
@@ -115,10 +102,44 @@ class SubjectsView extends GetView<SubjectsController> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
             children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Icon(
+                    Icons.auto_stories_rounded,
+                    size: 18,
+                    color: PorhiTheme.selectedForeground,
+                  ),
+                  const SizedBox(width: 7),
+                  Text(
+                    AppStrings.tr(
+                      'আজ কী শিখবে?',
+                      'What will you learn today?',
+                      lang,
+                    ),
+                    style: const TextStyle(
+                      color: PorhiTheme.slate800,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                AppStrings.tr('একটি বিষয় বেছে নাও', 'Choose a subject', lang),
+                style: const TextStyle(
+                  color: PorhiTheme.slate900,
+                  fontSize: 25,
+                  height: 1.15,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: -0.6,
+                ),
+              ),
+              const SizedBox(height: 6),
               Text(
                 AppStrings.tr(
-                  'তোমার ট্র্যাক ও বিষয় বেছে নিয়ে কারিকুলাম ও অনুশীলন শুরু করো।',
-                  'Choose your track and subject to explore chapters and practice.',
+                  'তোমার কারিকুলামের বিষয়, অধ্যায় আর অনুশীলন এখানেই সাজানো।',
+                  'Your track’s subjects, chapters, and practice live here.',
                   lang,
                 ),
                 style: const TextStyle(
@@ -148,13 +169,7 @@ class SubjectsView extends GetView<SubjectsController> {
                 ),
               ),
               const SizedBox(height: 12),
-              _TrackFilterBar(
-                language: lang,
-                selectedTrack: selectedTrack,
-                onSelected: controller.selectTrackFilter,
-              ),
               if (downloaded.isNotEmpty) ...<Widget>[
-                const SizedBox(height: 14),
                 _DownloadedChaptersCard(
                   language: lang,
                   downloaded: downloaded,
@@ -205,8 +220,8 @@ class SubjectsView extends GetView<SubjectsController> {
                       subject: subject,
                       language: lang,
                       isActive: subject.id == activeId,
-                      downloadedChapterCount:
-                          controller.downloadedCountForSubject(subject.id),
+                      downloadedChapterCount: controller
+                          .downloadedCountForSubject(subject.id),
                       onTap: () => _handleSelectSubject(context, subject),
                     ),
                   ),
@@ -217,21 +232,6 @@ class SubjectsView extends GetView<SubjectsController> {
         );
       }),
     );
-  }
-
-  Future<void> _handleAccountTap(BuildContext context) async {
-    if (onAccountTap != null) {
-      await onAccountTap!();
-      return;
-    }
-    final originRoute = Get.currentRoute;
-    await Get.toNamed(AppRoutes.account);
-    if (!context.mounted || Get.currentRoute != originRoute) {
-      return;
-    }
-    if (Get.isRegistered<SubjectsController>()) {
-      await Get.find<SubjectsController>().refreshFromAccount();
-    }
   }
 
   Future<void> _handleSelectSubject(
@@ -257,61 +257,6 @@ class SubjectsView extends GetView<SubjectsController> {
     if (Get.isRegistered<SubjectsController>()) {
       await Get.find<SubjectsController>().refreshDownloadedChapters();
     }
-  }
-}
-
-class _TrackFilterBar extends StatelessWidget {
-  final AppLanguage language;
-  final StudentTrack? selectedTrack;
-  final ValueChanged<StudentTrack?> onSelected;
-
-  const _TrackFilterBar({
-    required this.language,
-    required this.selectedTrack,
-    required this.onSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: <Widget>[
-        ChoiceChip(
-          key: const Key('subject_track_ALL'),
-          label: Text(
-            AppStrings.tr('সকল বিষয়', 'All Tracks', language),
-          ),
-          selected: selectedTrack == null,
-          selectedColor: PorhiTheme.indigo600,
-          backgroundColor: Colors.white,
-          labelStyle: TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 12,
-            color: selectedTrack == null ? Colors.white : PorhiTheme.slate700,
-          ),
-          onSelected: (_) => onSelected(null),
-        ),
-        ...StudentTrack.values.map((track) {
-          final isSelected = selectedTrack == track;
-          final label =
-              language == AppLanguage.en ? track.labelEn : track.labelBn;
-          return ChoiceChip(
-            key: Key('subject_track_${track.apiValue}'),
-            label: Text(label),
-            selected: isSelected,
-            selectedColor: PorhiTheme.indigo600,
-            backgroundColor: Colors.white,
-            labelStyle: TextStyle(
-              fontWeight: FontWeight.w700,
-              fontSize: 12,
-              color: isSelected ? Colors.white : PorhiTheme.slate700,
-            ),
-            onSelected: (_) => onSelected(track),
-          );
-        }),
-      ],
-    );
   }
 }
 

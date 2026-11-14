@@ -18,9 +18,9 @@ class DashboardView extends GetView<DashboardController> {
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 16,
-        backgroundColor: Colors.white,
+        backgroundColor: PorhiTheme.canvas,
         elevation: 0,
-        scrolledUnderElevation: 0.5,
+        scrolledUnderElevation: 0,
         title: Obx(() {
           final lang = controller.language.value;
           final isCached = controller.isOfflineCache.value;
@@ -114,38 +114,6 @@ class DashboardView extends GetView<DashboardController> {
               onPressed: () => QuickSearchSheet.show(context),
             );
           }),
-          Obx(() {
-            final lang = controller.language.value;
-            return IconButton(
-              key: const Key('dashboard_account_button'),
-              tooltip: AppStrings.t('nav.account', lang),
-              icon: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: BoxDecoration(
-                  color: PorhiTheme.indigo50,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.person_rounded,
-                  color: PorhiTheme.indigo600,
-                  size: 20,
-                ),
-              ),
-              onPressed: () async {
-                await Get.toNamed(AppRoutes.account);
-                if (!context.mounted || Get.currentRoute != AppRoutes.home) {
-                  return;
-                }
-                if (Get.isRegistered<MainShellController>()) {
-                  await Get.find<MainShellController>()
-                      .refreshAfterAccountReturn();
-                } else if (Get.isRegistered<DashboardController>()) {
-                  await Get.find<DashboardController>()
-                      .refreshLanguageAndUser();
-                }
-              },
-            );
-          }),
         ],
       ),
       body: Obx(() {
@@ -190,7 +158,8 @@ class DashboardView extends GetView<DashboardController> {
           );
         }
 
-        final data = overview ??
+        final data =
+            overview ??
             StudentOverviewEntity(subjectId: controller.activeSubjectId.value);
         final track = controller.user.value?.selectedClass;
         final trackLabel = track == null
@@ -205,10 +174,7 @@ class DashboardView extends GetView<DashboardController> {
             padding: const EdgeInsets.fromLTRB(18, 18, 18, 24),
             children: <Widget>[
               if (syncMessage != null) ...<Widget>[
-                _SyncStatusBanner(
-                  message: syncMessage,
-                  isError: isSyncError,
-                ),
+                _SyncStatusBanner(message: syncMessage, isError: isSyncError),
                 const SizedBox(height: 12),
               ],
               DashboardBannerCard(
@@ -228,18 +194,15 @@ class DashboardView extends GetView<DashboardController> {
                 onContinueLesson: data.lastStudiedTopic == null
                     ? null
                     : () => _openLesson(
-                          topicId: data.lastStudiedTopic!.topicId,
-                          subjectId: data.subjectId,
-                          chapterId: data.lastStudiedTopic!.chapterId,
-                          chapterTitle: data.lastStudiedTopic!.chapterTitle,
-                          topicTitle: data.lastStudiedTopic!.topicTitle,
-                        ),
+                        topicId: data.lastStudiedTopic!.topicId,
+                        subjectId: data.subjectId,
+                        chapterId: data.lastStudiedTopic!.chapterId,
+                        chapterTitle: data.lastStudiedTopic!.chapterTitle,
+                        topicTitle: data.lastStudiedTopic!.topicTitle,
+                      ),
               ),
               const SizedBox(height: 16),
-              _RevisionDueCard(
-                lang: lang,
-                dueMistakes: data.dueMistakes,
-              ),
+              _RevisionDueCard(lang: lang, dueMistakes: data.dueMistakes),
               const SizedBox(height: 16),
               _PlannerAndHubCard(
                 lang: lang,
@@ -247,13 +210,14 @@ class DashboardView extends GetView<DashboardController> {
                 bookmarks: data.bookmarks,
                 onSelectTab: _selectShellTab,
                 onOpenSearch: () => QuickSearchSheet.show(context),
-                onOpenBookmark: data.bookmarks.isNotEmpty &&
+                onOpenBookmark:
+                    data.bookmarks.isNotEmpty &&
                         data.bookmarks.first.type == 'topic'
                     ? () => _openLesson(
-                          topicId: data.bookmarks.first.id,
-                          subjectId: data.subjectId,
-                          topicTitle: data.bookmarks.first.titleBangla,
-                        )
+                        topicId: data.bookmarks.first.id,
+                        subjectId: data.subjectId,
+                        topicTitle: data.bookmarks.first.titleBangla,
+                      )
                     : null,
               ),
               const SizedBox(height: 24),
@@ -301,16 +265,14 @@ class _SyncStatusBanner extends StatelessWidget {
   final String message;
   final bool isError;
 
-  const _SyncStatusBanner({
-    required this.message,
-    required this.isError,
-  });
+  const _SyncStatusBanner({required this.message, required this.isError});
 
   @override
   Widget build(BuildContext context) {
     final bgColor = isError ? const Color(0xFFFFF1F2) : PorhiTheme.emerald50;
-    final borderColor =
-        isError ? const Color(0xFFFECDD3) : const Color(0xFFA7F3D0);
+    final borderColor = isError
+        ? const Color(0xFFFECDD3)
+        : const Color(0xFFA7F3D0);
     final iconColor = isError ? PorhiTheme.rose600 : PorhiTheme.emerald600;
     final textColor = isError ? PorhiTheme.rose600 : PorhiTheme.slate900;
     final icon = isError
@@ -365,7 +327,7 @@ class _ContinueLearningCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFE8ECF4)),
+        border: Border.all(color: PorhiTheme.slate200),
         boxShadow: PorhiTheme.cardShadow,
       ),
       padding: const EdgeInsets.all(20),
@@ -531,10 +493,7 @@ class _RevisionDueCard extends StatelessWidget {
   final AppLanguage lang;
   final List<DueMistakeEntity> dueMistakes;
 
-  const _RevisionDueCard({
-    required this.lang,
-    required this.dueMistakes,
-  });
+  const _RevisionDueCard({required this.lang, required this.dueMistakes});
 
   @override
   Widget build(BuildContext context) {
@@ -599,7 +558,9 @@ class _RevisionDueCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
-                  lang == AppLanguage.bn ? '$countTextটি প্রশ্ন' : '$countText due',
+                  lang == AppLanguage.bn
+                      ? '$countTextটি প্রশ্ন'
+                      : '$countText due',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -647,7 +608,9 @@ class _RevisionDueCard extends StatelessWidget {
               ),
             )
           else
-            ...dueMistakes.take(3).map(
+            ...dueMistakes
+                .take(3)
+                .map(
                   (mistake) => Container(
                     margin: const EdgeInsets.only(bottom: 8),
                     padding: const EdgeInsets.all(14),
@@ -880,11 +843,7 @@ class _PlannerAndHubCard extends StatelessWidget {
                 child: _HubActionTile(
                   icon: Icons.search_rounded,
                   iconColor: PorhiTheme.emerald600,
-                  label: AppStrings.tr(
-                    'দ্রুত অনুসন্ধান',
-                    'Quick Search',
-                    lang,
-                  ),
+                  label: AppStrings.tr('দ্রুত অনুসন্ধান', 'Quick Search', lang),
                   onTap: onOpenSearch,
                 ),
               ),

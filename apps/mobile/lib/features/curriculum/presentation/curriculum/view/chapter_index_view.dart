@@ -57,20 +57,18 @@ class ChapterIndexView extends GetView<ChapterIndexController> {
         actions: <Widget>[
           Obx(() {
             final lang = controller.language.value;
-            final collapsed = controller.allCollapsed;
             return IconButton(
-              key: const Key('expand_collapse_all_btn'),
-              tooltip: collapsed
-                  ? AppStrings.tr('সবগুলো খুলুন', 'Expand All', lang)
-                  : AppStrings.tr('সবগুলো সঙ্কুচিত করুন', 'Collapse All', lang),
-              icon: Icon(
-                collapsed
-                    ? Icons.unfold_more_rounded
-                    : Icons.unfold_less_rounded,
+              key: const Key('collapse_all_chapters_btn'),
+              tooltip: AppStrings.tr(
+                'সব অধ্যায় বন্ধ করুন',
+                'Collapse all chapters',
+                lang,
               ),
-              onPressed: controller.allChapters.isEmpty
+              icon: const Icon(Icons.unfold_less_rounded),
+              onPressed:
+                  controller.allChapters.isEmpty || controller.allCollapsed
                   ? null
-                  : controller.toggleExpandCollapseAll,
+                  : controller.collapseAllChapters,
             );
           }),
         ],
@@ -237,15 +235,17 @@ class ChapterIndexView extends GetView<ChapterIndexController> {
                   final downloadedInfo =
                       controller.downloadedChaptersMap[chapter.id];
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.only(bottom: 8),
                     child: ChapterAccordionCard(
                       chapter: chapter,
                       language: lang,
-                      isCollapsed:
-                          controller.collapsedChapterIds.contains(chapter.id),
+                      isCollapsed: controller.collapsedChapterIds.contains(
+                        chapter.id,
+                      ),
                       isDownloaded: downloadedInfo != null,
-                      isDownloading:
-                          controller.isChapterDownloading(chapter.id),
+                      isDownloading: controller.isChapterDownloading(
+                        chapter.id,
+                      ),
                       downloadedSizeBytes: downloadedInfo?.sizeBytes,
                       completedTopicIds: controller.completedTopicIds.toSet(),
                       bookmarkedTopicIds: controller.bookmarkedTopicIds.toSet(),
@@ -271,8 +271,12 @@ class ChapterIndexView extends GetView<ChapterIndexController> {
                           chapterTitle: chapter.titleBangla,
                         ),
                       ),
-                      onTopicTap: (topic) =>
-                          _openTopicOrOfflinePreview(context, chapter, topic, lang),
+                      onTopicTap: (topic) => _openTopicOrOfflinePreview(
+                        context,
+                        chapter,
+                        topic,
+                        lang,
+                      ),
                       onToggleBookmark: (topic) =>
                           controller.toggleTopicBookmark(chapter, topic),
                     ),
@@ -373,10 +377,12 @@ class ChapterIndexView extends GetView<ChapterIndexController> {
     TopicEntity topic,
     AppLanguage lang,
   ) {
-    final matchingLessons =
-        pack.lessons.where((l) => l.topicId == topic.id).toList();
-    final matchingQuestions =
-        pack.questions.where((q) => q.topicId == topic.id).toList();
+    final matchingLessons = pack.lessons
+        .where((l) => l.topicId == topic.id)
+        .toList();
+    final matchingQuestions = pack.questions
+        .where((q) => q.topicId == topic.id)
+        .toList();
 
     return showModalBottomSheet<void>(
       context: context,

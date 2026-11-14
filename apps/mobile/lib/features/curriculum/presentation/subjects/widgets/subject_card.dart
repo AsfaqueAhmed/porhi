@@ -58,17 +58,17 @@ class SubjectCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         gradient: subject.isReady
                             ? (isActive
-                                ? PorhiTheme.brandGradient
-                                : const LinearGradient(
-                                    colors: <Color>[
-                                      Color(0xFFEEF2FF),
-                                      Color(0xFFE0E7FF),
-                                    ],
-                                  ))
-                            : const LinearGradient(
+                                  ? PorhiTheme.brandGradient
+                                  : const LinearGradient(
+                                      colors: <Color>[
+                                        PorhiTheme.indigo50,
+                                        PorhiTheme.indigo100,
+                                      ],
+                                    ))
+                            : LinearGradient(
                                 colors: <Color>[
-                                  Color(0xFFF1F5F9),
-                                  Color(0xFFE2E8F0),
+                                  PorhiTheme.slate100,
+                                  PorhiTheme.slate200,
                                 ],
                               ),
                         borderRadius: BorderRadius.circular(14),

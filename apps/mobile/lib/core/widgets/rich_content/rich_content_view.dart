@@ -9,36 +9,25 @@ import 'package:porhi/core/widgets/rich_content/audio_player_tile.dart';
 import 'package:porhi/core/widgets/rich_content/image_lightbox_viewer.dart';
 import 'package:porhi/core/widgets/rich_content/video_player_tile.dart';
 
-typedef RichContentAudioBuilder = Widget Function(
-  BuildContext context,
-  String resolvedUrl,
-  String title,
-);
+typedef RichContentAudioBuilder =
+    Widget Function(BuildContext context, String resolvedUrl, String title);
 
-typedef RichContentVideoBuilder = Widget Function(
-  BuildContext context,
-  String resolvedUrl,
-  String title,
-);
+typedef RichContentVideoBuilder =
+    Widget Function(BuildContext context, String resolvedUrl, String title);
 
-typedef RichContentImageBuilder = Widget Function(
-  BuildContext context,
-  String resolvedUrl,
-  String alt,
-);
+typedef RichContentImageBuilder =
+    Widget Function(BuildContext context, String resolvedUrl, String alt);
 
-typedef RichContentInteractiveBuilder = Widget Function(
-  BuildContext context,
-  String? resolvedUrl,
-  String? htmlContent,
-  String title,
-);
+typedef RichContentInteractiveBuilder =
+    Widget Function(
+      BuildContext context,
+      String? resolvedUrl,
+      String? htmlContent,
+      String title,
+    );
 
-typedef RichContentYoutubeBuilder = Widget Function(
-  BuildContext context,
-  String videoId,
-  String title,
-);
+typedef RichContentYoutubeBuilder =
+    Widget Function(BuildContext context, String videoId, String title);
 
 /// Renders lesson/question rich content (Markdown, callouts, tables, KaTeX,
 /// images with lightbox, audio, video, YouTube, and interactive HTML labs).
@@ -73,12 +62,9 @@ class RichContentView extends StatelessWidget {
       return const SizedBox.shrink();
     }
 
-    final defaultTextStyle = baseStyle ??
-        const TextStyle(
-          fontSize: 15,
-          height: 1.6,
-          color: PorhiTheme.slate700,
-        );
+    final defaultTextStyle =
+        baseStyle ??
+        const TextStyle(fontSize: 15, height: 1.6, color: PorhiTheme.slate700);
 
     final tokens = parseRichTokens(raw);
     final children = <Widget>[];
@@ -90,33 +76,21 @@ class RichContentView extends StatelessWidget {
           children.add(
             audioBuilder != null
                 ? audioBuilder!(context, resolved, title)
-                : AudioPlayerTile(
-                    src: src,
-                    title: title,
-                    envConfig: envConfig,
-                  ),
+                : AudioPlayerTile(src: src, title: title, envConfig: envConfig),
           );
         case VideoContentToken(:final src, :final title):
           final resolved = resolvePorhiMediaUrl(src, envConfig: envConfig);
           children.add(
             videoBuilder != null
                 ? videoBuilder!(context, resolved, title)
-                : VideoPlayerTile(
-                    src: src,
-                    title: title,
-                    envConfig: envConfig,
-                  ),
+                : VideoPlayerTile(src: src, title: title, envConfig: envConfig),
           );
         case ImageContentToken(:final src, :final alt):
           final resolved = resolvePorhiMediaUrl(src, envConfig: envConfig);
           children.add(
             imageBuilder != null
                 ? imageBuilder!(context, resolved, alt)
-                : ImageLightboxViewer(
-                    src: src,
-                    alt: alt,
-                    envConfig: envConfig,
-                  ),
+                : ImageLightboxViewer(src: src, alt: alt, envConfig: envConfig),
           );
         case YoutubeContentToken(:final videoId, :final title):
           children.add(
@@ -193,13 +167,13 @@ class MarkdownBlockView extends StatelessWidget {
       CodeBlock b => _buildCodeBlock(b),
       TableBlock b => _buildTable(b),
       ParagraphBlock b => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 5),
-          child: LatexText(
-            content: b.text,
-            style: baseStyle,
-            onLinkTap: onLinkTap,
-          ),
+        padding: const EdgeInsets.symmetric(vertical: 5),
+        child: LatexText(
+          content: b.text,
+          style: baseStyle,
+          onLinkTap: onLinkTap,
         ),
+      ),
     };
   }
 
@@ -345,33 +319,33 @@ class MarkdownBlockView extends StatelessWidget {
       IconData? icon,
     ) = switch (b.calloutKind) {
       CalloutKind.definition => (
-          PorhiTheme.indigo50,
-          const Color(0xFFC7D2FE),
-          PorhiTheme.indigo600,
-          PorhiTheme.slate900,
-          Icons.auto_awesome_rounded,
-        ),
+        PorhiTheme.indigo50,
+        const Color(0xFFC7D2FE),
+        PorhiTheme.indigo600,
+        PorhiTheme.slate900,
+        Icons.auto_awesome_rounded,
+      ),
       CalloutKind.tip => (
-          const Color(0xFFFFFBEB),
-          const Color(0xFFFDE68A),
-          const Color(0xFFF59E0B),
-          const Color(0xFF451A03),
-          Icons.lightbulb_rounded,
-        ),
+        const Color(0xFFFFFBEB),
+        const Color(0xFFFDE68A),
+        const Color(0xFFF59E0B),
+        const Color(0xFF451A03),
+        Icons.lightbulb_rounded,
+      ),
       CalloutKind.warning => (
-          const Color(0xFFFFF1F2),
-          const Color(0xFFFECDD3),
-          PorhiTheme.rose600,
-          const Color(0xFF4C0519),
-          Icons.warning_amber_rounded,
-        ),
+        const Color(0xFFFFF1F2),
+        const Color(0xFFFECDD3),
+        PorhiTheme.rose600,
+        const Color(0xFF4C0519),
+        Icons.warning_amber_rounded,
+      ),
       CalloutKind.normal => (
-          PorhiTheme.slate50,
-          PorhiTheme.slate200,
-          PorhiTheme.slate400,
-          PorhiTheme.slate700,
-          null,
-        ),
+        PorhiTheme.slate50,
+        PorhiTheme.slate200,
+        PorhiTheme.slate400,
+        PorhiTheme.slate700,
+        null,
+      ),
     };
 
     return Container(
@@ -473,8 +447,14 @@ class MarkdownBlockView extends StatelessWidget {
                   children: [
                     Container(
                       margin: const EdgeInsets.only(top: 2, right: 10),
-                      constraints: const BoxConstraints(minWidth: 22, minHeight: 22),
-                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                      constraints: const BoxConstraints(
+                        minWidth: 22,
+                        minHeight: 22,
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 2,
+                      ),
                       alignment: Alignment.center,
                       decoration: BoxDecoration(
                         color: PorhiTheme.indigo50,
@@ -597,8 +577,9 @@ class MarkdownBlockView extends StatelessWidget {
                   color: rIdx.isOdd ? PorhiTheme.slate50 : Colors.white,
                 ),
                 children: List.generate(colCount, (cIdx) {
-                  final cell =
-                      cIdx < b.rows[rIdx].length ? b.rows[rIdx][cIdx] : '';
+                  final cell = cIdx < b.rows[rIdx].length
+                      ? b.rows[rIdx][cIdx]
+                      : '';
                   return Padding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
@@ -650,10 +631,7 @@ class LatexText extends StatelessWidget {
         if (inlineRun.isEmpty) return;
         children.add(
           Text.rich(
-            TextSpan(
-              style: style,
-              children: List<InlineSpan>.from(inlineRun),
-            ),
+            TextSpan(style: style, children: List<InlineSpan>.from(inlineRun)),
           ),
         );
         inlineRun.clear();
@@ -683,7 +661,9 @@ class LatexText extends StatelessWidget {
             if (seg.raw.trim().isEmpty && inlineRun.isEmpty) {
               continue;
             }
-            inlineRun.addAll(_buildInlineSpans(parseInlineTokens(seg.raw), style));
+            inlineRun.addAll(
+              _buildInlineSpans(parseInlineTokens(seg.raw), style),
+            );
         }
       }
       flushInlineRun();
@@ -706,10 +686,7 @@ class LatexText extends StatelessWidget {
     }
 
     return Text.rich(
-      TextSpan(
-        style: style,
-        children: _buildInlineSpans(tokens, style),
-      ),
+      TextSpan(style: style, children: _buildInlineSpans(tokens, style)),
     );
   }
 
@@ -732,8 +709,9 @@ class LatexText extends StatelessWidget {
             spans.addAll(_buildInlineSpans(inner, boldStyle));
           }
         case InlineTokenType.italic:
-          final italicStyle =
-              currentStyle.copyWith(fontStyle: FontStyle.italic);
+          final italicStyle = currentStyle.copyWith(
+            fontStyle: FontStyle.italic,
+          );
           final inner = parseInlineTokens(token.content);
           if (inner.isEmpty) {
             spans.add(TextSpan(text: token.content, style: italicStyle));
@@ -767,8 +745,9 @@ class LatexText extends StatelessWidget {
         case InlineTokenType.math:
           spans.add(_buildMathSpan(token.content, token.raw, currentStyle));
         case InlineTokenType.link:
-          final validUri =
-              onLinkTap != null ? tryParseAllowedWebUri(token.href) : null;
+          final validUri = onLinkTap != null
+              ? tryParseAllowedWebUri(token.href)
+              : null;
           if (validUri != null) {
             spans.add(
               WidgetSpan(
@@ -828,10 +807,7 @@ class _SafeMathView extends StatelessWidget {
   Widget _fallback() {
     return Text(
       raw,
-      style: style.copyWith(
-        fontFamily: 'monospace',
-        color: PorhiTheme.rose600,
-      ),
+      style: style.copyWith(fontFamily: 'monospace', color: PorhiTheme.rose600),
     );
   }
 
@@ -840,6 +816,14 @@ class _SafeMathView extends StatelessWidget {
     final trimmed = math.trim();
     if (trimmed.isEmpty) {
       return Text(raw, style: style);
+    }
+
+    // flutter_math_fork paints text-mode symbols one code point at a time.
+    // That breaks Bengali reordering marks and conjuncts inside \text{}.
+    // Render Bengali text with Flutter's shaping engine and keep the fraction
+    // layout intact instead of sending those glyphs through KaTeX fonts.
+    if (RegExp(r'[\u0980-\u09FF]').hasMatch(trimmed)) {
+      return _buildBengaliAwareFormula(trimmed, style);
     }
 
     try {
@@ -853,4 +837,107 @@ class _SafeMathView extends StatelessWidget {
       return _fallback();
     }
   }
+}
+
+Widget _buildBengaliAwareFormula(String formula, TextStyle style) {
+  final fractionAt = formula.indexOf(r'\frac');
+  if (fractionAt < 0) {
+    return Text(_cleanMathText(formula), style: style);
+  }
+
+  final numeratorStart = _skipWhitespace(formula, fractionAt + r'\frac'.length);
+  final numerator = _readLatexGroup(formula, numeratorStart);
+  if (numerator == null) return Text(_cleanMathText(formula), style: style);
+  final denominatorStart = _skipWhitespace(formula, numerator.end);
+  final denominator = _readLatexGroup(formula, denominatorStart);
+  if (denominator == null) return Text(_cleanMathText(formula), style: style);
+
+  final prefix = _cleanMathText(formula.substring(0, fractionAt)).trim();
+  final suffix = _cleanMathText(formula.substring(denominator.end)).trim();
+  final fraction = IntrinsicWidth(
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Text(
+          _cleanMathText(numerator.content),
+          textAlign: TextAlign.center,
+          style: style,
+        ),
+        const Padding(
+          padding: EdgeInsets.symmetric(vertical: 3),
+          child: Divider(height: 1, thickness: 1),
+        ),
+        Text(
+          _cleanMathText(denominator.content),
+          textAlign: TextAlign.center,
+          style: style,
+        ),
+      ],
+    ),
+  );
+
+  return Row(
+    mainAxisSize: MainAxisSize.min,
+    crossAxisAlignment: CrossAxisAlignment.center,
+    children: <Widget>[
+      if (prefix.isNotEmpty) ...<Widget>[
+        Text(prefix, style: style),
+        const SizedBox(width: 8),
+      ],
+      fraction,
+      if (suffix.isNotEmpty) ...<Widget>[
+        const SizedBox(width: 8),
+        Text(suffix, style: style),
+      ],
+    ],
+  );
+}
+
+int _skipWhitespace(String value, int index) {
+  while (index < value.length && value[index].trim().isEmpty) {
+    index++;
+  }
+  return index;
+}
+
+({String content, int end})? _readLatexGroup(String value, int openIndex) {
+  if (openIndex >= value.length || value[openIndex] != '{') return null;
+  var depth = 0;
+  for (var index = openIndex; index < value.length; index++) {
+    final char = value[index];
+    if (char == '{') depth++;
+    if (char == '}') {
+      depth--;
+      if (depth == 0) {
+        return (content: value.substring(openIndex + 1, index), end: index + 1);
+      }
+    }
+  }
+  return null;
+}
+
+String _cleanMathText(String value) {
+  return value
+      .replaceAllMapped(
+        RegExp(r'\\(?:text|textrm|textnormal|mathrm|operatorname)\{([^{}]*)\}'),
+        (match) => match.group(1) ?? '',
+      )
+      .replaceAll(r'\,', ' ')
+      .replaceAll(r'\;', ' ')
+      .replaceAll(r'\quad', '  ')
+      .replaceAll(r'\times', '×')
+      .replaceAll(r'\cdot', '·')
+      .replaceAll(r'\pi', 'π')
+      .replaceAll(r'\approx', '≈')
+      .replaceAll(r'\leq', '≤')
+      .replaceAll(r'\geq', '≥')
+      .replaceAll(r'\left', '')
+      .replaceAll(r'\right', '')
+      .replaceAll(
+        RegExp(r'\\(?:text|textrm|textnormal|mathrm|operatorname)'),
+        '',
+      )
+      .replaceAll(RegExp(r'[{}]'), '')
+      .trim();
 }

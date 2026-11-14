@@ -7,12 +7,13 @@ import 'package:porhi/core/content/media_url_resolver.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
-typedef InteractiveWebViewBuilder = Widget Function(
-  BuildContext context,
-  String source, {
-  required bool isLocalFile,
-  required bool isHtml,
-});
+typedef InteractiveWebViewBuilder =
+    Widget Function(
+      BuildContext context,
+      String source, {
+      required bool isLocalFile,
+      required bool isHtml,
+    });
 
 class ResolvedLabSource {
   final String source;
@@ -54,11 +55,7 @@ ResolvedLabSource resolveInteractiveLabSource({
 }) {
   final rawHtml = htmlContent?.trim() ?? '';
   if (rawHtml.isNotEmpty) {
-    return ResolvedLabSource(
-      source: rawHtml,
-      isLocalFile: false,
-      isHtml: true,
-    );
+    return ResolvedLabSource(source: rawHtml, isLocalFile: false, isHtml: true);
   }
 
   final rawUrl = widgetUrl?.trim() ?? '';
@@ -72,11 +69,19 @@ ResolvedLabSource resolveInteractiveLabSource({
 
   if (rawUrl.toLowerCase().startsWith('file://')) {
     if (!allowLocalFile) {
-      return const ResolvedLabSource(source: '', isLocalFile: false, isHtml: false);
+      return const ResolvedLabSource(
+        source: '',
+        isLocalFile: false,
+        isHtml: false,
+      );
     }
     final localPath = tryParseLocalFilePath(rawUrl);
     if (localPath == null) {
-      return const ResolvedLabSource(source: '', isLocalFile: false, isHtml: false);
+      return const ResolvedLabSource(
+        source: '',
+        isLocalFile: false,
+        isHtml: false,
+      );
     }
     return ResolvedLabSource(
       source: localPath,
@@ -88,7 +93,11 @@ ResolvedLabSource resolveInteractiveLabSource({
   if (_hasExplicitScheme(rawUrl) || rawUrl.startsWith('//')) {
     final webUri = tryParseAllowedWebUri(rawUrl);
     if (webUri == null) {
-      return const ResolvedLabSource(source: '', isLocalFile: false, isHtml: false);
+      return const ResolvedLabSource(
+        source: '',
+        isLocalFile: false,
+        isHtml: false,
+      );
     }
     return ResolvedLabSource(
       source: webUri.toString(),
@@ -98,17 +107,17 @@ ResolvedLabSource resolveInteractiveLabSource({
   }
 
   if (allowLocalFile && (forceLocalFile || _looksLikeDevicePath(rawUrl))) {
-    return ResolvedLabSource(
-      source: rawUrl,
-      isLocalFile: true,
-      isHtml: false,
-    );
+    return ResolvedLabSource(source: rawUrl, isLocalFile: true, isHtml: false);
   }
 
   final resolved = resolvePorhiMediaUrl(rawUrl, envConfig: envConfig);
   final webUri = tryParseAllowedWebUri(resolved);
   if (webUri == null) {
-    return const ResolvedLabSource(source: '', isLocalFile: false, isHtml: false);
+    return const ResolvedLabSource(
+      source: '',
+      isLocalFile: false,
+      isHtml: false,
+    );
   }
 
   return ResolvedLabSource(
@@ -183,6 +192,8 @@ class InteractiveLabWebView extends StatefulWidget {
   final EnvConfig? envConfig;
   final InteractiveWebViewBuilder? webViewBuilder;
   final VoidCallback? onReloadCallback;
+  final VoidCallback? onCloseCallback;
+  final bool fullScreen;
 
   const InteractiveLabWebView({
     super.key,
@@ -195,6 +206,8 @@ class InteractiveLabWebView extends StatefulWidget {
     this.envConfig,
     this.webViewBuilder,
     this.onReloadCallback,
+    this.onCloseCallback,
+    this.fullScreen = false,
   });
 
   @override
@@ -209,12 +222,12 @@ class _InteractiveLabWebViewState extends State<InteractiveLabWebView> {
   bool _disposed = false;
 
   ResolvedLabSource get _resolved => resolveInteractiveLabSource(
-        widgetUrl: widget.widgetUrl,
-        htmlContent: widget.htmlContent,
-        envConfig: widget.envConfig,
-        forceLocalFile: widget.forceLocalFile,
-        allowLocalFile: widget.allowLocalFile,
-      );
+    widgetUrl: widget.widgetUrl,
+    htmlContent: widget.htmlContent,
+    envConfig: widget.envConfig,
+    forceLocalFile: widget.forceLocalFile,
+    allowLocalFile: widget.allowLocalFile,
+  );
 
   @override
   void initState() {
@@ -321,6 +334,8 @@ class _InteractiveLabWebViewState extends State<InteractiveLabWebView> {
                   _LabTopBar(
                     title: widget.title,
                     isFullscreen: true,
+                    onClose: null,
+                    showFullscreenToggle: true,
                     onReload: _reload,
                     onToggleFullscreen: () => Navigator.of(dialogContext).pop(),
                   ),
@@ -340,7 +355,10 @@ class _InteractiveLabWebViewState extends State<InteractiveLabWebView> {
     }
   }
 
-  Widget _buildWebViewContent(BuildContext context, ResolvedLabSource resolved) {
+  Widget _buildWebViewContent(
+    BuildContext context,
+    ResolvedLabSource resolved,
+  ) {
     return ListenableBuilder(
       listenable: Listenable.merge([_reloadTickNotifier, _isLoadingNotifier]),
       builder: (context, _) {
@@ -396,6 +414,39 @@ class _InteractiveLabWebViewState extends State<InteractiveLabWebView> {
     final resolved = _resolved;
     if (resolved.isEmpty) return const SizedBox.shrink();
 
+    if (widget.fullScreen) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _LabTopBar(
+            title: widget.title,
+            isFullscreen: false,
+            onClose: widget.onCloseCallback,
+            showFullscreenToggle: !widget.fullScreen,
+            onReload: _reload,
+            onToggleFullscreen: () => unawaited(_openFullscreen(context)),
+          ),
+          Expanded(
+            child: Container(
+              color: PorhiTheme.slate50,
+              child: _isFullscreenOpen
+                  ? const Center(
+                      child: Text(
+                        'সিমুলেশন পূর্ণস্ক্রীনে খোলা আছে',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: PorhiTheme.slate600,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    )
+                  : _buildWebViewContent(context, resolved),
+            ),
+          ),
+        ],
+      );
+    }
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
@@ -410,6 +461,8 @@ class _InteractiveLabWebViewState extends State<InteractiveLabWebView> {
           _LabTopBar(
             title: widget.title,
             isFullscreen: false,
+            onClose: widget.onCloseCallback,
+            showFullscreenToggle: true,
             onReload: _reload,
             onToggleFullscreen: () => unawaited(_openFullscreen(context)),
           ),
@@ -448,18 +501,24 @@ class InteractiveLabCard extends InteractiveLabWebView {
     super.envConfig,
     super.webViewBuilder,
     super.onReloadCallback,
+    super.onCloseCallback,
+    super.fullScreen,
   });
 }
 
 class _LabTopBar extends StatelessWidget {
   final String title;
   final bool isFullscreen;
+  final VoidCallback? onClose;
+  final bool showFullscreenToggle;
   final VoidCallback onReload;
   final VoidCallback onToggleFullscreen;
 
   const _LabTopBar({
     required this.title,
     required this.isFullscreen,
+    this.onClose,
+    this.showFullscreenToggle = true,
     required this.onReload,
     required this.onToggleFullscreen,
   });
@@ -474,6 +533,16 @@ class _LabTopBar extends StatelessWidget {
       ),
       child: Row(
         children: [
+          if (onClose != null)
+            IconButton(
+              onPressed: onClose,
+              tooltip: 'বন্ধ করুন',
+              icon: const Icon(
+                Icons.arrow_back_rounded,
+                size: 20,
+                color: PorhiTheme.slate200,
+              ),
+            ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
             decoration: BoxDecoration(
@@ -519,17 +588,18 @@ class _LabTopBar extends StatelessWidget {
               color: PorhiTheme.slate400,
             ),
           ),
-          IconButton(
-            onPressed: onToggleFullscreen,
-            tooltip: isFullscreen ? 'পূর্ণস্ক্রীন বন্ধ' : 'পূর্ণস্ক্রীন',
-            icon: Icon(
-              isFullscreen
-                  ? Icons.fullscreen_exit_rounded
-                  : Icons.fullscreen_rounded,
-              size: 20,
-              color: PorhiTheme.slate400,
+          if (showFullscreenToggle)
+            IconButton(
+              onPressed: onToggleFullscreen,
+              tooltip: isFullscreen ? 'পূর্ণস্ক্রীন বন্ধ' : 'পূর্ণস্ক্রীন',
+              icon: Icon(
+                isFullscreen
+                    ? Icons.fullscreen_exit_rounded
+                    : Icons.fullscreen_rounded,
+                size: 20,
+                color: PorhiTheme.slate400,
+              ),
             ),
-          ),
         ],
       ),
     );

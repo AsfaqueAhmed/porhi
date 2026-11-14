@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
+import 'package:porhi/features/auth/presentation/account/view/account_view.dart';
 import 'package:porhi/features/curriculum/presentation/subjects/view/subjects_view.dart';
 import 'package:porhi/features/dashboard/presentation/dashboard/view/dashboard_view.dart';
 import 'package:porhi/features/planner/presentation/planner/view/planner_view.dart';
@@ -9,27 +10,28 @@ import 'package:porhi/features/progress/presentation/progress/view/progress_view
 import 'package:porhi/features/shell/presentation/main_shell/controller/main_shell_controller.dart';
 import 'package:porhi/routes/app_routes.dart';
 
-/// Slot builders for the 4-tab shell so future feature tasks can plug in
+/// Slot builders for the 5-tab shell so feature tabs can be composed
 /// Subjects (Task 7) and Planner/Progress (Task 12) without rewriting the shell.
 class MainShellTabBuilders {
   final WidgetBuilder homeBuilder;
   final WidgetBuilder subjectsBuilder;
   final WidgetBuilder plannerBuilder;
   final WidgetBuilder progressBuilder;
+  final WidgetBuilder profileBuilder;
 
   const MainShellTabBuilders({
     this.homeBuilder = _defaultHomeBuilder,
     this.subjectsBuilder = _defaultSubjectsBuilder,
     this.plannerBuilder = _defaultPlannerBuilder,
     this.progressBuilder = _defaultProgressBuilder,
+    this.profileBuilder = _defaultProfileBuilder,
   });
 
   static Widget _defaultHomeBuilder(BuildContext context) =>
       const DashboardView();
 
-  static Widget _defaultSubjectsBuilder(BuildContext context) => SubjectsView(
-        onAccountTap: () => _openAccountFromShell(context),
-      );
+  static Widget _defaultSubjectsBuilder(BuildContext context) =>
+      SubjectsView(onAccountTap: () => _openAccountFromShell(context));
 
   static Future<void> _openAccountFromShell(BuildContext context) async {
     final originRoute = Get.currentRoute;
@@ -42,16 +44,17 @@ class MainShellTabBuilders {
     }
   }
 
-  static Widget _defaultPlannerBuilder(BuildContext context) => PlannerView(
-        onAccountTap: () => _openAccountFromShell(context),
-      );
+  static Widget _defaultPlannerBuilder(BuildContext context) =>
+      PlannerView(onAccountTap: () => _openAccountFromShell(context));
 
-  static Widget _defaultProgressBuilder(BuildContext context) => ProgressView(
-        onAccountTap: () => _openAccountFromShell(context),
-      );
+  static Widget _defaultProgressBuilder(BuildContext context) =>
+      ProgressView(onAccountTap: () => _openAccountFromShell(context));
+
+  static Widget _defaultProfileBuilder(BuildContext context) =>
+      const AccountView(isTab: true);
 }
 
-/// 4-tab authenticated shell rendering ONLY the active tab dynamically via [Obx]
+/// 5-tab authenticated shell rendering ONLY the active tab dynamically via [Obx]
 /// (without mounting inactive tabs simultaneously).
 class MainShellView extends GetView<MainShellController> {
   final MainShellTabBuilders tabBuilders;
@@ -70,60 +73,142 @@ class MainShellView extends GetView<MainShellController> {
           1 => tabBuilders.subjectsBuilder(context),
           2 => tabBuilders.plannerBuilder(context),
           3 => tabBuilders.progressBuilder(context),
+          4 => tabBuilders.profileBuilder(context),
           _ => tabBuilders.homeBuilder(context),
         },
       ),
       bottomNavigationBar: Obx(() {
         final lang = controller.language.value;
         final activeIndex = controller.currentIndex.value;
-        return Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: const Border(
-              top: BorderSide(color: Color(0xFFE8ECF4), width: 1),
+        const destinations =
+            <({IconData icon, IconData activeIcon, String key})>[
+              (
+                icon: Icons.home_outlined,
+                activeIcon: Icons.home_rounded,
+                key: 'nav.home',
+              ),
+              (
+                icon: Icons.menu_book_outlined,
+                activeIcon: Icons.menu_book_rounded,
+                key: 'nav.subjects',
+              ),
+              (
+                icon: Icons.calendar_today_outlined,
+                activeIcon: Icons.calendar_today_rounded,
+                key: 'nav.planner',
+              ),
+              (
+                icon: Icons.insights_outlined,
+                activeIcon: Icons.insights_rounded,
+                key: 'nav.progress',
+              ),
+              (
+                icon: Icons.person_outline_rounded,
+                activeIcon: Icons.person_rounded,
+                key: 'nav.account',
+              ),
+            ];
+        return SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(14, 4, 14, 10),
+            child: Container(
+              height: 68,
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: PorhiTheme.navigationSurface,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: const <BoxShadow>[
+                  BoxShadow(
+                    color: Color(0x2618241F),
+                    blurRadius: 22,
+                    offset: Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: <Widget>[
+                  for (var i = 0; i < destinations.length; i++)
+                    Expanded(
+                      child: _FloatingNavItem(
+                        icon: destinations[i].icon,
+                        activeIcon: destinations[i].activeIcon,
+                        label: AppStrings.t(destinations[i].key, lang),
+                        selected: activeIndex == i,
+                        onTap: () => controller.selectTab(i),
+                      ),
+                    ),
+                ],
+              ),
             ),
-            boxShadow: PorhiTheme.subtleShadow,
-          ),
-          child: NavigationBar(
-            selectedIndex: activeIndex,
-            onDestinationSelected: controller.selectTab,
-            destinations: <NavigationDestination>[
-              NavigationDestination(
-                icon: const Icon(Icons.home_outlined),
-                selectedIcon: const Icon(
-                  Icons.home_rounded,
-                  color: PorhiTheme.indigo600,
-                ),
-                label: AppStrings.t('nav.home', lang),
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.menu_book_outlined),
-                selectedIcon: const Icon(
-                  Icons.menu_book_rounded,
-                  color: PorhiTheme.indigo600,
-                ),
-                label: AppStrings.t('nav.subjects', lang),
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.calendar_today_outlined),
-                selectedIcon: const Icon(
-                  Icons.calendar_today_rounded,
-                  color: PorhiTheme.indigo600,
-                ),
-                label: AppStrings.t('nav.planner', lang),
-              ),
-              NavigationDestination(
-                icon: const Icon(Icons.bar_chart_outlined),
-                selectedIcon: const Icon(
-                  Icons.bar_chart_rounded,
-                  color: PorhiTheme.indigo600,
-                ),
-                label: AppStrings.t('nav.progress', lang),
-              ),
-            ],
           ),
         );
       }),
+    );
+  }
+}
+
+class _FloatingNavItem extends StatelessWidget {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _FloatingNavItem({
+    required this.icon,
+    required this.activeIcon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: label,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          key: Key('shell_nav_$label'),
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(18),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            decoration: BoxDecoration(
+              color: selected ? PorhiTheme.selectedSurface : Colors.transparent,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Icon(
+                  selected ? activeIcon : icon,
+                  size: 21,
+                  color: selected
+                      ? PorhiTheme.selectedForeground
+                      : Colors.white.withValues(alpha: 0.78),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: selected
+                        ? PorhiTheme.selectedForeground
+                        : Colors.white.withValues(alpha: 0.78),
+                    fontSize: 10,
+                    fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -182,21 +267,9 @@ class _ShellPlaceholderSlot extends GetView<MainShellController> {
     return Scaffold(
       appBar: AppBar(
         title: Obx(
-          () => Text(
-            AppStrings.tr(titleBn, titleEn, controller.language.value),
-          ),
+          () =>
+              Text(AppStrings.tr(titleBn, titleEn, controller.language.value)),
         ),
-        actions: <Widget>[
-          Obx(
-            () => IconButton(
-              key: const Key('slot_account_button'),
-              tooltip: AppStrings.t('nav.account', controller.language.value),
-              icon: const Icon(Icons.person_outline_rounded),
-              onPressed: () =>
-                  MainShellTabBuilders._openAccountFromShell(context),
-            ),
-          ),
-        ],
       ),
       body: Center(
         child: Padding(

@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
+import 'package:porhi/core/widgets/feature_intro_card.dart';
 import 'package:porhi/features/content_report/domain/entities/content_report_entity.dart';
 import 'package:porhi/features/dashboard/domain/entities/student_overview_entity.dart';
 import 'package:porhi/features/exam/domain/entities/exam_entities.dart';
 import 'package:porhi/features/progress/presentation/progress/controller/progress_controller.dart';
-import 'package:porhi/routes/app_routes.dart';
 
 class ProgressView extends GetView<ProgressController> {
   final Future<void> Function()? onAccountTap;
@@ -59,17 +59,6 @@ class ProgressView extends GetView<ProgressController> {
             ],
           );
         }),
-        actions: <Widget>[
-          Obx(() {
-            final lang = controller.language.value;
-            return IconButton(
-              key: const Key('progress_account_button'),
-              tooltip: AppStrings.t('nav.account', lang),
-              icon: const Icon(Icons.person_outline_rounded),
-              onPressed: () => _handleAccountTap(context),
-            );
-          }),
-        ],
       ),
       body: Obx(() {
         final lang = controller.language.value;
@@ -117,7 +106,8 @@ class ProgressView extends GetView<ProgressController> {
           );
         }
 
-        final data = overview ??
+        final data =
+            overview ??
             StudentOverviewEntity(subjectId: controller.activeSubjectId.value);
 
         return RefreshIndicator(
@@ -133,6 +123,25 @@ class ProgressView extends GetView<ProgressController> {
                 _ProgressBanner(message: status, isError: isStatusErr),
                 const SizedBox(height: 12),
               ],
+              FeatureIntroCard(
+                icon: Icons.insights_rounded,
+                eyebrow: AppStrings.tr(
+                  'তোমার শেখার মানচিত্র',
+                  'YOUR LEARNING PICTURE',
+                  lang,
+                ),
+                title: AppStrings.tr(
+                  'অগ্রগতি, এক নজরে',
+                  'Your progress, at a glance',
+                  lang,
+                ),
+                description: AppStrings.tr(
+                  'কোন জায়গায় এগিয়েছ আর কোথায় আরেকটু অনুশীলন দরকার—দুটোই দেখো।',
+                  'See what is clicking and where a little more practice can help.',
+                  lang,
+                ),
+              ),
+              const SizedBox(height: 14),
               _KpiSummaryGrid(
                 overview: data,
                 summary: history?.summary ?? const ExamHistorySummaryEntity(),
@@ -150,15 +159,15 @@ class ProgressView extends GetView<ProgressController> {
                 lang: lang,
                 onPracticeWeakTopic: (topic) =>
                     controller.openPracticeForWeakTopic(
-                  chapterId: topic.chapterId,
-                  topicId: topic.topicId,
-                ),
+                      chapterId: topic.chapterId,
+                      topicId: topic.topicId,
+                    ),
                 onPracticeMistake: (mistake) =>
                     controller.openPracticeForWeakTopic(
-                  chapterId: mistake.chapterId,
-                  topicId: mistake.topicId,
-                  mistakesOnly: true,
-                ),
+                      chapterId: mistake.chapterId,
+                      topicId: mistake.topicId,
+                      mistakesOnly: true,
+                    ),
               ),
               const SizedBox(height: 16),
               _BookmarksAndNotesCard(
@@ -172,10 +181,7 @@ class ProgressView extends GetView<ProgressController> {
                 lang: lang,
               ),
               const SizedBox(height: 16),
-              _GuardianShareLinksCard(
-                controller: controller,
-                lang: lang,
-              ),
+              _GuardianShareLinksCard(controller: controller, lang: lang),
               const SizedBox(height: 24),
             ],
           ),
@@ -184,17 +190,6 @@ class ProgressView extends GetView<ProgressController> {
     );
   }
 
-  Future<void> _handleAccountTap(BuildContext context) async {
-    final handler = onAccountTap;
-    if (handler != null) {
-      await handler();
-      return;
-    }
-    await Get.toNamed<dynamic>(AppRoutes.account);
-    if (context.mounted) {
-      await controller.refreshFromShell();
-    }
-  }
 }
 
 class _KpiSummaryGrid extends StatelessWidget {
@@ -237,8 +232,7 @@ class _KpiSummaryGrid extends StatelessWidget {
       ),
       (
         label: AppStrings.tr('সর্বোচ্চ স্কোর', 'Best Score', lang),
-        value:
-            '${AppStrings.formatNumber(summary.bestScorePercent, lang)}%',
+        value: '${AppStrings.formatNumber(summary.bestScorePercent, lang)}%',
         icon: Icons.emoji_events_outlined,
         color: PorhiTheme.indigo700,
       ),
@@ -330,11 +324,7 @@ class _ScoreTrendCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              AppStrings.tr(
-                'পরীক্ষার স্কোর ট্রেন্ড',
-                'Exam Score Trend',
-                lang,
-              ),
+              AppStrings.tr('পরীক্ষার স্কোর ট্রেন্ড', 'Exam Score Trend', lang),
               style: const TextStyle(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
@@ -599,55 +589,57 @@ class _WeakTopicsAndMistakesCard extends StatelessWidget {
                   ),
                 ),
               ),
-              ...overview.dueMistakes.take(5).map(
-                (mistake) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFF1F2),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFFECDD3)),
-                    ),
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                mistake.stem,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                  color: PorhiTheme.slate900,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                mistake.topicTitle,
-                                style: const TextStyle(
-                                  fontSize: 11,
-                                  color: PorhiTheme.slate600,
-                                ),
-                              ),
-                            ],
-                          ),
+              ...overview.dueMistakes
+                  .take(5)
+                  .map(
+                    (mistake) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFFF1F2),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: const Color(0xFFFECDD3)),
                         ),
-                        const SizedBox(width: 8),
-                        TextButton(
-                          onPressed: () => onPracticeMistake(mistake),
-                          child: Text(
-                            AppStrings.tr('রিভিশন', 'Review', lang),
-                          ),
+                        child: Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    mistake.stem,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 13,
+                                      color: PorhiTheme.slate900,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    mistake.topicTitle,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      color: PorhiTheme.slate600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            TextButton(
+                              onPressed: () => onPracticeMistake(mistake),
+                              child: Text(
+                                AppStrings.tr('রিভিশন', 'Review', lang),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ),
             ],
           ],
         ),
@@ -682,11 +674,7 @@ class _BookmarksAndNotesCard extends StatelessWidget {
               children: <Widget>[
                 Expanded(
                   child: Text(
-                    AppStrings.tr(
-                      'বুকমার্ক ও নোটস',
-                      'Bookmarks & Notes',
-                      lang,
-                    ),
+                    AppStrings.tr('বুকমার্ক ও নোটস', 'Bookmarks & Notes', lang),
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -722,36 +710,41 @@ class _BookmarksAndNotesCard extends StatelessWidget {
                 ),
               )
             else
-              ...bookmarks.take(5).map(
-                (bookmark) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  dense: true,
-                  leading: const Icon(
-                    Icons.bookmark_rounded,
-                    color: PorhiTheme.indigo600,
-                    size: 20,
-                  ),
-                  title: Text(
-                    bookmark.titleBangla,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
+              ...bookmarks
+                  .take(5)
+                  .map(
+                    (bookmark) => ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                      leading: const Icon(
+                        Icons.bookmark_rounded,
+                        color: PorhiTheme.indigo600,
+                        size: 20,
+                      ),
+                      title: Text(
+                        bookmark.titleBangla,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      subtitle: bookmark.subtitleBangla != null
+                          ? Text(
+                              bookmark.subtitleBangla!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 11),
+                            )
+                          : null,
+                      trailing: const Icon(
+                        Icons.chevron_right_rounded,
+                        size: 18,
+                      ),
+                      onTap: () => onOpenBookmark(bookmark),
                     ),
                   ),
-                  subtitle: bookmark.subtitleBangla != null
-                      ? Text(
-                          bookmark.subtitleBangla!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 11),
-                        )
-                      : null,
-                  trailing: const Icon(Icons.chevron_right_rounded, size: 18),
-                  onTap: () => onOpenBookmark(bookmark),
-                ),
-              ),
           ],
         ),
       ),
@@ -763,10 +756,7 @@ class _ContentReportsCard extends StatelessWidget {
   final List<ContentReportEntity> reports;
   final AppLanguage lang;
 
-  const _ContentReportsCard({
-    required this.reports,
-    required this.lang,
-  });
+  const _ContentReportsCard({required this.reports, required this.lang});
 
   @override
   Widget build(BuildContext context) {
@@ -841,7 +831,9 @@ class _ContentReportsCard extends StatelessWidget {
                           ),
                         ),
                         if (report.resolutionNote != null &&
-                            report.resolutionNote!.trim().isNotEmpty) ...<Widget>[
+                            report.resolutionNote!
+                                .trim()
+                                .isNotEmpty) ...<Widget>[
                           const SizedBox(height: 4),
                           Text(
                             AppStrings.tr(
@@ -891,11 +883,7 @@ class _ReportStatusBadge extends StatelessWidget {
       ),
       child: Text(
         normalized,
-        style: TextStyle(
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          color: fg,
-        ),
+        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: fg),
       ),
     );
   }
@@ -905,10 +893,7 @@ class _GuardianShareLinksCard extends StatelessWidget {
   final ProgressController controller;
   final AppLanguage lang;
 
-  const _GuardianShareLinksCard({
-    required this.controller,
-    required this.lang,
-  });
+  const _GuardianShareLinksCard({required this.controller, required this.lang});
 
   @override
   Widget build(BuildContext context) {
@@ -1011,8 +996,9 @@ class _GuardianShareLinksCard extends StatelessWidget {
               return Column(
                 children: links.map((link) {
                   final fullUrl = controller.buildShareUrl(link);
-                  final isRevoking =
-                      controller.revokingShareIds.contains(link.id);
+                  final isRevoking = controller.revokingShareIds.contains(
+                    link.id,
+                  );
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Container(
@@ -1062,9 +1048,7 @@ class _GuardianShareLinksCard extends StatelessWidget {
                                 key: Key('share_copy_${link.id}'),
                                 onPressed: () => controller.copyShareLink(link),
                                 icon: const Icon(Icons.copy_rounded, size: 15),
-                                label: Text(
-                                  AppStrings.tr('কপি', 'Copy', lang),
-                                ),
+                                label: Text(AppStrings.tr('কপি', 'Copy', lang)),
                               ),
                               OutlinedButton.icon(
                                 key: Key('share_send_${link.id}'),
@@ -1081,7 +1065,7 @@ class _GuardianShareLinksCard extends StatelessWidget {
                                   onPressed: isRevoking
                                       ? null
                                       : () =>
-                                          controller.revokeShareLink(link.id),
+                                            controller.revokeShareLink(link.id),
                                   icon: const Icon(
                                     Icons.link_off_rounded,
                                     size: 15,
@@ -1114,16 +1098,14 @@ class _ProgressBanner extends StatelessWidget {
   final String message;
   final bool isError;
 
-  const _ProgressBanner({
-    required this.message,
-    required this.isError,
-  });
+  const _ProgressBanner({required this.message, required this.isError});
 
   @override
   Widget build(BuildContext context) {
     final bgColor = isError ? const Color(0xFFFFF1F2) : PorhiTheme.emerald50;
-    final borderColor =
-        isError ? const Color(0xFFFECDD3) : const Color(0xFFA7F3D0);
+    final borderColor = isError
+        ? const Color(0xFFFECDD3)
+        : const Color(0xFFA7F3D0);
     final textColor = isError ? PorhiTheme.rose600 : PorhiTheme.slate900;
     final iconColor = isError ? PorhiTheme.rose600 : PorhiTheme.emerald600;
 

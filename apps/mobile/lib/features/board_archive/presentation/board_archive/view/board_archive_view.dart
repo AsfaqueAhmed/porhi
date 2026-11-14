@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:porhi/app/env.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
 import 'package:porhi/core/theme/porhi_theme.dart';
+import 'package:porhi/core/widgets/feature_intro_card.dart';
 import 'package:porhi/core/widgets/rich_content/rich_content_view.dart';
 import 'package:porhi/features/board_archive/domain/entities/board_archive_entities.dart';
 import 'package:porhi/features/board_archive/presentation/board_archive/controller/board_archive_controller.dart';
@@ -45,6 +46,25 @@ class BoardArchiveView extends GetView<BoardArchiveController> {
             controller: controller.scrollController,
             padding: const EdgeInsets.fromLTRB(18, 16, 18, 28),
             children: <Widget>[
+              FeatureIntroCard(
+                icon: Icons.verified_rounded,
+                eyebrow: AppStrings.tr(
+                  'বোর্ড পরীক্ষার প্রস্তুতি',
+                  'PAST PAPER PRACTICE',
+                  lang,
+                ),
+                title: AppStrings.tr(
+                  'বোর্ড প্রশ্নে প্রস্তুতি যাচাই করো',
+                  'Practice with real board questions',
+                  lang,
+                ),
+                description: AppStrings.tr(
+                  'বোর্ড, বছর ও প্রশ্নের ধরন বেছে নিয়ে যাচাইকৃত প্রশ্ন সমাধান করো।',
+                  'Filter verified questions by board, year, subject, and question type.',
+                  lang,
+                ),
+              ),
+              const SizedBox(height: 14),
               _BoardFilterPanel(controller: controller, lang: lang),
               const SizedBox(height: 10),
               if (cqError != null) ...<Widget>[

@@ -8,7 +8,7 @@ import 'package:porhi/features/dashboard/domain/usecases/student_usecases.dart';
 
 typedef ShellRefreshHook = Future<void> Function();
 
-/// Coordinates the 4-tab shell index, language state, pending offline sync badge,
+/// Coordinates the 5-tab shell index, language state, pending offline sync badge,
 /// and cross-tab preference/subject refreshes without coupling to tab controllers.
 class MainShellController extends GetxController {
   final GetLanguageUseCase _getLanguageUseCase;
@@ -73,7 +73,7 @@ class MainShellController extends GetxController {
   }
 
   void selectTab(int index) {
-    final clamped = index.clamp(0, 3);
+    final clamped = index.clamp(0, 4);
     final changed = currentIndex.value != clamped;
     if (changed) {
       currentIndex.value = clamped;

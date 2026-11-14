@@ -40,15 +40,16 @@ class ChapterAccordionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final topicCount = chapter.topics.length;
-    final completedCount =
-        chapter.topics.where((t) => completedTopicIds.contains(t.id)).length;
-    final progressRatio =
-        topicCount > 0 ? (completedCount / topicCount).clamp(0.0, 1.0) : 0.0;
+    final completedCount = chapter.topics
+        .where((t) => completedTopicIds.contains(t.id))
+        .length;
+    final progressRatio = topicCount > 0
+        ? (completedCount / topicCount).clamp(0.0, 1.0)
+        : 0.0;
     final orderText = AppStrings.formatNumber(chapter.orderIndex, language);
 
     return Container(
       key: Key('chapter_card_${chapter.id}'),
-      margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -62,7 +63,7 @@ class ChapterAccordionCard extends StatelessWidget {
             key: Key('chapter_header_${chapter.id}'),
             onTap: onToggleExpand,
             child: Container(
-              color: isCollapsed ? Colors.white : PorhiTheme.slate50,
+              color: Colors.white,
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -121,7 +122,9 @@ class ChapterAccordionCard extends StatelessWidget {
                                 ),
                                 if (isDownloaded)
                                   _SmallPill(
-                                    key: Key('offline_saved_badge_${chapter.id}'),
+                                    key: Key(
+                                      'offline_saved_badge_${chapter.id}',
+                                    ),
                                     label: AppStrings.tr(
                                       'অফলাইন সংরক্ষিত',
                                       'Saved Offline',
@@ -162,122 +165,72 @@ class ChapterAccordionCard extends StatelessWidget {
                       minHeight: 5,
                       backgroundColor: PorhiTheme.slate200,
                       valueColor: const AlwaysStoppedAnimation<Color>(
-                        PorhiTheme.emerald600,
+                        PorhiTheme.selectedBorder,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: <Widget>[
-                      OutlinedButton.icon(
-                        key: Key('offline_pack_btn_${chapter.id}'),
-                        onPressed: isDownloading ? null : onToggleOfflinePack,
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 8,
-                          ),
-                          backgroundColor: isDownloaded
-                              ? PorhiTheme.emerald50
-                              : Colors.white,
-                          side: BorderSide(
-                            color: isDownloaded
-                                ? const Color(0xFFA7F3D0)
-                                : PorhiTheme.slate200,
-                          ),
-                          foregroundColor: isDownloaded
-                              ? PorhiTheme.emerald600
-                              : PorhiTheme.slate700,
-                        ),
-                        icon: isDownloading
-                            ? const SizedBox(
-                                width: 14,
-                                height: 14,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : Icon(
-                                isDownloaded
-                                    ? Icons.delete_outline_rounded
-                                    : Icons.download_rounded,
-                                size: 16,
-                              ),
-                        label: Text(
-                          isDownloading
-                              ? AppStrings.tr(
-                                  'ডাউনলোড হচ্ছে...',
-                                  'Saving...',
-                                  language,
-                                )
-                              : isDownloaded
-                                  ? AppStrings.tr(
-                                      'অফলাইন মুছুন',
-                                      'Remove Offline',
-                                      language,
-                                    )
-                                  : AppStrings.tr(
-                                      'অফলাইন ডাউনলোড',
-                                      'Save Offline',
-                                      language,
-                                    ),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
+                  if (!isCollapsed) ...<Widget>[
+                    const SizedBox(height: 12),
+                    Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: _ChapterActionButton(
+                            key: Key('offline_pack_btn_${chapter.id}'),
+                            icon: isDownloaded
+                                ? Icons.download_done_rounded
+                                : Icons.download_rounded,
+                            label: isDownloading
+                                ? AppStrings.tr(
+                                    'ডাউনলোড হচ্ছে',
+                                    'Saving offline',
+                                    language,
+                                  )
+                                : isDownloaded
+                                ? AppStrings.tr(
+                                    'অফলাইন সংরক্ষিত',
+                                    'Saved offline',
+                                    language,
+                                  )
+                                : AppStrings.tr(
+                                    'অফলাইনে রাখুন',
+                                    'Save offline',
+                                    language,
+                                  ),
+                            selected: isDownloaded,
+                            isLoading: isDownloading,
+                            onTap: isDownloading ? null : onToggleOfflinePack,
                           ),
                         ),
-                      ),
-                      OutlinedButton.icon(
-                        key: Key('chapter_practice_btn_${chapter.id}'),
-                        onPressed: onPracticeTap,
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 8,
-                          ),
-                          backgroundColor: PorhiTheme.indigo50,
-                          side: const BorderSide(color: Color(0xFFC7D2FE)),
-                          foregroundColor: PorhiTheme.indigo700,
-                        ),
-                        icon: const Icon(Icons.quiz_outlined, size: 16),
-                        label: Text(
-                          AppStrings.tr(
-                            'MCQ প্র্যাকটিস',
-                            'MCQ Practice',
-                            language,
-                          ),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _ChapterActionButton(
+                            key: Key('chapter_practice_btn_${chapter.id}'),
+                            icon: Icons.quiz_outlined,
+                            label: AppStrings.tr(
+                              'MCQ প্র্যাকটিস',
+                              'MCQ practice',
+                              language,
+                            ),
+                            onTap: onPracticeTap,
                           ),
                         ),
-                      ),
-                      FilledButton.icon(
-                        key: Key('chapter_exam_btn_${chapter.id}'),
-                        onPressed: onExamTap,
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 8,
-                          ),
-                          backgroundColor: PorhiTheme.slate900,
-                          foregroundColor: Colors.white,
-                        ),
-                        icon: const Icon(
-                          Icons.emoji_events_rounded,
-                          size: 16,
-                          color: Color(0xFFFBBF24),
-                        ),
-                        label: Text(
-                          AppStrings.tr('মডেল টেস্ট', 'Model Test', language),
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _ChapterActionButton(
+                            key: Key('chapter_exam_btn_${chapter.id}'),
+                            icon: Icons.fact_check_outlined,
+                            label: AppStrings.tr(
+                              'মডেল টেস্ট',
+                              'Model test',
+                              language,
+                            ),
+                            prominent: true,
+                            onTap: onExamTap,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -293,10 +246,12 @@ class ChapterAccordionCard extends StatelessWidget {
                     topic: chapter.topics[i],
                     fallbackIndex: i + 1,
                     language: language,
-                    isCompleted:
-                        completedTopicIds.contains(chapter.topics[i].id),
-                    isBookmarked:
-                        bookmarkedTopicIds.contains(chapter.topics[i].id),
+                    isCompleted: completedTopicIds.contains(
+                      chapter.topics[i].id,
+                    ),
+                    isBookmarked: bookmarkedTopicIds.contains(
+                      chapter.topics[i].id,
+                    ),
                     onTap: () => onTopicTap(chapter.topics[i]),
                     onToggleBookmark: () => onToggleBookmark(chapter.topics[i]),
                   ),
@@ -304,6 +259,91 @@ class ChapterAccordionCard extends StatelessWidget {
               ],
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _ChapterActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final bool prominent;
+  final bool isLoading;
+  final VoidCallback? onTap;
+
+  const _ChapterActionButton({
+    super.key,
+    required this.icon,
+    required this.label,
+    this.selected = false,
+    this.prominent = false,
+    this.isLoading = false,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final background = prominent
+        ? PorhiTheme.selectedSurface
+        : selected
+        ? PorhiTheme.selectedSurface
+        : PorhiTheme.slate50;
+    final foreground = prominent
+        ? PorhiTheme.selectedForeground
+        : selected
+        ? PorhiTheme.selectedForeground
+        : PorhiTheme.slate700;
+
+    return Material(
+      color: background,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 62),
+          padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 7),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: prominent
+                  ? PorhiTheme.selectedBorder
+                  : selected
+                  ? PorhiTheme.selectedBorder
+                  : PorhiTheme.slate200,
+            ),
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              if (isLoading)
+                SizedBox(
+                  width: 17,
+                  height: 17,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: foreground,
+                  ),
+                )
+              else
+                Icon(icon, size: 18, color: foreground),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                maxLines: 2,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: foreground,
+                  fontSize: 9.5,
+                  height: 1.1,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

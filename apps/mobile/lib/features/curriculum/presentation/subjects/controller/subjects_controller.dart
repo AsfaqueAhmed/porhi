@@ -33,7 +33,7 @@ class SubjectsController extends GetxController {
   final TextEditingController searchController = TextEditingController();
 
   final Rx<AppLanguage> language = AppLanguage.bn.obs;
-  final Rxn<StudentTrack> selectedTrackFilter = Rxn<StudentTrack>();
+  final Rx<StudentTrack> selectedTrack = StudentTrack.ssc.obs;
   final RxString searchQuery = ''.obs;
   final RxString activeSubjectId = 'sub_ssc_physics'.obs;
 
@@ -48,6 +48,7 @@ class SubjectsController extends GetxController {
 
   int _loadGeneration = 0;
   bool _isSelectingSubject = false;
+  String? _loadedProgram;
 
   @override
   void onInit() {
@@ -60,6 +61,7 @@ class SubjectsController extends GetxController {
     language.value = AppLanguage.fromCode(_getLanguageUseCase());
     final user = _getCachedUserUseCase();
     activeSubjectId.value = _getActiveSubjectUseCase(user?.selectedClass);
+    selectedTrack.value = user?.selectedClass ?? StudentTrack.ssc;
   }
 
   Future<void> refreshDownloadedChapters() async {
@@ -69,13 +71,24 @@ class SubjectsController extends GetxController {
   }
 
   Future<void> refreshFromAccount() async {
+    final previousProgram = selectedTrack.value;
     refreshPreferences();
+    if (previousProgram != selectedTrack.value) {
+      await loadSubjects();
+      return;
+    }
     await refreshDownloadedChapters();
   }
 
   Future<void> loadSubjects() async {
     final generation = ++_loadGeneration;
     refreshPreferences();
+    final program = selectedTrack.value.apiValue;
+    if (_loadedProgram != null && _loadedProgram != program) {
+      allSubjects.clear();
+      filteredSubjects.clear();
+      _loadedProgram = null;
+    }
     isLoading.value = true;
     errorMessage.value = null;
 
@@ -84,16 +97,19 @@ class SubjectsController extends GetxController {
       if (isClosed || generation != _loadGeneration) return;
 
       if (allSubjects.isEmpty) {
-        final cachedSubjects = await _getCachedSubjectsUseCase();
+        final cachedSubjects = await _getCachedSubjectsUseCase(
+          program: program,
+        );
         if (isClosed || generation != _loadGeneration) return;
         if (cachedSubjects.isNotEmpty) {
           allSubjects.assignAll(cachedSubjects);
+          _loadedProgram = program;
           isOfflineCache.value = true;
           _applyFilters();
         }
       }
 
-      final result = await _getSubjectsUseCase();
+      final result = await _getSubjectsUseCase(program: program);
       if (isClosed || generation != _loadGeneration) return;
 
       result.fold(
@@ -110,6 +126,7 @@ class SubjectsController extends GetxController {
         },
         (subjects) {
           allSubjects.assignAll(subjects);
+          _loadedProgram = program;
           isOfflineCache.value =
               subjects.isNotEmpty && subjects.every((s) => s.isFromCache);
           _applyFilters();
@@ -119,13 +136,6 @@ class SubjectsController extends GetxController {
       if (!isClosed && generation == _loadGeneration) {
         isLoading.value = false;
       }
-    }
-  }
-
-  void selectTrackFilter(StudentTrack? track) {
-    if (selectedTrackFilter.value != track) {
-      selectedTrackFilter.value = track;
-      _applyFilters();
     }
   }
 
@@ -147,7 +157,7 @@ class SubjectsController extends GetxController {
   void _applyFilters() {
     final filtered = _filterSubjectsUseCase(
       subjects: allSubjects,
-      trackFilter: selectedTrackFilter.value,
+      trackFilter: selectedTrack.value,
       query: searchQuery.value,
     );
     filteredSubjects.assignAll(filtered);

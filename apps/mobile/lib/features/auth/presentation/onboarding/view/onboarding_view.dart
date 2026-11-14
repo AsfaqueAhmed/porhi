@@ -14,7 +14,7 @@ class OnboardingView extends GetView<OnboardingController> {
       backgroundColor: PorhiTheme.canvas,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: PorhiTheme.canvas,
         title: Obx(
           () => Text(
             AppStrings.tr(
@@ -124,7 +124,7 @@ class OnboardingView extends GetView<OnboardingController> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: const Color(0xFFE8ECF4)),
+                        border: Border.all(color: PorhiTheme.slate200),
                         boxShadow: PorhiTheme.subtleShadow,
                       ),
                       child: Column(

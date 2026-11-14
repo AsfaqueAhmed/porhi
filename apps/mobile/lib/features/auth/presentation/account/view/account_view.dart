@@ -45,198 +45,208 @@ class AccountView extends GetView<AccountController> {
                 children: <Widget>[
                   if (controller.isLoading.value)
                     const LinearProgressIndicator(minHeight: 2),
-                _ProfileIdentityCard(
-                  name: name,
-                  contact: contact,
-                  trackLabel: lang == AppLanguage.bn
-                      ? track.labelBn
-                      : track.labelEn,
-                  isGuest: isGuest,
-                  lang: lang,
-                ),
-                const SizedBox(height: 24),
-                _SectionHeading(
-                  step: '01',
-                  title: AppStrings.tr('তোমার পরিচয়', 'ABOUT YOU', lang),
-                  subtitle: AppStrings.tr(
-                    'প্রোফাইল ও পড়ার ট্র্যাক',
-                    'Profile and curriculum track',
-                    lang,
+                  _ProfileIdentityCard(
+                    name: name,
+                    contact: contact,
+                    trackLabel: lang == AppLanguage.bn
+                        ? track.labelBn
+                        : track.labelEn,
+                    isGuest: isGuest,
+                    lang: lang,
                   ),
-                ),
-                const SizedBox(height: 10),
-                _SettingsSurface(
-                  children: <Widget>[
-                    TextFormField(
-                      key: const Key('account_name_field'),
-                      controller: controller.nameController,
-                      maxLength: 80,
-                      validator: controller.validateFullName,
-                      decoration: InputDecoration(
-                        labelText: AppStrings.tr(
-                          'পূর্ণ নাম',
-                          'Full name',
-                          lang,
+                  const SizedBox(height: 24),
+                  _SectionHeading(
+                    step: '01',
+                    title: AppStrings.tr('তোমার পরিচয়', 'ABOUT YOU', lang),
+                    subtitle: AppStrings.tr(
+                      'প্রোফাইল ও পড়ার ট্র্যাক',
+                      'Profile and curriculum track',
+                      lang,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  _SettingsSurface(
+                    children: <Widget>[
+                      TextFormField(
+                        key: const Key('account_name_field'),
+                        controller: controller.nameController,
+                        maxLength: 80,
+                        validator: controller.validateFullName,
+                        decoration: InputDecoration(
+                          labelText: AppStrings.tr(
+                            'পূর্ণ নাম',
+                            'Full name',
+                            lang,
+                          ),
+                          prefixIcon: const Icon(Icons.badge_outlined),
+                          counterText: '',
                         ),
-                        prefixIcon: const Icon(Icons.badge_outlined),
-                        counterText: '',
                       ),
-                    ),
-                    const SizedBox(height: 22),
-                    _TrackPickerTile(
-                      selectedTrack: track,
-                      language: lang,
-                      onTap: () => _openTrackPicker(context, lang, track),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 22),
-                _SectionHeading(
-                  step: '02',
-                  title: AppStrings.tr(
-                    'পড়াশোনার পছন্দ',
-                    'STUDY PREFERENCES',
-                    lang,
-                  ),
-                  subtitle: AppStrings.tr(
-                    'তোমার মতো করে পড়ার সময় ঠিক করো',
-                    'Set a study rhythm that works for you',
-                    lang,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                _SettingsSurface(
-                  children: <Widget>[
-                    TextFormField(
-                      key: const Key('account_board_field'),
-                      controller: controller.boardController,
-                      decoration: InputDecoration(
-                        labelText: AppStrings.tr(
-                          'শিক্ষা বোর্ড',
-                          'Education board',
-                          lang,
-                        ),
-                        prefixIcon: const Icon(Icons.account_balance_outlined),
+                      const SizedBox(height: 22),
+                      _TrackPickerTile(
+                        selectedTrack: track,
+                        language: lang,
+                        onTap: () => _openTrackPicker(context, lang, track),
                       ),
-                    ),
-                    const SizedBox(height: 22),
-                    _FieldLabel(
-                      icon: Icons.timelapse_rounded,
-                      title: AppStrings.tr(
-                        'প্রতিদিন কতক্ষণ পড়বে?',
-                        'HOW LONG WILL YOU STUDY EACH DAY?',
-                        lang,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    DailyGoalSelectorChips(
-                      selectedMinutes: controller.dailyStudyGoalMinutes.value,
-                      language: lang,
-                      onSelected: controller.selectDailyGoal,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 22),
-                _SectionHeading(
-                  step: '03',
-                  title: AppStrings.tr('অ্যাপ সেটিংস', 'APP SETTINGS', lang),
-                  subtitle: AppStrings.tr(
-                    'ভাষা ও ডিভাইসে রাখা পড়ার তথ্য',
-                    'Language and offline study data',
-                    lang,
+                    ],
                   ),
-                ),
-                const SizedBox(height: 10),
-                _SettingsSurface(
-                  children: <Widget>[
-                    Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: _FieldLabel(
-                            icon: Icons.translate_rounded,
-                            title: AppStrings.t('common.language', lang),
+                  const SizedBox(height: 22),
+                  _SectionHeading(
+                    step: '02',
+                    title: AppStrings.tr(
+                      'পড়াশোনার পছন্দ',
+                      'STUDY PREFERENCES',
+                      lang,
+                    ),
+                    subtitle: AppStrings.tr(
+                      'তোমার মতো করে পড়ার সময় ঠিক করো',
+                      'Set a study rhythm that works for you',
+                      lang,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  _SettingsSurface(
+                    children: <Widget>[
+                      TextFormField(
+                        key: const Key('account_board_field'),
+                        controller: controller.boardController,
+                        decoration: InputDecoration(
+                          labelText: AppStrings.tr(
+                            'শিক্ষা বোর্ড',
+                            'Education board',
+                            lang,
+                          ),
+                          prefixIcon: const Icon(
+                            Icons.account_balance_outlined,
                           ),
                         ),
-                        SegmentedButton<AppLanguage>(
-                          segments: const <ButtonSegment<AppLanguage>>[
-                            ButtonSegment<AppLanguage>(
-                              value: AppLanguage.bn,
-                              label: Text('বাংলা', key: Key('language_toggle_bn')),
-                            ),
-                            ButtonSegment<AppLanguage>(
-                              value: AppLanguage.en,
-                              label: Text('EN', key: Key('language_toggle_en')),
-                            ),
-                          ],
-                          selected: <AppLanguage>{lang},
-                          onSelectionChanged: (selection) {
-                            if (selection.isNotEmpty) {
-                              controller.setLanguage(selection.first);
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    const Divider(height: 1),
-                    const SizedBox(height: 12),
-                    _ThemePickerTile(
-                      language: lang,
-                      onTap: () => _openThemePicker(context, lang),
-                    ),
-                    const SizedBox(height: 12),
-                    const Divider(height: 1),
-                    const SizedBox(height: 10),
-                    OutlinedButton.icon(
-                      key: const Key('clear_offline_cache_button'),
-                      onPressed: controller.isClearingCache.value
-                          ? null
-                          : controller.clearOfflineCache,
-                      icon: controller.isClearingCache.value
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Icon(Icons.delete_sweep_outlined),
-                      label: Text(
-                        AppStrings.tr(
-                          'অফলাইন ডাউনলোড পরিষ্কার করুন',
-                          'Clear offline downloads',
+                      ),
+                      const SizedBox(height: 22),
+                      _FieldLabel(
+                        icon: Icons.timelapse_rounded,
+                        title: AppStrings.tr(
+                          'প্রতিদিন কতক্ষণ পড়বে?',
+                          'HOW LONG WILL YOU STUDY EACH DAY?',
                           lang,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    TextButton.icon(
-                      key: const Key('logout_button'),
-                      onPressed: controller.isLoggingOut.value
-                          ? null
-                          : controller.logout,
-                      icon: const Icon(Icons.logout_rounded),
-                      label: Text(AppStrings.t('action.logout', lang)),
-                      style: TextButton.styleFrom(
-                        foregroundColor: PorhiTheme.rose600,
-                        minimumSize: const Size(0, 46),
+                      const SizedBox(height: 10),
+                      DailyGoalSelectorChips(
+                        selectedMinutes: controller.dailyStudyGoalMinutes.value,
+                        language: lang,
+                        onSelected: controller.selectDailyGoal,
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 22),
+                  _SectionHeading(
+                    step: '03',
+                    title: AppStrings.tr('অ্যাপ সেটিংস', 'APP SETTINGS', lang),
+                    subtitle: AppStrings.tr(
+                      'ভাষা ও ডিভাইসে রাখা পড়ার তথ্য',
+                      'Language and offline study data',
+                      lang,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  _SettingsSurface(
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: _FieldLabel(
+                              icon: Icons.translate_rounded,
+                              title: AppStrings.t('common.language', lang),
+                            ),
+                          ),
+                          SegmentedButton<AppLanguage>(
+                            segments: const <ButtonSegment<AppLanguage>>[
+                              ButtonSegment<AppLanguage>(
+                                value: AppLanguage.bn,
+                                label: Text(
+                                  'বাংলা',
+                                  key: Key('language_toggle_bn'),
+                                ),
+                              ),
+                              ButtonSegment<AppLanguage>(
+                                value: AppLanguage.en,
+                                label: Text(
+                                  'EN',
+                                  key: Key('language_toggle_en'),
+                                ),
+                              ),
+                            ],
+                            selected: <AppLanguage>{lang},
+                            onSelectionChanged: (selection) {
+                              if (selection.isNotEmpty) {
+                                controller.setLanguage(selection.first);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      const Divider(height: 1),
+                      const SizedBox(height: 12),
+                      _ThemePickerTile(
+                        language: lang,
+                        onTap: () => _openThemePicker(context, lang),
+                      ),
+                      const SizedBox(height: 12),
+                      const Divider(height: 1),
+                      const SizedBox(height: 10),
+                      OutlinedButton.icon(
+                        key: const Key('clear_offline_cache_button'),
+                        onPressed: controller.isClearingCache.value
+                            ? null
+                            : controller.clearOfflineCache,
+                        icon: controller.isClearingCache.value
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.delete_sweep_outlined),
+                        label: Text(
+                          AppStrings.tr(
+                            'অফলাইন ডাউনলোড পরিষ্কার করুন',
+                            'Clear offline downloads',
+                            lang,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextButton.icon(
+                        key: const Key('logout_button'),
+                        onPressed: controller.isLoggingOut.value
+                            ? null
+                            : controller.logout,
+                        icon: const Icon(Icons.logout_rounded),
+                        label: Text(AppStrings.t('action.logout', lang)),
+                        style: TextButton.styleFrom(
+                          foregroundColor: PorhiTheme.rose600,
+                          minimumSize: const Size(0, 46),
+                        ),
+                      ),
+                    ],
+                  ),
+                  if ((error?.trim().isNotEmpty ?? false) ||
+                      (status?.trim().isNotEmpty ?? false)) ...<Widget>[
+                    const SizedBox(height: 14),
+                    _MessageBanner(
+                      message: error?.trim().isNotEmpty == true
+                          ? error!.trim()
+                          : status!.trim(),
+                      isError: error?.trim().isNotEmpty == true,
                     ),
                   ],
-                ),
-                if ((error?.trim().isNotEmpty ?? false) ||
-                    (status?.trim().isNotEmpty ?? false)) ...<Widget>[
-                  const SizedBox(height: 14),
-                  _MessageBanner(
-                    message: error?.trim().isNotEmpty == true
-                        ? error!.trim()
-                        : status!.trim(),
-                    isError: error?.trim().isNotEmpty == true,
-                  ),
+                  const SizedBox(height: 16),
                 ],
-                const SizedBox(height: 16),
-              ],
-            ),
-          );
-        }),
+              ),
+            );
+          }),
         ),
       ),
       bottomNavigationBar: Obx(() {
@@ -636,12 +646,12 @@ class _ProfileIdentityCard extends StatelessWidget {
             width: 58,
             height: 58,
             decoration: BoxDecoration(
-              color: PorhiTheme.citrus,
+              color: PorhiTheme.indigo100,
               borderRadius: BorderRadius.circular(19),
             ),
             child: const Icon(
               Icons.person_rounded,
-              color: PorhiTheme.indigo900,
+              color: PorhiTheme.indigo800,
               size: 30,
             ),
           ),

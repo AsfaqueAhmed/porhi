@@ -5,6 +5,11 @@ import 'package:porhi/features/auth/presentation/account/controller/account_cont
 class AccountBinding extends Bindings {
   @override
   void dependencies() {
+    registerDependencies();
+  }
+
+  static void registerDependencies() {
+    if (Get.isRegistered<AccountController>()) return;
     Get.lazyPut<AccountController>(
       () => AccountController(
         getMeUseCase: Get.find<GetMeUseCase>(),
