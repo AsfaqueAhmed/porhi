@@ -46,8 +46,15 @@ class ChapterAccordionCard extends StatelessWidget {
         topicCount > 0 ? (completedCount / topicCount).clamp(0.0, 1.0) : 0.0;
     final orderText = AppStrings.formatNumber(chapter.orderIndex, language);
 
-    return Card(
+    return Container(
       key: Key('chapter_card_${chapter.id}'),
+      margin: const EdgeInsets.only(bottom: 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: PorhiTheme.slate200),
+        boxShadow: PorhiTheme.subtleShadow,
+      ),
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: <Widget>[
@@ -55,8 +62,8 @@ class ChapterAccordionCard extends StatelessWidget {
             key: Key('chapter_header_${chapter.id}'),
             onTap: onToggleExpand,
             child: Container(
-              color: PorhiTheme.slate50,
-              padding: const EdgeInsets.all(14),
+              color: isCollapsed ? Colors.white : PorhiTheme.slate50,
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -64,12 +71,12 @@ class ChapterAccordionCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Container(
-                        width: 34,
-                        height: 34,
+                        width: 36,
+                        height: 36,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: PorhiTheme.indigo600,
-                          borderRadius: BorderRadius.circular(10),
+                          gradient: PorhiTheme.brandGradient,
+                          borderRadius: BorderRadius.circular(11),
                         ),
                         child: Text(
                           orderText,
