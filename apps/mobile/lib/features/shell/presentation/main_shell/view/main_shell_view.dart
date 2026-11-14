@@ -76,45 +76,55 @@ class MainShellView extends GetView<MainShellController> {
       bottomNavigationBar: Obx(() {
         final lang = controller.language.value;
         final activeIndex = controller.currentIndex.value;
-        return NavigationBar(
-          selectedIndex: activeIndex,
-          onDestinationSelected: controller.selectTab,
-          backgroundColor: Colors.white,
-          indicatorColor: PorhiTheme.indigo50,
-          destinations: <NavigationDestination>[
-            NavigationDestination(
-              icon: const Icon(Icons.home_outlined),
-              selectedIcon: const Icon(
-                Icons.home_rounded,
-                color: PorhiTheme.indigo600,
-              ),
-              label: AppStrings.t('nav.home', lang),
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: const Border(
+              top: BorderSide(color: PorhiTheme.slate200, width: 1),
             ),
-            NavigationDestination(
-              icon: const Icon(Icons.menu_book_outlined),
-              selectedIcon: const Icon(
-                Icons.menu_book_rounded,
-                color: PorhiTheme.indigo600,
+            boxShadow: PorhiTheme.subtleShadow,
+          ),
+          child: NavigationBar(
+            elevation: 0,
+            selectedIndex: activeIndex,
+            onDestinationSelected: controller.selectTab,
+            backgroundColor: Colors.white,
+            indicatorColor: PorhiTheme.indigo50,
+            destinations: <NavigationDestination>[
+              NavigationDestination(
+                icon: const Icon(Icons.home_outlined),
+                selectedIcon: const Icon(
+                  Icons.home_rounded,
+                  color: PorhiTheme.indigo600,
+                ),
+                label: AppStrings.t('nav.home', lang),
               ),
-              label: AppStrings.t('nav.subjects', lang),
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.calendar_today_outlined),
-              selectedIcon: const Icon(
-                Icons.calendar_today_rounded,
-                color: PorhiTheme.indigo600,
+              NavigationDestination(
+                icon: const Icon(Icons.menu_book_outlined),
+                selectedIcon: const Icon(
+                  Icons.menu_book_rounded,
+                  color: PorhiTheme.indigo600,
+                ),
+                label: AppStrings.t('nav.subjects', lang),
               ),
-              label: AppStrings.t('nav.planner', lang),
-            ),
-            NavigationDestination(
-              icon: const Icon(Icons.bar_chart_outlined),
-              selectedIcon: const Icon(
-                Icons.bar_chart_rounded,
-                color: PorhiTheme.indigo600,
+              NavigationDestination(
+                icon: const Icon(Icons.calendar_today_outlined),
+                selectedIcon: const Icon(
+                  Icons.calendar_today_rounded,
+                  color: PorhiTheme.indigo600,
+                ),
+                label: AppStrings.t('nav.planner', lang),
               ),
-              label: AppStrings.t('nav.progress', lang),
-            ),
-          ],
+              NavigationDestination(
+                icon: const Icon(Icons.bar_chart_outlined),
+                selectedIcon: const Icon(
+                  Icons.bar_chart_rounded,
+                  color: PorhiTheme.indigo600,
+                ),
+                label: AppStrings.t('nav.progress', lang),
+              ),
+            ],
+          ),
         );
       }),
     );
