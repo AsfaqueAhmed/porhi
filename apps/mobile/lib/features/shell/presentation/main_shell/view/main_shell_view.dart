@@ -80,16 +80,13 @@ class MainShellView extends GetView<MainShellController> {
           decoration: BoxDecoration(
             color: Colors.white,
             border: const Border(
-              top: BorderSide(color: PorhiTheme.slate200, width: 1),
+              top: BorderSide(color: Color(0xFFE8ECF4), width: 1),
             ),
             boxShadow: PorhiTheme.subtleShadow,
           ),
           child: NavigationBar(
-            elevation: 0,
             selectedIndex: activeIndex,
             onDestinationSelected: controller.selectTab,
-            backgroundColor: Colors.white,
-            indicatorColor: PorhiTheme.indigo50,
             destinations: <NavigationDestination>[
               NavigationDestination(
                 icon: const Icon(Icons.home_outlined),

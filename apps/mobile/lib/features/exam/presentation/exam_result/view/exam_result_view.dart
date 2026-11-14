@@ -78,7 +78,7 @@ class ExamResultView extends GetView<ExamResultController> {
           child: SingleChildScrollView(
             controller: controller.scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 32),
+            padding: const EdgeInsets.fromLTRB(18, 16, 18, 32),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[

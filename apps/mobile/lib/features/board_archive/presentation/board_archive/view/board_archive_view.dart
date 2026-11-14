@@ -43,7 +43,7 @@ class BoardArchiveView extends GetView<BoardArchiveController> {
           onRefresh: controller.refreshAll,
           child: ListView(
             controller: controller.scrollController,
-            padding: const EdgeInsets.fromLTRB(16, 10, 16, 28),
+            padding: const EdgeInsets.fromLTRB(18, 16, 18, 28),
             children: <Widget>[
               _BoardFilterPanel(controller: controller, lang: lang),
               const SizedBox(height: 10),

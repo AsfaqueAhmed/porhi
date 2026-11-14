@@ -11,7 +11,7 @@ class LoginView extends GetView<LoginController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PorhiTheme.slate50,
+      backgroundColor: PorhiTheme.canvas,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -153,8 +153,8 @@ class LoginView extends GetView<LoginController> {
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(22),
-                      border: Border.all(color: PorhiTheme.slate200),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFE8ECF4)),
                       boxShadow: PorhiTheme.cardShadow,
                     ),
                     padding: const EdgeInsets.all(22),

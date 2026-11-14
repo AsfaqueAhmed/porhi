@@ -202,7 +202,7 @@ class DashboardView extends GetView<DashboardController> {
         return RefreshIndicator(
           onRefresh: controller.refreshAndSync,
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 24),
             children: <Widget>[
               if (syncMessage != null) ...<Widget>[
                 _SyncStatusBanner(
@@ -364,8 +364,8 @@ class _ContinueLearningCard extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: PorhiTheme.slate200),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE8ECF4)),
         boxShadow: PorhiTheme.cardShadow,
       ),
       padding: const EdgeInsets.all(20),
@@ -379,14 +379,14 @@ class _ContinueLearningCard extends StatelessWidget {
                 child: Row(
                   children: <Widget>[
                     Container(
-                      padding: const EdgeInsets.all(6),
+                      padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
                         color: PorhiTheme.indigo50,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
                         Icons.play_arrow_rounded,
-                        size: 20,
+                        size: 19,
                         color: PorhiTheme.indigo600,
                       ),
                     ),
@@ -407,7 +407,7 @@ class _ContinueLearningCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
-                          fontSize: 13.5,
+                          fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: PorhiTheme.indigo600,
                         ),
@@ -455,9 +455,10 @@ class _ContinueLearningCard extends StatelessWidget {
                   lang,
                 ),
             style: const TextStyle(
-              fontSize: 19,
+              fontSize: 20,
               fontWeight: FontWeight.w900,
-              letterSpacing: -0.3,
+              letterSpacing: -0.45,
+              height: 1.2,
               color: PorhiTheme.slate900,
             ),
           ),
@@ -475,55 +476,50 @@ class _ContinueLearningCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Wrap(
-            spacing: 10,
-            runSpacing: 8,
-            children: <Widget>[
-              ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 18,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                  elevation: 0,
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size.fromHeight(50),
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
                 ),
-                onPressed: onContinueLesson ?? onOpenSubjects,
-                icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                label: Text(
-                  AppStrings.tr('পড়া চালিয়ে যান', 'Continue Learning', lang),
-                  style: const TextStyle(
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w700,
-                  ),
+                elevation: 0,
+              ),
+              onPressed: onContinueLesson ?? onOpenSubjects,
+              icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+              label: Text(
+                AppStrings.tr('পড়া চালিয়ে যান', 'Continue Learning', lang),
+                style: const TextStyle(
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-              OutlinedButton(
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
-                  ),
-                ),
-                onPressed: onOpenSubjects,
-                child: Text(
-                  AppStrings.tr(
-                    'সরাসরি MCQ প্র্যাকটিস',
-                    'Direct MCQ Practice',
-                    lang,
-                  ),
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Align(
+            alignment: Alignment.center,
+            child: TextButton.icon(
+              onPressed: onOpenSubjects,
+              icon: const Icon(Icons.edit_note_rounded, size: 19),
+              label: Text(
+                AppStrings.tr(
+                  'সরাসরি MCQ প্র্যাকটিস',
+                  'Jump into MCQ practice',
+                  lang,
                 ),
               ),
-            ],
+              style: TextButton.styleFrom(
+                foregroundColor: PorhiTheme.slate600,
+                textStyle: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+                minimumSize: const Size(44, 44),
+              ),
+            ),
           ),
         ],
       ),

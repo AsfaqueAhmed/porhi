@@ -122,7 +122,7 @@ class ChapterIndexView extends GetView<ChapterIndexController> {
         return RefreshIndicator(
           onRefresh: controller.loadChapters,
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
             children: <Widget>[
               if (statusMsg != null) ...<Widget>[
                 Container(

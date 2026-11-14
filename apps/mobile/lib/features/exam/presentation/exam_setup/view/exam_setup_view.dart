@@ -33,7 +33,7 @@ class ExamSetupView extends GetView<ExamSetupController> {
 
         return SingleChildScrollView(
           controller: controller.scrollController,
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 28),
+          padding: const EdgeInsets.fromLTRB(18, 16, 18, 28),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[

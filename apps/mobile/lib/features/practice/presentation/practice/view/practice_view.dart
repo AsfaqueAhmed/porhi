@@ -75,7 +75,7 @@ class PracticeView extends GetView<PracticeController> {
           child: SingleChildScrollView(
             controller: controller.scrollController,
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 28),
+            padding: const EdgeInsets.fromLTRB(18, 16, 18, 28),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[

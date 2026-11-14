@@ -182,7 +182,7 @@ class LessonView extends GetView<LessonController> {
           onRefresh: () => controller.loadTopic(),
           child: ListView(
             controller: controller.scrollController,
-            padding: const EdgeInsets.fromLTRB(16, 14, 16, 28),
+            padding: const EdgeInsets.fromLTRB(18, 16, 18, 28),
             children: <Widget>[
               if (statusMsg != null) ...<Widget>[
                 _StatusBanner(message: statusMsg, isError: isStatusErr),

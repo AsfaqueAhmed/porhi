@@ -115,7 +115,7 @@ class PlannerView extends GetView<PlannerController> {
         return RefreshIndicator(
           onRefresh: controller.loadTasks,
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
             children: <Widget>[
               if (error != null) ...<Widget>[
                 _StatusBanner(message: error, isError: true),

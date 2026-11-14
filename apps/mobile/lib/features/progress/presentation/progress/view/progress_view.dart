@@ -123,7 +123,7 @@ class ProgressView extends GetView<ProgressController> {
         return RefreshIndicator(
           onRefresh: controller.loadProgress,
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
             children: <Widget>[
               if (error != null) ...<Widget>[
                 _ProgressBanner(message: error, isError: true),

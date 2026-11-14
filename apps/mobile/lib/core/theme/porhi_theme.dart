@@ -39,6 +39,7 @@ class PorhiTheme {
   static const Color slate200 = Color(0xFFE2E8F0);
   static const Color slate100 = Color(0xFFF1F5F9);
   static const Color slate50 = Color(0xFFF8FAFC);
+  static const Color canvas = Color(0xFFF5F7FC);
   static const Color rose600 = Color(0xFFE11D48);
   static const Color rose500 = Color(0xFFF43F5E);
   static const Color rose50 = Color(0xFFFFF1F2);
@@ -178,7 +179,33 @@ class PorhiTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: slate50,
+      scaffoldBackgroundColor: canvas,
+      visualDensity: VisualDensity.standard,
+      textTheme: const TextTheme(
+        headlineSmall: TextStyle(
+          fontSize: 24,
+          height: 1.2,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.5,
+          color: slate900,
+        ),
+        titleLarge: TextStyle(
+          fontSize: 19,
+          height: 1.25,
+          fontWeight: FontWeight.w700,
+          letterSpacing: -0.25,
+          color: slate900,
+        ),
+        titleMedium: TextStyle(
+          fontSize: 15,
+          height: 1.3,
+          fontWeight: FontWeight.w700,
+          color: slate900,
+        ),
+        bodyLarge: TextStyle(fontSize: 15, height: 1.5, color: slate700),
+        bodyMedium: TextStyle(fontSize: 13.5, height: 1.45, color: slate600),
+        labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
+      ),
       appBarTheme: const AppBarTheme(
         backgroundColor: Colors.white,
         foregroundColor: slate900,
@@ -196,9 +223,32 @@ class PorhiTheme {
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-          side: const BorderSide(color: slate200, width: 1),
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: Color(0xFFE8ECF4), width: 1),
         ),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        height: 72,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        indicatorColor: indigo50,
+        indicatorShape: const StadiumBorder(),
+        labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+        iconTheme: WidgetStateProperty.resolveWith<IconThemeData>((states) {
+          final selected = states.contains(WidgetState.selected);
+          return IconThemeData(
+            size: 22,
+            color: selected ? indigo600 : slate500,
+          );
+        }),
+        labelTextStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
+          final selected = states.contains(WidgetState.selected);
+          return TextStyle(
+            fontSize: 11,
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            color: selected ? indigo700 : slate500,
+          );
+        }),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,

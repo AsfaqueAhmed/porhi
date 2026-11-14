@@ -238,7 +238,7 @@ class _ExamRunnerViewState extends State<ExamRunnerView> {
                 )
               : SingleChildScrollView(
                   controller: controller.scrollController,
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 28),
+                  padding: const EdgeInsets.fromLTRB(18, 16, 18, 28),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[

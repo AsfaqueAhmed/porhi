@@ -113,7 +113,7 @@ class SubjectsView extends GetView<SubjectsController> {
         return RefreshIndicator(
           onRefresh: controller.loadSubjects,
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 28),
             children: <Widget>[
               Text(
                 AppStrings.tr(

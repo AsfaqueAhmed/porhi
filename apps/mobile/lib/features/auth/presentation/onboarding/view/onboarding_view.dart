@@ -11,7 +11,7 @@ class OnboardingView extends GetView<OnboardingController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: PorhiTheme.slate50,
+      backgroundColor: PorhiTheme.canvas,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
@@ -123,8 +123,8 @@ class OnboardingView extends GetView<OnboardingController> {
                       padding: const EdgeInsets.all(18),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(18),
-                        border: Border.all(color: PorhiTheme.slate200),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: const Color(0xFFE8ECF4)),
                         boxShadow: PorhiTheme.subtleShadow,
                       ),
                       child: Column(
