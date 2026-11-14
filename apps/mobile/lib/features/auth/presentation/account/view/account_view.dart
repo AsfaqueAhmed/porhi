@@ -38,11 +38,13 @@ class AccountView extends GetView<AccountController> {
             final error = controller.errorMessage.value;
             final status = controller.statusMessage.value;
 
-            return ListView(
+            return SingleChildScrollView(
               padding: const EdgeInsets.fromLTRB(18, 12, 18, 20),
-              children: <Widget>[
-                if (controller.isLoading.value)
-                  const LinearProgressIndicator(minHeight: 2),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  if (controller.isLoading.value)
+                    const LinearProgressIndicator(minHeight: 2),
                 _ProfileIdentityCard(
                   name: name,
                   contact: contact,
@@ -159,11 +161,11 @@ class AccountView extends GetView<AccountController> {
                           segments: const <ButtonSegment<AppLanguage>>[
                             ButtonSegment<AppLanguage>(
                               value: AppLanguage.bn,
-                              label: Text('বাংলা'),
+                              label: Text('বাংলা', key: Key('language_toggle_bn')),
                             ),
                             ButtonSegment<AppLanguage>(
                               value: AppLanguage.en,
-                              label: Text('EN'),
+                              label: Text('EN', key: Key('language_toggle_en')),
                             ),
                           ],
                           selected: <AppLanguage>{lang},
@@ -232,8 +234,9 @@ class AccountView extends GetView<AccountController> {
                 ],
                 const SizedBox(height: 16),
               ],
-            );
-          }),
+            ),
+          );
+        }),
         ),
       ),
       bottomNavigationBar: Obx(() {
@@ -324,7 +327,9 @@ class AccountView extends GetView<AccountController> {
     BuildContext context,
     AppLanguage language,
   ) async {
-    final themeController = Get.find<AppThemeController>();
+    final themeController = Get.isRegistered<AppThemeController>()
+        ? Get.find<AppThemeController>()
+        : Get.put<AppThemeController>(AppThemeController(), permanent: true);
     themeController.isThemePickerOpen.value = true;
     try {
       await showModalBottomSheet<void>(
@@ -515,7 +520,9 @@ class _ThemePickerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeController = Get.find<AppThemeController>();
+    final themeController = Get.isRegistered<AppThemeController>()
+        ? Get.find<AppThemeController>()
+        : Get.put<AppThemeController>(AppThemeController(), permanent: true);
     return Obx(() {
       final theme = themeController.selected.value;
       return ListTile(

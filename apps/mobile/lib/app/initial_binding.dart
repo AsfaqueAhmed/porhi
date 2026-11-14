@@ -14,6 +14,7 @@ import 'package:porhi/core/services/share_gateway.dart';
 import 'package:porhi/core/storage/preferences_storage_service.dart';
 import 'package:porhi/core/storage/secure_storage_service.dart';
 import 'package:porhi/core/sync/offline_sync_service.dart';
+import 'package:porhi/core/theme/app_theme_controller.dart';
 import 'package:porhi/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:porhi/features/auth/data/datasources/firebase_auth_gateway.dart';
 import 'package:porhi/features/auth/data/repositories/auth_repository_impl.dart';
@@ -109,6 +110,10 @@ class InitialBinding extends Bindings {
     unawaited(offlineSyncService.init());
     _putIfAbsent<LocalReminderScheduler>(
       () => LocalReminderScheduler(),
+      permanent: true,
+    );
+    _putIfAbsent<AppThemeController>(
+      () => AppThemeController(),
       permanent: true,
     );
     _lazyPutIfAbsent<ShareGateway>(() => SharePlusGateway());

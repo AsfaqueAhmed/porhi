@@ -29,12 +29,16 @@ class AppThemeController extends GetxController {
   }
 
   Future<void> _restore() async {
-    final prefs = await SharedPreferences.getInstance();
-    final stored = prefs.getString(_storageKey);
-    selected.value = PorhiColorTheme.values.firstWhere(
-      (theme) => theme.name == stored,
-      orElse: () => PorhiColorTheme.evergreen,
-    );
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final stored = prefs.getString(_storageKey);
+      selected.value = PorhiColorTheme.values.firstWhere(
+        (theme) => theme.name == stored,
+        orElse: () => PorhiColorTheme.evergreen,
+      );
+    } catch (_) {
+      selected.value = PorhiColorTheme.evergreen;
+    }
   }
 
   Future<void> select(PorhiColorTheme theme) async {
