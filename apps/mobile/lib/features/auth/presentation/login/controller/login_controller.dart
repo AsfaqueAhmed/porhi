@@ -24,13 +24,12 @@ class LoginController extends GetxController {
     required this._verifyPhoneOtpUseCase,
     required this._getLanguageUseCase,
     required this._setLanguageUseCase,
-    GetAuthConfigUseCase? getAuthConfigUseCase,
-    SignInAsGuestUseCase? signInAsGuestUseCase,
+    this._getAuthConfigUseCase,
+    this._signInAsGuestUseCase,
     bool? initialGuestLoginEnabled,
-  })  : _getAuthConfigUseCase = getAuthConfigUseCase,
-        _signInAsGuestUseCase = signInAsGuestUseCase {
+  }) {
     isGuestLoginEnabled.value =
-        initialGuestLoginEnabled ?? (getAuthConfigUseCase != null);
+        initialGuestLoginEnabled ?? (_getAuthConfigUseCase != null);
   }
 
   final TextEditingController phoneController = TextEditingController();
