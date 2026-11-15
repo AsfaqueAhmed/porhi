@@ -3,7 +3,7 @@
 class EnvConfig {
   static const String defaultApiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'http://10.0.2.2:3001',
+    defaultValue: 'https://165-99-219-120.sslip.io/api',
   );
 
   static const String defaultWebBaseUrl = String.fromEnvironment(
