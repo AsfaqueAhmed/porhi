@@ -203,8 +203,6 @@
     @media (max-width: 440px) {
       .grid { grid-template-columns: repeat(2, 1fr); }
     }
-
-  
     /* === PORI UNIFIED SIMULATOR THEME === */
     :root {
       --pori-bg: #f8fafc;
@@ -214,7 +212,7 @@
       --pori-border-soft: #e2e8f0;
       --pori-ink: #0f172a;
       --pori-heading: #1e293b;
-      --pori-muted: #64748b;
+      --pori-muted: #475569;
       --pori-indigo: #4f46e5;
       --pori-indigo-hover: #4338ca;
       --pori-indigo-soft: #eef2ff;
@@ -225,41 +223,65 @@
     body {
       background: var(--pori-bg) !important;
       color: var(--pori-ink) !important;
-      padding: 12px 14px !important;
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif !important;
+      padding: 14px !important;
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, "Segoe UI", sans-serif !important;
       margin: 0 !important;
+      display: block !important;
+      min-height: auto !important;
+      line-height: 1.5 !important;
     }
 
     .container,
     .caliper-card {
-      max-width: 860px !important;
+      max-width: 920px !important;
       width: 100% !important;
       min-width: 0 !important;
       margin: 0 auto !important;
-      background: transparent !important;
-      border: none !important;
-      border-radius: 0 !important;
-      padding: 0 !important;
-      box-shadow: none !important;
+      background: var(--pori-card) !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-radius: 18px !important;
+      padding: 18px !important;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06) !important;
       display: flex !important;
       flex-direction: column !important;
       gap: 12px !important;
     }
 
+    header {
+      text-align: left !important;
+    }
+
+    .eyebrow {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      font-size: 0.72rem !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.03em !important;
+      color: var(--pori-indigo-ink) !important;
+      background: var(--pori-indigo-soft) !important;
+      border: 1px solid var(--pori-indigo-border) !important;
+      padding: 4px 10px !important;
+      border-radius: 999px !important;
+      margin-bottom: 6px !important;
+    }
+
     header h1,
     .caliper-card-title {
-      font-size: 1.18rem !important;
+      font-size: 1.24rem !important;
       font-weight: 800 !important;
       color: var(--pori-heading) !important;
       margin: 0 0 4px !important;
+      line-height: 1.35 !important;
     }
 
     header p,
     .subtitle,
     .caliper-card-desc {
-      font-size: 0.82rem !important;
+      font-size: 0.84rem !important;
       color: var(--pori-muted) !important;
       line-height: 1.55 !important;
+      margin: 0 !important;
     }
 
     .badge {
@@ -271,110 +293,142 @@
     }
 
     .canvas-wrap,
-    #waveCanvas {
-      background: #0f172a !important;
+    canvas,
+    #waveCanvas,
+    .chart-box {
+      background: #f8fbff !important;
       border: 1px solid var(--pori-border) !important;
       border-radius: 14px !important;
       overflow: hidden !important;
-      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08) !important;
+      box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.03) !important;
     }
 
-    .caliper-svg-wrap,
-    .zoom-card {
-      background: #ffffff !important;
-      border: 1px solid var(--pori-border-soft) !important;
-      border-radius: 14px !important;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
-      margin: 0 !important;
+    .canvas-wrap svg,
+    .chart-box svg {
+      background: transparent !important;
+      max-width: 100% !important;
+    }
+
+    .chart-box {
+      padding: 12px !important;
+    }
+
+    .chart-title {
+      color: var(--pori-heading) !important;
+      font-weight: 800 !important;
     }
 
     .controls,
     .control-panel {
-      background: #ffffff !important;
+      background: var(--pori-panel) !important;
       border: 1px solid var(--pori-border-soft) !important;
       border-radius: 14px !important;
-      padding: 12px 14px !important;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
-      margin: 0 !important;
+      padding: 14px !important;
+      box-shadow: none !important;
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 14px !important;
     }
 
     .control-group {
+      min-width: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
       gap: 6px !important;
     }
 
     label,
     .slider-label {
-      font-size: 0.78rem !important;
+      font-size: 0.82rem !important;
       font-weight: 750 !important;
-      color: #334155 !important;
-      margin-bottom: 2px !important;
+      color: var(--pori-heading) !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      gap: 8px !important;
     }
 
-    label .val-badge,
-    label span[id],
-    label b[id],
-    .slider-label b {
-      color: var(--pori-indigo) !important;
+    label b,
+    label span:last-child {
+      font-variant-numeric: tabular-nums !important;
+    }
+
+    .slider-container {
+      width: 100% !important;
+      padding: 0 !important;
+    }
+
+    .pori-stepper-row {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      width: 100% !important;
+    }
+
+    button.pori-step-btn {
+      width: 36px !important;
+      height: 36px !important;
+      min-width: 36px !important;
+      flex: 0 0 36px !important;
+      border-radius: 10px !important;
+      border: 1px solid var(--pori-border) !important;
+      background: #ffffff !important;
+      color: var(--pori-heading) !important;
+      font-size: 1.05rem !important;
       font-weight: 800 !important;
+      line-height: 1 !important;
+      padding: 0 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      user-select: none !important;
+      -webkit-tap-highlight-color: transparent !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+      transition: background 0.15s, border-color 0.15s, color 0.15s !important;
     }
 
-    .mat-btn-row-label {
-      color: #475569 !important;
-      font-size: 0.78rem !important;
-      font-weight: 750 !important;
+    button.pori-step-btn:hover {
+      background: var(--pori-indigo-soft) !important;
+      border-color: #a5b4fc !important;
+      color: var(--pori-indigo-hover) !important;
     }
 
-    /* Unified Skeuomorphic Striped Slider in App Indigo Theme */
+    button.pori-step-btn:active {
+      transform: scale(0.95);
+    }
+
+    button.pori-step-btn:disabled {
+      opacity: 0.45 !important;
+      cursor: not-allowed !important;
+      pointer-events: none !important;
+    }
+
     input[type="range"],
     input[type="range"].custom-range,
     input[type="range"].range {
       -webkit-appearance: none !important;
       appearance: none !important;
-      box-sizing: border-box !important;
+      flex: 1 1 0% !important;
       width: 100% !important;
-      height: 16px !important;
-      padding: 0 !important;
+      min-width: 0 !important;
+      height: 8px !important;
+      margin: 0 !important;
+      border: none !important;
       border-radius: 999px !important;
       outline: none !important;
-      border: 2px solid #e2e8f0 !important;
-      box-shadow:
-        inset 0 2px 3px rgba(15, 23, 42, 0.72),
-        inset 0 -1px 1px rgba(255, 255, 255, 0.14),
-        0 1px 0 rgba(255, 255, 255, 0.98),
-        0 1px 3px rgba(15, 23, 42, 0.10) !important;
+      box-shadow: none !important;
       cursor: pointer !important;
-      margin: 0 !important;
-      display: block !important;
-      background-color: #232732 !important;
-      background-image:
-        linear-gradient(180deg, rgba(0, 0, 0, 0.24) 0%, rgba(255, 255, 255, 0.12) 28%, rgba(255, 255, 255, 0.04) 55%, rgba(0, 0, 0, 0.26) 100%),
-        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0px, rgba(255, 255, 255, 0.16) 1.5px, transparent 1.5px, transparent 4px),
-        linear-gradient(180deg, #818cf8 0%, #6366f1 32%, #4f46e5 74%, #3730a3 100%),
-        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0px, rgba(255, 255, 255, 0.04) 1.5px, transparent 1.5px, transparent 4px),
-        linear-gradient(180deg, #1b1e26 0%, #2a2f3a 45%, #343a46 75%, #20242d 100%) !important;
-      background-position:
-        0 0,
-        0 0,
-        0 0,
-        0 0,
-        0 0 !important;
-      background-size:
-        100% 100%,
-        calc(11px + (100% - 22px) * var(--p, 0.5)) 100%,
-        calc(11px + (100% - 22px) * var(--p, 0.5)) 100%,
-        100% 100%,
-        100% 100% !important;
-      background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat !important;
+      background-color: #e2e8f0 !important;
+      background-image: linear-gradient(90deg, var(--pori-indigo) var(--fill, 50%), #e2e8f0 var(--fill, 50%)) !important;
+      background-size: 100% 100% !important;
+      background-repeat: no-repeat !important;
     }
 
-    input[type="range"]::-webkit-slider-runnable-track,
-    input[type="range"].custom-range::-webkit-slider-runnable-track,
-    input[type="range"].range::-webkit-slider-runnable-track {
-      height: 12px !important;
-      border-radius: 999px !important;
-      background: transparent !important;
-      border: none !important;
-      box-shadow: none !important;
+    input[type="range"]:disabled,
+    input[type="range"].custom-range:disabled {
+      opacity: 0.5 !important;
+      cursor: not-allowed !important;
     }
 
     input[type="range"]::-webkit-slider-thumb,
@@ -382,134 +436,85 @@
     input[type="range"].range::-webkit-slider-thumb {
       -webkit-appearance: none !important;
       appearance: none !important;
-      box-sizing: border-box !important;
-      width: 22px !important;
-      height: 10px !important;
-      margin-top: 1px !important;
-      border-radius: 999px !important;
-      background-color: #e2e8f0 !important;
-      background-image:
-        linear-gradient(90deg,
-          transparent calc(50% - 4px),
-          rgba(100, 116, 139, 0.52) calc(50% - 3.5px), #ffffff calc(50% - 2.5px), transparent calc(50% - 2px),
-          transparent calc(50% - 1px),
-          rgba(100, 116, 139, 0.52) calc(50% - 0.5px), #ffffff calc(50% + 0.5px), transparent calc(50% + 1px),
-          transparent calc(50% + 2px),
-          rgba(100, 116, 139, 0.52) calc(50% + 2.5px), #ffffff calc(50% + 3.5px), transparent calc(50% + 4px)),
-        linear-gradient(180deg, #ffffff 0%, #f8fafc 40%, #e2e8f0 78%, #cbd5e1 100%) !important;
-      background-size: 100% 5px, 100% 100% !important;
-      background-position: center, center !important;
-      background-repeat: no-repeat, no-repeat !important;
-      border: 1px solid #f1f5f9 !important;
-      box-shadow:
-        0 0 0 1px #4f46e5,
-        0 1px 2px rgba(15, 23, 42, 0.40),
-        inset 0 1px 0 #ffffff !important;
+      width: 24px !important;
+      height: 24px !important;
+      border-radius: 50% !important;
+      background: var(--pori-indigo) !important;
+      border: 3px solid #ffffff !important;
+      box-shadow: 0 1px 6px rgba(15, 23, 42, 0.28) !important;
       cursor: grab !important;
       transition: transform 0.1s ease !important;
     }
 
     input[type="range"]::-webkit-slider-thumb:active,
-    input[type="range"].custom-range::-webkit-slider-thumb:active,
-    input[type="range"].range::-webkit-slider-thumb:active {
+    input[type="range"].custom-range::-webkit-slider-thumb:active {
       cursor: grabbing !important;
-      transform: scale(1.03);
+      transform: scale(1.06);
     }
 
     input[type="range"]::-moz-range-thumb,
     input[type="range"].custom-range::-moz-range-thumb,
     input[type="range"].range::-moz-range-thumb {
-      box-sizing: border-box !important;
-      width: 22px !important;
-      height: 10px !important;
-      border-radius: 999px !important;
-      background-color: #e2e8f0 !important;
-      background-image:
-        linear-gradient(90deg,
-          transparent calc(50% - 4px),
-          rgba(100, 116, 139, 0.52) calc(50% - 3.5px), #ffffff calc(50% - 2.5px), transparent calc(50% - 2px),
-          transparent calc(50% - 1px),
-          rgba(100, 116, 139, 0.52) calc(50% - 0.5px), #ffffff calc(50% + 0.5px), transparent calc(50% + 1px),
-          transparent calc(50% + 2px),
-          rgba(100, 116, 139, 0.52) calc(50% + 2.5px), #ffffff calc(50% + 3.5px), transparent calc(50% + 4px)),
-        linear-gradient(180deg, #ffffff 0%, #f8fafc 40%, #e2e8f0 78%, #cbd5e1 100%) !important;
-      background-size: 100% 5px, 100% 100% !important;
-      background-position: center, center !important;
-      background-repeat: no-repeat, no-repeat !important;
-      border: 1px solid #f1f5f9 !important;
-      box-shadow:
-        0 0 0 1px #4f46e5,
-        0 1px 2px rgba(15, 23, 42, 0.40),
-        inset 0 1px 0 #ffffff !important;
+      width: 24px !important;
+      height: 24px !important;
+      border-radius: 50% !important;
+      background: var(--pori-indigo) !important;
+      border: 3px solid #ffffff !important;
+      box-shadow: 0 1px 6px rgba(15, 23, 42, 0.28) !important;
       cursor: grab !important;
     }
 
-    .slider-indicator-dot {
-      background: #4f46e5 !important;
-      box-shadow: 0 0 5px rgba(79, 70, 229, 0.65) !important;
+    .slider-indicator-wrap {
+      padding: 0 44px !important;
+      margin-top: 4px !important;
     }
 
-    /* Unified Buttons & Option Pickers (Horizontally Scrollable Strip) */
+    .slider-tick {
+      background: #cbd5e1 !important;
+    }
+
+    .slider-tick.major {
+      background: #94a3b8 !important;
+    }
+
+    .slider-indicator-dot {
+      background: var(--pori-indigo) !important;
+      box-shadow: 0 0 5px rgba(79, 70, 229, 0.45) !important;
+    }
+
+    .slider-labels {
+      color: #64748b !important;
+    }
+
     .btn-row,
     .preset-row,
-    .mat-btn-row,
-    .fine-tune-btns {
+    .mat-btn-row {
       display: flex !important;
-      flex-wrap: nowrap !important;
-      gap: 8px !important;
+      flex-wrap: wrap !important;
+      gap: 7px !important;
       justify-content: flex-start !important;
-      justify-content: safe center !important;
       align-items: center !important;
       width: 100% !important;
       max-width: 100% !important;
       min-width: 0 !important;
-      overflow-x: auto !important;
-      overflow-y: hidden !important;
-      -webkit-overflow-scrolling: touch !important;
-      scrollbar-width: thin !important;
-      scrollbar-color: #cbd5e1 transparent !important;
-      padding: 2px 2px 6px !important;
+      padding: 0 !important;
       margin: 0 !important;
     }
 
-    .btn-row::-webkit-scrollbar,
-    .preset-row::-webkit-scrollbar,
-    .mat-btn-row::-webkit-scrollbar,
-    .fine-tune-btns::-webkit-scrollbar {
-      height: 5px;
-    }
-
-    .btn-row::-webkit-scrollbar-thumb,
-    .preset-row::-webkit-scrollbar-thumb,
-    .mat-btn-row::-webkit-scrollbar-thumb,
-    .fine-tune-btns::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 999px;
-    }
-
-    .btn-row > *,
-    .preset-row > *,
-    .mat-btn-row > *,
-    .fine-tune-btns > * {
-      flex: 0 0 auto !important;
-      white-space: nowrap !important;
+    .action-bar {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 8px !important;
+      align-items: center !important;
+      justify-content: space-between !important;
     }
 
     .action-bar .btn-row {
       width: auto !important;
       flex: 1 1 auto !important;
-      min-width: 0 !important;
-      justify-content: flex-start !important;
     }
 
-    .control-row .fine-tune-btns {
-      width: auto !important;
-      flex: 1 1 auto !important;
-      min-width: 0 !important;
-      justify-content: flex-start !important;
-    }
-
-    button,
+    button:not(.pori-step-btn),
     .preset-btn,
     .action-btn,
     .btn-step,
@@ -517,29 +522,28 @@
       background: #ffffff !important;
       color: #334155 !important;
       border: 1px solid var(--pori-border) !important;
-      border-radius: 10px !important;
-      padding: 7px 13px !important;
+      border-radius: 999px !important;
+      padding: 6px 12px !important;
+      font-family: inherit !important;
       font-size: 0.78rem !important;
       font-weight: 700 !important;
       cursor: pointer !important;
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
-      gap: 6px !important;
+      gap: 5px !important;
       line-height: 1.3 !important;
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
-      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease !important;
     }
 
-    button:hover,
+    button:not(.pori-step-btn):hover,
     .preset-btn:hover,
     .action-btn:hover,
-    .btn-step:hover,
     .mat-btn-row button:hover {
       background: var(--pori-indigo-soft) !important;
       color: var(--pori-indigo-hover) !important;
       border-color: #a5b4fc !important;
-      filter: none !important;
     }
 
     button.active,
@@ -548,31 +552,30 @@
       background: var(--pori-indigo) !important;
       color: #ffffff !important;
       border-color: var(--pori-indigo) !important;
-      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25) !important;
-    }
-
-    button.primary,
-    .action-btn.primary,
-    .button {
-      background: var(--pori-indigo) !important;
-      color: #ffffff !important;
-      border: 1px solid var(--pori-indigo) !important;
       box-shadow: 0 2px 8px rgba(79, 70, 229, 0.22) !important;
     }
 
+    button.primary,
+    .action-btn.primary {
+      background: var(--pori-indigo) !important;
+      color: #ffffff !important;
+      border-color: var(--pori-indigo) !important;
+      border-radius: 10px !important;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2) !important;
+    }
+
     button.primary:hover,
-    .action-btn.primary:hover,
-    .button:hover {
+    .action-btn.primary:hover {
       background: var(--pori-indigo-hover) !important;
       border-color: var(--pori-indigo-hover) !important;
       color: #ffffff !important;
     }
 
-    #quizToggleBtn,
     button.quiz-toggle {
       background: var(--pori-indigo-soft) !important;
       color: var(--pori-indigo-ink) !important;
       border-color: var(--pori-indigo-border) !important;
+      border-radius: 10px !important;
     }
 
     button.quiz-toggle.active {
@@ -582,7 +585,6 @@
       box-shadow: none !important;
     }
 
-    /* Unified Option Picker (<select>) */
     select,
     .select-custom {
       -webkit-appearance: none !important;
@@ -597,39 +599,31 @@
       border: 1px solid var(--pori-border) !important;
       border-radius: 10px !important;
       padding: 8px 34px 8px 12px !important;
-      font-size: 0.78rem !important;
+      font-size: 0.8rem !important;
       font-weight: 700 !important;
       outline: none !important;
       cursor: pointer !important;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
     }
 
-    select:focus,
-    .select-custom:focus {
-      border-color: var(--pori-indigo) !important;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.14) !important;
-    }
-
-    /* Unified Telemetry Cards */
     .grid,
     .calc-grid {
-      gap: 8px !important;
+      gap: 10px !important;
       margin: 0 !important;
     }
 
     .grid .card,
     .calc-grid .calc-item {
-      background: #ffffff !important;
+      background: var(--pori-card) !important;
       border: 1px solid var(--pori-border-soft) !important;
       border-radius: 12px !important;
-      padding: 9px 8px !important;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+      padding: 10px !important;
+      box-shadow: none !important;
+      text-align: center !important;
     }
 
     .grid .card .title,
     .calc-grid .calc-item .title {
       color: var(--pori-muted) !important;
-      font-size: 0.66rem !important;
       font-weight: 800 !important;
     }
 
@@ -637,6 +631,7 @@
     .calc-grid .calc-item .value {
       color: var(--pori-heading) !important;
       font-weight: 900 !important;
+      font-variant-numeric: tabular-nums !important;
     }
 
     .grid .card.highlight,
@@ -661,7 +656,6 @@
       color: #92400e !important;
     }
 
-    /* Unified Readout / Insight / Quiz / Warning Boxes */
     .readout,
     .info-card {
       background: var(--pori-indigo-soft) !important;
@@ -670,13 +664,29 @@
       border-radius: 10px !important;
       padding: 10px 14px !important;
       color: #312e81 !important;
-      font-size: 0.82rem !important;
+      font-size: 0.84rem !important;
       font-weight: 650 !important;
       line-height: 1.55 !important;
+      text-align: left !important;
+    }
+
+    .readout.ok {
+      background: #ecfdf5 !important;
+      border-color: #a7f3d0 !important;
+      border-left: 4px solid #059669 !important;
+      color: #065f46 !important;
+    }
+
+    .readout.fail {
+      background: #fef2f2 !important;
+      border-color: #fecaca !important;
+      border-left: 4px solid #dc2626 !important;
+      color: #991b1b !important;
     }
 
     .readout .formula-math {
       color: var(--pori-indigo-hover) !important;
+      font-weight: 700 !important;
     }
 
     .readout p {
@@ -716,12 +726,6 @@
       color: var(--pori-ink) !important;
     }
 
-    .chart-box {
-      background: #0f172a !important;
-      border: 1px solid var(--pori-border) !important;
-      border-radius: 12px !important;
-    }
-
     .eq-card {
       background: var(--pori-panel) !important;
       border: 1px solid var(--pori-border-soft) !important;
@@ -732,6 +736,20 @@
     .eq-card b {
       color: var(--pori-indigo-hover) !important;
     }
+
+    @media (max-width: 640px) {
+      body { padding: 8px !important; }
+      .container,
+      .caliper-card { padding: 14px !important; border-radius: 14px !important; gap: 10px !important; }
+      .controls,
+      .control-panel { grid-template-columns: 1fr !important; padding: 12px !important; }
+      .controls > .btn-row { grid-column: span 1 !important; }
+      .grid,
+      .calc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+      .charts-row,
+      .eq-grid,
+      .balance-box { grid-template-columns: 1fr !important; }
+    }
     /* === END PORI UNIFIED SIMULATOR THEME === */
 
   </style>
@@ -739,6 +757,7 @@
 <body>
   <div class="container">
     <header>
+      <div class="eyebrow">🔬 ইন্টারেক্টিভ ল্যাব · SSC পদার্থবিজ্ঞান অধ্যায় ৫</div>
       <h1>🔬 হাইড্রোলিক প্রেস ও প্লবতা সিমুলেশন ল্যাব</h1>
       <p>ইনপুট বল (F₁), পিস্টন ব্যাসার্ধের অনুপাত (r₂/r₁), তরলের ঘনত্ব (ρ) ও নিমজ্জিত আয়তন (V) পরিবর্তন করে বলবৃদ্ধি, পিস্টনের সরণ ও ঊর্ধ্বমুখী প্লবতা লাইভ পর্যবেক্ষণ করো।</p>
     </header>
@@ -789,7 +808,7 @@
         <rect x="0" y="0" width="760" height="340" fill="#0b1329" rx="12"/>
 
         <!-- SECTION 1: HYDRAULIC PRESS (LEFT & CENTER) -->
-        <text x="240" y="28" font-size="13.5" font-weight="800" fill="#e2e8f0" text-anchor="middle">⚙️ হাইড্রোলিক প্রেস (প্যাসকেলের বলবৃদ্ধিকরণ নীতি)</text>
+        <text x="240" y="28" font-size="13.5" font-weight="800" fill="#1e293b" text-anchor="middle">⚙️ হাইড্রোলিক প্রেস (প্যাসকেলের বলবৃদ্ধিকরণ নীতি)</text>
 
         <!-- Hydraulic Fluid Path: Connecting U-Tube -->
         <path id="svgFluidPath" d="M 50 140 L 50 270 Q 50 290 70 290 L 390 290 Q 410 290 410 270 L 410 140 L 250 140 L 250 260 L 110 260 L 110 140 Z" fill="url(#fluidGradWater)"/>
@@ -814,10 +833,10 @@
           <rect x="52" y="130" width="56" height="18" rx="2" fill="url(#pistonGrad)" stroke="#475569" stroke-width="1.5"/>
           <!-- Applied Force F1 Arrow -->
           <line x1="80" y1="2" x2="80" y2="15" stroke="#ef4444" stroke-width="3.5" marker-end="url(#arrowDownRed)"/>
-          <text x="80" y="-3" font-size="11.5" font-weight="900" fill="#f87171" text-anchor="middle">F₁ = <tspan id="svgTxtF1">100</tspan> N</text>
+          <text x="80" y="-3" font-size="11.5" font-weight="900" fill="#dc2626" text-anchor="middle">F₁ = <tspan id="svgTxtF1">100</tspan> N</text>
           <!-- Stroke distance indicator l1 -->
           <line x1="40" y1="130" x2="40" y2="160" stroke="#64748b" stroke-dasharray="2,2"/>
-          <text x="36" y="148" font-size="9.5" font-weight="700" fill="#94a3b8" text-anchor="end">l₁: 20cm</text>
+          <text x="36" y="148" font-size="9.5" font-weight="700" fill="#475569" text-anchor="end">l₁: 20cm</text>
         </g>
 
         <!-- Large Piston Element (Moves dynamically) -->
@@ -842,21 +861,21 @@
           </g>
 
           <!-- Output Force F2 Arrow (Upward) -->
-          <line x1="330" y1="160" x2="330" y2="148" stroke="#2dd4bf" stroke-width="4.5" marker-end="url(#arrowUpTeal)"/>
-          <text x="330" y="180" font-size="12" font-weight="900" fill="#2dd4bf" text-anchor="middle">F₂ = <tspan id="svgTxtF2">2500</tspan> N</text>
+          <line x1="330" y1="160" x2="330" y2="148" stroke="#0d9488" stroke-width="4.5" marker-end="url(#arrowUpTeal)"/>
+          <text x="330" y="180" font-size="12" font-weight="900" fill="#0f766e" text-anchor="middle">F₂ = <tspan id="svgTxtF2">2500</tspan> N</text>
           <!-- Stroke distance indicator l2 -->
-          <text x="424" y="136" font-size="10" font-weight="800" fill="#94a3b8" text-anchor="start">l₂: <tspan id="svgTxtL2">0.8</tspan> cm</text>
+          <text x="424" y="136" font-size="10" font-weight="800" fill="#475569" text-anchor="start">l₂: <tspan id="svgTxtL2">0.8</tspan> cm</text>
         </g>
 
         <!-- Pressure Transmission Indicator inside Tube -->
         <g transform="translate(180, 275)">
-          <rect x="-68" y="-14" width="136" height="22" rx="6" fill="#1e293b" stroke="#334155"/>
-          <text x="0" y="1" font-size="10.5" font-weight="800" fill="#38bdf8" text-anchor="middle">সঞ্চালিত চাপ P = <tspan id="svgTxtP">79.6</tspan> kPa</text>
+          <rect x="-68" y="-14" width="136" height="22" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+          <text x="0" y="1" font-size="10.5" font-weight="800" fill="#0284c7" text-anchor="middle">সঞ্চালিত চাপ P = <tspan id="svgTxtP">79.6</tspan> kPa</text>
         </g>
 
         <!-- SECTION 2: BUOYANCY CHAMBER (RIGHT) -->
-        <line x1="470" y1="20" x2="470" y2="320" stroke="#334155" stroke-width="1.5" stroke-dasharray="4,4"/>
-        <text x="615" y="28" font-size="13.5" font-weight="800" fill="#e2e8f0" text-anchor="middle">🌊 আর্কিমিডিসের নীতি ও প্লবতা (F_b)</text>
+        <line x1="470" y1="20" x2="470" y2="320" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,4"/>
+        <text x="615" y="28" font-size="13.5" font-weight="800" fill="#1e293b" text-anchor="middle">🌊 আর্কিমিডিসের নীতি ও প্লবতা (F_b)</text>
 
         <!-- Buoyancy Observation Tank -->
         <rect x="500" y="60" width="230" height="220" rx="8" fill="none" stroke="#475569" stroke-width="3"/>
@@ -875,21 +894,21 @@
 
           <!-- Downward Force on Top -->
           <line x1="50" y1="-26" x2="50" y2="-4" stroke="#ef4444" stroke-width="2.5" marker-end="url(#arrowDownRed)"/>
-          <text x="50" y="-30" font-size="9.5" font-weight="800" fill="#f87171" text-anchor="middle">F₁ (নিম্নমুখী চাপ বল)</text>
+          <text x="50" y="-30" font-size="9.5" font-weight="800" fill="#dc2626" text-anchor="middle">F₁ (নিম্নমুখী চাপ বল)</text>
 
           <!-- Upward Force on Bottom -->
           <line x1="50" y1="106" x2="50" y2="84" stroke="#10b981" stroke-width="3.5" marker-end="url(#arrowUpGreen)"/>
-          <text x="50" y="118" font-size="9.5" font-weight="800" fill="#34d399" text-anchor="middle">F₂ (উর্ধ্বমুখী চাপ বল)</text>
+          <text x="50" y="118" font-size="9.5" font-weight="800" fill="#059669" text-anchor="middle">F₂ (উর্ধ্বমুখী চাপ বল)</text>
 
           <!-- Resultant Buoyant Vector (Right of cylinder) -->
-          <line id="svgVectorFb" x1="114" y1="55" x2="114" y2="15" stroke="#34d399" stroke-width="3.5" marker-end="url(#arrowUpGreen)"/>
-          <text x="120" y="35" font-size="11" font-weight="900" fill="#34d399">F_b</text>
+          <line id="svgVectorFb" x1="114" y1="55" x2="114" y2="15" stroke="#059669" stroke-width="3.5" marker-end="url(#arrowUpGreen)"/>
+          <text x="120" y="35" font-size="11" font-weight="900" fill="#059669">F_b</text>
         </g>
 
         <!-- Buoyancy Live Formula Tag at bottom right -->
         <g transform="translate(615, 305)">
-          <rect x="-95" y="-14" width="190" height="24" rx="6" fill="#1e293b" stroke="#334155"/>
-          <text x="0" y="2" font-size="11" font-weight="800" fill="#34d399" text-anchor="middle">প্লবতা বল <tspan id="svgTxtFb">F_b = 39.2 N</tspan></text>
+          <rect x="-95" y="-14" width="190" height="24" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+          <text x="0" y="2" font-size="11" font-weight="800" fill="#059669" text-anchor="middle">প্লবতা বল <tspan id="svgTxtFb">F_b = 39.2 N</tspan></text>
         </g>
       </svg>
     </div>
@@ -909,7 +928,7 @@
       <div class="control-group">
         <label>
           <span>পিস্টন ব্যাসার্ধের অনুপাত (r₂/r₁):</span>
-          <span class="val-badge" id="lblRatio" style="color:#a5b4fc">5.0</span>
+          <span class="val-badge" id="lblRatio" style="color:#4f46e5">5.0</span>
         </label>
         <input id="rngRatio" class="custom-range" type="range" min="1.0" max="5.0" value="5.0" step="0.2" oninput="onRatioChange(this.value)">
       </div>
@@ -1170,7 +1189,6 @@
     });
   </script>
 
-
   <!-- PORI UNIFIED RANGE SYNC -->
   <script>
     (function () {
@@ -1188,10 +1206,65 @@
         el.style.setProperty('--p', ratio.toFixed(4));
         el.style.setProperty('--fill', pctStr);
         el.style.setProperty('--fill-pct', pctStr);
+        var row = el.closest && el.closest('.pori-stepper-row');
+        if (row) {
+          var disabled = !!el.disabled;
+          row.querySelectorAll('.pori-step-btn').forEach(function (b) {
+            b.disabled = disabled;
+          });
+        }
+      }
+      window.syncPoriRange = syncRangeFill;
+
+      function mountSteppers(el) {
+        if (!el || el.type !== 'range' || el.dataset.poriStepperMounted === '1') return;
+        el.dataset.poriStepperMounted = '1';
+        var row = document.createElement('div');
+        row.className = 'pori-stepper-row';
+        el.parentNode.insertBefore(row, el);
+        var minusBtn = document.createElement('button');
+        minusBtn.type = 'button';
+        minusBtn.className = 'pori-step-btn';
+        minusBtn.setAttribute('aria-label', 'মান কমান');
+        minusBtn.textContent = '−';
+        var plusBtn = document.createElement('button');
+        plusBtn.type = 'button';
+        plusBtn.className = 'pori-step-btn';
+        plusBtn.setAttribute('aria-label', 'মান বাড়ান');
+        plusBtn.textContent = '+';
+        row.appendChild(minusBtn);
+        row.appendChild(el);
+        row.appendChild(plusBtn);
+
+        function nudge(dir) {
+          if (el.disabled) return;
+          var min = parseFloat(el.min);
+          var max = parseFloat(el.max);
+          var step = parseFloat(el.step);
+          if (Number.isNaN(min)) min = 0;
+          if (Number.isNaN(max)) max = 100;
+          if (Number.isNaN(step) || step <= 0) step = (max - min) / 50 || 1;
+          var cur = parseFloat(el.value);
+          if (Number.isNaN(cur)) cur = min;
+          var decimals = (String(step).split('.')[1] || '').length;
+          var next = Math.max(min, Math.min(max, +(cur + dir * step).toFixed(decimals + 2)));
+          if (next !== cur) {
+            el.value = next;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        }
+
+        minusBtn.addEventListener('click', function () { nudge(-1); });
+        plusBtn.addEventListener('click', function () { nudge(1); });
+        syncRangeFill(el);
       }
 
       function syncAllRanges() {
-        document.querySelectorAll('input[type="range"]').forEach(syncRangeFill);
+        document.querySelectorAll('input[type="range"]').forEach(function (el) {
+          mountSteppers(el);
+          syncRangeFill(el);
+        });
       }
 
       var desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
@@ -1224,6 +1297,5 @@
       setTimeout(syncAllRanges, 50);
     })();
   </script>
-
 </body>
 </html>

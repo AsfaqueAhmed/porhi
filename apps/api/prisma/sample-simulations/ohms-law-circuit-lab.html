@@ -188,13 +188,87 @@
       color: #312e81;
       font-weight: 600;
     }
+
+    /* === PORI LIGHT CONTROL & MOBILE POLISH === */
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      color: var(--pori-indigo-ink);
+      background: var(--pori-indigo-soft);
+      border: 1px solid var(--pori-indigo-border);
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 6px;
+    }
+    .pori-stepper-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+    .pori-step-btn {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #1e293b;
+      font-size: 1.05rem;
+      font-weight: 800;
+      line-height: 1;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .pori-step-btn:hover { background: #eef2ff; border-color: #a5b4fc; color: #4338ca; }
+    .pori-step-btn:active { transform: scale(0.95); }
+    .pori-step-btn:disabled { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+    .pori-stepper-row input[type="range"] {
+      flex: 1 1 0%;
+      width: 100%;
+      min-width: 0;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      width: 24px;
+      height: 24px;
+      border: 3px solid #ffffff;
+      box-shadow: 0 1px 6px rgba(15, 23, 42, 0.28);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--pori-indigo, #4f46e5);
+      border: 3px solid #ffffff;
+      box-shadow: 0 1px 6px rgba(15, 23, 42, 0.28);
+      cursor: grab;
+    }
+    input[type="range"]:disabled { opacity: 0.5; cursor: not-allowed; }
+    @media (max-width: 820px) {
+      body { padding: 10px; }
+      .app { padding: 14px; border-radius: 14px; }
+      .layout > :not(.panel) { order: 1; min-width: 0; }
+      .layout > .panel { order: 2; }
+    }
+    /* === END PORI LIGHT CONTROL & MOBILE POLISH === */
   </style>
 </head>
 <body>
   <div class="app">
     <div class="head">
       <div>
-        <div class="eyebrow">PORI UNIFIED SIMULATOR THEME • SSC পদার্থবিজ্ঞান অধ্যায় ১১</div>
+        <div class="eyebrow">🔬 ইন্টারেক্টিভ ল্যাব · SSC পদার্থবিজ্ঞান অধ্যায় ১১</div>
         <h1>ওহমের সূত্র, শ্রেণি ও সমান্তরাল বর্তনী ল্যাব</h1>
         <p class="sub">শ্রেণি (Series) অথবা সমান্তরাল (Parallel) সংযোগে বিভব (V), রোধ R₁ ও R₂ বদলে তুল্য রোধ, শাখা প্রবাহ ও V-I লেখচিত্র বিশ্লেষণ করো।</p>
       </div>
@@ -387,35 +461,113 @@
     })();
   </script>
 
-  <!-- PORI UNIFIED RANGE SYNC START -->
+  <!-- PORI UNIFIED RANGE SYNC -->
   <script>
     (function () {
-      function syncRange(el) {
-        if (!el) return;
-        const min = el.min !== '' ? parseFloat(el.min) : 0;
-        const max = el.max !== '' ? parseFloat(el.max) : 100;
-        const val = parseFloat(el.value);
-        const pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
-        el.style.setProperty('--fill', pct.toFixed(2) + '%');
-        el.style.setProperty('--fill-pct', pct.toFixed(2) + '%');
+      function syncRangeFill(el) {
+        if (!el || el.type !== 'range') return;
+        var min = parseFloat(el.min);
+        var max = parseFloat(el.max);
+        var val = parseFloat(el.value);
+        if (Number.isNaN(min)) min = 0;
+        if (Number.isNaN(max)) max = 100;
+        if (Number.isNaN(val)) val = min;
+        var ratio = max === min ? 0 : (val - min) / (max - min);
+        ratio = Math.max(0, Math.min(1, ratio));
+        var pctStr = (ratio * 100).toFixed(2) + '%';
+        el.style.setProperty('--p', ratio.toFixed(4));
+        el.style.setProperty('--fill', pctStr);
+        el.style.setProperty('--fill-pct', pctStr);
+        var row = el.closest && el.closest('.pori-stepper-row');
+        if (row) {
+          var disabled = !!el.disabled;
+          row.querySelectorAll('.pori-step-btn').forEach(function (b) {
+            b.disabled = disabled;
+          });
+        }
       }
-      window.syncPoriRange = syncRange;
-      function initRanges() {
-        document.querySelectorAll('input[type="range"]').forEach(el => {
-          if (el.dataset.poriRangeBound) return;
-          el.dataset.poriRangeBound = '1';
-          syncRange(el);
-          el.addEventListener('input', () => syncRange(el));
-          el.addEventListener('change', () => syncRange(el));
+      window.syncPoriRange = syncRangeFill;
+
+      function mountSteppers(el) {
+        if (!el || el.type !== 'range' || el.dataset.poriStepperMounted === '1') return;
+        el.dataset.poriStepperMounted = '1';
+        var row = document.createElement('div');
+        row.className = 'pori-stepper-row';
+        el.parentNode.insertBefore(row, el);
+        var minusBtn = document.createElement('button');
+        minusBtn.type = 'button';
+        minusBtn.className = 'pori-step-btn';
+        minusBtn.setAttribute('aria-label', 'মান কমান');
+        minusBtn.textContent = '−';
+        var plusBtn = document.createElement('button');
+        plusBtn.type = 'button';
+        plusBtn.className = 'pori-step-btn';
+        plusBtn.setAttribute('aria-label', 'মান বাড়ান');
+        plusBtn.textContent = '+';
+        row.appendChild(minusBtn);
+        row.appendChild(el);
+        row.appendChild(plusBtn);
+
+        function nudge(dir) {
+          if (el.disabled) return;
+          var min = parseFloat(el.min);
+          var max = parseFloat(el.max);
+          var step = parseFloat(el.step);
+          if (Number.isNaN(min)) min = 0;
+          if (Number.isNaN(max)) max = 100;
+          if (Number.isNaN(step) || step <= 0) step = (max - min) / 50 || 1;
+          var cur = parseFloat(el.value);
+          if (Number.isNaN(cur)) cur = min;
+          var decimals = (String(step).split('.')[1] || '').length;
+          var next = Math.max(min, Math.min(max, +(cur + dir * step).toFixed(decimals + 2)));
+          if (next !== cur) {
+            el.value = next;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        }
+
+        minusBtn.addEventListener('click', function () { nudge(-1); });
+        plusBtn.addEventListener('click', function () { nudge(1); });
+        syncRangeFill(el);
+      }
+
+      function syncAllRanges() {
+        document.querySelectorAll('input[type="range"]').forEach(function (el) {
+          mountSteppers(el);
+          syncRangeFill(el);
         });
       }
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initRanges);
-      } else {
-        initRanges();
+
+      var desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+      if (desc && desc.get && desc.set) {
+        Object.defineProperty(HTMLInputElement.prototype, 'value', {
+          configurable: true,
+          get: function () { return desc.get.call(this); },
+          set: function (v) {
+            desc.set.call(this, v);
+            if (this.type === 'range') syncRangeFill(this);
+          }
+        });
       }
+
+      document.addEventListener('input', function (e) {
+        if (e.target && e.target.type === 'range') syncRangeFill(e.target);
+      }, true);
+      document.addEventListener('change', function (e) {
+        if (e.target && e.target.type === 'range') syncRangeFill(e.target);
+      }, true);
+      document.addEventListener('click', function () {
+        setTimeout(syncAllRanges, 0);
+      }, true);
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncAllRanges);
+      } else {
+        syncAllRanges();
+      }
+      setTimeout(syncAllRanges, 50);
     })();
   </script>
-  <!-- PORI UNIFIED RANGE SYNC END -->
 </body>
 </html>

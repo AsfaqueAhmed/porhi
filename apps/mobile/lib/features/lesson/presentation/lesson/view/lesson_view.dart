@@ -380,7 +380,7 @@ class LessonView extends GetView<LessonController> {
       MaterialPageRoute<void>(
         fullscreenDialog: true,
         builder: (screenContext) => Scaffold(
-          backgroundColor: PorhiTheme.slate900,
+          backgroundColor: PorhiTheme.slate50,
           body: SafeArea(
             child: InteractiveLabCard(
               key: ValueKey<String>('lesson_lab_screen_${lesson.id}'),

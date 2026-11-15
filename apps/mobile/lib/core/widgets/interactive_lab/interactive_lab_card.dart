@@ -327,7 +327,7 @@ class _InteractiveLabWebViewState extends State<InteractiveLabWebView> {
         barrierDismissible: true,
         builder: (dialogContext) {
           return Dialog.fullscreen(
-            backgroundColor: PorhiTheme.slate900,
+            backgroundColor: PorhiTheme.slate50,
             child: SafeArea(
               child: Column(
                 children: [
@@ -450,9 +450,10 @@ class _InteractiveLabWebViewState extends State<InteractiveLabWebView> {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 14),
       decoration: BoxDecoration(
-        color: PorhiTheme.slate900,
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFFC7D2FE)),
+        border: Border.all(color: PorhiTheme.slate200),
+        boxShadow: PorhiTheme.subtleShadow,
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -528,8 +529,8 @@ class _LabTopBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: const BoxDecoration(
-        color: Color(0xFF1E293B),
-        border: Border(bottom: BorderSide(color: PorhiTheme.slate700)),
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: PorhiTheme.slate200)),
       ),
       child: Row(
         children: [
@@ -540,27 +541,27 @@ class _LabTopBar extends StatelessWidget {
               icon: const Icon(
                 Icons.arrow_back_rounded,
                 size: 20,
-                color: PorhiTheme.slate200,
+                color: PorhiTheme.slate700,
               ),
             ),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
             decoration: BoxDecoration(
-              color: const Color(0x33F59E0B),
+              color: PorhiTheme.indigo50,
               borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: const Color(0x4DF59E0B)),
+              border: Border.all(color: PorhiTheme.indigo100),
             ),
             child: const Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.bolt_rounded, size: 13, color: Color(0xFFFBBF24)),
+                Icon(Icons.bolt_rounded, size: 13, color: PorhiTheme.indigo600),
                 SizedBox(width: 3),
                 Text(
                   'ল্যাব সিমুলেশন',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFFFCD34D),
+                    color: PorhiTheme.indigo700,
                   ),
                 ),
               ],
@@ -575,7 +576,7 @@ class _LabTopBar extends StatelessWidget {
               style: const TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
-                color: PorhiTheme.slate200,
+                color: PorhiTheme.slate800,
               ),
             ),
           ),
@@ -585,7 +586,7 @@ class _LabTopBar extends StatelessWidget {
             icon: const Icon(
               Icons.refresh_rounded,
               size: 18,
-              color: PorhiTheme.slate400,
+              color: PorhiTheme.slate600,
             ),
           ),
           if (showFullscreenToggle)
@@ -597,7 +598,7 @@ class _LabTopBar extends StatelessWidget {
                     ? Icons.fullscreen_exit_rounded
                     : Icons.fullscreen_rounded,
                 size: 20,
-                color: PorhiTheme.slate400,
+                color: PorhiTheme.slate600,
               ),
             ),
         ],

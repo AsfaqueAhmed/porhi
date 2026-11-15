@@ -38,8 +38,6 @@
       .controls { grid-template-columns: 1fr; }
       .grid { grid-template-columns: repeat(3, 1fr); }
     }
-
-  
     /* === PORI UNIFIED SIMULATOR THEME === */
     :root {
       --pori-bg: #f8fafc;
@@ -49,7 +47,7 @@
       --pori-border-soft: #e2e8f0;
       --pori-ink: #0f172a;
       --pori-heading: #1e293b;
-      --pori-muted: #64748b;
+      --pori-muted: #475569;
       --pori-indigo: #4f46e5;
       --pori-indigo-hover: #4338ca;
       --pori-indigo-soft: #eef2ff;
@@ -60,41 +58,65 @@
     body {
       background: var(--pori-bg) !important;
       color: var(--pori-ink) !important;
-      padding: 12px 14px !important;
-      font-family: system-ui, -apple-system, "Segoe UI", sans-serif !important;
+      padding: 14px !important;
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, "Segoe UI", sans-serif !important;
       margin: 0 !important;
+      display: block !important;
+      min-height: auto !important;
+      line-height: 1.5 !important;
     }
 
     .container,
     .caliper-card {
-      max-width: 860px !important;
+      max-width: 920px !important;
       width: 100% !important;
       min-width: 0 !important;
       margin: 0 auto !important;
-      background: transparent !important;
-      border: none !important;
-      border-radius: 0 !important;
-      padding: 0 !important;
-      box-shadow: none !important;
+      background: var(--pori-card) !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-radius: 18px !important;
+      padding: 18px !important;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06) !important;
       display: flex !important;
       flex-direction: column !important;
       gap: 12px !important;
     }
 
+    header {
+      text-align: left !important;
+    }
+
+    .eyebrow {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      font-size: 0.72rem !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.03em !important;
+      color: var(--pori-indigo-ink) !important;
+      background: var(--pori-indigo-soft) !important;
+      border: 1px solid var(--pori-indigo-border) !important;
+      padding: 4px 10px !important;
+      border-radius: 999px !important;
+      margin-bottom: 6px !important;
+    }
+
     header h1,
     .caliper-card-title {
-      font-size: 1.18rem !important;
+      font-size: 1.24rem !important;
       font-weight: 800 !important;
       color: var(--pori-heading) !important;
       margin: 0 0 4px !important;
+      line-height: 1.35 !important;
     }
 
     header p,
     .subtitle,
     .caliper-card-desc {
-      font-size: 0.82rem !important;
+      font-size: 0.84rem !important;
       color: var(--pori-muted) !important;
       line-height: 1.55 !important;
+      margin: 0 !important;
     }
 
     .badge {
@@ -106,110 +128,142 @@
     }
 
     .canvas-wrap,
-    #waveCanvas {
-      background: #0f172a !important;
+    canvas,
+    #waveCanvas,
+    .chart-box {
+      background: #f8fbff !important;
       border: 1px solid var(--pori-border) !important;
       border-radius: 14px !important;
       overflow: hidden !important;
-      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08) !important;
+      box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.03) !important;
     }
 
-    .caliper-svg-wrap,
-    .zoom-card {
-      background: #ffffff !important;
-      border: 1px solid var(--pori-border-soft) !important;
-      border-radius: 14px !important;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
-      margin: 0 !important;
+    .canvas-wrap svg,
+    .chart-box svg {
+      background: transparent !important;
+      max-width: 100% !important;
+    }
+
+    .chart-box {
+      padding: 12px !important;
+    }
+
+    .chart-title {
+      color: var(--pori-heading) !important;
+      font-weight: 800 !important;
     }
 
     .controls,
     .control-panel {
-      background: #ffffff !important;
+      background: var(--pori-panel) !important;
       border: 1px solid var(--pori-border-soft) !important;
       border-radius: 14px !important;
-      padding: 12px 14px !important;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
-      margin: 0 !important;
+      padding: 14px !important;
+      box-shadow: none !important;
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 14px !important;
     }
 
     .control-group {
+      min-width: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
       gap: 6px !important;
     }
 
     label,
     .slider-label {
-      font-size: 0.78rem !important;
+      font-size: 0.82rem !important;
       font-weight: 750 !important;
-      color: #334155 !important;
-      margin-bottom: 2px !important;
+      color: var(--pori-heading) !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      gap: 8px !important;
     }
 
-    label .val-badge,
-    label span[id],
-    label b[id],
-    .slider-label b {
-      color: var(--pori-indigo) !important;
+    label b,
+    label span:last-child {
+      font-variant-numeric: tabular-nums !important;
+    }
+
+    .slider-container {
+      width: 100% !important;
+      padding: 0 !important;
+    }
+
+    .pori-stepper-row {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      width: 100% !important;
+    }
+
+    button.pori-step-btn {
+      width: 36px !important;
+      height: 36px !important;
+      min-width: 36px !important;
+      flex: 0 0 36px !important;
+      border-radius: 10px !important;
+      border: 1px solid var(--pori-border) !important;
+      background: #ffffff !important;
+      color: var(--pori-heading) !important;
+      font-size: 1.05rem !important;
       font-weight: 800 !important;
+      line-height: 1 !important;
+      padding: 0 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      user-select: none !important;
+      -webkit-tap-highlight-color: transparent !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+      transition: background 0.15s, border-color 0.15s, color 0.15s !important;
     }
 
-    .mat-btn-row-label {
-      color: #475569 !important;
-      font-size: 0.78rem !important;
-      font-weight: 750 !important;
+    button.pori-step-btn:hover {
+      background: var(--pori-indigo-soft) !important;
+      border-color: #a5b4fc !important;
+      color: var(--pori-indigo-hover) !important;
     }
 
-    /* Unified Skeuomorphic Striped Slider in App Indigo Theme */
+    button.pori-step-btn:active {
+      transform: scale(0.95);
+    }
+
+    button.pori-step-btn:disabled {
+      opacity: 0.45 !important;
+      cursor: not-allowed !important;
+      pointer-events: none !important;
+    }
+
     input[type="range"],
     input[type="range"].custom-range,
     input[type="range"].range {
       -webkit-appearance: none !important;
       appearance: none !important;
-      box-sizing: border-box !important;
+      flex: 1 1 0% !important;
       width: 100% !important;
-      height: 16px !important;
-      padding: 0 !important;
+      min-width: 0 !important;
+      height: 8px !important;
+      margin: 0 !important;
+      border: none !important;
       border-radius: 999px !important;
       outline: none !important;
-      border: 2px solid #e2e8f0 !important;
-      box-shadow:
-        inset 0 2px 3px rgba(15, 23, 42, 0.72),
-        inset 0 -1px 1px rgba(255, 255, 255, 0.14),
-        0 1px 0 rgba(255, 255, 255, 0.98),
-        0 1px 3px rgba(15, 23, 42, 0.10) !important;
+      box-shadow: none !important;
       cursor: pointer !important;
-      margin: 0 !important;
-      display: block !important;
-      background-color: #232732 !important;
-      background-image:
-        linear-gradient(180deg, rgba(0, 0, 0, 0.24) 0%, rgba(255, 255, 255, 0.12) 28%, rgba(255, 255, 255, 0.04) 55%, rgba(0, 0, 0, 0.26) 100%),
-        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0px, rgba(255, 255, 255, 0.16) 1.5px, transparent 1.5px, transparent 4px),
-        linear-gradient(180deg, #818cf8 0%, #6366f1 32%, #4f46e5 74%, #3730a3 100%),
-        repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0px, rgba(255, 255, 255, 0.04) 1.5px, transparent 1.5px, transparent 4px),
-        linear-gradient(180deg, #1b1e26 0%, #2a2f3a 45%, #343a46 75%, #20242d 100%) !important;
-      background-position:
-        0 0,
-        0 0,
-        0 0,
-        0 0,
-        0 0 !important;
-      background-size:
-        100% 100%,
-        calc(11px + (100% - 22px) * var(--p, 0.5)) 100%,
-        calc(11px + (100% - 22px) * var(--p, 0.5)) 100%,
-        100% 100%,
-        100% 100% !important;
-      background-repeat: no-repeat, no-repeat, no-repeat, no-repeat, no-repeat !important;
+      background-color: #e2e8f0 !important;
+      background-image: linear-gradient(90deg, var(--pori-indigo) var(--fill, 50%), #e2e8f0 var(--fill, 50%)) !important;
+      background-size: 100% 100% !important;
+      background-repeat: no-repeat !important;
     }
 
-    input[type="range"]::-webkit-slider-runnable-track,
-    input[type="range"].custom-range::-webkit-slider-runnable-track,
-    input[type="range"].range::-webkit-slider-runnable-track {
-      height: 12px !important;
-      border-radius: 999px !important;
-      background: transparent !important;
-      border: none !important;
-      box-shadow: none !important;
+    input[type="range"]:disabled,
+    input[type="range"].custom-range:disabled {
+      opacity: 0.5 !important;
+      cursor: not-allowed !important;
     }
 
     input[type="range"]::-webkit-slider-thumb,
@@ -217,134 +271,85 @@
     input[type="range"].range::-webkit-slider-thumb {
       -webkit-appearance: none !important;
       appearance: none !important;
-      box-sizing: border-box !important;
-      width: 22px !important;
-      height: 10px !important;
-      margin-top: 1px !important;
-      border-radius: 999px !important;
-      background-color: #e2e8f0 !important;
-      background-image:
-        linear-gradient(90deg,
-          transparent calc(50% - 4px),
-          rgba(100, 116, 139, 0.52) calc(50% - 3.5px), #ffffff calc(50% - 2.5px), transparent calc(50% - 2px),
-          transparent calc(50% - 1px),
-          rgba(100, 116, 139, 0.52) calc(50% - 0.5px), #ffffff calc(50% + 0.5px), transparent calc(50% + 1px),
-          transparent calc(50% + 2px),
-          rgba(100, 116, 139, 0.52) calc(50% + 2.5px), #ffffff calc(50% + 3.5px), transparent calc(50% + 4px)),
-        linear-gradient(180deg, #ffffff 0%, #f8fafc 40%, #e2e8f0 78%, #cbd5e1 100%) !important;
-      background-size: 100% 5px, 100% 100% !important;
-      background-position: center, center !important;
-      background-repeat: no-repeat, no-repeat !important;
-      border: 1px solid #f1f5f9 !important;
-      box-shadow:
-        0 0 0 1px #4f46e5,
-        0 1px 2px rgba(15, 23, 42, 0.40),
-        inset 0 1px 0 #ffffff !important;
+      width: 24px !important;
+      height: 24px !important;
+      border-radius: 50% !important;
+      background: var(--pori-indigo) !important;
+      border: 3px solid #ffffff !important;
+      box-shadow: 0 1px 6px rgba(15, 23, 42, 0.28) !important;
       cursor: grab !important;
       transition: transform 0.1s ease !important;
     }
 
     input[type="range"]::-webkit-slider-thumb:active,
-    input[type="range"].custom-range::-webkit-slider-thumb:active,
-    input[type="range"].range::-webkit-slider-thumb:active {
+    input[type="range"].custom-range::-webkit-slider-thumb:active {
       cursor: grabbing !important;
-      transform: scale(1.03);
+      transform: scale(1.06);
     }
 
     input[type="range"]::-moz-range-thumb,
     input[type="range"].custom-range::-moz-range-thumb,
     input[type="range"].range::-moz-range-thumb {
-      box-sizing: border-box !important;
-      width: 22px !important;
-      height: 10px !important;
-      border-radius: 999px !important;
-      background-color: #e2e8f0 !important;
-      background-image:
-        linear-gradient(90deg,
-          transparent calc(50% - 4px),
-          rgba(100, 116, 139, 0.52) calc(50% - 3.5px), #ffffff calc(50% - 2.5px), transparent calc(50% - 2px),
-          transparent calc(50% - 1px),
-          rgba(100, 116, 139, 0.52) calc(50% - 0.5px), #ffffff calc(50% + 0.5px), transparent calc(50% + 1px),
-          transparent calc(50% + 2px),
-          rgba(100, 116, 139, 0.52) calc(50% + 2.5px), #ffffff calc(50% + 3.5px), transparent calc(50% + 4px)),
-        linear-gradient(180deg, #ffffff 0%, #f8fafc 40%, #e2e8f0 78%, #cbd5e1 100%) !important;
-      background-size: 100% 5px, 100% 100% !important;
-      background-position: center, center !important;
-      background-repeat: no-repeat, no-repeat !important;
-      border: 1px solid #f1f5f9 !important;
-      box-shadow:
-        0 0 0 1px #4f46e5,
-        0 1px 2px rgba(15, 23, 42, 0.40),
-        inset 0 1px 0 #ffffff !important;
+      width: 24px !important;
+      height: 24px !important;
+      border-radius: 50% !important;
+      background: var(--pori-indigo) !important;
+      border: 3px solid #ffffff !important;
+      box-shadow: 0 1px 6px rgba(15, 23, 42, 0.28) !important;
       cursor: grab !important;
     }
 
-    .slider-indicator-dot {
-      background: #4f46e5 !important;
-      box-shadow: 0 0 5px rgba(79, 70, 229, 0.65) !important;
+    .slider-indicator-wrap {
+      padding: 0 44px !important;
+      margin-top: 4px !important;
     }
 
-    /* Unified Buttons & Option Pickers (Horizontally Scrollable Strip) */
+    .slider-tick {
+      background: #cbd5e1 !important;
+    }
+
+    .slider-tick.major {
+      background: #94a3b8 !important;
+    }
+
+    .slider-indicator-dot {
+      background: var(--pori-indigo) !important;
+      box-shadow: 0 0 5px rgba(79, 70, 229, 0.45) !important;
+    }
+
+    .slider-labels {
+      color: #64748b !important;
+    }
+
     .btn-row,
     .preset-row,
-    .mat-btn-row,
-    .fine-tune-btns {
+    .mat-btn-row {
       display: flex !important;
-      flex-wrap: nowrap !important;
-      gap: 8px !important;
+      flex-wrap: wrap !important;
+      gap: 7px !important;
       justify-content: flex-start !important;
-      justify-content: safe center !important;
       align-items: center !important;
       width: 100% !important;
       max-width: 100% !important;
       min-width: 0 !important;
-      overflow-x: auto !important;
-      overflow-y: hidden !important;
-      -webkit-overflow-scrolling: touch !important;
-      scrollbar-width: thin !important;
-      scrollbar-color: #cbd5e1 transparent !important;
-      padding: 2px 2px 6px !important;
+      padding: 0 !important;
       margin: 0 !important;
     }
 
-    .btn-row::-webkit-scrollbar,
-    .preset-row::-webkit-scrollbar,
-    .mat-btn-row::-webkit-scrollbar,
-    .fine-tune-btns::-webkit-scrollbar {
-      height: 5px;
-    }
-
-    .btn-row::-webkit-scrollbar-thumb,
-    .preset-row::-webkit-scrollbar-thumb,
-    .mat-btn-row::-webkit-scrollbar-thumb,
-    .fine-tune-btns::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 999px;
-    }
-
-    .btn-row > *,
-    .preset-row > *,
-    .mat-btn-row > *,
-    .fine-tune-btns > * {
-      flex: 0 0 auto !important;
-      white-space: nowrap !important;
+    .action-bar {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 8px !important;
+      align-items: center !important;
+      justify-content: space-between !important;
     }
 
     .action-bar .btn-row {
       width: auto !important;
       flex: 1 1 auto !important;
-      min-width: 0 !important;
-      justify-content: flex-start !important;
     }
 
-    .control-row .fine-tune-btns {
-      width: auto !important;
-      flex: 1 1 auto !important;
-      min-width: 0 !important;
-      justify-content: flex-start !important;
-    }
-
-    button,
+    button:not(.pori-step-btn),
     .preset-btn,
     .action-btn,
     .btn-step,
@@ -352,29 +357,28 @@
       background: #ffffff !important;
       color: #334155 !important;
       border: 1px solid var(--pori-border) !important;
-      border-radius: 10px !important;
-      padding: 7px 13px !important;
+      border-radius: 999px !important;
+      padding: 6px 12px !important;
+      font-family: inherit !important;
       font-size: 0.78rem !important;
       font-weight: 700 !important;
       cursor: pointer !important;
       display: inline-flex !important;
       align-items: center !important;
       justify-content: center !important;
-      gap: 6px !important;
+      gap: 5px !important;
       line-height: 1.3 !important;
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
-      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease !important;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease !important;
     }
 
-    button:hover,
+    button:not(.pori-step-btn):hover,
     .preset-btn:hover,
     .action-btn:hover,
-    .btn-step:hover,
     .mat-btn-row button:hover {
       background: var(--pori-indigo-soft) !important;
       color: var(--pori-indigo-hover) !important;
       border-color: #a5b4fc !important;
-      filter: none !important;
     }
 
     button.active,
@@ -383,31 +387,30 @@
       background: var(--pori-indigo) !important;
       color: #ffffff !important;
       border-color: var(--pori-indigo) !important;
-      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25) !important;
-    }
-
-    button.primary,
-    .action-btn.primary,
-    .button {
-      background: var(--pori-indigo) !important;
-      color: #ffffff !important;
-      border: 1px solid var(--pori-indigo) !important;
       box-shadow: 0 2px 8px rgba(79, 70, 229, 0.22) !important;
     }
 
+    button.primary,
+    .action-btn.primary {
+      background: var(--pori-indigo) !important;
+      color: #ffffff !important;
+      border-color: var(--pori-indigo) !important;
+      border-radius: 10px !important;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2) !important;
+    }
+
     button.primary:hover,
-    .action-btn.primary:hover,
-    .button:hover {
+    .action-btn.primary:hover {
       background: var(--pori-indigo-hover) !important;
       border-color: var(--pori-indigo-hover) !important;
       color: #ffffff !important;
     }
 
-    #quizToggleBtn,
     button.quiz-toggle {
       background: var(--pori-indigo-soft) !important;
       color: var(--pori-indigo-ink) !important;
       border-color: var(--pori-indigo-border) !important;
+      border-radius: 10px !important;
     }
 
     button.quiz-toggle.active {
@@ -417,7 +420,6 @@
       box-shadow: none !important;
     }
 
-    /* Unified Option Picker (<select>) */
     select,
     .select-custom {
       -webkit-appearance: none !important;
@@ -432,39 +434,31 @@
       border: 1px solid var(--pori-border) !important;
       border-radius: 10px !important;
       padding: 8px 34px 8px 12px !important;
-      font-size: 0.78rem !important;
+      font-size: 0.8rem !important;
       font-weight: 700 !important;
       outline: none !important;
       cursor: pointer !important;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
     }
 
-    select:focus,
-    .select-custom:focus {
-      border-color: var(--pori-indigo) !important;
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.14) !important;
-    }
-
-    /* Unified Telemetry Cards */
     .grid,
     .calc-grid {
-      gap: 8px !important;
+      gap: 10px !important;
       margin: 0 !important;
     }
 
     .grid .card,
     .calc-grid .calc-item {
-      background: #ffffff !important;
+      background: var(--pori-card) !important;
       border: 1px solid var(--pori-border-soft) !important;
       border-radius: 12px !important;
-      padding: 9px 8px !important;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+      padding: 10px !important;
+      box-shadow: none !important;
+      text-align: center !important;
     }
 
     .grid .card .title,
     .calc-grid .calc-item .title {
       color: var(--pori-muted) !important;
-      font-size: 0.66rem !important;
       font-weight: 800 !important;
     }
 
@@ -472,6 +466,7 @@
     .calc-grid .calc-item .value {
       color: var(--pori-heading) !important;
       font-weight: 900 !important;
+      font-variant-numeric: tabular-nums !important;
     }
 
     .grid .card.highlight,
@@ -496,7 +491,6 @@
       color: #92400e !important;
     }
 
-    /* Unified Readout / Insight / Quiz / Warning Boxes */
     .readout,
     .info-card {
       background: var(--pori-indigo-soft) !important;
@@ -505,13 +499,29 @@
       border-radius: 10px !important;
       padding: 10px 14px !important;
       color: #312e81 !important;
-      font-size: 0.82rem !important;
+      font-size: 0.84rem !important;
       font-weight: 650 !important;
       line-height: 1.55 !important;
+      text-align: left !important;
+    }
+
+    .readout.ok {
+      background: #ecfdf5 !important;
+      border-color: #a7f3d0 !important;
+      border-left: 4px solid #059669 !important;
+      color: #065f46 !important;
+    }
+
+    .readout.fail {
+      background: #fef2f2 !important;
+      border-color: #fecaca !important;
+      border-left: 4px solid #dc2626 !important;
+      color: #991b1b !important;
     }
 
     .readout .formula-math {
       color: var(--pori-indigo-hover) !important;
+      font-weight: 700 !important;
     }
 
     .readout p {
@@ -551,12 +561,6 @@
       color: var(--pori-ink) !important;
     }
 
-    .chart-box {
-      background: #0f172a !important;
-      border: 1px solid var(--pori-border) !important;
-      border-radius: 12px !important;
-    }
-
     .eq-card {
       background: var(--pori-panel) !important;
       border: 1px solid var(--pori-border-soft) !important;
@@ -567,6 +571,20 @@
     .eq-card b {
       color: var(--pori-indigo-hover) !important;
     }
+
+    @media (max-width: 640px) {
+      body { padding: 8px !important; }
+      .container,
+      .caliper-card { padding: 14px !important; border-radius: 14px !important; gap: 10px !important; }
+      .controls,
+      .control-panel { grid-template-columns: 1fr !important; padding: 12px !important; }
+      .controls > .btn-row { grid-column: span 1 !important; }
+      .grid,
+      .calc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+      .charts-row,
+      .eq-grid,
+      .balance-box { grid-template-columns: 1fr !important; }
+    }
     /* === END PORI UNIFIED SIMULATOR THEME === */
 
   </style>
@@ -574,8 +592,9 @@
 <body>
   <div class="container">
     <header>
+      <div class="eyebrow">🔬 ইন্টারেক্টিভ ল্যাব · SSC পদার্থবিজ্ঞান অধ্যায় ৪</div>
       <h1>⚡ মুক্ত পতনে যান্ত্রিক শক্তির সংরক্ষণশীলতা ল্যাব</h1>
-      <p>উচ্চতা ($H$), বস্তুর ভর ($m$) ও পতন দূরত্ব ($x$) পরিবর্তন করো; গতিশক্তি ও বিভবশক্তির নিত্যতা ($E_p + E_k = E$) প্রত্যক্ষ করো।</p>
+      <p>উচ্চতা (<i>H</i>), বস্তুর ভর (<i>m</i>) ও পতন দূরত্ব (<i>x</i>) পরিবর্তন করো; গতিশক্তি ও বিভবশক্তির নিত্যতা (<i>E</i><sub>p</sub> + <i>E</i><sub>k</sub> = <i>E</i>) প্রত্যক্ষ করো।</p>
     </header>
 
     <div class="btn-row">
@@ -592,15 +611,15 @@
 
     <div class="controls">
       <div class="control-group">
-        <label>প্রারম্ভিক উচ্চতা (H): <span id="hDisp" style="color:#38bdf8">50.0 m</span></label>
+        <label>প্রারম্ভিক উচ্চতা (H): <span id="hDisp" style="color:#4f46e5">50.0 m</span></label>
         <input id="hSlide" class="custom-range" type="range" min="20" max="100" value="50" step="5" oninput="onH(this.value)">
       </div>
       <div class="control-group">
-        <label>বস্তুর ভর (m): <span id="mDisp" style="color:#38bdf8">2.0 kg</span></label>
+        <label>বস্তুর ভর (m): <span id="mDisp" style="color:#4f46e5">2.0 kg</span></label>
         <input id="mSlide" class="custom-range" type="range" min="1" max="10" value="2" step="0.5" oninput="onM(this.value)">
       </div>
       <div class="control-group" style="grid-column: 1 / -1">
-        <label>পতন দূরত্ব (x): <span id="xDisp" style="color:#38bdf8">0.0 m</span> (ভূমি থেকে উচ্চতা h = <span id="currHDisp" style="color:#10b981">50.0 m</span>)</label>
+        <label>পতন দূরত্ব (x): <span id="xDisp" style="color:#4f46e5">0.0 m</span> (ভূমি থেকে উচ্চতা h = <span id="currHDisp" style="color:#10b981">50.0 m</span>)</label>
         <input id="xSlide" class="custom-range" type="range" min="0" max="50" value="0" step="0.5" oninput="onX(this.value)">
       </div>
     </div>
@@ -647,12 +666,12 @@
       svg.innerHTML = `
         <defs>
           <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#0f172a"/>
-            <stop offset="100%" stop-color="#1e293b"/>
+            <stop offset="0%" stop-color="#f8fbff"/>
+            <stop offset="100%" stop-color="#eef2ff"/>
           </linearGradient>
           <linearGradient id="groundGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#334155"/>
-            <stop offset="100%" stop-color="#0f172a"/>
+            <stop offset="0%" stop-color="#e2e8f0"/>
+            <stop offset="100%" stop-color="#cbd5e1"/>
           </linearGradient>
           <radialGradient id="ballGrad" cx="35%" cy="35%" r="65%">
             <stop offset="0%" stop-color="#67e8f9"/>
@@ -666,17 +685,17 @@
 
         <!-- Ground Line -->
         <rect x="0" y="${groundY}" width="700" height="30" fill="url(#groundGrad)"/>
-        <line x1="0" y1="${groundY}" x2="700" y2="${groundY}" stroke="#64748b" stroke-width="2"/>
-        <text x="75" y="198" fill="#94a3b8" font-size="11" font-weight="700">ভূমি (Ground, h = 0)</text>
+        <line x1="0" y1="${groundY}" x2="700" y2="${groundY}" stroke="#94a3b8" stroke-width="2"/>
+        <text x="75" y="198" fill="#475569" font-size="11" font-weight="700">ভূমি (Ground, h = 0)</text>
 
         <!-- Tower & Vertical Height Scale -->
-        <rect x="60" y="${topY}" width="16" height="${usableH}" fill="#334155" stroke="#475569" stroke-width="1.5"/>
+        <rect x="60" y="${topY}" width="16" height="${usableH}" fill="#cbd5e1" stroke="#64748b" stroke-width="1.5"/>
         <line x1="76" y1="${topY}" x2="150" y2="${topY}" stroke="#64748b" stroke-dasharray="3,3"/>
-        <text x="155" y="${topY + 4}" fill="#38bdf8" font-size="10" font-weight="700">শীর্ষবিন্দু H = ${H.toFixed(0)}m</text>
+        <text x="155" y="${topY + 4}" fill="#0369a1" font-size="10" font-weight="700">শীর্ষবিন্দু H = ${H.toFixed(0)}m</text>
 
         <!-- Current Height Indicator -->
-        <line x1="50" y1="${ballY}" x2="160" y2="${ballY}" stroke="#38bdf8" stroke-dasharray="2,2"/>
-        <text x="165" y="${ballY + 4}" fill="#cbd5e1" font-size="10" font-weight="700">h = ${h.toFixed(1)}m (পতন x = ${x.toFixed(1)}m)</text>
+        <line x1="50" y1="${ballY}" x2="160" y2="${ballY}" stroke="#0284c7" stroke-dasharray="2,2"/>
+        <text x="165" y="${ballY + 4}" fill="#334155" font-size="10" font-weight="700">h = ${h.toFixed(1)}m (পতন x = ${x.toFixed(1)}m)</text>
 
         <!-- Falling Ball -->
         <circle cx="110" cy="${ballY}" r="12" fill="url(#ballGrad)" stroke="#e0f2fe" stroke-width="1.5"/>
@@ -685,30 +704,30 @@
         <!-- Velocity Vector Arrow -->
         ${v > 0.5 ? `
           <line x1="110" y1="${ballY + 12}" x2="110" y2="${Math.min(groundY, ballY + 12 + Math.min(v * 1.5, 40))}" stroke="#f97316" stroke-width="2.5" marker-end="url(#arrow)"/>
-          <text x="126" y="${ballY + 24}" fill="#fb923c" font-size="9" font-weight="800">v = ${v.toFixed(1)}m/s</text>
+          <text x="126" y="${ballY + 24}" fill="#c2410c" font-size="9" font-weight="800">v = ${v.toFixed(1)}m/s</text>
         ` : ''}
 
         <!-- Energy Bar Chart Panel -->
-        <rect x="360" y="20" width="320" height="155" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>
-        <text x="520" y="38" fill="#e2e8f0" font-size="11" font-weight="800" text-anchor="middle">📊 শক্তির নিত্যতা বার-চার্ট (Joules)</text>
+        <rect x="360" y="20" width="320" height="155" rx="8" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="520" y="38" fill="#1e293b" font-size="11" font-weight="800" text-anchor="middle">📊 শক্তির নিত্যতা বার-চার্ট (Joules)</text>
 
         <!-- Baseline -->
-        <line x1="390" y1="145" x2="650" y2="145" stroke="#475569" stroke-width="1"/>
+        <line x1="390" y1="145" x2="650" y2="145" stroke="#cbd5e1" stroke-width="1"/>
 
         <!-- Ep Bar (Blue) -->
         <rect x="410" y="${145 - epBarH}" width="45" height="${epBarH}" fill="#0284c7" rx="3"/>
-        <text x="432" y="160" fill="#38bdf8" font-size="10" font-weight="800" text-anchor="middle">Ep</text>
-        <text x="432" y="${Math.max(48, 140 - epBarH)}" fill="#bae6fd" font-size="9" font-weight="700" text-anchor="middle">${Math.round(Ep)}J</text>
+        <text x="432" y="160" fill="#0369a1" font-size="10" font-weight="800" text-anchor="middle">Ep</text>
+        <text x="432" y="${Math.max(48, 140 - epBarH)}" fill="#0369a1" font-size="9" font-weight="700" text-anchor="middle">${Math.round(Ep)}J</text>
 
         <!-- Ek Bar (Orange) -->
         <rect x="495" y="${145 - ekBarH}" width="45" height="${ekBarH}" fill="#f97316" rx="3"/>
-        <text x="517" y="160" fill="#fb923c" font-size="10" font-weight="800" text-anchor="middle">Ek</text>
-        <text x="517" y="${Math.max(48, 140 - ekBarH)}" fill="#fed7aa" font-size="9" font-weight="700" text-anchor="middle">${Math.round(Ek)}J</text>
+        <text x="517" y="160" fill="#c2410c" font-size="10" font-weight="800" text-anchor="middle">Ek</text>
+        <text x="517" y="${Math.max(48, 140 - ekBarH)}" fill="#c2410c" font-size="9" font-weight="700" text-anchor="middle">${Math.round(Ek)}J</text>
 
         <!-- Total Energy Bar (Green) -->
         <rect x="580" y="${145 - eBarH}" width="45" height="${eBarH}" fill="#10b981" rx="3"/>
-        <text x="602" y="160" fill="#6ee7b7" font-size="10" font-weight="800" text-anchor="middle">E (মোট)</text>
-        <text x="602" y="${140 - eBarH}" fill="#a7f3d0" font-size="9" font-weight="800" text-anchor="middle">${Math.round(E)}J</text>
+        <text x="602" y="160" fill="#047857" font-size="10" font-weight="800" text-anchor="middle">E (মোট)</text>
+        <text x="602" y="${140 - eBarH}" fill="#047857" font-size="9" font-weight="800" text-anchor="middle">${Math.round(E)}J</text>
       `;
     }
 
@@ -799,7 +818,6 @@
     update();
   </script>
 
-
   <!-- PORI UNIFIED RANGE SYNC -->
   <script>
     (function () {
@@ -817,10 +835,65 @@
         el.style.setProperty('--p', ratio.toFixed(4));
         el.style.setProperty('--fill', pctStr);
         el.style.setProperty('--fill-pct', pctStr);
+        var row = el.closest && el.closest('.pori-stepper-row');
+        if (row) {
+          var disabled = !!el.disabled;
+          row.querySelectorAll('.pori-step-btn').forEach(function (b) {
+            b.disabled = disabled;
+          });
+        }
+      }
+      window.syncPoriRange = syncRangeFill;
+
+      function mountSteppers(el) {
+        if (!el || el.type !== 'range' || el.dataset.poriStepperMounted === '1') return;
+        el.dataset.poriStepperMounted = '1';
+        var row = document.createElement('div');
+        row.className = 'pori-stepper-row';
+        el.parentNode.insertBefore(row, el);
+        var minusBtn = document.createElement('button');
+        minusBtn.type = 'button';
+        minusBtn.className = 'pori-step-btn';
+        minusBtn.setAttribute('aria-label', 'মান কমান');
+        minusBtn.textContent = '−';
+        var plusBtn = document.createElement('button');
+        plusBtn.type = 'button';
+        plusBtn.className = 'pori-step-btn';
+        plusBtn.setAttribute('aria-label', 'মান বাড়ান');
+        plusBtn.textContent = '+';
+        row.appendChild(minusBtn);
+        row.appendChild(el);
+        row.appendChild(plusBtn);
+
+        function nudge(dir) {
+          if (el.disabled) return;
+          var min = parseFloat(el.min);
+          var max = parseFloat(el.max);
+          var step = parseFloat(el.step);
+          if (Number.isNaN(min)) min = 0;
+          if (Number.isNaN(max)) max = 100;
+          if (Number.isNaN(step) || step <= 0) step = (max - min) / 50 || 1;
+          var cur = parseFloat(el.value);
+          if (Number.isNaN(cur)) cur = min;
+          var decimals = (String(step).split('.')[1] || '').length;
+          var next = Math.max(min, Math.min(max, +(cur + dir * step).toFixed(decimals + 2)));
+          if (next !== cur) {
+            el.value = next;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        }
+
+        minusBtn.addEventListener('click', function () { nudge(-1); });
+        plusBtn.addEventListener('click', function () { nudge(1); });
+        syncRangeFill(el);
       }
 
       function syncAllRanges() {
-        document.querySelectorAll('input[type="range"]').forEach(syncRangeFill);
+        document.querySelectorAll('input[type="range"]').forEach(function (el) {
+          mountSteppers(el);
+          syncRangeFill(el);
+        });
       }
 
       var desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
@@ -853,6 +926,5 @@
       setTimeout(syncAllRanges, 50);
     })();
   </script>
-
 </body>
 </html>

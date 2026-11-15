@@ -144,13 +144,563 @@
       .controls { grid-template-columns: 1fr; }
       .grid { grid-template-columns: repeat(2, 1fr); }
     }
+
+    /* === PORI UNIFIED SIMULATOR THEME === */
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-card: #ffffff;
+      --pori-panel: #f8fafc;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-indigo: #4f46e5;
+      --pori-indigo-hover: #4338ca;
+      --pori-indigo-soft: #eef2ff;
+      --pori-indigo-border: #c7d2fe;
+      --pori-indigo-ink: #3730a3;
+    }
+
+    body {
+      background: var(--pori-bg) !important;
+      color: var(--pori-ink) !important;
+      padding: 14px !important;
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, "Segoe UI", sans-serif !important;
+      margin: 0 !important;
+      display: block !important;
+      min-height: auto !important;
+      line-height: 1.5 !important;
+    }
+
+    .container,
+    .caliper-card {
+      max-width: 920px !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      margin: 0 auto !important;
+      background: var(--pori-card) !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-radius: 18px !important;
+      padding: 18px !important;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 12px !important;
+    }
+
+    header {
+      text-align: left !important;
+    }
+
+    .eyebrow {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 6px !important;
+      font-size: 0.72rem !important;
+      font-weight: 800 !important;
+      letter-spacing: 0.03em !important;
+      color: var(--pori-indigo-ink) !important;
+      background: var(--pori-indigo-soft) !important;
+      border: 1px solid var(--pori-indigo-border) !important;
+      padding: 4px 10px !important;
+      border-radius: 999px !important;
+      margin-bottom: 6px !important;
+    }
+
+    header h1,
+    .caliper-card-title {
+      font-size: 1.24rem !important;
+      font-weight: 800 !important;
+      color: var(--pori-heading) !important;
+      margin: 0 0 4px !important;
+      line-height: 1.35 !important;
+    }
+
+    header p,
+    .subtitle,
+    .caliper-card-desc {
+      font-size: 0.84rem !important;
+      color: var(--pori-muted) !important;
+      line-height: 1.55 !important;
+      margin: 0 !important;
+    }
+
+    .badge {
+      background: var(--pori-indigo-soft) !important;
+      color: var(--pori-indigo-ink) !important;
+      border: 1px solid var(--pori-indigo-border) !important;
+      border-radius: 999px !important;
+      font-weight: 750 !important;
+    }
+
+    .canvas-wrap,
+    canvas,
+    #waveCanvas,
+    .chart-box {
+      background: #f8fbff !important;
+      border: 1px solid var(--pori-border) !important;
+      border-radius: 14px !important;
+      overflow: hidden !important;
+      box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+    }
+
+    .canvas-wrap svg,
+    .chart-box svg {
+      background: transparent !important;
+      max-width: 100% !important;
+    }
+
+    .chart-box {
+      padding: 12px !important;
+    }
+
+    .chart-title {
+      color: var(--pori-heading) !important;
+      font-weight: 800 !important;
+    }
+
+    .controls,
+    .control-panel {
+      background: var(--pori-panel) !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-radius: 14px !important;
+      padding: 14px !important;
+      box-shadow: none !important;
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 14px !important;
+    }
+
+    .control-group {
+      min-width: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 6px !important;
+    }
+
+    label,
+    .slider-label {
+      font-size: 0.82rem !important;
+      font-weight: 750 !important;
+      color: var(--pori-heading) !important;
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      gap: 8px !important;
+    }
+
+    label b,
+    label span:last-child {
+      font-variant-numeric: tabular-nums !important;
+    }
+
+    .slider-container {
+      width: 100% !important;
+      padding: 0 !important;
+    }
+
+    .pori-stepper-row {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      width: 100% !important;
+    }
+
+    button.pori-step-btn {
+      width: 36px !important;
+      height: 36px !important;
+      min-width: 36px !important;
+      flex: 0 0 36px !important;
+      border-radius: 10px !important;
+      border: 1px solid var(--pori-border) !important;
+      background: #ffffff !important;
+      color: var(--pori-heading) !important;
+      font-size: 1.05rem !important;
+      font-weight: 800 !important;
+      line-height: 1 !important;
+      padding: 0 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      cursor: pointer !important;
+      user-select: none !important;
+      -webkit-tap-highlight-color: transparent !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+      transition: background 0.15s, border-color 0.15s, color 0.15s !important;
+    }
+
+    button.pori-step-btn:hover {
+      background: var(--pori-indigo-soft) !important;
+      border-color: #a5b4fc !important;
+      color: var(--pori-indigo-hover) !important;
+    }
+
+    button.pori-step-btn:active {
+      transform: scale(0.95);
+    }
+
+    button.pori-step-btn:disabled {
+      opacity: 0.45 !important;
+      cursor: not-allowed !important;
+      pointer-events: none !important;
+    }
+
+    input[type="range"],
+    input[type="range"].custom-range,
+    input[type="range"].range {
+      -webkit-appearance: none !important;
+      appearance: none !important;
+      flex: 1 1 0% !important;
+      width: 100% !important;
+      min-width: 0 !important;
+      height: 8px !important;
+      margin: 0 !important;
+      border: none !important;
+      border-radius: 999px !important;
+      outline: none !important;
+      box-shadow: none !important;
+      cursor: pointer !important;
+      background-color: #e2e8f0 !important;
+      background-image: linear-gradient(90deg, var(--pori-indigo) var(--fill, 50%), #e2e8f0 var(--fill, 50%)) !important;
+      background-size: 100% 100% !important;
+      background-repeat: no-repeat !important;
+    }
+
+    input[type="range"]:disabled,
+    input[type="range"].custom-range:disabled {
+      opacity: 0.5 !important;
+      cursor: not-allowed !important;
+    }
+
+    input[type="range"]::-webkit-slider-thumb,
+    input[type="range"].custom-range::-webkit-slider-thumb,
+    input[type="range"].range::-webkit-slider-thumb {
+      -webkit-appearance: none !important;
+      appearance: none !important;
+      width: 24px !important;
+      height: 24px !important;
+      border-radius: 50% !important;
+      background: var(--pori-indigo) !important;
+      border: 3px solid #ffffff !important;
+      box-shadow: 0 1px 6px rgba(15, 23, 42, 0.28) !important;
+      cursor: grab !important;
+      transition: transform 0.1s ease !important;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:active,
+    input[type="range"].custom-range::-webkit-slider-thumb:active {
+      cursor: grabbing !important;
+      transform: scale(1.06);
+    }
+
+    input[type="range"]::-moz-range-thumb,
+    input[type="range"].custom-range::-moz-range-thumb,
+    input[type="range"].range::-moz-range-thumb {
+      width: 24px !important;
+      height: 24px !important;
+      border-radius: 50% !important;
+      background: var(--pori-indigo) !important;
+      border: 3px solid #ffffff !important;
+      box-shadow: 0 1px 6px rgba(15, 23, 42, 0.28) !important;
+      cursor: grab !important;
+    }
+
+    .slider-indicator-wrap {
+      padding: 0 44px !important;
+      margin-top: 4px !important;
+    }
+
+    .slider-tick {
+      background: #cbd5e1 !important;
+    }
+
+    .slider-tick.major {
+      background: #94a3b8 !important;
+    }
+
+    .slider-indicator-dot {
+      background: var(--pori-indigo) !important;
+      box-shadow: 0 0 5px rgba(79, 70, 229, 0.45) !important;
+    }
+
+    .slider-labels {
+      color: #64748b !important;
+    }
+
+    .btn-row,
+    .preset-row,
+    .mat-btn-row {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 7px !important;
+      justify-content: flex-start !important;
+      align-items: center !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    .action-bar {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 8px !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+    }
+
+    .action-bar .btn-row {
+      width: auto !important;
+      flex: 1 1 auto !important;
+    }
+
+    button:not(.pori-step-btn),
+    .preset-btn,
+    .action-btn,
+    .btn-step,
+    .mat-btn-row button {
+      background: #ffffff !important;
+      color: #334155 !important;
+      border: 1px solid var(--pori-border) !important;
+      border-radius: 999px !important;
+      padding: 6px 12px !important;
+      font-family: inherit !important;
+      font-size: 0.78rem !important;
+      font-weight: 700 !important;
+      cursor: pointer !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 5px !important;
+      line-height: 1.3 !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease !important;
+    }
+
+    button:not(.pori-step-btn):hover,
+    .preset-btn:hover,
+    .action-btn:hover,
+    .mat-btn-row button:hover {
+      background: var(--pori-indigo-soft) !important;
+      color: var(--pori-indigo-hover) !important;
+      border-color: #a5b4fc !important;
+    }
+
+    button.active,
+    .preset-btn.active,
+    .mat-btn-row button.active {
+      background: var(--pori-indigo) !important;
+      color: #ffffff !important;
+      border-color: var(--pori-indigo) !important;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.22) !important;
+    }
+
+    button.primary,
+    .action-btn.primary {
+      background: var(--pori-indigo) !important;
+      color: #ffffff !important;
+      border-color: var(--pori-indigo) !important;
+      border-radius: 10px !important;
+      box-shadow: 0 2px 8px rgba(79, 70, 229, 0.2) !important;
+    }
+
+    button.primary:hover,
+    .action-btn.primary:hover {
+      background: var(--pori-indigo-hover) !important;
+      border-color: var(--pori-indigo-hover) !important;
+      color: #ffffff !important;
+    }
+
+    button.quiz-toggle {
+      background: var(--pori-indigo-soft) !important;
+      color: var(--pori-indigo-ink) !important;
+      border-color: var(--pori-indigo-border) !important;
+      border-radius: 10px !important;
+    }
+
+    button.quiz-toggle.active {
+      background: #fee2e2 !important;
+      color: #991b1b !important;
+      border-color: #fca5a5 !important;
+      box-shadow: none !important;
+    }
+
+    select,
+    .select-custom {
+      -webkit-appearance: none !important;
+      appearance: none !important;
+      width: 100% !important;
+      background-color: #ffffff !important;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+      background-repeat: no-repeat !important;
+      background-position: right 10px center !important;
+      background-size: 15px !important;
+      color: var(--pori-heading) !important;
+      border: 1px solid var(--pori-border) !important;
+      border-radius: 10px !important;
+      padding: 8px 34px 8px 12px !important;
+      font-size: 0.8rem !important;
+      font-weight: 700 !important;
+      outline: none !important;
+      cursor: pointer !important;
+    }
+
+    .grid,
+    .calc-grid {
+      gap: 10px !important;
+      margin: 0 !important;
+    }
+
+    .grid .card,
+    .calc-grid .calc-item {
+      background: var(--pori-card) !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-radius: 12px !important;
+      padding: 10px !important;
+      box-shadow: none !important;
+      text-align: center !important;
+    }
+
+    .grid .card .title,
+    .calc-grid .calc-item .title {
+      color: var(--pori-muted) !important;
+      font-weight: 800 !important;
+    }
+
+    .grid .card .val,
+    .calc-grid .calc-item .value {
+      color: var(--pori-heading) !important;
+      font-weight: 900 !important;
+      font-variant-numeric: tabular-nums !important;
+    }
+
+    .grid .card.highlight,
+    .grid .card.accent,
+    .calc-grid .calc-item.highlight {
+      background: var(--pori-indigo-soft) !important;
+      border-color: var(--pori-indigo-border) !important;
+    }
+
+    .grid .card.highlight .val,
+    .grid .card.accent .val,
+    .calc-grid .calc-item.highlight .value {
+      color: var(--pori-indigo-ink) !important;
+    }
+
+    .grid .card.warm {
+      background: #fffbeb !important;
+      border-color: #fde68a !important;
+    }
+
+    .grid .card.warm .val {
+      color: #92400e !important;
+    }
+
+    .readout,
+    .info-card {
+      background: var(--pori-indigo-soft) !important;
+      border: 1px solid var(--pori-indigo-border) !important;
+      border-left: 4px solid var(--pori-indigo) !important;
+      border-radius: 10px !important;
+      padding: 10px 14px !important;
+      color: #312e81 !important;
+      font-size: 0.84rem !important;
+      font-weight: 650 !important;
+      line-height: 1.55 !important;
+      text-align: left !important;
+    }
+
+    .readout.ok {
+      background: #ecfdf5 !important;
+      border-color: #a7f3d0 !important;
+      border-left: 4px solid #059669 !important;
+      color: #065f46 !important;
+    }
+
+    .readout.fail {
+      background: #fef2f2 !important;
+      border-color: #fecaca !important;
+      border-left: 4px solid #dc2626 !important;
+      color: #991b1b !important;
+    }
+
+    .readout .formula-math {
+      color: var(--pori-indigo-hover) !important;
+      font-weight: 700 !important;
+    }
+
+    .readout p {
+      color: #334155 !important;
+    }
+
+    .balance-item {
+      background: #ffffff !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-radius: 10px !important;
+      color: var(--pori-heading) !important;
+    }
+
+    .warn {
+      background: #fef2f2 !important;
+      border: 1px solid #fecaca !important;
+      border-left: 4px solid #dc2626 !important;
+      border-radius: 10px !important;
+      color: #991b1b !important;
+    }
+
+    .quiz-box {
+      background: #fffbeb !important;
+      border: 1px solid #fde68a !important;
+      border-radius: 12px !important;
+      color: #78350f !important;
+      margin: 0 !important;
+    }
+
+    .quiz-prompt {
+      color: #92400e !important;
+    }
+
+    .quiz-input {
+      background: #ffffff !important;
+      border: 1px solid var(--pori-border) !important;
+      color: var(--pori-ink) !important;
+    }
+
+    .eq-card {
+      background: var(--pori-panel) !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-left: 3px solid var(--pori-indigo) !important;
+      color: var(--pori-heading) !important;
+    }
+
+    .eq-card b {
+      color: var(--pori-indigo-hover) !important;
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 8px !important; }
+      .container,
+      .caliper-card { padding: 14px !important; border-radius: 14px !important; gap: 10px !important; }
+      .controls,
+      .control-panel { grid-template-columns: 1fr !important; padding: 12px !important; }
+      .controls > .btn-row { grid-column: span 1 !important; }
+      .grid,
+      .calc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+      .charts-row,
+      .eq-grid,
+      .balance-box { grid-template-columns: 1fr !important; }
+    }
+    /* === END PORI UNIFIED SIMULATOR THEME === */
   </style>
 </head>
 <body>
   <div class="container">
     <header>
+      <div class="eyebrow">🔬 ইন্টারেক্টিভ ল্যাব · SSC পদার্থবিজ্ঞান অধ্যায় ৭</div>
       <h1>সরল স্পন্দন গতি ও দোলক সিমুলেশন ল্যাব</h1>
-      <p>দোলকের দৈর্ঘ্য ($\ell$), অভিকর্ষজ ত্বরণ ($g$), ভর ($m$) এবং স্প্রিং ধ্রুবক ($k$) বদলে দোলনকাল ও কৌণিক কম্পাঙ্ক পরীক্ষা করো</p>
+      <p>দোলকের দৈর্ঘ্য (ℓ), অভিকর্ষজ ত্বরণ (<i>g</i>), ভর (<i>m</i>) এবং স্প্রিং ধ্রুবক (<i>k</i>) বদলে দোলনকাল ও কৌণিক কম্পাঙ্ক পরীক্ষা করো</p>
     </header>
 
     <div class="btn-row">
@@ -165,16 +715,16 @@
       <svg id="simSvg" viewBox="0 0 720 220">
         <g id="pendulumView">
           <rect x="250" y="14" width="220" height="10" rx="4" fill="#64748b"/>
-          <line x1="360" y1="24" x2="360" y2="205" stroke="#334155" stroke-dasharray="5 4" stroke-width="1.5"/>
-          <line id="pendLine" x1="360" y1="24" x2="360" y2="165" stroke="#cbd5e1" stroke-width="2.5"/>
+          <line x1="360" y1="24" x2="360" y2="205" stroke="#cbd5e1" stroke-dasharray="5 4" stroke-width="1.5"/>
+          <line id="pendLine" x1="360" y1="24" x2="360" y2="165" stroke="#475569" stroke-width="2.5"/>
           <circle id="pendBob" cx="360" cy="165" r="16" fill="#6366f1" stroke="#a5b4fc" stroke-width="2.5"/>
-          <text x="20" y="34" fill="#94a3b8" font-size="12" font-weight="700">সাম্যাবস্থা x = 0</text>
-          <text id="pendAngleTxt" x="560" y="34" fill="#38bdf8" font-size="12" font-weight="700">θ = 0.0°</text>
+          <text x="20" y="34" fill="#475569" font-size="12" font-weight="700">সাম্যাবস্থা x = 0</text>
+          <text id="pendAngleTxt" x="560" y="34" fill="#4f46e5" font-size="12" font-weight="700">θ = 0.0°</text>
         </g>
         <g id="springView" class="hidden">
           <rect x="260" y="14" width="200" height="10" rx="4" fill="#64748b"/>
-          <line x1="200" y1="145" x2="520" y2="145" stroke="#334155" stroke-dasharray="5 4" stroke-width="1.5"/>
-          <path id="coilPath" d="" fill="none" stroke="#38bdf8" stroke-width="3" stroke-linejoin="round"/>
+          <line x1="200" y1="145" x2="520" y2="145" stroke="#cbd5e1" stroke-dasharray="5 4" stroke-width="1.5"/>
+          <path id="coilPath" d="" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linejoin="round"/>
           <rect id="massRect" x="330" y="122" width="60" height="46" rx="8" fill="#6366f1" stroke="#a5b4fc" stroke-width="2"/>
           <text id="massRectTxt" x="360" y="150" text-anchor="middle" fill="#fff" font-size="13" font-weight="800">1.0 kg</text>
         </g>
@@ -329,21 +879,107 @@
     (function () {
       function syncRangeFill(el) {
         if (!el || el.type !== 'range') return;
-        var min = parseFloat(el.min), max = parseFloat(el.max), val = parseFloat(el.value);
+        var min = parseFloat(el.min);
+        var max = parseFloat(el.max);
+        var val = parseFloat(el.value);
         if (Number.isNaN(min)) min = 0;
         if (Number.isNaN(max)) max = 100;
         if (Number.isNaN(val)) val = min;
-        var ratio = max === min ? 0 : Math.max(0, Math.min(1, (val - min) / (max - min)));
+        var ratio = max === min ? 0 : (val - min) / (max - min);
+        ratio = Math.max(0, Math.min(1, ratio));
         var pctStr = (ratio * 100).toFixed(2) + '%';
         el.style.setProperty('--p', ratio.toFixed(4));
         el.style.setProperty('--fill', pctStr);
         el.style.setProperty('--fill-pct', pctStr);
+        var row = el.closest && el.closest('.pori-stepper-row');
+        if (row) {
+          var disabled = !!el.disabled;
+          row.querySelectorAll('.pori-step-btn').forEach(function (b) {
+            b.disabled = disabled;
+          });
+        }
       }
-      function syncAllRanges() { document.querySelectorAll('input[type="range"]').forEach(syncRangeFill); }
-      document.addEventListener('input', e => { if (e.target && e.target.type === 'range') syncRangeFill(e.target); }, true);
-      document.addEventListener('click', () => setTimeout(syncAllRanges, 0), true);
-      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncAllRanges);
-      else syncAllRanges();
+      window.syncPoriRange = syncRangeFill;
+
+      function mountSteppers(el) {
+        if (!el || el.type !== 'range' || el.dataset.poriStepperMounted === '1') return;
+        el.dataset.poriStepperMounted = '1';
+        var row = document.createElement('div');
+        row.className = 'pori-stepper-row';
+        el.parentNode.insertBefore(row, el);
+        var minusBtn = document.createElement('button');
+        minusBtn.type = 'button';
+        minusBtn.className = 'pori-step-btn';
+        minusBtn.setAttribute('aria-label', 'মান কমান');
+        minusBtn.textContent = '−';
+        var plusBtn = document.createElement('button');
+        plusBtn.type = 'button';
+        plusBtn.className = 'pori-step-btn';
+        plusBtn.setAttribute('aria-label', 'মান বাড়ান');
+        plusBtn.textContent = '+';
+        row.appendChild(minusBtn);
+        row.appendChild(el);
+        row.appendChild(plusBtn);
+
+        function nudge(dir) {
+          if (el.disabled) return;
+          var min = parseFloat(el.min);
+          var max = parseFloat(el.max);
+          var step = parseFloat(el.step);
+          if (Number.isNaN(min)) min = 0;
+          if (Number.isNaN(max)) max = 100;
+          if (Number.isNaN(step) || step <= 0) step = (max - min) / 50 || 1;
+          var cur = parseFloat(el.value);
+          if (Number.isNaN(cur)) cur = min;
+          var decimals = (String(step).split('.')[1] || '').length;
+          var next = Math.max(min, Math.min(max, +(cur + dir * step).toFixed(decimals + 2)));
+          if (next !== cur) {
+            el.value = next;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        }
+
+        minusBtn.addEventListener('click', function () { nudge(-1); });
+        plusBtn.addEventListener('click', function () { nudge(1); });
+        syncRangeFill(el);
+      }
+
+      function syncAllRanges() {
+        document.querySelectorAll('input[type="range"]').forEach(function (el) {
+          mountSteppers(el);
+          syncRangeFill(el);
+        });
+      }
+
+      var desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+      if (desc && desc.get && desc.set) {
+        Object.defineProperty(HTMLInputElement.prototype, 'value', {
+          configurable: true,
+          get: function () { return desc.get.call(this); },
+          set: function (v) {
+            desc.set.call(this, v);
+            if (this.type === 'range') syncRangeFill(this);
+          }
+        });
+      }
+
+      document.addEventListener('input', function (e) {
+        if (e.target && e.target.type === 'range') syncRangeFill(e.target);
+      }, true);
+      document.addEventListener('change', function (e) {
+        if (e.target && e.target.type === 'range') syncRangeFill(e.target);
+      }, true);
+      document.addEventListener('click', function () {
+        setTimeout(syncAllRanges, 0);
+      }, true);
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', syncAllRanges);
+      } else {
+        syncAllRanges();
+      }
+      setTimeout(syncAllRanges, 50);
     })();
   </script>
 </body>
