@@ -111,7 +111,7 @@ void main() {
   group('PorhiTheme & Routes', () {
     test('PorhiTheme exposes brand colors and Common styles', () {
       expect(PorhiTheme.light.colorScheme.primary, PorhiTheme.indigo600);
-      expect(PorhiTheme.light.scaffoldBackgroundColor, PorhiTheme.slate50);
+      expect(PorhiTheme.light.scaffoldBackgroundColor, PorhiTheme.canvas);
       expect(PorhiTheme.primaryButtonStyle.bgColor, PorhiTheme.indigo600);
       expect(PorhiTheme.confirmationDialogStyle.bgColor, Colors.white);
     });

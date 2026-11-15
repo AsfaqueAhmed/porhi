@@ -16,7 +16,23 @@ class AuthRequestInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     if (!_isAbsoluteUrl(options.path) && options.baseUrl.isEmpty) {
-      options.baseUrl = _envConfig.normalizedApiBaseUrl;
+      final base = _envConfig.normalizedApiBaseUrl;
+      options.baseUrl = base;
+      final baseUri = Uri.tryParse(base);
+      if (baseUri != null && baseUri.path.isNotEmpty && baseUri.path != '/') {
+        final basePath = baseUri.path.endsWith('/')
+            ? baseUri.path.substring(0, baseUri.path.length - 1)
+            : baseUri.path;
+        if (!options.path.startsWith('$basePath/') && options.path != basePath) {
+          final normalizedSubPath = options.path.startsWith('/')
+              ? options.path.substring(1)
+              : options.path;
+          options.path = '$basePath/$normalizedSubPath';
+          if (baseUri.origin.isNotEmpty && baseUri.origin != 'null') {
+            options.baseUrl = baseUri.origin;
+          }
+        }
+      }
     }
 
     final trimmedPath = options.path.trim();
