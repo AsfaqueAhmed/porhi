@@ -195,15 +195,15 @@
       width: 100% !important;
     }
 
-    button.pori-step-btn {
-      width: 36px !important;
-      height: 36px !important;
-      min-width: 36px !important;
-      flex: 0 0 36px !important;
-      border-radius: 10px !important;
+        button.pori-step-btn {
+      width: 34px !important;
+      height: 34px !important;
+      min-width: 34px !important;
+      flex: 0 0 34px !important;
+      border-radius: 9px !important;
       border: 1px solid var(--pori-border) !important;
-      background: #ffffff !important;
-      color: var(--pori-heading) !important;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%) !important;
+      color: #334155 !important;
       font-size: 1.05rem !important;
       font-weight: 800 !important;
       line-height: 1 !important;
@@ -214,18 +214,19 @@
       cursor: pointer !important;
       user-select: none !important;
       -webkit-tap-highlight-color: transparent !important;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
-      transition: background 0.15s, border-color 0.15s, color 0.15s !important;
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06), inset 0 1px 0 #ffffff !important;
+      transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s !important;
     }
 
     button.pori-step-btn:hover {
       background: var(--pori-indigo-soft) !important;
-      border-color: #a5b4fc !important;
+      border-color: #4f46e5 !important;
       color: var(--pori-indigo-hover) !important;
     }
 
     button.pori-step-btn:active {
       transform: scale(0.95);
+      background: #e0e7ff !important;
     }
 
     button.pori-step-btn:disabled {
@@ -239,20 +240,40 @@
     input[type="range"].range {
       -webkit-appearance: none !important;
       appearance: none !important;
+      box-sizing: border-box !important;
       flex: 1 1 0% !important;
       width: 100% !important;
       min-width: 0 !important;
-      height: 8px !important;
+      height: 10px !important;
       margin: 0 !important;
-      border: none !important;
+      border: 1px solid #cbd5e1 !important;
       border-radius: 999px !important;
       outline: none !important;
-      box-shadow: none !important;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.10), 0 1px 0 #ffffff !important;
       cursor: pointer !important;
       background-color: #e2e8f0 !important;
-      background-image: linear-gradient(90deg, var(--pori-indigo) var(--fill, 50%), #e2e8f0 var(--fill, 50%)) !important;
-      background-size: 100% 100% !important;
-      background-repeat: no-repeat !important;
+      background-image:
+        linear-gradient(180deg, #818cf8 0%, #6366f1 45%, #4f46e5 100%),
+        linear-gradient(180deg, #dde5ef 0%, #e2e8f0 45%, #f1f5f9 100%) !important;
+      background-position: 0 0, 0 0 !important;
+      background-size: var(--fill, 50%) 100%, 100% 100% !important;
+      background-repeat: no-repeat, no-repeat !important;
+    }
+
+    input[type="range"]::-webkit-slider-runnable-track,
+    input[type="range"].custom-range::-webkit-slider-runnable-track,
+    input[type="range"].range::-webkit-slider-runnable-track {
+      background: transparent !important;
+      border: none !important;
+      height: 100% !important;
+    }
+
+    input[type="range"]::-moz-range-track,
+    input[type="range"].custom-range::-moz-range-track,
+    input[type="range"].range::-moz-range-track {
+      background: transparent !important;
+      border: none !important;
+      height: 100% !important;
     }
 
     input[type="range"]:disabled,
@@ -266,36 +287,74 @@
     input[type="range"].range::-webkit-slider-thumb {
       -webkit-appearance: none !important;
       appearance: none !important;
-      width: 24px !important;
-      height: 24px !important;
+      box-sizing: border-box !important;
+      width: 22px !important;
+      height: 22px !important;
+      margin-top: -7px !important;
       border-radius: 50% !important;
-      background: var(--pori-indigo) !important;
-      border: 3px solid #ffffff !important;
-      box-shadow: 0 1px 6px rgba(15, 23, 42, 0.28) !important;
+      border: 2.5px solid #4f46e5 !important;
+      background-color: #ffffff !important;
+      background-image:
+        radial-gradient(circle at center, #4f46e5 0, #4f46e5 3px, transparent 3.6px),
+        linear-gradient(180deg, #ffffff 0%, #f8fafc 65%, #e2e8f0 100%) !important;
+      box-shadow: 0 2px 5px rgba(15, 23, 42, 0.20), 0 0 0 1px rgba(255, 255, 255, 0.9), inset 0 1px 0 #ffffff !important;
       cursor: grab !important;
-      transition: transform 0.1s ease !important;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease !important;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover,
+    input[type="range"].custom-range::-webkit-slider-thumb:hover,
+    input[type="range"].range::-webkit-slider-thumb:hover {
+      border-color: #4338ca !important;
+      box-shadow: 0 3px 8px rgba(79, 70, 229, 0.25), 0 0 0 3px rgba(79, 70, 229, 0.12) !important;
+      transform: scale(1.06);
     }
 
     input[type="range"]::-webkit-slider-thumb:active,
-    input[type="range"].custom-range::-webkit-slider-thumb:active {
+    input[type="range"].custom-range::-webkit-slider-thumb:active,
+    input[type="range"].range::-webkit-slider-thumb:active {
       cursor: grabbing !important;
-      transform: scale(1.06);
+      border-color: #3730a3 !important;
+      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.32), 0 0 0 4px rgba(79, 70, 229, 0.18) !important;
+      transform: scale(1.10);
     }
 
     input[type="range"]::-moz-range-thumb,
     input[type="range"].custom-range::-moz-range-thumb,
     input[type="range"].range::-moz-range-thumb {
-      width: 24px !important;
-      height: 24px !important;
+      box-sizing: border-box !important;
+      width: 22px !important;
+      height: 22px !important;
       border-radius: 50% !important;
-      background: var(--pori-indigo) !important;
-      border: 3px solid #ffffff !important;
-      box-shadow: 0 1px 6px rgba(15, 23, 42, 0.28) !important;
+      border: 2.5px solid #4f46e5 !important;
+      background-color: #ffffff !important;
+      background-image:
+        radial-gradient(circle at center, #4f46e5 0, #4f46e5 3px, transparent 3.6px),
+        linear-gradient(180deg, #ffffff 0%, #f8fafc 65%, #e2e8f0 100%) !important;
+      box-shadow: 0 2px 5px rgba(15, 23, 42, 0.20), 0 0 0 1px rgba(255, 255, 255, 0.9), inset 0 1px 0 #ffffff !important;
       cursor: grab !important;
+      transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease !important;
+    }
+
+    input[type="range"]::-moz-range-thumb:hover,
+    input[type="range"].custom-range::-moz-range-thumb:hover,
+    input[type="range"].range::-moz-range-thumb:hover {
+      border-color: #4338ca !important;
+      box-shadow: 0 3px 8px rgba(79, 70, 229, 0.25), 0 0 0 3px rgba(79, 70, 229, 0.12) !important;
+      transform: scale(1.06);
+    }
+
+    input[type="range"]::-moz-range-thumb:active,
+    input[type="range"].custom-range::-moz-range-thumb:active,
+    input[type="range"].range::-moz-range-thumb:active {
+      cursor: grabbing !important;
+      border-color: #3730a3 !important;
+      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.32), 0 0 0 4px rgba(79, 70, 229, 0.18) !important;
+      transform: scale(1.10);
     }
 
     .slider-indicator-wrap {
-      padding: 0 44px !important;
+      padding: 0 42px !important;
       margin-top: 4px !important;
     }
 
@@ -664,11 +723,11 @@
 
     <div class="controls">
       <div class="control-group">
-        <label>আদি দৈর্ঘ্য (<i>L</i><sub>1</sub>): <span id="l1Val" style="color:#ea580c">10.0 m</span></label>
+        <label><span>আদি দৈর্ঘ্য (<i>L</i><sub>1</sub>):</span> <span id="l1Val" style="color:#ea580c">10.0 m</span></label>
         <input id="l1Slide" class="custom-range" type="range" min="1" max="25" step="0.5" value="10" oninput="updateSimulation()">
       </div>
       <div class="control-group">
-        <label>তাপমাত্রা বৃদ্ধি (Δ<i>T</i>): <span id="dtVal" style="color:#ea580c">50 °C</span></label>
+        <label><span>তাপমাত্রা বৃদ্ধি (Δ<i>T</i>):</span> <span id="dtVal" style="color:#ea580c">50 °C</span></label>
         <input id="dtSlide" class="custom-range" type="range" min="0" max="200" step="5" value="50" oninput="updateSimulation()">
       </div>
     </div>
