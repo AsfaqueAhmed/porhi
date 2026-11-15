@@ -11,6 +11,7 @@ class ExplanationLayersCard extends StatefulWidget {
   final EnvConfig? envConfig;
   final String languageCode;
   final Map<String, bool>? initialExpanded;
+  final bool initiallyCollapsed;
 
   const ExplanationLayersCard({
     super.key,
@@ -18,6 +19,7 @@ class ExplanationLayersCard extends StatefulWidget {
     this.envConfig,
     this.languageCode = 'bn',
     this.initialExpanded,
+    this.initiallyCollapsed = false,
   });
 
   @override
@@ -35,10 +37,12 @@ class _ExplanationLayersCardState extends State<ExplanationLayersCard> {
   };
 
   late Map<String, bool> _expanded;
+  late bool _isCardCollapsed;
 
   @override
   void initState() {
     super.initState();
+    _isCardCollapsed = widget.initiallyCollapsed;
     _expanded = <String, bool>{
       ..._defaultExpanded,
       ...?widget.initialExpanded,
@@ -49,7 +53,9 @@ class _ExplanationLayersCardState extends State<ExplanationLayersCard> {
   void didUpdateWidget(covariant ExplanationLayersCard oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.explanation != widget.explanation ||
-        oldWidget.initialExpanded != widget.initialExpanded) {
+        oldWidget.initialExpanded != widget.initialExpanded ||
+        oldWidget.initiallyCollapsed != widget.initiallyCollapsed) {
+      _isCardCollapsed = widget.initiallyCollapsed;
       _expanded = <String, bool>{
         ..._defaultExpanded,
         ...?widget.initialExpanded,
@@ -82,34 +88,83 @@ class _ExplanationLayersCardState extends State<ExplanationLayersCard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Container(
+          Material(
             color: PorhiTheme.slate900,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
-            child: Row(
-              children: <Widget>[
-                const Icon(
-                  Icons.bolt_rounded,
-                  size: 18,
-                  color: Color(0xFFFBBF24),
+            child: InkWell(
+              key: const Key('explanation_card_header_toggle'),
+              onTap: () {
+                setState(() {
+                  _isCardCollapsed = !_isCardCollapsed;
+                });
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 13,
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    AppStrings.tr(
-                      '৬-স্তরের তাৎক্ষণিক ব্যাখ্যা ও বিশ্লেষণ',
-                      '6-Layer Instant Explanation & Breakdown',
-                      lang,
+                child: Row(
+                  children: <Widget>[
+                    const Icon(
+                      Icons.bolt_rounded,
+                      size: 18,
+                      color: Color(0xFFFBBF24),
                     ),
-                    style: const TextStyle(
-                      fontSize: 13.5,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        AppStrings.tr(
+                          '৬-স্তরের তাৎক্ষণিক ব্যাখ্যা ও বিশ্লেষণ',
+                          '6-Layer Instant Explanation & Breakdown',
+                          lang,
+                        ),
+                        style: const TextStyle(
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                        ),
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0x24FFFFFF),
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(color: const Color(0x38FFFFFF)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          Text(
+                            _isCardCollapsed
+                                ? AppStrings.tr('ব্যাখ্যা দেখুন', 'Show', lang)
+                                : AppStrings.tr('লুকান', 'Hide', lang),
+                            style: const TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(
+                            _isCardCollapsed
+                                ? Icons.keyboard_arrow_down_rounded
+                                : Icons.keyboard_arrow_up_rounded,
+                            size: 16,
+                            color: Colors.white,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
+          if (!_isCardCollapsed) ...<Widget>[
           if (exp.directAnswer.trim().isNotEmpty)
             _buildLayer(
               layerKey: 'direct',
@@ -270,6 +325,7 @@ class _ExplanationLayersCardState extends State<ExplanationLayersCard> {
                 ),
               ),
             ),
+          ],
         ],
       ),
     );

@@ -694,6 +694,43 @@ void main() {
       expect(find.byKey(const Key('explanation_layer_header_protip')), findsNothing);
     });
 
+    testWidgets('ExplanationLayersCard starts collapsed when initiallyCollapsed=true and toggles on header tap', (tester) async {
+      const explanation = ExplanationLayersEntity(
+        directAnswer: 'সঠিক উত্তর (ক)',
+        coreConcept: 'গতির প্রথম সমীকরণ',
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: PorhiTheme.light,
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: const ExplanationLayersCard(
+                explanation: explanation,
+                languageCode: 'bn',
+                initiallyCollapsed: true,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      expect(find.byKey(const Key('explanation_card_header_toggle')), findsOneWidget);
+      expect(find.text('ব্যাখ্যা দেখুন'), findsOneWidget);
+      expect(find.byKey(const Key('explanation_layer_header_direct')), findsNothing);
+
+      await tester.tap(find.byKey(const Key('explanation_card_header_toggle')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('লুকান'), findsOneWidget);
+      expect(find.byKey(const Key('explanation_layer_header_direct')), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('explanation_card_header_toggle')));
+      await tester.pumpAndSettle();
+      expect(find.text('ব্যাখ্যা দেখুন'), findsOneWidget);
+      expect(find.byKey(const Key('explanation_layer_header_direct')), findsNothing);
+    });
+
     testWidgets('CqRubricCard reveals rubric/solution, enforces bounds 0..1/2/3/4, updates total, and submits', (tester) async {
       CqSelfScoresEntity? submittedScores;
       final cq = PracticeQuestionModel.fromJson(_sampleCqJson()).toEntity();
@@ -932,6 +969,14 @@ void main() {
       await tester.tap(find.byKey(const Key('practice_option_opt_a')));
       await tester.pumpAndSettle();
       expect(find.byKey(const Key('explanation_layers_card')), findsOneWidget);
+      expect(find.textContaining('সঠিক উত্তর'), findsNothing);
+      await tester.ensureVisible(
+        find.byKey(const Key('explanation_card_header_toggle')),
+      );
+      await tester.tap(
+        find.byKey(const Key('explanation_card_header_toggle')),
+      );
+      await tester.pumpAndSettle();
       expect(find.textContaining('সঠিক উত্তর'), findsOneWidget);
 
       // Bookmark Q1
@@ -1563,9 +1608,17 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      // Answer q1 & expand distractors layer
+      // Answer q1 -> breakdown card starts collapsed; tap to reveal then expand distractors
       await tester.ensureVisible(find.byKey(const Key('practice_option_opt_a')));
       await tester.tap(find.byKey(const Key('practice_option_opt_a')));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('ত্বরণের মাত্রা'), findsNothing);
+      await tester.ensureVisible(
+        find.byKey(const Key('explanation_card_header_toggle')),
+      );
+      await tester.tap(
+        find.byKey(const Key('explanation_card_header_toggle')),
+      );
       await tester.pumpAndSettle();
       await tester.ensureVisible(
         find.byKey(const Key('explanation_layer_header_distractors')),
@@ -1576,12 +1629,21 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.textContaining('ত্বরণের মাত্রা'), findsOneWidget);
 
-      // Advance to q2 & answer q2 -> distractors starts collapsed for q2
+      // Advance to q2 & answer q2 -> card starts collapsed; once expanded, distractors starts collapsed for q2
       await tester.ensureVisible(find.byKey(const Key('practice_next_btn')));
       await tester.tap(find.byKey(const Key('practice_next_btn')));
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.byKey(const Key('practice_option_opt_a')));
       await tester.tap(find.byKey(const Key('practice_option_opt_a')));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('দ্বিতীয় প্রশ্নের সরাসরি উত্তর'), findsNothing);
+
+      await tester.ensureVisible(
+        find.byKey(const Key('explanation_card_header_toggle')),
+      );
+      await tester.tap(
+        find.byKey(const Key('explanation_card_header_toggle')),
+      );
       await tester.pumpAndSettle();
 
       expect(find.textContaining('দ্বিতীয় প্রশ্নের সরাসরি উত্তর'), findsOneWidget);

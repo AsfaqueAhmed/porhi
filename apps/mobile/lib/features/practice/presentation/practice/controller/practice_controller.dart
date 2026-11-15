@@ -1,3 +1,4 @@
+import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:network/network.dart' show ApiResponseErrorType, ErrorResponse;
@@ -399,20 +400,20 @@ class PracticeController extends GetxController {
       res.fold(
         (err) {
           selectedOptions.remove(q.id);
-          isStatusError.value = true;
-          if (err.code == 'OFFLINE_NO_ANSWER_KEY') {
-            statusMessage.value = AppStrings.tr(
-              'অফলাইনে উত্তর যাচাইয়ের জন্য ইন্টারনেট সংযোগ চালু করো অথবা অধ্যায়ের অফলাইন প্যাক ডাউনলোড করো।',
-              'Connect to internet or download this chapter for offline practice checking.',
-              language.value,
-            );
-          } else {
-            statusMessage.value = _resolveErrorMessage(
-              err,
-              fallbackBn: 'উত্তর জমা দেওয়া যায়নি। আবার চেষ্টা করো।',
-              fallbackEn: 'Could not submit answer. Please try again.',
-            );
-          }
+          _setStatus(
+            err.code == 'OFFLINE_NO_ANSWER_KEY'
+                ? AppStrings.tr(
+                    'অফলাইনে উত্তর যাচাইয়ের জন্য ইন্টারনেট সংযোগ চালু করো অথবা অধ্যায়ের অফলাইন প্যাক ডাউনলোড করো।',
+                    'Connect to internet or download this chapter for offline practice checking.',
+                    language.value,
+                  )
+                : _resolveErrorMessage(
+                    err,
+                    fallbackBn: 'উত্তর জমা দেওয়া যায়নি। আবার চেষ্টা করো।',
+                    fallbackEn: 'Could not submit answer. Please try again.',
+                  ),
+            isError: true,
+          );
         },
         (outcome) {
           submitResults[q.id] = outcome;
@@ -472,11 +473,13 @@ class PracticeController extends GetxController {
 
       res.fold(
         (err) {
-          isStatusError.value = true;
-          statusMessage.value = _resolveErrorMessage(
-            err,
-            fallbackBn: 'স্ব-মূল্যায়ন সংরক্ষণ করা যায়নি।',
-            fallbackEn: 'Could not save self-assessment.',
+          _setStatus(
+            _resolveErrorMessage(
+              err,
+              fallbackBn: 'স্ব-মূল্যায়ন সংরক্ষণ করা যায়নি।',
+              fallbackEn: 'Could not save self-assessment.',
+            ),
+            isError: true,
           );
         },
         (outcome) {
@@ -484,18 +487,19 @@ class PracticeController extends GetxController {
           if (outcome.isQueuedOffline) {
             isOfflineMode.value = true;
           }
-          isStatusError.value = false;
-          statusMessage.value = outcome.isQueuedOffline
-              ? AppStrings.tr(
-                  'অফলাইনে স্ব-মূল্যায়ন সংরক্ষিত হয়েছে — অনলাইনে সিঙ্ক হবে।',
-                  'Self-assessment saved offline — will sync when online.',
-                  language.value,
-                )
-              : AppStrings.tr(
-                  'স্ব-মূল্যায়ন সফলভাবে সংরক্ষিত হয়েছে।',
-                  'Self-assessment saved successfully.',
-                  language.value,
-                );
+          _setStatus(
+            outcome.isQueuedOffline
+                ? AppStrings.tr(
+                    'অফলাইনে স্ব-মূল্যায়ন সংরক্ষিত হয়েছে — অনলাইনে সিঙ্ক হবে।',
+                    'Self-assessment saved offline — will sync when online.',
+                    language.value,
+                  )
+                : AppStrings.tr(
+                    'স্ব-মূল্যায়ন সফলভাবে সংরক্ষিত হয়েছে।',
+                    'Self-assessment saved successfully.',
+                    language.value,
+                  ),
+          );
         },
       );
     } finally {
@@ -541,11 +545,13 @@ class PracticeController extends GetxController {
 
       await result.fold(
         (err) async {
-          isStatusError.value = true;
-          statusMessage.value = _resolveErrorMessage(
-            err,
-            fallbackBn: 'বুকমার্ক আপডেট করা যায়নি।',
-            fallbackEn: 'Could not update bookmark.',
+          _setStatus(
+            _resolveErrorMessage(
+              err,
+              fallbackBn: 'বুকমার্ক আপডেট করা যায়নি।',
+              fallbackEn: 'Could not update bookmark.',
+            ),
+            isError: true,
           );
         },
         (bookmarked) async {
@@ -554,18 +560,19 @@ class PracticeController extends GetxController {
           } else {
             bookmarkedQuestionIds.remove(q.id);
           }
-          isStatusError.value = false;
-          statusMessage.value = bookmarked
-              ? AppStrings.tr(
-                  'প্রশ্নটি বুকমার্কে সংরক্ষণ করা হয়েছে।',
-                  'Question bookmarked.',
-                  language.value,
-                )
-              : AppStrings.tr(
-                  'প্রশ্নটি বুকমার্ক থেকে সরানো হয়েছে।',
-                  'Question removed from bookmarks.',
-                  language.value,
-                );
+          _setStatus(
+            bookmarked
+                ? AppStrings.tr(
+                    'প্রশ্নটি বুকমার্কে সংরক্ষণ করা হয়েছে।',
+                    'Question bookmarked.',
+                    language.value,
+                  )
+                : AppStrings.tr(
+                    'প্রশ্নটি বুকমার্ক থেকে সরানো হয়েছে।',
+                    'Question removed from bookmarks.',
+                    language.value,
+                  ),
+          );
           if (subjectId.value.trim().isNotEmpty) {
             await _patchCachedBookmarkUseCase(
               subjectId: subjectId.value,
@@ -669,6 +676,15 @@ class PracticeController extends GetxController {
       return msg;
     }
     return AppStrings.tr(fallbackBn, fallbackEn, language.value);
+  }
+
+  void _setStatus(String message, {bool isError = false}) {
+    isStatusError.value = isError;
+    statusMessage.value = message;
+    CustomToast.show(
+      message: message,
+      type: isError ? ToastType.error : ToastType.success,
+    );
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:network/network.dart' show ErrorResponse;
@@ -136,6 +137,14 @@ class _ReportContentSheetState extends State<ReportContentSheet> {
           });
         },
         (_) {
+          CustomToast.success(
+            AppStrings.tr(
+              'রিপোর্ট পাঠানো হয়েছে। ধন্যবাদ!',
+              'Report submitted. Thank you!',
+              lang,
+            ),
+            context: context,
+          );
           setState(() {
             _isSubmitted = true;
           });

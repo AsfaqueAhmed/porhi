@@ -1,3 +1,4 @@
+import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:network/network.dart' show ApiResponseErrorType, ErrorResponse;
@@ -492,11 +493,13 @@ class LessonController extends GetxController {
 
       result.fold(
         (err) {
-          isStatusError.value = true;
-          statusMessage.value = _resolveErrorMessage(
-            err,
-            fallbackBn: 'পাঠ সম্পন্ন হিসেবে সংরক্ষণ করা যায়নি।',
-            fallbackEn: 'Could not mark lesson as complete.',
+          _setStatus(
+            _resolveErrorMessage(
+              err,
+              fallbackBn: 'পাঠ সম্পন্ন হিসেবে সংরক্ষণ করা যায়নি।',
+              fallbackEn: 'Could not mark lesson as complete.',
+            ),
+            isError: true,
           );
         },
         (outcome) {
@@ -504,18 +507,19 @@ class LessonController extends GetxController {
           if (currentLesson != null) {
             lesson.value = currentLesson.copyWith(isCompleted: true);
           }
-          isStatusError.value = false;
-          statusMessage.value = outcome.isQueuedOffline
-              ? AppStrings.tr(
-                  'অফলাইনে সম্পন্ন চিহ্নিত হয়েছে — ইন্টারনেটে সংযুক্ত হলে সিঙ্ক হবে।',
-                  'Marked complete offline — will sync when online.',
-                  language.value,
-                )
-              : AppStrings.tr(
-                  'অভিনন্দন! পাঠটি সম্পন্ন হিসেবে সংরক্ষিত হয়েছে।',
-                  'Great! Lesson marked as completed.',
-                  language.value,
-                );
+          _setStatus(
+            outcome.isQueuedOffline
+                ? AppStrings.tr(
+                    'অফলাইনে সম্পন্ন চিহ্নিত হয়েছে — ইন্টারনেটে সংযুক্ত হলে সিঙ্ক হবে।',
+                    'Marked complete offline — will sync when online.',
+                    language.value,
+                  )
+                : AppStrings.tr(
+                    'অভিনন্দন! পাঠটি সম্পন্ন হিসেবে সংরক্ষিত হয়েছে।',
+                    'Great! Lesson marked as completed.',
+                    language.value,
+                  ),
+          );
         },
       );
     } finally {
@@ -554,27 +558,30 @@ class LessonController extends GetxController {
 
       await result.fold(
         (err) async {
-          isStatusError.value = true;
-          statusMessage.value = _resolveErrorMessage(
-            err,
-            fallbackBn: 'বুকমার্ক আপডেট করা যায়নি।',
-            fallbackEn: 'Could not update bookmark.',
+          _setStatus(
+            _resolveErrorMessage(
+              err,
+              fallbackBn: 'বুকমার্ক আপডেট করা যায়নি।',
+              fallbackEn: 'Could not update bookmark.',
+            ),
+            isError: true,
           );
         },
         (bookmarked) async {
           isBookmarked.value = bookmarked;
-          isStatusError.value = false;
-          statusMessage.value = bookmarked
-              ? AppStrings.tr(
-                  'টপিকটি বুকমার্কে সংরক্ষণ করা হয়েছে।',
-                  'Topic saved to bookmarks.',
-                  language.value,
-                )
-              : AppStrings.tr(
-                  'টপিকটি বুকমার্ক থেকে সরানো হয়েছে।',
-                  'Topic removed from bookmarks.',
-                  language.value,
-                );
+          _setStatus(
+            bookmarked
+                ? AppStrings.tr(
+                    'টপিকটি বুকমার্কে সংরক্ষণ করা হয়েছে।',
+                    'Topic saved to bookmarks.',
+                    language.value,
+                  )
+                : AppStrings.tr(
+                    'টপিকটি বুকমার্ক থেকে সরানো হয়েছে।',
+                    'Topic removed from bookmarks.',
+                    language.value,
+                  ),
+          );
           await _patchCachedBookmarkUseCase(
             subjectId: subjectId.value,
             itemId: activeTopicId,
@@ -620,11 +627,12 @@ class LessonController extends GetxController {
             );
             if (isClosed || generation != _loadGeneration) return;
             savedNote.value = rawContent;
-            isStatusError.value = false;
-            statusMessage.value = AppStrings.tr(
-              'নোটটি ডিভাইসে অফলাইনে সংরক্ষিত হয়েছে।',
-              'Note saved locally on device.',
-              language.value,
+            _setStatus(
+              AppStrings.tr(
+                'নোটটি ডিভাইসে অফলাইনে সংরক্ষিত হয়েছে।',
+                'Note saved locally on device.',
+                language.value,
+              ),
             );
           } else {
             errorText = _resolveErrorMessage(
@@ -642,14 +650,19 @@ class LessonController extends GetxController {
           );
           if (isClosed || generation != _loadGeneration) return;
           savedNote.value = saved;
-          isStatusError.value = false;
-          statusMessage.value = saved.trim().isEmpty
-              ? AppStrings.tr('নোট মুছে ফেলা হয়েছে।', 'Note cleared.', language.value)
-              : AppStrings.tr(
-                  'ব্যক্তিগত নোট সংরক্ষিত হয়েছে।',
-                  'Personal note saved.',
-                  language.value,
-                );
+          _setStatus(
+            saved.trim().isEmpty
+                ? AppStrings.tr(
+                    'নোট মুছে ফেলা হয়েছে।',
+                    'Note cleared.',
+                    language.value,
+                  )
+                : AppStrings.tr(
+                    'ব্যক্তিগত নোট সংরক্ষিত হয়েছে।',
+                    'Personal note saved.',
+                    language.value,
+                  ),
+          );
         },
       );
       return errorText;
@@ -679,19 +692,22 @@ class LessonController extends GetxController {
 
       result.fold(
         (err) {
-          isStatusError.value = true;
-          statusMessage.value = _resolveErrorMessage(
-            err,
-            fallbackBn: 'মতামত পাঠানো যায়নি।',
-            fallbackEn: 'Could not send feedback.',
+          _setStatus(
+            _resolveErrorMessage(
+              err,
+              fallbackBn: 'মতামত পাঠানো যায়নি।',
+              fallbackEn: 'Could not send feedback.',
+            ),
+            isError: true,
           );
         },
         (_) {
-          isStatusError.value = false;
-          statusMessage.value = AppStrings.tr(
-            'তোমার মতামতের জন্য ধন্যবাদ!',
-            'Thanks for your feedback!',
-            language.value,
+          _setStatus(
+            AppStrings.tr(
+              'তোমার মতামতের জন্য ধন্যবাদ!',
+              'Thanks for your feedback!',
+              language.value,
+            ),
           );
         },
       );
@@ -721,20 +737,20 @@ class LessonController extends GetxController {
       result.fold(
         (err) {
           selectedOptionId.value = null;
-          isStatusError.value = true;
-          if (err.code == 'OFFLINE_NO_ANSWER_KEY') {
-            statusMessage.value = AppStrings.tr(
-              'অফলাইনে উত্তর যাচাইয়ের জন্য ইন্টারনেট সংযোগ চালু করো অথবা অধ্যায়ের অফলাইন প্যাক ডাউনলোড করো।',
-              'Connect to internet or download this chapter for offline practice checking.',
-              language.value,
-            );
-          } else {
-            statusMessage.value = _resolveErrorMessage(
-              err,
-              fallbackBn: 'উত্তর যাচাই করা যায়নি। আবার চেষ্টা করো।',
-              fallbackEn: 'Could not submit answer. Please try again.',
-            );
-          }
+          _setStatus(
+            err.code == 'OFFLINE_NO_ANSWER_KEY'
+                ? AppStrings.tr(
+                    'অফলাইনে উত্তর যাচাইয়ের জন্য ইন্টারনেট সংযোগ চালু করো অথবা অধ্যায়ের অফলাইন প্যাক ডাউনলোড করো।',
+                    'Connect to internet or download this chapter for offline practice checking.',
+                    language.value,
+                  )
+                : _resolveErrorMessage(
+                    err,
+                    fallbackBn: 'উত্তর যাচাই করা যায়নি। আবার চেষ্টা করো।',
+                    fallbackEn: 'Could not submit answer. Please try again.',
+                  ),
+            isError: true,
+          );
         },
         (outcome) {
           quickCheckResult.value = outcome;
@@ -765,6 +781,15 @@ class LessonController extends GetxController {
       return msg;
     }
     return AppStrings.tr(fallbackBn, fallbackEn, language.value);
+  }
+
+  void _setStatus(String message, {bool isError = false}) {
+    isStatusError.value = isError;
+    statusMessage.value = message;
+    CustomToast.show(
+      message: message,
+      type: isError ? ToastType.error : ToastType.success,
+    );
   }
 
   @override

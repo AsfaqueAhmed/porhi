@@ -1,3 +1,4 @@
+import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -477,6 +478,10 @@ class ProgressController extends GetxController {
   void _showStatus(String message, {bool isError = false}) {
     statusMessage.value = message;
     isStatusError.value = isError;
+    CustomToast.show(
+      message: message,
+      type: isError ? ToastType.error : ToastType.success,
+    );
   }
 
   @override

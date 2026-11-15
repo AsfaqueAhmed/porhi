@@ -28,30 +28,40 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final defaultStyle = Common.isInitiated() ? Common.appButtonStyle : null;
+    final resolvedHeight = defaultStyle?.buttonHeight ?? 48.0;
+    final resolvedBg = bgColor ?? defaultStyle?.bgColor ?? const Color(0xFF007B63);
+    final resolvedRadius = borderRadius ?? defaultStyle?.borderRadius ?? 14.0;
+    final resolvedBorderColor = borderColor ?? defaultStyle?.borderColor;
+    final resolvedShadow = boxShadow ?? defaultStyle?.boxShadow;
+    final baseTextStyle = style ??
+        defaultStyle?.textStyle ??
+        const TextStyle(fontSize: 15, fontWeight: FontWeight.w700);
+    final resolvedTextStyle = textColor != null
+        ? baseTextStyle.copyWith(color: textColor)
+        : baseTextStyle;
+
     return GestureDetector(
+      behavior: HitTestBehavior.opaque,
       onTap: onTap,
       child: Container(
-        height: Common.appButtonStyle.buttonHeight,
+        height: resolvedHeight,
+        padding: const EdgeInsets.symmetric(horizontal: 14),
         decoration: BoxDecoration(
-          color: bgColor ?? Common.appButtonStyle.bgColor,
-          borderRadius: BorderRadius.circular(
-            borderRadius ?? Common.appButtonStyle.borderRadius,
-          ),
-          border:
-              (borderColor != null || Common.appButtonStyle.borderColor != null)
-                  ? Border.all(
-                      color: borderColor ??
-                          Common.appButtonStyle.borderColor ??
-                          Colors.transparent,
-                    )
-                  : null,
-          boxShadow: boxShadow ?? Common.appButtonStyle.boxShadow,
+          color: resolvedBg,
+          borderRadius: BorderRadius.circular(resolvedRadius),
+          border: resolvedBorderColor != null
+              ? Border.all(color: resolvedBorderColor)
+              : null,
+          boxShadow: resolvedShadow,
         ),
         child: Center(
           child: FittedBox(
+            fit: BoxFit.scaleDown,
             child: Text(
               title,
-              style: style ?? Common.appButtonStyle.textStyle,
+              maxLines: 1,
+              style: resolvedTextStyle,
             ),
           ),
         ),

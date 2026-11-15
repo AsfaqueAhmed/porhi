@@ -946,6 +946,14 @@ void main() {
         await tester.tap(mcqOptFinder);
         await tester.pumpAndSettle();
 
+        // Explanation remains collapsed until user chooses to view it.
+        expect(find.byType(ExplanationLayersCard), findsNothing);
+        final explainToggle = find.text('ব্যাখ্যা দেখো').first;
+        expect(explainToggle, findsOneWidget);
+        await tester.ensureVisible(explainToggle);
+        await tester.tap(explainToggle);
+        await tester.pumpAndSettle();
+
         // Now ExplanationLayersCard is revealed
         expect(find.byType(ExplanationLayersCard), findsOneWidget);
         expect(find.textContaining('সঠিক উত্তর: কাজ'), findsOneWidget);

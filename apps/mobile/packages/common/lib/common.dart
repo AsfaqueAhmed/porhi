@@ -67,6 +67,8 @@ class Common {
     return _confirmationDialogStyle!;
   }
 
+  static GlobalKey<NavigatorState>? get maybeNavigatorKey => _navigatorKey;
+
   static GlobalKey<NavigatorState> get navigatorKey {
     if (_navigatorKey == null) {
       throw Exception('Navigator key is not initialized');

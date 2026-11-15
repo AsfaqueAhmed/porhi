@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
@@ -27,39 +28,36 @@ class _ExamRunnerViewState extends State<ExamRunnerView> {
     _isExitDialogOpen = true;
     String? action;
     try {
-      action = await showDialog<String>(
+      action = await ConfirmationDialog.show<String>(
         context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(
-            AppStrings.tr('পরীক্ষা থেকে বের হতে চাও?', 'Leave Active Exam?', lang),
-          ),
-          content: Text(
-            AppStrings.tr(
-              'তোমার উত্তর ও সময় সংরক্ষিত আছে। পরে চাইলে আবার শুরু করতে পারবে।',
-              'Your answers and remaining time are saved so you can resume later.',
-              lang,
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop('stay'),
-              child: Text(AppStrings.tr('পরীক্ষায় থাকো', 'Stay', lang)),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop('discard'),
-              style: TextButton.styleFrom(foregroundColor: PorhiTheme.rose600),
-              child: Text(
-                AppStrings.tr('বাতিল করে বের হও', 'Discard & Exit', lang),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () => Navigator.of(ctx).pop('save'),
-              child: Text(
-                AppStrings.tr('সংরক্ষণ করে বের হও', 'Save & Exit', lang),
-              ),
-            ),
-          ],
+        icon: Icons.pause_circle_outline_rounded,
+        iconColor: PorhiTheme.indigo600,
+        iconBackgroundColor: PorhiTheme.indigo50,
+        title: AppStrings.tr(
+          'পরীক্ষা থেকে বের হতে চাও?',
+          'Leave Active Exam?',
+          lang,
         ),
+        message: AppStrings.tr(
+          'তোমার উত্তর ও সময় সংরক্ষিত আছে। পরে চাইলে আবার শুরু করতে পারবে।',
+          'Your answers and remaining time are saved so you can resume later.',
+          lang,
+        ),
+        leftButtonTitle: AppStrings.tr('পরীক্ষায় থাকো', 'Stay', lang),
+        leftButtonResult: 'stay',
+        middleButtonTitle: AppStrings.tr(
+          'বাতিল করে বের হও',
+          'Discard & Exit',
+          lang,
+        ),
+        middleButtonResult: 'discard',
+        middleButtonStyle: PorhiTheme.dangerButtonStyle,
+        rightButtonTitle: AppStrings.tr(
+          'সংরক্ষণ করে বের হও',
+          'Save & Exit',
+          lang,
+        ),
+        rightButtonResult: 'save',
       );
     } finally {
       _isExitDialogOpen = false;
@@ -76,44 +74,62 @@ class _ExamRunnerViewState extends State<ExamRunnerView> {
   Future<void> _confirmSubmit(BuildContext context, AppLanguage lang) async {
     if (_isExitDialogOpen || _isSubmitDialogOpen || !mounted) return;
     _isSubmitDialogOpen = true;
+    final answered = controller.answeredCount;
     final unanswered = controller.unansweredCount;
     bool? confirmed;
     try {
-      confirmed = await showDialog<bool>(
+      confirmed = await ConfirmationDialog.show<bool>(
         context: context,
-        builder: (ctx) => AlertDialog(
-          title: Text(
-            AppStrings.tr('পরীক্ষা জমা দেবে?', 'Submit Exam?', lang),
-          ),
-          content: Text(
-            unanswered > 0
-                ? AppStrings.tr(
-                    'এখনো ${AppStrings.formatNumber(unanswered, lang)}টি প্রশ্নের উত্তর দেওয়া হয়নি। তবুও জমা দিতে চাও?',
-                    'You still have $unanswered unanswered question(s). Submit anyway?',
-                    lang,
-                  )
-                : AppStrings.tr(
-                    'সবগুলো প্রশ্নের উত্তর দেওয়া হয়েছে। উত্তরপত্র জমা দিতে নিশ্চিত করো।',
-                    'All questions answered. Confirm to submit your exam.',
-                    lang,
-                  ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: Text(AppStrings.t('action.cancel', lang)),
-            ),
-            ElevatedButton(
-              key: const Key('exam_confirm_submit_btn'),
-              onPressed: () => Navigator.of(ctx).pop(true),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: PorhiTheme.indigo600,
-                foregroundColor: Colors.white,
+        icon: unanswered > 0
+            ? Icons.warning_amber_rounded
+            : Icons.assignment_turned_in_rounded,
+        iconColor:
+            unanswered > 0 ? PorhiTheme.amber600 : PorhiTheme.emerald600,
+        iconBackgroundColor:
+            unanswered > 0 ? PorhiTheme.amber50 : PorhiTheme.emerald50,
+        title: AppStrings.tr('পরীক্ষা জমা দেবে?', 'Submit Exam?', lang),
+        message: unanswered > 0
+            ? AppStrings.tr(
+                'এখনো ${AppStrings.formatNumber(unanswered, lang)}টি প্রশ্নের উত্তর দেওয়া হয়নি। তবুও জমা দিতে চাও?',
+                'You still have $unanswered unanswered question(s). Submit anyway?',
+                lang,
+              )
+            : AppStrings.tr(
+                'সবগুলো প্রশ্নের উত্তর দেওয়া হয়েছে। উত্তরপত্র জমা দিতে নিশ্চিত করো।',
+                'All questions answered. Confirm to submit your exam.',
+                lang,
               ),
-              child: Text(AppStrings.tr('জমা দাও', 'Submit', lang)),
+        contentWidget: Row(
+          children: <Widget>[
+            Expanded(
+              child: _DialogStatPill(
+                label: AppStrings.tr('উত্তরিত', 'Answered', lang),
+                value: AppStrings.formatNumber(answered, lang),
+                bgColor: PorhiTheme.emerald50,
+                borderColor: PorhiTheme.emerald100,
+                textColor: PorhiTheme.emerald600,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: _DialogStatPill(
+                label: AppStrings.tr('বাকি', 'Remaining', lang),
+                value: AppStrings.formatNumber(unanswered, lang),
+                bgColor:
+                    unanswered > 0 ? PorhiTheme.amber50 : PorhiTheme.slate50,
+                borderColor:
+                    unanswered > 0 ? PorhiTheme.amber100 : PorhiTheme.slate200,
+                textColor:
+                    unanswered > 0 ? PorhiTheme.amber600 : PorhiTheme.slate600,
+              ),
             ),
           ],
         ),
+        leftButtonTitle: AppStrings.t('action.cancel', lang),
+        leftButtonResult: false,
+        rightButtonKey: const Key('exam_confirm_submit_btn'),
+        rightButtonTitle: AppStrings.tr('জমা দাও', 'Submit', lang),
+        rightButtonResult: true,
       );
     } finally {
       _isSubmitDialogOpen = false;
@@ -291,7 +307,9 @@ class _ExamRunnerViewState extends State<ExamRunnerView> {
                         totalQuestions: controller.questions.length,
                         answeredCount: controller.answeredCount,
                         isOffline: activeSession.isOfflineSession,
+                        isSubmitting: submitting,
                         lang: lang,
+                        onSubmitTap: () => _confirmSubmit(context, lang),
                       ),
                       const SizedBox(height: 12),
                       _ExamQuestionCard(
@@ -301,58 +319,83 @@ class _ExamRunnerViewState extends State<ExamRunnerView> {
                         lang: lang,
                       ),
                       const SizedBox(height: 16),
-                      Wrap(
-                        spacing: 10,
-                        runSpacing: 10,
-                        alignment: WrapAlignment.spaceBetween,
+                      Row(
                         children: <Widget>[
-                          OutlinedButton.icon(
-                            key: const Key('exam_prev_btn'),
-                            onPressed: controller.safeIndex > 0
-                                ? controller.previousQuestion
-                                : null,
-                            icon: const Icon(Icons.arrow_back_rounded, size: 18),
-                            label: Text(AppStrings.tr('পূর্ববর্তী', 'Previous', lang)),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              key: const Key('exam_prev_btn'),
+                              onPressed: controller.safeIndex > 0
+                                  ? controller.previousQuestion
+                                  : null,
+                              icon: const Icon(Icons.arrow_back_rounded, size: 18),
+                              label: Text(
+                                AppStrings.tr('পূর্ববর্তী', 'Previous', lang),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           ),
-                          if (controller.safeIndex <
-                              controller.questions.length - 1)
-                            ElevatedButton.icon(
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton.icon(
                               key: const Key('exam_next_btn'),
-                              onPressed: controller.nextQuestion,
+                              onPressed: controller.safeIndex <
+                                      controller.questions.length - 1
+                                  ? controller.nextQuestion
+                                  : null,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: PorhiTheme.indigo600,
                                 foregroundColor: Colors.white,
                               ),
                               icon: const Icon(Icons.arrow_forward_rounded, size: 18),
-                              label: Text(AppStrings.tr('পরবর্তী', 'Next', lang)),
-                            ),
-                          ElevatedButton.icon(
-                            key: const Key('exam_submit_btn'),
-                            onPressed: submitting
-                                ? null
-                                : () => _confirmSubmit(context, lang),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: PorhiTheme.emerald600,
-                              foregroundColor: Colors.white,
-                            ),
-                            icon: submitting
-                                ? const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : const Icon(Icons.check_circle_outline, size: 18),
-                            label: Text(
-                              submitting
-                                  ? AppStrings.tr('জমা হচ্ছে...', 'Submitting...', lang)
-                                  : AppStrings.tr('জমা দিন', 'Submit Exam', lang),
+                              label: Text(
+                                AppStrings.tr('পরবর্তী', 'Next', lang),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ),
                         ],
                       ),
+                      if (controller.safeIndex >=
+                          controller.questions.length - 1) ...<Widget>[
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          decoration: BoxDecoration(
+                            color: PorhiTheme.indigo50,
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: PorhiTheme.indigo100),
+                          ),
+                          child: Row(
+                            children: <Widget>[
+                              const Icon(
+                                Icons.info_outline_rounded,
+                                size: 18,
+                                color: PorhiTheme.indigo700,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  AppStrings.tr(
+                                    'তুমি শেষ প্রশ্নে আছো। উত্তর যাচাই করে উপরের "জমা দিন" বাটনে চাপ দাও।',
+                                    'You are on the last question. Review your answers and tap "Submit Exam" above when ready.',
+                                    lang,
+                                  ),
+                                  style: const TextStyle(
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w600,
+                                    color: PorhiTheme.indigo700,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -362,19 +405,73 @@ class _ExamRunnerViewState extends State<ExamRunnerView> {
   }
 }
 
+class _DialogStatPill extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color bgColor;
+  final Color borderColor;
+  final Color textColor;
+
+  const _DialogStatPill({
+    required this.label,
+    required this.value,
+    required this.bgColor,
+    required this.borderColor,
+    required this.textColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: bgColor,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: borderColor),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w600,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: textColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _RunnerProgressHeader extends StatelessWidget {
   final int currentIndex;
   final int totalQuestions;
   final int answeredCount;
   final bool isOffline;
+  final bool isSubmitting;
   final AppLanguage lang;
+  final VoidCallback onSubmitTap;
 
   const _RunnerProgressHeader({
     required this.currentIndex,
     required this.totalQuestions,
     required this.answeredCount,
     required this.isOffline,
+    required this.isSubmitting,
     required this.lang,
+    required this.onSubmitTap,
   });
 
   @override
@@ -384,64 +481,98 @@ class _RunnerProgressHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
-        Wrap(
-          spacing: 8,
-          runSpacing: 6,
-          alignment: WrapAlignment.spaceBetween,
-          crossAxisAlignment: WrapCrossAlignment.center,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            Text(
-              AppStrings.tr(
-                'প্রশ্ন ${AppStrings.formatNumber(currentIndex + 1, lang)} / ${AppStrings.formatNumber(totalQuestions, lang)}',
-                'Question ${currentIndex + 1} / $totalQuestions',
-                lang,
-              ),
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                color: PorhiTheme.slate700,
-              ),
-            ),
-            Wrap(
-              spacing: 8,
-              runSpacing: 4,
-              children: <Widget>[
-                Text(
-                  AppStrings.tr(
-                    'উত্তরিত: ${AppStrings.formatNumber(answeredCount, lang)}',
-                    'Answered: $answeredCount',
-                    lang,
-                  ),
-                  style: const TextStyle(
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w700,
-                    color: PorhiTheme.emerald600,
-                  ),
-                ),
-                if (isOffline)
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 2,
+            Expanded(
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 4,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: <Widget>[
+                  Text(
+                    AppStrings.tr(
+                      'প্রশ্ন ${AppStrings.formatNumber(currentIndex + 1, lang)} / ${AppStrings.formatNumber(totalQuestions, lang)}',
+                      'Question ${currentIndex + 1} / $totalQuestions',
+                      lang,
                     ),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFEF3C7),
-                      borderRadius: BorderRadius.circular(999),
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: PorhiTheme.slate700,
                     ),
-                    child: Text(
-                      AppStrings.t('common.offline', lang),
-                      style: const TextStyle(
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF92400E),
+                  ),
+                  Text(
+                    AppStrings.tr(
+                      'উত্তরিত: ${AppStrings.formatNumber(answeredCount, lang)}',
+                      'Answered: $answeredCount',
+                      lang,
+                    ),
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w700,
+                      color: PorhiTheme.emerald600,
+                    ),
+                  ),
+                  if (isOffline)
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFEF3C7),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        AppStrings.t('common.offline', lang),
+                        style: const TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF92400E),
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            FilledButton.icon(
+              key: const Key('exam_submit_btn'),
+              onPressed: isSubmitting ? null : onSubmitTap,
+              style: FilledButton.styleFrom(
+                backgroundColor: PorhiTheme.emerald600,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(0, 36),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
+                shape: const StadiumBorder(),
+                textStyle: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              icon: isSubmitting
+                  ? const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.check_circle_outline_rounded, size: 16),
+              label: Text(
+                isSubmitting
+                    ? AppStrings.tr('জমা হচ্ছে...', 'Submitting...', lang)
+                    : AppStrings.tr('জমা দিন', 'Submit Exam', lang),
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         ClipRRect(
           borderRadius: BorderRadius.circular(999),
           child: LinearProgressIndicator(

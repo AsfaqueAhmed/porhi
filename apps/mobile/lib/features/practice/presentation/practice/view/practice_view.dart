@@ -145,6 +145,7 @@ class PracticeView extends GetView<PracticeController> {
       explanation: explanation,
       envConfig: controller.envConfig,
       languageCode: lang.code,
+      initiallyCollapsed: true,
     );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
@@ -172,12 +173,14 @@ class AccountController extends GetxController {
       if (isClosed) return;
       result.fold(
         (err) {
-          errorMessage.value = err.message ??
+          final msg = err.message ??
               AppStrings.tr(
                 'প্রোফাইল আপডেট করা যায়নি।',
                 'Could not update profile.',
                 language.value,
               );
+          errorMessage.value = msg;
+          CustomToast.error(msg);
         },
         (updated) {
           _isNameDirty = false;
@@ -185,11 +188,13 @@ class AccountController extends GetxController {
           _isTrackDirty = false;
           _isGoalDirty = false;
           _applyUser(updated);
-          statusMessage.value = AppStrings.tr(
+          final msg = AppStrings.tr(
             'প্রোফাইল সংরক্ষিত হয়েছে।',
             'Profile saved.',
             language.value,
           );
+          statusMessage.value = msg;
+          CustomToast.success(msg);
         },
       );
     } finally {
@@ -207,11 +212,13 @@ class AccountController extends GetxController {
     try {
       await _clearOfflineDataUseCase();
       if (isClosed) return;
-      statusMessage.value = AppStrings.tr(
+      final msg = AppStrings.tr(
         'অফলাইন ক্যাশ মুছে ফেলা হয়েছে।',
         'Offline cache cleared.',
         language.value,
       );
+      statusMessage.value = msg;
+      CustomToast.success(msg);
     } catch (e) {
       if (!isClosed) {
         errorMessage.value = e.toString();

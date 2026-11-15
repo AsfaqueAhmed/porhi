@@ -353,7 +353,6 @@ class BoardArchiveController extends GetxController {
 
   void selectMcqOption(BoardQuestionItemEntity question, String optionId) {
     selectedMcqOptions[question.id] = optionId;
-    expandedExplanations.add(question.id);
   }
 
   void toggleExplanation(String questionId) {

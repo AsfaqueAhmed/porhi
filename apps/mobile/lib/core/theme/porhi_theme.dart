@@ -1,5 +1,6 @@
 import 'package:common/common.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 /// porhi's warm study-room palette: deep evergreen, paper, and citrus.
 class PorhiTheme {
@@ -135,6 +136,19 @@ class PorhiTheme {
     buttonHeight: 48,
   );
 
+  static AppButtonStyle get dangerButtonStyle => AppButtonStyle(
+    textColor: rose600,
+    textStyle: const TextStyle(
+      fontSize: 15,
+      fontWeight: FontWeight.w700,
+      color: rose600,
+    ),
+    bgColor: rose50,
+    borderColor: const Color(0xFFFECDD3),
+    borderRadius: 14,
+    buttonHeight: 48,
+  );
+
   static ConfirmationDialogStyle get confirmationDialogStyle =>
       ConfirmationDialogStyle(
         bgColor: Colors.white,
@@ -163,7 +177,7 @@ class PorhiTheme {
       enableLogger: enableLogger,
       primaryButtonStyle: primaryButtonStyle,
       appConfirmationDialogStyle: confirmationDialogStyle,
-      navigatorKey: navigatorKey,
+      navigatorKey: navigatorKey ?? Get.key,
     );
   }
 

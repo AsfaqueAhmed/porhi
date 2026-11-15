@@ -1,3 +1,4 @@
+import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
@@ -358,16 +359,13 @@ class ChapterIndexView extends GetView<ChapterIndexController> {
   }
 
   void _showUpcomingModuleNotice(BuildContext context, AppLanguage lang) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          AppStrings.tr(
-            'এই মডিউলটি শীঘ্রই চালু হচ্ছে। অফলাইন প্যাক ডাউনলোড করে প্রস্তুত রাখো।',
-            'This module is coming next. Save the offline pack to keep content ready.',
-            lang,
-          ),
-        ),
+    CustomToast.info(
+      AppStrings.tr(
+        'এই মডিউলটি শীঘ্রই চালু হচ্ছে। অফলাইন প্যাক ডাউনলোড করে প্রস্তুত রাখো।',
+        'This module is coming next. Save the offline pack to keep content ready.',
+        lang,
       ),
+      context: context,
     );
   }
 

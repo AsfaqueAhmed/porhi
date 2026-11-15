@@ -1,3 +1,4 @@
+import 'package:common/common.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:porhi/core/i18n/app_strings.dart';
@@ -514,6 +515,10 @@ class PlannerController extends GetxController {
   void _showStatus(String message, {bool isError = false}) {
     statusMessage.value = message;
     isStatusError.value = isError;
+    CustomToast.show(
+      message: message,
+      type: isError ? ToastType.error : ToastType.success,
+    );
   }
 
   @override
