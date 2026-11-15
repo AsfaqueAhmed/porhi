@@ -83,42 +83,47 @@ class LoginView extends GetView<LoginController> {
                             ),
                           ),
                           Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
-                              Container(
-                                width: 49,
-                                height: 49,
-                                decoration: BoxDecoration(
-                                  color: PorhiTheme.citrus,
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                alignment: Alignment.center,
-                                child: const Text(
-                                  'পড়ি',
-                                  style: TextStyle(
-                                    fontSize: 21,
-                                    fontWeight: FontWeight.w900,
-                                    color: PorhiTheme.indigo900,
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: <Widget>[
+                                  Image.asset(
+                                    'assets/branding/porhi-emblem.png',
+                                    width: 68,
+                                    height: 64,
                                   ),
-                                ),
+                                  const SizedBox(width: 14),
+                                  Flexible(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 10),
+                                      child: Text(
+                                        AppStrings.appName(lang),
+                                        textHeightBehavior:
+                                            const TextHeightBehavior(
+                                              applyHeightToFirstAscent: false,
+                                              applyHeightToLastDescent: false,
+                                            ),
+                                        style: const TextStyle(
+                                          fontSize: 36,
+                                          height: 1.0,
+                                          fontWeight: FontWeight.w900,
+                                          color: PorhiTheme.canvas,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 16),
-                              Text(
-                                AppStrings.appName(lang),
-                                style: const TextStyle(
-                                  fontSize: 27,
-                                  height: 1.1,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 10),
                               Text(
                                 AppStrings.tr(
                                   'নিজের গতিতে শেখো। প্রতিদিন একটু এগিয়ে যাও।',
                                   'Learn at your pace. Make today count.',
                                   lang,
                                 ),
+                                textAlign: TextAlign.center,
                                 style: const TextStyle(
                                   fontSize: 13.5,
                                   height: 1.4,

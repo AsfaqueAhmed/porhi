@@ -64,3 +64,5 @@ flutter:
   uses-material-design: true
   assets:
     - assets/audio/lesson-intro.wav
+    - assets/branding/porhi-logo.png
+    - assets/branding/porhi-emblem.png

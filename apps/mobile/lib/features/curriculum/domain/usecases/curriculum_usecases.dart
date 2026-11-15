@@ -31,19 +31,46 @@ class FilterSubjectsUseCase {
     required List<SubjectEntity> subjects,
     StudentTrack? trackFilter,
     String query = '',
+    String? activeSubjectId,
   }) {
     final normalized = query.trim().toLowerCase();
-    return subjects.where((subject) {
+    final indexed = <({SubjectEntity subject, int index})>[];
+    for (var i = 0; i < subjects.length; i++) {
+      final subject = subjects[i];
       final matchesProgram =
           trackFilter == null || subject.program == trackFilter;
-      if (!matchesProgram) return false;
-      if (normalized.isEmpty) return true;
-      return subject.nameBangla.toLowerCase().contains(normalized) ||
+      if (!matchesProgram) continue;
+      final matchesQuery =
+          normalized.isEmpty ||
+          subject.nameBangla.toLowerCase().contains(normalized) ||
           subject.code.toLowerCase().contains(normalized) ||
           subject.program.apiValue.toLowerCase().contains(normalized) ||
           subject.program.labelBn.toLowerCase().contains(normalized) ||
           subject.program.labelEn.toLowerCase().contains(normalized);
-    }).toList();
+      if (matchesQuery) {
+        indexed.add((subject: subject, index: i));
+      }
+    }
+
+    int rank(SubjectEntity s) {
+      if (activeSubjectId != null && s.id == activeSubjectId && s.isReady) {
+        return 0;
+      }
+      if (s.isReady) return 1;
+      return 2;
+    }
+
+    indexed.sort((a, b) {
+      final rankDiff = rank(a.subject).compareTo(rank(b.subject));
+      if (rankDiff != 0) return rankDiff;
+      final aHasChapters = a.subject.chapterCount > 0 ? 0 : 1;
+      final bHasChapters = b.subject.chapterCount > 0 ? 0 : 1;
+      final chapterDiff = aHasChapters.compareTo(bHasChapters);
+      if (chapterDiff != 0) return chapterDiff;
+      return a.index.compareTo(b.index);
+    });
+
+    return indexed.map((entry) => entry.subject).toList();
   }
 }
 

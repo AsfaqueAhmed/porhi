@@ -1509,5 +1509,59 @@ void main() {
         expect(curriculumRoute.binding, isA<CurriculumBinding>());
       },
     );
+
+    test(
+      'FilterSubjectsUseCase places active ready book subjects first and coming soon last',
+      () {
+        const filter = FilterSubjectsUseCase();
+        const subjects = <SubjectEntity>[
+          SubjectEntity(
+            id: 'sub_math',
+            code: 'ssc_math',
+            nameBangla: 'সাধারণ গণিত',
+            program: StudentTrack.ssc,
+            isReady: false,
+            chapterCount: 17,
+          ),
+          SubjectEntity(
+            id: 'sub_physics',
+            code: 'ssc_physics',
+            nameBangla: 'পদার্থবিজ্ঞান',
+            program: StudentTrack.ssc,
+            isReady: true,
+            chapterCount: 14,
+          ),
+          SubjectEntity(
+            id: 'sub_chemistry',
+            code: 'ssc_chemistry',
+            nameBangla: 'রসায়ন',
+            program: StudentTrack.ssc,
+            isReady: true,
+            chapterCount: 12,
+          ),
+          SubjectEntity(
+            id: 'sub_empty_ready',
+            code: 'ssc_bio',
+            nameBangla: 'জীববিজ্ঞান',
+            program: StudentTrack.ssc,
+            isReady: true,
+            chapterCount: 0,
+          ),
+        ];
+
+        final ordered = filter(
+          subjects: subjects,
+          trackFilter: StudentTrack.ssc,
+          activeSubjectId: 'sub_chemistry',
+        );
+
+        expect(ordered.map((s) => s.id).toList(), <String>[
+          'sub_chemistry',
+          'sub_physics',
+          'sub_empty_ready',
+          'sub_math',
+        ]);
+      },
+    );
   });
 }

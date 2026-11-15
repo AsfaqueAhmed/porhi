@@ -105,6 +105,33 @@ describe('CurriculumService', () => {
         orderBy: { code: 'asc' },
       });
     });
+
+    it('should place ready active book subjects before unready subjects', async () => {
+      prisma.subject.findMany.mockResolvedValue([
+        {
+          id: 'sub_bio',
+          code: 'aaa_bio',
+          nameBangla: 'জীববিজ্ঞান',
+          classLevel: 'CLASS_9_10',
+          syllabusYear: 2026,
+          isReady: false,
+          _count: { chapters: 10 },
+        },
+        {
+          id: 'sub_phy',
+          code: 'zzz_phy',
+          nameBangla: 'পদার্থবিজ্ঞান',
+          classLevel: 'CLASS_9_10',
+          syllabusYear: 2026,
+          isReady: true,
+          _count: { chapters: 14 },
+        },
+      ]);
+
+      const result = await curriculumService.getSubjects();
+
+      expect(result.map((s) => s.id)).toEqual(['sub_phy', 'sub_bio']);
+    });
   });
 
   describe('getChaptersBySubject', () => {

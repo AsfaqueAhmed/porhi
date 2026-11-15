@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="porhi-bg" x1="48" y1="32" x2="464" y2="480" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#166350"/>
+      <stop offset="100%" stop-color="#0F4739"/>
+    </linearGradient>
+    <radialGradient id="porhi-glow" cx="50%" cy="44%" r="46%">
+      <stop offset="0%" stop-color="#008A6E" stop-opacity="0.58"/>
+      <stop offset="100%" stop-color="#0F4739" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="porhi-page-right" x1="256" y1="210" x2="428" y2="390" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#D5E8DB"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Squircle Container -->
+  <rect x="16" y="16" width="480" height="480" rx="116" fill="url(#porhi-bg)"/>
+  <rect x="16" y="16" width="480" height="480" rx="116" fill="url(#porhi-glow)"/>
+  <rect x="17" y="17" width="478" height="478" rx="115" stroke="#007B63" stroke-opacity="0.45" stroke-width="2"/>
+
+  <!-- Subtle Science / Knowledge Orbit -->
+  <ellipse cx="256" cy="214" rx="166" ry="48" transform="rotate(-17 256 214)" stroke="#D8EF83" stroke-opacity="0.34" stroke-width="9.5" stroke-linecap="round"/>
+
+  <!-- Open Book Pages (Bottom Anchored, Tighter Top/Left/Right Padding) -->
+  <!-- Left Page -->
+  <path d="M256 240 C207 208 152 201 100 220 C91 222 84 231 84 241 L84 372 C84 382 95 389 106 385 C154 370 207 377 256 405 Z" fill="#F4F2E8"/>
+
+  <!-- Right Page -->
+  <path d="M256 240 C305 208 360 201 412 220 C421 222 428 231 428 241 L428 372 C428 382 417 389 406 385 C358 370 305 377 256 405 Z" fill="url(#porhi-page-right)"/>
+
+  <!-- Spine Shadow & Emerald Fold Ribbon -->
+  <path d="M256 240 L256 405" stroke="#007B63" stroke-width="6.5" stroke-linecap="round"/>
+  <path d="M239 234 C248 239 264 239 273 234 L256 405 Z" fill="#007B63" fill-opacity="0.22"/>
+
+  <!-- Left Page: প in Light Shimmer Color -->
+  <text x="166" y="324" text-anchor="middle" transform="rotate(-3 166 324)" fill="#007B63" fill-opacity="0.27" font-family="'Kohinoor Bangla', 'Noto Sans Bengali', 'Hind Siliguri', 'Bangla Sangam MN', sans-serif" font-size="68" font-weight="700">প</text>
+  <path d="M124 355 C154 349 184 352 210 361" stroke="#007B63" stroke-opacity="0.24" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- Right Page: ড়ি in Light Shimmer Color -->
+  <text x="346" y="324" text-anchor="middle" transform="rotate(3 346 324)" fill="#007B63" fill-opacity="0.27" font-family="'Kohinoor Bangla', 'Noto Sans Bengali', 'Hind Siliguri', 'Bangla Sangam MN', sans-serif" font-size="68" font-weight="700">ড়ি</text>
+  <path d="M388 355 C358 349 328 352 302 361" stroke="#007B63" stroke-opacity="0.24" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- Citrus-Lime Knowledge Spark -->
+  <path d="M256 80 C263 126 278 142 323 149 C278 156 263 172 256 218 C249 172 234 156 189 149 C234 142 249 126 256 80 Z" fill="#D8EF83"/>
+
+  <!-- Orbital Electron Dot -->
+  <circle cx="408" cy="164" r="12" fill="#D8EF83"/>
+</svg>

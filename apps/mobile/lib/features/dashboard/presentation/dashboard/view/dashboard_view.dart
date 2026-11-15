@@ -26,24 +26,10 @@ class DashboardView extends GetView<DashboardController> {
           final isCached = controller.isOfflineCache.value;
           return Row(
             children: <Widget>[
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  gradient: PorhiTheme.brandGradient,
-                  borderRadius: BorderRadius.circular(11),
-                  boxShadow: PorhiTheme.subtleShadow,
-                ),
-                alignment: Alignment.center,
-                child: const Text(
-                  'পড়ি',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 16,
-                    letterSpacing: -0.5,
-                  ),
-                ),
+              Image.asset(
+                'assets/branding/porhi-logo.png',
+                width: 38,
+                height: 38,
               ),
               const SizedBox(width: 10),
               Flexible(
@@ -53,7 +39,7 @@ class DashboardView extends GetView<DashboardController> {
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w800,
-                    color: PorhiTheme.slate900,
+                    color: PorhiTheme.indigo800,
                   ),
                 ),
               ),

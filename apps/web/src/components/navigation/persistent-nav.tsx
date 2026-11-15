@@ -161,10 +161,9 @@ export const PersistentNav: React.FC<PersistentNavProps> = ({ currentPath: propP
       {/* Main Bar */}
       <div className="max-w-5xl mx-auto px-4 flex items-center justify-between h-14 gap-2">
         {/* Brand */}
-        <Link href="/dashboard" className="flex items-center gap-2 font-bold text-lg text-indigo-700 shrink-0">
-          <span className="bg-indigo-600 text-white w-8 h-8 rounded-lg flex items-center justify-center font-extrabold text-base shadow">
-            প
-          </span>
+        <Link href="/dashboard" className="flex items-center gap-2 font-bold text-lg text-[#0B392F] shrink-0">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="পড়ি" className="w-8 h-8 rounded-lg shadow-sm" />
           <span className="tracking-tight">পড়ি (poRi)</span>
         </Link>
 

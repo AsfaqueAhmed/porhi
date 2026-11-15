@@ -187,16 +187,27 @@ export default function SubjectsPage() {
     router.push(`/curriculum/${s.id}`);
   };
 
-  const filteredSubjects = subjects.filter((s) => {
-    const matchesProgram = filter === 'ALL' || s.program === filter;
-    const q = searchQuery.trim().toLowerCase();
-    const matchesQuery =
-      !q ||
-      s.nameBangla.toLowerCase().includes(q) ||
-      s.code.toLowerCase().includes(q) ||
-      (s.program || '').toLowerCase().includes(q);
-    return matchesProgram && matchesQuery;
-  });
+  const filteredSubjects = subjects
+    .filter((s) => {
+      const matchesProgram = filter === 'ALL' || s.program === filter;
+      const q = searchQuery.trim().toLowerCase();
+      const matchesQuery =
+        !q ||
+        s.nameBangla.toLowerCase().includes(q) ||
+        s.code.toLowerCase().includes(q) ||
+        (s.program || '').toLowerCase().includes(q);
+      return matchesProgram && matchesQuery;
+    })
+    .sort((a, b) => {
+      const rank = (s: SubjectItem) => {
+        if (activeSubject?.id && s.id === activeSubject.id && s.isReady) return 0;
+        if (s.isReady) return 1;
+        return 2;
+      };
+      const diff = rank(a) - rank(b);
+      if (diff !== 0) return diff;
+      return ((b.chapterCount ?? 0) > 0 ? 1 : 0) - ((a.chapterCount ?? 0) > 0 ? 1 : 0);
+    });
 
   if (isLoading) {
     return <SubjectsPageSkeleton />;

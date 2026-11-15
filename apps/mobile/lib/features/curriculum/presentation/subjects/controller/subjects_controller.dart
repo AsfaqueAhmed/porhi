@@ -72,10 +72,14 @@ class SubjectsController extends GetxController {
 
   Future<void> refreshFromAccount() async {
     final previousProgram = selectedTrack.value;
+    final previousActive = activeSubjectId.value;
     refreshPreferences();
     if (previousProgram != selectedTrack.value) {
       await loadSubjects();
       return;
+    }
+    if (previousActive != activeSubjectId.value && allSubjects.isNotEmpty) {
+      _applyFilters();
     }
     await refreshDownloadedChapters();
   }
@@ -159,6 +163,7 @@ class SubjectsController extends GetxController {
       subjects: allSubjects,
       trackFilter: selectedTrack.value,
       query: searchQuery.value,
+      activeSubjectId: activeSubjectId.value,
     );
     filteredSubjects.assignAll(filtered);
   }
@@ -171,6 +176,7 @@ class SubjectsController extends GetxController {
       await _setActiveSubjectUseCase(subject.id);
       if (isClosed) return false;
       activeSubjectId.value = subject.id;
+      _applyFilters();
       _onActiveSubjectChanged?.call();
       return true;
     } finally {
@@ -189,6 +195,7 @@ class SubjectsController extends GetxController {
       await _setActiveSubjectUseCase(subject.id);
       if (isClosed) return;
       activeSubjectId.value = subject.id;
+      _applyFilters();
       _onActiveSubjectChanged?.call();
       await navigate();
     } finally {

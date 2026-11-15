@@ -17,31 +17,35 @@ class SplashView extends GetView<SplashController> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: PorhiTheme.indigo50,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                alignment: Alignment.center,
-                child: const Text(
-                  'পড়ি',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.w800,
-                    color: PorhiTheme.indigo600,
-                  ),
-                ),
+              Image.asset(
+                'assets/branding/porhi-logo.png',
+                width: 88,
+                height: 88,
               ),
               const SizedBox(height: 16),
-              Text(
-                AppStrings.appName(AppLanguage.en),
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  color: PorhiTheme.slate900,
-                ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.baseline,
+                textBaseline: TextBaseline.alphabetic,
+                children: [
+                  Text(
+                    AppStrings.appName(AppLanguage.bn),
+                    style: const TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.w800,
+                      color: PorhiTheme.indigo900,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    AppStrings.appName(AppLanguage.en),
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      color: PorhiTheme.slate600,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 6),
               Text(

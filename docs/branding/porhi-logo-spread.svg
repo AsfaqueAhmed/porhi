@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="porhi-spread-bg" x1="48" y1="32" x2="464" y2="480" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#10483B"/>
+      <stop offset="100%" stop-color="#0B392F"/>
+    </linearGradient>
+    <radialGradient id="porhi-spread-glow" cx="50%" cy="44%" r="46%">
+      <stop offset="0%" stop-color="#007B63" stop-opacity="0.58"/>
+      <stop offset="100%" stop-color="#0B392F" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="porhi-spread-page-right" x1="256" y1="226" x2="411" y2="390" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#D5E8DB"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Squircle Container -->
+  <rect x="16" y="16" width="480" height="480" rx="116" fill="url(#porhi-spread-bg)"/>
+  <rect x="16" y="16" width="480" height="480" rx="116" fill="url(#porhi-spread-glow)"/>
+  <rect x="17" y="17" width="478" height="478" rx="115" stroke="#007B63" stroke-opacity="0.45" stroke-width="2"/>
+
+  <!-- Subtle Science / Knowledge Orbit -->
+  <ellipse cx="256" cy="233" rx="150" ry="43" transform="rotate(-17 256 233)" stroke="#D8EF83" stroke-opacity="0.34" stroke-width="9" stroke-linecap="round"/>
+
+  <!-- Open Book Pages -->
+  <!-- Left Page -->
+  <path d="M256 256 C212 227 162 221 115 238 C107 240 101 248 101 257 L101 375 C101 384 111 390 121 387 C164 373 212 380 256 405 Z" fill="#F4F2E8"/>
+
+  <!-- Right Page -->
+  <path d="M256 256 C300 227 350 221 397 238 C405 240 411 248 411 257 L411 375 C411 384 401 390 391 387 C348 373 300 380 256 405 Z" fill="url(#porhi-spread-page-right)"/>
+
+  <!-- Softened Spine Fold so Spread Text Remains Legible -->
+  <path d="M245 253 C251 256 261 256 267 253 L256 405 Z" fill="#007B63" fill-opacity="0.14"/>
+  <path d="M256 256 L256 278 M256 364 L256 405" stroke="#007B63" stroke-opacity="0.55" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Bengali Brand Text Watermarked Across Book Pages in Very Light Shimmer -->
+  <text x="256" y="348" text-anchor="middle" fill="#007B63" fill-opacity="0.26" font-family="'Kohinoor Bangla', 'Noto Sans Bengali', 'Hind Siliguri', 'Bangla Sangam MN', sans-serif" font-size="80" font-weight="700" letter-spacing="1">পড়ি</text>
+
+  <!-- Citrus-Lime Knowledge Spark -->
+  <path d="M256 112 C262 153 276 168 316 174 C276 180 262 195 256 236 C250 195 236 180 196 174 C236 168 250 153 256 112 Z" fill="#D8EF83"/>
+
+  <!-- Orbital Electron Dot -->
+  <circle cx="393" cy="188" r="11" fill="#D8EF83"/>
+</svg>

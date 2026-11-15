@@ -109,13 +109,18 @@ export class CurriculumService {
       }
     }
 
-    return subjects.map((subject: any) => ({
-      ...subject,
-      chapterCount: subject._count?.chapters ?? 0,
-      topicCount: topicCountBySubject.get(subject.id) ?? 0,
-      publishedLessonCount: lessonCountBySubject.get(subject.id) ?? 0,
-      publishedQuestionCount: questionCountBySubject.get(subject.id) ?? 0,
-    }));
+    return subjects
+      .map((subject: any) => ({
+        ...subject,
+        chapterCount: subject._count?.chapters ?? 0,
+        topicCount: topicCountBySubject.get(subject.id) ?? 0,
+        publishedLessonCount: lessonCountBySubject.get(subject.id) ?? 0,
+        publishedQuestionCount: questionCountBySubject.get(subject.id) ?? 0,
+      }))
+      .sort((a: any, b: any) => {
+        if (a.isReady !== b.isReady) return a.isReady ? -1 : 1;
+        return (b.chapterCount > 0 ? 1 : 0) - (a.chapterCount > 0 ? 1 : 0);
+      });
   }
 
   async getChaptersBySubject(subjectId: string) {
