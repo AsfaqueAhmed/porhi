@@ -580,9 +580,9 @@ class _QuestionCardState extends State<_QuestionCard> {
                 content: question.stem,
                 envConfig: controller.envConfig,
                 baseStyle: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  height: 1.55,
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w600,
+                  height: 1.5,
                   color: PorhiTheme.slate900,
                 ),
               ),
