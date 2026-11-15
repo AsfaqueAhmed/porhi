@@ -156,267 +156,245 @@ class _CqRubricCardState extends State<CqRubricCard> {
         ),
         if (_isRevealed) ...<Widget>[
           const SizedBox(height: 12),
-          Container(
+          Column(
             key: const Key('cq_rubric_revealed_box'),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: PorhiTheme.slate50,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: PorhiTheme.slate200),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                if (rubric != null && !rubric.isEmpty) ...<Widget>[
-                  Text(
-                    AppStrings.tr(
-                      'মার্কিং রুব্রিক (ক, খ, গ, ঘ)',
-                      'Marking Rubric (a, b, c, d)',
-                      lang,
-                    ),
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      color: PorhiTheme.slate900,
-                    ),
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              if (rubric != null && !rubric.isEmpty) ...<Widget>[
+                Text(
+                  AppStrings.tr(
+                    'মার্কিং রুব্রিক (ক, খ, গ, ঘ)',
+                    'Marking Rubric (a, b, c, d)',
+                    lang,
                   ),
-                  const SizedBox(height: 8),
-                  ..._buildRubricParts(rubric, lang),
-                ],
-                if (exp != null &&
-                    (exp.directAnswer.trim().isNotEmpty ||
-                        exp.stepDerivation.trim().isNotEmpty)) ...<Widget>[
-                  if (rubric != null && !rubric.isEmpty)
-                    const SizedBox(height: 6),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: PorhiTheme.indigo50.withAlpha(180),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFFC7D2FE)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        if (exp.directAnswer.trim().isNotEmpty) ...<Widget>[
-                          Text(
-                            AppStrings.tr('মূল উত্তর:', 'Key Answer:', lang),
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
-                              color: PorhiTheme.indigo700,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          RichContentView(
-                            content: exp.directAnswer,
-                            envConfig: widget.envConfig,
-                            baseStyle: const TextStyle(
-                              fontSize: 13,
-                              height: 1.45,
-                              color: PorhiTheme.slate900,
-                            ),
-                          ),
-                        ],
-                        if (exp.stepDerivation.trim().isNotEmpty) ...<Widget>[
-                          if (exp.directAnswer.trim().isNotEmpty)
-                            const SizedBox(height: 10),
-                          Text(
-                            AppStrings.tr(
-                              'বিস্তারিত সমাধান:',
-                              'Step-by-step Solution:',
-                              lang,
-                            ),
-                            style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
-                              color: PorhiTheme.indigo700,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          RichContentView(
-                            content: exp.stepDerivation,
-                            envConfig: widget.envConfig,
-                            baseStyle: const TextStyle(
-                              fontSize: 13,
-                              height: 1.5,
-                              color: PorhiTheme.slate900,
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    color: PorhiTheme.slate900,
                   ),
-                ],
-                if ((rubric == null || rubric.isEmpty) &&
-                    (exp == null ||
-                        (exp.directAnswer.trim().isEmpty &&
-                            exp.stepDerivation.trim().isEmpty)))
-                  Text(
-                    AppStrings.tr(
-                      'এই প্রশ্নের জন্য অতিরিক্ত রুব্রিক তথ্য নেই। নিচে নিজে ১–১০ নম্বরের মধ্যে মূল্যায়ন করো।',
-                      'No extra rubric details available. Score yourself out of 10 below.',
-                      lang,
-                    ),
-                    style: const TextStyle(
-                      fontSize: 12.5,
-                      color: PorhiTheme.slate600,
-                    ),
-                  ),
+                ),
+                const SizedBox(height: 4),
+                ..._buildRubricParts(rubric, lang),
               ],
+              if (exp != null &&
+                  (exp.directAnswer.trim().isNotEmpty ||
+                      exp.stepDerivation.trim().isNotEmpty)) ...<Widget>[
+                if (rubric != null && !rubric.isEmpty)
+                  const Divider(height: 20, color: PorhiTheme.slate200),
+                Container(
+                  padding: const EdgeInsets.only(left: 12, top: 4, bottom: 4),
+                  decoration: const BoxDecoration(
+                    border: Border(
+                      left: BorderSide(color: PorhiTheme.indigo600, width: 3),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      if (exp.directAnswer.trim().isNotEmpty) ...<Widget>[
+                        Text(
+                          AppStrings.tr('মূল উত্তর:', 'Key Answer:', lang),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: PorhiTheme.indigo700,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        RichContentView(
+                          content: exp.directAnswer,
+                          envConfig: widget.envConfig,
+                          baseStyle: const TextStyle(
+                            fontSize: 13,
+                            height: 1.45,
+                            color: PorhiTheme.slate900,
+                          ),
+                        ),
+                      ],
+                      if (exp.stepDerivation.trim().isNotEmpty) ...<Widget>[
+                        if (exp.directAnswer.trim().isNotEmpty)
+                          const SizedBox(height: 10),
+                        Text(
+                          AppStrings.tr(
+                            'বিস্তারিত সমাধান:',
+                            'Step-by-step Solution:',
+                            lang,
+                          ),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            color: PorhiTheme.indigo700,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        RichContentView(
+                          content: exp.stepDerivation,
+                          envConfig: widget.envConfig,
+                          baseStyle: const TextStyle(
+                            fontSize: 13,
+                            height: 1.5,
+                            color: PorhiTheme.slate900,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
+              if ((rubric == null || rubric.isEmpty) &&
+                  (exp == null ||
+                      (exp.directAnswer.trim().isEmpty &&
+                          exp.stepDerivation.trim().isEmpty)))
+                Text(
+                  AppStrings.tr(
+                    'এই প্রশ্নের জন্য অতিরিক্ত রুব্রিক তথ্য নেই। নিচে নিজে ১–১০ নম্বরের মধ্যে মূল্যায়ন করো।',
+                    'No extra rubric details available. Score yourself out of 10 below.',
+                    lang,
+                  ),
+                  style: const TextStyle(
+                    fontSize: 12.5,
+                    color: PorhiTheme.slate600,
+                  ),
+                ),
+            ],
+          ),
+        ],
+        const Divider(height: 24, color: PorhiTheme.slate200),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Expanded(
+              child: Text(
+                AppStrings.tr(
+                  'নিজের উত্তর যাচাই ও নম্বর দাও (১–১০)',
+                  'Self-Assessment Score (1–10)',
+                  lang,
+                ),
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF064E3B),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              lang == AppLanguage.bn
+                  ? 'মোট: ${AppStrings.formatNumber(total, lang)} / ১০'
+                  : 'Total: $total / 10',
+              key: const Key('cq_total_score_text'),
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: PorhiTheme.emerald600,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 10),
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: _buildScoreStepper(
+                partKey: 'ka',
+                label: AppStrings.tr('ক (জ্ঞানমূলক)', 'a (Knowledge)', lang),
+                value: _scores.ka,
+                max: CqSelfScoresEntity.maxKa,
+                lang: lang,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _buildScoreStepper(
+                partKey: 'kha',
+                label: AppStrings.tr(
+                  'খ (অনুধাবন)',
+                  'b (Comprehension)',
+                  lang,
+                ),
+                value: _scores.kha,
+                max: CqSelfScoresEntity.maxKha,
+                lang: lang,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: _buildScoreStepper(
+                partKey: 'ga',
+                label: AppStrings.tr('গ (প্রয়োগ)', 'c (Application)', lang),
+                value: _scores.ga,
+                max: CqSelfScoresEntity.maxGa,
+                lang: lang,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: _buildScoreStepper(
+                partKey: 'gha',
+                label: AppStrings.tr(
+                  'ঘ (উচ্চতর দক্ষতা)',
+                  'd (Higher Order)',
+                  lang,
+                ),
+                value: _scores.gha,
+                max: CqSelfScoresEntity.maxGha,
+                lang: lang,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        FilledButton.icon(
+          key: const Key('cq_submit_btn'),
+          onPressed:
+              widget.isSubmitting ? null : () => widget.onSubmit(_scores),
+          style: FilledButton.styleFrom(
+            backgroundColor: PorhiTheme.emerald600,
+            foregroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          icon: widget.isSubmitting
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: Colors.white,
+                  ),
+                )
+              : const Icon(Icons.check_circle_outline_rounded, size: 18),
+          label: Text(
+            widget.isSubmitting
+                ? AppStrings.tr('সংরক্ষণ হচ্ছে...', 'Saving...', lang)
+                : AppStrings.tr(
+                    'স্ব-মূল্যায়ন জমা দাও',
+                    'Submit Self-Assessment',
+                    lang,
+                  ),
+          ),
+        ),
+        if (submitted != null && submitted.isQueuedOffline) ...<Widget>[
+          const SizedBox(height: 6),
+          Text(
+            AppStrings.tr(
+              'অফলাইনে সংরক্ষিত — অনলাইনে সিঙ্ক হবে।',
+              'Saved offline — will sync when online.',
+              lang,
+            ),
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 11.5,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF92400E),
             ),
           ),
         ],
-        const SizedBox(height: 14),
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: PorhiTheme.emerald50,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: const Color(0xFFA7F3D0)),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Expanded(
-                    child: Text(
-                      AppStrings.tr(
-                        'নিজের উত্তর যাচাই ও নম্বর দাও (১–১০)',
-                        'Self-Assessment Score (1–10)',
-                        lang,
-                      ),
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF064E3B),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    lang == AppLanguage.bn
-                        ? 'মোট: ${AppStrings.formatNumber(total, lang)} / ১০'
-                        : 'Total: $total / 10',
-                    key: const Key('cq_total_score_text'),
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      color: PorhiTheme.emerald600,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: _buildScoreStepper(
-                      partKey: 'ka',
-                      label: AppStrings.tr('ক (জ্ঞানমূলক)', 'a (Knowledge)', lang),
-                      value: _scores.ka,
-                      max: CqSelfScoresEntity.maxKa,
-                      lang: lang,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildScoreStepper(
-                      partKey: 'kha',
-                      label: AppStrings.tr(
-                        'খ (অনুধাবন)',
-                        'b (Comprehension)',
-                        lang,
-                      ),
-                      value: _scores.kha,
-                      max: CqSelfScoresEntity.maxKha,
-                      lang: lang,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: _buildScoreStepper(
-                      partKey: 'ga',
-                      label: AppStrings.tr('গ (প্রয়োগ)', 'c (Application)', lang),
-                      value: _scores.ga,
-                      max: CqSelfScoresEntity.maxGa,
-                      lang: lang,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: _buildScoreStepper(
-                      partKey: 'gha',
-                      label: AppStrings.tr(
-                        'ঘ (উচ্চতর দক্ষতা)',
-                        'd (Higher Order)',
-                        lang,
-                      ),
-                      value: _scores.gha,
-                      max: CqSelfScoresEntity.maxGha,
-                      lang: lang,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              FilledButton.icon(
-                key: const Key('cq_submit_btn'),
-                onPressed: widget.isSubmitting
-                    ? null
-                    : () => widget.onSubmit(_scores),
-                style: FilledButton.styleFrom(
-                  backgroundColor: PorhiTheme.emerald600,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                icon: widget.isSubmitting
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : const Icon(Icons.check_circle_outline_rounded, size: 18),
-                label: Text(
-                  widget.isSubmitting
-                      ? AppStrings.tr('সংরক্ষণ হচ্ছে...', 'Saving...', lang)
-                      : AppStrings.tr(
-                          'স্ব-মূল্যায়ন জমা দাও',
-                          'Submit Self-Assessment',
-                          lang,
-                        ),
-                ),
-              ),
-              if (submitted != null && submitted.isQueuedOffline) ...<Widget>[
-                const SizedBox(height: 6),
-                Text(
-                  AppStrings.tr(
-                    'অফলাইনে সংরক্ষিত — অনলাইনে সিঙ্ক হবে।',
-                    'Saved offline — will sync when online.',
-                    lang,
-                  ),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 11.5,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF92400E),
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
       ],
     );
   }
@@ -433,15 +411,14 @@ class _CqRubricCardState extends State<CqRubricCard> {
     for (final entry in entries) {
       final part = entry.part;
       if (part == null || part.isEmpty) continue;
+      if (widgets.isNotEmpty) {
+        widgets.add(
+          const Divider(height: 1, thickness: 1, color: PorhiTheme.slate200),
+        );
+      }
       widgets.add(
-        Container(
-          margin: const EdgeInsets.only(bottom: 8),
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: PorhiTheme.slate200),
-          ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
