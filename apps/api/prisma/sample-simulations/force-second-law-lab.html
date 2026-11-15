@@ -12,7 +12,7 @@
     h1 { font-size: 1.15rem; color: #38bdf8; margin-bottom: 3px; }
     p { font-size: 0.8rem; color: #94a3b8; }
     .canvas-wrap { background: #1e293b; border-radius: 12px; border: 1px solid #334155; overflow: hidden; width: 100%; position: relative; }
-    svg { display: block; width: 100%; height: 180px; }
+    svg { display: block; width: 100%; height: 205px; }
     .controls { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 12px 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .control-group { display: flex; flex-direction: column; gap: 4px; }
     label { font-size: 0.75rem; color: #cbd5e1; display: flex; justify-content: space-between; font-weight: 700; }
@@ -638,6 +638,122 @@
       .eq-grid,
       .balance-box { grid-template-columns: 1fr !important; }
     }
+
+    #forceSvg {
+      width: 100% !important;
+      height: auto !important;
+      display: block !important;
+    }
+
+    .control-group.full-span {
+      grid-column: 1 / -1 !important;
+    }
+
+    .control-group.full-span label {
+      flex-wrap: wrap !important;
+    }
+
+    .vt-panel {
+      background: #f8fafc !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-radius: 14px !important;
+      padding: 12px 14px !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 10px !important;
+    }
+
+    .vt-panel-header {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      flex-wrap: wrap !important;
+      gap: 6px !important;
+      font-size: 0.8rem !important;
+      font-weight: 800 !important;
+      color: var(--pori-heading) !important;
+    }
+
+    .vt-panel-sub {
+      font-size: 0.74rem !important;
+      font-weight: 700 !important;
+      color: var(--pori-indigo) !important;
+      background: var(--pori-indigo-soft) !important;
+      border: 1px solid var(--pori-indigo-border) !important;
+      padding: 2px 8px !important;
+      border-radius: 999px !important;
+    }
+
+    .time-steps-grid {
+      display: grid !important;
+      grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+      gap: 6px !important;
+    }
+
+    .time-step-cell {
+      background: #ffffff !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-radius: 10px !important;
+      padding: 6px 4px !important;
+      text-align: center !important;
+      cursor: pointer !important;
+      transition: all 0.15s ease !important;
+    }
+
+    .time-step-cell.reached {
+      background: #f5f7ff !important;
+      border-color: var(--pori-indigo-border) !important;
+    }
+
+    .time-step-cell.current {
+      background: var(--pori-indigo-soft) !important;
+      border: 1.5px solid var(--pori-indigo) !important;
+      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.12) !important;
+    }
+
+    .time-step-cell .ts-t {
+      font-size: 0.68rem !important;
+      font-weight: 800 !important;
+      color: var(--pori-muted) !important;
+    }
+
+    .time-step-cell.current .ts-t {
+      color: var(--pori-indigo-ink) !important;
+    }
+
+    .time-step-cell .ts-v {
+      font-size: 0.78rem !important;
+      font-weight: 900 !important;
+      color: var(--pori-heading) !important;
+      font-variant-numeric: tabular-nums !important;
+      margin: 2px 0 !important;
+    }
+
+    .time-step-cell.current .ts-v {
+      color: var(--pori-indigo) !important;
+    }
+
+    .time-step-cell .ts-s {
+      font-size: 0.64rem !important;
+      font-weight: 700 !important;
+      color: #64748b !important;
+      font-variant-numeric: tabular-nums !important;
+    }
+
+    #vtChartSvg {
+      display: block !important;
+      width: 100% !important;
+      height: auto !important;
+      background: #ffffff !important;
+      border: 1px solid var(--pori-border-soft) !important;
+      border-radius: 10px !important;
+    }
+
+    @media (max-width: 640px) {
+      .time-steps-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      }
+    }
     /* === END PORI UNIFIED SIMULATOR THEME === */
 
   </style>
@@ -647,110 +763,352 @@
     <header>
       <div class="eyebrow">🔬 ইন্টারেক্টিভ ল্যাব · SSC পদার্থবিজ্ঞান অধ্যায় ৩</div>
       <h1>⚡ নিউটনের দ্বিতীয় সূত্র (<i>F</i> = <i>ma</i>) ল্যাব</h1>
-      <p>প্রযুক্ত বল (<i>F</i>) ও ভর (<i>m</i>) নিয়ন্ত্রণ করে ত্বরণ (<i>a</i> = <i>F</i> / <i>m</i>) ও বেগ পরিবর্তন পর্যবেক্ষণ করো।</p>
+      <p>প্রযুক্ত বল (<i>F</i>) ও ভর (<i>m</i>) থেকে ত্বরণ (<i>a</i> = <i>F</i> / <i>m</i>) এবং সময়ের (<i>t</i>) সাথে বেগ কীভাবে বৃদ্ধি পায় (<i>v</i> = <i>a</i> × <i>t</i>) তা ধাপে ধাপে পর্যবেক্ষণ করো।</p>
     </header>
 
     <div class="canvas-wrap">
-      <svg id="forceSvg" viewBox="0 0 700 180"></svg>
+      <svg id="forceSvg" viewBox="0 0 700 205" role="img" aria-label="নিউটনের ২য় সূত্র ও বেগ বনাম সময় অ্যানিমেশন"></svg>
     </div>
 
     <div class="controls">
       <div class="control-group">
-        <label>প্রযুক্ত বল (F): <span id="fDisp" style="color:#4f46e5">+25.0 N</span></label>
+        <label><span>প্রযুক্ত বল (<i>F</i>):</span> <span id="fDisp" style="color:#4f46e5">+25.0 N</span></label>
         <input id="fSlide" class="custom-range" type="range" min="-50" max="50" value="25" step="1" oninput="onF(this.value)">
       </div>
       <div class="control-group">
-        <label>গাড়ির ভর (m): <span id="mDisp" style="color:#4f46e5">5.0 kg</span></label>
+        <label><span>গাড়ির ভর (<i>m</i>):</span> <span id="mDisp" style="color:#4f46e5">5.0 kg</span></label>
         <input id="mSlide" class="custom-range" type="range" min="1" max="20" value="5" step="0.5" oninput="onM(this.value)">
+      </div>
+      <div class="control-group full-span">
+        <label><span>⏱️ অতিবাহিত সময় (<i>t</i>) — স্লাইডার টেনে বা ধাপে বেগ দেখো:</span> <span id="tDisp" style="color:#4f46e5">0.00 s (v = 0.00 m/s)</span></label>
+        <input id="tSlide" class="custom-range" type="range" min="0" max="5" value="0" step="0.1" oninput="onT(this.value)">
       </div>
     </div>
 
     <div class="btn-row">
       <button class="primary" id="playBtn" onclick="togglePlay()">▶️ অ্যানিমেশন শুরু</button>
+      <button onclick="stepTime(1)">⏭️ +1.0 s ধাপ</button>
       <button onclick="resetSim()">🔄 রিসেট</button>
     </div>
 
     <div class="grid">
-      <div class="card"><div class="title">প্রযুক্ত বল (F)</div><div class="val" id="dispF">+25.0 N</div></div>
-      <div class="card"><div class="title">ভর (m)</div><div class="val" id="dispM">5.0 kg</div></div>
-      <div class="card"><div class="title">তাৎক্ষণিক বেগ (v)</div><div class="val" id="dispV">0.00 m/s</div></div>
+      <div class="card"><div class="title">অতিবাহিত সময় (t)</div><div class="val" id="dispT">0.00 s</div></div>
       <div class="card"><div class="title">ত্বরণ (a = F/m)</div><div class="val" id="dispA">+5.00 m/s²</div></div>
+      <div class="card highlight"><div class="title">তাৎক্ষণিক বেগ (v = a×t)</div><div class="val" id="dispV">+0.00 m/s</div></div>
+      <div class="card"><div class="title">অতিক্রান্ত দূরত্ব (s = ½at²)</div><div class="val" id="dispS">0.00 m</div></div>
+    </div>
+
+    <div class="vt-panel">
+      <div class="vt-panel-header">
+        <span>📈 সময়ের সাথে বেগের সম্পর্ক (<i>v</i> = <i>a</i> × <i>t</i>)</span>
+        <span class="vt-panel-sub" id="vtSlopeBadge">প্রতি ১ সেকেন্ডে বেগ বাড়ে +5.00 m/s</span>
+      </div>
+      <div class="time-steps-grid" id="timeStepsGrid"></div>
+      <svg id="vtChartSvg" viewBox="0 0 640 120" role="img" aria-label="বেগ বনাম সময় লেখচিত্র"></svg>
     </div>
 
     <div class="readout" id="mathReadout">
-      ত্বরণ <i>a</i> = <i>F</i> / <i>m</i> = (+25.0 N) / (5.0 kg) = +5.00 m/s²
+      ত্বরণ <i>a</i> = <i>F</i> / <i>m</i> = (+25.0 N) / (5.0 kg) = +5.00 m/s²<br>
+      <i>t</i> = 0.00 s সময়ে বেগ <i>v</i> = <i>a</i> × <i>t</i> = 0.00 m/s | সরণ <i>s</i> = ½<i>at</i>² = 0.00 m
     </div>
   </div>
 
   <script>
-    let F = 25.0, m = 5.0, v = 0.0, posX = 80;
+    let F = 25.0, m = 5.0, t = 0.0;
+    const T_MAX = 5.0;
     let running = false, lastTs = 0;
 
-    function render() {
+    function fmtSign(val, dec = 2) {
+      if (Math.abs(val) < 1e-6) return (0).toFixed(dec);
+      return (val > 0 ? '+' : '') + val.toFixed(dec);
+    }
+
+    function renderStage(a, v, s) {
       const svg = document.getElementById('forceSvg');
-      const a = F / m;
-      const w = 70 + m * 2;
-      const cy = 120 - 32;
+      const roadY = 148;
+      const absA = Math.abs(a);
+      const maxTheoretical = 0.5 * absA * T_MAX * T_MAX;
+      const maxDist = Math.max(10, Math.ceil(maxTheoretical / 5) * 5);
+      const dir = F < 0 ? -1 : 1;
+      const originX = dir > 0 ? 74 : 626;
+      const endTrackX = dir > 0 ? 592 : 108;
+      const spanPx = Math.abs(endTrackX - originX);
+      const pxPerM = spanPx / maxDist;
+
+      const cartW = 68 + m * 1.4;
+      const cartH = 30;
+      const cartY = roadY - cartH;
+      const cartCx = originX + dir * Math.min(Math.abs(s), maxDist) * pxPerM;
+      const cartX = cartCx - cartW / 2;
 
       let html = `
-        <rect x="0" y="120" width="700" height="60" fill="#e2e8f0"/>
-        <line x1="0" y1="120" x2="700" y2="120" stroke="#0284c7" stroke-width="3"/>
+        <defs>
+          <linearGradient id="stageSky" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#f8fbff"/>
+            <stop offset="100%" stop-color="#eef2ff"/>
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="700" height="${roadY}" fill="url(#stageSky)"/>
+        <rect x="0" y="${roadY}" width="700" height="57" fill="#e2e8f0"/>
+        <line x1="0" y1="${roadY}" x2="700" y2="${roadY}" stroke="#0284c7" stroke-width="3"/>
       `;
-      for (let x = 40; x <= 660; x += 50) {
-        const d = Math.round((x - 40) / 12);
-        html += `<line x1="${x}" y1="120" x2="${x}" y2="126" stroke="#64748b" stroke-width="1.5"/>
-                 <text x="${x}" y="140" fill="#334155" font-size="9" font-weight="700" text-anchor="middle">${d}m</text>`;
+
+      // Top HUD pills (3 clean non-overlapping telemetry badges)
+      html += `
+        <g>
+          <rect x="12" y="8" width="184" height="28" rx="9" fill="#ffffff" stroke="#c7d2fe" stroke-width="1"/>
+          <text x="104" y="26" fill="#3730a3" font-size="11.5" font-weight="800" text-anchor="middle">⏱️ সময় t = ${t.toFixed(2)} s</text>
+          <rect x="206" y="8" width="234" height="28" rx="9" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+          <text x="323" y="26" fill="#0f172a" font-size="11.5" font-weight="800" text-anchor="middle">⚡ ত্বরণ a = F/m = ${fmtSign(a)} m/s²</text>
+          <rect x="450" y="8" width="238" height="28" rx="9" fill="#eef2ff" stroke="#818cf8" stroke-width="1.2"/>
+          <text x="569" y="26" fill="#4338ca" font-size="11.5" font-weight="900" text-anchor="middle">🚀 বেগ v = a×t = ${fmtSign(v)} m/s</text>
+        </g>
+      `;
+
+      // Distance ruler ticks along the track
+      const tickCount = 5;
+      for (let i = 0; i <= tickCount; i++) {
+        const distM = (maxDist * i) / tickCount;
+        const tx = originX + dir * distM * pxPerM;
+        html += `
+          <line x1="${tx}" y1="${roadY}" x2="${tx}" y2="${roadY + 7}" stroke="#64748b" stroke-width="1.5"/>
+          <text x="${tx}" y="${roadY + 21}" fill="#334155" font-size="10.5" font-weight="700" text-anchor="middle">${distM.toFixed(0)}m</text>
+        `;
       }
 
-      // Cart
+      // 1-second strobe breadcrumb markers along the track (s = 1/2 a t^2, v = a*t)
+      if (absA > 0.01) {
+        for (let sec = 1; sec <= T_MAX; sec++) {
+          const sSec = 0.5 * absA * sec * sec;
+          const vSec = a * sec;
+          const mx = originX + dir * sSec * pxPerM;
+          const reached = t + 0.001 >= sec;
+          const labelY = sec % 2 === 1 ? 56 : 74;
+
+          html += `
+            <line x1="${mx}" y1="${labelY + 7}" x2="${mx}" y2="${roadY - 3}" stroke="${reached ? '#6366f1' : '#cbd5e1'}" stroke-width="${reached ? 1.5 : 1}" stroke-dasharray="3,3"/>
+            <circle cx="${mx}" cy="${roadY}" r="${reached ? 4.5 : 3}" fill="${reached ? '#4f46e5' : '#94a3b8'}" stroke="#ffffff" stroke-width="1.5"/>
+          `;
+          if (reached) {
+            html += `
+              <rect x="${mx - 42}" y="${labelY - 12}" width="84" height="17" rx="8.5" fill="#ffffff" stroke="#a5b4fc" stroke-width="1"/>
+              <text x="${mx}" y="${labelY}" fill="#3730a3" font-size="9.5" font-weight="800" text-anchor="middle">${sec}s: ${fmtSign(vSec, 1)}m/s</text>
+            `;
+          } else {
+            html += `
+              <text x="${mx}" y="${labelY}" fill="#64748b" font-size="9.5" font-weight="700" text-anchor="middle">${sec}s</text>
+            `;
+          }
+        }
+      }
+
+      // Cart body, wheels, and mass tag
       html += `
-        <rect x="${posX}" y="${cy}" width="${w}" height="32" rx="6" fill="#0284c7" stroke="#0369a1" stroke-width="2"/>
-        <circle cx="${posX + 15}" cy="120" r="7" fill="#64748b" stroke="#0f172a" stroke-width="2"/>
-        <circle cx="${posX + w - 15}" cy="120" r="7" fill="#64748b" stroke="#0f172a" stroke-width="2"/>
-        <text x="${posX + w / 2}" y="${cy + 20}" fill="#ffffff" font-size="11" font-weight="800" text-anchor="middle">${m.toFixed(1)}kg</text>
+        <rect x="${cartX}" y="${cartY}" width="${cartW}" height="${cartH}" rx="6" fill="#0284c7" stroke="#0369a1" stroke-width="2"/>
+        <circle cx="${cartX + 15}" cy="${roadY}" r="7" fill="#64748b" stroke="#0f172a" stroke-width="2"/>
+        <circle cx="${cartX + cartW - 15}" cy="${roadY}" r="7" fill="#64748b" stroke="#0f172a" stroke-width="2"/>
+        <text x="${cartCx}" y="${cartY + 19}" fill="#ffffff" font-size="11" font-weight="800" text-anchor="middle">${m.toFixed(1)}kg</text>
       `;
 
-      // Force Vector
+      // Force Vector Arrow (Green)
       if (Math.abs(F) > 0.5) {
-        const arrowLen = F * 1.5;
-        const startX = F > 0 ? posX + w : posX;
-        const endX = startX + arrowLen;
-        const dir = F > 0 ? 1 : -1;
+        const fDir = F > 0 ? 1 : -1;
+        const arrowLen = Math.min(68, Math.max(18, Math.abs(F) * 1.1));
+        const startX = fDir > 0 ? cartX + cartW : cartX;
+        const endX = Math.max(18, Math.min(682, startX + fDir * arrowLen));
+        const lblX = Math.max(46, Math.min(654, endX + fDir * 6));
         html += `
-          <line x1="${startX}" y1="${cy + 16}" x2="${endX}" y2="${cy + 16}" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
-          <polygon points="${endX},${cy + 16} ${endX - dir * 7},${cy + 12} ${endX - dir * 7},${cy + 20}" fill="#22c55e"/>
-          <text x="${endX + dir * 10}" y="${cy + 19}" fill="#22c55e" font-size="10" font-weight="700" text-anchor="${dir > 0 ? 'start' : 'end'}">F = ${F > 0 ? '+' : ''}${F.toFixed(0)}N</text>
+          <line x1="${startX}" y1="${cartY + 15}" x2="${endX}" y2="${cartY + 15}" stroke="#16a34a" stroke-width="3" stroke-linecap="round"/>
+          <polygon points="${endX},${cartY + 15} ${endX - fDir * 7},${cartY + 11} ${endX - fDir * 7},${cartY + 19}" fill="#16a34a"/>
+          <text x="${lblX}" y="${cartY + 18}" fill="#15803d" font-size="10" font-weight="800" text-anchor="${fDir > 0 ? 'start' : 'end'}">F=${F > 0 ? '+' : ''}${F.toFixed(0)}N</text>
+        `;
+      }
+
+      // Velocity Vector Arrow above cart (Indigo)
+      if (Math.abs(v) > 0.05) {
+        const vDir = v > 0 ? 1 : -1;
+        const vArrowLen = Math.min(82, Math.max(16, Math.abs(v) * 2.2));
+        const vStartX = cartCx;
+        const vEndX = Math.max(24, Math.min(676, vStartX + vDir * vArrowLen));
+        const vArrowY = cartY - 11;
+        const vLblX = Math.max(76, Math.min(624, vEndX + vDir * 6));
+        html += `
+          <line x1="${vStartX}" y1="${vArrowY}" x2="${vEndX}" y2="${vArrowY}" stroke="#4f46e5" stroke-width="2.5" stroke-linecap="round"/>
+          <polygon points="${vEndX},${vArrowY} ${vEndX - vDir * 7},${vArrowY - 4} ${vEndX - vDir * 7},${vArrowY + 4}" fill="#4f46e5"/>
+          <text x="${vLblX}" y="${vArrowY + 3.5}" fill="#4338ca" font-size="10" font-weight="900" text-anchor="${vDir > 0 ? 'start' : 'end'}">v=${fmtSign(v, 1)}m/s</text>
         `;
       }
 
       svg.innerHTML = html;
     }
 
+    function renderStepGrid(a) {
+      const grid = document.getElementById('timeStepsGrid');
+      const activeSec = Math.round(t);
+      let html = '';
+      for (let sec = 0; sec <= T_MAX; sec++) {
+        const vSec = a * sec;
+        const sSec = 0.5 * a * sec * sec;
+        const isCurrent = Math.abs(t - sec) < 0.08 || (sec === activeSec && Math.abs(t - sec) < 0.5);
+        const isReached = sec <= t + 0.01;
+        html += `
+          <div class="time-step-cell ${isReached ? 'reached' : ''} ${isCurrent ? 'current' : ''}" onclick="setTime(${sec})">
+            <div class="ts-t">t = ${sec}s</div>
+            <div class="ts-v">${fmtSign(vSec, 1)} m/s</div>
+            <div class="ts-s">s = ${Math.abs(sSec).toFixed(1)}m</div>
+          </div>
+        `;
+      }
+      grid.innerHTML = html;
+    }
+
+    function renderVTChart(a, v, s) {
+      const svg = document.getElementById('vtChartSvg');
+      const left = 54, right = 604, top = 16, bottom = 94;
+      const plotW = right - left;
+      const plotH = bottom - top;
+      const absA = Math.abs(a);
+      const vMax = Math.max(5, Math.ceil((absA * T_MAX) / 5) * 5);
+
+      const xOfT = (sec) => left + (sec / T_MAX) * plotW;
+      const yOfV = (speedMag) => bottom - (Math.min(speedMag, vMax) / vMax) * plotH;
+
+      const fullEndX = xOfT(T_MAX);
+      const fullEndY = yOfV(absA * T_MAX);
+      const curX = xOfT(t);
+      const curY = yOfV(Math.abs(v));
+
+      let html = `
+        <line x1="${left}" y1="${bottom}" x2="${right}" y2="${bottom}" stroke="#94a3b8" stroke-width="1.5"/>
+        <line x1="${left}" y1="${top}" x2="${left}" y2="${bottom}" stroke="#94a3b8" stroke-width="1.5"/>
+        <text x="16" y="${(top + bottom) / 2}" fill="#475569" font-size="10.5" font-weight="800" text-anchor="middle" transform="rotate(-90 16 ${(top + bottom) / 2})">|v| (m/s)</text>
+      `;
+
+      // Horizontal Y ticks
+      [0, 0.5, 1].forEach(frac => {
+        const yVal = vMax * frac;
+        const y = yOfV(yVal);
+        html += `
+          <line x1="${left}" y1="${y}" x2="${right}" y2="${y}" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3,3"/>
+          <text x="${left - 7}" y="${y + 3.5}" fill="#475569" font-size="10" font-weight="700" text-anchor="end">${yVal.toFixed(0)}</text>
+        `;
+      });
+
+      // Vertical time ticks (0s..5s)
+      for (let sec = 0; sec <= T_MAX; sec++) {
+        const x = xOfT(sec);
+        html += `
+          <line x1="${x}" y1="${bottom}" x2="${x}" y2="${bottom + 5}" stroke="#64748b" stroke-width="1.2"/>
+          <text x="${x}" y="${bottom + 17}" fill="#475569" font-size="10.5" font-weight="700" text-anchor="middle">${sec}s</text>
+        `;
+      }
+
+      // Shaded displacement area (0..t)
+      if (t > 0.01 && absA > 0.01) {
+        html += `
+          <polygon points="${left},${bottom} ${curX},${curY} ${curX},${bottom}" fill="rgba(79, 70, 229, 0.14)"/>
+          <line x1="${curX}" y1="${curY}" x2="${curX}" y2="${bottom}" stroke="#6366f1" stroke-width="1.5" stroke-dasharray="4,3"/>
+        `;
+        if (t >= 1.4) {
+          const areaLabelX = left + (curX - left) * 0.68;
+          html += `<text x="${areaLabelX}" y="${bottom - 5}" fill="#4338ca" font-size="10.5" font-weight="800" text-anchor="middle">ক্ষেত্রফল = ${Math.abs(s).toFixed(1)} m</text>`;
+        }
+      }
+
+      // Dashed full theoretical line v = a * t + solid progress line
+      html += `
+        <line x1="${left}" y1="${bottom}" x2="${fullEndX}" y2="${fullEndY}" stroke="#a5b4fc" stroke-width="2" stroke-dasharray="5,4"/>
+        <line x1="${left}" y1="${bottom}" x2="${curX}" y2="${curY}" stroke="#4f46e5" stroke-width="3" stroke-linecap="round"/>
+      `;
+
+      // Dots at integer seconds
+      for (let sec = 1; sec <= T_MAX; sec++) {
+        const sx = xOfT(sec);
+        const sy = yOfV(absA * sec);
+        const reached = sec <= t + 0.01;
+        html += `<circle cx="${sx}" cy="${sy}" r="3.5" fill="${reached ? '#4f46e5' : '#cbd5e1'}" stroke="#ffffff" stroke-width="1"/>`;
+      }
+
+      // Active current point marker + coordinate readout
+      const lblAnchor = t > 3.6 ? 'end' : 'start';
+      const lblDx = t > 3.6 ? -10 : 10;
+      const lblDy = curY < 32 ? 14 : -10;
+      html += `
+        <circle cx="${curX}" cy="${curY}" r="6" fill="#ffffff" stroke="#4f46e5" stroke-width="2.5"/>
+        <circle cx="${curX}" cy="${curY}" r="2.2" fill="#4f46e5"/>
+        <text x="${curX + lblDx}" y="${curY + lblDy}" fill="#3730a3" font-size="10.5" font-weight="900" text-anchor="${lblAnchor}">(${t.toFixed(1)}s, ${fmtSign(v, 1)}m/s)</text>
+      `;
+
+      svg.innerHTML = html;
+    }
+
     function update() {
       const a = F / m;
-      document.getElementById('fDisp').innerText = (F > 0 ? '+' : '') + F.toFixed(1) + ' N';
+      const v = a * t;
+      const s = 0.5 * a * t * t;
+
+      document.getElementById('fDisp').innerText = fmtSign(F, 1) + ' N';
       document.getElementById('mDisp').innerText = m.toFixed(1) + ' kg';
-      document.getElementById('dispF').innerText = (F > 0 ? '+' : '') + F.toFixed(1) + ' N';
-      document.getElementById('dispM').innerText = m.toFixed(1) + ' kg';
-      document.getElementById('dispV').innerText = v.toFixed(2) + ' m/s';
-      document.getElementById('dispA').innerText = (a > 0 ? '+' : '') + a.toFixed(2) + ' m/s²';
+      document.getElementById('tDisp').innerText = `${t.toFixed(2)} s (v = ${fmtSign(v)} m/s)`;
 
-      document.getElementById('fSlide').style.setProperty('--fill', (((F - (-50)) / 100) * 100) + '%');
+      document.getElementById('dispT').innerText = t.toFixed(2) + ' s';
+      document.getElementById('dispA').innerText = fmtSign(a) + ' m/s²';
+      document.getElementById('dispV').innerText = fmtSign(v) + ' m/s';
+      document.getElementById('dispS').innerText = Math.abs(s).toFixed(2) + ' m';
+
+      const slopeBadge = document.getElementById('vtSlopeBadge');
+      if (Math.abs(a) < 1e-6) {
+        slopeBadge.innerText = 'বল ০ হওয়ায় বেগ স্থির (0.00 m/s)';
+      } else if (a > 0) {
+        slopeBadge.innerText = `প্রতি ১ সেকেন্ডে বেগ বাড়ে +${a.toFixed(2)} m/s`;
+      } else {
+        slopeBadge.innerText = `প্রতি ১ সেকেন্ডে বিপরীত দিকে বেগ বাড়ে ${a.toFixed(2)} m/s`;
+      }
+
+      document.getElementById('fSlide').style.setProperty('--fill', (((F + 50) / 100) * 100) + '%');
       document.getElementById('mSlide').style.setProperty('--fill', (((m - 1) / 19) * 100) + '%');
+      document.getElementById('tSlide').value = t.toFixed(1);
+      if (window.syncPoriRange) window.syncPoriRange(document.getElementById('tSlide'));
 
-      document.getElementById('mathReadout').innerText = 
-        `নিউটনের ২য় সূত্র: a = F / m = ${F.toFixed(1)} N / ${m.toFixed(1)} kg = ${a.toFixed(2)} m/s² | তাৎক্ষণিক বেগ v = ${v.toFixed(2)} m/s`;
+      document.getElementById('mathReadout').innerHTML =
+        `ত্বরণ <i>a</i> = <i>F</i> / <i>m</i> = (${fmtSign(F, 1)} N) / (${m.toFixed(1)} kg) = <strong>${fmtSign(a)} m/s²</strong><br>` +
+        `<i>t</i> = ${t.toFixed(2)} s সময়ে বেগ <i>v</i> = <i>a</i> × <i>t</i> = (${fmtSign(a)}) × (${t.toFixed(2)}) = <strong>${fmtSign(v)} m/s</strong> | সরণ <i>s</i> = ½<i>at</i>² = <strong>${Math.abs(s).toFixed(2)} m</strong>`;
 
-      render();
+      renderStage(a, v, s);
+      renderStepGrid(a);
+      renderVTChart(a, v, s);
     }
 
     function onF(val) { F = parseFloat(val); update(); }
     function onM(val) { m = parseFloat(val); update(); }
+    function onT(val) {
+      running = false;
+      document.getElementById('playBtn').innerText = '▶️ অ্যানিমেশন শুরু';
+      t = Math.max(0, Math.min(T_MAX, parseFloat(val)));
+      update();
+    }
+    function setTime(sec) {
+      running = false;
+      document.getElementById('playBtn').innerText = '▶️ অ্যানিমেশন শুরু';
+      t = Math.max(0, Math.min(T_MAX, sec));
+      update();
+    }
+    function stepTime(delta) {
+      running = false;
+      document.getElementById('playBtn').innerText = '▶️ অ্যানিমেশন শুরু';
+      if (t >= T_MAX - 0.02) {
+        t = 0;
+      } else {
+        t = Math.min(T_MAX, Math.floor(t + 0.05) + delta);
+      }
+      update();
+    }
 
     function togglePlay() {
       running = !running;
       const btn = document.getElementById('playBtn');
       if (running) {
+        if (t >= T_MAX - 0.02) t = 0;
         btn.innerText = '⏸️ বিরতি';
         lastTs = performance.now();
         requestAnimationFrame(loop);
@@ -761,8 +1119,8 @@
 
     function resetSim() {
       running = false;
+      t = 0.0;
       document.getElementById('playBtn').innerText = '▶️ অ্যানিমেশন শুরু';
-      v = 0.0; posX = 80;
       update();
     }
 
@@ -771,13 +1129,11 @@
       const dt = Math.min((ts - lastTs) / 1000, 0.05);
       lastTs = ts;
 
-      const a = F / m;
-      v += a * dt;
-      posX += v * dt * 25;
-
-      if (posX > 580) posX = 40;
-      if (posX < 20) { posX = 20; v = 0; }
-
+      t = Math.min(T_MAX, t + dt);
+      if (t >= T_MAX) {
+        running = false;
+        document.getElementById('playBtn').innerText = '▶️ পুনরায় চালান';
+      }
       update();
       if (running) requestAnimationFrame(loop);
     }
