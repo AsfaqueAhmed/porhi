@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>যৌগিক অণুবীক্ষণ ও কোষ স্টেইনিং ল্যাব | poRi</title>
+  <style>
+    /* PORI UNIFIED SIMULATOR THEME */
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-accent: #0f766e;
+      --pori-accent-soft: #ecfdf5;
+      --pori-accent-border: #99f6e4;
+      --pori-accent-ink: #134e4a;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-amber-ink: #92400e;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-border: #fecdd3;
+      --pori-rose-ink: #9f1239;
+      --pori-blue-soft: #eff6ff;
+      --pori-blue-border: #bfdbfe;
+      --pori-blue-ink: #1e40af;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+    .app {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .head h1 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--pori-heading);
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--pori-accent-ink);
+      background: var(--pori-accent-soft);
+      border: 1px solid var(--pori-accent-border);
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .head p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--pori-muted);
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--pori-border);
+      background: var(--pori-surface);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--pori-muted);
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      background: var(--pori-accent-soft);
+      color: var(--pori-accent-ink);
+    }
+    .tab-btn.active {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+    }
+    .layout-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+    }
+    @media (max-width: 860px) {
+      .layout-grid { grid-template-columns: 1fr; }
+    }
+    .scope-stage {
+      background: #0f172a;
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .eyepiece-view {
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      background: #000;
+      border: 10px solid #334155;
+      box-shadow: inset 0 0 30px rgba(0,0,0,0.8), 0 0 20px rgba(0,0,0,0.4);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .reticle {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .reticle::before, .reticle::after {
+      content: '';
+      position: absolute;
+      background: rgba(255,255,255,0.15);
+    }
+    .reticle::before { top: 50%; left: 0; right: 0; height: 1px; }
+    .reticle::after { left: 50%; top: 0; bottom: 0; width: 1px; }
+    .specimen-canvas {
+      width: 100%;
+      height: 100%;
+      transition: filter 0.15s ease, transform 0.25s ease;
+    }
+    .stats-hud {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid #334155;
+      padding: 8px 16px;
+      border-radius: 10px;
+      color: #e2e8f0;
+      font-size: 13px;
+    }
+    .stats-item span {
+      color: #38bdf8;
+      font-weight: 700;
+    }
+    .controls-card {
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .control-grp {
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 10px;
+    }
+    .control-grp:last-child { border-bottom: none; }
+    .control-label {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--pori-heading);
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .opt-btn-grp {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .opt-chip {
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--pori-border);
+      background: #fafbfc;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--pori-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .opt-chip:hover, .opt-chip.active {
+      background: var(--pori-accent-soft);
+      border-color: var(--pori-accent);
+      color: var(--pori-accent-ink);
+    }
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    input[type=range] {
+      flex: 1;
+      accent-color: var(--pori-accent);
+    }
+    .info-pane {
+      background: var(--pori-accent-soft);
+      border: 1px solid var(--pori-accent-border);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 12.5px;
+      color: var(--pori-accent-ink);
+      line-height: 1.55;
+    }
+    .procedure-step {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      margin-bottom: 6px;
+      font-size: 12.5px;
+    }
+    .procedure-num {
+      background: var(--pori-accent);
+      color: #fff;
+      font-weight: 700;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="head">
+    <div>
+      <span class="badge">NCTB জীববিজ্ঞান অধ্যায় ২ · ২.৫ অণুবীক্ষণ ও ব্যবহারিক অংশ</span>
+      <h1>🔬 যৌগিক আলোক অণুবীক্ষণ ও স্টেইনিং ভার্চুয়াল ল্যাব</h1>
+      <p>অণুবীক্ষণ যন্ত্রের লেন্স, ফোকাস নব সমন্বয় করে পেঁয়াজ কোষ ও গালের আবরণী কোষের রঞ্জিত স্লাইড পর্যবেক্ষণ করো।</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchSlide('onion')">🧅 পেঁয়াজের ত্বক কোষ (স্যাফ্রানিন রঞ্জন)</button>
+    <button class="tab-btn" onclick="switchSlide('cheek')">👄 গালের ভেতরের আবরণী কোষ (মিথাইলিন ব্লু)</button>
+    <button class="tab-btn" onclick="switchSlide('blood')">🩸 রক্তের স্মিয়ার (RBC, WBC, Platelet)</button>
+    <button class="tab-btn" onclick="switchSlide('vascular')">🌿 কাণ্ডের জাইলেম ও ফ্লোয়েম টিস্যু</button>
+  </div>
+
+  <div class="layout-grid">
+    <!-- Eyepiece / Stage View -->
+    <div class="scope-stage">
+      <div class="eyepiece-view">
+        <div class="reticle"></div>
+        <div class="specimen-canvas" id="specimenCanvas">
+          <!-- Specimen Graphic Injected Dynamically -->
+        </div>
+      </div>
+      <div class="stats-hud">
+        <div class="stats-item">আইপিস: <span id="hudEye">10x</span></div>
+        <div class="stats-item">অবজেক্টিভ: <span id="hudObj">40x</span></div>
+        <div class="stats-item">মোট বিবর্ধন: <span id="hudTotal">400x</span></div>
+        <div class="stats-item">ফোকাস: <span id="hudFocus">স্পষ্ট ✅</span></div>
+      </div>
+    </div>
+
+    <!-- Microscope Controls & Practical Procedure -->
+    <div class="controls-card">
+      <div class="control-grp">
+        <div class="control-label">
+          <span>আইপিস লেন্স (Eyepiece):</span>
+          <span id="lblEye" style="color:var(--pori-accent)">10x</span>
+        </div>
+        <div class="opt-btn-grp">
+          <button class="opt-chip active" onclick="setEyepiece(10)">10x</button>
+          <button class="opt-chip" onclick="setEyepiece(12)">12x</button>
+        </div>
+      </div>
+
+      <div class="control-grp">
+        <div class="control-label">
+          <span>অবজেক্টিভ লেন্স (Objective):</span>
+          <span id="lblObj" style="color:var(--pori-accent)">40x (উচ্চ ক্ষমতা)</span>
+        </div>
+        <div class="opt-btn-grp">
+          <button class="opt-chip" onclick="setObjective(4, '4x (স্ক্যানিং)')">4x</button>
+          <button class="opt-chip" onclick="setObjective(10, '10x (নিম্ন ক্ষমতা)')">10x</button>
+          <button class="opt-chip active" onclick="setObjective(40, '40x (উচ্চ ক্ষমতা)')">40x</button>
+          <button class="opt-chip" onclick="setObjective(100, '100x (অয়েল ইমার্শন)')">100x</button>
+        </div>
+      </div>
+
+      <div class="control-grp">
+        <div class="control-label">
+          <span>কোর্স অ্যাডজাস্টমেন্ট (Coarse):</span>
+          <span id="lblCoarse">৫০</span>
+        </div>
+        <div class="slider-row">
+          <input type="range" id="coarseSlider" min="0" max="100" value="50" oninput="updateFocus()" />
+        </div>
+      </div>
+
+      <div class="control-grp">
+        <div class="control-label">
+          <span>ফাইন অ্যাডজাস্টমেন্ট (Fine):</span>
+          <span id="lblFine">৫০</span>
+        </div>
+        <div class="slider-row">
+          <input type="range" id="fineSlider" min="0" max="100" value="50" oninput="updateFocus()" />
+        </div>
+      </div>
+
+      <!-- Lab Staining Info -->
+      <div class="info-pane" id="labInfoBox">
+        <strong>🧪 পেঁয়াজ কোষ পর্যবেক্ষণ পদ্ধতি (পৃষ্ঠা ৪৬–৪৭):</strong>
+        <div class="procedure-step" style="margin-top:6px;">
+          <div class="procedure-num">১</div>
+          <div>পেঁয়াজের রসাল শল্কপত্রের অবতল দিক থেকে পাতলা স্বচ্ছ ত্বক ব্লেড দিয়ে আলাদা করো।</div>
+        </div>
+        <div class="procedure-step">
+          <div class="procedure-num">২</div>
+          <div><strong>স্যাফ্রানিন দ্রবণে</strong> ৩০ সেকেন্ড রঞ্জিত করো। অতিরিক্ত রঙ পানিতে ধুয়ে নাও।</div>
+        </div>
+        <div class="procedure-step">
+          <div class="procedure-num">৩</div>
+          <div>স্লাইডে ১ ফোঁটা <strong>গ্লিসারিন</strong> দিয়ে কভার স্লিপ বুদ্বুদহীনভাবে স্থাপন করো।</div>
+        </div>
+        <div class="procedure-step">
+          <div class="procedure-num">৪</div>
+          <div>ফোকাস করলে দেখতে পাবে: ইট-সদৃশ আয়তাকার কোষ, স্পষ্ট কোষপ্রাচীর ও পরিধিস্থ নিউক্লিয়াস।</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let eyePower = 10;
+let objPower = 40;
+let currentSlide = 'onion';
+
+const SLIDE_DATA = {
+  onion: {
+    title: "🧅 পেঁয়াজের ত্বক কোষ পর্যবেক্ষণ (স্যাফ্রানিন রঞ্জন)",
+    color: "#fda4af",
+    stain: "স্যাফ্রানিন (লাল/গোলাপি)",
+    info: `<strong>🧪 পেঁয়াজ কোষ পর্যবেক্ষণ পদ্ধতি (পৃষ্ঠা ৪৬–৪৭):</strong>
+      <div class="procedure-step" style="margin-top:6px;"><div class="procedure-num">১</div><div>পেঁয়াজের রসাল শল্কপত্র থেকে পাতলা ত্বক তুলি দিয়ে ওয়াচগ্লাসের পানিতে রাখো।</div></div>
+      <div class="procedure-step"><div class="procedure-num">২</div><div><strong>স্যাফ্রানিন দ্রবণে</strong> ৩০ সেকেন্ড ডুবিয়ে রাখো। স্যাফ্রানিন সেলুলোজ প্রাচীর ও নিউক্লিয়াসকে লাল রঙে রঞ্জিত করে।</div></div>
+      <div class="procedure-step"><div class="procedure-num">৩</div><div>স্লাইডে তুলে ১ ফোঁটা <strong>গ্লিসারিন</strong> দিয়ে সাবধানে কভার স্লিপ বসাও যেন কোনো বাতাস বা বুদ্বুদ না থাকে।</div></div>
+      <div class="procedure-step"><div class="procedure-num">৪</div><div><strong>পর্যবেক্ষণ:</strong> আয়তাকার নিয়মিত কোষপ্রাচীর, সাইটোপ্লাজমীয় ধাত্র ও একপাশে চ্যাপ্টা নিউক্লিয়াস স্পষ্ট দেখা যায়।</div></div>`,
+    svg: `
+      <svg viewBox="0 0 300 300" width="100%" height="100%">
+        <defs>
+          <pattern id="onionGrid" width="90" height="45" patternUnits="userSpaceOnUse">
+            <rect width="90" height="45" fill="#fff1f2" stroke="#e11d48" stroke-width="2.5"/>
+            <circle cx="70" cy="22" r="5" fill="#be123c"/>
+            <circle cx="25" cy="25" r="1.5" fill="#f43f5e" opacity="0.4"/>
+            <circle cx="45" cy="15" r="1.5" fill="#f43f5e" opacity="0.4"/>
+          </pattern>
+        </defs>
+        <rect width="300" height="300" fill="url(#onionGrid)" />
+      </svg>`
+  },
+  cheek: {
+    title: "👄 গালের ভেতরের আবরণী কোষ (মিথাইলিন ব্লু রঞ্জন)",
+    color: "#93c5fd",
+    stain: "মিথাইলিন ব্লু (নীল)",
+    info: `<strong>🧪 গালের আবরণী কোষ পর্যবেক্ষণ পদ্ধতি (পৃষ্ঠা ৪৭–৪৮):</strong>
+      <div class="procedure-step" style="margin-top:6px;"><div class="procedure-num">১</div><div>পরিষ্কার আঙুল দিয়ে গালের ভেতরের চকচকে আবরণীর ওপর আলতো ঘষে কিছু আবরণী কোষ তোলো।</div></div>
+      <div class="procedure-step"><div class="procedure-num">২</div><div>স্লাইডের ১-২ ফোঁটা পানিতে কোষগুলো সমানভাবে ছড়িয়ে দাও (প্রাণিকোষে কোষপ্রাচীর না থাকায় জোরে ঘষলে বিদীর্ণ হতে পারে)।</div></div>
+      <div class="procedure-step"><div class="procedure-num">৩</div><div>ড্রপার দিয়ে <strong>মিথাইলিন ব্লু</strong> দ্রবণ যোগ করে ২-৩ মিনিট রাখো। তারপর গ্লিসারিন ও কভার স্লিপ দাও।</div></div>
+      <div class="procedure-step"><div class="procedure-num">৪</div><div><strong>পর্যবেক্ষণ:</strong> বহুভুজাকার বা গোল অনিয়মিত চ্যাপ্টা কোষ। কোনো কোষপ্রাচীর বা প্লাস্টিড নেই। কেন্দ্রে গোলাকার নিউক্লিয়াস রঞ্জিত হয়েছে।</div></div>`,
+    svg: `
+      <svg viewBox="0 0 300 300" width="100%" height="100%" style="background:#eff6ff;">
+        <!-- Several scattered squamous cheek cells -->
+        <g transform="translate(60, 70)">
+          <path d="M -40 -20 Q 0 -45 40 -20 Q 55 10 35 40 Q -10 50 -40 30 Q -55 5 -40 -20 Z" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+          <circle cx="0" cy="5" r="7" fill="#1d4ed8"/>
+        </g>
+        <g transform="translate(190, 110)">
+          <path d="M -35 -25 Q 10 -40 45 -15 Q 50 20 25 45 Q -20 40 -45 20 Q -45 -10 -35 -25 Z" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+          <circle cx="2" cy="0" r="7.5" fill="#1d4ed8"/>
+        </g>
+        <g transform="translate(130, 210)">
+          <path d="M -45 -15 Q -10 -40 35 -25 Q 55 10 30 40 Q -20 45 -45 25 Q -55 0 -45 -15 Z" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+          <circle cx="-5" cy="5" r="8" fill="#1d4ed8"/>
+        </g>
+      </svg>`
+  },
+  blood: {
+    title: "🩸 রক্তের স্মিয়ার (লোহিত, শ্বেত ও অণুচক্রিকা)",
+    color: "#fca5a5",
+    stain: "লেইশম্যান স্টেইন",
+    info: `<strong>🧪 রক্তের কণিকা পর্যবেক্ষণ (পৃষ্ঠা ৩৭):</strong>
+      <div class="procedure-step" style="margin-top:6px;"><div class="procedure-num">১</div><div><strong>লোহিত রক্তকণিকা (RBC):</strong> গোল দ্বি-অবতল চাকতির মতো, লালচে, পূর্ণাঙ্গ অবস্থায় নিউক্লিয়াসবিহীন। সংখ্যায় সবচেয়ে বেশি।</div></div>
+      <div class="procedure-step"><div class="procedure-num">২</div><div><strong>শ্বেত রক্তকণিকা (WBC):</strong> আকারে বড়, অনিয়মিত আকৃতির এবং স্পষ্ট খণ্ডিত নিউক্লিয়াসযুক্ত। জীবাণু ধ্বংস করে।</div></div>
+      <div class="procedure-step"><div class="procedure-num">৩</div><div><strong>অণুচক্রিকা (Platelet):</strong> অতি ক্ষুদ্র, নিউক্লিয়াসবিহীন কণা। রক্ত তঞ্চনে অংশ নেয়।</div></div>`,
+    svg: `
+      <svg viewBox="0 0 300 300" width="100%" height="100%" style="background:#fff1f2;">
+        <!-- RBCs (Doughnut style) -->
+        <g transform="translate(60, 60)"><circle cx="0" cy="0" r="18" fill="#ef4444"/><circle cx="0" cy="0" r="8" fill="#fca5a5"/></g>
+        <g transform="translate(120, 90)"><circle cx="0" cy="0" r="18" fill="#ef4444"/><circle cx="0" cy="0" r="8" fill="#fca5a5"/></g>
+        <g transform="translate(80, 160)"><circle cx="0" cy="0" r="18" fill="#ef4444"/><circle cx="0" cy="0" r="8" fill="#fca5a5"/></g>
+        <g transform="translate(230, 80)"><circle cx="0" cy="0" r="18" fill="#ef4444"/><circle cx="0" cy="0" r="8" fill="#fca5a5"/></g>
+        <g transform="translate(200, 220)"><circle cx="0" cy="0" r="18" fill="#ef4444"/><circle cx="0" cy="0" r="8" fill="#fca5a5"/></g>
+        <!-- WBC (Large, Multilobed nucleus) -->
+        <g transform="translate(180, 150)">
+          <circle cx="0" cy="0" r="28" fill="#f3e8ff" stroke="#a855f7" stroke-width="2"/>
+          <path d="M -10 -10 C -12 -16 0 -16 2 -10 C 14 -12 16 0 10 4 C 16 14 0 16 -6 10 C -16 12 -16 0 -10 -10 Z" fill="#6b21a8"/>
+        </g>
+        <!-- Platelets (Tiny purple flecks) -->
+        <circle cx="130" cy="230" r="3" fill="#7c3aed"/>
+        <circle cx="140" cy="235" r="2.5" fill="#7c3aed"/>
+        <circle cx="210" cy="50" r="3" fill="#7c3aed"/>
+      </svg>`
+  },
+  vascular: {
+    title: "🌿 কাণ্ডের পরিবহন টিস্যু (জাইলেম ও ফ্লোয়েম বান্ডল)",
+    color: "#bbf7d0",
+    stain: "স্যাফ্রানিন ও ফাস্ট গ্রিন",
+    info: `<strong>🧪 উদ্ভিদের জটিল টিস্যু পর্যবেক্ষণ (পৃষ্ঠা ৩০–৩৩):</strong>
+      <div class="procedure-step" style="margin-top:6px;"><div class="procedure-num">১</div><div><strong>জাইলেম (Xylem):</strong> ট্রাকিড, ভেসেল (বড় ফাঁপা নল), জাইলেম প্যারেনকাইমা ও ফাইবার। লিগনিনযুক্ত পুরু প্রাচীর পানি পরিবহন করে।</div></div>
+      <div class="procedure-step"><div class="procedure-num">২</div><div><strong>ফ্লোয়েম (Phloem):</strong> সিভনল (চালুনির মতো সিভপ্লেটযুক্ত) ও সঙ্গীকোষ। পাতায় প্রস্তুত খাদ্য পরিবহন করে।</div></div>
+      <div class="procedure-step"><div class="procedure-num">৩</div><div>একত্রে গঠিত ভাস্কুলার বান্ডল উদ্ভিদের কাণ্ড ও পাতায় প্রধান পরিবহন ও দৃঢ়তা প্রদানকারী অংশ।</div></div>`,
+    svg: `
+      <svg viewBox="0 0 300 300" width="100%" height="100%" style="background:#f0fdf4;">
+        <!-- Vessel large circles -->
+        <circle cx="100" cy="110" r="26" fill="#fef08a" stroke="#ca8a04" stroke-width="4"/>
+        <circle cx="160" cy="90" r="32" fill="#fef08a" stroke="#ca8a04" stroke-width="4.5"/>
+        <circle cx="190" cy="160" r="24" fill="#fef08a" stroke="#ca8a04" stroke-width="4"/>
+        <!-- Tracheids -->
+        <polygon points="50,160 70,140 70,210 50,230" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+        <polygon points="75,150 95,130 95,200 75,220" fill="#dcfce7" stroke="#15803d" stroke-width="2"/>
+        <!-- Phloem sieve elements -->
+        <g transform="translate(130, 230)">
+          <rect x="-30" y="-20" width="60" height="40" fill="#e0e7ff" stroke="#4338ca" stroke-width="2"/>
+          <line x1="-30" y1="0" x2="30" y2="0" stroke="#4338ca" stroke-dasharray="3,3" stroke-width="2"/>
+          <circle cx="20" cy="-10" r="4" fill="#312e81"/>
+        </g>
+      </svg>`
+  }
+};
+
+function renderSpecimen() {
+  const canvas = document.getElementById('specimenCanvas');
+  canvas.innerHTML = SLIDE_DATA[currentSlide].svg;
+  document.getElementById('labInfoBox').innerHTML = SLIDE_DATA[currentSlide].info;
+  updateFocus();
+}
+
+function updateFocus() {
+  const coarse = parseInt(document.getElementById('coarseSlider').value);
+  const fine = parseInt(document.getElementById('fineSlider').value);
+  document.getElementById('lblCoarse').innerText = coarse;
+  document.getElementById('lblFine').innerText = fine;
+
+  // Perfect focus is coarse=50, fine=50
+  const cErr = Math.abs(coarse - 50);
+  const fErr = Math.abs(fine - 50);
+  const totalErr = (cErr * 0.4) + (fErr * 0.15);
+
+  const canvas = document.getElementById('specimenCanvas');
+  const hudFocus = document.getElementById('hudFocus');
+
+  // Zoom based on magnification
+  const totalMag = eyePower * objPower;
+  const zoomScale = Math.min(2.5, Math.max(0.7, totalMag / 300));
+  
+  if (totalErr < 3) {
+    canvas.style.filter = 'blur(0px) brightness(1.05)';
+    hudFocus.innerText = 'স্পষ্ট ✅';
+    hudFocus.style.color = '#4ade80';
+  } else if (totalErr < 12) {
+    canvas.style.filter = `blur(\${(totalErr-2)*0.6}px) brightness(0.95)`;
+    hudFocus.innerText = 'ঈষৎ ঝাপসা ⚠️';
+    hudFocus.style.color = '#facc15';
+  } else {
+    canvas.style.filter = `blur(\${Math.min(18, totalErr * 0.7)}px) brightness(0.85)`;
+    hudFocus.innerText = 'ঝাপসা (ফোকাস মেলাও) ❌';
+    hudFocus.style.color = '#f87171';
+  }
+
+  canvas.style.transform = `scale(\${zoomScale})`;
+  document.getElementById('hudEye').innerText = eyePower + 'x';
+  document.getElementById('hudObj').innerText = objPower + 'x';
+  document.getElementById('hudTotal').innerText = totalMag + 'x';
+}
+
+function setEyepiece(power) {
+  eyePower = power;
+  document.getElementById('lblEye').innerText = power + 'x';
+  const btns = document.querySelectorAll('.opt-chip');
+  btns[0].classList.toggle('active', power === 10);
+  btns[1].classList.toggle('active', power === 12);
+  updateFocus();
+}
+
+function setObjective(power, label) {
+  objPower = power;
+  document.getElementById('lblObj').innerText = label;
+  const objBtns = document.querySelectorAll('.control-grp')[1].querySelectorAll('.opt-chip');
+  const powers = [4, 10, 40, 100];
+  objBtns.forEach((b, idx) => {
+    b.classList.toggle('active', powers[idx] === power);
+  });
+  updateFocus();
+}
+
+function switchSlide(slideKey) {
+  currentSlide = slideKey;
+  const btns = document.querySelectorAll('.tab-btn');
+  const keys = ['onion', 'cheek', 'blood', 'vascular'];
+  btns.forEach((b, idx) => {
+    b.classList.toggle('active', keys[idx] === slideKey);
+  });
+  renderSpecimen();
+}
+
+// Initial boot
+renderSpecimen();
+</script>
+</body>
+</html>

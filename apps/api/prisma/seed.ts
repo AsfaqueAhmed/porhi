@@ -16,6 +16,7 @@ import { seedChapter10 } from './seed-chapter-10';
 import { seedChapter11 } from './seed-chapter-11';
 import { seedChapter12 } from './seed-chapter-12';
 import { seedBiologyChapter1 } from './seed-biology-chapter-1';
+import { seedBiologyChapter2 } from './seed-biology-chapter-2';
 import { seedPhase2 } from './seed-phase2';
 
 export const sscPhysicsSubject = {
@@ -468,7 +469,10 @@ export async function seed(prisma: PrismaClient) {
   // 18. Seed SSC Biology Chapter 1 full curriculum and question bank
   await seedBiologyChapter1(prisma);
 
-  // 19. Seed Phase 2 tracks, 2020-2025 board questions, and pilot lesson audio
+  // 19. Seed SSC Biology Chapter 2 full curriculum and question bank
+  await seedBiologyChapter2(prisma);
+
+  // 20. Seed Phase 2 tracks, 2020-2025 board questions, and pilot lesson audio
   await seedPhase2(prisma);
 }
 
