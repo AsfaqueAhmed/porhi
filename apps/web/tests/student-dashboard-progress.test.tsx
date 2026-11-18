@@ -43,7 +43,22 @@ describe('DashboardPage & ProgressPage Dynamic Analytics', () => {
   });
 
   it('renders DashboardPage with 0 activity cleanly (no NaN%), points to first real curriculum topic, and renders live mistakes queue', async () => {
-    vi.mocked(apiClient.get).mockRejectedValue(new Error('offline'));
+    vi.mocked(apiClient.get).mockImplementation(async (url: string) => {
+      if (url.includes('/chapters')) {
+        return [
+          {
+            id: 'chap_ssc_physics_ch1',
+            subjectId: 'sub_ssc_physics',
+            orderIndex: 1,
+            titleBangla: 'প্রথম অধ্যায়: ভৌত রাশি ও পরিমাপ',
+            topics: [
+              { id: 'top_ssc_physics_ch1_1', chapterId: 'chap_ssc_physics_ch1', orderIndex: 1, titleBangla: '১.১ পদার্থবিজ্ঞান (Physics)' },
+            ],
+          },
+        ] as any;
+      }
+      throw new Error('offline');
+    });
 
     useUserStore.setState({
       savedMistakes: [
@@ -74,8 +89,10 @@ describe('DashboardPage & ProgressPage Dynamic Analytics', () => {
     expect(container.textContent).not.toContain('NaN');
 
     // Primary continue learning CTA links to first real curriculum topic when lastVisitedTopic is null
-    const continueBtn = screen.getByRole('link', { name: /পড়া চালিয়ে যান/i });
-    expect(continueBtn.getAttribute('href')).toBe('/lesson/top_ssc_physics_ch1_1');
+    await waitFor(() => {
+      const continueBtn = screen.getByRole('link', { name: /পড়া চালিয়ে যান/i });
+      expect(continueBtn.getAttribute('href')).toBe('/lesson/top_ssc_physics_ch1_1');
+    });
 
     // Spaced repetition queue shows the real unresolved mistake topic
     expect(screen.getByText(/৩\.৫ নিউটনের দ্বিতীয় সূত্র ও বল পরিমাপ/i)).toBeDefined();
@@ -228,8 +245,8 @@ describe('DashboardPage & ProgressPage Dynamic Analytics', () => {
 
     // Mistake notebook shows the unresolved mistake and allows resolving it
     expect(screen.getByText(/মহাকর্ষীয় ধ্রুবক G এর একক কোনটি/i)).toBeDefined();
-    const resolveBtn = screen.getByRole('button', { name: /✓ বুঝতে পেরেছি/i });
-    fireEvent.click(resolveBtn);
+    const resolveBtns = screen.getAllByRole('button', { name: /✓ বুঝতে পেরেছি/i });
+    fireEvent.click(resolveBtns[0]);
 
     expect(useUserStore.getState().savedMistakes[0].resolved).toBe(true);
   });

@@ -130,19 +130,24 @@ describe('ExamRunnerPage & ExamResultPage (Task 7)', () => {
       })
     );
 
-    vi.mocked(apiClient.get).mockResolvedValueOnce({
-      sessionId: 'sess_resume_1',
-      status: 'IN_PROGRESS',
-      testType: 'CHAPTER_TEST',
-      subjectId: 'sub_ssc_physics',
-      chapterId: 'chap_ssc_physics_ch2',
-      totalQuestions: 2,
-      durationSeconds: 900,
-      negativeRatio: 0.25,
-      startedAt: recentStart,
-      answers: { q_ex_1: 'opt_1b' },
-      questions: sampleQuestions,
-    } as any);
+    vi.mocked(apiClient.get).mockImplementation(async (url: string) => {
+      if (url.includes('/exam/session/')) {
+        return {
+          sessionId: 'sess_resume_1',
+          status: 'IN_PROGRESS',
+          testType: 'CHAPTER_TEST',
+          subjectId: 'sub_ssc_physics',
+          chapterId: 'chap_ssc_physics_ch2',
+          totalQuestions: 2,
+          durationSeconds: 900,
+          negativeRatio: 0.25,
+          startedAt: recentStart,
+          answers: { q_ex_1: 'opt_1b' },
+          questions: sampleQuestions,
+        } as any;
+      }
+      return [] as any;
+    });
 
     render(<ExamRunnerPage />);
 
@@ -171,19 +176,24 @@ describe('ExamRunnerPage & ExamResultPage (Task 7)', () => {
       })
     );
 
-    vi.mocked(apiClient.get).mockResolvedValueOnce({
-      sessionId: 'sess_expired_1',
-      status: 'IN_PROGRESS',
-      testType: 'CHAPTER_TEST',
-      subjectId: 'sub_ssc_physics',
-      chapterId: 'chap_ssc_physics_ch2',
-      totalQuestions: 2,
-      durationSeconds: 600,
-      negativeRatio: 0.25,
-      startedAt: expiredStart,
-      answers: { q_ex_1: 'opt_1b' },
-      questions: sampleQuestions,
-    } as any);
+    vi.mocked(apiClient.get).mockImplementation(async (url: string) => {
+      if (url.includes('/exam/session/')) {
+        return {
+          sessionId: 'sess_expired_1',
+          status: 'IN_PROGRESS',
+          testType: 'CHAPTER_TEST',
+          subjectId: 'sub_ssc_physics',
+          chapterId: 'chap_ssc_physics_ch2',
+          totalQuestions: 2,
+          durationSeconds: 600,
+          negativeRatio: 0.25,
+          startedAt: expiredStart,
+          answers: { q_ex_1: 'opt_1b' },
+          questions: sampleQuestions,
+        } as any;
+      }
+      return [] as any;
+    });
 
     render(<ExamRunnerPage />);
 

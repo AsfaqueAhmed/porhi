@@ -62,54 +62,9 @@ export interface LessonFormState {
   memoryAid: string;
 }
 
-export const DEFAULT_SUBJECTS: SubjectOption[] = [
-  {
-    id: 'sub_ssc_physics',
-    code: 'ssc_physics',
-    nameBangla: 'পদার্থবিজ্ঞান',
-    classLevel: 'CLASS_9_10',
-    syllabusYear: 2026,
-  },
-  {
-    id: 'sub_ssc_chemistry',
-    code: 'ssc_chemistry',
-    nameBangla: 'রসায়ন',
-    classLevel: 'CLASS_9_10',
-    syllabusYear: 2026,
-  },
-];
+export const DEFAULT_SUBJECTS: SubjectOption[] = [];
 
-export const DEFAULT_CHAPTERS_MAP: Record<string, ChapterOption[]> = {
-  sub_ssc_physics: [
-    {
-      id: 'chap_ssc_physics_ch1',
-      titleBangla: 'প্রথম অধ্যায়: ভৌত রাশি ও পরিমাপ',
-      topics: [],
-    },
-    {
-      id: 'chap_ssc_physics_ch2',
-      titleBangla: 'দ্বিতীয় অধ্যায়: গতি (Motion)',
-      topics: [
-        {
-          id: 'top_ssc_physics_motion_eq',
-          titleBangla: 'গতির সমীকরণ ও সমাধান',
-        },
-      ],
-    },
-  ],
-  sub_ssc_chemistry: [
-    {
-      id: 'chap_ssc_chem_ch1',
-      titleBangla: 'প্রথম অধ্যায়: রসায়নের ধারণা',
-      topics: [
-        {
-          id: 'top_ssc_chem_ch1_scope',
-          titleBangla: 'রসায়নের পরিধি ও গুরুত্ব',
-        },
-      ],
-    },
-  ],
-};
+export const DEFAULT_CHAPTERS_MAP: Record<string, ChapterOption[]> = {};
 
 export const EMPTY_OPTIONS: McqOptionDraft[] = [
   { id: 'opt_1', text: '', isCorrect: true },

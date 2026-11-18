@@ -176,6 +176,19 @@ describe('LessonPage - MCQ অনুশীলন and Navigation', () => {
           explanation: 'গতির সমীকরণসমূহ...',
           status: ContentStatus.PUBLISHED,
           version: 1,
+          topic: {
+            id: 'top_ssc_physics_ch2_7',
+            titleBangla: '২.৭ গতির সমীকরণ',
+            chapter: {
+              id: 'chap_ssc_physics_ch2',
+              titleBangla: 'দ্বিতীয় অধ্যায়: গতি (Motion)',
+              subject: {
+                id: 'sub_ssc_physics',
+                code: 'ssc_physics',
+                nameBangla: 'পদার্থবিজ্ঞান',
+              },
+            },
+          },
         } as any;
       }
       return [] as any;
@@ -204,6 +217,21 @@ describe('LessonPage - MCQ অনুশীলন and Navigation', () => {
           titleBangla: '১.২ পদার্থবিজ্ঞানের পরিসর (Scope of Physics)',
         } as any;
       }
+      if (endpoint.includes('/chapters')) {
+        return [
+          {
+            id: 'chap_ssc_physics_ch1',
+            subjectId: 'sub_ssc_physics',
+            orderIndex: 1,
+            titleBangla: 'প্রথম অধ্যায়: ভৌত রাশি ও পরিমাপ',
+            topics: [
+              { id: 'top_ssc_physics_ch1_1', chapterId: 'chap_ssc_physics_ch1', orderIndex: 1, titleBangla: '১.১ পদার্থবিজ্ঞান' },
+              { id: 'top_ssc_physics_ch1_2', chapterId: 'chap_ssc_physics_ch1', orderIndex: 2, titleBangla: '১.২ পদার্থবিজ্ঞানের পরিসর' },
+              { id: 'top_ssc_physics_ch1_3', chapterId: 'chap_ssc_physics_ch1', orderIndex: 3, titleBangla: '১.৩ পদার্থবিজ্ঞানের ক্রমবিকাশ' },
+            ],
+          },
+        ] as any;
+      }
       return [] as any;
     });
 
@@ -211,6 +239,7 @@ describe('LessonPage - MCQ অনুশীলন and Navigation', () => {
 
     await waitFor(() => {
       expect(screen.getByText('১.২ পদার্থবিজ্ঞানের পরিসর (Scope of Physics)')).toBeDefined();
+      expect(screen.getByRole('link', { name: /পূর্ববর্তী টপিক/i })).toBeDefined();
     });
 
     expect(useUserStore.getState().lastVisitedTopic?.topicId).toBe('top_ssc_physics_ch1_2');

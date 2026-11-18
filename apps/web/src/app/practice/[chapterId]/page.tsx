@@ -25,7 +25,7 @@ import { QuestionDTO, QuestionType, ContentStatus } from '@pori/shared';
 import { toBanglaDigits } from '@/lib/formatters';
 import { useUserStore } from '@/store/user-store';
 import { useLanguageStore } from '@/store/language-store';
-import { findTopicHierarchy, DEFAULT_CHAPTERS } from '@/lib/curriculum-data';
+import { ChapterItem, findTopicHierarchy } from '@/lib/curriculum-data';
 import { PracticePageSkeleton } from '@/components/ui/shimmer';
 import { getOfflinePackQuestions, enqueuePracticeAttempt } from '@/lib/offline-store';
 
@@ -198,8 +198,25 @@ export default function PracticeRunnerPage() {
     protip: true,
   });
 
-  const resolvedChapter = DEFAULT_CHAPTERS.find((c) => c.id === chapterId);
+  const [subjectChapters, setSubjectChapters] = useState<ChapterItem[]>([]);
+  const resolvedChapter = subjectChapters.find((c) => c.id === chapterId);
   const chapterTitle = resolvedChapter?.titleBangla || 'অধ্যায় অনুশীলন';
+
+  useEffect(() => {
+    const subjId = activeSubject?.id;
+    if (!subjId) return;
+    let active = true;
+    Promise.resolve(
+      apiClient.get<ChapterItem[]>(`/curriculum/subjects/${encodeURIComponent(subjId)}/chapters`)
+    )
+      .then((res) => {
+        if (active && Array.isArray(res)) setSubjectChapters(res);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [activeSubject?.id]);
 
   useEffect(() => {
     async function loadOfflineOrSampleQuestions() {
@@ -293,7 +310,7 @@ export default function PracticeRunnerPage() {
     if (!currentQ || isAnswered) return;
     setSelectedAnswers((prev) => ({ ...prev, [currentQ.id]: optId }));
 
-    const hierarchy = findTopicHierarchy(currentQ.topicId || topicId || chapterId);
+    const hierarchy = findTopicHierarchy(currentQ.topicId || topicId || chapterId, subjectChapters);
     let isCorrectResult = Boolean(currentQ.options?.find((o) => o.id === optId)?.isCorrect);
     let correctOptionIdResult = currentQ.options?.find((o) => o.isCorrect)?.id || optId;
     let explanationResult: any = currentQ.explanation;
@@ -425,7 +442,7 @@ export default function PracticeRunnerPage() {
       [currentQ.id]: { totalScore, maxScore },
     }));
 
-    const hierarchy = findTopicHierarchy(currentQ.topicId || topicId || chapterId);
+    const hierarchy = findTopicHierarchy(currentQ.topicId || topicId || chapterId, subjectChapters);
     recordPracticeAttempt({
       questionId: currentQ.id,
       stemBangla: currentQ.stem,

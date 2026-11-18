@@ -176,6 +176,19 @@ describe('Track 3: Offline Chapter Packs, Storage & Sync Queue', () => {
 
   it('downloads chapter offline pack from CurriculumPage and marks it saved', async () => {
     vi.mocked(apiClient.get).mockImplementation(async (url: string) => {
+      if (url.includes('/chapters')) {
+        return [
+          {
+            id: 'chap_ssc_physics_ch1',
+            subjectId: 'sub_ssc_physics',
+            orderIndex: 1,
+            titleBangla: 'প্রথম অধ্যায়: ভৌত রাশি ও পরিমাপ',
+            topics: [
+              { id: 'top_ssc_physics_ch1_1', chapterId: 'chap_ssc_physics_ch1', orderIndex: 1, titleBangla: '১.১ পদার্থবিজ্ঞান (Physics)' },
+            ],
+          },
+        ];
+      }
       if (url.includes('/offline-pack')) {
         return {
           chapterId: 'chap_ssc_physics_ch1',

@@ -7,7 +7,6 @@ import { BookOpen, CheckCircle, ArrowRight, Flame, Award, Zap, Layers } from 'lu
 import { useUserStore } from '@/store/user-store';
 import { useLanguageStore } from '@/store/language-store';
 import { apiClient } from '@/lib/api-client';
-import { DEFAULT_CHAPTERS } from '@/lib/curriculum-data';
 import { toBanglaDigits } from '@/lib/formatters';
 
 export default function LandingPage() {
@@ -20,6 +19,7 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(false);
   const [guestLoading, setGuestLoading] = useState(false);
   const [guestLoginEnabled, setGuestLoginEnabled] = useState(true);
+  const [catalogCounts, setCatalogCounts] = useState({ chapters: 0, topics: 0, subjects: 0 });
 
   useEffect(() => {
     let active = true;
@@ -33,17 +33,27 @@ export default function LandingPage() {
       .catch(() => {
         // Default to true on network error
       });
+    Promise.resolve(
+      apiClient.get<Array<{ isReady?: boolean; chapterCount?: number; topicCount?: number }>>('/curriculum/subjects')
+    )
+      .then((subs) => {
+        if (!active || !Array.isArray(subs)) return;
+        const ready = subs.filter((s) => s.isReady);
+        setCatalogCounts({
+          subjects: ready.length,
+          chapters: ready.reduce((sum, s) => sum + (s.chapterCount || 0), 0),
+          topics: ready.reduce((sum, s) => sum + (s.topicCount || 0), 0),
+        });
+      })
+      .catch(() => {});
     return () => {
       active = false;
     };
   }, []);
 
-  const totalChapters = DEFAULT_CHAPTERS.length;
-  const totalTopics = DEFAULT_CHAPTERS.reduce((sum, ch) => sum + ch.topics.length, 0);
-  const totalLabs = DEFAULT_CHAPTERS.reduce(
-    (sum, ch) => sum + ch.topics.filter((t) => t.hasInteractiveLab).length,
-    0
-  );
+  const totalChapters = catalogCounts.chapters;
+  const totalTopics = catalogCounts.topics;
+  const totalLabs = catalogCounts.subjects;
 
   const handleGuestStart = async () => {
     try {

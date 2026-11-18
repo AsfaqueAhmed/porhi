@@ -27,10 +27,10 @@ import { ReportContentModal } from '@/components/student/report-content-modal';
 import { LessonAudioPlayer } from '@/components/student/lesson-audio-player';
 import { apiClient } from '@/lib/api-client';
 import { ensureGuestSession } from '@/lib/guest-session';
-import { LessonDTO, ContentStatus, QuestionDTO } from '@pori/shared';
+import { LessonDTO, QuestionDTO } from '@pori/shared';
 import { useLanguageStore } from '@/store/language-store';
 import { useUserStore } from '@/store/user-store';
-import { findTopicHierarchy, findAdjacentTopics } from '@/lib/curriculum-data';
+import { ChapterItem, findAdjacentTopics } from '@/lib/curriculum-data';
 import { toBanglaDigits } from '@/lib/formatters';
 import { LessonPageSkeleton } from '@/components/ui/shimmer';
 import {
@@ -39,76 +39,12 @@ import {
   enqueueLessonComplete,
 } from '@/lib/offline-store';
 
-const SAMPLE_LESSON: LessonDTO = {
-  id: 'lesson-motion-equations',
-  topicId: 'topic-motion-3',
-  titleBangla: 'গতির সমীকরণসমূহ ও গাণিতিক বিশ্লেষণ',
-  learningGoal: 'সুসম ত্বরণে চলমান বস্তুর গতির চারটি মৌলিক সমীকরণ ($v = u + at$, $s = \\frac{u+v}{2}t$, $s = ut + \\frac{1}{2}at^2$, $v^2 = u^2 + 2as$) প্রতিপাদন ও এদের গাণিতিক প্রয়োগ ব্যাখ্যা করতে পারবে।',
-  explanation: `
-কোনো বস্তু যদি $u$ আদিবেগ নিয়ে $a$ সুষম ত্বরণে $t$ সময় ধরে চলে এবং $v$ শেষবেগ প্রাপ্ত হয়ে $s$ দূরত্ব অতিক্রম করে, তবে এদের পারস্পরিক সম্পর্ক নির্ধারণকারী সমীকরণসমূহকে গতির সমীকরণ বলা হয়।
-
-### প্রথম সমীকরণ:
-ত্বরণের সংজ্ঞানুযায়ী, সময়ের সাথে বেগের পরিবর্তনের হারকে ত্বরণ বলে:
-$$a = \\frac{v - u}{t} \\implies v = u + at$$
-
-### দ্বিতীয় সমীকরণ (গড় বেগের সাহায্যে):
-সুষম ত্বরণের ক্ষেত্রে গড় বেগ হলো আদিবেগ ও শেষবেগের গাণিতিক গড়:
-$$v_{\\text{avg}} = \\frac{u + v}{2}$$
-অতএব, অতিক্রান্ত দূরত্ব:
-$$s = v_{\\text{avg}} \\times t = \\left(\\frac{u + v}{2}\\right)t$$
-
-### তৃতীয় সমীকরণ:
-প্রথম সমীকরণ থেকে $v = u + at$ এর মান দ্বিতীয় সমীকরণে বসালে পাওয়া যায়:
-$$s = ut + \\frac{1}{2}at^2$$
-
-### চতুর্থ সমীকরণ (সময় বর্জন সমীকরণ):
-প্রথম সমীকরণ হতে $t = \\frac{v - u}{a}$ মান নিয়ে দ্বিতীয় সমীকরণে প্রতিস্থাপন করলে পাই:
-$$v^2 = u^2 + 2as$$
-`,
-  importantTerms: [
-    {
-      termBangla: 'আদিবেগ',
-      termEnglish: 'Initial Velocity (u)',
-      definition: 'গণনা শুরুর মুহূর্তে বস্তুর বেগ। স্থির অবস্থান থেকে শুরু হলে $u = 0$ ধরা হয়।',
-    },
-    {
-      termBangla: 'সুষম ত্বরণ',
-      termEnglish: 'Uniform Acceleration (a)',
-      definition: 'যদি গতিশীল কোনো বস্তুর বেগ বৃদ্ধির হার সর্বদা সমান থাকে। যেমন অভিকর্ষজ ত্বরণ $g = 9.8 \\text{ m/s}^2$।',
-    },
-    {
-      termBangla: 'অতিক্রান্ত দূরত্ব ও সরণ',
-      termEnglish: 'Displacement (s)',
-      definition: 'নির্দিষ্ট দিকে বস্তুর অবস্থানের পরিবর্তনকে সরণ বলে। এর একক মিটার ($m$)।',
-    },
-  ],
-  workedExample: {
-    problem: 'একটি স্থির ট্রেন $2\\text{ ms}^{-2}$ সুষম ত্বরণে চলতে শুরু করল। $10\\text{ s}$ পর ট্রেনটির বেগ কত হবে এবং এটি কত দূরত্ব অতিক্রম করবে?',
-    stepByStepSolution: `
-**প্রদত্ত উপাত্ত:**
-- আদিবেগ, $u = 0\\text{ ms}^{-1}$ (যেহেতু স্থির অবস্থান থেকে শুরু)
-- ত্বরণ, $a = 2\\text{ ms}^{-2}$
-- সময়, $t = 10\\text{ s}$
-
-**১. বেগ নির্ণয় ($v$):**
-$$v = u + at = 0 + (2 \\times 10) = 20\\text{ ms}^{-1}$$
-
-**২. অতিক্রান্ত দূরত্ব নির্ণয় ($s$):**
-$$s = ut + \\frac{1}{2}at^2 = (0 \\times 10) + \\frac{1}{2} \\times 2 \\times (10)^2 = 100\\text{ m}$$
-
-**উত্তর:** ট্রেনটির শেষবেগ $20\\text{ ms}^{-1}$ এবং অতিক্রান্ত দূরত্ব $100\\text{ m}$।
-`,
-  },
-  memoryAid: 'সূত্র বাছাই কৌশল: প্রশ্নে যদি সময় ($t$) না দেওয়া থাকে, সরাসরি $v^2 = u^2 + 2as$ ব্যবহার করো। স্থির অবস্থা বলা থাকলে শুরুতেই $u = 0$ বসিয়ে সমীকরণ সহজ করে নাও।',
-  status: ContentStatus.PUBLISHED,
-  version: 1,
-};
-
 export default function LessonPage() {
   const params = useParams();
-  const topicId = (params?.topicId as string) || 'topic-motion-3';
+  const topicId = (params?.topicId as string) || '';
   const { tr, language } = useLanguageStore();
   const {
+    activeSubject,
     completedTopics,
     bookmarks,
     lessonNotes,
@@ -119,18 +55,18 @@ export default function LessonPage() {
     saveLessonNote,
   } = useUserStore();
 
-  const [lesson, setLesson] = useState<LessonDTO>(SAMPLE_LESSON);
+  const [lesson, setLesson] = useState<LessonDTO | null>(null);
+  const [subjectChapters, setSubjectChapters] = useState<ChapterItem[]>([]);
   const [isLoadingLesson, setIsLoadingLesson] = useState(true);
   const [isNoteOpen, setIsNoteOpen] = useState(false);
   const [isReportOpen, setIsReportOpen] = useState(false);
   const [feedbackChoice, setFeedbackChoice] = useState<'HELPFUL' | 'UNCLEAR' | null>(null);
   const openedAtRef = useRef<number>(Date.now());
 
-  const fallbackHierarchy = findTopicHierarchy(topicId);
-  const chapterId = lesson?.topic?.chapter?.id || fallbackHierarchy.chapterId;
-  const chapterTitle = lesson?.topic?.chapter?.titleBangla || fallbackHierarchy.chapterTitle;
-  const subjectId = lesson?.topic?.chapter?.subject?.id || fallbackHierarchy.subjectId;
-  const adjacent = findAdjacentTopics(topicId);
+  const chapterId = lesson?.topic?.chapter?.id || '';
+  const chapterTitle = lesson?.topic?.chapter?.titleBangla || '';
+  const subjectId = lesson?.topic?.chapter?.subject?.id || activeSubject?.id || '';
+  const adjacent = findAdjacentTopics(topicId, subjectChapters);
 
   const isCompleted = completedTopics.includes(topicId);
   const isBookmarked = bookmarks.some((b) => b.id === topicId && b.type === 'topic');
@@ -147,31 +83,31 @@ export default function LessonPage() {
   useEffect(() => {
     openedAtRef.current = Date.now();
     setFeedbackChoice(null);
-    async function loadOfflineOrFallbackLesson() {
+    async function loadOfflineLesson() {
       const offlineLesson = await findOfflineLessonByTopic(topicId).catch(() => null);
       if (offlineLesson && offlineLesson.titleBangla) {
         setLesson(offlineLesson);
         recordLessonVisit(
           topicId,
           offlineLesson.titleBangla,
-          fallbackHierarchy.chapterId,
-          fallbackHierarchy.chapterTitle,
+          offlineLesson?.topic?.chapter?.id || '',
+          offlineLesson?.topic?.chapter?.titleBangla || '',
         );
-        return;
+      } else {
+        setLesson(null);
       }
-      recordLessonVisit(
-        topicId,
-        fallbackHierarchy.topicTitle,
-        fallbackHierarchy.chapterId,
-        fallbackHierarchy.chapterTitle,
-      );
     }
 
     async function fetchLesson() {
+      if (!topicId) {
+        setLesson(null);
+        setIsLoadingLesson(false);
+        return;
+      }
       setIsLoadingLesson(true);
       try {
         if (typeof navigator !== 'undefined' && !navigator.onLine) {
-          await loadOfflineOrFallbackLesson();
+          await loadOfflineLesson();
           return;
         }
         const res = await apiClient.get<LessonDTO>(`/lessons/topic/${topicId}`);
@@ -180,14 +116,14 @@ export default function LessonPage() {
           recordLessonVisit(
             topicId,
             res.titleBangla,
-            res?.topic?.chapter?.id || fallbackHierarchy.chapterId,
-            res?.topic?.chapter?.titleBangla || fallbackHierarchy.chapterTitle
+            res?.topic?.chapter?.id || '',
+            res?.topic?.chapter?.titleBangla || '',
           );
         } else {
-          await loadOfflineOrFallbackLesson();
+          await loadOfflineLesson();
         }
       } catch {
-        await loadOfflineOrFallbackLesson();
+        await loadOfflineLesson();
       } finally {
         setIsLoadingLesson(false);
       }
@@ -196,6 +132,29 @@ export default function LessonPage() {
   }, [topicId]);
 
   useEffect(() => {
+    if (!subjectId) {
+      setSubjectChapters([]);
+      return;
+    }
+    let active = true;
+    Promise.resolve(
+      apiClient.get<ChapterItem[]>(`/curriculum/subjects/${encodeURIComponent(subjectId)}/chapters`)
+    )
+      .then((res) => {
+        if (active && Array.isArray(res)) {
+          setSubjectChapters(res);
+        }
+      })
+      .catch(() => {
+        if (active) setSubjectChapters([]);
+      });
+    return () => {
+      active = false;
+    };
+  }, [subjectId]);
+
+  useEffect(() => {
+    if (!chapterId) return;
     async function fetchQuestions() {
       const applyQuestion = (questions: QuestionDTO[] | null | undefined) => {
         if (!questions || questions.length === 0) return false;
@@ -231,6 +190,7 @@ export default function LessonPage() {
   }, [chapterId, topicId]);
 
   const handleMarkComplete = async () => {
+    if (!lesson) return;
     markTopicCompleted(topicId, lesson.titleBangla, chapterId, chapterTitle);
     const timeSpentSeconds = Math.max(1, Math.round((Date.now() - openedAtRef.current) / 1000));
     const queueLesson = () =>
@@ -264,6 +224,7 @@ export default function LessonPage() {
   };
 
   const handleExplanationFeedback = async (helpful: boolean) => {
+    if (!lesson) return;
     setFeedbackChoice(helpful ? 'HELPFUL' : 'UNCLEAR');
     try {
       if (!useUserStore.getState().token) {
@@ -282,7 +243,7 @@ export default function LessonPage() {
   };
 
   const handleSelectOption = async (optId: string) => {
-    if (isAnswered || !quickQuestion) return;
+    if (isAnswered || !quickQuestion || !lesson) return;
     setSelectedOptId(optId);
     setIsAnswered(true);
 
@@ -351,6 +312,29 @@ export default function LessonPage() {
 
   if (isLoadingLesson) {
     return <LessonPageSkeleton />;
+  }
+
+  if (!lesson) {
+    return (
+      <div className="max-w-xl mx-auto my-12 bg-white rounded-2xl border border-slate-200 p-8 text-center space-y-4">
+        <BookOpen className="w-10 h-10 text-slate-400 mx-auto" />
+        <h2 className="text-lg font-bold text-slate-800">
+          {tr('পাঠটি পাওয়া যায়নি', 'Lesson not found')}
+        </h2>
+        <p className="text-sm text-slate-500">
+          {tr(
+            'এই টপিকের জন্য এখনও কোনো প্রকাশিত পাঠ যুক্ত করা হয়নি অথবা সার্ভারের সাথে সংযোগ স্থাপন করা যায়নি।',
+            'No published lesson is available for this topic yet, or the server could not be reached.',
+          )}
+        </p>
+        <Link
+          href={subjectId ? `/curriculum/${subjectId}` : '/subjects'}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700"
+        >
+          {tr('← অধ্যায় সূচিতে ফেরত যান', '← Back to Curriculum')}
+        </Link>
+      </div>
+    );
   }
 
   return (

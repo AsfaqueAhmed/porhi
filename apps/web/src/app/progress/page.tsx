@@ -18,7 +18,7 @@ import { useUserStore, ServerOverviewPayload } from '@/store/user-store';
 import { useLanguageStore } from '@/store/language-store';
 import { toBanglaDigits } from '@/lib/formatters';
 import { LatexRenderer } from '@/components/math/latex-renderer';
-import { DEFAULT_CHAPTERS, findTopicHierarchy } from '@/lib/curriculum-data';
+import { ChapterItem, findTopicHierarchy } from '@/lib/curriculum-data';
 import { apiClient } from '@/lib/api-client';
 import { ensureGuestSession } from '@/lib/guest-session';
 import type {
@@ -42,6 +42,8 @@ export default function ProgressPage() {
   const subjectId = activeSubject?.id || 'sub_ssc_physics';
 
   const [mistakeTab, setMistakeTab] = useState<'UNRESOLVED' | 'RESOLVED'>('UNRESOLVED');
+  const [chapters, setChapters] = useState<ChapterItem[]>([]);
+  const [serverTotalTopics, setServerTotalTopics] = useState<number | null>(null);
   const [serverHistory, setServerHistory] = useState<ExamHistoryResponseDTO | null>(null);
   const [examFilter, setExamFilter] = useState<'ALL' | 'CHAPTER_TEST' | 'SUBJECT_TEST'>('ALL');
   const [shareLinks, setShareLinks] = useState<GuardianShareLinkDTO[]>([]);
@@ -54,7 +56,7 @@ export default function ProgressPage() {
     async function loadServerProgress() {
       try {
         await Promise.resolve(ensureGuestSession()).catch(() => {});
-        const [overviewRes, historyRes, shareLinksRes] = await Promise.all([
+        const [overviewRes, historyRes, shareLinksRes, chaptersRes] = await Promise.all([
           Promise.resolve(
             apiClient.get<ServerOverviewPayload>(
               `/student/overview?subjectId=${encodeURIComponent(subjectId)}`
@@ -68,15 +70,24 @@ export default function ProgressPage() {
           Promise.resolve(
             apiClient.get<GuardianShareLinkDTO[]>('/student/share-links')
           ).catch(() => []),
+          Promise.resolve(
+            apiClient.get<ChapterItem[]>(`/curriculum/subjects/${encodeURIComponent(subjectId)}/chapters`)
+          ).catch(() => []),
         ]);
         if (overviewRes) {
           hydrateFromServerOverview(overviewRes);
+          if (typeof overviewRes.curriculumTotals?.totalTopics === 'number') {
+            setServerTotalTopics(overviewRes.curriculumTotals.totalTopics);
+          }
         }
         if (historyRes && Array.isArray(historyRes.items)) {
           setServerHistory(historyRes);
         }
         if (Array.isArray(shareLinksRes)) {
           setShareLinks(shareLinksRes);
+        }
+        if (Array.isArray(chaptersRes)) {
+          setChapters(chaptersRes);
         }
       } catch {
         // Offline / local fallback
@@ -115,10 +126,10 @@ export default function ProgressPage() {
     }
   };
 
-  const totalTopics = useMemo(
-    () => DEFAULT_CHAPTERS.reduce((sum, ch) => sum + ch.topics.length, 0),
-    []
-  );
+  const totalTopics = useMemo(() => {
+    const fromChapters = chapters.reduce((sum, ch) => sum + (ch.topics?.length || 0), 0);
+    return fromChapters > 0 ? fromChapters : serverTotalTopics ?? 0;
+  }, [chapters, serverTotalTopics]);
   const completedCount = completedTopics.length;
   const coveragePct =
     totalTopics > 0 ? Math.min(100, Math.round((completedCount / totalTopics) * 100)) : 0;
@@ -200,8 +211,8 @@ export default function ProgressPage() {
 
   // Chapter Mastery Matrix
   const chapterMatrix = useMemo(() => {
-    return DEFAULT_CHAPTERS.map((ch) => {
-      const chTopicIds = ch.topics.map((t) => t.id);
+    return chapters.map((ch) => {
+      const chTopicIds = (ch.topics || []).map((t) => t.id);
       const completedInCh = chTopicIds.filter((id) => completedTopics.includes(id)).length;
       let chAttempted = 0;
       let chCorrect = 0;
@@ -214,20 +225,20 @@ export default function ProgressPage() {
       }
       const accuracy = chAttempted > 0 ? Math.round((chCorrect / chAttempted) * 100) : 0;
       const completionPct =
-        ch.topics.length > 0 ? Math.round((completedInCh / ch.topics.length) * 100) : 0;
+        chTopicIds.length > 0 ? Math.round((completedInCh / chTopicIds.length) * 100) : 0;
 
       return {
         id: ch.id,
         orderIndex: ch.orderIndex,
         titleBangla: ch.titleBangla,
-        totalTopics: ch.topics.length,
+        totalTopics: chTopicIds.length,
         completedInCh,
         completionPct,
         chAttempted,
         accuracy,
       };
     });
-  }, [completedTopics, topicMastery]);
+  }, [chapters, completedTopics, topicMastery]);
 
   // Dynamic Weak Topics Report
   const weakTopics = useMemo(() => {
@@ -245,26 +256,29 @@ export default function ProgressPage() {
     for (const [tId, stats] of Object.entries(topicMastery)) {
       if (stats.attempted === 0) continue;
       const acc = Math.round((stats.correct / stats.attempted) * 100);
-      const mistakesForTopic = savedMistakes.filter(
-        (m) => m.topicId === tId && !m.resolved
-      ).length;
+      const topicMistakes = savedMistakes.filter((m) => m.topicId === tId && !m.resolved);
+      const mistakesForTopic = topicMistakes.length;
       if (acc < 60 || mistakesForTopic > 0) {
-        const h = findTopicHierarchy(tId);
+        const h = findTopicHierarchy(tId, chapters);
+        const firstMistake = topicMistakes[0];
+        const resolvedChapterId = h.chapterId || firstMistake?.chapterId || '';
         list.push({
           id: tId,
-          chapterId: h.chapterId,
-          chapterName: h.chapterTitle,
-          topicTitle: h.topicTitle,
+          chapterId: resolvedChapterId,
+          chapterName: h.chapterTitle || firstMistake?.chapterTitle || '',
+          topicTitle: h.topicTitle || firstMistake?.topicTitle || tId,
           accuracy: acc,
           mistakeCount: Math.max(mistakesForTopic, stats.attempted - stats.correct),
           lessonHref: `/lesson/${tId}`,
-          practiceHref: `/practice/${h.chapterId}?topicId=${encodeURIComponent(tId)}`,
+          practiceHref: resolvedChapterId
+            ? `/practice/${resolvedChapterId}?topicId=${encodeURIComponent(tId)}`
+            : `/lesson/${tId}`,
         });
       }
     }
 
     return list.sort((a, b) => a.accuracy - b.accuracy).slice(0, 6);
-  }, [topicMastery, savedMistakes]);
+  }, [topicMastery, savedMistakes, chapters]);
 
   const displayedMistakes = useMemo(() => {
     return savedMistakes.filter((m) =>

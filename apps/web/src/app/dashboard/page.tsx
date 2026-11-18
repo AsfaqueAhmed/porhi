@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   Flame,
@@ -20,7 +20,7 @@ import {
 import { useUserStore, ServerOverviewPayload } from '@/store/user-store';
 import { useLanguageStore } from '@/store/language-store';
 import { toBanglaDigits } from '@/lib/formatters';
-import { DEFAULT_CHAPTERS } from '@/lib/curriculum-data';
+import { ChapterItem } from '@/lib/curriculum-data';
 import { apiClient } from '@/lib/api-client';
 import { ensureGuestSession } from '@/lib/guest-session';
 import { getDueTasks } from '@/lib/reminders';
@@ -42,12 +42,14 @@ export default function DashboardPage() {
   const { tr, language } = useLanguageStore();
 
   const subjectId = activeSubject?.id || 'sub_ssc_physics';
+  const [chapters, setChapters] = useState<ChapterItem[]>([]);
+  const [serverTotalTopics, setServerTotalTopics] = useState<number | null>(null);
 
   useEffect(() => {
     async function fetchOverview() {
       try {
         await Promise.resolve(ensureGuestSession()).catch(() => {});
-        const [res, plannerRes] = await Promise.all([
+        const [res, plannerRes, chaptersRes] = await Promise.all([
           Promise.resolve(
             apiClient.get<ServerOverviewPayload>(
               `/student/overview?subjectId=${encodeURIComponent(subjectId)}`
@@ -56,12 +58,21 @@ export default function DashboardPage() {
           Promise.resolve(
             apiClient.get<{ tasks?: StudyPlanTaskDTO[] }>('/planner')
           ).catch(() => null),
+          Promise.resolve(
+            apiClient.get<ChapterItem[]>(`/curriculum/subjects/${encodeURIComponent(subjectId)}/chapters`)
+          ).catch(() => []),
         ]);
         if (res) {
           hydrateFromServerOverview(res);
+          if (typeof res.curriculumTotals?.totalTopics === 'number') {
+            setServerTotalTopics(res.curriculumTotals.totalTopics);
+          }
         }
         if (plannerRes && Array.isArray(plannerRes.tasks)) {
           setStudyPlanTasks(plannerRes.tasks);
+        }
+        if (Array.isArray(chaptersRes)) {
+          setChapters(chaptersRes);
         }
       } catch {
         // Offline / guest fallback: use local learning store
@@ -84,15 +95,15 @@ export default function DashboardPage() {
         : '২০২৬'
       : activeSubject?.syllabusYear || '2026';
 
-  const totalTopics = useMemo(
-    () => DEFAULT_CHAPTERS.reduce((sum, ch) => sum + ch.topics.length, 0),
-    []
-  );
+  const totalTopics = useMemo(() => {
+    const fromChapters = chapters.reduce((sum, ch) => sum + (ch.topics?.length || 0), 0);
+    return fromChapters > 0 ? fromChapters : serverTotalTopics ?? 0;
+  }, [chapters, serverTotalTopics]);
   const completedCount = completedTopics.length;
   const syllabusPct =
     totalTopics > 0 ? Math.min(100, Math.round((completedCount / totalTopics) * 100)) : 0;
 
-  // Next recommended topic: either lastVisitedTopic or first uncompleted topic
+  // Next recommended topic: either lastVisitedTopic or first uncompleted topic from live chapters
   const recommendedTarget = useMemo(() => {
     if (lastVisitedTopic) {
       return {
@@ -104,8 +115,8 @@ export default function DashboardPage() {
       };
     }
 
-    for (const ch of DEFAULT_CHAPTERS) {
-      const nextUncompleted = ch.topics.find((t) => !completedTopics.includes(t.id));
+    for (const ch of chapters) {
+      const nextUncompleted = (ch.topics || []).find((t) => !completedTopics.includes(t.id));
       if (nextUncompleted) {
         return {
           topicId: nextUncompleted.id,
@@ -117,16 +128,20 @@ export default function DashboardPage() {
       }
     }
 
-    const firstCh = DEFAULT_CHAPTERS[0];
-    const firstTop = firstCh.topics[0];
-    return {
-      topicId: firstTop.id,
-      topicTitle: firstTop.titleBangla,
-      chapterId: firstCh.id,
-      chapterTitle: firstCh.titleBangla,
-      isResume: false,
-    };
-  }, [lastVisitedTopic, completedTopics]);
+    const firstCh = chapters[0];
+    const firstTop = firstCh?.topics?.[0];
+    if (firstCh && firstTop) {
+      return {
+        topicId: firstTop.id,
+        topicTitle: firstTop.titleBangla,
+        chapterId: firstCh.id,
+        chapterTitle: firstCh.titleBangla,
+        isResume: false,
+      };
+    }
+
+    return null;
+  }, [lastVisitedTopic, completedTopics, chapters]);
 
   // Group unresolved mistakes by topic for Spaced Repetition queue
   const unresolvedMistakeTopics = useMemo(() => {
@@ -259,18 +274,22 @@ export default function DashboardPage() {
           <div className="flex items-center gap-2 text-indigo-600 font-bold text-sm">
             <PlayCircle className="w-4 h-4" />
             <span>
-              {recommendedTarget.isResume
+              {recommendedTarget?.isResume
                 ? tr('সর্বশেষ পঠিত টপিক থেকে শুরু করো', 'Resume Where You Left Off')
                 : tr('পরবর্তী প্রস্তাবিত পাঠ', 'Recommended Next Lesson')}
             </span>
           </div>
-          <span className="text-xs bg-emerald-50 text-emerald-700 font-semibold px-2.5 py-1 rounded-full border border-emerald-200">
-            {recommendedTarget.chapterTitle}
-          </span>
+          {recommendedTarget?.chapterTitle && (
+            <span className="text-xs bg-emerald-50 text-emerald-700 font-semibold px-2.5 py-1 rounded-full border border-emerald-200">
+              {recommendedTarget.chapterTitle}
+            </span>
+          )}
         </div>
 
         <div>
-          <h2 className="text-xl font-bold text-slate-900">{recommendedTarget.topicTitle}</h2>
+          <h2 className="text-xl font-bold text-slate-900">
+            {recommendedTarget?.topicTitle || tr('অধ্যায় তালিকা থেকে পড়া শুরু করো', 'Start studying from your chapters')}
+          </h2>
           <p className="text-sm text-slate-600 mt-1">
             {tr(
               'ইন্টারেক্টিভ পাঠ, বাস্তব উদাহরণ ও ৬-স্তরের ব্যাখ্যার সাথে এই টপিকটি সম্পূর্ণ আয়ত্ত করো।',
@@ -281,18 +300,20 @@ export default function DashboardPage() {
 
         <div className="flex flex-wrap gap-3 pt-2">
           <Link
-            href={`/lesson/${recommendedTarget.topicId}`}
+            href={recommendedTarget ? `/lesson/${recommendedTarget.topicId}` : `/curriculum/${subjectId}`}
             className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-5 py-2.5 rounded-xl transition-colors shadow-sm"
           >
             <span>{tr('পড়া চালিয়ে যান', 'Continue Learning')}</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
-          <Link
-            href={`/practice/${recommendedTarget.chapterId}?topicId=${encodeURIComponent(recommendedTarget.topicId)}`}
-            className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors"
-          >
-            <span>{tr('সরাসরি MCQ প্র্যাকটিস', 'Direct MCQ Practice')}</span>
-          </Link>
+          {recommendedTarget && (
+            <Link
+              href={`/practice/${recommendedTarget.chapterId}?topicId=${encodeURIComponent(recommendedTarget.topicId)}`}
+              className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold text-sm px-4 py-2.5 rounded-xl transition-colors"
+            >
+              <span>{tr('সরাসরি MCQ প্র্যাকটিস', 'Direct MCQ Practice')}</span>
+            </Link>
+          )}
         </div>
       </div>
 
@@ -359,7 +380,7 @@ export default function DashboardPage() {
                 )}
               </p>
               <Link
-                href={`/practice/${recommendedTarget.chapterId}`}
+                href={recommendedTarget ? `/practice/${recommendedTarget.chapterId}` : `/curriculum/${subjectId}`}
                 className="inline-block text-xs font-bold text-indigo-600 hover:underline pt-1"
               >
                 {tr('অধ্যায় অনুশীলন শুরু করো →', 'Start Chapter Practice →')}
@@ -452,7 +473,7 @@ export default function DashboardPage() {
               <span>{tr('দুর্বলতা ও প্রগ্রেস', 'Progress & Weaknesses')}</span>
             </Link>
             <Link
-              href={`/exam/${recommendedTarget.chapterId}`}
+              href={recommendedTarget ? `/exam/${recommendedTarget.chapterId}` : `/curriculum/${subjectId}`}
               className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 font-semibold text-slate-800 flex flex-col gap-1 transition-colors"
             >
               <AlertCircle className="w-4 h-4 text-purple-600" />

@@ -7,6 +7,7 @@ import { CurriculumManager } from '../src/components/admin/curriculum-manager';
 import { AuthoringStudio } from '../src/components/admin/authoring-studio';
 import { ModelTestManager } from '../src/components/admin/model-test-manager';
 import { ContentStatus } from '@pori/shared';
+import { apiClient } from '../src/lib/api-client';
 
 describe('Admin Portal Components', () => {
   describe('MathToolbar', () => {
@@ -82,13 +83,38 @@ describe('Admin Portal Components', () => {
       expect(screen.getByRole('button', { name: /\+ এই বিষয়ে নতুন অধ্যায় যোগ করুন/i })).toBeDefined();
     });
 
-    it('renders enterprise subjects directory list with search filter and selection', () => {
+    it('renders enterprise subjects directory list with search filter and selection', async () => {
+      vi.spyOn(apiClient, 'get').mockImplementation(async (url: string) => {
+        if (url === '/curriculum/subjects') {
+          return [
+            {
+              id: 'sub_ssc_physics',
+              code: 'ssc_physics',
+              nameBangla: 'পদার্থবিজ্ঞান',
+              classLevel: 'CLASS_9_10',
+              syllabusYear: 2026,
+              isReady: true,
+              chapterCount: 2,
+            },
+            {
+              id: 'sub_ssc_chemistry',
+              code: 'ssc_chemistry',
+              nameBangla: 'রসায়ন',
+              classLevel: 'CLASS_9_10',
+              syllabusYear: 2026,
+              isReady: false,
+              chapterCount: 0,
+            },
+          ];
+        }
+        return [];
+      });
       render(<CurriculumManager />);
 
       // Verify subject directory table headers and elements
       expect(screen.getByText(/বিষয় ও পরিচিতি/i)).toBeDefined();
       expect(screen.getByText(/শ্রেণী ও সিলেবাস বছর/i)).toBeDefined();
-      expect(screen.getAllByText(/পদার্থবিজ্ঞান/i).length).toBeGreaterThanOrEqual(1);
+      expect((await screen.findAllByText(/পদার্থবিজ্ঞান/i)).length).toBeGreaterThanOrEqual(1);
       expect(screen.getByText(/রসায়ন/i)).toBeDefined();
 
       // Search filtering

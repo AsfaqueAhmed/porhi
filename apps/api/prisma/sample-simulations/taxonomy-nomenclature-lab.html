@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>নেস্টেড হায়ারার্কি ও দ্বিপদ নামকরণ ল্যাব | poRi</title>
+  <style>
+    /* PORI UNIFIED SIMULATOR THEME */
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-accent: #0f766e;
+      --pori-accent-soft: #ecfdf5;
+      --pori-accent-border: #99f6e4;
+      --pori-accent-ink: #134e4a;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-amber-ink: #92400e;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-ink: #9f1239;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+    .app {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+    .badge {
+      display: inline-block;
+      background: var(--pori-accent-soft);
+      color: var(--pori-accent-ink);
+      border: 1px solid var(--pori-accent-border);
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    h1 { margin: 6px 0 2px; font-size: 20px; color: var(--pori-heading); }
+    .sub { margin: 0 0 12px; font-size: 13px; color: var(--pori-muted); }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 10px;
+    }
+    .tab-btn {
+      border: 1px solid var(--pori-border);
+      background: #fff;
+      color: var(--pori-heading);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .tab-btn.active { background: var(--pori-accent); color: #fff; border-color: var(--pori-accent); }
+    .pane { display: none; }
+    .pane.active { display: block; }
+    .grid-2 { display: grid; grid-template-columns: 1.15fr 1fr; gap: 16px; align-items: start; }
+    @media (max-width: 780px) { .grid-2 { grid-template-columns: 1fr; } }
+    .stage {
+      background: linear-gradient(180deg, #f0fdfa 0%, #f8fafc 100%);
+      border: 1px solid var(--pori-accent-border);
+      border-radius: 16px;
+      padding: 12px;
+    }
+    .stage svg { width: 100%; height: auto; display: block; }
+    .slider-wrap {
+      margin-top: 10px;
+      background: #fff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .slider-label { display: flex; justify-content: space-between; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+    .pori-range-row { display: flex; align-items: center; gap: 8px; }
+    .pori-step-btn {
+      width: 30px; height: 30px; border-radius: 8px; border: 1px solid var(--pori-border);
+      background: #fff; color: var(--pori-heading); font-size: 16px; font-weight: 800; cursor: pointer;
+      display: grid; place-items: center; flex: 0 0 auto;
+    }
+    input[type="range"] {
+      -webkit-appearance: none; appearance: none; width: 100%; height: 8px; border-radius: 999px;
+      background: linear-gradient(90deg, var(--pori-accent) var(--fill, 50%), #e2e8f0 var(--fill, 50%)); outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+      background: #fff; border: 3px solid var(--pori-accent); cursor: pointer;
+    }
+    .card {
+      background: #f8fafc; border: 1px solid var(--pori-border-soft); border-radius: 14px; padding: 14px;
+    }
+    .meter-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+    .meter {
+      background: #fff; border: 1px solid var(--pori-border-soft); border-radius: 10px; padding: 8px 10px;
+    }
+    .meter small { display: block; font-size: 11px; color: var(--pori-muted); font-weight: 700; }
+    .bar { height: 8px; background: #e2e8f0; border-radius: 999px; overflow: hidden; margin-top: 5px; }
+    .bar i { display: block; height: 100%; background: var(--pori-accent); transition: width 0.25s; }
+    .bar.amber i { background: #d97706; }
+    .rank-list { display: grid; gap: 6px; margin-top: 10px; }
+    .rank-item {
+      padding: 7px 10px; border-radius: 10px; border: 1px solid var(--pori-border-soft); background: #fff;
+      font-size: 13px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+    }
+    .rank-item.active { border-color: var(--pori-accent); background: var(--pori-accent-soft); font-weight: 800; color: var(--pori-accent-ink); }
+    .memory-strip {
+      margin-top: 10px; background: var(--pori-amber-soft); border: 1px solid var(--pori-amber-border);
+      color: var(--pori-amber-ink); border-radius: 10px; padding: 9px 12px; font-size: 13px;
+    }
+    .input-row { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-bottom: 10px; }
+    .text-in {
+      width: 100%; padding: 10px 12px; border: 1px solid var(--pori-border); border-radius: 10px;
+      font-size: 15px; font-family: Georgia, serif;
+    }
+    .pill-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 12px; }
+    .chip-btn {
+      border: 1px solid var(--pori-border); background: #fff; color: var(--pori-heading);
+      border-radius: 999px; padding: 5px 11px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    .chip-btn.active { background: var(--pori-accent); color: #fff; border-color: var(--pori-accent); }
+    .preview-box {
+      background: #ecfdf5; border: 1px solid #99f6e4; border-radius: 14px; padding: 16px;
+      text-align: center; font-family: Georgia, serif; font-size: 26px; color: #042f2e; margin: 12px 0;
+    }
+    .preview-box u { text-decoration-thickness: 2px; text-underline-offset: 5px; }
+    .rule-list { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 6px; }
+    .rule-list li { padding: 7px 10px; border-radius: 9px; font-size: 13px; font-weight: 600; }
+    .rule-list li.ok { background: #d1fae5; color: #064e3b; }
+    .rule-list li.bad { background: var(--pori-rose-soft); color: var(--pori-rose-ink); }
+    .name-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 12px; }
+    .ncard {
+      background: #fff; border: 1px solid var(--pori-border-soft); border-radius: 12px; padding: 11px 12px;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .ncard:hover { border-color: var(--pori-accent); background: #f0fdfa; }
+    .ncard .bn { font-weight: 800; font-size: 14px; color: var(--pori-heading); }
+    .ncard .sci { font-family: Georgia, serif; font-style: italic; font-size: 14px; color: var(--pori-accent-ink); margin-top: 4px; }
+    .ncard .cue { font-size: 11.5px; color: var(--pori-muted); margin-top: 4px; }
+    .ncard.hidden .sci, .ncard.hidden .cue { filter: blur(6px); user-select: none; }
+    .action-btn {
+      background: var(--pori-accent); color: #fff; border: none; border-radius: 10px;
+      padding: 8px 14px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+    }
+    .action-btn.secondary { background: #fff; color: var(--pori-heading); border: 1px solid var(--pori-border); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <span class="badge">SSC জীববিজ্ঞান · অধ্যায় ১ (১.৪ ও ১.৫) · ইন্টারেক্টিভ ল্যাব</span>
+    <h1>নেস্টেড হায়ারার্কি, দ্বিপদ নামকরণ ও ২০টি বৈজ্ঞানিক নাম ল্যাব</h1>
+    <p class="sub">৭টি ধাপের সেট-উপসেট সম্পর্ক দেখো, বৈজ্ঞানিক নাম লেখার নিয়ম যাচাই করো এবং পাঠ্যবইয়ের ২০টি নাম মুখস্থ করো।</p>
+
+    <div class="tabs">
+      <button type="button" class="tab-btn active" data-tab="nest">🪜 ১. নেস্টেড হায়ারার্কি (৭ ধাপ)</button>
+      <button type="button" class="tab-btn" data-tab="rule">✍️ ২. দ্বিপদ নামকরণ যাচাইকারী</button>
+      <button type="button" class="tab-btn" data-tab="names">🃏 ৩. ২০টি বৈজ্ঞানিক নাম ড্রিল</button>
+    </div>
+
+    <!-- TAB 1: NESTED HIERARCHY -->
+    <section class="pane active" id="pane-nest">
+      <div class="grid-2">
+        <div>
+          <div class="stage">
+            <svg id="nestSvg" viewBox="0 0 460 320" role="img" aria-label="নেস্টেড হায়ারার্কি চিত্র"></svg>
+          </div>
+          <div class="slider-wrap">
+            <div class="slider-label">
+              <span>ধাপ নির্বাচন করো (রাজ্য → প্রজাতি)</span>
+              <span id="rankRangeLabel">ধাপ ১: রাজ্য (Kingdom)</span>
+            </div>
+            <input id="rankRange" type="range" min="1" max="7" step="1" value="1" />
+          </div>
+        </div>
+        <div class="card">
+          <div style="font-size:12px;font-weight:800;color:#0f766e;" id="rankTag"></div>
+          <h2 id="rankTitle" style="margin:4px 0 6px;font-size:18px;"></h2>
+          <p id="rankWhy" style="margin:0 0 10px;font-size:13.5px;background:#fff;border-left:4px solid #0f766e;padding:9px 11px;border-radius:0 10px 10px 0;"></p>
+          <div class="meter-row">
+            <div class="meter">
+              <small>অন্তর্ভুক্ত জীবের সংখ্যা</small>
+              <strong id="orgText" style="font-size:13px;">সর্বাধিক</strong>
+              <div class="bar amber"><i id="orgBar" style="width:100%"></i></div>
+            </div>
+            <div class="meter">
+              <small>নির্দিষ্ট বৈশিষ্ট্যের সংখ্যা</small>
+              <strong id="traitText" style="font-size:13px;">সর্বনিম্ন</strong>
+              <div class="bar"><i id="traitBar" style="width:16%"></i></div>
+            </div>
+          </div>
+          <div class="rank-list" id="rankList"></div>
+          <div class="memory-strip">
+            🧠 <b>৭ ধাপ মুখস্থ ছন্দ:</b> <b>রা</b>জ্য → <b>প</b>র্ব → <b>শ্রে</b>ণি → <b>ব</b>র্গ → <b>গো</b>ত্র → <b>গ</b>ণ → <b>প্র</b>জাতি<br>
+            (ইংরেজি: <b>K</b>ing <b>P</b>hilip <b>C</b>ame <b>O</b>ver <b>F</b>or <b>G</b>ood <b>S</b>oup)
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: BINOMIAL RULE CHECKER -->
+    <section class="pane" id="pane-rule">
+      <div class="grid-2">
+        <div class="card">
+          <label for="sciInput" style="display:block;font-size:13px;font-weight:800;margin-bottom:6px;">বৈজ্ঞানিক নাম লেখো অথবা নিচের উদাহরণ বেছে নাও:</label>
+          <div class="input-row">
+            <input id="sciInput" class="text-in" type="text" value="Oryza sativa" />
+            <button type="button" class="action-btn" id="modeToggle">মুদ্রণ (ইটালিক)</button>
+          </div>
+          <div style="font-size:12px;font-weight:700;color:#475569;">সঠিক ও ভুল উদাহরণ পরীক্ষা করো:</div>
+          <div class="pill-row" id="sampleBtns"></div>
+          <div class="preview-box" id="sciPreview"></div>
+          <div id="modeNote" style="font-size:12.5px;color:#475569;text-align:center;"></div>
+        </div>
+        <div class="card">
+          <h2 style="margin:0 0 8px;font-size:16px;color:#134e4a;">আন্তর্জাতিক দ্বিপদ নামকরণ (ICBN / ICZN) যাচাই</h2>
+          <ul class="rule-list" id="ruleList"></ul>
+          <div class="memory-strip">
+            📌 <b>মনে রাখো:</b> উদ্ভিদ = <b>ICBN</b>, প্রাণী = <b>ICZN</b>। 1753 সালে লিনিয়াস <i>Species plantarum</i> বইয়ে এটি প্রবর্তন করেন। একাধিক নামে <b>অগ্রাধিকার আইনে</b> প্রথম বিজ্ঞানীর নাম গৃহীত হয় (যেমন <i>Homo sapiens</i> L.)।
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: 20 SCIENTIFIC NAMES MEMORY DRILL -->
+    <section class="pane" id="pane-names">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="pill-row" id="catBtns" style="margin:0;"></div>
+        <button type="button" class="action-btn" id="hideToggle">🙈 মুখস্থ পরীক্ষা: নাম লুকাও</button>
+      </div>
+      <p class="sub" style="margin-top:8px;">নাম লুকানো অবস্থায় যেকোনো কার্ডে ক্লিক করলে উত্তর ও মনে রাখার ক্লু ভেসে উঠবে।</p>
+      <div class="name-grid" id="nameGrid"></div>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      var bn = function (n) { return String(n).replace(/\d/g, function (d) { return '০১২৩৪৫৬৭৮৯'[d]; }); };
+
+      var RANKS = [
+        { n: 1, bn: 'রাজ্য', en: 'Kingdom', val: 'Animalia', why: 'সুকেন্দ্রিক কোষবিশিষ্ট, বহুকোষী, পরভোজী এবং জটিল টিস্যুতন্ত্র আছে।', org: 100, tr: 14, col: '#ccfbf1' },
+        { n: 2, bn: 'পর্ব / বিভাগ', en: 'Phylum / Division', val: 'Chordata', why: 'জীবনের কোনো এক পর্যায়ে নটোকর্ড থাকে।', org: 84, tr: 28, col: '#99f6e4' },
+        { n: 3, bn: 'শ্রেণি', en: 'Class', val: 'Mammalia', why: 'বাচ্চাকে বুকের দুধ খাওয়ায় এবং লোম/চুল আছে।', org: 68, tr: 42, col: '#5eead4' },
+        { n: 4, bn: 'বর্গ', en: 'Order', val: 'Primate', why: 'আঁকড়ে ধরার উপযোগী হাত এবং দৃষ্টিশক্তি বেশি উন্নত।', org: 52, tr: 56, col: '#2dd4bf' },
+        { n: 5, bn: 'গোত্র', en: 'Family', val: 'Hominidae', why: 'শিম্পাঞ্জি, গরিলা, ওরাংওটাং প্রভৃতির সাথে সাদৃশ্য আছে।', org: 38, tr: 72, col: '#14b8a6' },
+        { n: 6, bn: 'গণ', en: 'Genus', val: 'Homo', why: 'দেহের অনুপাতে মস্তিষ্ক সবচেয়ে বড় এবং খাড়াভাবে দুই পায়ে হাঁটতে পারে।', org: 24, tr: 86, col: '#0d9488' },
+        { n: 7, bn: 'প্রজাতি', en: 'Species', val: 'Homo sapiens', why: 'চওড়া এবং খাড়া কপাল, খুলির হাড় Homo গণের অন্য প্রজাতির তুলনায় পাতলা এবং বুদ্ধিবৃত্তিকভাবে উন্নত।', org: 12, tr: 100, col: '#0f766e' }
+      ];
+
+      var NAMES = [
+        { cat: 'plant', bn: 'ধান', sci: 'Oryza sativa', cue: 'sativa = চাষযোগ্য; Oryza = চাল' },
+        { cat: 'plant', bn: 'পাট', sci: 'Corchorus capsularis', cue: 'capsularis = ছোট ক্যাপসুল ফল' },
+        { cat: 'plant', bn: 'আম', sci: 'Mangifera indica', cue: 'Mango + indica (ভারতীয় উপমহাদেশ)' },
+        { cat: 'plant', bn: 'কাঁঠাল', sci: 'Artocarpus heterophyllus', cue: 'hetero-phyllus = ভিন্ন আকৃতির পাতা' },
+        { cat: 'plant', bn: 'শাপলা', sci: 'Nymphaea nouchali', cue: 'Nymphaea = জলদেবী (জাতীয় ফুল)' },
+        { cat: 'plant', bn: 'জবা', sci: 'Hibiscus rosa-sinensis', cue: 'rosa-sinensis = চাইনিজ রোজ' },
+        { cat: 'plant', bn: 'গোল আলু', sci: 'Solanum tuberosum', cue: 'tuber = স্ফীত কাণ্ড (টিউবার)' },
+        { cat: 'plant', bn: 'পিঁয়াজ', sci: 'Allium cepa', cue: 'ছোট সহজ নাম — Allium cepa' },
+        { cat: 'micro', bn: 'কলেরা জীবাণু', sci: 'Vibrio cholerae', cue: 'cholerae → কলেরা' },
+        { cat: 'micro', bn: 'ম্যালেরিয়া জীবাণু', sci: 'Plasmodium vivax', cue: 'Plasmodium → ম্যালেরিয়া পরজীবী' },
+        { cat: 'animal', bn: 'আরশোলা', sci: 'Periplaneta americana', cue: 'americana → আরশোলা' },
+        { cat: 'animal', bn: 'মৌমাছি', sci: 'Apis indica', cue: 'Apiculture = মৌমাছি চাষ + indica' },
+        { cat: 'animal', bn: 'ইলিশ', sci: 'Tenualosa ilisha', cue: 'ilisha → ইলিশ (জাতীয় মাছ)' },
+        { cat: 'animal', bn: 'রুই মাছ', sci: 'Labeo rohita', cue: 'rohita → রুই' },
+        { cat: 'animal', bn: 'কাতল মাছ', sci: 'Catla catla', cue: 'দুই পদই এক — Catla catla' },
+        { cat: 'animal', bn: 'কুনো ব্যাঙ', sci: 'Duttaphrynus melanostictus', cue: 'পূর্বনাম Bufo melanostictus' },
+        { cat: 'animal', bn: 'ঢাকার নতুন ব্যাঙ', sci: 'Zakerana dhaka', cue: 'কাজী জাকের হোসেনের সম্মানে + ঢাকা' },
+        { cat: 'animal', bn: 'দোয়েল', sci: 'Copsychus saularis', cue: 'জাতীয় পাখি দোয়েল' },
+        { cat: 'animal', bn: 'রয়েল বেঙ্গল টাইগার', sci: 'Panthera tigris', cue: 'Panthera = বড় বিড়াল + tigris = বাঘ' },
+        { cat: 'animal', bn: 'সিংহ', sci: 'Panthera leo', cue: 'একই গণ Panthera + leo = সিংহ' },
+        { cat: 'animal', bn: 'মানুষ', sci: 'Homo sapiens', cue: 'sapiens = বুদ্ধিমান' }
+      ];
+
+      // Tabs
+      document.querySelectorAll('.tab-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+          document.querySelectorAll('.pane').forEach(function (p) { p.classList.remove('active'); });
+          btn.classList.add('active');
+          document.getElementById('pane-' + btn.dataset.tab).classList.add('active');
+        });
+      });
+
+      // Tab 1: Nested Hierarchy
+      var rankRange = document.getElementById('rankRange');
+      function renderNest() {
+        var idx = Math.max(0, Math.min(6, (parseInt(rankRange.value, 10) || 1) - 1));
+        var r = RANKS[idx];
+        document.getElementById('rankRangeLabel').textContent = 'ধাপ ' + bn(r.n) + ': ' + r.bn + ' (' + r.en + ')';
+        document.getElementById('rankTag').textContent = 'ধাপ ' + bn(r.n) + ' / ৭ · মানুষ (Homo sapiens)';
+        document.getElementById('rankTitle').textContent = r.bn + ' (' + r.en + '): ' + r.val;
+        document.getElementById('rankWhy').textContent = 'কারণ: ' + r.why;
+        document.getElementById('orgBar').style.width = r.org + '%';
+        document.getElementById('traitBar').style.width = r.tr + '%';
+        document.getElementById('orgText').textContent = r.n <= 2 ? 'অনেক বেশি (বড় সেট)' : (r.n >= 6 ? 'খুব কম (ক্ষুদ্র উপসেট)' : 'মাঝারি');
+        document.getElementById('traitText').textContent = r.n <= 2 ? 'কম (সাধারণ বৈশিষ্ট্য)' : (r.n >= 6 ? 'বেশি (সুনির্দিষ্ট বৈশিষ্ট্য)' : 'ক্রমবর্ধমান');
+
+        var svg = '';
+        for (var i = 0; i < 7; i++) {
+          var rk = RANKS[i];
+          var padX = 14 + i * 24;
+          var padY = 12 + i * 36;
+          var w = 432 - i * 48;
+          var h = 296 - i * 38;
+          var isSel = i === idx;
+          var stroke = isSel ? '#be123c' : '#0f766e';
+          var sw = isSel ? 3.5 : 1.5;
+          var textFill = i >= 5 ? '#ffffff' : '#134e4a';
+          svg += '<rect x="' + padX + '" y="' + padY + '" width="' + w + '" height="' + h + '" rx="14" fill="' + rk.col + '" stroke="' + stroke + '" stroke-width="' + sw + '" style="cursor:pointer" data-rank="' + rk.n + '"/>';
+          svg += '<text x="' + (padX + 12) + '" y="' + (padY + 21) + '" font-size="12.5" font-weight="700" fill="' + textFill + '" style="cursor:pointer" data-rank="' + rk.n + '">' + bn(rk.n) + '. ' + rk.bn + ' — ' + rk.val + '</text>';
+        }
+        var svgEl = document.getElementById('nestSvg');
+        svgEl.innerHTML = svg;
+        svgEl.querySelectorAll('[data-rank]').forEach(function (el) {
+          el.addEventListener('click', function () {
+            rankRange.value = el.getAttribute('data-rank');
+            rankRange.dispatchEvent(new Event('input', { bubbles: true }));
+          });
+        });
+
+        var list = document.getElementById('rankList');
+        list.innerHTML = RANKS.map(function (rk, i) {
+          return '<div class="rank-item ' + (i === idx ? 'active' : '') + '" data-r="' + rk.n + '"><span>' + bn(rk.n) + '. ' + rk.bn + ' (' + rk.en + ')</span><span>' + rk.val + '</span></div>';
+        }).join('');
+        list.querySelectorAll('.rank-item').forEach(function (el) {
+          el.addEventListener('click', function () {
+            rankRange.value = el.getAttribute('data-r');
+            rankRange.dispatchEvent(new Event('input', { bubbles: true }));
+          });
+        });
+      }
+      rankRange.addEventListener('input', renderNest);
+      renderNest();
+
+      // Tab 2: Binomial Rule Checker
+      var sciInput = document.getElementById('sciInput');
+      var printMode = true;
+      var SAMPLES = [
+        { label: 'ধান (সঠিক)', val: 'Oryza sativa' },
+        { label: 'মানুষ + লিনিয়াস', val: 'Homo sapiens L.' },
+        { label: 'ঢাকার ব্যাঙ', val: 'Zakerana dhaka' },
+        { label: 'ভুল: ছোট হাতের গণ', val: 'allium cepa' },
+        { label: 'ভুল: বড় হাতের প্রজাতি', val: 'Panthera Tigris' },
+        { label: 'ভুল: একটি পদ', val: 'Mangifera' }
+      ];
+      var sampleBtns = document.getElementById('sampleBtns');
+      sampleBtns.innerHTML = SAMPLES.map(function (s) {
+        return '<button type="button" class="chip-btn" data-v="' + s.val + '">' + s.label + '</button>';
+      }).join('');
+      sampleBtns.querySelectorAll('.chip-btn').forEach(function (b) {
+        b.addEventListener('click', function () { sciInput.value = b.dataset.v; renderRules(); });
+      });
+
+      function renderRules() {
+        var raw = (sciInput.value || '').trim();
+        var parts = raw.split(/\s+/).filter(Boolean);
+        var genus = parts[0] || '';
+        var species = parts[1] || '';
+        var author = parts.slice(2).join(' ');
+
+        var hasTwo = parts.length >= 2 && parts.length <= 3;
+        var latinOnly = /^[A-Za-z-]+$/.test(genus) && /^[A-Za-z-]+$/.test(species);
+        var genusCap = /^[A-Z][a-z]+$/.test(genus);
+        var speciesLow = /^[a-z]+(-[a-z]+)?$/.test(species);
+
+        var prev = document.getElementById('sciPreview');
+        var note = document.getElementById('modeNote');
+        if (printMode) {
+          prev.innerHTML = '<i>' + (genus || '—') + ' ' + (species || '') + '</i>' + (author ? ' <span>' + author + '</span>' : '');
+          note.textContent = '🖨️ মুদ্রণ নিয়ম (e): গণ ও প্রজাতিক পদ সর্বদা ইটালিক অক্ষরে লিখতে হয় (নামদাতার সংক্ষিপ্ত রূপ সোজা থাকে)।';
+        } else {
+          prev.innerHTML = '<u>' + (genus || '—') + '</u> <u>' + (species || '') + '</u>' + (author ? ' ' + author : '');
+          note.textContent = '✍️ হাতে লেখার নিয়ম (f): গণ ও প্রজাতিক নামের নিচে আলাদা আলাদা দাগ (একটানা দাগ নয়) দিতে হয়।';
+        }
+
+        var checks = [
+          { ok: hasTwo, msg: 'দুটি মূল পদ (গণ + প্রজাতি) রয়েছে — পাওয়া গেছে: গণ "' + (genus || '?') + '", প্রজাতি "' + (species || '?') + '"' },
+          { ok: latinOnly, msg: 'ল্যাটিন/ইংরেজি বর্ণমালায় উপস্থাপিত (নিয়ম a)' },
+          { ok: genusCap, msg: 'প্রথম অংশ (গণ)-এর প্রথম অক্ষর বড় হাতের এবং বাকিগুলো ছোট হাতের (নিয়ম d)' },
+          { ok: speciesLow, msg: 'দ্বিতীয় অংশ (প্রজাতি)-এর সব অক্ষর ছোট হাতের (নিয়ম d)' },
+          { ok: true, msg: printMode ? 'মুদ্রণে ইটালিক ফরম্যাট চালু আছে (নিয়ম e)' : 'হাতে লেখায় গণ ও প্রজাতির নিচে আলাদা দাগ দেওয়া আছে (নিয়ম f)' }
+        ];
+        if (author) {
+          checks.push({ ok: true, msg: 'নামদাতার সংক্ষিপ্ত রূপ যুক্ত: "' + author + '" (নিয়ম h — যেমন L. = লিনিয়াস)' });
+        }
+        document.getElementById('ruleList').innerHTML = checks.map(function (c) {
+          return '<li class="' + (c.ok ? 'ok' : 'bad') + '">' + (c.ok ? '✅ ' : '❌ ') + c.msg + '</li>';
+        }).join('');
+      }
+      document.getElementById('modeToggle').addEventListener('click', function () {
+        printMode = !printMode;
+        this.textContent = printMode ? 'মুদ্রণ (ইটালিক)' : 'হাতে লেখা (আলাদা দাগ)';
+        renderRules();
+      });
+      sciInput.addEventListener('input', renderRules);
+      renderRules();
+
+      // Tab 3: 20 Names Drill
+      var curCat = 'all', hideMode = false;
+      var CATS = [
+        { id: 'all', label: 'সব (২১টি)' },
+        { id: 'plant', label: '🌿 উদ্ভিদ (৮টি)' },
+        { id: 'micro', label: '🦠 জীবাণু (২টি)' },
+        { id: 'animal', label: '🐅 প্রাণী (১১টি)' }
+      ];
+      function renderNames() {
+        var cb = document.getElementById('catBtns');
+        cb.innerHTML = CATS.map(function (c) {
+          return '<button type="button" class="chip-btn ' + (c.id === curCat ? 'active' : '') + '" data-c="' + c.id + '">' + c.label + '</button>';
+        }).join('');
+        cb.querySelectorAll('.chip-btn').forEach(function (b) {
+          b.addEventListener('click', function () { curCat = b.dataset.c; renderNames(); });
+        });
+
+        var filtered = NAMES.filter(function (n) { return curCat === 'all' || n.cat === curCat; });
+        var grid = document.getElementById('nameGrid');
+        grid.innerHTML = filtered.map(function (n, idx) {
+          return '<div class="ncard ' + (hideMode ? 'hidden' : '') + '" data-idx="' + idx + '">' +
+            '<div class="bn">' + bn(idx + 1) + '. ' + n.bn + '</div>' +
+            '<div class="sci">' + n.sci + '</div>' +
+            '<div class="cue">💡 ' + n.cue + '</div>' +
+          '</div>';
+        }).join('');
+        grid.querySelectorAll('.ncard').forEach(function (card) {
+          card.addEventListener('click', function () { card.classList.toggle('hidden'); });
+        });
+      }
+      document.getElementById('hideToggle').addEventListener('click', function () {
+        hideMode = !hideMode;
+        this.textContent = hideMode ? '👀 সব বৈজ্ঞানিক নাম দেখাও' : '🙈 মুখস্থ পরীক্ষা: নাম লুকাও';
+        renderNames();
+      });
+      renderNames();
+    })();
+  </script>
+
+  <!-- PORI UNIFIED RANGE SYNC -->
+  <script>
+    (function () {
+      function syncRangeFill(el) {
+        var min = parseFloat(el.min || '0');
+        var max = parseFloat(el.max || '100');
+        var val = parseFloat(el.value || '0');
+        var pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
+        el.style.setProperty('--fill', Math.max(0, Math.min(100, pct)) + '%');
+      }
+      function mountSteppers(el) {
+        if (el.dataset.poriStepped === '1') return;
+        el.dataset.poriStepped = '1';
+        var row = document.createElement('div');
+        row.className = 'pori-range-row';
+        el.parentNode.insertBefore(row, el);
+        var minusBtn = document.createElement('button');
+        minusBtn.type = 'button';
+        minusBtn.className = 'pori-step-btn';
+        minusBtn.textContent = '−';
+        var plusBtn = document.createElement('button');
+        plusBtn.type = 'button';
+        plusBtn.className = 'pori-step-btn';
+        plusBtn.textContent = '+';
+        row.appendChild(minusBtn);
+        row.appendChild(el);
+        row.appendChild(plusBtn);
+        function nudge(dir) {
+          var step = parseFloat(el.step || '1');
+          var min = parseFloat(el.min || '0');
+          var max = parseFloat(el.max || '100');
+          var cur = parseFloat(el.value);
+          if (Number.isNaN(cur)) cur = min;
+          var next = Math.max(min, Math.min(max, +(cur + dir * step).toFixed(4)));
+          if (next !== cur) {
+            el.value = next;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        }
+        minusBtn.addEventListener('click', function () { nudge(-1); });
+        plusBtn.addEventListener('click', function () { nudge(1); });
+        syncRangeFill(el);
+      }
+      function syncAllRanges() {
+        document.querySelectorAll('input[type="range"]').forEach(function (el) {
+          mountSteppers(el);
+          syncRangeFill(el);
+        });
+      }
+      document.addEventListener('input', function (e) { if (e.target && e.target.type === 'range') syncRangeFill(e.target); }, true);
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncAllRanges);
+      else syncAllRanges();
+    })();
+  </script>
+</body>
+</html>

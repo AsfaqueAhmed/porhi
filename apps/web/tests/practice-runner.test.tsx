@@ -192,9 +192,15 @@ describe('PracticeRunnerPage - Topic-only Practice Filtering & Smart Runner', ()
       version: 1,
     };
 
-    vi.mocked(apiClient.get)
-      .mockResolvedValueOnce([qTopic1] as any)
-      .mockResolvedValueOnce([sampleCq] as any);
+    vi.mocked(apiClient.get).mockImplementation(async (url: string) => {
+      if (url.includes('type=CQ_CREATIVE')) {
+        return [sampleCq] as any;
+      }
+      if (url.includes('/questions')) {
+        return [qTopic1] as any;
+      }
+      return [] as any;
+    });
     vi.mocked(apiClient.post).mockResolvedValueOnce({
       success: true,
       questionId: 'q_cq_1',

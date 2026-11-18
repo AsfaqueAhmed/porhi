@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>পাঁচ রাজ্য অণুবীক্ষণ ও বৈশিষ্ট্য ল্যাব | poRi</title>
+  <style>
+    /* PORI UNIFIED SIMULATOR THEME */
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-accent: #0f766e;
+      --pori-accent-soft: #ecfdf5;
+      --pori-accent-border: #99f6e4;
+      --pori-accent-ink: #134e4a;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-amber-ink: #92400e;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-ink: #9f1239;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+    .app {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .badge {
+      display: inline-block;
+      background: var(--pori-accent-soft);
+      color: var(--pori-accent-ink);
+      border: 1px solid var(--pori-accent-border);
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    h1 { margin: 6px 0 2px; font-size: 20px; color: var(--pori-heading); }
+    .sub { margin: 0; font-size: 13px; color: var(--pori-muted); }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 10px;
+    }
+    .tab-btn {
+      border: 1px solid var(--pori-border);
+      background: #fff;
+      color: var(--pori-heading);
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .tab-btn.active {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+    }
+    .pane { display: none; }
+    .pane.active { display: block; }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+    @media (max-width: 780px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    .specimen-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .spec-btn {
+      border: 1px solid var(--pori-border);
+      background: #f8fafc;
+      color: var(--pori-heading);
+      border-radius: 10px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .spec-btn.active {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+    }
+    .stage {
+      background: linear-gradient(180deg, #f0fdfa 0%, #f8fafc 100%);
+      border: 1px solid var(--pori-accent-border);
+      border-radius: 16px;
+      padding: 12px;
+      position: relative;
+    }
+    .stage svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      max-height: 310px;
+    }
+    .hotspot { cursor: pointer; transition: opacity 0.15s, transform 0.15s; }
+    .hotspot:hover { opacity: 0.85; }
+    .info-card {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .info-card h2 { margin: 0 0 6px; font-size: 17px; color: var(--pori-accent-ink); }
+    .meta-pills { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 10px; }
+    .pill {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--pori-accent-soft);
+      color: var(--pori-accent-ink);
+      border: 1px solid var(--pori-accent-border);
+    }
+    .pill.warn { background: var(--pori-amber-soft); color: var(--pori-amber-ink); border-color: var(--pori-amber-border); }
+    .part-box {
+      background: #ffffff;
+      border: 1px solid var(--pori-accent-border);
+      border-left: 4px solid var(--pori-accent);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin: 10px 0;
+    }
+    .part-box strong { display: block; color: var(--pori-accent-ink); font-size: 14px; margin-bottom: 3px; }
+    .part-box p { margin: 0; font-size: 13px; color: var(--pori-ink); }
+    .part-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .part-chip {
+      border: 1px solid var(--pori-border);
+      background: #fff;
+      color: var(--pori-heading);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .part-chip.active { background: var(--pori-accent); color: #fff; border-color: var(--pori-accent); }
+    .memory-strip {
+      margin-top: 10px;
+      background: var(--pori-amber-soft);
+      border: 1px solid var(--pori-amber-border);
+      color: var(--pori-amber-ink);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 13px;
+    }
+    .slider-wrap {
+      margin-top: 10px;
+      background: #fff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--pori-heading);
+      margin-bottom: 6px;
+    }
+    .pori-range-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pori-step-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      border: 1px solid var(--pori-border);
+      background: #fff;
+      color: var(--pori-heading);
+      font-size: 16px;
+      font-weight: 800;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+    }
+    .pori-step-btn:hover { background: var(--pori-accent-soft); border-color: var(--pori-accent); }
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--pori-accent) var(--fill, 50%), #e2e8f0 var(--fill, 50%));
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #ffffff;
+      border: 3px solid var(--pori-accent);
+      box-shadow: 0 2px 6px rgba(15, 118, 110, 0.3);
+      cursor: pointer;
+    }
+    .trait-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .trait-btn {
+      text-align: left;
+      border: 1px solid var(--pori-border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 8px 11px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--pori-heading);
+      font-family: inherit;
+    }
+    .trait-btn.on {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+    }
+    .kingdom-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 10px;
+    }
+    .k-card {
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 12px;
+      background: #fff;
+      transition: all 0.2s;
+    }
+    .k-card.dim { opacity: 0.32; filter: grayscale(0.6); }
+    .k-card.hit { border-color: var(--pori-accent); background: var(--pori-accent-soft); box-shadow: 0 4px 12px rgba(15, 118, 110, 0.12); }
+    .k-card h3 { margin: 0 0 4px; font-size: 15px; color: var(--pori-accent-ink); }
+    .k-card small { display: block; font-size: 11px; color: var(--pori-muted); margin-bottom: 6px; }
+    .k-card p { margin: 4px 0; font-size: 12px; }
+    .drill-box {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 16px;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .drill-q { font-size: 16px; font-weight: 800; color: var(--pori-heading); margin: 0 0 12px; }
+    .drill-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    @media (max-width: 560px) { .drill-opts { grid-template-columns: 1fr; } }
+    .drill-opt {
+      border: 1px solid var(--pori-border);
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+    }
+    .drill-opt.ok { background: #d1fae5; border-color: #047857; color: #064e3b; }
+    .drill-opt.no { background: var(--pori-rose-soft); border-color: #e11d48; color: var(--pori-rose-ink); }
+    .drill-fb { margin-top: 12px; padding: 10px 12px; border-radius: 10px; font-size: 13px; display: none; background: #ecfdf5; color: #134e4a; border: 1px solid #99f6e4; }
+    .drill-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 13px; font-weight: 700; color: var(--pori-muted); }
+    .action-btn {
+      background: var(--pori-accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .action-btn.secondary { background: #fff; color: var(--pori-heading); border: 1px solid var(--pori-border); }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="head">
+      <div>
+        <span class="badge">SSC জীববিজ্ঞান · অধ্যায় ১ (১.৩) · ইন্টারেক্টিভ ল্যাব</span>
+        <h1>পাঁচ রাজ্য অণুবীক্ষণ, কোষ গঠন ও বৈশিষ্ট্য ছাঁকনি ল্যাব</h1>
+        <p class="sub">চিত্রের যেকোনো অংশে ক্লিক করে গঠন চিনো, বৈশিষ্ট্য মিলিয়ে রাজ্য শনাক্ত করো এবং স্মৃতি যাচাই করো।</p>
+      </div>
+    </div>
+
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab-btn active" data-tab="micro">🔬 ১. অণুবীক্ষণ ও গঠন পরিদর্শক</button>
+      <button type="button" class="tab-btn" data-tab="filter">🧬 ২. বৈশিষ্ট্য দিয়ে রাজ্য ছাঁকনি</button>
+      <button type="button" class="tab-btn" data-tab="drill">⚡ ৩. দ্রুত শনাক্তকরণ ড্রিল</button>
+    </div>
+
+    <!-- TAB 1: MICROSCOPE & ANATOMY INSPECTOR -->
+    <section class="pane active" id="pane-micro">
+      <div class="specimen-row" id="specimenRow"></div>
+      <div class="grid-2">
+        <div>
+          <div class="stage">
+            <svg id="specimenSvg" viewBox="0 0 460 280" role="img" aria-label="জীবের কোষ ও গঠন চিত্র"></svg>
+          </div>
+          <div class="slider-wrap">
+            <div class="slider-label">
+              <span>🔍 অণুবীক্ষণ বিবর্ধন (Zoom)</span>
+              <span id="zoomLabel">400x (মানক দৃশ্য)</span>
+            </div>
+            <input id="zoomRange" type="range" min="100" max="1000" step="100" value="400" />
+          </div>
+        </div>
+        <div class="info-card">
+          <h2 id="specTitle"></h2>
+          <div class="meta-pills" id="specPills"></div>
+          <p id="specSummary" style="margin:0 0 8px;font-size:13.5px;"></p>
+          <div style="font-size:12px;font-weight:700;color:#475569;">অংশ নির্বাচন করো (চিত্রে বা বাটনে ক্লিক করো):</div>
+          <div class="part-chips" id="partChips"></div>
+          <div class="part-box" id="partBox">
+            <strong id="partTitle"></strong>
+            <p id="partDesc"></p>
+          </div>
+          <div class="memory-strip" id="specMemory"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: TRAIT FILTER -->
+    <section class="pane" id="pane-filter">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+        <p class="sub" style="margin:0;font-weight:700;">একাধিক বৈশিষ্ট্য চালু করো — যে রাজ্যগুলো সব শর্ত পূরণ করে সেগুলো উজ্জ্বল থাকবে:</p>
+        <button type="button" class="action-btn secondary" id="clearTraits">সব রিসেট</button>
+      </div>
+      <div class="trait-grid" id="traitGrid"></div>
+      <div id="filterReadout" style="margin-bottom:12px;font-weight:800;font-size:14px;color:#134e4a;background:#ecfdf5;border:1px solid #99f6e4;border-radius:10px;padding:9px 12px;"></div>
+      <div class="kingdom-cards" id="kingdomCards"></div>
+    </section>
+
+    <!-- TAB 3: QUICK IDENTIFICATION DRILL -->
+    <section class="pane" id="pane-drill">
+      <div class="drill-box">
+        <div style="font-size:12px;font-weight:800;color:#0f766e;margin-bottom:4px;" id="drillCounter"></div>
+        <p class="drill-q" id="drillQ"></p>
+        <div class="drill-opts" id="drillOpts"></div>
+        <div class="drill-fb" id="drillFb"></div>
+        <div class="drill-bar">
+          <span id="drillScore">স্কোর: ০/০</span>
+          <div style="display:flex;gap:8px;">
+            <button type="button" class="action-btn secondary" id="drillRestart">আবার শুরু</button>
+            <button type="button" class="action-btn" id="drillNext">পরের প্রশ্ন →</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function () {
+      var bn = function (n) { return String(n).replace(/\d/g, function (d) { return '০১২৩৪৫৬৭৮৯'[d]; }); };
+
+      var SPECIMENS = [
+        {
+          id: 'bacteria',
+          label: 'ব্যাকটেরিয়া (মনেরা)',
+          title: 'ব্যাকটেরিয়া — রাজ্য ১: মনেরা (Monera)',
+          pills: ['সুপার কিংডম ১: প্রোক্যারিওটা', 'আদিকোষী (নিউক্লিয়াস নেই)', 'দ্বিবিভাজন'],
+          summary: 'এককোষী, আণুবীক্ষণিক আদিকোষী জীব। পাঠ্যবইয়ের চিত্র ১.০২ (ক) এবং বহুনির্বাচনি ৩ নং প্রশ্নের চিত্র-১।',
+          memory: '🧠 মনে রাখো: মনেরা = নিউক্লিয়ার পর্দা ও নিউক্লিওলাস নেই, মাইটোকন্ড্রিয়া-প্লাস্টিড নেই, কিন্তু রাইবোজোম আছে!',
+          parts: [
+            { id: 'chromatin', name: 'ক্রোমাটিন বস্তু (DNA)', desc: 'কোষে ক্রোমাটিন বস্তু মুক্তভাবে থাকে; কোনো নিউক্লিয়ার পর্দা বা নিউক্লিওলাস নেই (আদিকোষের প্রধান চিহ্ন)।' },
+            { id: 'ribosome', name: 'রাইবোজোম', desc: 'প্লাস্টিড, মাইটোকন্ড্রিয়া ও এন্ডোপ্লাজমিক জালিকা না থাকলেও মনেরার কোষে রাইবোজোম উপস্থিত থাকে।' },
+            { id: 'flagella', name: 'ফ্ল্যাজেলা ও রোম', desc: 'চলনে সাহায্য করে; পাঠ্যবইয়ের নমুনা প্রশ্ন চিত্র-১-এ চারপাশে কেশসদৃশ আবরণ ও লম্বা ফ্ল্যাজেলা দেখে ব্যাকটেরিয়া চিনতে হয়।' },
+            { id: 'wall', name: 'কোষাবরণ ও শোষণ', desc: 'প্রধানত শোষণ পদ্ধতিতে খাদ্যগ্রহণ করে; তবে নীলাভ সবুজ শৈবালের মতো কেউ কেউ সালোকসংশ্লেষণ করে।' }
+          ],
+          draw: function (sel) {
+            return '<g id="zoomGroup">' +
+              '<rect x="105" y="70" width="235" height="130" rx="65" fill="#fef3c7" stroke="' + (sel === 'wall' ? '#0f766e' : '#d97706') + '" stroke-width="' + (sel === 'wall' ? 7 : 5) + '" class="hotspot" data-part="wall"/>' +
+              '<rect x="120" y="85" width="205" height="100" rx="50" fill="#ecfdf5" stroke="#0f766e" stroke-width="2" class="hotspot" data-part="wall"/>' +
+              '<path d="M340 135 C385 110, 400 165, 435 140" fill="none" stroke="' + (sel === 'flagella' ? '#0f766e' : '#dc2626') + '" stroke-width="' + (sel === 'flagella' ? 6 : 4) + '" stroke-linecap="round" class="hotspot" data-part="flagella"/>' +
+              '<path d="M165 135 C185 100, 215 165, 235 125 C255 95, 275 160, 295 130" fill="none" stroke="' + (sel === 'chromatin' ? '#be123c' : '#2563eb') + '" stroke-width="' + (sel === 'chromatin' ? 6 : 4) + '" stroke-linecap="round" class="hotspot" data-part="chromatin"/>' +
+              '<g class="hotspot" data-part="ribosome" fill="' + (sel === 'ribosome' ? '#be123c' : '#0f766e') + '">' +
+                '<circle cx="155" cy="112" r="5"/><circle cx="188" cy="160" r="5"/><circle cx="248" cy="108" r="5"/><circle cx="275" cy="162" r="5"/><circle cx="305" cy="118" r="5"/>' +
+              '</g>' +
+              '<text x="225" y="45" text-anchor="middle" font-size="14" font-weight="700" fill="#134e4a">ব্যাকটেরিয়া (আদিকোষ — নিউক্লিয়ার পর্দা নেই)</text>' +
+              '<text x="225" y="242" text-anchor="middle" font-size="12" fill="#475569">ক্রোমাটিন, রাইবোজোম, আবরণ বা ফ্ল্যাজেলায় ক্লিক করো</text>' +
+            '</g>';
+          }
+        },
+        {
+          id: 'nostoc',
+          label: 'Nostoc (মনেরা)',
+          title: 'Nostoc / নীলাভ সবুজ শৈবাল — রাজ্য ১: মনেরা',
+          pills: ['সুপার কিংডম ১: প্রোক্যারিওটা', 'ফিলামেন্টাস', 'সালোকসংশ্লেষণকারী'],
+          summary: 'একটির পর একটি কোষ লম্বালম্বিভাবে যুক্ত হয়ে ফিলামেন্ট (মালার মতো সূত্র) গঠন করে। পাঠ্যবইয়ের চিত্র ১.০২ (খ)।',
+          memory: '🧠 মনে রাখো: Nostoc দেখতে শৈবাল হলেও এটি প্ল্যানটি বা প্রোটিস্টা নয় — এটি আদিকোষী মনেরা!',
+          parts: [
+            { id: 'filament', name: 'ফিলামেন্টাস কোষশৃঙ্খল', desc: 'একটির পর একটি গোলাকার কোষ লম্বালম্বিভাবে যুক্ত হয়ে পুঁতির মালার মতো ফিলামেন্ট তৈরি করে।' },
+            { id: 'photo', name: 'সালোকসংশ্লেষণ ক্ষমতা', desc: 'মনেরার অধিকাংশ শোষণকারী হলেও নীলাভ সবুজ শৈবাল (Nostoc) ফটোসিনথেসিস বা সালোকসংশ্লেষণ পদ্ধতিতে খাদ্য প্রস্তুত করে।' },
+            { id: 'prok', name: 'আদিকোষী বৈশিষ্ট্য', desc: 'প্রতিটি কোষে সুগঠিত নিউক্লিয়াস, প্লাস্টিড বা মাইটোকন্ড্রিয়া নেই; দ্বিবিভাজনে বিভাজিত হয়।' }
+          ],
+          draw: function (sel) {
+            var pts = [[90,170],[122,148],[156,130],[192,122],[228,128],[264,142],[300,152],[336,144],[368,122]];
+            var beads = pts.map(function (p, i) {
+              var r = i === 4 ? 19 : 14;
+              var fill = i === 4 ? '#bbf7d0' : '#34d399';
+              var st = sel === 'filament' ? '#0f766e' : '#065f46';
+              return '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="' + r + '" fill="' + fill + '" stroke="' + st + '" stroke-width="3" class="hotspot" data-part="' + (i === 4 ? 'prok' : 'filament') + '"/>' +
+                     '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="4" fill="' + (sel === 'photo' ? '#be123c' : '#064e3b') + '" class="hotspot" data-part="photo"/>';
+            }).join('');
+            return '<g id="zoomGroup">' +
+              '<path d="M90 170 Q200 100 368 122" fill="none" stroke="#a7f3d0" stroke-width="46" stroke-linecap="round" opacity="0.45"/>' +
+              beads +
+              '<text x="230" y="45" text-anchor="middle" font-size="14" font-weight="700" fill="#134e4a">Nostoc — ফিলামেন্টাস নীলাভ সবুজ শৈবাল (মনেরা)</text>' +
+              '<text x="230" y="242" text-anchor="middle" font-size="12" fill="#475569">পুঁতির মতো কোষ, কেন্দ্র বা বড় কোষে ক্লিক করো</text>' +
+            '</g>';
+          }
+        },
+        {
+          id: 'amoeba',
+          label: 'অ্যামিবা (প্রোটিস্টা)',
+          title: 'অ্যামিবা — রাজ্য ২: প্রোটিস্টা (Protista)',
+          pills: ['সুপার কিংডম ২: ইউক্যারিওটা', 'সুগঠিত নিউক্লিয়াস', 'ভ্রূণ গঠিত হয় না'],
+          summary: 'অনিয়তাকার এককোষী প্রকৃতকোষী জীব। পাঠ্যবইয়ের চিত্র ১.০৩ (ক) এবং সৃজনশীল প্রশ্নের চিত্র-১।',
+          memory: '🧠 পরীক্ষার ফাঁদ: প্রোটিস্টার সুগঠিত নিউক্লিয়াস ও সব অঙ্গাণু আছে, কিন্তু কখনো ভ্রূণ গঠিত হয় না!',
+          parts: [
+            { id: 'nucleus', name: 'সুগঠিত নিউক্লিয়াস', desc: 'ক্রোমাটিন বস্তু নিউক্লিয়ার পর্দা দ্বারা পরিবৃত্ত থাকে এবং তাতে DNA, RNA ও প্রোটিন থাকে।' },
+            { id: 'organelles', name: 'সকল কোষীয় অঙ্গাণু', desc: 'প্রকৃতকোষ হওয়ায় কোষে মাইটোকন্ড্রিয়া, গহ্বরসহ সকল ধরনের অঙ্গাণু উপস্থিত।' },
+            { id: 'pseudo', name: 'অনিয়তাকার দেহ (ক্ষণপদ)', desc: 'অ্যামিবার নির্দিষ্ট আকার নেই; ক্ষণপদ দিয়ে চলাচল ও খাদ্যগ্রহণ করে।' },
+            { id: 'repro', name: 'জনন (মাইটোসিস ও কনজুগেশন)', desc: 'মাইটোসিসে অযৌন এবং কনজুগেশনের মাধ্যমে যৌন জনন ঘটে; তবে কোনো ভ্রূণ সৃষ্টি হয় না।' }
+          ],
+          draw: function (sel) {
+            return '<g id="zoomGroup">' +
+              '<path d="M165 95 C195 55, 255 68, 275 100 C325 90, 355 130, 320 165 C340 205, 285 228, 250 198 C215 230, 155 215, 160 175 C115 170, 115 115, 165 95 Z" fill="#dbeafe" stroke="' + (sel === 'pseudo' ? '#0f766e' : '#2563eb') + '" stroke-width="' + (sel === 'pseudo' ? 6 : 4) + '" class="hotspot" data-part="pseudo"/>' +
+              '<circle cx="225" cy="140" r="26" fill="#93c5fd" stroke="' + (sel === 'nucleus' ? '#be123c' : '#1d4ed8') + '" stroke-width="4" class="hotspot" data-part="nucleus"/>' +
+              '<circle cx="225" cy="140" r="10" fill="#1e3a8a" class="hotspot" data-part="nucleus"/>' +
+              '<circle cx="278" cy="158" r="14" fill="#ffffff" stroke="' + (sel === 'organelles' ? '#be123c' : '#0284c7') + '" stroke-width="3" class="hotspot" data-part="organelles"/>' +
+              '<circle cx="182" cy="168" r="9" fill="#bfdbfe" stroke="#0284c7" stroke-width="2" class="hotspot" data-part="repro"/>' +
+              '<text x="230" y="40" text-anchor="middle" font-size="14" font-weight="700" fill="#134e4a">অ্যামিবা (প্রোটিস্টা — প্রকৃতকোষী এককোষী)</text>' +
+              '<text x="230" y="252" text-anchor="middle" font-size="12" fill="#475569">নিউক্লিয়াস, গহ্বর বা ক্ষণপদে ক্লিক করো</text>' +
+            '</g>';
+          }
+        },
+        {
+          id: 'diatom',
+          label: 'ডায়াটম (প্রোটিস্টা)',
+          title: 'ডায়াটম (এককোষী শৈবাল) — রাজ্য ২: প্রোটিস্টা',
+          pills: ['সুপার কিংডম ২: ইউক্যারিওটা', 'সালোকসংশ্লেষী', 'ভ্রূণ নেই'],
+          summary: 'নৌকার মতো দ্বিপার্শ্বীয় প্রতিসম এককোষী শৈবাল। পাঠ্যবইয়ের চিত্র ১.০৩ (খ) এবং বহুনির্বাচনি ৪ নং প্রশ্নের চিত্র-২।',
+          memory: '🧠 বইয়ের ৪ নং MCQ মনে রাখো: ডায়াটম খাদ্য তৈরি করতে পারে (i) ও সুগঠিত নিউক্লিয়াস আছে (ii), কিন্তু ভ্রূণ হয় না (iii ভুল)!',
+          parts: [
+            { id: 'photo', name: 'ক্লোরোপ্লাস্ট (খাদ্য তৈরি)', desc: 'ফটোসিনথেটিক পদ্ধতিতে নিজেই খাদ্য তৈরি করতে সক্ষম।' },
+            { id: 'nuc', name: 'সুগঠিত নিউক্লিয়াস', desc: 'ইউক্যারিওটা সুপার কিংডমের সদস্য হওয়ায় নিউক্লিয়াস সুগঠিত ও পর্দাবৃত।' },
+            { id: 'noemb', name: 'ভ্রূণ গঠিত হয় না', desc: 'প্রোটিস্টার সকল সদস্যের মতো ডায়াটমেও কখনো ভ্রূণ সৃষ্টি হয় না।' }
+          ],
+          draw: function (sel) {
+            return '<g id="zoomGroup">' +
+              '<path d="M230 55 C285 95, 285 185, 230 225 C175 185, 175 95, 230 55 Z" fill="#bbf7d0" stroke="' + (sel === 'photo' ? '#0f766e' : '#15803d') + '" stroke-width="' + (sel === 'photo' ? 6 : 4) + '" class="hotspot" data-part="photo"/>' +
+              '<line x1="230" y1="62" x2="230" y2="218" stroke="#166534" stroke-width="2" class="hotspot" data-part="noemb"/>' +
+              '<ellipse cx="230" cy="140" rx="16" ry="22" fill="#fde68a" stroke="' + (sel === 'nuc' ? '#be123c' : '#b45309') + '" stroke-width="4" class="hotspot" data-part="nuc"/>' +
+              '<text x="230" y="36" text-anchor="middle" font-size="14" font-weight="700" fill="#134e4a">ডায়াটম — এককোষী শৈবাল (প্রোটিস্টা)</text>' +
+              '<text x="230" y="254" text-anchor="middle" font-size="12" fill="#475569">সবুজ দেহ, কেন্দ্রীয় নিউক্লিয়াস বা অক্ষে ক্লিক করো</text>' +
+            '</g>';
+          }
+        },
+        {
+          id: 'fungi',
+          label: 'মাশরুম (ফানজাই)',
+          title: 'মাশরুম / Penicillium — রাজ্য ৩: ফানজাই (Fungi)',
+          pills: ['সুপার কিংডম ২: ইউক্যারিওটা', 'কাইটিন কোষপ্রাচীর', 'ক্লোরোপ্লাস্ট অনুপস্থিত'],
+          summary: 'মৃতজীবী বা পরজীবী, দেহ মাইসেলিয়াম (সরু সুতার মতো অংশ) দিয়ে গঠিত। পাঠ্যবইয়ের চিত্র ১.০৪ ও সৃজনশীল চিত্র-২।',
+          memory: '🧠 ফানজাইয়ের ৪ কীওয়ার্ড: কাইটিন প্রাচীর + ক্লোরোপ্লাস্ট নেই + শোষণ + হ্যাপ্লয়েড স্পোর!',
+          parts: [
+            { id: 'chitin', name: 'কাইটিন নির্মিত কোষপ্রাচীর', desc: 'উদ্ভিদের সেলুলোজের বদলে ফানজাইয়ের কোষপ্রাচীর কাইটিন বস্তু দিয়ে গঠিত।' },
+            { id: 'mycelium', name: 'মাইসেলিয়াম (সরু সুতা)', desc: 'ইস্ট এককোষী হলেও মাশরুম ও Penicillium-এর দেহ সরু সুতার মতো মাইসেলিয়াম দিয়ে গঠিত।' },
+            { id: 'spore', name: 'হ্যাপ্লয়েড স্পোর', desc: 'ক্লোরোপ্লাস্ট না থাকায় শোষণ পদ্ধতিতে খাদ্যগ্রহণ করে এবং হ্যাপ্লয়েড স্পোর দিয়ে বংশবৃদ্ধি ঘটে।' }
+          ],
+          draw: function (sel) {
+            return '<g id="zoomGroup">' +
+              '<path d="M150 135 C150 75, 310 75, 310 135 Z" fill="#fed7aa" stroke="' + (sel === 'chitin' ? '#be123c' : '#9a3412') + '" stroke-width="4" class="hotspot" data-part="chitin"/>' +
+              '<ellipse cx="230" cy="135" rx="80" ry="14" fill="#fdba74" stroke="#9a3412" stroke-width="2" class="hotspot" data-part="spore"/>' +
+              '<rect x="208" y="138" width="44" height="65" rx="10" fill="#ffedd5" stroke="#9a3412" stroke-width="3" class="hotspot" data-part="chitin"/>' +
+              '<path d="M210 203 C190 220, 165 222, 150 232 M224 203 C218 222, 210 230, 198 238 M238 203 C248 220, 265 228, 285 235 M250 203 C275 215, 295 218, 312 228" fill="none" stroke="' + (sel === 'mycelium' ? '#0f766e' : '#78350f') + '" stroke-width="' + (sel === 'mycelium' ? 5 : 3) + '" class="hotspot" data-part="mycelium"/>' +
+              '<g class="hotspot" data-part="spore" fill="' + (sel === 'spore' ? '#be123c' : '#b45309') + '"><circle cx="180" cy="156" r="3"/><circle cx="195" cy="166" r="3"/><circle cx="268" cy="158" r="3"/><circle cx="282" cy="168" r="3"/></g>' +
+              '<text x="230" y="44" text-anchor="middle" font-size="14" font-weight="700" fill="#134e4a">মাশরুম (ফানজাই — কাইটিন প্রাচীর ও মাইসেলিয়াম)</text>' +
+              '<text x="230" y="258" text-anchor="middle" font-size="12" fill="#475569">ছাতা, স্পোর বা নিচের মাইসেলিয়ামে ক্লিক করো</text>' +
+            '</g>';
+          }
+        },
+        {
+          id: 'plant_animal',
+          label: 'উদ্ভিদ বনাম প্রাণী কোষ',
+          title: 'প্ল্যানটি (Plantae) বনাম অ্যানিমেলিয়া (Animalia)',
+          pills: ['উন্নত টিস্যুতন্ত্র', 'ভ্রূণ সৃষ্টি হয়', 'প্লাস্টিড পার্থক্য'],
+          summary: 'কাঁঠাল গাছ (প্ল্যানটি, চিত্র ১.০৫) বনাম রয়েল বেঙ্গল টাইগার (অ্যানিমেলিয়া, চিত্র ১.০৬)-এর কোষীয় তুলনা।',
+          memory: '🧠 অ্যানিমেলিয়ায় ৩টি জিনিস নেই: জড় কোষপ্রাচীর নেই, প্লাস্টিড নেই, কোষগহ্বর নেই — তাই এরা পরভোজী ও খাদ্য গলাধঃকরণ করে!',
+          parts: [
+            { id: 'pwall', name: 'উদ্ভিদ কোষ: কোষপ্রাচীর, ক্লোরোপ্লাস্ট ও বড় কোষগহ্বর', desc: 'প্ল্যানটি সালোকসংশ্লেষণকারী, উন্নত টিস্যুতন্ত্র আছে, ভ্রূণ থেকে ডিপ্লয়েড পর্যায় শুরু হয় এবং যৌন জনন অ্যানাইসোগ্যামাস।' },
+            { id: 'anocell', name: 'প্রাণী কোষ: কোষপ্রাচীর, প্লাস্টিড ও কোষগহ্বর অনুপস্থিত', desc: 'প্লাস্টিড না থাকায় অ্যানিমেলিয়া হেটেরোট্রফিক (পরভোজী) ও খাদ্য গলাধঃকরণ করে; জটিল টিস্যুতন্ত্র ও ভ্রূণীয় স্তর থাকে।' }
+          ],
+          draw: function (sel) {
+            return '<g id="zoomGroup">' +
+              '<g class="hotspot" data-part="pwall">' +
+                '<rect x="42" y="68" width="170" height="150" rx="18" fill="#dcfce7" stroke="' + (sel === 'pwall' ? '#0f766e' : '#15803d') + '" stroke-width="' + (sel === 'pwall' ? 7 : 5) + '"/>' +
+                '<rect x="64" y="96" width="84" height="90" rx="14" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>' +
+                '<circle cx="176" cy="112" r="16" fill="#86efac" stroke="#166534" stroke-width="3"/>' +
+                '<ellipse cx="176" cy="162" rx="16" ry="9" fill="#16a34a"/>' +
+                '<ellipse cx="164" cy="186" rx="14" ry="8" fill="#16a34a"/>' +
+                '<text x="127" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#166534">প্ল্যানটি (উদ্ভিদ কোষ)</text>' +
+              '</g>' +
+              '<g class="hotspot" data-part="anocell">' +
+                '<ellipse cx="335" cy="143" rx="82" ry="70" fill="#fee2e2" stroke="' + (sel === 'anocell' ? '#be123c' : '#dc2626') + '" stroke-width="' + (sel === 'anocell' ? 6 : 3) + '"/>' +
+                '<circle cx="335" cy="143" r="24" fill="#fca5a5" stroke="#991b1b" stroke-width="3"/>' +
+                '<circle cx="335" cy="143" r="9" fill="#7f1d1d"/>' +
+                '<text x="335" y="56" text-anchor="middle" font-size="13" font-weight="700" fill="#991b1b">অ্যানিমেলিয়া (প্রাণী কোষ)</text>' +
+              '</g>' +
+              '<text x="230" y="252" text-anchor="middle" font-size="12" fill="#475569">উভয় কোষে ক্লিক করে কোষপ্রাচীর, প্লাস্টিড ও কোষগহ্বরের পার্থক্য দেখো</text>' +
+            '</g>';
+          }
+        }
+      ];
+
+      var TRAITS = [
+        { id: 'prok', label: 'আদিকোষ (সুগঠিত নিউক্লিয়াস নেই)', match: ['M'] },
+        { id: 'euk', label: 'প্রকৃতকোষ (সুগঠিত নিউক্লিয়াস আছে)', match: ['P', 'F', 'Pl', 'A'] },
+        { id: 'photo', label: 'সালোকসংশ্লেষণ করতে পারে', match: ['M', 'P', 'Pl'] },
+        { id: 'absorb', label: 'শোষণ পদ্ধতিতে খাদ্যগ্রহণ', match: ['M', 'P', 'F'] },
+        { id: 'ingest', label: 'পরভোজী ও খাদ্য গলাধঃকরণ', match: ['A'] },
+        { id: 'chitin', label: 'কাইটিন নির্মিত কোষপ্রাচীর', match: ['F'] },
+        { id: 'noplastid', label: 'প্লাস্টিড ও কোষপ্রাচীর নেই', match: ['A'] },
+        { id: 'embryo', label: 'ভ্রূণ গঠিত হয়', match: ['Pl', 'A'] },
+        { id: 'noembryo', label: 'ভ্রূণ গঠিত হয় না', match: ['M', 'P', 'F'] },
+        { id: 'binary', label: 'দ্বিবিভাজনে কোষবিভাজন', match: ['M'] }
+      ];
+
+      var KINGDOMS = [
+        { id: 'M', name: '১. মনেরা (Monera)', sup: 'প্রোক্যারিওটা', clue: 'আদিকোষ · রাইবোজোম আছে · দ্বিবিভাজন', ex: 'ব্যাকটেরিয়া, Nostoc' },
+        { id: 'P', name: '২. প্রোটিস্টা (Protista)', sup: 'ইউক্যারিওটা', clue: 'সুগঠিত নিউক্লিয়াস · কনজুগেশন · ভ্রূণ নেই', ex: 'অ্যামিবা, প্যারামেসিয়াম, ডায়াটম' },
+        { id: 'F', name: '৩. ফানজাই (Fungi)', sup: 'ইউক্যারিওটা', clue: 'কাইটিন প্রাচীর · মাইসেলিয়াম · স্পোর', ex: 'ইস্ট, Penicillium, মাশরুম' },
+        { id: 'Pl', name: '৪. প্ল্যানটি (Plantae)', sup: 'ইউক্যারিওটা', clue: 'সালোকসংশ্লেষী · উন্নত টিস্যু · অ্যানাইসোগ্যামাস', ex: 'সবুজ উদ্ভিদ (কাঁঠাল)' },
+        { id: 'A', name: '৫. অ্যানিমেলিয়া (Animalia)', sup: 'ইউক্যারিওটা', clue: 'কোষপ্রাচীর-প্লাস্টিড-গহ্বর নেই · গলাধঃকরণ', ex: 'প্রোটোজোয়া ছাড়া সব প্রাণী' }
+      ];
+
+      var DRILL = [
+        { q: 'নীলাভ সবুজ শৈবাল (Nostoc) কোন রাজ্যের অন্তর্ভুক্ত?', opts: ['মনেরা', 'প্রোটিস্টা', 'প্ল্যানটি', 'ফানজাই'], a: 0, exp: 'Nostoc আদিকোষী (প্রোক্যারিওটা) ও ফিলামেন্টাস — তাই এটি মনেরা রাজ্যের।' },
+        { q: 'কোন রাজ্যের কোষপ্রাচীর কাইটিন বস্তু দিয়ে গঠিত?', opts: ['মনেরা', 'প্রোটিস্টা', 'ফানজাই', 'প্ল্যানটি'], a: 2, exp: 'ফানজাইয়ের কোষপ্রাচীর কাইটিন দিয়ে তৈরি এবং ক্লোরোপ্লাস্ট অনুপস্থিত।' },
+        { q: 'সুগঠিত নিউক্লিয়াস আছে কিন্তু কোনো ভ্রূণ গঠিত হয় না — কোন রাজ্য?', opts: ['প্ল্যানটি', 'প্রোটিস্টা', 'অ্যানিমেলিয়া', 'মনেরা'], a: 1, exp: 'প্রোটিস্টায় (অ্যামিবা, ডায়াটম) সুগঠিত নিউক্লিয়াস থাকে কিন্তু ভ্রূণ গঠিত হয় না।' },
+        { q: 'প্লাস্টিড, জড় কোষপ্রাচীর ও কোষগহ্বর নেই কোন রাজ্যে?', opts: ['ফানজাই', 'প্ল্যানটি', 'অ্যানিমেলিয়া', 'প্রোটিস্টা'], a: 2, exp: 'অ্যানিমেলিয়ায় এই তিনটি নেই; তাই এরা পরভোজী ও খাদ্য গলাধঃকরণ করে।' },
+        { q: 'কোন রাজ্যের যৌন জনন অ্যানাইসোগ্যামাস এবং ভ্রূণ থেকে ডিপ্লয়েড পর্যায় শুরু হয়?', opts: ['প্ল্যানটি', 'ফানজাই', 'প্রোটিস্টা', 'মনেরা'], a: 0, exp: 'সবুজ উদ্ভিদ বা প্ল্যানটির যৌন জনন অ্যানাইসোগ্যামাস।' },
+        { q: '১৯৭৪ সালে কে জীবজগৎকে ২টি সুপার কিংডমে ভাগ করেন?', opts: ['ক্যারোলাস লিনিয়াস', 'আর. এইচ. হুইটেকার', 'মারগুলিস', 'কেভলিয়ার-স্মিথ'], a: 2, exp: 'মারগুলিস (১৯৭৪) প্রোক্যারিওটা ও ইউক্যারিওটা — এই ২টি সুপার কিংডম প্রবর্তন করেন।' }
+      ];
+
+      // Tab switcher
+      document.querySelectorAll('.tab-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.remove('active'); });
+          document.querySelectorAll('.pane').forEach(function (p) { p.classList.remove('active'); });
+          btn.classList.add('active');
+          document.getElementById('pane-' + btn.dataset.tab).classList.add('active');
+        });
+      });
+
+      // Tab 1 state
+      var curSpecIdx = 0;
+      var curPartId = SPECIMENS[0].parts[0].id;
+      var specRow = document.getElementById('specimenRow');
+      var svgEl = document.getElementById('specimenSvg');
+      var zoomRange = document.getElementById('zoomRange');
+      var zoomLabel = document.getElementById('zoomLabel');
+
+      function applyZoom() {
+        var z = parseInt(zoomRange.value, 10) || 400;
+        var scale = 0.8 + ((z - 100) / 900) * 0.45;
+        var g = document.getElementById('zoomGroup');
+        if (g) {
+          g.setAttribute('transform', 'translate(' + (230 * (1 - scale)).toFixed(1) + ',' + (140 * (1 - scale)).toFixed(1) + ') scale(' + scale.toFixed(2) + ')');
+        }
+        zoomLabel.textContent = bn(z) + 'x বিবর্ধন';
+      }
+
+      function renderSpec() {
+        var s = SPECIMENS[curSpecIdx];
+        if (!s.parts.some(function (p) { return p.id === curPartId; })) curPartId = s.parts[0].id;
+        specRow.innerHTML = SPECIMENS.map(function (sp, idx) {
+          return '<button type="button" class="spec-btn ' + (idx === curSpecIdx ? 'active' : '') + '" data-idx="' + idx + '">' + sp.label + '</button>';
+        }).join('');
+        specRow.querySelectorAll('.spec-btn').forEach(function (b) {
+          b.addEventListener('click', function () { curSpecIdx = +b.dataset.idx; curPartId = SPECIMENS[curSpecIdx].parts[0].id; renderSpec(); });
+        });
+
+        svgEl.innerHTML = s.draw(curPartId);
+        applyZoom();
+        svgEl.querySelectorAll('.hotspot').forEach(function (h) {
+          h.addEventListener('click', function () { curPartId = h.dataset.part; renderSpec(); });
+        });
+
+        document.getElementById('specTitle').textContent = s.title;
+        document.getElementById('specPills').innerHTML = s.pills.map(function (p, i) {
+          return '<span class="pill ' + (i === 2 ? 'warn' : '') + '">' + p + '</span>';
+        }).join('');
+        document.getElementById('specSummary').textContent = s.summary;
+        document.getElementById('specMemory').textContent = s.memory;
+
+        var chips = document.getElementById('partChips');
+        chips.innerHTML = s.parts.map(function (p) {
+          return '<button type="button" class="part-chip ' + (p.id === curPartId ? 'active' : '') + '" data-part="' + p.id + '">' + p.name + '</button>';
+        }).join('');
+        chips.querySelectorAll('.part-chip').forEach(function (c) {
+          c.addEventListener('click', function () { curPartId = c.dataset.part; renderSpec(); });
+        });
+
+        var activePart = s.parts.find(function (p) { return p.id === curPartId; }) || s.parts[0];
+        document.getElementById('partTitle').textContent = '🔎 ' + activePart.name;
+        document.getElementById('partDesc').textContent = activePart.desc;
+      }
+
+      zoomRange.addEventListener('input', applyZoom);
+      renderSpec();
+
+      // Tab 2: Trait Filter
+      var selectedTraits = new Set();
+      function renderFilter() {
+        var grid = document.getElementById('traitGrid');
+        grid.innerHTML = TRAITS.map(function (t) {
+          return '<button type="button" class="trait-btn ' + (selectedTraits.has(t.id) ? 'on' : '') + '" data-id="' + t.id + '">' + (selectedTraits.has(t.id) ? '✓ ' : '+ ') + t.label + '</button>';
+        }).join('');
+        grid.querySelectorAll('.trait-btn').forEach(function (b) {
+          b.addEventListener('click', function () {
+            var id = b.dataset.id;
+            if (selectedTraits.has(id)) selectedTraits.delete(id); else selectedTraits.add(id);
+            renderFilter();
+          });
+        });
+
+        var matched = KINGDOMS.filter(function (k) {
+          var ok = true;
+          selectedTraits.forEach(function (tid) {
+            var tr = TRAITS.find(function (x) { return x.id === tid; });
+            if (tr && tr.match.indexOf(k.id) === -1) ok = false;
+          });
+          return ok;
+        });
+
+        var rd = document.getElementById('filterReadout');
+        if (selectedTraits.size === 0) {
+          rd.textContent = 'সব ৫টি রাজ্য দেখাচ্ছে — উপরের যেকোনো বৈশিষ্ট্যে ক্লিক করে ছাঁকনি চালাও।';
+        } else if (matched.length === 0) {
+          rd.textContent = '⚠️ নির্বাচিত বৈশিষ্ট্যগুলো পরস্পরবিরোধী (কোনো একটি রাজ্যে একসাথে থাকে না)!';
+        } else {
+          rd.textContent = '✅ মিলেছে ' + bn(matched.length) + 'টি রাজ্য: ' + matched.map(function (m) { return m.name; }).join(', ');
+        }
+
+        document.getElementById('kingdomCards').innerHTML = KINGDOMS.map(function (k) {
+          var isMatch = matched.some(function (m) { return m.id === k.id; });
+          var cls = selectedTraits.size === 0 ? '' : (isMatch ? 'hit' : 'dim');
+          return '<div class="k-card ' + cls + '"><h3>' + k.name + '</h3><small>' + k.sup + '</small><p><b>মূল সূত্র:</b> ' + k.clue + '</p><p><b>উদাহরণ:</b> ' + k.ex + '</p></div>';
+        }).join('');
+      }
+      document.getElementById('clearTraits').addEventListener('click', function () { selectedTraits.clear(); renderFilter(); });
+      renderFilter();
+
+      // Tab 3: Drill
+      var dIdx = 0, dDone = 0, dScore = 0, answered = false;
+      function renderDrill() {
+        var q = DRILL[dIdx];
+        answered = false;
+        document.getElementById('drillCounter').textContent = 'প্রশ্ন ' + bn(dIdx + 1) + ' / ' + bn(DRILL.length);
+        document.getElementById('drillQ').textContent = q.q;
+        var fb = document.getElementById('drillFb');
+        fb.style.display = 'none';
+        var box = document.getElementById('drillOpts');
+        box.innerHTML = q.opts.map(function (o, i) {
+          return '<button type="button" class="drill-opt" data-i="' + i + '">' + ['ক', 'খ', 'গ', 'ঘ'][i] + '. ' + o + '</button>';
+        }).join('');
+        box.querySelectorAll('.drill-opt').forEach(function (b) {
+          b.addEventListener('click', function () {
+            if (answered) return;
+            answered = true;
+            dDone++;
+            var chosen = +b.dataset.i;
+            if (chosen === q.a) { b.classList.add('ok'); dScore++; }
+            else { b.classList.add('no'); box.querySelectorAll('.drill-opt')[q.a].classList.add('ok'); }
+            fb.textContent = (chosen === q.a ? '✅ দারুণ! ' : '💡 সঠিক উত্তর: ' + q.opts[q.a] + '। ') + q.exp;
+            fb.style.display = 'block';
+            document.getElementById('drillScore').textContent = 'স্কোর: ' + bn(dScore) + '/' + bn(dDone);
+          });
+        });
+      }
+      document.getElementById('drillNext').addEventListener('click', function () { dIdx = (dIdx + 1) % DRILL.length; renderDrill(); });
+      document.getElementById('drillRestart').addEventListener('click', function () { dIdx = 0; dDone = 0; dScore = 0; document.getElementById('drillScore').textContent = 'স্কোর: ০/০'; renderDrill(); });
+      renderDrill();
+    })();
+  </script>
+
+  <!-- PORI UNIFIED RANGE SYNC -->
+  <script>
+    (function () {
+      function syncRangeFill(el) {
+        var min = parseFloat(el.min || '0');
+        var max = parseFloat(el.max || '100');
+        var val = parseFloat(el.value || '0');
+        var pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
+        el.style.setProperty('--fill', Math.max(0, Math.min(100, pct)) + '%');
+      }
+      function mountSteppers(el) {
+        if (el.dataset.poriStepped === '1') return;
+        el.dataset.poriStepped = '1';
+        var row = document.createElement('div');
+        row.className = 'pori-range-row';
+        el.parentNode.insertBefore(row, el);
+        var minusBtn = document.createElement('button');
+        minusBtn.type = 'button';
+        minusBtn.className = 'pori-step-btn';
+        minusBtn.textContent = '−';
+        minusBtn.setAttribute('aria-label', 'কমাও');
+        var plusBtn = document.createElement('button');
+        plusBtn.type = 'button';
+        plusBtn.className = 'pori-step-btn';
+        plusBtn.textContent = '+';
+        plusBtn.setAttribute('aria-label', 'বাড়াও');
+        row.appendChild(minusBtn);
+        row.appendChild(el);
+        row.appendChild(plusBtn);
+        function nudge(dir) {
+          var step = parseFloat(el.step || '1');
+          var min = parseFloat(el.min || '0');
+          var max = parseFloat(el.max || '100');
+          var cur = parseFloat(el.value);
+          if (Number.isNaN(cur)) cur = min;
+          var next = Math.max(min, Math.min(max, +(cur + dir * step).toFixed(4)));
+          if (next !== cur) {
+            el.value = next;
+            el.dispatchEvent(new Event('input', { bubbles: true }));
+            el.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        }
+        minusBtn.addEventListener('click', function () { nudge(-1); });
+        plusBtn.addEventListener('click', function () { nudge(1); });
+        syncRangeFill(el);
+      }
+      function syncAllRanges() {
+        document.querySelectorAll('input[type="range"]').forEach(function (el) {
+          mountSteppers(el);
+          syncRangeFill(el);
+        });
+      }
+      document.addEventListener('input', function (e) { if (e.target && e.target.type === 'range') syncRangeFill(e.target); }, true);
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', syncAllRanges);
+      else syncAllRanges();
+    })();
+  </script>
+</body>
+</html>

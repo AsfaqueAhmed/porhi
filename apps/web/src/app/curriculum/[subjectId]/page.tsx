@@ -21,7 +21,6 @@ import { toBanglaDigits } from '@/lib/formatters';
 import { useLanguageStore } from '@/store/language-store';
 import { useUserStore } from '@/store/user-store';
 import {
-  getFallbackChaptersForSubject,
   ChapterItem,
   TopicItem,
 } from '@/lib/curriculum-data';
@@ -41,9 +40,7 @@ export default function CurriculumPage() {
   const { tr, language } = useLanguageStore();
   const { completedTopics, topicMastery, bookmarks, toggleBookmark } = useUserStore();
 
-  const [chapters, setChapters] = useState<ChapterItem[]>(() =>
-    getFallbackChaptersForSubject(subjectId),
-  );
+  const [chapters, setChapters] = useState<ChapterItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState('');
@@ -92,11 +89,9 @@ export default function CurriculumPage() {
       setIsLoading(true);
       try {
         const res = await apiClient.get<ChapterItem[]>(`/curriculum/subjects/${subjectId}/chapters`);
-        if (res && Array.isArray(res) && res.length > 0) {
-          setChapters(res);
-        }
+        setChapters(Array.isArray(res) ? res : []);
       } catch {
-        // Keep default chapters
+        setChapters([]);
       } finally {
         setIsLoading(false);
       }

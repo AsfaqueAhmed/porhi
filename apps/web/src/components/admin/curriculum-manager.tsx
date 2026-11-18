@@ -71,27 +71,6 @@ interface SubjectItem {
   chapterCount?: number;
 }
 
-const DEFAULT_SUBJECTS: SubjectItem[] = [
-  {
-    id: 'sub_ssc_physics',
-    code: 'ssc_physics',
-    nameBangla: 'পদার্থবিজ্ঞান',
-    classLevel: 'CLASS_9_10',
-    syllabusYear: 2026,
-    isReady: true,
-    chapterCount: 2,
-  },
-  {
-    id: 'sub_ssc_chemistry',
-    code: 'ssc_chemistry',
-    nameBangla: 'রসায়ন',
-    classLevel: 'CLASS_9_10',
-    syllabusYear: 2026,
-    isReady: false,
-    chapterCount: 0,
-  },
-];
-
 export interface CurriculumManagerProps {
   userRole?: AdminPortalRole;
   initialSubjectId?: string;
@@ -113,8 +92,8 @@ export function CurriculumManager({
   const isAdmin = role ? role === 'ADMIN' : true;
   const canEdit = role ? role === 'ADMIN' || role === 'EDITOR' : true;
 
-  const [subjects, setSubjects] = useState<SubjectItem[]>(DEFAULT_SUBJECTS);
-  const [selectedSubjectId, setSelectedSubjectId] = useState<string>(initialSubjectId || 'sub_ssc_physics');
+  const [subjects, setSubjects] = useState<SubjectItem[]>([]);
+  const [selectedSubjectId, setSelectedSubjectId] = useState<string>(initialSubjectId || '');
   const [chapters, setChapters] = useState<ChapterItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [expandedChapters, setExpandedChapters] = useState<Record<string, boolean>>({});
@@ -147,17 +126,17 @@ export function CurriculumManager({
         const res = await apiClient.get<SubjectItem[]>('/curriculum/subjects', {
           scope: 'admin',
         });
-        if (isMounted && Array.isArray(res) && res.length > 0) {
+        if (isMounted && Array.isArray(res)) {
           setSubjects(res);
-          const preferred =
-            (initialSubjectId && res.find((s) => s.id === initialSubjectId)) ||
-            res.find((s) => s.code === 'ssc_physics') ||
-            res[0];
-          setSelectedSubjectId(preferred.id);
+          if (res.length > 0) {
+            const preferred =
+              (initialSubjectId && res.find((s) => s.id === initialSubjectId)) || res[0];
+            setSelectedSubjectId(preferred.id);
+          }
         }
       } catch {
         if (isMounted) {
-          setSubjects(DEFAULT_SUBJECTS);
+          setSubjects([]);
         }
       }
     }
@@ -187,31 +166,7 @@ export function CurriculumManager({
         }
       } catch {
         if (isMounted) {
-          setChapters([
-            {
-              id: 'chap_ssc_physics_ch1',
-              subjectId: 'sub_ssc_physics',
-              orderIndex: 1,
-              titleBangla: 'প্রথম অধ্যায়: ভৌত রাশি ও পরিমাপ',
-              topics: [],
-            },
-            {
-              id: 'chap_ssc_physics_ch2',
-              subjectId: 'sub_ssc_physics',
-              orderIndex: 2,
-              titleBangla: 'দ্বিতীয় অধ্যায়: গতি (Motion)',
-              topics: [
-                {
-                  id: 'top_ssc_physics_motion_eq',
-                  chapterId: 'chap_ssc_physics_ch2',
-                  orderIndex: 1,
-                  titleBangla: 'গতির সমীকরণ ও সমাধান',
-                  questionCount: 3,
-                  lessonCount: 1,
-                },
-              ],
-            },
-          ]);
+          setChapters([]);
         }
       } finally {
         if (isMounted) {

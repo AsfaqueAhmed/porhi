@@ -343,12 +343,28 @@ describe('Admin Authorization UI & Layout Guard', () => {
   });
 
   it('preserves form inputs and surfaces conflict error on CurriculumManager 409, and blocks toggle-ready on 401', async () => {
-    vi.spyOn(apiClient, 'get').mockResolvedValue([]);
+    vi.spyOn(apiClient, 'get').mockImplementation(async (url: string) => {
+      if (url === '/curriculum/subjects') {
+        return [
+          {
+            id: 'sub_ssc_physics',
+            code: 'ssc_physics',
+            nameBangla: 'পদার্থবিজ্ঞান',
+            classLevel: 'CLASS_9_10',
+            syllabusYear: 2026,
+            isReady: true,
+            chapterCount: 1,
+          },
+        ];
+      }
+      return [];
+    });
     vi.spyOn(apiClient, 'post')
       .mockRejectedValueOnce(new ApiError(409, 'Conflict', { message: 'Duplicate code' }))
       .mockRejectedValueOnce(new ApiError(401, 'Unauthorized', { message: 'Expired' }));
 
     render(<CurriculumManager />);
+    await screen.findByText('পদার্থবিজ্ঞান');
 
     fireEvent.click(screen.getByRole('button', { name: /নতুন বিষয় যোগ করুন/i }));
     fireEvent.change(screen.getByLabelText(/বিষয়ের বাংলা নাম/i), {
@@ -416,6 +432,19 @@ describe('Admin Authorization UI & Layout Guard', () => {
 
   it('surfaces authorization error banner and preserves inputs on chapter and topic creation ApiError', async () => {
     vi.spyOn(apiClient, 'get').mockImplementation(async (url: string) => {
+      if (url === '/curriculum/subjects') {
+        return [
+          {
+            id: 'sub_ssc_physics',
+            code: 'ssc_physics',
+            nameBangla: 'পদার্থবিজ্ঞান',
+            classLevel: 'CLASS_9_10',
+            syllabusYear: 2026,
+            isReady: true,
+            chapterCount: 1,
+          },
+        ];
+      }
       if (url.includes('/chapters')) {
         return [
           {
@@ -701,6 +730,19 @@ describe('Admin Authorization UI & Layout Guard', () => {
 
   it('CurriculumManager shows contextual 403 roles, preserves reopened chapter/topic drawer inputs, and handles 400/500 ApiError', async () => {
     vi.spyOn(apiClient, 'get').mockImplementation(async (url: string) => {
+      if (url === '/curriculum/subjects') {
+        return [
+          {
+            id: 'sub_ssc_physics',
+            code: 'ssc_physics',
+            nameBangla: 'পদার্থবিজ্ঞান',
+            classLevel: 'CLASS_9_10',
+            syllabusYear: 2026,
+            isReady: true,
+            chapterCount: 1,
+          },
+        ];
+      }
       if (url.includes('/chapters')) {
         return [
           {

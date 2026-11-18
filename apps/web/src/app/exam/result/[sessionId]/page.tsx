@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import { AlertCircle, ArrowLeft } from 'lucide-react';
 import { apiClient } from '@/lib/api-client';
 import { ExamPageSkeleton } from '@/components/ui/shimmer';
-import { DEFAULT_CHAPTERS } from '@/lib/curriculum-data';
+import { ChapterItem } from '@/lib/curriculum-data';
 import { useLanguageStore } from '@/store/language-store';
 import {
   ExamResultView,
@@ -62,12 +62,19 @@ export default function ExamResultPage() {
           return;
         }
 
-        const cId = res.chapterId || 'chap_ssc_physics_ch2';
-        const resolvedChapter = DEFAULT_CHAPTERS.find((c) => c.id === cId);
+        const cId = res.chapterId || '';
+        let resolvedTitle = 'মডেল টেস্ট';
+        if (res.subjectId && cId) {
+          const chaps = await Promise.resolve(
+            apiClient.get<ChapterItem[]>(`/curriculum/subjects/${encodeURIComponent(res.subjectId)}/chapters`)
+          ).catch(() => []);
+          const found = Array.isArray(chaps) ? chaps.find((c) => c.id === cId) : undefined;
+          if (found?.titleBangla) resolvedTitle = found.titleBangla;
+        }
         setResultData({
           sessionId: res.sessionId,
           chapterId: cId,
-          chapterTitle: resolvedChapter?.titleBangla || 'মডেল টেস্ট',
+          chapterTitle: resolvedTitle,
           score: res.score ?? 0,
           totalQuestions: res.totalQuestions ?? res.answersWithExplanation?.length ?? 0,
           correctCount: res.correctCount ?? 0,

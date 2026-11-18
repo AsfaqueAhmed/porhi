@@ -1,9 +1,10 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import React from 'react';
 import { PersistentNav } from '../src/components/navigation/persistent-nav';
 import { useUserStore } from '../src/store/user-store';
-import { findAdjacentTopics } from '../src/lib/curriculum-data';
+import { ChapterItem, findAdjacentTopics } from '../src/lib/curriculum-data';
+import { apiClient } from '../src/lib/api-client';
 
 describe('PersistentNav', () => {
   beforeEach(() => {
@@ -59,7 +60,18 @@ describe('PersistentNav', () => {
     expect(screen.getByText(/বিষয় নির্বাচন করুন/i)).toBeDefined();
   });
 
-  it('opens quick search modal and filters topics by query', () => {
+  it('opens quick search modal and filters topics by query', async () => {
+    vi.spyOn(apiClient, 'get').mockResolvedValueOnce([
+      {
+        id: 'chap_ssc_physics_ch1',
+        subjectId: 'sub-phy',
+        orderIndex: 1,
+        titleBangla: 'প্রথম অধ্যায়: ভৌত রাশি ও পরিমাপ',
+        topics: [
+          { id: 'top_ssc_physics_ch1_1', chapterId: 'chap_ssc_physics_ch1', orderIndex: 1, titleBangla: '১.১ পদার্থবিজ্ঞান (Physics)' },
+        ],
+      },
+    ]);
     render(<PersistentNav currentPath="/dashboard" />);
 
     const searchBtn = screen.getByRole('button', { name: /দ্রুত অনুসন্ধান/i });
@@ -68,9 +80,11 @@ describe('PersistentNav', () => {
     const searchInput = screen.getByPlaceholderText(/অধ্যায় বা টপিক খুঁজুন/i);
     fireEvent.change(searchInput, { target: { value: 'ভৌত রাশি' } });
 
-    const topicLinks = screen.getAllByRole('link', { name: /১\.১ পদার্থবিজ্ঞান/i });
-    expect(topicLinks.length).toBeGreaterThanOrEqual(1);
-    expect(topicLinks[0].getAttribute('href')).toBe('/lesson/top_ssc_physics_ch1_1');
+    await waitFor(() => {
+      const topicLinks = screen.getAllByRole('link', { name: /১\.১ পদার্থবিজ্ঞান/i });
+      expect(topicLinks.length).toBeGreaterThanOrEqual(1);
+      expect(topicLinks[0].getAttribute('href')).toBe('/lesson/top_ssc_physics_ch1_1');
+    });
   });
 
   it('renders compact Account & Settings link pointing to /account', () => {
@@ -154,13 +168,42 @@ describe('useUserStore & curriculum-data helpers', () => {
   });
 
   it('computes adjacent topics across chapters accurately', () => {
-    const adjFirst = findAdjacentTopics('top_ssc_physics_ch1_1');
+    const sampleChapters: ChapterItem[] = [
+      {
+        id: 'chap_ssc_physics_ch1',
+        subjectId: 'sub_ssc_physics',
+        orderIndex: 1,
+        titleBangla: 'প্রথম অধ্যায়: ভৌত রাশি ও পরিমাপ',
+        topics: [1, 2, 3, 4, 5, 6, 7].map((n) => ({
+          id: `top_ssc_physics_ch1_${n}`,
+          chapterId: 'chap_ssc_physics_ch1',
+          orderIndex: n,
+          titleBangla: `১.${n} টপিক ${n}`,
+        })),
+      },
+      {
+        id: 'chap_ssc_physics_ch2',
+        subjectId: 'sub_ssc_physics',
+        orderIndex: 2,
+        titleBangla: 'দ্বিতীয় অধ্যায়: গতি',
+        topics: [
+          {
+            id: 'top_ssc_physics_ch2_1',
+            chapterId: 'chap_ssc_physics_ch2',
+            orderIndex: 1,
+            titleBangla: '২.১ স্থিতি ও গতি',
+          },
+        ],
+      },
+    ];
+
+    const adjFirst = findAdjacentTopics('top_ssc_physics_ch1_1', sampleChapters);
     expect(adjFirst.prevTopic).toBeNull();
     expect(adjFirst.nextTopic?.id).toBe('top_ssc_physics_ch1_2');
     expect(adjFirst.topicIndex).toBe(1);
     expect(adjFirst.totalInChapter).toBe(7);
 
-    const adjBoundary = findAdjacentTopics('top_ssc_physics_ch1_7');
+    const adjBoundary = findAdjacentTopics('top_ssc_physics_ch1_7', sampleChapters);
     expect(adjBoundary.prevTopic?.id).toBe('top_ssc_physics_ch1_6');
     expect(adjBoundary.nextTopic?.id).toBe('top_ssc_physics_ch2_1');
   });

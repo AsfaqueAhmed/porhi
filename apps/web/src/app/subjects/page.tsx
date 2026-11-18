@@ -7,7 +7,6 @@ import { useUserStore, ActiveSubject } from '@/store/user-store';
 import { useLanguageStore } from '@/store/language-store';
 import { apiClient } from '@/lib/api-client';
 import { toBanglaDigits } from '@/lib/formatters';
-import { DEFAULT_CHAPTERS } from '@/lib/curriculum-data';
 import { SubjectsPageSkeleton } from '@/components/ui/shimmer';
 
 interface SubjectItem {
@@ -22,116 +21,11 @@ interface SubjectItem {
   topicCount?: number;
 }
 
-const DEFAULT_PHYSICS_CHAPTER_COUNT = DEFAULT_CHAPTERS.length;
-const DEFAULT_PHYSICS_TOPIC_COUNT = DEFAULT_CHAPTERS.reduce((sum, ch) => sum + ch.topics.length, 0);
-
-const DEFAULT_SUBJECTS: SubjectItem[] = [
-  {
-    id: 'sub-ssc-phy',
-    code: 'PHY-SSC',
-    nameBangla: 'পদার্থবিজ্ঞান',
-    syllabusYear: 2026,
-    classLevel: 'CLASS_9_10',
-    program: 'SSC',
-    isReady: true,
-    chapterCount: DEFAULT_PHYSICS_CHAPTER_COUNT,
-    topicCount: DEFAULT_PHYSICS_TOPIC_COUNT,
-  },
-  {
-    id: 'sub-ssc-chem',
-    code: 'CHEM-SSC',
-    nameBangla: 'রসায়ন',
-    syllabusYear: 2026,
-    classLevel: 'CLASS_9_10',
-    program: 'SSC',
-    isReady: true,
-    chapterCount: 12,
-    topicCount: 72,
-  },
-  {
-    id: 'sub-ssc-math',
-    code: 'GMATH-SSC',
-    nameBangla: 'সাধারণ গণিত',
-    syllabusYear: 2026,
-    classLevel: 'CLASS_9_10',
-    program: 'SSC',
-    isReady: false,
-    chapterCount: 17,
-    topicCount: 95,
-  },
-  {
-    id: 'sub-ssc-hmath',
-    code: 'HMATH-SSC',
-    nameBangla: 'উচ্চতর গণিত',
-    syllabusYear: 2026,
-    classLevel: 'CLASS_9_10',
-    program: 'SSC',
-    isReady: false,
-    chapterCount: 14,
-    topicCount: 78,
-  },
-  {
-    id: 'sub-ssc-bio',
-    code: 'BIO-SSC',
-    nameBangla: 'জীববিজ্ঞান',
-    syllabusYear: 2026,
-    classLevel: 'CLASS_9_10',
-    program: 'SSC',
-    isReady: false,
-    chapterCount: 14,
-    topicCount: 84,
-  },
-  {
-    id: 'sub-hsc-phy',
-    code: 'hsc_physics_1',
-    nameBangla: 'HSC পদার্থবিজ্ঞান ১ম পত্র',
-    syllabusYear: 2026,
-    classLevel: 'CLASS_11_12',
-    program: 'HSC',
-    isReady: true,
-    chapterCount: 1,
-    topicCount: 1,
-  },
-  {
-    id: 'sub_class8_science',
-    code: 'class8_science',
-    nameBangla: 'অষ্টম শ্রেণির বিজ্ঞান',
-    syllabusYear: 2026,
-    classLevel: 'CLASS_6_8',
-    program: 'CLASS_6_8',
-    isReady: true,
-    chapterCount: 1,
-    topicCount: 1,
-  },
-  {
-    id: 'sub_admission_physics',
-    code: 'admission_ka_physics',
-    nameBangla: 'বিশ্ববিদ্যালয় ভর্তি: ক-ইউনিট পদার্থবিজ্ঞান',
-    syllabusYear: 2026,
-    classLevel: 'ADMISSION',
-    program: 'ADMISSION',
-    isReady: true,
-    chapterCount: 1,
-    topicCount: 1,
-  },
-  {
-    id: 'sub_bcs_preliminary',
-    code: 'bcs_preliminary',
-    nameBangla: 'BCS প্রিলিমিনারি: সাধারণ বিজ্ঞান ও বাংলাদেশ',
-    syllabusYear: 2026,
-    classLevel: 'BCS',
-    program: 'BCS',
-    isReady: true,
-    chapterCount: 1,
-    topicCount: 1,
-  },
-];
-
 export default function SubjectsPage() {
   const router = useRouter();
   const { activeSubject, setActiveSubject, completedTopics } = useUserStore();
   const { tr, language } = useLanguageStore();
-  const [subjects, setSubjects] = useState<SubjectItem[]>(DEFAULT_SUBJECTS);
+  const [subjects, setSubjects] = useState<SubjectItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<'ALL' | 'CLASS_6_8' | 'SSC' | 'HSC' | 'ADMISSION' | 'BCS'>('ALL');
   const [searchQuery, setSearchQuery] = useState('');
@@ -141,7 +35,7 @@ export default function SubjectsPage() {
       setIsLoading(true);
       try {
         const data = await apiClient.get<SubjectItem[]>('/curriculum/subjects');
-        if (data && Array.isArray(data) && data.length > 0) {
+        if (data && Array.isArray(data)) {
           setSubjects(
             data.map((s) => ({
               ...s,
@@ -156,17 +50,13 @@ export default function SubjectsPage() {
                       : s.classLevel === 'BCS'
                         ? 'BCS'
                         : 'SSC'),
-              chapterCount:
-                s.chapterCount ??
-                (s.code.toLowerCase().includes('phy') ? DEFAULT_PHYSICS_CHAPTER_COUNT : 12),
-              topicCount:
-                s.topicCount ??
-                (s.code.toLowerCase().includes('phy') ? DEFAULT_PHYSICS_TOPIC_COUNT : 72),
+              chapterCount: s.chapterCount ?? 0,
+              topicCount: s.topicCount ?? 0,
             }))
           );
         }
       } catch {
-        // Keep default subjects
+        setSubjects([]);
       } finally {
         setIsLoading(false);
       }
@@ -273,14 +163,10 @@ export default function SubjectsPage() {
       {/* Subjects Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {filteredSubjects.map((item) => {
-          const isSelected =
-            activeSubject?.id === item.id ||
-            (activeSubject?.id === 'sub_ssc_physics' && item.id === 'sub-ssc-phy');
-          const chaptersCount = item.chapterCount || DEFAULT_PHYSICS_CHAPTER_COUNT;
-          const topicsCount = item.topicCount || DEFAULT_PHYSICS_TOPIC_COUNT;
-          const isPhysics =
-            item.id.includes('phy') && item.program === 'SSC';
-          const completedForSubject = isPhysics ? completedTopics.length : 0;
+          const isSelected = activeSubject?.id === item.id;
+          const chaptersCount = item.chapterCount ?? 0;
+          const topicsCount = item.topicCount ?? 0;
+          const completedForSubject = isSelected ? completedTopics.length : 0;
           const progressPct =
             topicsCount > 0 ? Math.min(100, Math.round((completedForSubject / topicsCount) * 100)) : 0;
 

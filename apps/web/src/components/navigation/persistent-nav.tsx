@@ -21,7 +21,8 @@ import { useUserStore } from '@/store/user-store';
 import { useLanguageStore } from '@/store/language-store';
 import { LanguageToggle } from '@/components/navigation/LanguageToggle';
 import { toBanglaDigits } from '@/lib/formatters';
-import { DEFAULT_CHAPTERS } from '@/lib/curriculum-data';
+import { apiClient } from '@/lib/api-client';
+import { ChapterItem } from '@/lib/curriculum-data';
 import { getDueTasks } from '@/lib/reminders';
 
 export { toBanglaDigits };
@@ -48,6 +49,23 @@ export const PersistentNav: React.FC<PersistentNavProps> = ({ currentPath: propP
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isBookmarksOpen, setIsBookmarksOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [searchChapters, setSearchChapters] = useState<ChapterItem[]>([]);
+
+  useEffect(() => {
+    if (!isSearchOpen) return;
+    const subjId = activeSubject?.id || 'sub_ssc_physics';
+    let active = true;
+    Promise.resolve(
+      apiClient.get<ChapterItem[]>(`/curriculum/subjects/${encodeURIComponent(subjId)}/chapters`)
+    )
+      .then((res) => {
+        if (active && Array.isArray(res)) setSearchChapters(res);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [isSearchOpen, activeSubject?.id]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -74,9 +92,9 @@ export const PersistentNav: React.FC<PersistentNavProps> = ({ currentPath: propP
       isCompleted: boolean;
     }> = [];
 
-    for (const ch of DEFAULT_CHAPTERS) {
+    for (const ch of searchChapters) {
       const chapterMatches = q && ch.titleBangla.toLowerCase().includes(q);
-      for (const top of ch.topics) {
+      for (const top of ch.topics || []) {
         const topicMatches =
           !q ||
           chapterMatches ||
@@ -96,7 +114,7 @@ export const PersistentNav: React.FC<PersistentNavProps> = ({ currentPath: propP
       }
     }
     return items.slice(0, 18);
-  }, [searchQuery, completedTopics]);
+  }, [searchQuery, completedTopics, searchChapters]);
 
   const destinations = [
     {

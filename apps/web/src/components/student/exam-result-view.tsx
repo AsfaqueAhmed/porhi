@@ -100,7 +100,7 @@ export function ExamResultView({ result, onRetake }: ExamResultViewProps) {
       const tId = ans.topicId || result.chapterId;
       const h = findTopicHierarchy(tId);
       if (!map[tId]) {
-        map[tId] = { topicTitle: h.topicTitle, total: 0, correct: 0 };
+        map[tId] = { topicTitle: h.topicTitle || result.chapterTitle || tId, total: 0, correct: 0 };
       }
       map[tId].total += 1;
       if (ans.isCorrect) {

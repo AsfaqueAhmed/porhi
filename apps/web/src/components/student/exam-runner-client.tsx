@@ -20,7 +20,7 @@ import { useUserStore } from '@/store/user-store';
 import { QuestionDTO, QuestionType, ContentStatus } from '@pori/shared';
 import { toBanglaDigits } from '@/lib/formatters';
 import { useLanguageStore } from '@/store/language-store';
-import { DEFAULT_CHAPTERS, findTopicHierarchy } from '@/lib/curriculum-data';
+import { ChapterItem, findTopicHierarchy } from '@/lib/curriculum-data';
 import { ExamPageSkeleton } from '@/components/ui/shimmer';
 import {
   getOfflinePackQuestions,
@@ -176,13 +176,29 @@ export function ExamRunnerClient({
   const { tr, language } = useLanguageStore();
 
   const subjectIdToSend = effectiveSubjectId || activeSubject?.id || 'sub_ssc_physics';
-  const resolvedChapter = DEFAULT_CHAPTERS.find((c) => c.id === chapterId);
+  const [subjectChapters, setSubjectChapters] = useState<ChapterItem[]>([]);
+  const resolvedChapter = subjectChapters.find((c) => c.id === chapterId);
   const chapterTitle = isSubjectMode
     ? activeSubject?.id === subjectIdToSend && activeSubject?.nameBangla
       ? `${activeSubject.nameBangla} — পূর্ণ বিষয় মডেল টেস্ট`
       : tr('পূর্ণ বিষয় মডেল টেস্ট (Subject Model Test)', 'Full Subject Model Test')
     : resolvedChapter?.titleBangla || 'মডেল টেস্ট (Model Test)';
   const chapterTopics = resolvedChapter?.topics || [];
+
+  useEffect(() => {
+    if (!subjectIdToSend) return;
+    let active = true;
+    Promise.resolve(
+      apiClient.get<ChapterItem[]>(`/curriculum/subjects/${encodeURIComponent(subjectIdToSend)}/chapters`)
+    )
+      .then((res) => {
+        if (active && Array.isArray(res)) setSubjectChapters(res);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, [subjectIdToSend]);
 
   // Setup state
   const [phase, setPhase] = useState<ExamPhase>('SETUP');
@@ -610,7 +626,7 @@ export function ExamRunnerClient({
       if (!ans.selectedOptionId) return;
       const chosenOpt = ans.options?.find((o) => o.id === ans.selectedOptionId);
       const correctOpt = ans.options?.find((o) => o.isCorrect || o.id === ans.correctOptionId);
-      const h = findTopicHierarchy(ans.topicId || chapterId);
+      const h = findTopicHierarchy(ans.topicId || chapterId, subjectChapters);
       recordPracticeAttempt({
         questionId: ans.questionId,
         stemBangla: ans.stem,

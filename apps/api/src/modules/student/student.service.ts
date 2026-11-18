@@ -3,18 +3,9 @@ import { randomBytes } from 'crypto';
 import { PrismaService } from '../../database/prisma.service';
 import { ContentStatus } from '@prisma/client';
 
-const SUBJECT_CODE_ALIASES: Record<string, string> = {
-  sub_ssc_physics: 'ssc_physics',
-  'sub-ssc-phy': 'ssc_physics',
-  'phy-ssc': 'ssc_physics',
-  sub_ssc_chemistry: 'ssc_chemistry',
-  'sub-ssc-chem': 'ssc_chemistry',
-  'chem-ssc': 'ssc_chemistry',
-  sub_class8_science: 'class8_science',
-  sub_hsc_physics_1: 'hsc_physics_1',
-  sub_admission_physics: 'admission_ka_physics',
-  sub_bcs_preliminary: 'bcs_preliminary',
-};
+function normalizeSubjectCode(subjectIdOrCode: string): string {
+  return subjectIdOrCode.trim().toLowerCase().replace(/^sub[_-]/, '').replace(/-/g, '_');
+}
 
 export interface StudentOverviewResponse {
   subjectId: string;
@@ -118,20 +109,18 @@ export class StudentService {
       where: { id: subjectIdOrCode },
     });
 
+    const normalizedCode = normalizeSubjectCode(subjectIdOrCode);
+
     if (!subject) {
-      const aliasCode =
-        SUBJECT_CODE_ALIASES[subjectIdOrCode.toLowerCase()] || subjectIdOrCode;
       subject = await this.prisma.subject?.findUnique?.({
-        where: { code: aliasCode },
+        where: { code: normalizedCode },
       });
     }
 
     if (!subject && (this.prisma.subject as any)?.findFirst) {
-      const aliasCode =
-        SUBJECT_CODE_ALIASES[subjectIdOrCode.toLowerCase()] || subjectIdOrCode;
       subject = await (this.prisma.subject as any).findFirst({
         where: {
-          OR: [{ id: subjectIdOrCode }, { code: subjectIdOrCode }, { code: aliasCode }],
+          OR: [{ id: subjectIdOrCode }, { code: subjectIdOrCode }, { code: normalizedCode }],
         },
       });
     }

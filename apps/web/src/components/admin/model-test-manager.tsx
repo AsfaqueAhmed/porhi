@@ -120,10 +120,7 @@ export function ModelTestManager({
         }
       } catch {
         if (isMounted) {
-          setSubjects([
-            { id: 'sub_ssc_physics', code: 'ssc_physics', nameBangla: 'পদার্থবিজ্ঞান' },
-            { id: 'sub_ssc_chemistry', code: 'ssc_chemistry', nameBangla: 'রসায়ন' },
-          ]);
+          setSubjects([]);
         }
       }
     }
