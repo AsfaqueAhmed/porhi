@@ -80,22 +80,6 @@ export async function seedBiologyChapter5(prisma: PrismaClient) {
     },
   });
 
-  // Also ensure alias chap_ssc_biology_ch5 points consistently if referenced
-  await prisma.chapter.upsert({
-    where: { id: 'chap_ssc_biology_ch5' },
-    update: {
-      subjectId: sscBiologySubject.id,
-      orderIndex: 5,
-      titleBangla: 'পঞ্চম অধ্যায়: খাদ্য, পুষ্টি এবং পরিপাক (Food, Nutrition and Digestion)',
-    },
-    create: {
-      id: 'chap_ssc_biology_ch5',
-      subjectId: sscBiologySubject.id,
-      orderIndex: 5,
-      titleBangla: 'পঞ্চম অধ্যায়: খাদ্য, পুষ্টি এবং পরিপাক (Food, Nutrition and Digestion)',
-    },
-  });
-
   // -------------------------------------------------------------------------
   // Topic 5.1: উদ্ভিদের খনিজ পুষ্টি ও অভাবজনিত লক্ষণ
   // -------------------------------------------------------------------------

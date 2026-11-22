@@ -79,22 +79,6 @@ export async function seedBiologyChapter6(prisma: PrismaClient) {
     },
   });
 
-  // Also upsert chap_ssc_biology_6 alias for compatibility
-  await prisma.chapter.upsert({
-    where: { id: 'chap_ssc_biology_6' },
-    update: {
-      subjectId: sscBiologySubject.id,
-      orderIndex: 6,
-      titleBangla: 'ষষ্ঠ অধ্যায়: জীবে পরিবহন (Transport in Organisms)',
-    },
-    create: {
-      id: 'chap_ssc_biology_6',
-      subjectId: sscBiologySubject.id,
-      orderIndex: 6,
-      titleBangla: 'ষষ্ঠ অধ্যায়: জীবে পরিবহন (Transport in Organisms)',
-    },
-  });
-
   // -------------------------------------------------------------------------
   // Topic 6.1: উদ্ভিদ ও পানির সম্পর্ক এবং পানি ও খনিজ লবণ শোষণ
   // -------------------------------------------------------------------------
