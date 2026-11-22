@@ -415,6 +415,35 @@
     svg text {
       user-select: none;
     }
+  
+    /* Standardized Pedagogical Boxes (Intro & Explainer) */
+    .intro-box {
+      background: #eff6ff !important;
+      border-left: 4px solid #3b82f6 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.84rem !important;
+      color: #1e3a8a !important;
+      line-height: 1.6 !important;
+      margin-bottom: 14px !important;
+    }
+    .intro-box strong {
+      color: #172554 !important;
+    }
+    .insight-box, .explainer-box {
+      background: #f0fdfa !important;
+      border-left: 4px solid #0d9488 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.84rem !important;
+      color: #134e4a !important;
+      line-height: 1.6 !important;
+      margin-top: 14px !important;
+    }
+    .insight-box strong, .explainer-box strong {
+      color: #042f2e !important;
+    }
+
   </style>
 </head>
 <body>
@@ -442,7 +471,12 @@
     <!-- MODULE 1: IONIC BONDING                    -->
     <!-- ========================================== -->
     <div id="panel-ionic" class="sim-panel active">
-      <div class="two-col">
+            <!-- 1. Intro Section (Before Interactive) -->
+      <div class="intro-box">
+        <strong>📖 পরীক্ষার পরিচিতি ও মূল তত্ত্ব (পাঠ্যবই পৃষ্ঠা ৮৬-৯০):</strong><br>
+        ধাতু ও অধাতুর পরমাণুর মধ্যে ইলেকট্রন আদান-প্রদানের মাধ্যমে ধনাত্মক ক্যাটায়ন ও ঋণাত্মক অ্যানায়ন সৃষ্টির পর তাদের মধ্যকার তীব্র স্থির বৈদ্যুতিক আকর্ষণ বল দ্বারা আয়নিক বন্ধন গঠিত হয়। নিচে সোডিয়াম ($Na$) থেকে ক্লোরিনে ($Cl$) ইলেকট্রন স্থানান্তর স্লাইডার টেনে আয়ন সৃষ্টি ও বন্ধন গঠন প্রত্যক্ষ করো।
+      </div>
+<div class="two-col">
         <div class="canvas-card" id="ionic-canvas-box">
           <div class="canvas-hud">
             <span class="hud-chip" id="ionic-state-hud">অবস্থা: নিরপেক্ষ সোডিয়াম ও ক্লোরিন পরমাণু</span>
@@ -616,10 +650,15 @@
 
         </div>
       </div>
+          <!-- 3. Explainer Section (After Interactive) -->
+      <div class="insight-box">
+        <strong>🔬 ফলাফল বিশ্লেষণ ও আয়নিক বন্ধনের বৈশিষ্ট্য:</strong><br>
+        • <b>ইলেকট্রন স্থানান্তর:</b> $Na(2, 8, 1) \rightarrow Na^+(2, 8) + e^-$ এবং $Cl(2, 8, 7) + e^- \rightarrow Cl^-(2, 8, 8)$। উভয়েই নিকটস্থ নিষ্ক্রিয় গ্যাসের স্থিতিশীল অষ্টক বিন্যাস লাভ করে।<br>
+        • <b>স্ফটিক জালিকা:</b> প্রতিটি $Na^+$ ছয়টি $Cl^-$ দ্বারা এবং প্রতিটি $Cl^-$ ছয়টি $Na^+$ দ্বারা পরিবেষ্টিত হয়ে একটি শক্তিশালী ত্রিমাত্রিক কেলাস জালিকা তৈরি করে, যার কারণে আয়নিক যৌগের গলনাঙ্ক অত্যন্ত উচ্চ ($NaCl$-এর গলনাঙ্ক ৮০১°C)।
+      </div>
     </div>
 
-
-    <!-- ========================================== -->
+    <!-- ==========================================
     <!-- MODULE 2: COVALENT BONDING                 -->
     <!-- ========================================== -->
     <div id="panel-covalent" class="sim-panel">

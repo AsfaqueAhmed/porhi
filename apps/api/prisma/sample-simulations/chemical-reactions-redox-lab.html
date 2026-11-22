@@ -294,6 +294,35 @@
       font-weight: 750;
       font-size: 0.72rem;
     }
+  
+    /* Standardized Pedagogical Boxes (Intro & Explainer) */
+    .intro-box {
+      background: #eff6ff !important;
+      border-left: 4px solid #3b82f6 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.84rem !important;
+      color: #1e3a8a !important;
+      line-height: 1.6 !important;
+      margin-bottom: 14px !important;
+    }
+    .intro-box strong {
+      color: #172554 !important;
+    }
+    .insight-box, .explainer-box {
+      background: #f0fdfa !important;
+      border-left: 4px solid #0d9488 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.84rem !important;
+      color: #134e4a !important;
+      line-height: 1.6 !important;
+      margin-top: 14px !important;
+    }
+    .insight-box strong, .explainer-box strong {
+      color: #042f2e !important;
+    }
+
   </style>
 </head>
 <body>
@@ -313,6 +342,12 @@
       <button class="tab-btn" onclick="switchMode('exotherm')">🔥 ৩. তাপউৎপাদী বিক্রিয়া (Exothermic)</button>
       <button class="tab-btn" onclick="switchMode('redox')">⚛️ ৪. রেডক্স ইলেকট্রন ট্র্যাকার (Redox)</button>
     </div>
+    <!-- 1. Intro Section (Before Interactive) -->
+    <div class="intro-box" id="modeIntroBox">
+      <strong>📖 পরীক্ষার পরিচিতি ও মূল তত্ত্ব (পাঠ্যবই পৃষ্ঠা ১৪০-১৫০):</strong><br>
+      রাসায়নিক বিক্রিয়ায় পরমাণুর ইলেকট্রন পুনর্বিন্যাস এবং বন্ধন ভাঙা ও গড়ার মাধ্যমে নতুন ধর্মবিশিষ্ট পদার্থ উৎপন্ন হয়। নিচে ৪টি ভিন্ন প্রকৃতির বিক্রিয়া (অধঃক্ষেপণ, প্রতিস্থাপন, তাপউৎপাদী ও রেডক্স ইলেকট্রন স্থানান্তর) নির্বাচন করে পর্যবেক্ষণ করো।
+    </div>
+
 
     <div class="lab-layout">
       <div class="canvas-card">
@@ -364,10 +399,16 @@
           <strong>অধঃক্ষেপণ বিক্রিয়া:</strong> সিলভার নাইট্রেট দ্রবণে সোডিয়াম ক্লোরাইড যোগ করলে অদ্রবণীয় সাদা সিলভার ক্লোরাইড ($AgCl$) কণা তৈরি হয়ে টেস্টটিউব বা বিকারের তলায় থিতিয়ে পড়ে।
         </div>
       </div>
+        <!-- 3. Explainer Section (After Interactive) -->
+    <div class="insight-box" id="modeExplainerBox">
+      <strong>🔬 ফলাফল বিশ্লেষণ ও গভীর বৈজ্ঞানিক ব্যাখ্যা:</strong><br>
+      • <b>জারণ-বিজারণ যুগপৎ ঘটে:</b> জারণ বিক্রিয়ায় ইলেকট্রন বর্জিত হয় এবং বিজারণ বিক্রিয়ায় ইলেকট্রন গৃহীত হয়। একই বিক্রিয়ায় একটি পদার্থ ইলেকট্রন ত্যাগ করলে অপর পদার্থ তা গ্রহণ করে।<br>
+      • <b>তাপমাত্রার পরিবর্তন:</b> তাপউৎপাদী বিক্রিয়ায় উৎপাদের বন্ধন গঠনকালে নির্গত শক্তি বিক্রিয়কের বন্ধন ভাঙার শক্তি অপেক্ষা বেশি হওয়ায় পরিবেশ উত্তপ্ত হয় ($\Delta H$ ঋণাত্মক)।
     </div>
   </div>
+</div>
 
-  <script>
+<script>
     // --- Canvas & Core Lab Simulation Engine ---
     const canvas = document.getElementById('chemCanvas');
     const ctx = canvas.getContext('2d');

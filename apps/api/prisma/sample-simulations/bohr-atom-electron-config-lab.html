@@ -421,6 +421,35 @@
     .btn.primary:hover {
       background: #115e59;
     }
+  
+    /* Standardized Pedagogical Boxes (Intro & Explainer) */
+    .intro-box {
+      background: #eff6ff !important;
+      border-left: 4px solid #3b82f6 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.84rem !important;
+      color: #1e3a8a !important;
+      line-height: 1.6 !important;
+      margin-bottom: 14px !important;
+    }
+    .intro-box strong {
+      color: #172554 !important;
+    }
+    .insight-box, .explainer-box {
+      background: #f0fdfa !important;
+      border-left: 4px solid #0d9488 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.84rem !important;
+      color: #134e4a !important;
+      line-height: 1.6 !important;
+      margin-top: 14px !important;
+    }
+    .insight-box strong, .explainer-box strong {
+      color: #042f2e !important;
+    }
+
   </style>
 </head>
 <body>
@@ -442,7 +471,12 @@
 
   <!-- TAB 1: ATOM BUILDER & BOHR SHELL FILLING -->
   <div id="atomView" class="atom-mode active-view">
-    <div class="grid">
+        <!-- 1. Intro Section (Before Interactive) -->
+    <div class="intro-box">
+      <strong>📖 পরীক্ষার পরিচিতি ও মূল তত্ত্ব (পাঠ্যবই পৃষ্ঠা ৪২-৫০):</strong><br>
+      বোর পরমাণু মডেল অনুসারে ইলেকট্রনগুলো নিউক্লিয়াসকে কেন্দ্র করে নির্দিষ্ট বৃত্তাকার অনুমোদিত কক্ষপথে (প্রধান শক্তিস্তর K, L, M, N) ঘূর্ণায়মান থাকে, যেখানে তাদের কৌণিক ভরবেগ নির্দিষ্ট ($mvr = \frac{nh}{2\pi}$)। প্রতিটি প্রধান শক্তিস্তরে সর্বোচ্চ ইলেকট্রন ধারণক্ষমতা $2n^2$ এবং উপশক্তিস্তরে ($s, p, d, f$) ইলেকট্রন প্রবেশ করে আউফবাউ নীতি অনুযায়ী নিম্নশক্তিস্তর থেকে উচ্চশক্তিস্তরে। নিচে মৌল নির্বাচন করে কক্ষপথের লাইভ ইলেকট্রন ঘূর্ণন এবং উপশক্তিস্তর বিন্যাস পর্যবেক্ষণ করো।
+    </div>
+<div class="grid">
       <!-- Left side: Bohr atom canvas -->
       <div class="panel">
         <div class="card-title">
@@ -516,12 +550,22 @@
           <b>💡 আউফবাউ নীতি (Aufbau Principle):</b> জার্মান শব্দ Aufbau অর্থ 'বিল্ডিং আপ' বা ক্রমান্বয়ে উপরের দিকে তৈরি। ইলেকট্রন প্রথমে নিম্নশক্তিস্তরের অরবিটালে প্রবেশ করে এবং তা পূর্ণ করে ক্রমান্বয়ে উচ্চশক্তির অরবিটালে যায়। শক্তি নির্ভর করে $(n + l)$ এর মানের ওপর। যেমন: পটাশিয়ামে $4s$ ($4+0=4$) এর শক্তি $3d$ ($3+2=5$) অপেক্ষা কম হওয়ায় ১৯তম ইলেকট্রনটি $3d$-তে না গিয়ে $4s$-এ প্রবেশ করে।
         </div>
       </div>
+        <!-- 3. Explainer Section (After Interactive) -->
+    <div class="insight-box" style="margin-top:14px;">
+      <strong>🔬 ফলাফল বিশ্লেষণ ও বোর্ড পরীক্ষার ফাঁদ সতর্কতা (পৃষ্ঠা ৪৬-৫০):</strong><br>
+      • <b>পটাশিয়ামের ১৯তম ইলেকট্রন:</b> পটাশিয়ামের ($_{19}K$) ইলেকট্রন বিন্যাসে $4s$ অরবিটালের শক্তি ($n+l = 4+0 = 4$) $3d$ অরবিটালের শক্তি ($n+l = 3+2 = 5$) অপেক্ষা কম। তাই ১৯তম ইলেকট্রনটি $3d$-তে না গিয়ে আগে $4s$-এ প্রবেশ করে ($1s^2 2s^2 2p^6 3s^2 3p^6 4s^1$)।<br>
+      • <b>ক্রোমিয়াম ও কপারের ব্যতিক্রম:</b> সমশক্তিসম্পন্ন অরবিটাল অর্ধপূর্ণ ($d^5$) বা সম্পূর্ণ পূর্ণ ($d^{10}$) থাকলে তা অধিক সুস্থিতি অর্জন করে। ফলে $_{24}Cr$-এর বিন্যাস $3d^4 4s^2$ না হয়ে $3d^5 4s^1$ এবং $_{29}Cu$-এর বিন্যাস $3d^9 4s^2$ না হয়ে $3d^{10} 4s^1$ হয়।
     </div>
   </div>
 
   <!-- TAB 2: FLAME TEST & EMISSION SPECTRUM -->
   <div id="flameView" class="flame-mode">
-    <div class="grid">
+        <!-- 1. Intro Section (Before Interactive) -->
+    <div class="intro-box">
+      <strong>📖 পরীক্ষার পরিচিতি ও মূল তত্ত্ব (পাঠ্যবই পৃষ্ঠা ৫২-৫৩):</strong><br>
+      বুনসেন বার্নারের অনুজ্জ্বল শিখায় ক্ষার ও ক্ষারীয় মৃত্তিকা ধাতুর লবণের পেস্ট প্রবেশ করালে শিখার তাপে বহিঃস্থ ইলেকট্রন উত্তেজিত হয়ে উচ্চ শক্তিস্তরে গমন করে। উত্তেজিত ইলেকট্রন যখন পুনরায় তার পূর্বের নিম্ন শক্তিস্তরে ফিরে আসে, তখন শোষিত শক্তি দৃশ্যমান আলোক তরঙ্গ হিসেবে নিঃসৃত হয় ($\Delta E = h\nu = \frac{hc}{\lambda}$)। ভিন্ন ভিন্ন ধাতুর শক্তিস্তরের ব্যবধান ভিন্ন হওয়ায় তারা স্বতন্ত্র বৈশিষ্ট্যপূর্ণ শিখা বর্ণ প্রদর্শন করে।
+    </div>
+<div class="grid">
       <!-- Left side: Bunsen Burner Flame Canvas -->
       <div class="panel">
         <div class="card-title">
@@ -609,9 +653,15 @@
         </div>
       </div>
     </div>
+      <!-- 3. Explainer Section (After Interactive) -->
+    <div class="insight-box" style="margin-top:14px;">
+      <strong>🔬 ফলাফল বিশ্লেষণ ও ধাতব আয়ন সনাক্তকরণ চার্ট:</strong><br>
+      • <b>সোডিয়াম ($Na^+$):</b> ৫৮৯ nm তরঙ্গদৈর্ঘ্যে সোনালী হলুদ শিখা প্রদর্শন করে।<br>
+      • <b>পটাশিয়াম ($K^+$):</b> হালকা বেগুনি শিখা প্রদর্শন করে; খালি চোখে সোডিয়ামের উপস্থিতিতে কোবাল্ট নীল কাচের ভেতর দিয়ে হালকা লালচে-বেগুনি দেখা যায়।<br>
+      • <b>ক্যালসিয়াম ($Ca^{2+}$) ও কপার ($Cu^{2+}$):</b> ক্যালসিয়াম ইটের মতো লাল (Brick Red) এবং কপার নীলাভ সবুজ শিখা সৃষ্টি করে।<br>
+      • <b>লঘু HCl ব্যবহারের কারণ:</b> ধাতব ক্লোরাইড লবণগুলো অধিক উদ্বায়ী (volatile) হওয়ায় শিখায় সহজে বাষ্পীভূত হয়ে প্রদীপ্ত বর্ণ সৃষ্টি করে।
+    </div>
   </div>
-
-</div>
 
 <script>
 // ==========================================

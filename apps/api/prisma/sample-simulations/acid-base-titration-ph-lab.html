@@ -386,9 +386,44 @@
       animation: stirSwirl 0.8s linear infinite;
       transform-origin: 160px 455px;
     }
+  
+    /* Standardized Pedagogical Boxes (Intro & Explainer) */
+    .intro-box {
+      background: #eff6ff !important;
+      border-left: 4px solid #3b82f6 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.84rem !important;
+      color: #1e3a8a !important;
+      line-height: 1.6 !important;
+      margin-bottom: 14px !important;
+    }
+    .intro-box strong {
+      color: #172554 !important;
+    }
+    .insight-box, .explainer-box {
+      background: #f0fdfa !important;
+      border-left: 4px solid #0d9488 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.84rem !important;
+      color: #134e4a !important;
+      line-height: 1.6 !important;
+      margin-top: 14px !important;
+    }
+    .insight-box strong, .explainer-box strong {
+      color: #042f2e !important;
+    }
+
   </style>
 </head>
 <body>
+  <!-- 1. Intro Section (Before Interactive) -->
+  <div class="intro-box">
+    <strong>📖 পরীক্ষার পরিচিতি ও মূল তত্ত্ব (পাঠ্যবই পৃষ্ঠা ২০৪-২১০):</strong><br>
+    টাইট্রেশন হলো একটি পরীক্ষণমূলক পদ্ধতি যার সাহায্যে উপযুক্ত নির্দেশক ব্যবহার করে একটি প্রমাণ দ্রবণের (যেমন: জানা ঘনমাত্রার $NaOH$) নির্দিষ্ট আয়তনের সাথে বিক্রিয়া ঘটিয়ে অপর একটি অজানা দ্রবণের ($HCl$) ঘনমাত্রা নির্ণয় করা হয়। প্রশমন বিন্দুতে অ্যাসিড ও ক্ষারের হাইড্রোজেন ও হাইড্রোক্সাইড আয়ন সম্পূর্ণ বিক্রিয়া করে পানি উৎপন্ন করে ($H^+ + OH^- \rightarrow H_2O$) এবং pH দ্রুত পরিবর্তিত হয়।
+  </div>
+
 
 <div class="lab-container">
   <!-- Top Navigation Header -->
@@ -637,6 +672,13 @@
         সমাপ্তি বিন্দুতে (pH 8.2) ফেনলফথ্যালিনের প্রথম স্থায়ী হালকা গোলাপি আভা দেখা যায়।
       </div>
     </div>
+  </div>
+  <!-- 3. Explainer Section (After Interactive) -->
+  <div class="insight-box" style="margin-top:16px;">
+    <strong>🔬 ফলাফল বিশ্লেষণ ও টাইট্রেশন গণনা সূত্র:</strong><br>
+    • <b>প্রশমন সমীকরণ:</b> $V_A \times S_A \times e_A = V_B \times S_B \times e_B$ (যেখানে $V$ আয়তন, $S$ মোলার ঘনমাত্রা এবং $e$ তুল্য সংখ্যা)।<br>
+    • <b>নির্দেশকের ভূমিকা:</b> ফেনলফথ্যালিন অ্যাসিড দ্রবণে বর্ণহীন থাকে, কিন্তু প্রশমন বিন্দুর সামান্য পরেই ক্ষারের আধিক্যে স্থায়ী হালকা গোলাপি বর্ণ ধারণ করে ($pH = 8.2 - 10.0$)।<br>
+    • <b>pH স্কেল:</b> $pH = -\log[H^+]$। নিরপেক্ষ দ্রবণের $pH = 7$, অ্যাসিড দ্রবণের $pH < 7$ এবং ক্ষারীয় দ্রবণের $pH > 7$।
   </div>
 </div>
 

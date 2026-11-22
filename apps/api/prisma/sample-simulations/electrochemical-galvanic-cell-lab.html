@@ -129,6 +129,35 @@
     @media (max-width: 600px) { .reaction-grid { grid-template-columns: 1fr; } }
     .reaction-card { background: #fff; padding: 8px 12px; border-radius: 8px; border: 1px solid #bae6fd; font-size: 0.82rem; }
     .reaction-card b { color: #0284c7; }
+  
+    /* Standardized Pedagogical Boxes (Intro & Explainer) */
+    .intro-box {
+      background: #eff6ff !important;
+      border-left: 4px solid #3b82f6 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.84rem !important;
+      color: #1e3a8a !important;
+      line-height: 1.6 !important;
+      margin-bottom: 14px !important;
+    }
+    .intro-box strong {
+      color: #172554 !important;
+    }
+    .insight-box, .explainer-box {
+      background: #f0fdfa !important;
+      border-left: 4px solid #0d9488 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.84rem !important;
+      color: #134e4a !important;
+      line-height: 1.6 !important;
+      margin-top: 14px !important;
+    }
+    .insight-box strong, .explainer-box strong {
+      color: #042f2e !important;
+    }
+
   </style>
 </head>
 <body>
@@ -144,6 +173,12 @@
     <button type="button" class="tab-btn active" id="tab-daniell" onclick="setMode('daniell')">ড্যানিয়েল সেল (Daniell Cell)</button>
     <button type="button" class="tab-btn" id="tab-plating" onclick="setMode('plating')">তড়িৎ লেপন (Electroplating)</button>
   </div>
+  <!-- 1. Intro Section (Before Interactive) -->
+  <div class="intro-box" id="cellIntroBox">
+    <strong>📖 পরীক্ষার পরিচিতি ও মূল তত্ত্ব (পাঠ্যবই পৃষ্ঠা ১৭০-১৮২):</strong><br>
+    ড্যানিয়েল কোষে জিংক ($Zn$) অ্যানোড ও কপার ($Cu$) ক্যাথোড হিসেবে কাজ করে। অধিক সক্রিয় জিংক ইলেকট্রন ত্যাগ করে জারিত হয় এবং বহিঃস্থ তার দিয়ে ইলেকট্রন কপার ক্যাথোডে প্রবাহিত হয়ে বিদ্যুৎ উৎপন্ন করে। সল্ট ব্রিজ ($KCl$) আয়ন বিনিময়ের মাধ্যমে উভয় দ্রবণের তড়িৎ নিরপেক্ষতা বজায় রাখে।
+  </div>
+
 
   <!-- Interactive SVG Visualizer -->
   <div class="canvas-wrap">

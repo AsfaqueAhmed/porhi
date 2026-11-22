@@ -442,6 +442,35 @@
       background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
       transition: width 0.3s ease;
     }
+  
+    /* Standardized Pedagogical Boxes (Intro & Explainer) */
+    .intro-box {
+      background: #eff6ff !important;
+      border-left: 4px solid #3b82f6 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.84rem !important;
+      color: #1e3a8a !important;
+      line-height: 1.6 !important;
+      margin-bottom: 14px !important;
+    }
+    .intro-box strong {
+      color: #172554 !important;
+    }
+    .insight-box, .explainer-box {
+      background: #f0fdfa !important;
+      border-left: 4px solid #0d9488 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.84rem !important;
+      color: #134e4a !important;
+      line-height: 1.6 !important;
+      margin-top: 14px !important;
+    }
+    .insight-box strong, .explainer-box strong {
+      color: #042f2e !important;
+    }
+
   </style>
 </head>
 <body>
@@ -463,7 +492,12 @@
 
   <!-- TAB 1: WORKBENCH -->
   <div id="tab-workbench" class="pane active">
-    <div class="grid-workbench">
+        <!-- 1. Intro Section (Before Interactive) -->
+    <div class="intro-box">
+      <strong>📖 পরীক্ষার পরিচিতি ও মূল তত্ত্ব (পাঠ্যবই পৃষ্ঠা ৮-১০):</strong><br>
+      ল্যাবরেটরিতে ব্যবহৃত রাসায়নিক পদার্থের বোতলের গায়ে আন্তর্জাতিকভাবে স্বীকৃত গ্লোবালি হারমোনাইজড সিস্টেম (GHS)-এর ৮টি বিপদজনক প্রতীক থাকে। নিচে ওয়ার্কবেঞ্চ থেকে বিভিন্ন রাসায়নিকের বোতল নির্বাচন করে তাদের ঝুঁকি, সতর্কতা ও নিরাপদ সংরক্ষণ পদ্ধতি অনুশীলন করো।
+    </div>
+<div class="grid-workbench">
       <div class="workbench-card">
         <div class="bench-title">
           <span>🧪 রিএজেন্ট সেলফ (বোতল নির্বাচন করো)</span>
@@ -480,12 +514,23 @@
       <div class="inspect-card" id="inspectCard">
         <!-- Replaced via JS -->
       </div>
+        <!-- 3. Explainer Section (After Interactive) -->
+    <div class="insight-box" style="margin-top:12px;">
+      <strong>🔬 ফলাফল বিশ্লেষণ ও বোর্ড পরীক্ষার ফাঁদ সতর্কতা (পৃষ্ঠা ১০-১২):</strong><br>
+      • <b>GHS প্রতীকের কাঠামো:</b> লাল রম্বস ফ্রেমের ভেতর সাদা পটভূমিতে কালো প্রতীকটি রাসায়নিকের তাৎক্ষণিক ঝুঁকির ধরন নির্দেশ করে।<br>
+      • <b>বিস্ফোরক বনাম দাহ্য:</b> টিএনটি বা জৈব পারক্সাইডে সামান্য আঘাত বা তাপে বিস্ফোরণ ঘটে, কিন্তু অ্যালকোহল বা ইথারের মতো দাহ্য পদার্থে সরাসরি অগ্নিশিখা না দিলে আগুন ধরে না।<br>
+      • <b>পরিবেশের ক্ষতিকর প্রভাব:</b> ভারী ধাতু ($Pb, Hg, Cd$) সমৃদ্ধ বর্জ্য কখনো সাধারণ ড্রেনে ফেলা যায় না; এগুলো নির্দিষ্ট বর্জ্য পাত্রে সংরক্ষণ করতে হয়।
     </div>
   </div>
 
   <!-- TAB 2: REACTION JAR & SPILL MITIGATION -->
   <div id="tab-spill" class="pane">
-    <div class="workbench-card" style="margin-bottom:16px;">
+        <!-- 1. Intro Section (Before Interactive) -->
+    <div class="intro-box">
+      <strong>📖 পরীক্ষার পরিচিতি ও মূল তত্ত্ব (পাঠ্যবই পৃষ্ঠা ১৩-১৪):</strong><br>
+      ল্যাবরেটরিতে অ্যাসিড বা ক্ষার মেঝেতে বা টেবিলে পড়ে গেলে তা তাৎক্ষণিক নিরাপদ উপায়ে প্রশমিত করতে হয়। ঘনীভূত অ্যাসিডে সরাসরি পানি ঢাললে মারাত্মক স্প্যাটারিং ঘটে। নিচে কাচের রিঅ্যাকশন জারে অ্যাসিড নিয়ে খাবার সোডা ($NaHCO_3$) দ্বারা নিরাপদ প্রশমন প্রক্রিয়া ও pH পরিবর্তন পর্যবেক্ষণ করো।
+    </div>
+<div class="workbench-card" style="margin-bottom:16px;">
       <div class="stage-mode-bar">
         <div class="bench-title" style="margin-bottom:0;">
           <span>⚗️ ল্যাবরেটরি রিঅ্যাকশন জার ও প্রশমন ওয়ার্কবেঞ্চ</span>
@@ -542,12 +587,23 @@
         <b>❌ মারাত্মক ভুল (ঘনীভূত অ্যাসিডে সরাসরি পানি ঢালা):</b><br>
         ঘনীভূত অ্যাসিডে পানি ঢাললে পানির সংস্পর্শে তীব্র স্থানীয় তাপ ($Exothermic Heat$) উৎপন্ন হয়। পানি মুহূর্তের মধ্যে ফুটে বাষ্প হয়ে অ্যাসিডের ফোঁটাকে কাচের জার থেকে বাইরে বিস্ফোরক গতিতে ছিটিয়ে দেয় ($Acid Spattering$), যা মুখ ও চোখে মারাত্মক অ্যাসিড বার্ন তৈরি করে!
       </div>
+        <!-- 3. Explainer Section (After Interactive) -->
+    <div class="insight-box" style="margin-top:12px;">
+      <strong>🔬 ফলাফল বিশ্লেষণ ও অ্যাসিড প্রশমনের সমীকরণ:</strong><br>
+      • <b>প্রশমন বিক্রিয়া:</b> $HCl(aq) + NaHCO_3(s) \rightarrow NaCl(aq) + H_2O(l) + CO_2(g)\uparrow$<br>
+      • <b>বুদবুদ নির্গমন:</b> খাবার সোডা যোগ করার সাথে সাথে কার্বন ডাই-অক্সাইড গ্যাসের তীব্র বুদবুদ সৃষ্টি হয় এবং pH দ্রুত ১.০ থেকে ৭.০ (নিরপেক্ষ)-এ পৌঁছায়।<br>
+      • <b>অ্যাসিডে পানি ঢালা কেন নিষিদ্ধ?</b> ঘনীভূত অ্যাসিডে পানি দিলে তীব্র তাপ উৎপন্ন হয় যা পানিকে মুহূর্তে বাষ্পীভূত করে অ্যাসিডের ফুটন্ত ফোঁটা বিস্ফোরক গতিতে ছিটকে দেয় ($Acid Spattering$)।
     </div>
   </div>
 
   <!-- TAB 3: PPE & SAFETY GUIDELINES -->
   <div id="tab-ppe" class="pane">
-    <div style="margin-bottom:16px;">
+        <!-- 1. Intro Section (Before Interactive) -->
+    <div class="intro-box">
+      <strong>📖 পরীক্ষার পরিচিতি ও মূল তত্ত্ব (পাঠ্যবই পৃষ্ঠা ৭-৮):</strong><br>
+      ল্যাবরেটরিতে যেকোনো ব্যবহারিক পরীক্ষা শুরুর পূর্বে ব্যক্তিগত নিরাপত্তা নিশ্চিত করতে ৪টি অপরিহার্য PPE সরঞ্জাম (অ্যাপ্রন, সেফটি গগলস, হ্যান্ড গ্লাভস, ফিউম হুড) পরিধান আবশ্যক। প্রতিটি সুরক্ষা সরঞ্জামের ভূমিকা নিচে অনুশীলন করে শতভাগ নিরাপত্তা প্রস্তুতি নিশ্চিত করো।
+    </div>
+<div style="margin-bottom:16px;">
       <h3 style="font-size:16px;color:var(--pori-heading);margin-bottom:6px;">ব্যক্তিগত নিরাপত্তা সরঞ্জাম (PPE - Personal Protective Equipment)</h3>
       <p style="font-size:13px;color:var(--pori-muted);">ল্যাবরেটরিতে প্রবেশের পূর্বে শরীর ও অঙ্গপ্রত্যঙ্গের সুরক্ষায় নির্ধারিত চারটি মূল সরঞ্জাম পরিধান করো:</p>
     </div>
@@ -598,6 +654,13 @@
         <li>অ্যাসিড পাতলা করার সময় সবসময় পানির মধ্যে ফোঁটায় ফোঁটায় অ্যাসিড ঢালতে হয়, অ্যাসিডের মধ্যে কখনো পানি নয়।</li>
         <li>ব্যবহৃত ক্ষতিকর বর্জ্য সরাসরি বেসিন বা ডাস্টবিনে না ফেলে নির্দিষ্ট রাসায়নিক বর্জ্য পাত্রে সংরক্ষণ করতে হয়।</li>
       </ul>
+    </div>
+      <!-- 3. Explainer Section (After Interactive) -->
+    <div class="insight-box" style="margin-top:12px;">
+      <strong>🔬 ফলাফল বিশ্লেষণ ও ল্যাব নিরাপত্তা নির্দেশিকা:</strong><br>
+      • <b>অ্যাপ্রন:</b> শতভাগ সুতি কাপড়ের সাদা অ্যাপ্রন ব্যবহার করতে হয়, যাতে রাসায়নিক লাগলে দ্রুত খুলে ফেলা যায় (সিনথেটিক কাপড় অ্যাসিডে গলে ত্বকে আটকে যায়)।<br>
+      • <b>সেফটি গগলস:</b> কাচের সূক্ষ্ম টুকরা ও অ্যাসিডের ছিটে থেকে চোখকে সুরক্ষা দেয়।<br>
+      • <b>ফিউম হুড:</b> বিষাক্ত বা শ্বাসকষ্ট সৃষ্টিকারী গ্যাস যেমন $Cl_2, SO_2, NO_2, NH_3$ উৎপন্ন হওয়ার পরীক্ষাগুলো কেবল ফিউম হুডের ভেতর সম্পন্ন করতে হয়।
     </div>
   </div>
 </div>

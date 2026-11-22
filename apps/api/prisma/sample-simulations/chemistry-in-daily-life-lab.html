@@ -299,6 +299,35 @@
       border-color: #f87171;
       color: #991b1b;
     }
+  
+    /* Standardized Pedagogical Boxes (Intro & Explainer) */
+    .intro-box {
+      background: #eff6ff !important;
+      border-left: 4px solid #3b82f6 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.84rem !important;
+      color: #1e3a8a !important;
+      line-height: 1.6 !important;
+      margin-bottom: 14px !important;
+    }
+    .intro-box strong {
+      color: #172554 !important;
+    }
+    .insight-box, .explainer-box {
+      background: #f0fdfa !important;
+      border-left: 4px solid #0d9488 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.84rem !important;
+      color: #134e4a !important;
+      line-height: 1.6 !important;
+      margin-top: 14px !important;
+    }
+    .insight-box strong, .explainer-box strong {
+      color: #042f2e !important;
+    }
+
   </style>
 </head>
 <body>
@@ -315,6 +344,12 @@
     <button class="tab-btn" id="tab-micelle" onclick="switchTab('micelle')">🫧 ২. মাইসেল ও ময়লা পরিষ্কারের কৌশল</button>
     <button class="tab-btn" id="tab-effervescence" onclick="switchTab('effervescence')">🧪 ৩. ভিনেগার ও বেকিং সোডা (CO₂ পরীক্ষা)</button>
   </div>
+  <!-- 1. Intro Section (Before Interactive) -->
+  <div class="intro-box" id="dailyIntroBox">
+    <strong>📖 পরীক্ষার পরিচিতি ও মূল তত্ত্ব (পাঠ্যবই পৃষ্ঠা ২৮০-২৯০):</strong><br>
+    গৃহস্থালিতে ব্যবহৃত বিভিন্ন রাসায়নিক যেমন সাবান, ডিটারজেন্ট, ভিনেগার ও বেকিং সোডার কার্যপ্রণালী রসায়নের সরাসরি প্রয়োগ। নিচে ৩টি প্রধান বাস্তবমুখী পরীক্ষা নির্বাচন করে রাসায়নিক বিক্রিয়া ও পরিষ্কারক কৌশল প্রত্যক্ষ করো।
+  </div>
+
 
   <div class="main-grid">
     <!-- Viewport Column -->
@@ -335,6 +370,12 @@
     <div class="panel-card" id="controlPanel">
       <!-- Dynamic content injected by JavaScript based on active tab -->
     </div>
+  </div>
+  <!-- 3. Explainer Section (After Interactive) -->
+  <div class="insight-box" id="dailyExplainerBox" style="margin-top:16px;">
+    <strong>🔬 ফলাফল বিশ্লেষণ ও গভীর বৈজ্ঞানিক ব্যাখ্যা:</strong><br>
+    • <b>স্যাপোনিফিকেশন বিক্রিয়া:</b> চর্বি বা তেল + ক্ষার ($NaOH/KOH$) $\rightarrow$ সাবান + গ্লিসারিন ($C_3H_5(OH)_3$)। দ্রবণে $NaCl$ (লবণ) যোগ করলে সাবানের দ্রাব্যতা কমে তা ভাসমান কেক আকারে পৃথক হয়ে যায় (Salting Out)।<br>
+    • <b>মাইসেল গঠন:</b> সাবানের হাইড্রোকার্বন লেজ তৈল বা গ্রিজের সাথে এবং আয়নিত শীর্ষ পানির সাথে যুক্ত হয়ে গোলাকার মাইসেল গঠন করে কাপড় পরিষ্কার করে।
   </div>
 </div>
 
