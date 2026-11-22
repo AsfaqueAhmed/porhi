@@ -338,13 +338,18 @@
           <span>তাপমাত্রা (কণার গতিশক্তি বৃদ্ধি পায়)</span>
           <span class="val" id="diffTempDisp">25 °C (298 K)</span>
         </div>
-        <input type="range" class="range-input" id="diffTempSlider" min="0" max="80" value="25" oninput="updateDiffTemp(this.value)">
+        <input type="range" class="range-input" id="diffTempSlider" min="0" max="80" value="25" step="1" oninput="updateDiffTemp(this.value)">
+        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--pori-muted); margin-top:3px;">
+          <span>০ °C (শীতল ও মন্থর)</span>
+          <span style="color:var(--pori-teal); font-weight:700;">২৫ °C (কক্ষ তাপমাত্রা)</span>
+          <span>৮০ °C (উত্তপ্ত ও দ্রুত ব্যাপন)</span>
+        </div>
       </div>
 
       <div class="ctrl-group">
         <label class="ctrl-label">পরীক্ষা নিয়ন্ত্রণ</label>
         <div class="btn-row">
-          <button class="btn primary" id="diffPlayBtn" onclick="toggleDiffusion()">▶ শুরু করো</button>
+          <button class="btn primary active" id="diffPlayBtn" onclick="toggleDiffusion()">⏸ থামাও</button>
           <button class="btn" onclick="resetDiffusion()">🔄 রিসেট</button>
           <button class="btn" id="trailToggleBtn" onclick="toggleTrails()">কণা ট্রেইল: চালু</button>
         </div>
@@ -372,6 +377,16 @@
         <div class="label">সাদা ধোঁয়া বলয় সৃষ্টির অবস্থান</div>
         <div class="value" id="meetPointDisp">59.4% দূরত্বে</div>
         <small style="color:var(--pori-teal-ink)">HCl প্রান্তের নিকটবর্তী</small>
+      </div>
+      <div class="stat-card">
+        <div class="label">কণার গতিবেগ ও গতিতত্ত্ব</div>
+        <div class="value" id="diffSpeedDisp" style="color:#0284c7;">১.২x (স্বাভাবিক)</div>
+        <small id="diffKineticDisp" style="color:var(--pori-muted)">গতিশক্তি E_k ∝ T</small>
+      </div>
+      <div class="stat-card">
+        <div class="label">বলয় তৈরিতে আনুমানিক সময়</div>
+        <div class="value" id="diffTimeDisp" style="color:#d97706;">~৭.৫ সেকেন্ড</div>
+        <small style="color:var(--pori-muted)">তাপমাত্রায় দ্রুত ব্যাপন</small>
       </div>
     </div>
 
@@ -514,8 +529,8 @@ function switchTab(tab) {
 const diffCanvas = document.getElementById('diffusionCanvas');
 const diffCtx = diffCanvas.getContext('2d');
 
-let diffRunning = false;
-let diffTemp = 25; // °C
+let diffRunning = true; // Auto-running on load so user sees instant live effect
+let diffTemp = 25; // °C (Strict 0 floating point cap!)
 let showTrails = true;
 
 const gasData = {
@@ -557,15 +572,17 @@ const tube = {
   r: 12
 };
 
+// Dynamic temperature scaling factor (0.35x at 0°C to 3.0x at 80°C - 8.5x visible range!)
+function getTempFactor(t) {
+  return 0.35 + (t / 80) * 2.65;
+}
+
 function initDiffusionParticles() {
   particlesG1 = [];
   particlesG2 = [];
   smokeParticles = [];
   smokeFormed = false;
   
-  // Calculate theoretical meeting point based on Graham's law:
-  // r1 / r2 = sqrt(m2 / m1)
-  // Distance x1 / (tube.w - x1) = r1 / r2
   const ratio = Math.sqrt(currentPair.g2.m / currentPair.g1.m);
   const meetFraction = ratio / (1 + ratio); // fraction from left
   
@@ -573,6 +590,7 @@ function initDiffusionParticles() {
   document.getElementById('gas2Name').textContent = currentPair.g2.name;
   document.getElementById('rateRatioDisp').textContent = `${ratio.toFixed(3)} : 1`;
   document.getElementById('meetPointDisp').textContent = `${(meetFraction * 100).toFixed(1)}% দূরত্বে (HCl এর কাছে)`;
+  updateDiffStats();
 }
 
 function setGasPair(key) {
@@ -585,10 +603,52 @@ function setGasPair(key) {
   resetDiffusion();
 }
 
+// STRICT 0 FLOATING POINT CAP & REAL-TIME IMMEDIATE PARTICLE KINETICS SCALING
 function updateDiffTemp(val) {
-  diffTemp = parseFloat(val);
-  const k = Math.round(diffTemp + 273.15);
+  const oldFactor = getTempFactor(diffTemp);
+  diffTemp = Math.round(Number(val));
+  if (isNaN(diffTemp)) diffTemp = 25;
+  diffTemp = Math.max(0, Math.min(80, diffTemp));
+
+  const k = diffTemp + 273;
+  document.getElementById('diffTempSlider').value = diffTemp;
   document.getElementById('diffTempDisp').textContent = `${diffTemp} °C (${k} K)`;
+
+  const newFactor = getTempFactor(diffTemp);
+  const scale = newFactor / oldFactor;
+
+  // Instantly scale all particles currently in flight!
+  particlesG1.forEach(p => { p.vx *= scale; p.vy *= scale; });
+  particlesG2.forEach(p => { p.vx *= scale; p.vy *= scale; });
+
+  // If simulation was paused or reset, resume immediately so user sees live motion
+  if (!diffRunning) {
+    diffRunning = true;
+    const btn = document.getElementById('diffPlayBtn');
+    if (btn) {
+      btn.innerHTML = '⏸ থামাও';
+      btn.classList.add('active');
+    }
+  }
+
+  updateDiffStats();
+}
+
+function updateDiffStats() {
+  const factor = getTempFactor(diffTemp);
+  const speedElem = document.getElementById('diffSpeedDisp');
+  if (speedElem) {
+    speedElem.textContent = `${factor.toFixed(1)}x (${factor > 1.8 ? 'খুব দ্রুত' : (factor < 0.7 ? 'মন্থর' : 'স্বাভাবিক')})`;
+  }
+  const kinElem = document.getElementById('diffKineticDisp');
+  if (kinElem) {
+    kinElem.textContent = `গতিশক্তি E_k ∝ T (${(factor * factor).toFixed(1)}x গুণ)`;
+  }
+  const timeElem = document.getElementById('diffTimeDisp');
+  if (timeElem) {
+    const estTime = (8.5 / factor).toFixed(1);
+    timeElem.textContent = `~${estTime} সেকেন্ড`;
+  }
 }
 
 function toggleDiffusion() {
@@ -619,29 +679,32 @@ function toggleTrails() {
 function updateDiffusionSimulation() {
   if (!diffRunning) return;
 
-  const tempFactor = Math.sqrt((diffTemp + 273.15) / 298.15); // Maxwell-Boltzmann T dependence
-  const v1 = (2.6 / Math.sqrt(currentPair.g1.m)) * tempFactor;
-  const v2 = (2.6 / Math.sqrt(currentPair.g2.m)) * tempFactor;
+  const factor = getTempFactor(diffTemp);
+  const v1 = (2.2 / Math.sqrt(currentPair.g1.m)) * factor;
+  const v2 = (2.2 / Math.sqrt(currentPair.g2.m)) * factor;
+
+  // Emission rate increases with temperature (vapor pressure)
+  const emitProb = 0.25 + (diffTemp / 80) * 0.55;
 
   // Emit new gas 1 particles from left cotton plug
-  if (Math.random() < 0.45) {
+  if (Math.random() < emitProb) {
     particlesG1.push({
       x: tube.x + 22,
       y: tube.y + 12 + Math.random() * (tube.h - 24),
       vx: (v1 * 0.7) + Math.random() * (v1 * 0.6),
-      vy: (Math.random() - 0.5) * 1.2,
+      vy: (Math.random() - 0.5) * 1.0 * factor,
       r: 3.5,
       history: []
     });
   }
 
   // Emit new gas 2 particles from right cotton plug
-  if (Math.random() < 0.45) {
+  if (Math.random() < emitProb) {
     particlesG2.push({
       x: tube.x + tube.w - 22,
       y: tube.y + 12 + Math.random() * (tube.h - 24),
       vx: -((v2 * 0.7) + Math.random() * (v2 * 0.6)),
-      vy: (Math.random() - 0.5) * 1.2,
+      vy: (Math.random() - 0.5) * 1.0 * factor,
       r: 4.5,
       history: []
     });
@@ -682,8 +745,8 @@ function updateDiffusionSimulation() {
           smokeParticles.push({
             x: smokeX + (Math.random() - 0.5) * 6,
             y: smokeY + (Math.random() - 0.5) * 12,
-            vx: (Math.random() - 0.5) * 0.3,
-            vy: (Math.random() - 0.5) * 0.4,
+            vx: (Math.random() - 0.5) * 0.3 * factor,
+            vy: (Math.random() - 0.5) * 0.4 * factor,
             r: 3 + Math.random() * 5,
             alpha: 0.9,
             life: 0
@@ -751,6 +814,29 @@ function renderDiffusion() {
   // Tube background
   diffCtx.fillStyle = 'rgba(15, 23, 42, 0.7)';
   diffCtx.fillRect(tube.x, tube.y, tube.w, tube.h);
+
+  // Temperature aura inside tube
+  if (diffTemp > 25) {
+    const warmAlpha = Math.min(0.28, (diffTemp - 25) / 130);
+    diffCtx.fillStyle = `rgba(245, 158, 11, ${warmAlpha})`;
+    diffCtx.fillRect(tube.x, tube.y, tube.w, tube.h);
+  } else if (diffTemp < 25) {
+    const coldAlpha = Math.min(0.25, (25 - diffTemp) / 70);
+    diffCtx.fillStyle = `rgba(56, 189, 248, ${coldAlpha})`;
+    diffCtx.fillRect(tube.x, tube.y, tube.w, tube.h);
+  }
+
+  // Top banner readout on canvas
+  const curFactor = getTempFactor(diffTemp);
+  diffCtx.fillStyle = '#0f172a';
+  diffCtx.fillRect(tube.x + tube.w/2 - 180, 8, 360, 24);
+  diffCtx.strokeStyle = (diffTemp > 35) ? '#f59e0b' : ((diffTemp < 15) ? '#38bdf8' : '#334155');
+  diffCtx.lineWidth = 1;
+  diffCtx.strokeRect(tube.x + tube.w/2 - 180, 8, 360, 24);
+  diffCtx.fillStyle = (diffTemp > 35) ? '#fbbf24' : ((diffTemp < 15) ? '#38bdf8' : '#e2e8f0');
+  diffCtx.font = 'bold 11px system-ui';
+  diffCtx.textAlign = 'center';
+  diffCtx.fillText(`🌡️ তাপমাত্রা: ${diffTemp} °C (${diffTemp + 273} K) · কণার গড় গতিশক্তি: ${(curFactor * 100).toFixed(0)}%`, tube.x + tube.w/2, 24);
 
   // Tube glass outline
   diffCtx.strokeStyle = 'rgba(203, 213, 225, 0.4)';
@@ -1822,12 +1908,18 @@ function mainLoop() {
   requestAnimationFrame(mainLoop);
 }
 
-// Initialization on load
-window.addEventListener('DOMContentLoaded', () => {
+// Initialization on load (safe for direct load and iframe embedding)
+function startLab() {
   initDiffusionParticles();
   initStatesSimulation();
   requestAnimationFrame(mainLoop);
-});
+}
+
+if (document.readyState === 'loading') {
+  window.addEventListener('DOMContentLoaded', startLab);
+} else {
+  startLab();
+}
 </script>
 
 </body>
