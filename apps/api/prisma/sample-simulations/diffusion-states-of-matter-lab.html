@@ -389,34 +389,53 @@
   <div id="statesLab" style="display: none;">
     <!-- Viewport with Split Canvas: Microscopic Particles + Macro Heating Curve -->
     <div class="sim-viewport">
-      <canvas id="statesCanvas" width="920" height="260"></canvas>
+      <canvas id="statesCanvas" width="920" height="270"></canvas>
     </div>
 
     <!-- Control Area -->
     <div class="controls-grid" style="margin-top: 12px;">
+      <!-- Substance Selection -->
+      <div class="ctrl-group">
+        <label class="ctrl-label">পদার্থ নির্বাচন (ভৌত রূপান্তর বনাম উর্ধ্বপাতন)</label>
+        <div class="btn-row">
+          <button class="btn active" id="substanceWaterBtn" onclick="selectSubstance('water')">💧 পানি (H₂O) — গলন ও স্ফুটন</button>
+          <button class="btn" id="substanceIodineBtn" onclick="selectSubstance('iodine')">🟣 আয়োডিন (I₂) — সরাসরি উর্ধ্বপাতন</button>
+        </div>
+      </div>
+
+      <!-- Temperature Control (Strict 0 Floating Point Cap) -->
       <div class="ctrl-group">
         <div class="ctrl-label">
           <span>তাপমাত্রা নিয়ন্ত্রণ (হিটিং কার্ভ ট্র্যাকার)</span>
           <span class="val" id="tempDisp">-15 °C</span>
         </div>
         <input type="range" class="range-input" id="tempSlider" min="-25" max="130" value="-15" step="1" oninput="setTemperature(this.value)">
-      </div>
-
-      <div class="ctrl-group">
-        <label class="ctrl-label">দ্রুত অবস্থা রূপান্তর (প্রিসেট)</label>
-        <div class="btn-row">
-          <button class="btn" onclick="setTemperature(-15)">❄️ কঠিন (বরফ -15°C)</button>
-          <button class="btn" onclick="setTemperature(0)">🧊 গলন পর্যায় (0°C)</button>
-          <button class="btn" onclick="setTemperature(50)">💧 তরল (পানি 50°C)</button>
-          <button class="btn" onclick="setTemperature(100)">♨️ স্ফুটন পর্যায় (100°C)</button>
-          <button class="btn" onclick="setTemperature(120)">💨 গ্যাস (বাষ্প 120°C)</button>
+        <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--pori-muted); margin-top:3px;">
+          <span>-২৫ °C (হিমায়িত)</span>
+          <span id="kelvinDisp" style="color:var(--pori-teal); font-weight:700;">২৫৮ K</span>
+          <span>১৩০ °C (অতিউত্তপ্ত বাষ্প)</span>
         </div>
       </div>
 
+      <!-- Quick Presets -->
       <div class="ctrl-group">
-        <label class="ctrl-label">অটোমেটিক হিটিং অ্যানিমেশন</label>
+        <label class="ctrl-label">দ্রুত অবস্থা রূপান্তর (প্রিসেট)</label>
+        <div class="btn-row" id="presetsRow">
+          <button class="btn" onclick="setTemperature(-15)">❄️ কঠিন (-15°C)</button>
+          <button class="btn" onclick="setTemperature(0)">🧊 গলন সাম্যাবস্থা (0°C)</button>
+          <button class="btn" onclick="setTemperature(50)">💧 তরল (50°C)</button>
+          <button class="btn" onclick="setTemperature(100)">♨️ স্ফুটন সাম্যাবস্থা (100°C)</button>
+          <button class="btn" onclick="setTemperature(120)">💨 বাষ্প (120°C)</button>
+        </div>
+      </div>
+
+      <!-- Thermal Mode -->
+      <div class="ctrl-group">
+        <label class="ctrl-label">তাপীয় কার্যক্রম (Thermal Mode)</label>
         <div class="btn-row">
-          <button class="btn primary" id="autoHeatBtn" onclick="toggleAutoHeat()">🔥 তাপ প্রদান শুরু করো</button>
+          <button class="btn primary" id="heatBtn" onclick="setHeatMode('heating')">🔥 তাপ প্রদান (Heating)</button>
+          <button class="btn" id="coolBtn" onclick="setHeatMode('cooling')">❄️ শীতলীকরণ (Cooling)</button>
+          <button class="btn" id="pauseBtn" onclick="setHeatMode('idle')">⏸ বিরতি</button>
           <button class="btn" onclick="resetStates()">🔄 রিসেট</button>
         </div>
       </div>
@@ -425,33 +444,39 @@
     <!-- Live Gauges & State Indicators -->
     <div class="stats-row" style="margin-top: 12px;">
       <div class="stat-card">
-        <div class="label">বর্তমান অবস্থা</div>
+        <div class="label">বর্তমান অবস্থা ও গঠন</div>
         <div class="value" id="stateNameDisp" style="color: #0284c7;">কঠিন (Solid)</div>
         <small id="substanceDisp" style="color:var(--pori-muted)">বরফ কেলাস কাঠামো</small>
       </div>
       <div class="stat-card">
         <div class="label">আন্তঃআণবিক আকর্ষণ বল</div>
         <div class="value" id="intermolecularDisp" style="color: #0d9488;">খুব প্রবল</div>
-        <small style="color:var(--pori-muted)">কণাগুলো সুনির্দিষ্ট স্থানে আবদ্ধ</small>
+        <small id="interDistanceDisp" style="color:var(--pori-muted)">কণাগুলো অত্যন্ত সন্নিবেশিত</small>
       </div>
       <div class="stat-card">
-        <div class="label">কণার গতিশক্তি (Kinetic Energy)</div>
+        <div class="label">কণার গতিশক্তি ও বেগ</div>
         <div class="value" id="kineticDisp" style="color: #d97706;">শুধু কম্পন গতি</div>
-        <small style="color:var(--pori-muted)">স্থান পরিবর্তন করে না</small>
+        <small id="speedDisp" style="color:var(--pori-muted)">গড় বেগ: ০.৫ m/s</small>
       </div>
       <div class="stat-card highlight">
-        <div class="label">সুপ্ততাপ পর্যায় (Latent Heat)</div>
+        <div class="label">সুপ্ততাপ ও দশা রূপান্তর</div>
         <div class="value" id="latentDisp" style="color: #475569;">নেই (তাপমাত্রা বাড়ছে)</div>
         <small id="plateauNote" style="color:var(--pori-teal-ink)">নির্দিষ্ট তাপমাত্রায় মালভূমি তৈরি হয়</small>
+      </div>
+      <div class="stat-card">
+        <div class="label">পাত্রের অভ্যন্তরীণ চাপ</div>
+        <div class="value" id="pressureDisp" style="color: #6366f1;">১০১.৩ kPa</div>
+        <small style="color:var(--pori-muted)">স্বাভাবিক বায়ুমণ্ডলীয় চাপ</small>
       </div>
     </div>
 
     <!-- Scientific Insight -->
     <div class="insight-box" style="margin-top: 12px;">
-      <strong>🌡️ কণার গতিতত্ত্ব ও হিটিং কার্ভের মালভূমি ব্যাখ্যা (পৃষ্ঠা ২০-২১ ও ২৮-২৯):</strong><br>
-      • <b>০°C তাপমাত্রায় বরফের গলন রেখাচিত্রের মালভূমি:</b> বরফ গলনের সময় বাইরে থেকে যে তাপ সরবরাহ করা হয়, তা অণুগুলোর গতিশক্তি না বাড়িয়ে কেবল কঠিনের শক্তিশালী আন্তঃআণবিক আকর্ষণ বল ছিন্ন করতে ব্যয় হয়। তাই বরফ সম্পূর্ণ গলে পানিতে পরিণত না হওয়া পর্যন্ত তাপমাত্রা স্থির (০°C) থাকে। একে <b>গলনের সুপ্ততাপ</b> বলে।<br>
-      • <b>১০০°C তাপমাত্রায় স্ফুটন রেখাচিত্রের মালভূমি:</b> তরল পানির অণুগুলো যখন সম্পূর্ণ মুক্ত হয়ে জলীয় বাষ্পে রূপ নেয়, তখন সরবরাহকৃত তাপ তরলের অবশিষ্ট আন্তঃআণবিক আকর্ষণ বল ভেঙে দেয়। পানি সম্পূর্ণ বাষ্পে পরিণত না হওয়া পর্যন্ত তাপমাত্রা অপরিবর্তিত থাকে (<b>বাষ্পীভবনের সুপ্ততাপ</b>)।<br>
-      • <b>কঠিন $\rightarrow$ তরল $\rightarrow$ গ্যাস:</b> তাপমাত্রা বাড়ালে গতিশক্তি বৃদ্ধি পায় এবং আন্তঃআণবিক আকর্ষণ বল ক্রমান্বয়ে হ্রাস পায়।
+      <strong>🌡️ কণার গতিতত্ত্ব, হিটিং কার্ভ ও উর্ধ্বপাতনের বৈজ্ঞানিক ব্যাখ্যা (পাঠ্যবই পৃষ্ঠা ২০-২৯):</strong><br>
+      • <b>কণার গতিতত্ত্বের মূল নীতি:</b> সকল পদার্থ ক্ষুদ্রাতিক্ষুদ্র কণা (অণু/পরমাণু) দ্বারা গঠিত। কণাগুলোর মধ্যে পারস্পরিক আকর্ষণ বলকে <b>আন্তঃআণবিক আকর্ষণ বল</b> বলে এবং এদের সর্বদা গতিশীল থাকার প্রবণতাকে <b>গতিশক্তি</b> বলে। তাপমাত্রা বৃদ্ধির সাথে সাথে কণাগুলোর গতিশক্তি বৃদ্ধি পায় এবং আন্তঃআণবিক আকর্ষণ বল হ্রাস পায়।<br>
+      • <b>০°C তাপমাত্রায় গলন রেখাচিত্রের মালভূমি:</b> বরফ গলনের সময় বাইরে থেকে যে তাপ সরবরাহ করা হয়, তা অণুগুলোর গতিশক্তি না বাড়িয়ে কেবল কঠিনের শক্তিশালী আন্তঃআণবিক বন্ধন শিথিল করতে ব্যয় হয়। তাই বরফ সম্পূর্ণ গলে পানিতে পরিণত না হওয়া পর্যন্ত তাপমাত্রা স্থির (০°C) থাকে। একে <b>গলনের সুপ্ততাপ (Latent Heat of Fusion)</b> বলে।<br>
+      • <b>১০০°C তাপমাত্রায় স্ফুটন রেখাচিত্রের মালভূমি:</b> তরল পানির অণুগুলো সম্পূর্ণ মুক্ত হয়ে জলীয় বাষ্পে রূপ নেওয়ার সময় সরবরাহকৃত তাপ অবশিষ্ট আকর্ষণ বল ছিন্ন করে। সম্পূর্ণ বাষ্প না হওয়া পর্যন্ত তাপমাত্রা স্থির থাকে (<b>বাষ্পীভবনের সুপ্ততাপ</b>)।<br>
+      • <b>উর্ধ্বপাতন (Sublimation):</b> যে প্রক্রিয়ায় কঠিন পদার্থকে তাপ প্রদান করলে তা তরলে রূপান্তরিত না হয়ে সরাসরি গ্যাসে রূপান্তরিত হয়, তাকে উর্ধ্বপাতন বলে। যেমন—কঠিন আয়োডিন ($I_2$), কর্পূর ($C_{10}H_{16}O$), নিশাদল ($NH_4Cl$) ও ন্যাপথালিন ($C_{10}H_8$)। শীতল করলে গ্যাস সরাসরি কঠিনে পরিণত হয় (কঠিনীভবন/Deposition)।
     </div>
   </div>
 
@@ -909,386 +934,876 @@ const statesCanvas = document.getElementById('statesCanvas');
 const statesCtx = statesCanvas.getContext('2d');
 let statesInitialized = false;
 
-let substanceTemp = -15; // °C
-let autoHeating = false;
-let heatingTimer = null;
+let currentSubstance = 'water'; // 'water' or 'iodine'
+let substanceTemp = -15; // °C (ALWAYS integer: 0 floating point cap!)
+let thermalMode = 'idle'; // 'heating', 'cooling', 'idle'
+let latentPhase = 'none'; // 'melting', 'boiling', 'subliming', 'freezing', 'condensing', 'none'
+let latentProgress = 0; // 0.0 to 1.0 (0% to 100%)
+let tickCount = 0;
 
 // Microscopic particles
 const stateParticles = [];
 const numStateParticles = 64;
+const boilingBubbles = [];
+
+function selectSubstance(sub) {
+  currentSubstance = sub;
+  document.getElementById('substanceWaterBtn').classList.toggle('active', sub === 'water');
+  document.getElementById('substanceIodineBtn').classList.toggle('active', sub === 'iodine');
+  
+  const presetsRow = document.getElementById('presetsRow');
+  if (sub === 'water') {
+    presetsRow.innerHTML = `
+      <button class="btn" onclick="setTemperature(-15)">❄️ কঠিন বরফ (-15°C)</button>
+      <button class="btn" onclick="setTemperature(0)">🧊 গলন সাম্যাবস্থা (0°C)</button>
+      <button class="btn" onclick="setTemperature(50)">💧 তরল পানি (50°C)</button>
+      <button class="btn" onclick="setTemperature(100)">♨️ স্ফুটন সাম্যাবস্থা (100°C)</button>
+      <button class="btn" onclick="setTemperature(120)">💨 জলীয় বাষ্প (120°C)</button>
+    `;
+    setTemperature(-15);
+  } else {
+    presetsRow.innerHTML = `
+      <button class="btn" onclick="setTemperature(10)">🟣 কঠিন কেলাস (10°C)</button>
+      <button class="btn" onclick="setTemperature(45)">⚡ উর্ধ্বপাতন সাম্যাবস্থা (45°C)</button>
+      <button class="btn" onclick="setTemperature(80)">💨 বেগুনি বাষ্প (80°C)</button>
+    `;
+    setTemperature(10);
+  }
+  setHeatMode('idle');
+  initStatesSimulation();
+}
 
 function initStatesSimulation() {
   statesInitialized = true;
   stateParticles.length = 0;
+  boilingBubbles.length = 0;
 
-  // Particle box area on left side of Canvas
   const boxW = 340;
-  const boxH = 210;
+  const boxH = 200;
   const startX = 25;
   const startY = 25;
 
   // 8x8 grid for solid lattice
   const rows = 8;
   const cols = 8;
-  const spacingX = (boxW - 40) / cols;
-  const spacingY = (boxH - 40) / rows;
+  const spacingX = (boxW - 36) / (cols - 1);
+  const spacingY = (boxH - 36) / (rows - 1);
 
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
+      const bx = startX + 18 + c * spacingX;
+      const by = startY + 18 + r * spacingY;
       stateParticles.push({
-        baseX: startX + 24 + c * spacingX,
-        baseY: startY + 24 + r * spacingY,
-        x: startX + 24 + c * spacingX,
-        y: startY + 24 + r * spacingY,
-        vx: (Math.random() - 0.5) * 1.5,
-        vy: (Math.random() - 0.5) * 1.5,
-        r: 6.5
+        gridR: r,
+        gridC: c,
+        baseX: bx,
+        baseY: by,
+        x: bx,
+        y: by,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2,
+        r: 6.0,
+        isMelted: false
       });
     }
   }
   updateStateLabels();
 }
 
+// STRICT 0 FLOATING POINT CAP
 function setTemperature(val) {
-  substanceTemp = parseFloat(val);
+  substanceTemp = Math.round(Number(val));
+  if (isNaN(substanceTemp)) substanceTemp = 0;
+  substanceTemp = Math.max(-25, Math.min(130, substanceTemp));
+
   document.getElementById('tempSlider').value = substanceTemp;
   document.getElementById('tempDisp').textContent = `${substanceTemp} °C`;
+  
+  // Update Kelvin and Pressure
+  const kelvinVal = substanceTemp + 273;
+  const kelvinElem = document.getElementById('kelvinDisp');
+  if (kelvinElem) kelvinElem.textContent = `${kelvinVal} K`;
+  
+  const pressureVal = Math.round(101.3 * (kelvinVal / 273));
+  const pressureElem = document.getElementById('pressureDisp');
+  if (pressureElem) {
+    pressureElem.textContent = `${pressureVal} kPa`;
+  }
+
+  // Handle plateau triggers when user jumps to 0°C or 100°C
+  if (currentSubstance === 'water') {
+    if (substanceTemp === 0 && latentPhase !== 'melting') {
+      latentPhase = 'melting';
+      latentProgress = 0.5;
+    } else if (substanceTemp === 100 && latentPhase !== 'boiling') {
+      latentPhase = 'boiling';
+      latentProgress = 0.5;
+    } else if (substanceTemp !== 0 && substanceTemp !== 100) {
+      latentPhase = 'none';
+      latentProgress = 0;
+    }
+  } else {
+    if (substanceTemp === 45 && latentPhase !== 'subliming') {
+      latentPhase = 'subliming';
+      latentProgress = 0.5;
+    } else if (substanceTemp !== 45) {
+      latentPhase = 'none';
+      latentProgress = 0;
+    }
+  }
+
   updateStateLabels();
+}
+
+function setHeatMode(mode) {
+  thermalMode = mode;
+  document.getElementById('heatBtn').classList.toggle('active', mode === 'heating');
+  document.getElementById('coolBtn').classList.toggle('active', mode === 'cooling');
+  document.getElementById('pauseBtn').classList.toggle('active', mode === 'idle');
+}
+
+function resetStates() {
+  setHeatMode('idle');
+  if (currentSubstance === 'water') {
+    setTemperature(-15);
+  } else {
+    setTemperature(10);
+  }
+  latentPhase = 'none';
+  latentProgress = 0;
+  initStatesSimulation();
 }
 
 function updateStateLabels() {
   const stateElem = document.getElementById('stateNameDisp');
   const substanceElem = document.getElementById('substanceDisp');
   const interElem = document.getElementById('intermolecularDisp');
+  const interDistElem = document.getElementById('interDistanceDisp');
   const kineticElem = document.getElementById('kineticDisp');
+  const speedElem = document.getElementById('speedDisp');
   const latentElem = document.getElementById('latentDisp');
   const plateauElem = document.getElementById('plateauNote');
 
-  if (substanceTemp < 0) {
-    stateElem.textContent = 'কঠিন (Solid)';
-    stateElem.style.color = '#38bdf8';
-    substanceElem.textContent = 'বরফ কেলাস কাঠামো';
-    interElem.textContent = 'খুব প্রবল';
-    kineticElem.textContent = 'শুধু স্থির কম্পন';
-    latentElem.textContent = 'নেই (তাপমাত্রা বাড়ছে)';
-    latentElem.style.color = '#64748b';
-    plateauElem.textContent = 'কঠিনের তাপমাত্রা বৃদ্ধি পর্যায়';
-  } else if (substanceTemp === 0) {
-    stateElem.textContent = 'কঠিন-তরল সাম্যাবস্থা';
-    stateElem.style.color = '#0284c7';
-    substanceElem.textContent = 'বরফ ও পানি সহাবস্থান';
-    interElem.textContent = 'আংশিক ভাঙছে';
-    kineticElem.textContent = 'গতিশক্তি অপরিবর্তিত';
-    latentElem.textContent = 'গলনের সুপ্ততাপ (0°C মালভূমি)';
-    latentElem.style.color = '#0d9488';
-    plateauElem.textContent = 'সম্পূর্ণ গলে পানি না হওয়া পর্যন্ত তাপমাত্রা স্থির';
-  } else if (substanceTemp > 0 && substanceTemp < 100) {
-    stateElem.textContent = 'তরল (Liquid)';
-    stateElem.style.color = '#0d9488';
-    substanceElem.textContent = 'প্রবাহী পানি (H₂O)';
-    interElem.textContent = 'মাঝারি (কঠিনের চেয়ে দুর্বল)';
-    kineticElem.textContent = 'ঘূর্ণন ও স্থান পরিবর্তন গতি';
-    latentElem.textContent = 'নেই (তাপমাত্রা বাড়ছে)';
-    latentElem.style.color = '#64748b';
-    plateauElem.textContent = 'তরলের তাপমাত্রা বৃদ্ধি পর্যায়';
-  } else if (substanceTemp === 100) {
-    stateElem.textContent = 'তরল-গ্যাস সাম্যাবস্থা';
-    stateElem.style.color = '#d97706';
-    substanceElem.textContent = 'পানি ও জলীয় বাষ্প';
-    interElem.textContent = 'সম্পূর্ণ বিচ্ছিন্ন হচ্ছে';
-    kineticElem.textContent = 'গতিশক্তি অপরিবর্তিত';
-    latentElem.textContent = 'বাষ্পীভবনের সুপ্ততাপ (100°C)';
-    latentElem.style.color = '#d97706';
-    plateauElem.textContent = 'সম্পূর্ণ বাষ্পে পরিণত না হওয়া পর্যন্ত তাপমাত্রা স্থির';
-  } else {
-    stateElem.textContent = 'গ্যাসীয় / বাষ্প (Gas)';
-    stateElem.style.color = '#ef4444';
-    substanceElem.textContent = 'জলীয় বাষ্প (Steam)';
-    interElem.textContent = 'অতি নগণ্য / নেই বললেই চলে';
-    kineticElem.textContent = 'সর্বোচ্চ দ্রুত ও বিশৃঙ্খল গতি';
-    latentElem.textContent = 'নেই (তাপমাত্রা বাড়ছে)';
-    latentElem.style.color = '#64748b';
-    plateauElem.textContent = 'গ্যাসের অণুগুলো পাত্রের দেয়ালে চাপ দেয়';
-  }
-}
+  const roundTemp = Math.round(substanceTemp); // 0 floating point cap
 
-function toggleAutoHeat() {
-  autoHeating = !autoHeating;
-  const btn = document.getElementById('autoHeatBtn');
-  if (autoHeating) {
-    btn.innerHTML = '⏸ থামাও';
-    btn.classList.add('active');
+  if (currentSubstance === 'water') {
+    if (roundTemp < 0) {
+      stateElem.textContent = 'কঠিন (Solid)';
+      stateElem.style.color = '#38bdf8';
+      substanceElem.textContent = 'বরফ কেলাস কাঠামো (Ice lattice)';
+      interElem.textContent = 'সর্বাধিক প্রবল আকর্ষণ বল';
+      if (interDistElem) interDistElem.textContent = 'কণাগুলো খুব কাছাকাছি ও সন্নিবেশিত';
+      kineticElem.textContent = 'শুধু নিজস্ব অবস্থানে কম্পন';
+      if (speedElem) speedElem.textContent = `কম্পন বিস্তার: ${(0.3 + (roundTemp + 25) * 0.05).toFixed(1)} Å`;
+      latentElem.textContent = 'নেই (কঠিনের তাপমাত্রা বাড়ছে)';
+      latentElem.style.color = '#64748b';
+      plateauElem.textContent = '০°C পর্যন্ত তাপ শোষণে গতিশক্তি বাড়বে';
+    } else if (roundTemp === 0) {
+      stateElem.textContent = `কঠিন-তরল সাম্যাবস্থা (${Math.round(latentProgress * 100)}% গলিত)`;
+      stateElem.style.color = '#0284c7';
+      substanceElem.textContent = 'বরফ ও পানি সহাবস্থান';
+      interElem.textContent = 'কেলাস বন্ধন ক্রমান্বয়ে ভাঙছে';
+      if (interDistElem) interDistElem.textContent = 'সুপ্ততাপ গ্রহণে বন্ধন শিথিল হচ্ছে';
+      kineticElem.textContent = 'গতিশক্তি স্থির (তাপমাত্রা অপরিবর্তিত)';
+      if (speedElem) speedElem.textContent = 'গড় গতিশক্তি অপরিবর্তিত';
+      latentElem.textContent = `গলনের সুপ্ততাপ (${Math.round(latentProgress * 100)}%)`;
+      latentElem.style.color = '#0d9488';
+      plateauElem.textContent = 'সম্পূর্ণ গলে পানি না হওয়া পর্যন্ত তাপমাত্রা ০°C-এ স্থির';
+    } else if (roundTemp > 0 && roundTemp < 100) {
+      stateElem.textContent = 'তরল (Liquid)';
+      stateElem.style.color = '#0d9488';
+      substanceElem.textContent = 'প্রবাহী পানি (Liquid Water)';
+      interElem.textContent = 'মাঝারি (কঠিনের চেয়ে দুর্বল)';
+      if (interDistElem) interDistElem.textContent = 'কণাগুলো একে অপরের উপর দিয়ে পিছলে চলে';
+      kineticElem.textContent = 'ঘূর্ণন ও স্থান পরিবর্তন গতি';
+      if (speedElem) speedElem.textContent = `কণার বেগ: ${(1.0 + (roundTemp / 100) * 2.0).toFixed(1)} m/s`;
+      latentElem.textContent = 'নেই (তরলের তাপমাত্রা বাড়ছে)';
+      latentElem.style.color = '#64748b';
+      plateauElem.textContent = '১০০°C পর্যন্ত তাপ শোষণে গতিশক্তি বাড়বে';
+    } else if (roundTemp === 100) {
+      stateElem.textContent = `তরল-গ্যাস সাম্যাবস্থা (${Math.round(latentProgress * 100)}% বাষ্পীভূত)`;
+      stateElem.style.color = '#d97706';
+      substanceElem.textContent = 'পানি ও জলীয় বাষ্প';
+      interElem.textContent = 'অবশিষ্ট আন্তঃআণবিক আকর্ষণ বিচ্ছিন্ন হচ্ছে';
+      if (interDistElem) interDistElem.textContent = 'কণাগুলো মুক্ত হয়ে ছড়িয়ে পড়ছে';
+      kineticElem.textContent = 'গতিশক্তি স্থির (তাপমাত্রা অপরিবর্তিত)';
+      if (speedElem) speedElem.textContent = 'গড় গতিশক্তি অপরিবর্তিত';
+      latentElem.textContent = `বাষ্পীভবনের সুপ্ততাপ (${Math.round(latentProgress * 100)}%)`;
+      latentElem.style.color = '#d97706';
+      plateauElem.textContent = 'সম্পূর্ণ বাষ্প না হওয়া পর্যন্ত তাপমাত্রা ১০০°C-এ স্থির';
+    } else {
+      stateElem.textContent = 'গ্যাসীয় / বাষ্প (Steam)';
+      stateElem.style.color = '#ef4444';
+      substanceElem.textContent = 'জলীয় বাষ্প (Water Vapor)';
+      interElem.textContent = 'অতি নগণ্য / নেই বললেই চলে';
+      if (interDistElem) interDistElem.textContent = 'কণাগুলোর মধ্যবর্তী দূরত্ব সর্বাধিক';
+      kineticElem.textContent = 'সর্বোচ্চ দ্রুত ও বিশৃঙ্খল গতি';
+      if (speedElem) speedElem.textContent = `কণার বেগ: ${(3.5 + (roundTemp - 100) * 0.1).toFixed(1)} m/s`;
+      latentElem.textContent = 'নেই (বাষ্পের তাপমাত্রা বাড়ছে)';
+      latentElem.style.color = '#64748b';
+      plateauElem.textContent = 'গ্যাসের অণুগুলো পাত্রের দেয়ালে প্রচণ্ড ধাক্কা দিয়ে চাপ সৃষ্টি করে';
+    }
   } else {
-    btn.innerHTML = '🔥 তাপ প্রদান শুরু করো';
-    btn.classList.remove('active');
+    // Iodine (Sublimation)
+    if (roundTemp < 45) {
+      stateElem.textContent = 'কঠিন আয়োডিন (Solid I₂)';
+      stateElem.style.color = '#a855f7';
+      substanceElem.textContent = 'গাঢ় বেগুনি কেলাস কাঠামো';
+      interElem.textContent = 'কেলাসের ভ্যান ডার ওয়ালস আকর্ষণ';
+      if (interDistElem) interDistElem.textContent = 'কণাগুলো নিয়মিত সজ্জায় আবদ্ধ';
+      kineticElem.textContent = 'নিজস্ব স্থানে কম্পন';
+      if (speedElem) speedElem.textContent = 'কম্পন গতি';
+      latentElem.textContent = 'নেই (কঠিনের তাপমাত্রা বাড়ছে)';
+      latentElem.style.color = '#64748b';
+      plateauElem.textContent = '৪৫°C-এ পৌঁছালে সরাসরি বাষ্পীভূত হবে';
+    } else if (roundTemp === 45) {
+      stateElem.textContent = `উর্ধ্বপাতন সাম্যাবস্থা (${Math.round(latentProgress * 100)}%)`;
+      stateElem.style.color = '#9333ea';
+      substanceElem.textContent = 'কঠিন ও বেগুনি বাষ্পের সহাবস্থান';
+      interElem.textContent = 'কঠিন থেকে সরাসরি মুক্ত কণা';
+      if (interDistElem) interDistElem.textContent = 'তরল অবস্থা ব্যতীত রূপান্তর!';
+      kineticElem.textContent = 'উর্ধ্বপাতন শক্তি শোষণ';
+      if (speedElem) speedElem.textContent = 'মুক্ত কণা সৃষ্টি হচ্ছে';
+      latentElem.textContent = `উর্ধ্বপাতনের সুপ্ততাপ (${Math.round(latentProgress * 100)}%)`;
+      latentElem.style.color = '#7e22ce';
+      plateauElem.textContent = 'তরল না হয়ে সরাসরি গ্যাসে পরিণত হচ্ছে (উর্ধ্বপাতন)';
+    } else {
+      stateElem.textContent = 'আয়োডিন বাষ্প (Purple Vapor)';
+      stateElem.style.color = '#c084fc';
+      substanceElem.textContent = 'উদ্বায়ী বেগুনি গ্যাসীয় অণু (I₂)';
+      interElem.textContent = 'নগণ্য আকর্ষণ বল';
+      if (interDistElem) interDistElem.textContent = 'সমগ্র পাত্রে দ্রুত ব্যাপিত';
+      kineticElem.textContent = 'বিশৃঙ্খল দ্রুত ছোটাছুটি';
+      if (speedElem) speedElem.textContent = 'উচ্চ গতিশক্তি';
+      latentElem.textContent = 'নেই (গ্যাসের তাপমাত্রা বাড়ছে)';
+      latentElem.style.color = '#64748b';
+      plateauElem.textContent = 'শীতল করলে সরাসরি কঠিনে পরিণত হবে (Deposition)';
+    }
   }
-}
-
-function resetStates() {
-  autoHeating = false;
-  document.getElementById('autoHeatBtn').innerHTML = '🔥 তাপ প্রদান শুরু করো';
-  document.getElementById('autoHeatBtn').classList.remove('active');
-  setTemperature(-15);
 }
 
 // Particle simulation update for states
 function updateStatesSimulation() {
-  if (autoHeating) {
-    // If at plateau (0°C or 100°C), linger for latent heat effect
-    if ((Math.abs(substanceTemp) < 0.2 || Math.abs(substanceTemp - 100) < 0.2) && Math.random() < 0.6) {
-      // linger at plateau
-    } else {
-      substanceTemp += 0.35;
-      if (substanceTemp > 125) {
-        substanceTemp = -20; // loop
-      }
-      setTemperature(substanceTemp);
-    }
-  }
+  tickCount++;
 
   const boxX = 25;
   const boxY = 25;
   const boxW = 340;
-  const boxH = 210;
+  const boxH = 200;
 
-  // Particle motion based on temperature
-  if (substanceTemp < 0) {
-    // Solid: High lattice stability, vibrating near baseX, baseY
-    const vibAmp = Math.max(0.5, 3 * (substanceTemp + 25) / 25);
-    stateParticles.forEach(p => {
-      p.x = p.baseX + (Math.random() - 0.5) * vibAmp;
-      p.y = p.baseY + (Math.random() - 0.5) * vibAmp;
-    });
-  } else if (substanceTemp === 0) {
-    // Melting plateau: lattice breaks down progressively
-    stateParticles.forEach((p, idx) => {
-      if (idx % 2 === 0) {
-        p.x += (Math.random() - 0.5) * 1.5;
-        p.y += (Math.random() - 0.5) * 1.5;
+  // 1. Thermal mode progress
+  if (thermalMode === 'heating') {
+    if (tickCount % 3 === 0) {
+      if (currentSubstance === 'water') {
+        if (substanceTemp < 0) {
+          substanceTemp += 1;
+          if (substanceTemp === 0) {
+            latentPhase = 'melting';
+            latentProgress = 0;
+          }
+        } else if (substanceTemp === 0) {
+          latentPhase = 'melting';
+          latentProgress += 0.02; // ~50 frames at 0°C
+          if (latentProgress >= 1.0) {
+            latentProgress = 1.0;
+            latentPhase = 'none';
+            substanceTemp = 1;
+          }
+        } else if (substanceTemp > 0 && substanceTemp < 100) {
+          substanceTemp += 1;
+          if (substanceTemp === 100) {
+            latentPhase = 'boiling';
+            latentProgress = 0;
+          }
+        } else if (substanceTemp === 100) {
+          latentPhase = 'boiling';
+          latentProgress += 0.015; // ~66 frames at 100°C
+          if (latentProgress >= 1.0) {
+            latentProgress = 1.0;
+            latentPhase = 'none';
+            substanceTemp = 101;
+          }
+        } else if (substanceTemp > 100 && substanceTemp < 130) {
+          substanceTemp += 1;
+        } else if (substanceTemp >= 130) {
+          setHeatMode('idle');
+        }
       } else {
-        p.x = p.baseX + (Math.random() - 0.5) * 3;
-        p.y = p.baseY + (Math.random() - 0.5) * 3;
+        // Iodine
+        if (substanceTemp < 45) {
+          substanceTemp += 1;
+          if (substanceTemp === 45) {
+            latentPhase = 'subliming';
+            latentProgress = 0;
+          }
+        } else if (substanceTemp === 45) {
+          latentPhase = 'subliming';
+          latentProgress += 0.02;
+          if (latentProgress >= 1.0) {
+            latentProgress = 1.0;
+            latentPhase = 'none';
+            substanceTemp = 46;
+          }
+        } else if (substanceTemp > 45 && substanceTemp < 130) {
+          substanceTemp += 1;
+        } else if (substanceTemp >= 130) {
+          setHeatMode('idle');
+        }
       }
-      p.x = Math.max(boxX + p.r, Math.min(boxX + boxW - p.r, p.x));
-      p.y = Math.max(boxY + p.r, Math.min(boxY + boxH - p.r, p.y));
-    });
-  } else if (substanceTemp > 0 && substanceTemp < 100) {
-    // Liquid: Fluid translation, settling mostly in lower half with sliding
-    const speed = 1.0 + (substanceTemp / 100) * 1.5;
-    stateParticles.forEach(p => {
-      p.x += p.vx * speed;
-      p.y += p.vy * speed;
 
-      // Soft gravity pull downward for liquid
-      p.vy += 0.05;
+      // Strict 0 floating point cap
+      substanceTemp = Math.round(substanceTemp);
+      document.getElementById('tempSlider').value = substanceTemp;
+      document.getElementById('tempDisp').textContent = `${substanceTemp} °C`;
+      const kelvinElem = document.getElementById('kelvinDisp');
+      if (kelvinElem) kelvinElem.textContent = `${substanceTemp + 273} K`;
+      const pressureVal = Math.round(101.3 * ((substanceTemp + 273) / 273));
+      const pressureElem = document.getElementById('pressureDisp');
+      if (pressureElem) pressureElem.textContent = `${pressureVal} kPa`;
+      updateStateLabels();
+    }
+  } else if (thermalMode === 'cooling') {
+    if (tickCount % 3 === 0) {
+      if (currentSubstance === 'water') {
+        if (substanceTemp > 100) {
+          substanceTemp -= 1;
+          if (substanceTemp === 100) {
+            latentPhase = 'condensing';
+            latentProgress = 1.0;
+          }
+        } else if (substanceTemp === 100) {
+          latentPhase = 'condensing';
+          latentProgress -= 0.02;
+          if (latentProgress <= 0) {
+            latentProgress = 0;
+            latentPhase = 'none';
+            substanceTemp = 99;
+          }
+        } else if (substanceTemp > 0 && substanceTemp < 100) {
+          substanceTemp -= 1;
+          if (substanceTemp === 0) {
+            latentPhase = 'freezing';
+            latentProgress = 1.0;
+          }
+        } else if (substanceTemp === 0) {
+          latentPhase = 'freezing';
+          latentProgress -= 0.02;
+          if (latentProgress <= 0) {
+            latentProgress = 0;
+            latentPhase = 'none';
+            substanceTemp = -1;
+          }
+        } else if (substanceTemp < 0 && substanceTemp > -25) {
+          substanceTemp -= 1;
+        } else if (substanceTemp <= -25) {
+          setHeatMode('idle');
+        }
+      } else {
+        // Iodine deposition
+        if (substanceTemp > 45) {
+          substanceTemp -= 1;
+          if (substanceTemp === 45) {
+            latentPhase = 'depositing';
+            latentProgress = 1.0;
+          }
+        } else if (substanceTemp === 45) {
+          latentPhase = 'depositing';
+          latentProgress -= 0.02;
+          if (latentProgress <= 0) {
+            latentProgress = 0;
+            latentPhase = 'none';
+            substanceTemp = 44;
+          }
+        } else if (substanceTemp < 45 && substanceTemp > -25) {
+          substanceTemp -= 1;
+        } else if (substanceTemp <= -25) {
+          setHeatMode('idle');
+        }
+      }
 
-      if (p.x - p.r < boxX) { p.x = boxX + p.r; p.vx = -p.vx; }
-      if (p.x + p.r > boxX + boxW) { p.x = boxX + boxW - p.r; p.vx = -p.vx; }
-      if (p.y - p.r < boxY + 25) { p.y = boxY + 25 + p.r; p.vy = -p.vy; }
-      if (p.y + p.r > boxY + boxH) { p.y = boxY + boxH - p.r; p.vy = -p.vy * 0.9; }
-    });
-  } else if (substanceTemp === 100) {
-    // Boiling: Bubbles, energetic transition to gas
-    const speed = 2.6;
-    stateParticles.forEach((p, idx) => {
-      p.x += p.vx * speed;
-      p.y += p.vy * speed;
-      if (idx % 3 === 0) p.vy -= 0.15; // escaping vapor
+      // Strict 0 floating point cap
+      substanceTemp = Math.round(substanceTemp);
+      document.getElementById('tempSlider').value = substanceTemp;
+      document.getElementById('tempDisp').textContent = `${substanceTemp} °C`;
+      const kelvinElem = document.getElementById('kelvinDisp');
+      if (kelvinElem) kelvinElem.textContent = `${substanceTemp + 273} K`;
+      const pressureVal = Math.round(101.3 * ((substanceTemp + 273) / 273));
+      const pressureElem = document.getElementById('pressureDisp');
+      if (pressureElem) pressureElem.textContent = `${pressureVal} kPa`;
+      updateStateLabels();
+    }
+  }
 
-      if (p.x - p.r < boxX) { p.x = boxX + p.r; p.vx = -p.vx; }
-      if (p.x + p.r > boxX + boxW) { p.x = boxX + boxW - p.r; p.vx = -p.vx; }
-      if (p.y - p.r < boxY) { p.y = boxY + p.r; p.vy = -p.vy; }
-      if (p.y + p.r > boxY + boxH) { p.y = boxY + boxH - p.r; p.vy = -p.vy; }
-    });
+  // 2. Microscopic particle physics
+  const roundTemp = Math.round(substanceTemp);
+
+  if (currentSubstance === 'water') {
+    if (roundTemp < 0) {
+      // Solid: Crystalline lattice with thermal vibrations
+      const vibAmp = Math.max(0.4, 2.5 * (roundTemp + 25) / 25);
+      stateParticles.forEach((p, idx) => {
+        p.isMelted = false;
+        p.x = p.baseX + Math.sin(tickCount * 0.25 + idx) * vibAmp;
+        p.y = p.baseY + Math.cos(tickCount * 0.25 + idx * 2) * vibAmp;
+      });
+    } else if (roundTemp === 0) {
+      // Melting plateau: outer particles melt first based on latentProgress
+      const numMelted = Math.floor(stateParticles.length * latentProgress);
+      stateParticles.forEach((p, idx) => {
+        if (idx < numMelted) {
+          p.isMelted = true;
+          p.x += p.vx * 1.0;
+          p.y += p.vy * 1.0 + 0.06; // soft gravity
+          if (p.x - p.r < boxX) { p.x = boxX + p.r; p.vx = -p.vx; }
+          if (p.x + p.r > boxX + boxW) { p.x = boxX + boxW - p.r; p.vx = -p.vx; }
+          if (p.y - p.r < boxY + boxH * 0.45) { p.y = boxY + boxH * 0.45 + p.r; p.vy = -p.vy; }
+          if (p.y + p.r > boxY + boxH) { p.y = boxY + boxH - p.r; p.vy = -p.vy * 0.8; }
+        } else {
+          p.isMelted = false;
+          p.x = p.baseX + (Math.random() - 0.5) * 2.5;
+          p.y = p.baseY + (Math.random() - 0.5) * 2.5;
+        }
+      });
+    } else if (roundTemp > 0 && roundTemp < 100) {
+      // Liquid: fluid flow in lower container half
+      const speed = 1.0 + (roundTemp / 100) * 1.6;
+      const liquidCeil = boxY + boxH * 0.45;
+      stateParticles.forEach(p => {
+        p.isMelted = true;
+        p.x += p.vx * speed;
+        p.y += p.vy * speed + 0.08; // gravity
+
+        if (p.x - p.r < boxX) { p.x = boxX + p.r; p.vx = -p.vx; }
+        if (p.x + p.r > boxX + boxW) { p.x = boxX + boxW - p.r; p.vx = -p.vx; }
+        if (p.y - p.r < liquidCeil) { p.y = liquidCeil + p.r; p.vy = -p.vy; }
+        if (p.y + p.r > boxY + boxH) { p.y = boxY + boxH - p.r; p.vy = -p.vy * 0.85; }
+      });
+    } else if (roundTemp === 100) {
+      // Boiling plateau: bubbles rise, transition to vapor
+      const speed = 2.8;
+      // Spawn bubbles
+      if (tickCount % 6 === 0 && boilingBubbles.length < 15) {
+        boilingBubbles.push({
+          x: boxX + 30 + Math.random() * (boxW - 60),
+          y: boxY + boxH - 10,
+          r: 2 + Math.random() * 4,
+          vy: -(1.5 + Math.random() * 2)
+        });
+      }
+      // Update bubbles
+      for (let i = boilingBubbles.length - 1; i >= 0; i--) {
+        const b = boilingBubbles[i];
+        b.y += b.vy;
+        b.r += 0.05;
+        if (b.y < boxY + boxH * 0.45) {
+          boilingBubbles.splice(i, 1);
+        }
+      }
+
+      stateParticles.forEach((p, idx) => {
+        p.isMelted = true;
+        p.x += p.vx * speed;
+        p.y += p.vy * speed;
+        if (idx % 2 === 0) p.vy -= 0.12; // energetic vapor rise
+
+        if (p.x - p.r < boxX) { p.x = boxX + p.r; p.vx = -p.vx; }
+        if (p.x + p.r > boxX + boxW) { p.x = boxX + boxW - p.r; p.vx = -p.vx; }
+        if (p.y - p.r < boxY) { p.y = boxY + p.r; p.vy = -p.vy; }
+        if (p.y + p.r > boxY + boxH) { p.y = boxY + boxH - p.r; p.vy = -p.vy; }
+      });
+    } else {
+      // Gas: high-speed elastic collisions filling entire box
+      const speed = 3.6 + (roundTemp - 100) * 0.06;
+      stateParticles.forEach(p => {
+        p.isMelted = true;
+        p.x += p.vx * speed;
+        p.y += p.vy * speed;
+
+        if (p.x - p.r < boxX) { p.x = boxX + p.r; p.vx = -p.vx; }
+        if (p.x + p.r > boxX + boxW) { p.x = boxX + boxW - p.r; p.vx = -p.vx; }
+        if (p.y - p.r < boxY) { p.y = boxY + p.r; p.vy = -p.vy; }
+        if (p.y + p.r > boxY + boxH) { p.y = boxY + boxH - p.r; p.vy = -p.vy; }
+      });
+    }
   } else {
-    // Gas / Steam: Ultra fast, filling the whole container uniformly
-    const speed = 3.5 + (substanceTemp - 100) * 0.08;
-    stateParticles.forEach(p => {
-      p.x += p.vx * speed;
-      p.y += p.vy * speed;
+    // Iodine: Sublimation (Solid directly to purple gas)
+    if (roundTemp < 45) {
+      const vibAmp = Math.max(0.4, 2.0 * (roundTemp + 25) / 70);
+      stateParticles.forEach((p, idx) => {
+        p.isMelted = false;
+        p.x = p.baseX + Math.sin(tickCount * 0.25 + idx) * vibAmp;
+        p.y = p.baseY + Math.cos(tickCount * 0.25 + idx * 2) * vibAmp;
+      });
+    } else if (roundTemp === 45) {
+      const numSublimed = Math.floor(stateParticles.length * latentProgress);
+      stateParticles.forEach((p, idx) => {
+        if (idx < numSublimed) {
+          p.isMelted = true;
+          p.x += p.vx * 3.0;
+          p.y += p.vy * 3.0;
+          if (p.x - p.r < boxX) { p.x = boxX + p.r; p.vx = -p.vx; }
+          if (p.x + p.r > boxX + boxW) { p.x = boxX + boxW - p.r; p.vx = -p.vx; }
+          if (p.y - p.r < boxY) { p.y = boxY + p.r; p.vy = -p.vy; }
+          if (p.y + p.r > boxY + boxH) { p.y = boxY + boxH - p.r; p.vy = -p.vy; }
+        } else {
+          p.isMelted = false;
+          p.x = p.baseX + (Math.random() - 0.5) * 2.5;
+          p.y = p.baseY + (Math.random() - 0.5) * 2.5;
+        }
+      });
+    } else {
+      const speed = 3.8 + (roundTemp - 45) * 0.05;
+      stateParticles.forEach(p => {
+        p.isMelted = true;
+        p.x += p.vx * speed;
+        p.y += p.vy * speed;
 
-      if (p.x - p.r < boxX) { p.x = boxX + p.r; p.vx = -p.vx; }
-      if (p.x + p.r > boxX + boxW) { p.x = boxX + boxW - p.r; p.vx = -p.vx; }
-      if (p.y - p.r < boxY) { p.y = boxY + p.r; p.vy = -p.vy; }
-      if (p.y + p.r > boxY + boxH) { p.y = boxY + boxH - p.r; p.vy = -p.vy; }
-    });
+        if (p.x - p.r < boxX) { p.x = boxX + p.r; p.vx = -p.vx; }
+        if (p.x + p.r > boxX + boxW) { p.x = boxX + boxW - p.r; p.vx = -p.vx; }
+        if (p.y - p.r < boxY) { p.y = boxY + p.r; p.vy = -p.vy; }
+        if (p.y + p.r > boxY + boxH) { p.y = boxY + boxH - p.r; p.vy = -p.vy; }
+      });
+    }
   }
 }
 
 function renderStates() {
   statesCtx.clearRect(0, 0, statesCanvas.width, statesCanvas.height);
 
-  // Split canvas into two viewports:
-  // Left: Microscopic Particle Viewport (340x210)
-  // Right: Heating Curve Graph (500x210)
   const boxX = 25;
   const boxY = 25;
   const boxW = 340;
-  const boxH = 210;
+  const boxH = 200;
+  const roundTemp = Math.round(substanceTemp); // 0 floating point cap
 
-  // 1. Draw Microscopic Container Box
+  // 1. Draw Microscopic Container
   statesCtx.save();
-  statesCtx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+  statesCtx.fillStyle = 'rgba(15, 23, 42, 0.9)';
   statesCtx.fillRect(boxX, boxY, boxW, boxH);
   statesCtx.strokeStyle = '#334155';
-  statesCtx.lineWidth = 2;
+  statesCtx.lineWidth = 2.5;
   statesCtx.strokeRect(boxX, boxY, boxW, boxH);
 
-  // Container Title
+  // Container Title Header
   statesCtx.fillStyle = '#94a3b8';
   statesCtx.font = 'bold 11px system-ui';
-  statesCtx.fillText('অণুবীক্ষণিক কণার গতি ও সজ্জা (Kinetic Model)', boxX + 12, boxY + 16);
+  const subTitle = (currentSubstance === 'water') 
+    ? 'অণুবীক্ষণিক কণার গতি ও সজ্জা (H₂O কণার গতিতত্ত্ব)' 
+    : 'উর্ধ্বপাতন অণুবীক্ষণিক মডেল (আয়োডিন I₂)';
+  statesCtx.fillText(subTitle, boxX + 12, boxY + 16);
 
-  // Draw Particles
-  let pColor = '#38bdf8';
-  if (substanceTemp >= 0 && substanceTemp < 100) pColor = '#14b8a6';
-  if (substanceTemp >= 100) pColor = '#f59e0b';
+  // If in water liquid state: draw soft liquid meniscus in bottom
+  if (currentSubstance === 'water' && roundTemp >= 0 && roundTemp <= 100) {
+    const liquidCeil = boxY + boxH * 0.45;
+    statesCtx.fillStyle = 'rgba(13, 148, 136, 0.12)';
+    statesCtx.beginPath();
+    statesCtx.moveTo(boxX + 2, boxY + boxH - 2);
+    statesCtx.lineTo(boxX + 2, liquidCeil);
+    // wavy surface
+    for (let lx = boxX + 2; lx <= boxX + boxW - 2; lx += 10) {
+      const ly = liquidCeil + Math.sin(tickCount * 0.1 + lx * 0.05) * 2;
+      statesCtx.lineTo(lx, ly);
+    }
+    statesCtx.lineTo(boxX + boxW - 2, boxY + boxH - 2);
+    statesCtx.closePath();
+    statesCtx.fill();
+  }
 
+  // Draw solid lattice spring bonds if solid particles exist
+  if ((currentSubstance === 'water' && roundTemp <= 0) || (currentSubstance === 'iodine' && roundTemp <= 45)) {
+    statesCtx.strokeStyle = (currentSubstance === 'water') ? 'rgba(56, 189, 248, 0.28)' : 'rgba(168, 85, 247, 0.32)';
+    statesCtx.lineWidth = 1;
+    for (let i = 0; i < stateParticles.length; i++) {
+      const p1 = stateParticles[i];
+      if (p1.isMelted) continue;
+      for (let j = i + 1; j < stateParticles.length; j++) {
+        const p2 = stateParticles[j];
+        if (p2.isMelted) continue;
+        const distSq = (p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2;
+        if (distSq < 1500) {
+          statesCtx.beginPath();
+          statesCtx.moveTo(p1.x, p1.y);
+          statesCtx.lineTo(p2.x, p2.y);
+          statesCtx.stroke();
+        }
+      }
+    }
+  }
+
+  // Draw boiling bubbles
+  if (currentSubstance === 'water' && roundTemp === 100) {
+    statesCtx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+    statesCtx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+    statesCtx.lineWidth = 1.2;
+    boilingBubbles.forEach(b => {
+      statesCtx.beginPath();
+      statesCtx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+      statesCtx.fill();
+      statesCtx.stroke();
+    });
+  }
+
+  // Particle color based on substance and temperature
+  let pFill = '#38bdf8'; // solid ice blue
+  let pStroke = '#7dd3fc';
+  if (currentSubstance === 'water') {
+    if (roundTemp > 0 && roundTemp < 100) {
+      pFill = '#14b8a6'; // teal liquid
+      pStroke = '#5eead4';
+    } else if (roundTemp >= 100) {
+      pFill = '#f59e0b'; // amber/orange steam
+      pStroke = '#fcd34d';
+    }
+  } else {
+    // Iodine
+    pFill = (roundTemp > 45) ? '#c084fc' : '#9333ea';
+    pStroke = '#e9d5ff';
+  }
+
+  // Draw particles with 3D spherical highlights
   stateParticles.forEach(p => {
-    statesCtx.fillStyle = pColor;
+    statesCtx.fillStyle = pFill;
+    statesCtx.strokeStyle = pStroke;
+    statesCtx.lineWidth = 1;
     statesCtx.beginPath();
     statesCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
     statesCtx.fill();
+    statesCtx.stroke();
 
-    // Subtle 3D particle highlight
-    statesCtx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+    // 3D specular highlight
+    statesCtx.fillStyle = 'rgba(255, 255, 255, 0.55)';
     statesCtx.beginPath();
-    statesCtx.arc(p.x - 2, p.y - 2, p.r * 0.4, 0, Math.PI * 2);
+    statesCtx.arc(p.x - p.r * 0.35, p.y - p.r * 0.35, p.r * 0.35, 0, Math.PI * 2);
     statesCtx.fill();
   });
 
-  // 2. Draw Heating Curve Graph on Right Side
-  const graphX = 420;
-  const graphY = 30;
-  const graphW = 460;
-  const graphH = 195;
+  // Bunsen Burner flame or Cooling Ice underneath container
+  const burnerX = boxX + boxW / 2;
+  const burnerY = boxY + boxH + 2;
 
-  // Graph backdrop
-  statesCtx.fillStyle = 'rgba(15, 23, 42, 0.5)';
+  if (thermalMode === 'heating') {
+    // Draw Bunsen Burner flame
+    const flameH = 20 + Math.sin(tickCount * 0.4) * 4;
+    // Outer yellow/orange flame
+    statesCtx.fillStyle = 'rgba(245, 158, 11, 0.85)';
+    statesCtx.beginPath();
+    statesCtx.moveTo(burnerX - 18, burnerY + 28);
+    statesCtx.quadraticCurveTo(burnerX - 22, burnerY + 10, burnerX, burnerY + 28 - flameH);
+    statesCtx.quadraticCurveTo(burnerX + 22, burnerY + 10, burnerX + 18, burnerY + 28);
+    statesCtx.closePath();
+    statesCtx.fill();
+
+    // Inner blue hot cone
+    statesCtx.fillStyle = 'rgba(56, 189, 248, 0.9)';
+    statesCtx.beginPath();
+    statesCtx.moveTo(burnerX - 8, burnerY + 28);
+    statesCtx.quadraticCurveTo(burnerX - 10, burnerY + 16, burnerX, burnerY + 28 - flameH * 0.6);
+    statesCtx.quadraticCurveTo(burnerX + 10, burnerY + 16, burnerX + 8, burnerY + 28);
+    statesCtx.closePath();
+    statesCtx.fill();
+
+    // Burner tube
+    statesCtx.fillStyle = '#64748b';
+    statesCtx.fillRect(burnerX - 10, burnerY + 28, 20, 14);
+
+    // Caption
+    statesCtx.fillStyle = '#f59e0b';
+    statesCtx.font = 'bold 10px system-ui';
+    statesCtx.textAlign = 'center';
+    statesCtx.fillText('🔥 বুনসেন বার্নার (তাপ প্রদান চলছে)', burnerX, burnerY + 42);
+  } else if (thermalMode === 'cooling') {
+    // Draw cooling frost / ice crystal effect
+    statesCtx.fillStyle = '#38bdf8';
+    statesCtx.font = 'bold 14px system-ui';
+    statesCtx.textAlign = 'center';
+    statesCtx.fillText('❄️ ❄️ ❄️', burnerX, burnerY + 18);
+    statesCtx.font = 'bold 10px system-ui';
+    statesCtx.fillText('শীতলীকরণ কার্যক্রম সক্রিয়', burnerX, burnerY + 34);
+  }
+
+  // 2. Draw Heating / Phase Change Curve Graph on Right Side
+  const graphX = 410;
+  const graphY = 25;
+  const graphW = 485;
+  const graphH = 205;
+
+  // Graph background
+  statesCtx.fillStyle = 'rgba(15, 23, 42, 0.7)';
   statesCtx.fillRect(graphX, graphY, graphW, graphH);
   statesCtx.strokeStyle = '#334155';
-  statesCtx.lineWidth = 1;
+  statesCtx.lineWidth = 1.5;
   statesCtx.strokeRect(graphX, graphY, graphW, graphH);
 
-  // Graph axes
+  // Graph Axes
+  const axisLeft = graphX + 50;
+  const axisBottom = graphY + graphH - 30;
+  const axisRight = graphX + graphW - 15;
+  const axisTop = graphY + 15;
+
   statesCtx.strokeStyle = '#64748b';
   statesCtx.lineWidth = 1.5;
   statesCtx.beginPath();
-  // Y Axis (Temp)
-  statesCtx.moveTo(graphX + 45, graphY + 10);
-  statesCtx.lineTo(graphX + 45, graphY + graphH - 25);
-  // X Axis (Time / Heat added)
-  statesCtx.lineTo(graphX + graphW - 15, graphY + graphH - 25);
+  statesCtx.moveTo(axisLeft, axisTop);
+  statesCtx.lineTo(axisLeft, axisBottom);
+  statesCtx.lineTo(axisRight, axisBottom);
   statesCtx.stroke();
 
-  // Y Axis labels & grid
-  const yAxisZero = graphY + graphH - 65;   // 0°C line
-  const yAxis100 = graphY + 45;            // 100°C line
-  const yAxisMinus20 = graphY + graphH - 35; // -20°C line
+  // Y-axis grid lines & labels
+  const yAxisMinus20 = axisBottom - 18;
+  const yAxisZero = axisBottom - 58;   // 0°C line
+  const yAxis100 = axisTop + 45;       // 100°C line
 
-  // Grid lines
   statesCtx.setLineDash([3, 3]);
-  statesCtx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+  statesCtx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+
   // 100°C line
   statesCtx.beginPath();
-  statesCtx.moveTo(graphX + 45, yAxis100);
-  statesCtx.lineTo(graphX + graphW - 15, yAxis100);
+  statesCtx.moveTo(axisLeft, yAxis100);
+  statesCtx.lineTo(axisRight, yAxis100);
   statesCtx.stroke();
+
   // 0°C line
   statesCtx.beginPath();
-  statesCtx.moveTo(graphX + 45, yAxisZero);
-  statesCtx.lineTo(graphX + graphW - 15, yAxisZero);
+  statesCtx.moveTo(axisLeft, yAxisZero);
+  statesCtx.lineTo(axisRight, yAxisZero);
   statesCtx.stroke();
+
   statesCtx.setLineDash([]);
 
-  // Axis text
+  // Axis Labels
   statesCtx.fillStyle = '#cbd5e1';
   statesCtx.font = '10px system-ui';
   statesCtx.textAlign = 'right';
-  statesCtx.fillText('১০০°C (স্ফুটনাঙ্ক)', graphX + 40, yAxis100 + 3);
-  statesCtx.fillText('০°C (গলনাঙ্ক)', graphX + 40, yAxisZero + 3);
-  statesCtx.fillText('-২০°C', graphX + 40, yAxisMinus20 + 3);
+  statesCtx.fillText('১০০°C (স্ফুটনাঙ্ক)', axisLeft - 6, yAxis100 + 3);
+  statesCtx.fillText('০°C (গলনাঙ্ক)', axisLeft - 6, yAxisZero + 3);
+  statesCtx.fillText('-২০°C', axisLeft - 6, yAxisMinus20 + 3);
 
   statesCtx.textAlign = 'center';
-  statesCtx.fillText('সময় / সরবরাহকৃত তাপ (Heat Added) →', graphX + graphW / 2, graphY + graphH - 8);
+  statesCtx.fillStyle = '#94a3b8';
+  statesCtx.font = '10px system-ui';
+  statesCtx.fillText('সরবরাহকৃত তাপ / সময় (Heat Added / Time) →', axisLeft + (axisRight - axisLeft) / 2, axisBottom + 18);
 
-  // Draw Theoretical Heating Curve Line:
-  // Segment A: Solid heating (-20°C to 0°C) [x: 50 -> 100]
-  // Segment B: Melting Plateau (0°C, solid + liquid) [x: 100 -> 180]
-  // Segment C: Liquid heating (0°C to 100°C) [x: 180 -> 280]
-  // Segment D: Boiling Plateau (100°C, liquid + gas) [x: 280 -> 380]
-  // Segment E: Gas heating (>100°C) [x: 380 -> 440]
-  const pA = { x: graphX + 55, y: yAxisMinus20 };
-  const pB1 = { x: graphX + 110, y: yAxisZero };
-  const pB2 = { x: graphX + 190, y: yAxisZero };
-  const pC = { x: graphX + 290, y: yAxis100 };
-  const pD1 = { x: graphX + 290, y: yAxis100 };
-  const pD2 = { x: graphX + 390, y: yAxis100 };
-  const pE = { x: graphX + 440, y: graphY + 15 };
+  // Curve points
+  let curDotX = axisLeft;
+  let curDotY = axisBottom;
 
-  statesCtx.strokeStyle = '#0284c7';
-  statesCtx.lineWidth = 3;
-  statesCtx.beginPath();
-  statesCtx.moveTo(pA.x, pA.y);
-  statesCtx.lineTo(pB1.x, pB1.y);
-  statesCtx.lineTo(pB2.x, pB2.y);
-  statesCtx.lineTo(pC.x, pC.y);
-  statesCtx.lineTo(pD2.x, pD2.y);
-  statesCtx.lineTo(pE.x, pE.y);
-  statesCtx.stroke();
+  if (currentSubstance === 'water') {
+    const pA = { x: axisLeft + 10, y: yAxisMinus20 };
+    const pB1 = { x: axisLeft + 65, y: yAxisZero };
+    const pB2 = { x: axisLeft + 150, y: yAxisZero };   // melting plateau (85px)
+    const pC = { x: axisLeft + 250, y: yAxis100 };
+    const pD1 = { x: axisLeft + 250, y: yAxis100 };
+    const pD2 = { x: axisLeft + 355, y: yAxis100 };   // boiling plateau (105px)
+    const pE = { x: axisLeft + 415, y: axisTop + 10 };
 
-  // Region annotations
-  statesCtx.fillStyle = '#64748b';
-  statesCtx.font = '9px system-ui';
-  statesCtx.fillText('কঠিন (বরফ)', graphX + 80, yAxisMinus20 - 15);
-  statesCtx.fillText('গলন (সুপ্ততাপ)', graphX + 150, yAxisZero - 8);
-  statesCtx.fillText('তরল (পানি)', graphX + 235, (yAxisZero + yAxis100) / 2);
-  statesCtx.fillText('স্ফুটন (সুপ্ততাপ)', graphX + 340, yAxis100 - 8);
-  statesCtx.fillText('বাষ্প', graphX + 415, graphY + 30);
+    // Draw theoretical curve
+    statesCtx.strokeStyle = '#0284c7';
+    statesCtx.lineWidth = 3;
+    statesCtx.beginPath();
+    statesCtx.moveTo(pA.x, pA.y);
+    statesCtx.lineTo(pB1.x, pB1.y);
+    statesCtx.lineTo(pB2.x, pB2.y);
+    statesCtx.lineTo(pC.x, pC.y);
+    statesCtx.lineTo(pD2.x, pD2.y);
+    statesCtx.lineTo(pE.x, pE.y);
+    statesCtx.stroke();
 
-  // Live Position Tracker Dot on the Curve
-  let curDotX = pA.x;
-  let curDotY = pA.y;
+    // Segment Annotations
+    statesCtx.fillStyle = '#64748b';
+    statesCtx.font = '9px system-ui';
+    statesCtx.fillText('কঠিন বরফ', (pA.x + pB1.x) / 2, yAxisMinus20 - 15);
+    statesCtx.fillText('গলন (সুপ্ততাপ)', (pB1.x + pB2.x) / 2, yAxisZero - 8);
+    statesCtx.fillText('তরল পানি', (pB2.x + pC.x) / 2, (yAxisZero + yAxis100) / 2);
+    statesCtx.fillText('স্ফুটন (সুপ্ততাপ)', (pD1.x + pD2.x) / 2, yAxis100 - 8);
+    statesCtx.fillText('জলীয় বাষ্প', (pD2.x + pE.x) / 2, axisTop + 24);
 
-  if (substanceTemp < 0) {
-    const f = (substanceTemp - (-25)) / 25;
-    curDotX = pA.x + f * (pB1.x - pA.x);
-    curDotY = pA.y + f * (pB1.y - pA.y);
-  } else if (substanceTemp === 0) {
-    curDotX = (pB1.x + pB2.x) / 2;
-    curDotY = yAxisZero;
-  } else if (substanceTemp > 0 && substanceTemp < 100) {
-    const f = substanceTemp / 100;
-    curDotX = pB2.x + f * (pC.x - pB2.x);
-    curDotY = pB2.y + f * (pC.y - pB2.y);
-  } else if (substanceTemp === 100) {
-    curDotX = (pD1.x + pD2.x) / 2;
-    curDotY = yAxis100;
+    // Position of tracker dot
+    if (roundTemp < 0) {
+      const f = Math.max(0, Math.min(1, (roundTemp - (-25)) / 25));
+      curDotX = pA.x + f * (pB1.x - pA.x);
+      curDotY = pA.y + f * (pB1.y - pA.y);
+    } else if (roundTemp === 0) {
+      // Moves along melting plateau with latentProgress!
+      curDotX = pB1.x + latentProgress * (pB2.x - pB1.x);
+      curDotY = yAxisZero;
+    } else if (roundTemp > 0 && roundTemp < 100) {
+      const f = roundTemp / 100;
+      curDotX = pB2.x + f * (pC.x - pB2.x);
+      curDotY = pB2.y + f * (pC.y - pB2.y);
+    } else if (roundTemp === 100) {
+      // Moves along boiling plateau with latentProgress!
+      curDotX = pD1.x + latentProgress * (pD2.x - pD1.x);
+      curDotY = yAxis100;
+    } else {
+      const f = Math.min(1, (roundTemp - 100) / 30);
+      curDotX = pD2.x + f * (pE.x - pD2.x);
+      curDotY = pD2.y + f * (pE.y - pD2.y);
+    }
   } else {
-    const f = Math.min(1, (substanceTemp - 100) / 30);
-    curDotX = pD2.x + f * (pE.x - pD2.x);
-    curDotY = pD2.y + f * (pE.y - pD2.y);
+    // Iodine Sublimation curve
+    const yAxisSublim = axisBottom - 95; // 45°C sublimation line
+    const pA = { x: axisLeft + 15, y: axisBottom - 30 };
+    const pB1 = { x: axisLeft + 90, y: yAxisSublim };
+    const pB2 = { x: axisLeft + 220, y: yAxisSublim }; // sublimation plateau
+    const pC = { x: axisLeft + 360, y: axisTop + 15 };
+
+    statesCtx.strokeStyle = '#9333ea';
+    statesCtx.lineWidth = 3;
+    statesCtx.beginPath();
+    statesCtx.moveTo(pA.x, pA.y);
+    statesCtx.lineTo(pB1.x, pB1.y);
+    statesCtx.lineTo(pB2.x, pB2.y);
+    statesCtx.lineTo(pC.x, pC.y);
+    statesCtx.stroke();
+
+    // Segment Annotations
+    statesCtx.fillStyle = '#c084fc';
+    statesCtx.font = '9px system-ui';
+    statesCtx.fillText('কঠিন আয়োডিন কেলাস', (pA.x + pB1.x) / 2, axisBottom - 45);
+    statesCtx.fillText('উর্ধ্বপাতন (সরাসরি গ্যাসীয় রূপান্তর)', (pB1.x + pB2.x) / 2, yAxisSublim - 8);
+    statesCtx.fillText('বেগুনি বাষ্প (I₂ Gas)', (pB2.x + pC.x) / 2, axisTop + 30);
+
+    if (roundTemp < 45) {
+      const f = Math.max(0, Math.min(1, (roundTemp - (-10)) / 55));
+      curDotX = pA.x + f * (pB1.x - pA.x);
+      curDotY = pA.y + f * (pB1.y - pA.y);
+    } else if (roundTemp === 45) {
+      curDotX = pB1.x + latentProgress * (pB2.x - pB1.x);
+      curDotY = yAxisSublim;
+    } else {
+      const f = Math.min(1, (roundTemp - 45) / 55);
+      curDotX = pB2.x + f * (pC.x - pB2.x);
+      curDotY = pB2.y + f * (pC.y - pB2.y);
+    }
   }
 
   // Draw Glowing Tracker Dot
   statesCtx.fillStyle = '#ef4444';
   statesCtx.shadowColor = '#ef4444';
-  statesCtx.shadowBlur = 10;
+  statesCtx.shadowBlur = 12;
   statesCtx.beginPath();
-  statesCtx.arc(curDotX, curDotY, 6, 0, Math.PI * 2);
+  statesCtx.arc(curDotX, curDotY, 6.5, 0, Math.PI * 2);
   statesCtx.fill();
   statesCtx.shadowBlur = 0;
 
-  // Temperature callout flag
+  // Outer pulsating halo ring
+  const haloR = 9 + Math.sin(tickCount * 0.2) * 2;
+  statesCtx.strokeStyle = 'rgba(239, 68, 68, 0.5)';
+  statesCtx.lineWidth = 1.5;
+  statesCtx.beginPath();
+  statesCtx.arc(curDotX, curDotY, haloR, 0, Math.PI * 2);
+  statesCtx.stroke();
+
+  // Floating Temperature Callout Flag (Strict 0 Floating Point Cap!)
   statesCtx.fillStyle = '#ffffff';
-  statesCtx.fillRect(curDotX - 25, curDotY - 24, 50, 18);
+  statesCtx.fillRect(curDotX - 26, curDotY - 26, 52, 19);
   statesCtx.strokeStyle = '#ef4444';
-  statesCtx.lineWidth = 1;
-  statesCtx.strokeRect(curDotX - 25, curDotY - 24, 50, 18);
+  statesCtx.lineWidth = 1.2;
+  statesCtx.strokeRect(curDotX - 26, curDotY - 26, 52, 19);
   statesCtx.fillStyle = '#0f172a';
   statesCtx.font = 'bold 10px system-ui';
   statesCtx.textAlign = 'center';
-  statesCtx.fillText(`${Math.round(substanceTemp)} °C`, curDotX, curDotY - 11);
+  statesCtx.fillText(`${roundTemp} °C`, curDotX, curDotY - 13);
 
   statesCtx.restore();
 }
