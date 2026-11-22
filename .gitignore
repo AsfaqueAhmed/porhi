@@ -25,6 +25,9 @@ pnpm-debug.log*
 .DS_Store
 *.pem
 
+# Large reference PDFs (>100MB exceeds GitHub push limit)
+docs/book/Secondary (BV)-2026_Class 9-10_Biology_compressed.pdf
+
 # Testing
 coverage/
 

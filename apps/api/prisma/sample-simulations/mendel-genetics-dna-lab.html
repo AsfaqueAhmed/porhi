@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>মেন্ডেলীয় জিনতত্ত্ব ও DNA ডাবল হেলিক্স ল্যাব | poRi</title>
+  <style>
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-accent: #0f766e;
+      --pori-accent-soft: #ecfdf5;
+      --pori-accent-border: #99f6e4;
+      --pori-accent-ink: #134e4a;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-amber-ink: #92400e;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-border: #fecdd3;
+      --pori-rose-ink: #9f1239;
+      --pori-blue-soft: #eff6ff;
+      --pori-blue-border: #bfdbfe;
+      --pori-blue-ink: #1e40af;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+    .app {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .head h1 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--pori-heading);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--pori-accent-ink);
+      background: var(--pori-accent-soft);
+      border: 1px solid var(--pori-accent-border);
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .head p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--pori-muted);
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 8px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      background: #f1f5f9;
+      border: 1px solid var(--pori-border);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--pori-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+    .tab-btn:hover { background: #e2e8f0; color: var(--pori-ink); }
+    .tab-btn.active {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+    }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Controls & Layout */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 768px) {
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: #fff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      color: var(--pori-heading);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--pori-muted);
+      display: block;
+      margin-bottom: 4px;
+    }
+    select, button, input {
+      font-family: inherit;
+      font-size: 13px;
+    }
+    select {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid var(--pori-border);
+      border-radius: 8px;
+      background: #f8fafc;
+      margin-bottom: 10px;
+    }
+    .btn {
+      background: var(--pori-accent);
+      color: #fff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: #0d625b; }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid var(--pori-border);
+      color: var(--pori-ink);
+    }
+    .btn-outline:hover { background: #f1f5f9; }
+
+    /* Punnett Square */
+    .punnett-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      margin: 12px 0;
+    }
+    .punnett-table th, .punnett-table td {
+      border: 2px solid var(--pori-border);
+      padding: 12px 8px;
+      font-size: 14px;
+    }
+    .punnett-table th { background: #f1f5f9; color: var(--pori-muted); font-weight: 600; }
+    .cell-tall { background: #ecfdf5; color: #166534; font-weight: 700; }
+    .cell-dwarf { background: #fef2f2; color: #991b1b; font-weight: 700; }
+    .cell-carrier { background: #fffbeb; color: #92400e; font-weight: 700; }
+    .cell-normal { background: #eff6ff; color: #1e40af; font-weight: 700; }
+    .cell-affected { background: #fee2e2; color: #991b1b; font-weight: 700; }
+
+    /* DNA Strand visualizer */
+    .dna-stage {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 16px;
+      color: #fff;
+      margin: 12px 0;
+    }
+    .dna-ladder {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .dna-rung {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #1e293b;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+    }
+    .base-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .base-A { background: #ef4444; color: #fff; }
+    .base-T { background: #3b82f6; color: #fff; }
+    .base-G { background: #10b981; color: #fff; }
+    .base-C { background: #f59e0b; color: #fff; }
+    .h-bonds {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      flex: 1;
+      padding: 0 16px;
+    }
+    .bond-line {
+      height: 2px;
+      background: #94a3b8;
+      border-radius: 1px;
+    }
+
+    /* Ratio bar */
+    .ratio-bar {
+      display: flex;
+      height: 24px;
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    .bar-seg {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      transition: width 0.3s;
+    }
+
+    .info-callout {
+      border-left: 4px solid var(--pori-accent);
+      background: var(--pori-accent-soft);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      color: var(--pori-accent-ink);
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="head">
+    <div>
+      <h1>🧬 মেন্ডেলীয় জিনতত্ত্ব ও DNA ডাবল হেলিক্স ল্যাব</h1>
+      <p>NCTB জীববিজ্ঞান অধ্যায় ১২ · মনোহাইব্রিড ক্রস, পানেট স্কয়ার, DNA বেস পেয়ারিং ও লিঙ্গ নির্ধারণ সিমুলেটর</p>
+    </div>
+    <span class="badge">SSC BIOLOGY CH 12 INTERACTIVE LAB</span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('mendel')">🌱 মেন্ডেলের মনোহাইব্রিড ক্রস</button>
+    <button class="tab-btn" onclick="switchTab('dna')">🔬 DNA ডাবল হেলিক্স ও ক্ষারক জোড়</button>
+    <button class="tab-btn" onclick="switchTab('sex_genetics')">👥 লিঙ্গ নির্ধারণ ও থ্যালাসেমিয়া</button>
+    <button class="tab-btn" onclick="switchTab('explainer')">📖 বৈজ্ঞানিক মূলনীতি ও চিটশিট</button>
+  </div>
+
+  <!-- TAB 1: MENDEL MONOHYBRID CROSS -->
+  <div id="panel-mendel" class="panel active">
+    <div class="grid-2">
+      <div>
+        <div class="card">
+          <h3>⚙️ প্যারেন্টাল জিনোটাইপ নির্ধারণ</h3>
+          <label>পিতা (Parent 1) মটর উদ্ভিদের জিনোটাইপ:</label>
+          <select id="p1-select" onchange="runMendelCross()">
+            <option value="TT">বিশুদ্ধ লম্বা (TT) - প্রকট হোমোজাইগাস</option>
+            <option value="Tt" selected>সংকর লম্বা (Tt) - হেটারোজাইগাস (F1)</option>
+            <option value="tt">বিশুদ্ধ খাটো (tt) - প্রচ্ছন্ন হোমোজাইগাস</option>
+          </select>
+
+          <label>মাতা (Parent 2) মটর উদ্ভিদের জিনোটাইপ:</label>
+          <select id="p2-select" onchange="runMendelCross()">
+            <option value="TT">বিশুদ্ধ লম্বা (TT) - প্রকট হোমোজাইগাস</option>
+            <option value="Tt" selected>সংকর লম্বা (Tt) - হেটারোজাইগাস (F1)</option>
+            <option value="tt">বিশুদ্ধ খাটো (tt) - প্রচ্ছন্ন হোমোজাইগাস</option>
+          </select>
+
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <button class="btn" onclick="setPreset('P1')">মেন্ডেল P1 ক্রস (TT × tt)</button>
+            <button class="btn" onclick="setPreset('F1')">মেন্ডেল F1 স্ব-পরাগায়ন (Tt × Tt)</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>📊 ফিনোটাইপ ও জিনোটাইপ বিশ্লেষণ</h3>
+          <div id="mendel-pheno-result" style="font-size:14px;line-height:1.7;"></div>
+          <div class="ratio-bar" id="pheno-bar"></div>
+          <div id="mendel-geno-result" style="font-size:13px;margin-top:8px;color:var(--pori-muted);"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3>🎲 পানেট স্কয়ার (Punnett Square) গ্রিড</h3>
+          <table class="punnett-table" id="mendel-punnett"></table>
+          <div class="info-callout" id="mendel-insight"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: DNA DOUBLE HELIX & BASE PAIRING -->
+  <div id="panel-dna" class="panel">
+    <div class="grid-2">
+      <div>
+        <div class="card">
+          <h3>🧬 টেমপ্লেট স্ট্র্যান্ড (5' → 3') সিকোয়েন্স নিয়ন্ত্রক</h3>
+          <p style="font-size:13px;color:var(--pori-muted);">একটি DNA স্ট্র্যান্ডের ক্ষারক অনুক্রমের ওপর ভিত্তি করে অপর পরিপূরক স্ট্র্যান্ডে ওয়াটসন-ক্রিক নিয়মে বেস যুক্ত করুন:</p>
+          <div style="display:flex;gap:8px;margin-bottom:12px;">
+            <button class="btn" onclick="randomizeDNA()">নতুন এলোমেলো DNA সিকোয়েন্স</button>
+            <button class="btn btn-outline" onclick="resetDNA()">রিসেট</button>
+          </div>
+
+          <table class="punnett-table" style="font-size:12px;">
+            <thead>
+              <tr>
+                <th>ক্ষারক জোড়</th>
+                <th>হাইড্রোজেন বন্ধন</th>
+                <th>চার্জাফ অনুপাত</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>A = T</strong></td>
+                <td>২টি হাইড্রোজেন বন্ড</td>
+                <td>% A = % T</td>
+              </tr>
+              <tr>
+                <td><strong>G ≡ C</strong></td>
+                <td>৩টি হাইড্রোজেন বন্ড</td>
+                <td>% G = % C</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="info-callout">
+            <strong>📏 ওয়াটসন-ক্রিক মডেলের পরিমাপ:</strong><br>
+            • ব্যাস: <strong>২০ Å</strong> (সর্বত্র সমান)<br>
+            • একটি পূর্ণ ঘূর্ণনের দৈর্ঘ্য: <strong>৩৪ Å</strong> (১০টি বেস জোড়)<br>
+            • পাশাপাশি দুটি বেসের দূরত্ব: <strong>৩.৪ Å</strong> ($10^{-10}$ মিটার)<br>
+            • সূত্রের দিক: <strong>Antiparallel</strong> (5' $\rightarrow$ 3' বনাম 3' $\rightarrow$ 5')
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3>🔬 DNA ডাবল হেলিক্স ভিজ্যুয়ালাইজার</h3>
+          <div class="dna-stage">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;margin-bottom:8px;">
+              <span>5' অগ্রগামী সূত্রক</span>
+              <span id="dna-h-count">মোট H-বন্ধন: ০</span>
+              <span>3' পরিপূরক সূত্রক</span>
+            </div>
+            <div class="dna-ladder" id="dna-ladder"></div>
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#94a3b8;margin-top:8px;">
+              <span>3' প্রান্ত</span>
+              <span>পরিপূরক হেলিক্স</span>
+              <span>5' প্রান্ত</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: HUMAN SEX DETERMINATION & THALASSEMIA -->
+  <div id="panel-sex_genetics" class="panel">
+    <div class="grid-2">
+      <div>
+        <div class="card">
+          <h3>👥 মোড নির্বাচন করুন</h3>
+          <select id="mode-select" onchange="runGeneticsMode()">
+            <option value="sex">১. মানুষের লিঙ্গ নির্ধারণ (XX বনাম XY)</option>
+            <option value="thalassemia">২. থ্যালাসেমিয়া বংশগতি ঝুঁকি (Rr × Rr)</option>
+            <option value="colorblind">৩. সেক্স-লিংকড বর্ণান্ধতা (X'X × XY)</option>
+          </select>
+
+          <div id="mode-desc" class="info-callout"></div>
+          <div id="mode-stats" class="card" style="background:#f8fafc;border:1px solid #cbd5e1;"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h3 id="mode-table-title">🎲 জাইগোট ফলাফল পানেট স্কয়ার</h3>
+          <table class="punnett-table" id="mode-punnett"></table>
+          <div id="mode-verdict" class="info-callout"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: EXPLAINER & SUMMARY -->
+  <div id="panel-explainer" class="panel">
+    <div class="card">
+      <h3>📚 অধ্যায় ১২: জীবের বংশগতি ও জৈব অভিব্যক্তি মাস্টার চিটশিট</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;">
+          <h4 style="margin:0 0 6px;color:#0f766e;">মেন্ডেলের সূত্র ও মনোহাইব্রিড ক্রস</h4>
+          <ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.6;">
+            <li><strong>বংশগতিবিদ্যার জনক:</strong> গ্রেগর জোহান মেন্ডেল (১৮৬৬ সালে মটরশুঁটি <em>Pisum sativum</em> নিয়ে গবেষণা প্রকাশ)।</li>
+            <li><strong>F1 জনু:</strong> সকল সন্তান সংকর লম্বা ($Tt$) হয়, খাটো বৈশিষ্ট্য অপ্রকাশিত থাকে।</li>
+            <li><strong>F2 জনু ফিনোটাইপ অনুপাত:</strong> ৩ : ১ (৭৫% লম্বা : ২৫% খাটো)।</li>
+            <li><strong>F2 জনু জিনোটাইপ অনুপাত:</strong> ১ : ২ : ১ (১টি $TT$ : ২টি $Tt$ : ১টি $tt$)।</li>
+          </ul>
+        </div>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;">
+          <h4 style="margin:0 0 6px;color:#0f766e;">ওয়াটসন ও ক্রিক DNA মডেল (১৯৫৩)</h4>
+          <ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.6;">
+            <li><strong>উপাদান:</strong> ৫-কার্বন ডিঅক্সিরাইবোজ + অজৈব ফসফেট + ৪ ক্ষারক (A, T, G, C)।</li>
+            <li><strong>ক্ষারক বন্ধন:</strong> অ্যাডেনিনের সাথে থাইমিন ($A = T$, ২ হাইড্রোজেন বন্ড); গুয়ানিনের সাথে সাইটোসিন ($G \equiv C$, ৩ হাইড্রোজেন বন্ড)।</li>
+            <li><strong>অনুলিপন:</strong> অর্ধ-রক্ষণশীল (Semi-conservative, ১৯৫৬); ৫০% মাতৃসূত্র অপরিবর্তিত থাকে।</li>
+          </ul>
+        </div>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;">
+          <h4 style="margin:0 0 6px;color:#0f766e;">লিঙ্গ নির্ধারণ ও রোগতত্ত্ব</h4>
+          <ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.6;">
+            <li><strong>লিঙ্গ নির্ধারণ:</strong> পিতা সমহারে ৫০% X ও ৫০% Y শুক্রাণু বানান; মাতা কেবল X ডিম্বাণু দেন। লিঙ্গ নির্ধারণে পিতার ভূমিকাই একমাত্র নির্ধারক।</li>
+            <li><strong>থ্যালাসেমিয়া:</strong> অটোজোমাল রিসেসিভ রোগ; হিমোগ্লোবিনের গ্লোবুলিন চেইন ত্রুটি। বাহক পিতামাতার সন্তানে ২৫% ঝুঁকি।</li>
+            <li><strong>বর্ণান্ধতা:</strong> সেক্স-লিংকড রিসেসিভ রোগ; ইশিহারা চার্টে সুস্থ মানুষ ৭৪ দেখে, বর্ণান্ধ ব্যক্তি ২১ দেখে।</li>
+          </ul>
+        </div>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px;">
+          <h4 style="margin:0 0 6px;color:#0f766e;">ডারউইনের প্রাকৃতিক নির্বাচন (১৮৫৯)</h4>
+          <ul style="margin:0;padding-left:18px;font-size:13px;line-height:1.6;">
+            <li><strong>বই:</strong> <em>On the Origin of Species by Means of Natural Selection</em>।</li>
+            <li><strong>ধারাবাহিক ধাপ:</strong> অত্যধিক বংশবৃদ্ধি $\rightarrow$ খাদ্য-বাসস্থান সীমাবদ্ধতা $\rightarrow$ জীবন সংগ্রাম $\rightarrow$ প্রকরণ $\rightarrow$ যোগ্যতমের জয় ও প্রাকৃতিক নির্বাচন $\rightarrow$ নতুন প্রজাতির উৎপত্তি।</li>
+            <li><strong>সমসংস্থ অঙ্গ:</strong> পাখির ডানা, বাদুড়ের ডানা, মানুষের হাত (উৎপত্তি এক, কাজ ভিন্ন)।</li>
+            <li><strong>জীবিত জীবাশ্ম:</strong> লিমুলাস (রাজকাঁকড়া)।</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(panel => panel.classList.remove('active'));
+    document.getElementById('panel-' + tabId).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  // --- MENDEL LOGIC ---
+  function setPreset(type) {
+    if (type === 'P1') {
+      document.getElementById('p1-select').value = 'TT';
+      document.getElementById('p2-select').value = 'tt';
+    } else {
+      document.getElementById('p1-select').value = 'Tt';
+      document.getElementById('p2-select').value = 'Tt';
+    }
+    runMendelCross();
+  }
+
+  function runMendelCross() {
+    const p1 = document.getElementById('p1-select').value;
+    const p2 = document.getElementById('p2-select').value;
+    const g1 = [p1[0], p1[1]];
+    const g2 = [p2[0], p2[1]];
+
+    const combinations = [
+      g1[0] + g2[0],
+      g1[0] + g2[1],
+      g1[1] + g2[0],
+      g1[1] + g2[1]
+    ].map(sortAlleles);
+
+    let ttCount = 0, ttHybCount = 0, dwarfCount = 0;
+    combinations.forEach(geno => {
+      if (geno === 'TT') ttCount++;
+      else if (geno === 'Tt') ttHybCount++;
+      else if (geno === 'tt') dwarfCount++;
+    });
+
+    const tallTotal = ttCount + ttHybCount;
+    const dwarfTotal = dwarfCount;
+
+    // Build Punnett Table
+    let html = `
+      <thead>
+        <tr>
+          <th>গ্যামেট (মাতা ↓ \\ পিতা →)</th>
+          <th>${g1[0]}</th>
+          <th>${g1[1]}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th>${g2[0]}</th>
+          <td class="${combinations[0] === 'tt' ? 'cell-dwarf' : 'cell-tall'}">
+            <strong>${combinations[0]}</strong><br>
+            <small>${combinations[0] === 'tt' ? 'খাটো (Dwarf)' : 'লম্বা (Tall)'}</small>
+          </td>
+          <td class="${combinations[1] === 'tt' ? 'cell-dwarf' : 'cell-tall'}">
+            <strong>${combinations[1]}</strong><br>
+            <small>${combinations[1] === 'tt' ? 'খাটো (Dwarf)' : 'লম্বা (Tall)'}</small>
+          </td>
+        </tr>
+        <tr>
+          <th>${g2[1]}</th>
+          <td class="${combinations[2] === 'tt' ? 'cell-dwarf' : 'cell-tall'}">
+            <strong>${combinations[2]}</strong><br>
+            <small>${combinations[2] === 'tt' ? 'খাটো (Dwarf)' : 'লম্বা (Tall)'}</small>
+          </td>
+          <td class="${combinations[3] === 'tt' ? 'cell-dwarf' : 'cell-tall'}">
+            <strong>${combinations[3]}</strong><br>
+            <small>${combinations[3] === 'tt' ? 'খাটো (Dwarf)' : 'লম্বা (Tall)'}</small>
+          </td>
+        </tr>
+      </tbody>
+    `;
+    document.getElementById('mendel-punnett').innerHTML = html;
+
+    // Results
+    document.getElementById('mendel-pheno-result').innerHTML = `
+      <strong>দৃশ্যমান ফিনোটাইপ অনুপাত:</strong><br>
+      • লম্বা উদ্ভিদ: <strong>${tallTotal}টি (${(tallTotal/4*100).toFixed(0)}%)</strong><br>
+      • খাটো উদ্ভিদ: <strong>${dwarfTotal}টি (${(dwarfTotal/4*100).toFixed(0)}%)</strong>
+    `;
+
+    document.getElementById('pheno-bar').innerHTML = `
+      <div class="bar-seg" style="width:${tallTotal*25}%;background:#166534;">${tallTotal > 0 ? tallTotal*25 + '% লম্বা' : ''}</div>
+      <div class="bar-seg" style="width:${dwarfTotal*25}%;background:#991b1b;">${dwarfTotal > 0 ? dwarfTotal*25 + '% খাটো' : ''}</div>
+    `;
+
+    document.getElementById('mendel-geno-result').innerHTML = `
+      <strong>জিনোটাইপ অনুপাত:</strong> TT : Tt : tt = ${ttCount} : ${ttHybCount} : ${dwarfCount}
+    `;
+
+    let insight = '';
+    if (p1 === 'TT' && p2 === 'tt') {
+      insight = '💡 <strong>মেন্ডেল P1 ক্রস ইনসাইট:</strong> F1 প্রজন্মে সব গাছই সংকর লম্বা (Tt) হয়। খাটো বৈশিষ্ট্য সুপ্ত বা প্রচ্ছন্ন থাকে!';
+    } else if (p1 === 'Tt' && p2 === 'Tt') {
+      insight = '🎯 <strong>মেন্ডেলের বিখ্যাত F2 মনোহাইব্রিড ৩:১ অনুপাত:</strong> F1 গাছগুলোর মধ্যে স্ব-পরাগায়ন ঘটালে ফিনোটাইপ অনুপাত দাঁড়ায় ৩ ভাগ লম্বা ও ১ ভাগ খাটো!';
+    } else {
+      insight = `ক্রস সম্পন্নের ফলে জিনোটাইপ অনুপাত ${ttCount}:${ttHybCount}:${dwarfCount} প্রকাশিত হয়েছে।`;
+    }
+    document.getElementById('mendel-insight').innerHTML = insight;
+  }
+
+  function sortAlleles(str) {
+    return str.split('').sort().join('') === 'tT' ? 'Tt' : str.split('').sort().join('');
+  }
+
+  // --- DNA SIMULATOR ---
+  let templateBases = ['A', 'T', 'G', 'C', 'C', 'G', 'A', 'T'];
+
+  function randomizeDNA() {
+    const chars = ['A', 'T', 'G', 'C'];
+    templateBases = [];
+    for (let i = 0; i < 8; i++) {
+      templateBases.push(chars[Math.floor(Math.random() * chars.length)]);
+    }
+    renderDNA();
+  }
+
+  function resetDNA() {
+    templateBases = ['A', 'T', 'G', 'C', 'C', 'G', 'A', 'T'];
+    renderDNA();
+  }
+
+  function renderDNA() {
+    const compMap = { 'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G' };
+    const hBondMap = { 'A': 2, 'T': 2, 'G': 3, 'C': 3 };
+    let totalHbonds = 0;
+    let html = '';
+
+    templateBases.forEach(base => {
+      const comp = compMap[base];
+      const bonds = hBondMap[base];
+      totalHbonds += bonds;
+
+      let bondLines = '';
+      for (let b = 0; b < bonds; b++) {
+        bondLines += '<div class="bond-line"></div>';
+      }
+
+      html += `
+        <div class="dna-rung">
+          <div class="base-box base-${base}">${base}</div>
+          <div class="h-bonds">${bondLines}</div>
+          <div class="base-box base-${comp}">${comp}</div>
+        </div>
+      `;
+    });
+
+    document.getElementById('dna-ladder').innerHTML = html;
+    document.getElementById('dna-h-count').innerText = `মোট H-বন্ধন: ${totalHbonds}টি (${templateBases.length} bp)`;
+  }
+
+  // --- SEX DETERMINATION & THALASSEMIA ---
+  function runGeneticsMode() {
+    const mode = document.getElementById('mode-select').value;
+    const table = document.getElementById('mode-punnett');
+    const desc = document.getElementById('mode-desc');
+    const stats = document.getElementById('mode-stats');
+    const verdict = document.getElementById('mode-verdict');
+    const title = document.getElementById('mode-table-title');
+
+    if (mode === 'sex') {
+      title.innerText = '🎲 মানুষের লিঙ্গ নির্ধারণ পানেট স্কয়ার';
+      desc.innerHTML = '<strong>মানুষের লিঙ্গ নির্ধারণ:</strong> মা (XX) কেবল X ডিম্বাণু দেন। বাবা (XY) ৫০% X এবং ৫০% Y শুক্রাণু দেন। নিষেকের সময় কোন শুক্রাণুটি ডিম্বাণুর সাথে মিলিত হচ্ছে তা-ই সন্তানের লিঙ্গ নির্ধারণ করে।';
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>মাতা (XX) ↓ \\ পিতা (XY) →</th>
+            <th>X শুক্রাণু (৫০%)</th>
+            <th>Y শুক্রাণু (৫০%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>X ডিম্বাণু</th>
+            <td class="cell-carrier"><strong>XX</strong><br><small>কন্যা সন্তান (মেয়ে)</small></td>
+            <td class="cell-normal"><strong>XY</strong><br><small>পুত্র সন্তান (ছেলে)</small></td>
+          </tr>
+          <tr>
+            <th>X ডিম্বাণু</th>
+            <td class="cell-carrier"><strong>XX</strong><br><small>কন্যা সন্তান (মেয়ে)</small></td>
+            <td class="cell-normal"><strong>XY</strong><br><small>পুত্র সন্তান (ছেলে)</small></td>
+          </tr>
+        </tbody>
+      `;
+      stats.innerHTML = `
+        <strong>সম্ভাবনা হিসাব:</strong><br>
+        • কন্যা সন্তান (XX): <strong>৫০% (১/২)</strong><br>
+        • পুত্র সন্তান (XY): <strong>৫০% (১/২)</strong><br>
+        • অনুপাত: <strong>১ : ১</strong>
+      `;
+      verdict.innerHTML = '✨ <strong>পরীক্ষার গুরুত্বপূর্ণ সত্য:</strong> সন্তানের লিঙ্গ নির্ধারণে মায়ের কোনো ভূমিকাই নেই; একমাত্র পিতার শুক্রাণুই নির্ধারণ করে সন্তান পুত্র হবে না কন্যা হবে!';
+    } else if (mode === 'thalassemia') {
+      title.innerText = '🎲 থ্যালাসেমিয়া বাহক পিতা-মাতার ক্রস পানেট স্কয়ার';
+      desc.innerHTML = '<strong>থ্যালাসেমিয়া অটোজোমাল রিসেসিভ রোগ:</strong> স্বাভাবিক অ্যালিল R (প্রকট) এবং ত্রুটিপূর্ণ অ্যালিল r (প্রচ্ছন্ন)। দুইজন সুস্থ কিন্তু বাহক (Rr × Rr) পিতামাতার সন্তানে রোগের ঝুঁকি হিসাব:';
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>মা (Rr) ↓ \\ বাবা (Rr) →</th>
+            <th>R (স্বাভাবিক গ্যামেট)</th>
+            <th>r (থ্যালাসেমিয়া গ্যামেট)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>R</th>
+            <td class="cell-normal"><strong>RR</strong><br><small>সম্পূর্ণ সুস্থ (২৫%)</small></td>
+            <td class="cell-carrier"><strong>Rr</strong><br><small>লক্ষণহীন বাহক (২৫%)</small></td>
+          </tr>
+          <tr>
+            <th>r</th>
+            <td class="cell-carrier"><strong>Rr</strong><br><small>লক্ষণহীন বাহক (২৫%)</small></td>
+            <td class="cell-affected"><strong>rr</strong><br><small>থ্যালাসেমিয়া মেজর আক্রান্ত (২৫%)</small></td>
+          </tr>
+        </tbody>
+      `;
+      stats.innerHTML = `
+        <strong>বংশগতির ঝুঁকি:</strong><br>
+        • সম্পূর্ণ সুস্থ (RR): <strong>২৫% (১/৪)</strong><br>
+        • সুস্থ কিন্তু বাহক (Rr): <strong>৫০% (১/২)</strong><br>
+        • থ্যালাসেমিয়া মেজর আক্রান্ত (rr): <strong>২৫% (১/৪)</strong>
+      `;
+      verdict.innerHTML = '⚠️ <strong>চিকিৎসা সতর্কতা:</strong> পিতা-মাতা উভয়েই বাহক হলে প্রতি গর্ভাবস্থায় সন্তানের মারাত্মক থ্যালাসেমিয়া আক্রান্ত হওয়ার ঝুঁকি ২৫%। তাই বিবাহের পূর্বে থ্যালাসেমিয়া রক্ত পরীক্ষা অত্যন্ত জরুরি!';
+    } else {
+      title.innerText = '🎲 সেক্স-লিংকড বর্ণান্ধতা পানেট স্কয়ার';
+      desc.innerHTML = '<strong>বর্ণান্ধতা (Color Blindness):</strong> X-লিংকড প্রচ্ছন্ন রোগ। স্বাভাবিক জিন X, বর্ণান্ধ মিউট্যান্ট জিন X\'। বাহক মা (X\'X) এবং স্বাভাবিক বাবা (XY) এর ক্রস:';
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>মা (X'X) ↓ \\ বাবা (XY) →</th>
+            <th>X শুক্রাণু</th>
+            <th>Y শুক্রাণু</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th>X' (মিউট্যান্ট)</th>
+            <td class="cell-carrier"><strong>X'X</strong><br><small>বাহক কন্যা (স্বাভাবিক দৃষ্টি)</small></td>
+            <td class="cell-affected"><strong>X'Y</strong><br><small>বর্ণান্ধ পুত্র (আক্রান্ত)</small></td>
+          </tr>
+          <tr>
+            <th>X (স্বাভাবিক)</th>
+            <td class="cell-normal"><strong>XX</strong><br><small>স্বাভাবিক সুস্থ কন্যা</small></td>
+            <td class="cell-normal"><strong>XY</strong><br><small>স্বাভাবিক সুস্থ পুত্র</small></td>
+          </tr>
+        </tbody>
+      `;
+      stats.innerHTML = `
+        <strong>সন্তানদের বিশ্লেষণ:</strong><br>
+        • পুত্রদের মধ্যে: <strong>৫০% বর্ণান্ধ (X'Y) ও ৫০% সুস্থ (XY)</strong><br>
+        • কন্যাদের মধ্যে: <strong>৫০% বাহক (X'X) ও ৫০% সুস্থ (XX)</strong> (কোনো কন্যাই আক্রান্ত হবে না)
+      `;
+      verdict.innerHTML = '🔍 <strong>সেক্স-লিংকড সূত্র:</strong> ছেলেরা মায়ের কাছ থেকে X ক্রোমোজোম পায় বলে মা বাহক হলে ছেলেদের আক্রান্ত হওয়ার ৫০% ঝুঁকি থাকে, কিন্তু বাবা কখনোই তার পুত্রকে X ক্রোমোজোম দেন না!';
+    }
+  }
+
+  // Initial runs
+  runMendelCross();
+  renderDNA();
+  runGeneticsMode();
+</script>
+
+</body>
+</html>

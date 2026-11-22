@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>রিকম্বিন্যান্ট DNA ও উদ্ভিদ টিস্যু কালচার ল্যাব সিমুলেটর | poRi</title>
+  <style>
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-accent: #0f766e;
+      --pori-accent-soft: #ecfdf5;
+      --pori-accent-border: #99f6e4;
+      --pori-accent-ink: #134e4a;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-amber-ink: #92400e;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-border: #fecdd3;
+      --pori-rose-ink: #9f1239;
+      --pori-blue-soft: #eff6ff;
+      --pori-blue-border: #bfdbfe;
+      --pori-blue-ink: #1e40af;
+      --pori-purple-soft: #faf5ff;
+      --pori-purple-border: #e9d5ff;
+      --pori-purple-ink: #6b21a8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+    .app {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+    }
+    .head h1 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--pori-heading);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--pori-accent-ink);
+      background: var(--pori-accent-soft);
+      border: 1px solid var(--pori-accent-border);
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .head p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--pori-muted);
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 9px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--pori-border);
+      background: var(--pori-surface);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--pori-muted);
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      background: var(--pori-accent-soft);
+      color: var(--pori-accent-ink);
+    }
+    .tab-btn.active {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+    }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    
+    .lab-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 18px;
+    }
+    @media (max-width: 820px) {
+      .lab-grid { grid-template-columns: 1fr; }
+    }
+    
+    .canvas-card {
+      background: #f1f5f9;
+      border: 1px solid var(--pori-border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 420px;
+      position: relative;
+    }
+    .canvas-stage {
+      width: 100%;
+      max-width: 540px;
+      height: 340px;
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid var(--pori-border-soft);
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .controls-card {
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--pori-accent-ink);
+      background: var(--pori-accent-soft);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .btn-action {
+      background: var(--pori-accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+    .btn-action:hover { background: #115e59; }
+    .btn-action:disabled { background: #94a3b8; cursor: not-allowed; }
+    .btn-outline {
+      background: #fff;
+      color: var(--pori-muted);
+      border: 1px solid var(--pori-border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-outline:hover { background: #f8fafc; color: var(--pori-ink); }
+    
+    .status-box {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .step-item {
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--pori-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .step-item.active {
+      background: var(--pori-accent-soft);
+      border-color: var(--pori-accent-border);
+      color: var(--pori-accent-ink);
+      font-weight: 700;
+    }
+    .step-item.done {
+      border-color: #a7f3d0;
+      color: #047857;
+    }
+    
+    /* Quiz style */
+    .quiz-card {
+      background: #fff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .quiz-card h4 { margin: 0 0 10px; font-size: 14px; color: var(--pori-heading); }
+    .quiz-opts { display: flex; flex-direction: column; gap: 6px; }
+    .quiz-opt {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--pori-border);
+      background: #f8fafc;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .quiz-opt:hover { background: #f1f5f9; }
+    .quiz-opt.correct { background: #ecfdf5; border-color: #34d399; color: #065f46; font-weight: 600; }
+    .quiz-opt.wrong { background: #fff1f2; border-color: #f87171; color: #991b1b; }
+    .feedback { margin-top: 8px; font-size: 12px; padding: 6px 10px; border-radius: 6px; display: none; }
+    
+    /* Animation keyframes */
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.04); } 100% { transform: scale(1); } }
+    .pulse-elem { animation: pulse 2s infinite ease-in-out; }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="head">
+    <div>
+      <span class="badge">SSC জীববিজ্ঞান · অধ্যায় ১৪ ল্যাব</span>
+      <h1>🧬 জীবপ্রযুক্তি ভার্চুয়াল ল্যাবরেটরি</h1>
+      <p>রিকম্বিন্যান্ট DNA প্রস্তুত ও প্লাজমিড ক্লোনিং এবং উদ্ভিদের টিস্যু কালচার ও ক্যালাস উৎপাদন সিমুলেশন।</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-rdna')">🔬 রিকম্বিন্যান্ট DNA ল্যাব</button>
+    <button class="tab-btn" onclick="switchTab('tab-tissue')">🌱 উদ্ভিদ টিস্যু কালচার ল্যাব</button>
+    <button class="tab-btn" onclick="switchTab('tab-theory')">📖 বৈজ্ঞানিক তত্ত্ব ও তুলনা</button>
+    <button class="tab-btn" onclick="switchTab('tab-quiz')">⚡ ল্যাব পরীক্ষা কুইজ</button>
+  </div>
+
+  <!-- PANEL 1: RECOMBINANT DNA -->
+  <div id="tab-rdna" class="panel active">
+    <div class="lab-grid">
+      <div class="canvas-card">
+        <div class="canvas-stage" id="rdnaStage">
+          <!-- Dynamic SVG Canvas rendered via JS -->
+          <svg id="rdnaSvg" width="100%" height="100%" viewBox="0 0 540 340"></svg>
+        </div>
+        <div style="margin-top:12px;font-size:13px;color:var(--pori-muted);display:flex;justify-content:space-between;width:100%;max-width:540px;">
+          <span id="rdnaLegend">বর্তমান পর্যায়: <strong id="rdnaStageName" style="color:var(--pori-accent);">১. কাঙ্ক্ষিত জিন ও প্লাজমিড নির্বাচন</strong></span>
+          <span id="rdnaSub">E. coli প্লাজমিড ভেক্টর</span>
+        </div>
+      </div>
+
+      <div class="controls-card">
+        <span class="step-badge">ধাপভিত্তিক নির্দেশনা (Step <span id="rdnaStepNum">১</span>/৫)</span>
+        
+        <ul class="step-list" id="rdnaStepList">
+          <li class="step-item active" onclick="setRdnaStep(1)"><span>১.</span> কাঙ্ক্ষিত জিন ও প্লাজমিড পৃথকীকরণ</li>
+          <li class="step-item" onclick="setRdnaStep(2)"><span>২.</span> রেস্ট্রিকশন এনজাইমে কর্তন (আণবিক কাঁচি)</li>
+          <li class="step-item" onclick="setRdnaStep(3)"><span>৩.</span> DNA লাইগেজ দিয়ে সংযোজন (আণবিক আঠা)</li>
+          <li class="step-item" onclick="setRdnaStep(4)"><span>৪.</span> ট্রান্সফরমেশন (E. coli-তে প্রবেশ)</li>
+          <li class="step-item" onclick="setRdnaStep(5)"><span>৫.</span> জিন ক্লোনিং ও বংশবৃদ্ধি</li>
+        </ul>
+
+        <div class="status-box" id="rdnaDesc">
+          <strong>লক্ষ্য:</strong> দাতা কোষ থেকে ইনসুলিন বা বিটি জিনযুক্ত DNA এবং <i>E. coli</i> ব্যাকটেরিয়া থেকে বৃত্তাকার প্লাজমিড DNA পৃথক করা হয়েছে।
+        </div>
+
+        <div style="display:flex;gap:8px;">
+          <button class="btn-action" style="flex:1;" id="rdnaNextBtn" onclick="nextRdnaStep()">পরবর্তী ধাপ →</button>
+          <button class="btn-outline" onclick="resetRdna()">↺ রিসেট</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 2: TISSUE CULTURE -->
+  <div id="tab-tissue" class="panel">
+    <div class="lab-grid">
+      <div class="canvas-card">
+        <div class="canvas-stage" id="tissueStage">
+          <!-- SVG Plant Tissue Stage -->
+          <svg id="tissueSvg" width="100%" height="100%" viewBox="0 0 540 340"></svg>
+        </div>
+        <div style="margin-top:12px;font-size:13px;color:var(--pori-muted);display:flex;justify-content:space-between;width:100%;max-width:540px;">
+          <span id="tissueLegend">পর্যায়: <strong id="tissueStageName" style="color:#16a34a;">১. এক্সপ্ল্যান্ট সংগ্রহ</strong></span>
+          <span id="tissueSub">টটিপোটেন্ট কোষের বিকাশ</span>
+        </div>
+      </div>
+
+      <div class="controls-card">
+        <span class="step-badge" style="background:#ecfdf5;color:#047857;">টিস্যু কালচার ধাপ (<span id="tissueStepNum">১</span>/৫)</span>
+        
+        <ul class="step-list" id="tissueStepList">
+          <li class="step-item active" onclick="setTissueStep(1)"><span>১.</span> মাতৃ উদ্ভিদ ও এক্সপ্ল্যান্ট নির্বাচন</li>
+          <li class="step-item" onclick="setTissueStep(2)"><span>২.</span> পুষ্টি মাধ্যম ও অটোক্লেভ নির্বীজন</li>
+          <li class="step-item" onclick="setTissueStep(3)"><span>৩.</span> ইনোকুলেশন ও ক্যালাস (Callus) সৃষ্টি</li>
+          <li class="step-item" onclick="setTissueStep(4)"><span>৪.</span> অণুচারা ও মূল উৎপাদন মাধ্যমে রূপান্তর</li>
+          <li class="step-item" onclick="setTissueStep(5)"><span>৫.</span> অ্যাক্লাইমেটাইজেশন ও টবে চারা রোপণ</li>
+        </ul>
+
+        <div class="status-box" id="tissueDesc">
+          <strong>বর্ণনা:</strong> রোগমুক্ত স্বাস্থ্যবান মাতৃ উদ্ভিদের শীর্ষমুকুল থেকে এক্সপ্ল্যান্ট (Explant) সংগ্রহ করা হয়েছে। এতে টটিপোটেন্ট স্টেম কোষ থাকে।
+        </div>
+
+        <div style="display:flex;gap:8px;">
+          <button class="btn-action" style="flex:1;background:#16a34a;" id="tissueNextBtn" onclick="nextTissueStep()">পরবর্তী ধাপ →</button>
+          <button class="btn-outline" onclick="resetTissue()">↺ রিসেট</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL 3: THEORY & COMPARISON -->
+  <div id="tab-theory" class="panel">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      
+      <div style="background:#f8fafc;border:1px solid var(--pori-border-soft);border-radius:12px;padding:16px;">
+        <h3 style="color:#0f766e;margin-top:0;">✂️ রিকম্বিন্যান্ট DNA এর অপরিহার্য হাতিয়ার</h3>
+        <ul style="margin:0;padding-left:20px;font-size:13px;line-height:1.8;">
+          <li><strong>প্লাজমিড (Plasmid):</strong> ব্যাকটেরিয়ার ক্রোমোজোম-বহির্ভূত স্ব-বিভাজনক্ষম বৃত্তাকার DNA অণু, যা কাঙ্ক্ষিত জিন বহনের ভেক্টর।</li>
+          <li><strong>রেস্ট্রিকশন এনজাইম (Restriction Enzyme):</strong> সুনির্দিষ্ট ক্ষারক জোড়ে DNA কর্তনকারী আণবিক কাঁচি; এটি স্টিকি প্রান্ত তৈরি করে।</li>
+          <li><strong>DNA লাইগেজ (DNA Ligase):</strong> ফসফোডাইএস্টার বন্ধন তৈরি করে কাটা প্রান্তে জিন জোড়া লাগানোর আণবিক আঠা।</li>
+          <li><strong>ট্রান্সফরমেশন (Transformation):</strong> পোষক ব্যাকটেরিয়া কোষে রিকম্বিন্যান্ট প্লাজমিড প্রবেশ করানোর কৌশল।</li>
+        </ul>
+      </div>
+
+      <div style="background:#f8fafc;border:1px solid var(--pori-border-soft);border-radius:12px;padding:16px;">
+        <h3 style="color:#16a34a;margin-top:0;">🌱 টিস্যু কালচারের অপরিহার্য উপাদান</h3>
+        <ul style="margin:0;padding-left:20px;font-size:13px;line-height:1.8;">
+          <li><strong>টটিপোটেন্সি (Totipotency):</strong> উদ্ভিদের একটিমাত্র সজীব দেহকোষ থেকে পূর্ণাঙ্গ উদ্ভিদ সৃষ্টির অন্তর্নিহিত ক্ষমতা।</li>
+          <li><strong>এক্সপ্ল্যান্ট (Explant):</strong> কালচারের জন্য সংগৃহীত উদ্ভিদের শীর্ষমুকুল বা পাতার ক্ষুদ্র সজীব অংশ।</li>
+          <li><strong>ক্যালাস (Callus):</strong> পুষ্টি মাধ্যমে অনিয়ন্ত্রিত মাইটোসিসের মাধ্যমে সৃষ্ট অবয়বহীন টিস্যুপুঞ্জ।</li>
+          <li><strong>অটোক্লেভ নির্বীজন:</strong> ১২১° সেলসিয়াস, ১৫ lb/sq. inch বাষ্পীয় চাপ এবং ২০ মিনিট সময়।</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div style="margin-top:16px;background:#fff;border:1px solid var(--pori-border-soft);border-radius:12px;padding:16px;">
+      <h3 style="margin-top:0;color:var(--pori-heading);">⚖️ তুলনামূলক ছক: সনাতন প্রজনন বনাম জেনেটিক ইঞ্জিনিয়ারিং</h3>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;line-height:1.6;">
+        <thead>
+          <tr style="background:#f1f5f9;text-align:left;">
+            <th style="padding:8px 12px;border:1px solid #cbd5e1;">বৈশিষ্ট্য</th>
+            <th style="padding:8px 12px;border:1px solid #cbd5e1;">সনাতন প্রজনন (Conventional)</th>
+            <th style="padding:8px 12px;border:1px solid #cbd5e1;">জিন প্রকৌশল (Genetic Engineering)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:8px 12px;border:1px solid #cbd5e1;"><strong>প্রজাতির পরিধি</strong></td>
+            <td style="padding:8px 12px;border:1px solid #cbd5e1;">কেবল একই বা নিকটবর্তী প্রজাতির ভেতর সীমাবদ্ধ</td>
+            <td style="padding:8px 12px;border:1px solid #cbd5e1;">যেকোনো দূরবর্তী প্রজাতির মধ্যে জিন সরাসরি বিনিময়যোগ্য</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px;border:1px solid #cbd5e1;"><strong>জিনের সুনির্দিষ্টতা</strong></td>
+            <td style="padding:8px 12px;border:1px solid #cbd5e1;">কাঙ্ক্ষিত জিনের সাথে অনাকাঙ্ক্ষিত জিনও প্রবেশ করে</td>
+            <td style="padding:8px 12px;border:1px solid #cbd5e1;">শুধুমাত্র একটিমাত্র কাঙ্ক্ষিত জিন নির্দিষ্টভাবে সন্নিবেশিত হয়</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px;border:1px solid #cbd5e1;"><strong>সময়কাল</strong></td>
+            <td style="padding:8px 12px;border:1px solid #cbd5e1;">কয়েক বছর বা কয়েক প্রজন্ম প্রয়োজন</td>
+            <td style="padding:8px 12px;border:1px solid #cbd5e1;">খুব অল্প সময়ে সুনির্দিষ্ট ফলাফল অর্জিত হয়</td>
+          </tr>
+          <tr>
+            <td style="padding:8px 12px;border:1px solid #cbd5e1;"><strong>আন্তর্জাতিক নীতি</strong></td>
+            <td style="padding:8px 12px;border:1px solid #cbd5e1;">কোনো আন্তর্জাতিক বায়োসেফটি অনুমোদন লাগে না</td>
+            <td style="padding:8px 12px;border:1px solid #cbd5e1;">আন্তর্জাতিক বায়োসেফটি ও টক্সিসিটি পরীক্ষা বাধ্যতামূলক</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PANEL 4: QUIZ -->
+  <div id="tab-quiz" class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+      <h3 style="margin:0;color:var(--pori-heading);">⚡ অধ্যায় ১৪ ব্যবহারিক জ্ঞান মূল্যায়ন</h3>
+      <span style="font-size:13px;font-weight:700;color:var(--pori-accent);">স্কোর: <span id="quizScore">০</span>/৫</span>
+    </div>
+
+    <div class="quiz-card" id="q1">
+      <h4>১. রিকম্বিন্যান্ট DNA তৈরিতে নির্দিষ্ট ক্ষারক ক্রমে DNA কাটার জন্য কোন উৎসেচকটি ব্যবহৃত হয়?</h4>
+      <div class="quiz-opts">
+        <div class="quiz-opt" onclick="checkQuiz(1, 0, false)">DNA পলিমারেজ</div>
+        <div class="quiz-opt" onclick="checkQuiz(1, 1, true)">রেস্ট্রিকশন এনজাইম</div>
+        <div class="quiz-opt" onclick="checkQuiz(1, 2, false)">DNA লাইগেজ</div>
+        <div class="quiz-opt" onclick="checkQuiz(1, 3, false)">এমাইলেজ</div>
+      </div>
+      <div class="feedback" id="f1"></div>
+    </div>
+
+    <div class="quiz-card" id="q2">
+      <h4>২. অটোক্লেভ যন্ত্রে কালচার মাধ্যম জীবাণুমুক্তকরণের আদর্শ তাপমাত্রা ও সময় কোনটি?</h4>
+      <div class="quiz-opts">
+        <div class="quiz-opt" onclick="checkQuiz(2, 0, false)">১০০° সে. ও ১০ মিনিট</div>
+        <div class="quiz-opt" onclick="checkQuiz(2, 1, false)">১৫০° সে. ও ৩০ মিনিট</div>
+        <div class="quiz-opt" onclick="checkQuiz(2, 2, true)">১২১° সে. ও ২০ মিনিট</div>
+        <div class="quiz-opt" onclick="checkQuiz(2, 3, false)">১৮০° সে. ও ১৫ মিনিট</div>
+      </div>
+      <div class="feedback" id="f2"></div>
+    </div>
+
+    <div class="quiz-card" id="q3">
+      <h4>৩. প্লাজমিডের অন্যতম প্রধান বৈশিষ্ট্য কোনটি?</h4>
+      <div class="quiz-opts">
+        <div class="quiz-opt" onclick="checkQuiz(3, 0, false)">এটি ব্যাকটেরিয়ার প্রধান ক্রোমোজোমের সাথে যুক্ত থাকে</div>
+        <div class="quiz-opt" onclick="checkQuiz(3, 1, true)">এটি স্ব-বিভাজনক্ষম বৃত্তাকার দ্বি-সূত্রক DNA</div>
+        <div class="quiz-opt" onclick="checkQuiz(3, 2, false)">এটি কেবল প্রাণীকোষের মাইটোকন্ড্রিয়ায় থাকে</div>
+        <div class="quiz-opt" onclick="checkQuiz(3, 3, false)">এতে কোনো রেস্ট্রিকশন সাইট থাকে না</div>
+      </div>
+      <div class="feedback" id="f3"></div>
+    </div>
+
+    <div class="quiz-card" id="q4">
+      <h4>৪. কালচার মিডিয়ামে এক্সপ্ল্যান্টের কোষ বারবার বিভাজিত হয়ে সৃষ্ট অবয়বহীন টিস্যুপুঞ্জকে কী বলে?</h4>
+      <div class="quiz-opts">
+        <div class="quiz-opt" onclick="checkQuiz(4, 0, true)">ক্যালাস (Callus)</div>
+        <div class="quiz-opt" onclick="checkQuiz(4, 1, false)">এক্সপ্ল্যান্ট</div>
+        <div class="quiz-opt" onclick="checkQuiz(4, 2, false)">মাইক্রোটিউবার</div>
+        <div class="quiz-opt" onclick="checkQuiz(4, 3, false)">জাইগোট</div>
+      </div>
+      <div class="feedback" id="f4"></div>
+    </div>
+
+    <div class="quiz-card" id="q5">
+      <h4>৫. সমুদ্র ও খনি অঞ্চলে তেলের বিষাক্ত হাইড্রোকার্বন বিনষ্ট করে পরিবেশ মুক্ত করে কোন বিশেষ ব্যাকটেরিয়া?</h4>
+      <div class="quiz-opts">
+        <div class="quiz-opt" onclick="checkQuiz(5, 0, false)">Escherichia coli</div>
+        <div class="quiz-opt" onclick="checkQuiz(5, 1, false)">Bacillus thuringiensis</div>
+        <div class="quiz-opt" onclick="checkQuiz(5, 2, true)">Pseudomonas</div>
+        <div class="quiz-opt" onclick="checkQuiz(5, 3, false)">Lactobacillus</div>
+      </div>
+      <div class="feedback" id="f5"></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Tab Switching
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+    if (tabId === 'tab-rdna') renderRdna();
+    if (tabId === 'tab-tissue') renderTissue();
+  }
+
+  // ==========================================
+  // RDNA SIMULATOR ENGINE
+  // ==========================================
+  let rdnaStep = 1;
+  const rdnaDescs = [
+    "<strong>ধাপ ১:</strong> দাতা কোষ থেকে কাঙ্ক্ষিত জিন (যেমন ইনসুলিন জিন, বেগুনী রঙ) এবং E. coli ব্যাকটেরিয়া থেকে বৃত্তাকার প্লাজমিড DNA (নীল বলয়) পৃথক করা হয়েছে।",
+    "<strong>ধাপ ২:</strong> আণবিক কাঁচি বা 'রেস্ট্রিকশন এনজাইম' যোগ করা হয়েছে। এটি প্লাজমিড এবং দাতা DNA উভয়কেই সুনির্দিষ্ট স্থানে কেটে স্টিকি প্রান্ত (আঠালো কাটা মুখ) তৈরি করেছে।",
+    "<strong>ধাপ ৩:</strong> 'DNA লাইগেজ' আঠা যোগ করা হয়েছে। এটি কাটা প্লাজমিডের ফাঁকে কাঙ্ক্ষিত জিনটি বসিয়ে স্থায়ীভাবে জুড়ে দিয়ে সৃষ্টি করেছে 'রিকম্বিন্যান্ট প্লাজমিড DNA'।",
+    "<strong>ধাপ ৪ (ট্রান্সফরমেশন):</strong> ক্যালসিয়াম ও তাপীয় অভিঘাত দিয়ে রিকম্বিন্যান্ট প্লাজমিডটিকে গ্রাহক E. coli ব্যাকটেরিয়া কোষে প্রবেশ করানো হয়েছে। এটি এখন একটি ট্রান্সজেনিক ব্যাকটেরিয়া।",
+    "<strong>ধাপ ৫ (জিন ক্লোনিং):</strong> ট্রান্সজেনিক ব্যাকটেরিয়া প্রতি ২০ মিনিটে দ্বি-ভাজনে বিভাজিত হয়ে কোটি কোটি প্রতিলিপি তৈরি করছে এবং প্রচুর ইনসুলিন প্রোটিন উৎপাদন করছে।"
+  ];
+  const rdnaNames = [
+    "১. কাঙ্ক্ষিত জিন ও প্লাজমিড পৃথকীকরণ",
+    "২. রেস্ট্রিকশন এনজাইমে কর্তন",
+    "৩. লাইগেজ আঠা দিয়ে রিকম্বিন্যান্ট প্লাজমিড গঠন",
+    "৪. গ্রাহক কোষে ট্রান্সফরমেশন",
+    "৫. ব্যাকটেরিয়ার জিন ক্লোনিং ও বংশবৃদ্ধি"
+  ];
+
+  function renderRdna() {
+    const svg = document.getElementById('rdnaSvg');
+    document.getElementById('rdnaStepNum').textContent = rdnaStep;
+    document.getElementById('rdnaStageName').textContent = rdnaNames[rdnaStep - 1];
+    document.getElementById('rdnaDesc').innerHTML = rdnaDescs[rdnaStep - 1];
+    
+    // Update step list styling
+    document.querySelectorAll('#rdnaStepList .step-item').forEach((item, idx) => {
+      item.classList.remove('active', 'done');
+      if (idx + 1 === rdnaStep) item.classList.add('active');
+      else if (idx + 1 < rdnaStep) item.classList.add('done');
+    });
+
+    let html = '';
+    if (rdnaStep === 1) {
+      // Step 1: Donor DNA & Intact Plasmid
+      html = `
+        <rect width="100%" height="100%" fill="#f8fafc"/>
+        <text x="130" y="45" font-size="14" font-weight="700" fill="#0369a1" text-anchor="middle">E. coli প্লাজমিড DNA</text>
+        <circle cx="130" cy="170" r="75" fill="none" stroke="#0284c7" stroke-width="16" stroke-dasharray="6,2"/>
+        <circle cx="130" cy="170" r="62" fill="#e0f2fe" opacity="0.5"/>
+        <text x="130" y="175" font-size="12" font-weight="600" fill="#0369a1" text-anchor="middle">অটোনমাস প্লাজমিড</text>
+
+        <!-- Donor DNA -->
+        <text x="390" y="45" font-size="14" font-weight="700" fill="#7c3aed" text-anchor="middle">দাতা ক্রোমোজোমাল DNA</text>
+        <path d="M 310,130 Q 350,110 390,130 T 470,130" fill="none" stroke="#94a3b8" stroke-width="12" stroke-linecap="round"/>
+        <path d="M 360,170 Q 390,150 420,170" fill="none" stroke="#9333ea" stroke-width="16" stroke-linecap="round"/>
+        <text x="390" y="210" font-size="13" font-weight="700" fill="#6b21a8" text-anchor="middle">কাঙ্ক্ষিত জিন (যেমন ইনসুলিন)</text>
+      `;
+    } else if (rdnaStep === 2) {
+      // Step 2: Cut Plasmid with Scissors
+      html = `
+        <rect width="100%" height="100%" fill="#f8fafc"/>
+        <text x="270" y="35" font-size="14" font-weight="700" fill="#dc2626" text-anchor="middle">✂️ রেস্ট্রিকশন এনজাইম (আণবিক কাঁচি) এর ক্রিয়া</text>
+        
+        <!-- Cut Plasmid Arc -->
+        <path d="M 195,120 A 75 75 0 1 0 345,120" fill="none" stroke="#0284c7" stroke-width="16" stroke-linecap="round"/>
+        <circle cx="195" cy="120" r="8" fill="#f87171"/>
+        <circle cx="345" cy="120" r="8" fill="#f87171"/>
+        <text x="270" y="180" font-size="12" font-weight="600" fill="#0369a1" text-anchor="middle">কাটা প্লাজমিড (স্টিকি প্রান্ত)</text>
+
+        <!-- Scissors Icon -->
+        <text x="270" y="105" font-size="34" text-anchor="middle">✂️</text>
+
+        <!-- Isolated Target Gene -->
+        <rect x="220" y="240" width="100" height="24" rx="8" fill="#9333ea" stroke="#7e22ce" stroke-width="2"/>
+        <text x="270" y="256" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">কাঙ্ক্ষিত জিন খণ্ড</text>
+      `;
+    } else if (rdnaStep === 3) {
+      // Step 3: Recombinant Plasmid with Ligase
+      html = `
+        <rect width="100%" height="100%" fill="#f8fafc"/>
+        <text x="270" y="35" font-size="14" font-weight="700" fill="#0f766e" text-anchor="middle">✨ DNA লাইগেজ আঠা দিয়ে সংযুক্ত রিকম্বিন্যান্ট প্লাজমিড</text>
+        
+        <g class="pulse-elem">
+          <!-- Blue part of plasmid -->
+          <path d="M 215,125 A 75 75 0 1 0 325,125" fill="none" stroke="#0284c7" stroke-width="16" stroke-linecap="round"/>
+          <!-- Inserted Purple Target Gene completing the circle -->
+          <path d="M 325,125 A 75 75 0 0 0 215,125" fill="none" stroke="#9333ea" stroke-width="18" stroke-linecap="round"/>
+          <circle cx="270" cy="175" r="58" fill="#ecfdf5" opacity="0.6"/>
+          <text x="270" y="172" font-size="13" font-weight="750" fill="#0f766e" text-anchor="middle">রিকম্বিন্যান্ট DNA</text>
+          <text x="270" y="190" font-size="10" font-weight="600" fill="#0369a1" text-anchor="middle">(Recombinant Plasmid)</text>
+        </g>
+        
+        <!-- Ligase Glue tag -->
+        <rect x="210" y="270" width="120" height="26" rx="6" fill="#10b981"/>
+        <text x="270" y="287" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">DNA লাইগেজ বন্ধন বদ্ধ</text>
+      `;
+    } else if (rdnaStep === 4) {
+      // Step 4: Transformation into Bacterium
+      html = `
+        <rect width="100%" height="100%" fill="#f8fafc"/>
+        <text x="270" y="30" font-size="14" font-weight="700" fill="#1e293b" text-anchor="middle">🔄 ট্রান্সফরমেশন: E. coli ব্যাকটেরিয়ায় প্লাজমিড প্রবেশ</text>
+        
+        <!-- Bacterium Outline (Capsule) -->
+        <rect x="120" y="65" width="300" height="200" rx="90" fill="#f0fdf4" stroke="#22c55e" stroke-width="8"/>
+        <path d="M 190,130 Q 230,100 270,140 T 350,130" fill="none" stroke="#86efac" stroke-width="10"/>
+        <text x="270" y="105" font-size="11" font-weight="600" fill="#166534" text-anchor="middle">ব্যাকটেরিয়ার প্রধান ক্রোমোজোম</text>
+
+        <!-- Recombinant plasmid inside cell -->
+        <g transform="translate(270, 190) scale(0.65)">
+          <path d="M -50,-25 A 50 50 0 1 0 50,-25" fill="none" stroke="#0284c7" stroke-width="14"/>
+          <path d="M 50,-25 A 50 50 0 0 0 -50,-25" fill="none" stroke="#9333ea" stroke-width="16"/>
+        </g>
+        <text x="270" y="240" font-size="13" font-weight="700" fill="#0f766e" text-anchor="middle">ট্রান্সজেনিক E. coli প্রস্তুত!</text>
+      `;
+    } else if (rdnaStep === 5) {
+      // Step 5: Gene Cloning & Exponential Growth
+      html = `
+        <rect width="100%" height="100%" fill="#f8fafc"/>
+        <text x="270" y="30" font-size="14" font-weight="700" fill="#0f766e" text-anchor="middle">🎉 জিন ক্লোনিং: কোটি কোটি অপত্য ব্যাকটেরিয়ায় জিনের বিস্তার</text>
+        
+        <!-- Multiple mini bacteria -->
+        <g transform="translate(90, 80) scale(0.6)">
+          <rect x="0" y="0" width="160" height="90" rx="45" fill="#f0fdf4" stroke="#22c55e" stroke-width="5"/>
+          <circle cx="80" cy="45" r="16" fill="none" stroke="#0284c7" stroke-width="5"/>
+          <circle cx="92" cy="45" r="4" fill="#9333ea"/>
+        </g>
+        <g transform="translate(290, 80) scale(0.6)">
+          <rect x="0" y="0" width="160" height="90" rx="45" fill="#f0fdf4" stroke="#22c55e" stroke-width="5"/>
+          <circle cx="80" cy="45" r="16" fill="none" stroke="#0284c7" stroke-width="5"/>
+          <circle cx="92" cy="45" r="4" fill="#9333ea"/>
+        </g>
+        <g transform="translate(50, 190) scale(0.6)">
+          <rect x="0" y="0" width="160" height="90" rx="45" fill="#f0fdf4" stroke="#22c55e" stroke-width="5"/>
+          <circle cx="80" cy="45" r="16" fill="none" stroke="#0284c7" stroke-width="5"/>
+          <circle cx="92" cy="45" r="4" fill="#9333ea"/>
+        </g>
+        <g transform="translate(190, 190) scale(0.6)">
+          <rect x="0" y="0" width="160" height="90" rx="45" fill="#f0fdf4" stroke="#22c55e" stroke-width="5"/>
+          <circle cx="80" cy="45" r="16" fill="none" stroke="#0284c7" stroke-width="5"/>
+          <circle cx="92" cy="45" r="4" fill="#9333ea"/>
+        </g>
+        <g transform="translate(330, 190) scale(0.6)">
+          <rect x="0" y="0" width="160" height="90" rx="45" fill="#f0fdf4" stroke="#22c55e" stroke-width="5"/>
+          <circle cx="80" cy="45" r="16" fill="none" stroke="#0284c7" stroke-width="5"/>
+          <circle cx="92" cy="45" r="4" fill="#9333ea"/>
+        </g>
+
+        <!-- Product Banner -->
+        <rect x="150" y="285" width="240" height="32" rx="8" fill="#134e4a"/>
+        <text x="270" y="306" font-size="13" font-weight="700" fill="#a7f3d0" text-anchor="middle">লক্ষ লক্ষ খাঁটি ইনসুলিন অণু সংগৃহীত</text>
+      `;
+    }
+    svg.innerHTML = html;
+  }
+
+  function nextRdnaStep() {
+    rdnaStep = (rdnaStep % 5) + 1;
+    renderRdna();
+  }
+  function setRdnaStep(s) {
+    rdnaStep = s;
+    renderRdna();
+  }
+  function resetRdna() {
+    rdnaStep = 1;
+    renderRdna();
+  }
+
+  // ==========================================
+  // TISSUE CULTURE SIMULATOR ENGINE
+  // ==========================================
+  let tissueStep = 1;
+  const tissueDescs = [
+    "<strong>ধাপ ১:</strong> উৎকৃষ্ট রোগমুক্ত উদ্ভিদের শীর্ষমুকুল থেকে এক্সপ্ল্যান্ট (Explant) সংগ্রহ করা হয়েছে। এর প্রতিটি কোষে পূর্ণাঙ্গ উদ্ভিদ গঠনের 'টটিপোটেন্ট' ক্ষমতা রয়েছে।",
+    "<strong>ধাপ ২:</strong> পুষ্টিবর্ধক মিডিয়ামে খনিজ লবণ, ভিটামিন, সুক্রোজ, ফাইটোহরমোন ও অ্যাগার মিশিয়ে অটোক্লেভ যন্ত্রে ১২১° সেলসিয়াস তাপমাত্রায় ও ১৫ পাউন্ড চাপে ২০ মিনিট নির্বীজন করা হয়েছে।",
+    "<strong>ধাপ ৩:</strong> জীবাণুমুক্ত পুষ্টি মাধ্যমে এক্সপ্ল্যান্ট স্থাপন করে নিয়ন্ত্রিত কক্ষে (২৫±২° সে.) রাখা হয়েছে। বারংবার কোষ বিভাজনে একটি অবয়বহীন টিস্যুমণ্ড বা 'ক্যালাস (Callus)' তৈরি হয়েছে।",
+    "<strong>ধাপ ৪:</strong> ক্যালাস থেকে অসংখ্য শাখা বা বিটপ তৈরি হয়েছে। এরপর সেগুলোকে মূল উৎপাদনকারী বিশেষ হরমোনযুক্ত পুষ্টি মাধ্যমে স্থানান্তর করায় পূর্ণাঙ্গ অণুচারা (Plantlets) ও শেকড় তৈরি হয়েছে।",
+    "<strong>ধাপ ৫ (অ্যাক্লাইমেটাইজেশন):</strong> চারাগুলোকে টেস্টটিউব থেকে বের করে শেকড়ের অ্যাগার ধুয়ে মাটিভরা ছোট টবে রোপণ করে প্রাকৃতিক রোদ ও আবহাওয়ার সাথে খাপ খাইয়ে পূর্ণাঙ্গ উদ্ভিদে রূপান্তর করা হয়েছে।"
+  ];
+  const tissueNames = [
+    "১. মাতৃ উদ্ভিদ ও এক্সপ্ল্যান্ট সংগ্রহ",
+    "২. পুষ্টি মাধ্যম ও অটোক্লেভ নির্বীজন (১২১° সে.)",
+    "৩. ক্যালাস (Callus) টিস্যুপুঞ্জ সৃষ্টি",
+    "৪. মূল উৎপাদন ও অণুচারা (Plantlets) তৈরি",
+    "৫. অ্যাক্লাইমেটাইজেশন ও মাঠে রোপণ"
+  ];
+
+  function renderTissue() {
+    const svg = document.getElementById('tissueSvg');
+    document.getElementById('tissueStepNum').textContent = tissueStep;
+    document.getElementById('tissueStageName').textContent = tissueNames[tissueStep - 1];
+    document.getElementById('tissueDesc').innerHTML = tissueDescs[tissueStep - 1];
+
+    document.querySelectorAll('#tissueStepList .step-item').forEach((item, idx) => {
+      item.classList.remove('active', 'done');
+      if (idx + 1 === tissueStep) item.classList.add('active');
+      else if (idx + 1 < tissueStep) item.classList.add('done');
+    });
+
+    let html = '';
+    if (tissueStep === 1) {
+      // Step 1: Mother plant & scalpel cutting explant
+      html = `
+        <rect width="100%" height="100%" fill="#f8fafc"/>
+        <text x="270" y="35" font-size="14" font-weight="700" fill="#166534" text-anchor="middle">🌱 রোগমুক্ত মাতৃউদ্ভিদ ও শীর্ষ এক্সপ্ল্যান্ট কর্তন</text>
+        
+        <!-- Plant Stem & Leaves -->
+        <path d="M 270,300 L 270,120" stroke="#15803d" stroke-width="12" stroke-linecap="round"/>
+        <path d="M 270,220 Q 200,200 180,240 Q 240,240 270,220" fill="#22c55e"/>
+        <path d="M 270,180 Q 340,160 360,200 Q 300,200 270,180" fill="#22c55e"/>
+        
+        <!-- Shoot tip / Explant highlighted -->
+        <circle cx="270" cy="115" r="14" fill="#86efac" stroke="#16a34a" stroke-width="3"/>
+        <text x="350" y="118" font-size="13" font-weight="700" fill="#166534">নির্বাচিত এক্সপ্ল্যান্ট ↗</text>
+      `;
+    } else if (tissueStep === 2) {
+      // Step 2: Conical flask / Test tube with nutrient medium & Autoclave
+      html = `
+        <rect width="100%" height="100%" fill="#f8fafc"/>
+        <text x="270" y="35" font-size="14" font-weight="700" fill="#0f766e" text-anchor="middle">⚗️ অটোক্লেভে জীবাণুমুক্ত পুষ্টি মাধ্যম (১২১° সে., ১৫ lb চাপ, ২০ মি.)</text>
+        
+        <!-- Conical Flask -->
+        <path d="M 240,80 L 300,80 L 300,120 L 370,260 A 20 20 0 0 1 350,280 L 190,280 A 20 20 0 0 1 170,260 L 240,120 Z" fill="#ffffff" stroke="#64748b" stroke-width="5"/>
+        <!-- Semi-solid Agar Medium -->
+        <path d="M 175,260 L 365,260 A 15 15 0 0 1 350,280 L 190,280 A 15 15 0 0 1 175,260 Z" fill="#fef08a"/>
+        <text x="270" y="273" font-size="11" font-weight="700" fill="#854d0e" text-anchor="middle">অ্যাগার পুষ্টি মাধ্যম</text>
+        
+        <!-- Sterile cotton plug -->
+        <rect x="235" y="65" width="70" height="25" rx="8" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/>
+        <text x="270" y="82" font-size="11" font-weight="600" fill="#475569" text-anchor="middle">জীবাণুমুক্ত ছিপি</text>
+      `;
+    } else if (tissueStep === 3) {
+      // Step 3: Explant inoculated & Callus lump formed
+      html = `
+        <rect width="100%" height="100%" fill="#f8fafc"/>
+        <text x="270" y="35" font-size="14" font-weight="700" fill="#15803d" text-anchor="middle">🧫 ক্যালাস (Callus) সৃষ্টি: অবয়বহীন সজীব টিস্যুমণ্ড</text>
+        
+        <!-- Flask -->
+        <path d="M 240,80 L 300,80 L 300,120 L 370,260 A 20 20 0 0 1 350,280 L 190,280 A 20 20 0 0 1 170,260 L 240,120 Z" fill="#ffffff" stroke="#64748b" stroke-width="5"/>
+        <path d="M 175,260 L 365,260 A 15 15 0 0 1 350,280 L 190,280 A 15 15 0 0 1 175,260 Z" fill="#fef08a"/>
+        
+        <!-- Callus Lump -->
+        <g transform="translate(270, 240)">
+          <circle cx="-12" cy="0" r="14" fill="#86efac" stroke="#15803d" stroke-width="2"/>
+          <circle cx="12" cy="0" r="16" fill="#4ade80" stroke="#15803d" stroke-width="2"/>
+          <circle cx="0" cy="-12" r="13" fill="#a7f3d0" stroke="#15803d" stroke-width="2"/>
+          <circle cx="0" cy="8" r="15" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
+        </g>
+        <text x="270" y="200" font-size="13" font-weight="750" fill="#15803d" text-anchor="middle">অসংগঠিত টিস্যুপুঞ্জ (ক্যালাস)</text>
+      `;
+    } else if (tissueStep === 4) {
+      // Step 4: Shoot & Root Induction -> Plantlets
+      html = `
+        <rect width="100%" height="100%" fill="#f8fafc"/>
+        <text x="270" y="30" font-size="14" font-weight="700" fill="#166534" text-anchor="middle">🌿 অণুচারা (Plantlet) উৎপাদন ও মূল গঠন</text>
+        
+        <!-- Large Test tube -->
+        <rect x="230" y="60" width="80" height="220" rx="40" fill="#ffffff" stroke="#64748b" stroke-width="5"/>
+        <path d="M 230,230 L 310,230 L 310,240 A 40 40 0 0 1 230,240 Z" fill="#fef08a"/>
+        
+        <!-- Growing Plantlet with roots -->
+        <path d="M 270,225 L 270,120" stroke="#15803d" stroke-width="6"/>
+        <!-- Shoots & leaves -->
+        <path d="M 270,150 Q 230,130 220,160 Q 260,160 270,150" fill="#22c55e"/>
+        <path d="M 270,130 Q 310,110 320,140 Q 280,140 270,130" fill="#22c55e"/>
+        <circle cx="270" cy="115" r="7" fill="#4ade80"/>
+        
+        <!-- Roots in medium -->
+        <path d="M 270,230 Q 255,250 250,265" stroke="#ca8a04" stroke-width="3" fill="none"/>
+        <path d="M 270,230 Q 285,250 290,265" stroke="#ca8a04" stroke-width="3" fill="none"/>
+        <text x="360" y="250" font-size="12" font-weight="700" fill="#a16207">↖ মূল গঠিত</text>
+      `;
+    } else if (tissueStep === 5) {
+      // Step 5: Acclimatization in mud pot
+      html = `
+        <rect width="100%" height="100%" fill="#f8fafc"/>
+        <text x="270" y="30" font-size="14" font-weight="700" fill="#047857" text-anchor="middle">🪴 টবে পূর্ণাঙ্গ চারা: সফল অ্যাক্লাইমেটাইজেশন</text>
+        
+        <!-- Mud Pot -->
+        <polygon points="210,240 330,240 310,310 230,310" fill="#b45309" stroke="#78350f" stroke-width="4"/>
+        <ellipse cx="270" cy="240" rx="60" ry="12" fill="#713f12"/>
+        
+        <!-- Healthy Potted Plant -->
+        <path d="M 270,240 L 270,110" stroke="#15803d" stroke-width="9" stroke-linecap="round"/>
+        <path d="M 270,190 Q 180,160 160,210 Q 230,210 270,190" fill="#22c55e"/>
+        <path d="M 270,150 Q 360,120 380,170 Q 310,170 270,150" fill="#22c55e"/>
+        <path d="M 270,120 Q 210,80 200,120 Q 250,130 270,120" fill="#4ade80"/>
+        <circle cx="270" cy="105" r="10" fill="#86efac"/>
+
+        <!-- Success badge -->
+        <rect x="180" y="315" width="180" height="20" rx="4" fill="#065f46"/>
+        <text x="270" y="329" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">মাঠে রোপণের জন্য শতভাগ প্রস্তুত</text>
+      `;
+    }
+    svg.innerHTML = html;
+  }
+
+  function nextTissueStep() {
+    tissueStep = (tissueStep % 5) + 1;
+    renderTissue();
+  }
+  function setTissueStep(s) {
+    tissueStep = s;
+    renderTissue();
+  }
+  function resetTissue() {
+    tissueStep = 1;
+    renderTissue();
+  }
+
+  // ==========================================
+  // QUIZ ENGINE
+  // ==========================================
+  let score = 0;
+  const answered = {};
+  const explanations = [
+    "সঠিক উত্তর: রেস্ট্রিকশন এনজাইম বা আণবিক কাঁচি দিয়ে নির্দিষ্ট ক্ষারক ক্রমে DNA কাটা হয়।",
+    "সঠিক উত্তর: অটোক্লেভে ১২১° সেলসিয়াস তাপমাত্রায় এবং ১৫ পাউন্ড চাপে ২০ মিনিট নির্বীজন করা হয়।",
+    "সঠিক উত্তর: প্লাজমিড হলো ক্রোমোজোম-বহির্ভূত স্ব-বিভাজনক্ষম অতিরিক্ত বৃত্তাকার দ্বি-সূত্রক DNA।",
+    "সঠিক উত্তর: পুষ্টি মাধ্যমে বারবার কোষ বিভাজনে সৃষ্ট অবয়বহীন অসংগঠিত টিস্যুপুঞ্জকে ক্যালাস বলে।",
+    "সঠিক উত্তর: Pseudomonas ব্যাকটেরিয়া ক্ষতিকর তেল ও পেট্রোলিয়াম হাইড্রোকার্বন বিনষ্ট করে পরিবেশ মুক্ত করে।"
+  ];
+
+  function checkQuiz(qNum, optIdx, isCorrect) {
+    if (answered[qNum]) return;
+    answered[qNum] = true;
+    const card = document.getElementById('q' + qNum);
+    const opts = card.querySelectorAll('.quiz-opt');
+    opts[optIdx].classList.add(isCorrect ? 'correct' : 'wrong');
+    if (!isCorrect) {
+      opts.forEach(o => {
+        // highlight correct option
+      });
+    }
+    const fb = document.getElementById('f1'.replace('1', qNum));
+    fb.style.display = 'block';
+    fb.style.background = isCorrect ? '#ecfdf5' : '#fff1f2';
+    fb.style.color = isCorrect ? '#065f46' : '#991b1b';
+    fb.innerHTML = (isCorrect ? '✅ চমৎকার! ' : '❌ দুঃখিত! ') + explanations[qNum - 1];
+
+    if (isCorrect) {
+      score++;
+      document.getElementById('quizScore').textContent = '০১২৩৪৫'[score];
+    }
+  }
+
+  // Initial Boot
+  window.addEventListener('DOMContentLoaded', () => {
+    renderRdna();
+    renderTissue();
+  });
+</script>
+</body>
+</html>

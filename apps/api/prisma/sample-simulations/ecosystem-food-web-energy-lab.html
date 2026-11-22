@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>বাস্তুতন্ত্র, খাদ্যজাল ও শক্তি প্রবাহ ল্যাব | poRi</title>
+  <style>
+    /* PORI UNIFIED SIMULATOR THEME */
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-accent: #0f766e;
+      --pori-accent-soft: #ecfdf5;
+      --pori-accent-border: #99f6e4;
+      --pori-accent-ink: #134e4a;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-amber-ink: #92400e;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-border: #fecdd3;
+      --pori-rose-ink: #9f1239;
+      --pori-blue-soft: #eff6ff;
+      --pori-blue-border: #bfdbfe;
+      --pori-blue-ink: #1e40af;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+    .app {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .head h1 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--pori-heading);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--pori-accent-ink);
+      background: var(--pori-accent-soft);
+      border: 1px solid var(--pori-accent-border);
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .head p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--pori-muted);
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--pori-border);
+      background: var(--pori-surface);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--pori-muted);
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      background: var(--pori-accent-soft);
+      color: var(--pori-accent-ink);
+    }
+    .tab-btn.active {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+    }
+
+    /* Standardized Pedagogical Boxes */
+    .intro-box {
+      background: #eff6ff !important;
+      border-left: 4px solid #3b82f6 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.88rem !important;
+      color: #1e3a8a !important;
+      line-height: 1.6 !important;
+      margin-bottom: 14px !important;
+    }
+    .intro-box strong { color: #172554 !important; }
+    .insight-box, .explainer-box {
+      background: #f0fdfa !important;
+      border-left: 4px solid #0d9488 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.88rem !important;
+      color: #134e4a !important;
+      line-height: 1.6 !important;
+      margin-top: 14px !important;
+    }
+    .insight-box strong, .explainer-box strong { color: #042f2e !important; }
+
+    /* Interactive Layout */
+    .grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 820px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: #fff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .panel h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      color: var(--pori-heading);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .svg-canvas {
+      width: 100%;
+      height: 340px;
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 12px;
+      display: block;
+    }
+    .control-group {
+      margin-bottom: 12px;
+    }
+    .control-group label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--pori-heading);
+      margin-bottom: 4px;
+    }
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--pori-accent);
+      cursor: pointer;
+    }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .btn-action {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid var(--pori-border);
+      border-radius: 8px;
+      background: var(--pori-surface);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--pori-heading);
+      transition: background 0.15s;
+    }
+    .btn-action:hover {
+      background: var(--pori-border-soft);
+    }
+    .btn-danger {
+      background: var(--pori-rose-soft);
+      border-color: var(--pori-rose-border);
+      color: var(--pori-rose-ink);
+    }
+    .btn-danger:hover {
+      background: #ffe4e6;
+    }
+    .btn-primary {
+      background: var(--pori-accent);
+      border-color: var(--pori-accent);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #115e59;
+    }
+    .stat-pill {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: #f1f5f9;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .stat-pill b { color: var(--pori-heading); }
+    .status-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .status-stable { background: #dcfce7; color: #166534; }
+    .status-stress { background: #fef9c3; color: #854d0e; }
+    .status-collapse { background: #fee2e2; color: #991b1b; }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="head">
+    <div>
+      <span class="badge">NCTB জীববিজ্ঞান অধ্যায় ১৩ · ইন্টারঅ্যাক্টিভ সিমুলেশন ল্যাব</span>
+      <h1>🌿 বাস্তুতন্ত্র, খাদ্যজাল ও শক্তি প্রবাহ ল্যাব</h1>
+      <p>খাদ্য শৃঙ্খল, শিকারী-শিকার সমীকরণ, লিন্ডেম্যানের ১০% ট্রফিক শক্তি নীতি ও জৈব-ভূ-রাসায়নিক চক্র সিমুলেট করো।</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="setTab('foodweb')">🕸️ খাদ্যজাল ও শিকারী-শিকার সাম্যাবস্থা</button>
+    <button class="tab-btn" onclick="setTab('energy')">⚡ ট্রফিক পিরামিড ও ১০% শক্তি প্রবাহ</button>
+    <button class="tab-btn" onclick="setTab('cycles')">🔄 পুষ্টি চক্র (কার্বন ও নাইট্রোজেন)</button>
+  </div>
+
+  <!-- Tab 1: Food Web -->
+  <div id="tab-foodweb">
+    <div class="intro-box">
+      <strong>📖 পরীক্ষার পরিচিতি ও মূল তত্ত্ব (পাঠ্যবই পৃষ্ঠা ২৮৩–২৯০):</strong><br>
+      বাস্তুতন্ত্রে উৎপাদক (সবুজ উদ্ভিদ), তৃণভোজী (১ম স্তর), মাংসাশী (২য় স্তর) ও শীর্ষ শিকারীর মধ্যে গতিশীল খাদ্য সম্পর্ক বিরাজ করে। নিচের স্লাইডার দিয়ে যে কোনো স্তরের জনসংখ্যার হ্রাস-বৃদ্ধি ঘটাও এবং লক্ষ্য করো কীভাবে শিকারী-শিকারের ভারসাম্য বা বাস্তুতান্ত্রিক ভারসাম্য (Equilibrium) পরিবর্তিত হয়।
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <h3>🕸️ বাস্তুতন্ত্রের লাইভ খাদ্যজাল ভিউ</h3>
+        <svg class="svg-canvas" id="foodwebSvg" viewBox="0 0 540 340">
+          <!-- Dynamic Links & Nodes rendered in JS -->
+        </svg>
+      </div>
+
+      <div class="panel">
+        <h3>🎛️ বাস্তুতন্ত্র নিয়ন্ত্রণ প্যানেল</h3>
+        <div class="control-group">
+          <label><span>🌱 উৎপাদক (ঘাস/শৈবাল) বায়োমাস:</span> <span id="valProducer">100%</span></label>
+          <input type="range" id="rngProducer" min="10" max="200" value="100" oninput="updateEcosystem()">
+        </div>
+        <div class="control-group">
+          <label><span>🦗 ১ম স্তরের খাদক (তৃণভোজী):</span> <span id="valHerbivore">100%</span></label>
+          <input type="range" id="rngHerbivore" min="10" max="200" value="100" oninput="updateEcosystem()">
+        </div>
+        <div class="control-group">
+          <label><span>🐸 ২য় স্তরের খাদক (মাংসাশী):</span> <span id="valCarnivore">100%</span></label>
+          <input type="range" id="rngCarnivore" min="10" max="200" value="100" oninput="updateEcosystem()">
+        </div>
+        <div class="control-group">
+          <label><span>🦅 শীর্ষ খাদক (সাপ/বাজপাখি):</span> <span id="valApex">100%</span></label>
+          <input type="range" id="rngApex" min="10" max="200" value="100" oninput="updateEcosystem()">
+        </div>
+
+        <div class="btn-row">
+          <button class="btn-action btn-danger" onclick="triggerPesticide()">🧪 কীটনাশক প্রয়োগ (শক)</button>
+          <button class="btn-action" onclick="resetEcosystem()">↺ স্বাভাবিক পুনঃস্থাপন</button>
+        </div>
+
+        <div style="margin-top:14px;">
+          <div class="stat-pill">
+            <span>বাস্তুতন্ত্রের বর্তমান অবস্থা:</span>
+            <span id="ecoStatus" class="status-badge status-stable">ভারসাম্যপূর্ণ (Stable)</span>
+          </div>
+          <div class="stat-pill">
+            <span>খাদ্য শৃঙ্খল সুরক্ষা সূচক:</span>
+            <b id="ecoIndex">৯৮%</b>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-box">
+      <strong>🔬 ফলাফল বিশ্লেষণ ও বোর্ড পরীক্ষার ফাঁদ (পৃষ্ঠা ২৮৮-২৯০):</strong><br>
+      • <b>শিকারী অপসারণের প্রভাব:</b> শীর্ষ খাদক (সাপ বা বাঘ) কমে গেলে ২য় ও ১ম স্তরের খাদক অতিরিক্ত বৃদ্ধি পেয়ে সবুজ উৎপাদক ধ্বংস করে ফেলে—যাকে 'ট্রফিক ক্যাসকেড' (Trophic Cascade) বলে।<br>
+      • <b>কীটনাশক শক:</b> পানিতে বা ঘাসে কীটনাশক দিলে ১ম স্তরের খাদক ও ক্ষুদ্র অণুজীব মারা যায়, ফলে খাদ্যাভাবে সমগ্র খাদ্য শৃঙ্খল ভেঙে পড়ে (ইকোলজিক্যাল কোলাপ্স)।
+    </div>
+  </div>
+
+  <!-- Tab 2: Energy Pyramid -->
+  <div id="tab-energy" style="display:none;">
+    <div class="intro-box">
+      <strong>📖 শক্তির পিরামিড ও লিন্ডেম্যানের ১০% নীতি (পাঠ্যবই পৃষ্ঠা ২৯১–২৯৩):</strong><br>
+      সূর্য থেকে আসা আলোকশক্তির মাত্র ১-২% উদ্ভিদ গ্লুকোজে বাঁধে। এরপর খাদ্য শৃঙ্খলের প্রতি ধাপে জীব নিজের শ্বসন ও দৈহিক কাজে প্রায় ৯০% শক্তি তাপ হিসেবে অপচয় করে, মাত্র ১০% শক্তি পরবর্তী পুষ্টি স্তরে সঞ্চিত হয়। নিচে মোট সৌরশক্তি পরিবর্তন করে প্রতিটি ট্রফিক স্তরে অবশিষ্ট শক্তি গণনা করো।
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <h3>⚡ শক্তির খাড়া পিরামিড (Pyramid of Energy)</h3>
+        <svg class="svg-canvas" id="pyramidSvg" viewBox="0 0 540 340">
+          <!-- Dynamic Pyramid Bars rendered in JS -->
+        </svg>
+      </div>
+
+      <div class="panel">
+        <h3>☀️ সৌরশক্তি ইনপুট ও ট্রফিক হিসাব</h3>
+        <div class="control-group">
+          <label><span>মোট আপতিত সৌরশক্তি:</span> <span id="valSolar">1,000,000 J</span></label>
+          <input type="range" id="rngSolar" min="100000" max="5000000" step="100000" value="1000000" oninput="updateEnergy()">
+        </div>
+
+        <div style="margin-top:14px;">
+          <div class="stat-pill" style="border-left:4px solid #16a34a;">
+            <span>T1 (সবুজ উদ্ভিদ - ১% সালোকসংশ্লেষণ):</span>
+            <b id="t1Energy">১০,০০০ J</b>
+          </div>
+          <div class="stat-pill" style="border-left:4px solid #0284c7;">
+            <span>T2 (১ম স্তরের তৃণভোজী - ১০% সঞ্চয়):</span>
+            <b id="t2Energy">১,০০০ J</b>
+          </div>
+          <div class="stat-pill" style="border-left:4px solid #d97706;">
+            <span>T3 (২য় স্তরের মাংসাশী - ১০% সঞ্চয়):</span>
+            <b id="t3Energy">১০০ J</b>
+          </div>
+          <div class="stat-pill" style="border-left:4px solid #dc2626;">
+            <span>T4 (শীর্ষ খাদক - ১০% সঞ্চয়):</span>
+            <b id="t4Energy">১০ J</b>
+          </div>
+          <div class="stat-pill" style="background:#fef2f2;border-left:4px solid #991b1b;">
+            <span>মহাশূন্যে মোট তাপীয় অপচয় (Respiration Loss):</span>
+            <b id="heatLoss">৯,৯৯০ J (৯৯.৯%)</b>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-box">
+      <strong>🔬 কেন শক্তির পিরামিড সর্বদা সোজা থাকে? (পৃষ্ঠা ২৯৩):</strong><br>
+      যেহেতু কোনো পুষ্টি স্তরেই পূর্ববর্তী স্তরের চেয়ে বেশি শক্তি উৎপন্ন হতে পারে না এবং প্রতিটি রূপান্তরে ৯০% শক্তি শ্বসন ও তাপে ক্ষয় হয়, তাই পুষ্টি স্তরের ভিত্তি (T1) সবসময় প্রশস্ততম এবং শীর্ষ (T4) সবসময় সূচালো বা ক্ষুদ্রতম থাকে। তাই শক্তির পিরামিড <b>কখনোই উল্টানো (Inverted) হতে পারে না</b>।
+    </div>
+  </div>
+
+  <!-- Tab 3: Biogeochemical Cycles -->
+  <div id="tab-cycles" style="display:none;">
+    <div class="intro-box">
+      <strong>📖 পুষ্টি উপাদানের চক্রপ্রবাহ — কার্বন ও নাইট্রোজেন চক্র (পাঠ্যবই পৃষ্ঠা ২৯৪–২৯৭):</strong><br>
+      বাস্তুতন্ত্রে শক্তি একমুখী হলেও রাসায়নিক পুষ্টি উপাদানগুলো চক্রাকারে আবর্তিত হয়। নিচে কার্বন চক্র বা নাইট্রোজেন চক্র নির্বাচন করে প্রতিটি ধাপ ও সংশ্লিষ্ট ব্যাকটেরিয়ার ভূমিকা পর্যবেক্ষণ করো।
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <h3 style="margin:0;">🔄 পুষ্টি চক্র ইন্টারঅ্যাক্টিভ ডায়াগ্রাম</h3>
+          <select id="selCycle" onchange="updateCycleView()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--pori-border);font-weight:600;">
+            <option value="nitrogen">নাইট্রোজেন চক্র (N2 Cycle)</option>
+            <option value="carbon">কার্বন চক্র (Carbon Cycle)</option>
+          </select>
+        </div>
+        <svg class="svg-canvas" id="cycleSvg" viewBox="0 0 540 340">
+          <!-- Dynamic Cycle Diagram rendered in JS -->
+        </svg>
+      </div>
+
+      <div class="panel">
+        <h3 id="cycleTitle">🌿 নাইট্রোজেন চক্রের মূল পর্যায়সমূহ</h3>
+        <div id="cycleDetails">
+          <!-- Detailed content injected dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <div class="insight-box">
+      <strong>🔬 বোর্ড পরীক্ষার প্রধান অনুধাবন প্রশ্ন (পৃষ্ঠা ২৯৬-২৯৭):</strong><br>
+      • <b>সংবন্ধন:</b> <i>Rhizobium</i> শিমজাতীয় উদ্ভিদের মূলের নডিউলে বায়ুমণ্ডলীয় $N_2$ গ্যাসকে সরাসরি নাইট্রেটে বাঁধে।<br>
+      • <b>নাইট্রিফিকেশন:</b> অ্যামোনিয়া $\xrightarrow{Nitrosomonas}$ নাইট্রাইট $\xrightarrow{Nitrobacter}$ নাইট্রেট।<br>
+      • <b>ডিনাইট্রিফিকেশন:</b> <i>Pseudomonas</i> মাটির নাইট্রেট ভেঙে মুক্ত $N_2$ বানিয়ে বায়ুমণ্ডলে ফিরিয়ে দিয়ে চক্র সম্পূর্ণ করে।
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentTab = 'foodweb';
+
+  function setTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+      b.classList.toggle('active', (tab === 'foodweb' && i === 0) || (tab === 'energy' && i === 1) || (tab === 'cycles' && i === 2));
+    });
+    document.getElementById('tab-foodweb').style.display = tab === 'foodweb' ? 'block' : 'none';
+    document.getElementById('tab-energy').style.display = tab === 'energy' ? 'block' : 'none';
+    document.getElementById('tab-cycles').style.display = tab === 'cycles' ? 'block' : 'none';
+
+    if (tab === 'foodweb') renderFoodWeb();
+    if (tab === 'energy') updateEnergy();
+    if (tab === 'cycles') updateCycleView();
+  }
+
+  // --- TAB 1: FOOD WEB DYNAMICS ---
+  function updateEcosystem() {
+    const p = parseInt(document.getElementById('rngProducer').value);
+    const h = parseInt(document.getElementById('rngHerbivore').value);
+    const c = parseInt(document.getElementById('rngCarnivore').value);
+    const a = parseInt(document.getElementById('rngApex').value);
+
+    document.getElementById('valProducer').innerText = p + '%';
+    document.getElementById('valHerbivore').innerText = h + '%';
+    document.getElementById('valCarnivore').innerText = c + '%';
+    document.getElementById('valApex').innerText = a + '%';
+
+    const statusEl = document.getElementById('ecoStatus');
+    const indexEl = document.getElementById('ecoIndex');
+
+    // Balance calculation
+    let diff = Math.abs(p - 100) + Math.abs(h - 100) + Math.abs(c - 100) + Math.abs(a - 100);
+    let health = Math.max(10, 100 - Math.round(diff / 4));
+    indexEl.innerText = health + '%';
+
+    if (health >= 80) {
+      statusEl.className = 'status-badge status-stable';
+      statusEl.innerText = 'ভারসাম্যপূর্ণ (Stable)';
+    } else if (health >= 45) {
+      statusEl.className = 'status-badge status-stress';
+      statusEl.innerText = 'চাপযুক্ত (Ecosystem Stress)';
+    } else {
+      statusEl.className = 'status-badge status-collapse';
+      statusEl.innerText = 'ভেঙে পড়ার ঝুঁকি (Collapse Warning)';
+    }
+
+    renderFoodWeb(p, h, c, a);
+  }
+
+  function renderFoodWeb(p = 100, h = 100, c = 100, a = 100) {
+    const svg = document.getElementById('foodwebSvg');
+    if (!svg) return;
+
+    const rP = 20 + (p / 200) * 15;
+    const rH = 18 + (h / 200) * 14;
+    const rC = 16 + (c / 200) * 13;
+    const rA = 15 + (a / 200) * 12;
+
+    svg.innerHTML = `
+      <!-- Background Grid / Water effect -->
+      <rect width="540" height="340" fill="#f8fafc" rx="12"/>
+      
+      <!-- Energy flow arrows -->
+      <line x1="120" y1="270" x2="270" y2="190" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="4,4"/>
+      <line x1="420" y1="270" x2="270" y2="190" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="4,4"/>
+      <line x1="270" y1="190" x2="200" y2="110" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="4,4"/>
+      <line x1="270" y1="190" x2="340" y2="110" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="4,4"/>
+      <line x1="200" y1="110" x2="270" y2="40" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="4,4"/>
+      <line x1="340" y1="110" x2="270" y2="40" stroke="#94a3b8" stroke-width="2.5" stroke-dasharray="4,4"/>
+
+      <!-- T4 Apex Predator -->
+      <circle cx="270" cy="40" r="${rA}" fill="#ef4444" stroke="#b91c1c" stroke-width="2.5"/>
+      <text x="270" y="44" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">🦅 শীর্ষ খাদক</text>
+      <text x="270" y="65" font-size="11" fill="#475569" text-anchor="middle">সাপ / বাজপাখি (${a}%)</text>
+
+      <!-- T3 Carnivores -->
+      <circle cx="200" cy="110" r="${rC}" fill="#f59e0b" stroke="#d97706" stroke-width="2.5"/>
+      <text x="200" y="114" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">🐸 ব্যাঙ</text>
+      
+      <circle cx="340" cy="110" r="${rC}" fill="#f59e0b" stroke="#d97706" stroke-width="2.5"/>
+      <text x="340" y="114" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">🐟 ছোট মাছ</text>
+      <text x="270" y="135" font-size="11" fill="#475569" text-anchor="middle">২য় স্তরের মাংসাশী (${c}%)</text>
+
+      <!-- T2 Herbivores -->
+      <circle cx="270" cy="190" r="${rH}" fill="#0ea5e9" stroke="#0284c7" stroke-width="2.5"/>
+      <text x="270" y="194" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">🦗 তৃণভোজী</text>
+      <text x="270" y="215" font-size="11" fill="#475569" text-anchor="middle">ঘাসফড়িং / জুপ্ল্যাঙ্কটন (${h}%)</text>
+
+      <!-- T1 Producers -->
+      <circle cx="120" cy="270" r="${rP}" fill="#22c55e" stroke="#16a34a" stroke-width="2.5"/>
+      <text x="120" y="274" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">🌱 ঘাস</text>
+
+      <circle cx="420" cy="270" r="${rP}" fill="#22c55e" stroke="#16a34a" stroke-width="2.5"/>
+      <text x="420" y="274" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">🌿 জলজ শৈবাল</text>
+      <text x="270" y="295" font-size="11" fill="#475569" text-anchor="middle">উৎপাদক বা স্বভোজী স্তর (${p}%)</text>
+
+      <!-- Decomposers -->
+      <rect x="180" y="315" width="180" height="22" rx="6" fill="#64748b"/>
+      <text x="270" y="330" font-size="11" font-weight="600" fill="#fff" text-anchor="middle">🦠 বিয়োজক (ছত্রাক ও ব্যাকটেরিয়া)</text>
+    `;
+  }
+
+  function triggerPesticide() {
+    document.getElementById('rngProducer').value = 50;
+    document.getElementById('rngHerbivore').value = 20;
+    document.getElementById('rngCarnivore').value = 40;
+    document.getElementById('rngApex').value = 30;
+    updateEcosystem();
+  }
+
+  function resetEcosystem() {
+    document.getElementById('rngProducer').value = 100;
+    document.getElementById('rngHerbivore').value = 100;
+    document.getElementById('rngCarnivore').value = 100;
+    document.getElementById('rngApex').value = 100;
+    updateEcosystem();
+  }
+
+  // --- TAB 2: ENERGY PYRAMID ---
+  function updateEnergy() {
+    const solar = parseInt(document.getElementById('rngSolar').value);
+    document.getElementById('valSolar').innerText = solar.toLocaleString() + ' J';
+
+    // 1% captured by producers (T1)
+    const t1 = Math.round(solar * 0.01);
+    // 10% transferred to T2
+    const t2 = Math.round(t1 * 0.10);
+    // 10% transferred to T3
+    const t3 = Math.round(t2 * 0.10);
+    // 10% transferred to T4
+    const t4 = Math.round(t3 * 0.10);
+
+    const heat = t1 - t4;
+
+    document.getElementById('t1Energy').innerText = t1.toLocaleString() + ' J (উৎপাদক)';
+    document.getElementById('t2Energy').innerText = t2.toLocaleString() + ' J (১ম খাদক)';
+    document.getElementById('t3Energy').innerText = t3.toLocaleString() + ' J (২য় খাদক)';
+    document.getElementById('t4Energy').innerText = t4.toLocaleString() + ' J (শীর্ষ খাদক)';
+    document.getElementById('heatLoss').innerText = heat.toLocaleString() + ' J (তাপীয় ক্ষতি)';
+
+    renderPyramid(t1, t2, t3, t4);
+  }
+
+  function renderPyramid(t1, t2, t3, t4) {
+    const svg = document.getElementById('pyramidSvg');
+    if (!svg) return;
+
+    svg.innerHTML = `
+      <rect width="540" height="340" fill="#f8fafc" rx="12"/>
+      <text x="270" y="24" font-size="13" font-weight="700" fill="#334155" text-anchor="middle">শক্তির সোজা পিরামিড (প্রতি ধাপে ১০% সঞ্চয়)</text>
+
+      <!-- T1 Base -->
+      <polygon points="70,300 470,300 420,225 120,225" fill="#22c55e" stroke="#15803d" stroke-width="2"/>
+      <text x="270" y="260" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">T1: উৎপাদক স্তর (${t1.toLocaleString()} J)</text>
+      <text x="270" y="278" font-size="11" fill="#ecfdf5" text-anchor="middle">সবুজ উদ্ভিদ ও ফাইটোপ্ল্যাঙ্কটন</text>
+
+      <!-- T2 Tier -->
+      <polygon points="120,225 420,225 370,150 170,150" fill="#0ea5e9" stroke="#0369a1" stroke-width="2"/>
+      <text x="270" y="185" font-size="13" font-weight="700" fill="#fff" text-anchor="middle">T2: ১ম স্তরের খাদক (${t2.toLocaleString()} J)</text>
+      <text x="270" y="202" font-size="11" fill="#f0f9ff" text-anchor="middle">তৃণভোজী প্রাণী / জুপ্ল্যাঙ্কটন</text>
+
+      <!-- T3 Tier -->
+      <polygon points="170,150 370,150 320,80 220,80" fill="#f59e0b" stroke="#b45309" stroke-width="2"/>
+      <text x="270" y="115" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">T3: ২য় স্তরের খাদক (${t3.toLocaleString()} J)</text>
+      <text x="270" y="130" font-size="11" fill="#fffbeb" text-anchor="middle">মাংসাশী (ছোট মাছ, ব্যাঙ)</text>
+
+      <!-- T4 Apex Tier -->
+      <polygon points="220,80 320,80 270,35" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
+      <text x="270" y="62" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">T4: শীর্ষ (${t4.toLocaleString()} J)</text>
+
+      <!-- Respiration Arrow -->
+      <path d="M 430,220 Q 480,180 500,120" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="3,3"/>
+      <text x="495" y="105" font-size="11" font-weight="700" fill="#dc2626" text-anchor="middle">🔥 ৯০% বিপাকীয় তাপ অপচয়</text>
+    `;
+  }
+
+  // --- TAB 3: CYCLES ---
+  function updateCycleView() {
+    const type = document.getElementById('selCycle').value;
+    const svg = document.getElementById('cycleSvg');
+    const details = document.getElementById('cycleDetails');
+    const title = document.getElementById('cycleTitle');
+
+    if (type === 'nitrogen') {
+      title.innerText = '🌿 নাইট্রোজেন চক্রের মেকানিজম (N2 Cycle)';
+      details.innerHTML = `
+        <div style="font-size:13px;line-height:1.7;">
+          <p><b>১. নাইট্রোজেন সংবন্ধন:</b> <i>Rhizobium</i> শিম গাছের মূলে এবং <i>Azotobacter</i> মাটিতে নাইট্রোজেন সংবন্ধন করে।</p>
+          <p><b>২. অ্যামোনিফিকেশন:</b> মৃতদেহ পচে অ্যামোনিয়া ($NH_3$) তৈরি হয়।</p>
+          <p><b>৩. নাইট্রিফিকেশন:</b><br>
+            • $NH_3 \\rightarrow NO_2^-$ (<i>Nitrosomonas</i>)<br>
+            • $NO_2^- \\rightarrow NO_3^-$ (<i>Nitrobacter</i>)
+          </p>
+          <p><b>৪. ডিনাইট্রিফিকেশন:</b> <i>Pseudomonas</i> অতিরিক্ত নাইট্রেট ভেঙে বায়ুমণ্ডলে $N_2$ ফেরত পাঠায়।</p>
+        </div>
+      `;
+      svg.innerHTML = `
+        <rect width="540" height="340" fill="#f8fafc" rx="12"/>
+        
+        <!-- Cloud Atmosphere -->
+        <rect x="150" y="20" width="240" height="40" rx="20" fill="#e0f2fe" stroke="#38bdf8" stroke-width="2"/>
+        <text x="270" y="44" font-size="13" font-weight="700" fill="#0369a1" text-anchor="middle">বায়ুমণ্ডলীয় মুক্ত N2 গ্যাস (৭৮%)</text>
+
+        <!-- Arrows -->
+        <line x1="200" y1="60" x2="130" y2="130" stroke="#0284c7" stroke-width="2.5" marker-end="url(#arrow)"/>
+        <text x="120" y="95" font-size="11" fill="#0284c7" font-weight="600">সংবন্ধন (Rhizobium)</text>
+
+        <rect x="60" y="130" width="160" height="50" rx="10" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/>
+        <text x="140" y="152" font-size="12" font-weight="700" fill="#15803d" text-anchor="middle">উদ্ভিদ ও প্রাণীর প্রোটিন</text>
+        <text x="140" y="168" font-size="11" fill="#166534" text-anchor="middle">(জৈব নাইট্রোজেন)</text>
+
+        <line x1="140" y1="180" x2="140" y2="230" stroke="#94a3b8" stroke-width="2"/>
+        <text x="155" y="210" font-size="11" fill="#475569">পচন ও বিয়োজন</text>
+
+        <rect x="60" y="230" width="160" height="40" rx="8" fill="#f1f5f9" stroke="#cbd5e1"/>
+        <text x="140" y="254" font-size="12" font-weight="700" fill="#334155" text-anchor="middle">অ্যামোনিয়াম (NH4+)</text>
+
+        <line x1="220" y1="250" x2="310" y2="250" stroke="#f59e0b" stroke-width="2.5"/>
+        <text x="265" y="240" font-size="11" fill="#b45309" font-weight="600" text-anchor="middle">Nitrosomonas</text>
+
+        <rect x="310" y="230" width="160" height="40" rx="8" fill="#fef3c7" stroke="#f59e0b"/>
+        <text x="390" y="254" font-size="12" font-weight="700" fill="#b45309" text-anchor="middle">নাইট্রেট লবণ (NO3-)</text>
+
+        <line x1="390" y1="230" x2="330" y2="60" stroke="#ef4444" stroke-width="2.5" stroke-dasharray="4,4"/>
+        <text x="410" y="140" font-size="11" fill="#dc2626" font-weight="600">ডিনাইট্রিফিকেশন</text>
+        <text x="410" y="156" font-size="11" fill="#dc2626">(Pseudomonas)</text>
+      `;
+    } else {
+      title.innerText = '🏭 কার্বন চক্র ও বৈশ্বিক উষ্ণায়ন (Carbon Cycle)';
+      details.innerHTML = `
+        <div style="font-size:13px;line-height:1.7;">
+          <p><b>১. সালোকসংশ্লেষণ:</b> উদ্ভিদ বায়ুমণ্ডলের $CO_2$ গ্যাস শোষণ করে শর্করা খাদ্য তৈরি করে।</p>
+          <p><b>২. শ্বসন:</b> উদ্ভিদ ও প্রাণী সজীব কোষে গ্লুকোজ জারিত করে $CO_2$ বাতাসে ছাড়ে।</p>
+          <p><b>৩. জীবাশ্ম জ্বালানি:</b> মৃতদেহ পচে কয়লা, তেল ও গ্যাসে পরিণত হয়।</p>
+          <p><b>৪. দহন (Combustion):</b> কারখানা ও যানবাহনে কয়লা-তেল পোড়ালে অতিরিক্ত $CO_2$ যুক্ত হয়ে বৈশ্বিক উষ্ণায়ন ঘটায়।</p>
+        </div>
+      `;
+      svg.innerHTML = `
+        <rect width="540" height="340" fill="#f8fafc" rx="12"/>
+        
+        <rect x="160" y="20" width="220" height="40" rx="20" fill="#fee2e2" stroke="#ef4444" stroke-width="2"/>
+        <text x="270" y="44" font-size="13" font-weight="700" fill="#b91c1c" text-anchor="middle">বায়ুমণ্ডলীয় CO2 (০.০৩-০.০৪%)</text>
+
+        <!-- Down arrow Photosynthesis -->
+        <line x1="210" y1="60" x2="140" y2="140" stroke="#16a34a" stroke-width="3"/>
+        <text x="120" y="95" font-size="11" fill="#15803d" font-weight="700">সালোকসংশ্লেষণ (উদ্ভিদ গ্রহণ)</text>
+
+        <rect x="60" y="140" width="160" height="50" rx="10" fill="#dcfce7" stroke="#22c55e" stroke-width="2"/>
+        <text x="140" y="165" font-size="12" font-weight="700" fill="#166534" text-anchor="middle">উদ্ভিদ ও প্রাণিদেহ (জৈব কার্বন)</text>
+
+        <!-- Up arrow Respiration -->
+        <line x1="180" y1="140" x2="230" y2="60" stroke="#0284c7" stroke-width="2.5"/>
+        <text x="240" y="105" font-size="11" fill="#0369a1" font-weight="600">শ্বসন (নির্গমন)</text>
+
+        <!-- Fossil fuels -->
+        <rect x="60" y="250" width="160" height="40" rx="8" fill="#334155"/>
+        <text x="140" y="274" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">জীবাশ্ম জ্বালানি (কয়লা, তেল)</text>
+
+        <!-- Combustion arrow -->
+        <line x1="220" y1="270" x2="400" y2="180" stroke="#ea580c" stroke-width="2.5"/>
+        <text x="330" y="240" font-size="11" fill="#c2410c" font-weight="600">কলকারখানা ও যানবাহনে দহন</text>
+
+        <rect x="340" y="140" width="150" height="50" rx="10" fill="#fed7aa" stroke="#f97316" stroke-width="2"/>
+        <text x="415" y="165" font-size="12" font-weight="700" fill="#9a3412" text-anchor="middle">শিল্পকারখানা ও পরিবহন</text>
+
+        <line x1="415" y1="140" x2="330" y2="60" stroke="#dc2626" stroke-width="2.5"/>
+      `;
+    }
+  }
+
+  // Initialize
+  window.onload = function() {
+    renderFoodWeb();
+  };
+</script>
+
+</body>
+</html>

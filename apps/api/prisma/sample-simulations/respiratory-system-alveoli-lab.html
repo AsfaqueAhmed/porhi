@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>মানব শ্বসনতন্ত্র ও অ্যালভিওলাই গ্যাস বিনিময় সিমুলেটর | poRi</title>
+  <style>
+    /* PORI UNIFIED SIMULATOR THEME */
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-accent: #0f766e;
+      --pori-accent-soft: #ecfdf5;
+      --pori-accent-border: #99f6e4;
+      --pori-accent-ink: #134e4a;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-amber-ink: #92400e;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-border: #fecdd3;
+      --pori-rose-ink: #9f1239;
+      --pori-blue-soft: #eff6ff;
+      --pori-blue-border: #bfdbfe;
+      --pori-blue-ink: #1e40af;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+    .app {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+    }
+    .badge {
+      display: inline-block;
+      background: var(--pori-accent-soft);
+      color: var(--pori-accent-ink);
+      border: 1px solid var(--pori-accent-border);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .head h1 {
+      margin: 6px 0 0;
+      font-size: 22px;
+      color: var(--pori-heading);
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--pori-border);
+      background: #fff;
+      color: var(--pori-muted);
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .tab-btn:hover {
+      border-color: var(--pori-accent);
+      color: var(--pori-accent);
+    }
+    .tab-btn.active {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+      box-shadow: 0 2px 8px rgba(15, 118, 110, 0.25);
+    }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 18px;
+    }
+    @media (max-width: 820px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+    .viewport-card, .inspector-card {
+      background: #fff;
+      border: 1px solid var(--pori-border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .svg-container {
+      width: 100%;
+      height: 380px;
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .control-row {
+      margin-top: 14px;
+      background: #f1f5f9;
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--pori-heading);
+      margin-bottom: 6px;
+    }
+    .slider-range {
+      width: 100%;
+      accent-color: var(--pori-accent);
+      cursor: pointer;
+    }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .action-btn {
+      flex: 1;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--pori-border);
+      background: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--pori-heading);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .action-btn:hover {
+      background: #f1f5f9;
+    }
+    .action-btn.primary {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+    }
+    .action-btn.primary:hover {
+      background: #115e59;
+    }
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .metric-box {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 8px;
+      padding: 8px 12px;
+      text-align: center;
+    }
+    .metric-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--pori-muted);
+      text-transform: uppercase;
+    }
+    .metric-val {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--pori-accent);
+      margin-top: 2px;
+    }
+    .inspector-header {
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+    }
+    .inspector-title {
+      margin: 0;
+      font-size: 18px;
+      color: var(--pori-heading);
+    }
+    .inspector-subtitle {
+      font-size: 13px;
+      color: var(--pori-muted);
+      font-weight: 600;
+    }
+    .attr-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      padding: 6px 0;
+      border-bottom: 1px dashed var(--pori-border-soft);
+    }
+    .attr-label { color: var(--pori-muted); font-weight: 600; }
+    .attr-val { font-weight: 700; color: var(--pori-heading); text-align: right; }
+    .info-box {
+      margin-top: 12px;
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: #334155;
+    }
+    .mnemonic-box {
+      margin-top: 14px;
+      background: var(--pori-amber-soft);
+      border: 1px solid var(--pori-amber-border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      color: var(--pori-amber-ink);
+      line-height: 1.5;
+    }
+    .quick-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .chip {
+      background: #f1f5f9;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--pori-muted);
+      cursor: pointer;
+    }
+    .chip:hover, .chip.active {
+      background: var(--pori-accent-soft);
+      border-color: var(--pori-accent-border);
+      color: var(--pori-accent-ink);
+    }
+    .quiz-card {
+      margin-top: 20px;
+      background: #fff;
+      border: 1px solid var(--pori-accent-border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .quiz-q { font-weight: 700; font-size: 15px; margin-bottom: 10px; color: var(--pori-heading); }
+    .quiz-opt {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 8px 12px;
+      margin: 6px 0;
+      border: 1px solid var(--pori-border);
+      border-radius: 8px;
+      background: #fff;
+      font-size: 13.5px;
+      cursor: pointer;
+    }
+    .quiz-opt:hover { background: #f8fafc; border-color: var(--pori-accent); }
+    .quiz-opt.correct { background: #dcfce7; border-color: #22c55e; color: #14532d; font-weight: 700; }
+    .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #7f1d1d; }
+    .quiz-feedback { margin-top: 8px; font-size: 13px; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="head">
+    <div>
+      <span class="badge">NCTB জীববিজ্ঞান অধ্যায় ৭ · সিমুলেশন ল্যাব</span>
+      <h1>মানব শ্বসনতন্ত্র ও অ্যালভিওলাই গ্যাস বিনিময় সিমুলেটর</h1>
+      <small style="color:var(--pori-muted)">Human Respiratory System, Diaphragm Mechanics & Alveolar Diffusion</small>
+    </div>
+    <div>
+      <span style="font-size:12px;font-weight:600;color:var(--pori-muted);">কুইজ স্কোর: <span id="quizScore">০</span>/৪</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('mechanics')">🫁 শ্বাসক্রিয়া মেকানিক্স (Breathing)</button>
+    <button class="tab-btn" onclick="switchTab('alveoli')">🔬 অ্যালভিওলাই ও ব্যাপন (Diffusion)</button>
+    <button class="tab-btn" onclick="switchTab('pathology')">🩺 রোগ ও প্যাথলজি (Diseases)</button>
+  </div>
+
+  <!-- VIEW 1: BREATHING MECHANICS -->
+  <div id="viewMechanics" class="main-grid">
+    <div class="viewport-card">
+      <div class="svg-container" id="svgBoxMechanics">
+        <!-- SVG will be dynamically rendered -->
+        <svg id="mechanicsSvg" width="100%" height="100%" viewBox="0 0 400 380" xmlns="http://www.w3.org/2000/svg">
+          <!-- Body Outline & Rib cage -->
+          <rect x="70" y="20" width="260" height="340" rx="30" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2"/>
+          <!-- Trachea -->
+          <path id="svgTrachea" d="M 200 40 L 200 130" stroke="#0f766e" stroke-width="14" stroke-linecap="round"/>
+          <line x1="190" y1="60" x2="210" y2="60" stroke="#ffffff" stroke-width="2"/>
+          <line x1="190" y1="80" x2="210" y2="80" stroke="#ffffff" stroke-width="2"/>
+          <line x1="190" y1="100" x2="210" y2="100" stroke="#ffffff" stroke-width="2"/>
+          <line x1="190" y1="120" x2="210" y2="120" stroke="#ffffff" stroke-width="2"/>
+          <!-- Bronchi branches -->
+          <path d="M 200 130 Q 170 145 150 160" stroke="#0f766e" stroke-width="8" fill="none"/>
+          <path d="M 200 130 Q 230 145 250 160" stroke="#0f766e" stroke-width="8" fill="none"/>
+          <!-- Left Lung (2 Lobes, viewer's right) -->
+          <ellipse id="lungLeft" cx="260" cy="200" rx="42" ry="60" fill="#fda4af" stroke="#f43f5e" stroke-width="3" opacity="0.9" cursor="pointer" onclick="selectOrgan('lungLeft')"/>
+          <!-- Right Lung (3 Lobes, viewer's left) -->
+          <ellipse id="lungRight" cx="140" cy="200" rx="46" ry="62" fill="#fda4af" stroke="#f43f5e" stroke-width="3" opacity="0.9" cursor="pointer" onclick="selectOrgan('lungRight')"/>
+          <!-- Heart in center left -->
+          <ellipse cx="215" cy="210" rx="18" ry="24" fill="#be123c" opacity="0.8"/>
+          <text x="215" y="215" font-size="9" fill="#ffffff" font-weight="bold" text-anchor="middle">Heart</text>
+          <!-- Diaphragm Curve -->
+          <path id="svgDiaphragm" d="M 85 290 Q 200 240 315 290" stroke="#0f766e" stroke-width="10" stroke-linecap="round" fill="none" cursor="pointer" onclick="selectOrgan('diaphragm')"/>
+          <!-- Airflow Arrows -->
+          <g id="airFlowArrows" opacity="1">
+            <path id="arrowFlow" d="M 200 25 L 200 50 M 195 45 L 200 50 L 205 45" stroke="#0284c7" stroke-width="3" fill="none"/>
+          </g>
+          <!-- Organ clickable hotspots -->
+          <circle cx="200" cy="40" r="14" fill="#0f766e" opacity="0.2" cursor="pointer" onclick="selectOrgan('trachea')"/>
+        </svg>
+      </div>
+
+      <div class="control-row">
+        <div class="control-label">
+          <span>শ্বাসক্রিয়া পর্যায়: <b id="breathPhaseLabel">প্রশ্বাস (Inspiration)</b></span>
+          <span id="breathPhasePct">৫০%</span>
+        </div>
+        <input type="range" class="slider-range" id="breathSlider" min="0" max="100" value="50" oninput="updateBreathing(this.value)"/>
+        <div class="btn-row">
+          <button class="action-btn primary" id="autoBreathBtn" onclick="toggleAutoBreath()">▶️ স্বয়ংক্রিয় শ্বাসক্রিয়া (Play)</button>
+          <button class="action-btn" onclick="setInhale()">প্রশ্বাস (Inhale)</button>
+          <button class="action-btn" onclick="setExhale()">নিঃশ্বাস (Exhale)</button>
+        </div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-box">
+          <div class="metric-title">বক্ষগহ্বর আয়তন</div>
+          <div class="metric-val" id="metricVolume">মাঝারি (৪.২ L)</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-title">ফুসফুস অভ্যন্তরীণ চাপ</div>
+          <div class="metric-val" id="metricPressure">-২ mmHg (নিম্নচাপ)</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-title">ডায়াফ্রামের অবস্থান</div>
+          <div class="metric-val" id="metricDiaphragm">সংকুচিত ও সমতল</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-title">বাতাসের গতিপথ</div>
+          <div class="metric-val" id="metricFlow">ফুসফুসে প্রবেশমুখী</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSPECTOR CARD -->
+    <div class="inspector-card">
+      <div class="inspector-header">
+        <h2 class="inspector-title" id="orgName">মধ্যচ্ছদা বা ডায়াফ্রাম</h2>
+        <div class="inspector-subtitle" id="orgEn">Diaphragm</div>
+      </div>
+      <div class="attr-row">
+        <span class="attr-label">অবস্থান:</span>
+        <span class="attr-val" id="orgLocation">বক্ষ ও উদরগহ্বরের বিভাজক</span>
+      </div>
+      <div class="attr-row">
+        <span class="attr-label">গঠন উপাদান:</span>
+        <span class="attr-val" id="orgStructure">পেশিময় ও টেন্ডন নির্মিত গম্বুজ</span>
+      </div>
+      <div class="attr-row">
+        <span class="attr-label">বইয়ের পৃষ্ঠা:</span>
+        <span class="attr-val" id="orgPage">পৃষ্ঠা ১৬৪–১৬৭</span>
+      </div>
+
+      <div class="info-box" id="orgDesc">
+        ডায়াফ্রাম হলো মানবদেহের প্রধান শ্বাসপেশি। প্রশ্বাসের সময় এর পেশি সংকুচিত হয়ে নিচে নেমে সমতল হয়, ফলে বক্ষগহ্বর বাড়ে ও ফুসফুসে বাতাস ঢোকে। নিঃশ্বাসের সময় এটি শিথিল হয়ে ধনুকের মতো বাঁকা হয়ে উপরে ওঠে।
+      </div>
+
+      <div class="mnemonic-box" id="orgMnemonic">
+        <strong>💡 মনে রাখার ট্রিক:</strong> ডায়াফ্রাম সংকুচিত = নিচে নামা = বক্ষগহ্বর বৃদ্ধি = বাতাস ইনহেল! ডায়াফ্রাম শিথিল = উপরে ওঠা = বাতাস এক্সহেল!
+      </div>
+
+      <div class="quick-chips">
+        <span class="chip active" onclick="selectOrgan('diaphragm')">ডায়াফ্রাম</span>
+        <span class="chip" onclick="selectOrgan('lungRight')">ডান ফুসফুস (৩ লোব)</span>
+        <span class="chip" onclick="selectOrgan('lungLeft')">বাম ফুসফুস (২ লোব)</span>
+        <span class="chip" onclick="selectOrgan('trachea')">ট্রাকিয়া (C-বলয়)</span>
+        <span class="chip" onclick="selectOrgan('epiglottis')">এপিগ্লটিস</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 2: ALVEOLI DIFFUSION -->
+  <div id="viewAlveoli" class="main-grid" style="display:none;">
+    <div class="viewport-card">
+      <div class="svg-container">
+        <svg width="100%" height="100%" viewBox="0 0 400 340" xmlns="http://www.w3.org/2000/svg">
+          <!-- Alveolus Air Sac -->
+          <circle cx="160" cy="150" r="105" fill="#e0f2fe" stroke="#38bdf8" stroke-width="4"/>
+          <!-- Capillary vessel curving around -->
+          <path d="M 270 40 C 290 120, 290 220, 250 300 L 310 300 C 350 210, 350 110, 310 40 Z" fill="#fee2e2" stroke="#f43f5e" stroke-width="3"/>
+          <!-- RBCs inside capillary -->
+          <circle id="rbc1" cx="295" cy="80" r="18" fill="#dc2626"/>
+          <text x="295" y="84" font-size="9" fill="#fff" text-anchor="middle" font-weight="bold">RBC</text>
+          <circle id="rbc2" cx="285" cy="170" r="18" fill="#e11d48"/>
+          <text x="285" y="174" font-size="9" fill="#fff" text-anchor="middle" font-weight="bold">Hb(O₂)₄</text>
+          <circle id="rbc3" cx="275" cy="250" r="18" fill="#e11d48"/>
+          <text x="275" y="254" font-size="9" fill="#fff" text-anchor="middle" font-weight="bold">Hb(O₂)₄</text>
+
+          <!-- Diffusion Arrows -->
+          <!-- O2 into blood -->
+          <path d="M 190 130 L 265 110 M 255 105 L 265 110 L 260 120" stroke="#0284c7" stroke-width="3" fill="none"/>
+          <text x="210" y="115" font-size="12" fill="#0284c7" font-weight="bold">O₂ ব্যাপন →</text>
+
+          <!-- CO2 into Alveolus -->
+          <path d="M 270 190 L 195 210 M 205 202 L 195 210 L 202 218" stroke="#d97706" stroke-width="3" fill="none"/>
+          <text x="210" y="232" font-size="12" fill="#d97706" font-weight="bold">← CO₂ ব্যাপন</text>
+
+          <text x="160" y="80" font-size="14" fill="#0369a1" font-weight="bold" text-anchor="middle">অ্যালভিওলাস বাতাস</text>
+          <text x="160" y="105" font-size="11" fill="#0284c7" text-anchor="middle">pO₂ = ১০৪ mmHg</text>
+          <text x="160" y="125" font-size="11" fill="#d97706" text-anchor="middle">pCO₂ = ৪০ mmHg</text>
+        </svg>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-box">
+          <div class="metric-title">অক্সিজেন ব্যাপন রূপ</div>
+          <div class="metric-val">অক্সিহিমোগ্লোবিন (৯৮%)</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-title">CO₂ পরিবহনের প্রধান রূপ</div>
+          <div class="metric-val">বাইকার্বনেট (৮০%)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="inspector-card">
+      <div class="inspector-header">
+        <h2 class="inspector-title">অ্যালভিওলাই ও শ্বসন ঝিল্লি</h2>
+        <div class="inspector-subtitle">Alveolar Capillary Gas Exchange</div>
+      </div>
+      <div class="attr-row">
+        <span class="attr-label">মোট অ্যালভিওলাই:</span>
+        <span class="attr-val">প্রায় ৭০ কোটি (৭০–৮০ m²)</span>
+      </div>
+      <div class="attr-row">
+        <span class="attr-label">প্রাচীরের টিস্যু:</span>
+        <span class="attr-val">একস্তর স্কোয়ামাস এপিথেলিয়াম</span>
+      </div>
+      <div class="attr-row">
+        <span class="attr-label">ব্যাপন নীতি:</span>
+        <span class="attr-val">আংশিক চাপের পার্থক্য (Diffusion)</span>
+      </div>
+      <div class="info-box">
+        অ্যালভিওলাসের ভেতরের উচ্চ চাপের অক্সিজেন ($pO_2 = 104\text{ mmHg}$) রক্তে ($pO_2 = 40\text{ mmHg}$) ব্যাপিত হয়ে হিমোগ্লোবিনের সাথে যুক্ত হয়ে <b>অক্সিহিমোগ্লোবিন</b> গঠন করে। অপরপক্ষে রক্তের কার্বন ডাই-অক্সাইড ($pCO_2 = 45\text{ mmHg}$) অ্যালভিওলাসে ($pCO_2 = 40\text{ mmHg}$) প্রবেশ করে।
+      </div>
+      <div class="mnemonic-box">
+        <strong>💡 সমীকরণ স্মরণ:</strong><br>
+        $$Hb + 4O_2 \rightleftharpoons Hb(O_2)_4$$<br>
+        লোহিত কণিকায় ১টি হিমোগ্লোবিন ৪টি অক্সিজেন অণু ধারণ করতে পারে!
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW 3: PATHOLOGY -->
+  <div id="viewPathology" class="main-grid" style="display:none;">
+    <div class="viewport-card">
+      <div class="svg-container" style="background:#fff;">
+        <svg width="100%" height="100%" viewBox="0 0 400 320" xmlns="http://www.w3.org/2000/svg">
+          <!-- Healthy Airway Cross-Section -->
+          <g transform="translate(100, 160)">
+            <circle cx="0" cy="0" r="60" fill="#fed7aa" stroke="#ea580c" stroke-width="4"/>
+            <circle id="healthyLumen" cx="0" cy="0" r="45" fill="#f8fafc" stroke="#38bdf8" stroke-width="2"/>
+            <text x="0" y="80" font-size="12" fill="#0f766e" font-weight="bold" text-anchor="middle">সুস্থ শ্বাসনালি (স্বাভাবিক)</text>
+          </g>
+          <!-- Diseased Airway Cross-Section -->
+          <g transform="translate(300, 160)">
+            <circle cx="0" cy="0" r="60" fill="#fecdd3" stroke="#e11d48" stroke-width="4"/>
+            <circle id="diseasedLumen" cx="0" cy="0" r="22" fill="#fef08a" stroke="#ca8a04" stroke-width="3"/>
+            <text x="0" y="80" font-size="12" fill="#be123c" font-weight="bold" text-anchor="middle" id="diseaseLabelSvg">আক্রান্ত শ্বাসনালি (সংকুচিত)</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="control-row">
+        <div class="control-label">
+          <span>রোগ নির্বাচন করুন:</span>
+        </div>
+        <div class="btn-row">
+          <button class="action-btn primary" onclick="setDisease('asthma')">হাঁপানি (Asthma)</button>
+          <button class="action-btn" onclick="setDisease('pneumonia')">নিউমোনিয়া</button>
+          <button class="action-btn" onclick="setDisease('tb')">যক্ষ্মা (TB)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="inspector-card">
+      <div class="inspector-header">
+        <h2 class="inspector-title" id="disTitle">হাঁপানি বা অ্যাজমা (Asthma)</h2>
+        <div class="inspector-subtitle" id="disEn">Allergic Airway Hyper-responsiveness</div>
+      </div>
+      <div class="attr-row">
+        <span class="attr-label">প্রকৃতি:</span>
+        <span class="attr-val" id="disNature">অসংক্রামক অ্যালার্জিজনিত</span>
+      </div>
+      <div class="attr-row">
+        <span class="attr-label">প্রধান লক্ষণ:</span>
+        <span class="attr-val" id="disSymptoms">শ্বাসকষ্ট, বাঁশির মতো শব্দ, কাশি</span>
+      </div>
+      <div class="attr-row">
+        <span class="attr-label">চিকিৎসা/প্রতিরোধ:</span>
+        <span class="attr-val" id="disCare">ইনহেলার, অ্যালার্জেন পরিহার</span>
+      </div>
+      <div class="info-box" id="disDesc">
+        অ্যালার্জেন (ধুলাবালি, ফুলের রেণু, ধোঁয়া) শ্বাসনালিতে প্রবেশ করলে মসৃণ পেশি তীব্র সংকুচিত হয় এবং অতিরিক্ত আঠালো মিউকাস ক্ষরিত হয়ে নালিপথ অত্যন্ত সরু হয়ে যায়। ফলে শ্বাস ছাড়তে তীব্র বাঁশির মতো শব্দ (Wheezing) হয়।
+      </div>
+      <div class="mnemonic-box" id="disMnemonic">
+        <strong>💡 মনে রাখো:</strong> হাঁপানি কোনো ছোঁয়াচে রোগ নয়! এর তাৎক্ষণিক উপশমে ব্রঙ্কোডাইলেটর ইনহেলার ব্যবহার করা হয়।
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTIVE RECALL QUIZ CARD -->
+  <div class="quiz-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span class="badge" style="background:#fef3c7;border-color:#fcd34d;color:#92400e;">⚡ তাৎক্ষণিক সেলফ-চেক কুইজ</span>
+      <button class="chip" onclick="nextQuizQuestion()">পরবর্তী প্রশ্ন ➡️</button>
+    </div>
+    <div class="quiz-q" id="simQuizQ">প্রশ্ন লোড হচ্ছে...</div>
+    <div id="simQuizOptions"></div>
+    <div class="quiz-feedback" id="simQuizFeedback"></div>
+  </div>
+</div>
+
+<script>
+  let autoTimer = null;
+  let breathVal = 50;
+  let breathDir = 1;
+
+  const organs = {
+    diaphragm: {
+      name: "মধ্যচ্ছদা বা ডায়াফ্রাম",
+      en: "Diaphragm",
+      location: "বক্ষ ও উদরগহ্বরের বিভাজক",
+      structure: "পেশিময় ও টেন্ডন নির্মিত গম্বুজ",
+      page: "পৃষ্ঠা ১৬৪–১৬৭",
+      desc: "ডায়াফ্রাম মানবদেহের প্রধান শ্বাসপেশি। প্রশ্বাসের সময় এর পেশি সংকুচিত হয়ে নিচে নেমে সমতল হয়, ফলে বক্ষগহ্বর বাড়ে ও ফুসফুসে বাতাস ঢোকে। নিঃশ্বাসের সময় এটি শিথিল হয়ে ধনুকের মতো বাঁকা হয়ে উপরে ওঠে।",
+      mnemonic: "ডায়াফ্রাম সংকুচিত = নিচে নামা = বক্ষগহ্বর বৃদ্ধি = বাতাস ইনহেল! ডায়াফ্রাম শিথিল = উপরে ওঠা = বাতাস এক্সহেল!"
+    },
+    lungRight: {
+      name: "ডান ফুসফুস (Right Lung)",
+      en: "Right Lung (3 Lobes)",
+      location: "বক্ষগহ্বরের ডান পাশে",
+      structure: "স্পঞ্জের মতো কোমল, ৩টি খণ্ডে (Lobes) বিভক্ত",
+      page: "পৃষ্ঠা ১৬৪",
+      desc: "ডান ফুসফুসটি বাম ফুসফুসের চেয়ে কিছুটা বড় এবং ৩টি লোবে বিভক্ত। এর অভ্যন্তরে ব্রঙ্কাস ৩টি শাখায় বিভক্ত হয়ে প্রবেশ করে। ফুসফুস দ্বিস্তরবিশিষ্ট প্লুরা পর্দা দ্বারা সুরক্ষিত।",
+      mnemonic: "ডান ফুসফুস বড় = ৩টি খণ্ড (ডানে ৩, বামে ২)।"
+    },
+    lungLeft: {
+      name: "বাম ফুসফুস (Left Lung)",
+      en: "Left Lung (2 Lobes)",
+      location: "বক্ষগহ্বরের বাম পাশে",
+      structure: "কোমল স্থিতিস্থাপক, ২টি খণ্ডে বিভক্ত",
+      page: "পৃষ্ঠা ১৬৪",
+      desc: "হৃদপিণ্ড বুকের মাঝখান থেকে কিছুটা বাম দিকে হেলে অবস্থান করায় স্থান সংকুলানের কারণে বাম ফুসফুসটি কিছুটা ছোট এবং মাত্র ২টি খণ্ডে বিভক্ত।",
+      mnemonic: "বাম পাশে হৃদয় আছে, তাই জায়গা কম = মাত্র ২টি লোব!"
+    },
+    trachea: {
+      name: "শ্বাসনালি বা ট্রাকিয়া",
+      en: "Trachea (Windpipe)",
+      location: "স্বরযন্ত্রের নিচ থেকে বক্ষগহ্বর",
+      structure: "১৬–২০টি C-আকৃতির অসম্পূর্ণ তরুণাস্থি রিং",
+      page: "পৃষ্ঠা ১৬৩",
+      desc: "ট্রাকিয়ার পেছনের অংশটি মসৃণ পেশি দিয়ে তৈরি যাতে অন্ননালি প্রসারিত হতে পারে। C-রিং থাকার কারণে বাতাস না থাকলেও শ্বাসনালি কখনো চুপসে যায় না।",
+      mnemonic: "ট্রাকিয়া = C-বলয় = কখনো চুপসাবে না!"
+    },
+    epiglottis: {
+      name: "স্বরযন্ত্রের ঢাকনা (এপিগ্লটিস)",
+      en: "Epiglottis",
+      location: "স্বরযন্ত্রের উপরিভাগে",
+      structure: "স্থিতিস্থাপক তরুণাস্থিময় উপজিহ্বা",
+      page: "পৃষ্ঠা ১৬২–১৬৩",
+      desc: "খাদ্য গেলার সময় এপিগ্লটিস স্বরযন্ত্রের মুখ স্বয়ংক্রিয়ভাবে ঢেকে দেয়, ফলে খাদ্য শ্বাসনালিতে না ঢুকে অন্ননালিতে প্রবেশ করে।",
+      mnemonic: "এপিগ্লটিস হলো শ্বাসনালির ঢাকনাদার প্রহরী!"
+    }
+  };
+
+  const diseases = {
+    asthma: {
+      title: "হাঁপানি বা অ্যাজমা (Asthma)",
+      en: "Allergic Bronchospasm",
+      nature: "অসংক্রামক অ্যালার্জিজনিত",
+      symptoms: "শ্বাসকষ্ট, বাঁশির মতো শব্দ, কাশি",
+      care: "ইনহেলার (ব্রঙ্কোডাইলেটর), অ্যালার্জেন বর্জন",
+      desc: "অ্যালার্জেন প্রবেশে শ্বাসনালির মসৃণ পেশি সংকুচিত হয় ও মিউকাস জমে নালিপথ সংকুচিত হয়ে পড়ে। এতে শ্বাস ছাড়তে কষ্ট হয় এবং বাঁশির মতো সাঁই সাঁই শব্দ হয়।"
+    },
+    pneumonia: {
+      title: "নিউমোনিয়া (Pneumonia)",
+      en: "Alveolar Exudate Infection",
+      nature: "সংক্রামক ব্যাকটেরিয়া (Streptococcus pneumoniae)",
+      symptoms: "তীব্র জ্বর, বুকে ব্যথা, শ্লেষ্মায় পুঁজ ও রক্ত",
+      care: "অ্যান্টিবায়োটিক, অক্সিজেন, হাসপাতালে ভর্তি",
+      desc: "ব্যাকটেরিয়ার আক্রমণে ফুসফুসের অ্যালভিওলাইতে তীব্র প্রদাহ সৃষ্টি হয় এবং বাতাসপূর্ণ অ্যালভিওলাই শ্লেষ্মা ও তরলে পূর্ণ হয়ে গ্যাস বিনিময় বন্ধ হয়ে যায়।"
+    },
+    tb: {
+      title: "যক্ষ্মা (Tuberculosis)",
+      en: "Mycobacterium tuberculosis",
+      nature: "বায়ুবাহিত সংক্রামক ব্যাকটেরিয়াজনিত",
+      symptoms: "৩ সপ্তাহের বেশি কাশি, কফে রক্ত, ওজন হ্রাস",
+      care: "বিসিজি (BCG) টিকা, ডটস (DOTS) পদ্ধতি",
+      desc: "মাইকোব্যাকটেরিয়াম যক্ষ্মা সৃষ্টি করে। স্বাস্থ্যকর্মীর উপস্থিতিতে নির্ধারিত ৬ মাস মেয়াদের ডটস চিকিৎসা না নিলে মারাত্মক MDR-TB তৈরি হতে পারে।"
+    }
+  };
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('viewMechanics').style.display = 'none';
+    document.getElementById('viewAlveoli').style.display = 'none';
+    document.getElementById('viewPathology').style.display = 'none';
+
+    if (tab === 'mechanics') {
+      event.target.classList.add('active');
+      document.getElementById('viewMechanics').style.display = 'grid';
+    } else if (tab === 'alveoli') {
+      event.target.classList.add('active');
+      document.getElementById('viewAlveoli').style.display = 'grid';
+    } else if (tab === 'pathology') {
+      event.target.classList.add('active');
+      document.getElementById('viewPathology').style.display = 'grid';
+    }
+  }
+
+  function updateBreathing(val) {
+    breathVal = parseInt(val, 10);
+    document.getElementById('breathPhasePct').innerText = breathVal + '%';
+
+    // SVG updates
+    // Inhale: val -> 100: diaphragm moves down (y goes to 310), curve flattens (midpoint y goes down to 290)
+    // Exhale: val -> 0: diaphragm moves up (y at 270), curve arches high (midpoint y goes up to 220)
+    const midY = 220 + (breathVal / 100) * 70; // 220 (arched) to 290 (flat)
+    const baseEndY = 270 + (breathVal / 100) * 35; // 270 to 305
+    document.getElementById('svgDiaphragm').setAttribute('d', `M 85 ${baseEndY} Q 200 ${midY} 315 ${baseEndY}`);
+
+    // Lung expansion
+    const lungRxR = 38 + (breathVal / 100) * 16;
+    const lungRyR = 52 + (breathVal / 100) * 16;
+    const lungRxL = 34 + (breathVal / 100) * 14;
+    const lungRyL = 50 + (breathVal / 100) * 16;
+
+    document.getElementById('lungRight').setAttribute('rx', lungRxR);
+    document.getElementById('lungRight').setAttribute('ry', lungRyR);
+    document.getElementById('lungLeft').setAttribute('rx', lungRxL);
+    document.getElementById('lungLeft').setAttribute('ry', lungRyL);
+
+    if (breathVal > 50) {
+      document.getElementById('breathPhaseLabel').innerText = 'প্রশ্বাস (Inspiration)';
+      document.getElementById('metricVolume').innerText = `উচ্চ (${(3.5 + breathVal*0.02).toFixed(1)} L)`;
+      document.getElementById('metricPressure').innerText = `${(- (breathVal - 50) * 0.1).toFixed(1)} mmHg (ঋণাত্মক)`;
+      document.getElementById('metricDiaphragm').innerText = 'সংকুচিত ও সমতল';
+      document.getElementById('metricFlow').innerText = 'ফুসফুসে বাতাস প্রবেশমুখী ⬇️';
+      document.getElementById('arrowFlow').setAttribute('d', 'M 200 25 L 200 50 M 195 45 L 200 50 L 205 45');
+    } else {
+      document.getElementById('breathPhaseLabel').innerText = 'নিঃশ্বাস (Expiration)';
+      document.getElementById('metricVolume').innerText = `নিম্ন (${(3.5 + breathVal*0.02).toFixed(1)} L)`;
+      document.getElementById('metricPressure').innerText = `+${((50 - breathVal) * 0.1).toFixed(1)} mmHg (ধনাত্মক)`;
+      document.getElementById('metricDiaphragm').innerText = 'শিথিল ও গম্বুজাকার';
+      document.getElementById('metricFlow').innerText = 'বাইরে বাতাস নির্গমনমুখী ⬆️';
+      document.getElementById('arrowFlow').setAttribute('d', 'M 200 50 L 200 25 M 195 30 L 200 25 L 205 30');
+    }
+  }
+
+  function setInhale() {
+    document.getElementById('breathSlider').value = 95;
+    updateBreathing(95);
+  }
+
+  function setExhale() {
+    document.getElementById('breathSlider').value = 5;
+    updateBreathing(5);
+  }
+
+  function toggleAutoBreath() {
+    const btn = document.getElementById('autoBreathBtn');
+    if (autoTimer) {
+      clearInterval(autoTimer);
+      autoTimer = null;
+      btn.innerText = '▶️ স্বয়ংক্রিয় শ্বাসক্রিয়া (Play)';
+      btn.classList.remove('primary');
+    } else {
+      btn.innerText = '⏸️ পজ করুন (Pause)';
+      btn.classList.add('primary');
+      autoTimer = setInterval(() => {
+        breathVal += breathDir * 4;
+        if (breathVal >= 100) { breathVal = 100; breathDir = -1; }
+        else if (breathVal <= 0) { breathVal = 0; breathDir = 1; }
+        document.getElementById('breathSlider').value = breathVal;
+        updateBreathing(breathVal);
+      }, 80);
+    }
+  }
+
+  function selectOrgan(id) {
+    const org = organs[id];
+    if (!org) return;
+    document.getElementById('orgName').innerText = org.name;
+    document.getElementById('orgEn').innerText = org.en;
+    document.getElementById('orgLocation').innerText = org.location;
+    document.getElementById('orgStructure').innerText = org.structure;
+    document.getElementById('orgPage').innerText = org.page;
+    document.getElementById('orgDesc').innerText = org.desc;
+    document.getElementById('orgMnemonic').innerHTML = `<strong>💡 মনে রাখার ট্রিক:</strong> ${org.mnemonic}`;
+  }
+
+  function setDisease(dKey) {
+    const dis = diseases[dKey];
+    if (!dis) return;
+    document.getElementById('disTitle').innerText = dis.title;
+    document.getElementById('disEn').innerText = dis.en;
+    document.getElementById('disNature').innerText = dis.nature;
+    document.getElementById('disSymptoms').innerText = dis.symptoms;
+    document.getElementById('disCare').innerText = dis.care;
+    document.getElementById('disDesc').innerText = dis.desc;
+
+    const lumen = document.getElementById('diseasedLumen');
+    if (dKey === 'asthma') {
+      lumen.setAttribute('r', '16');
+      lumen.setAttribute('fill', '#fef08a');
+      document.getElementById('diseaseLabelSvg').innerText = 'হাঁপানি: পেশি সংকুচিত নালি';
+    } else if (dKey === 'pneumonia') {
+      lumen.setAttribute('r', '24');
+      lumen.setAttribute('fill', '#93c5fd');
+      document.getElementById('diseaseLabelSvg').innerText = 'নিউমোনিয়া: শ্লেষ্মায় তরল পূর্ণ';
+    } else {
+      lumen.setAttribute('r', '20');
+      lumen.setAttribute('fill', '#fca5a5');
+      document.getElementById('diseaseLabelSvg').innerText = 'যক্ষ্মা: ক্যাসিয়াস নেক্রোসিস';
+    }
+  }
+
+  // Quiz data
+  const quizList = [
+    {
+      q: "প্রশ্বাসের সময় ডায়াফ্রামের পেশি সংকুচিত হলে এর কী পরিবর্তন ঘটে?",
+      opts: ["নিচে নেমে আসে এবং সমতল হয়", "উপরে উঠে ধনুকের মতো বাঁকে", "আয়তন সম্পূর্ণ কমে যায়", "কোনো পরিবর্তন হয় না"],
+      ans: 0,
+      exp: "প্রশ্বাসে ডায়াফ্রাম সংকুচিত হয়ে নিচে নেমে সমতল হয় এবং বক্ষগহ্বরের দৈর্ঘ্য বৃদ্ধি করে।"
+    },
+    {
+      q: "মানবদেহের বাম ফুসফুস কয়টি খণ্ডে (Lobes) বিভক্ত?",
+      opts: ["৩টি খণ্ডে", "২টি খণ্ডে", "৪টি খণ্ডে", "১টি একক খণ্ডে"],
+      ans: 1,
+      exp: "হৃদপিণ্ডের বামমুখী অবস্থানের জন্য স্থান সংকুলানে বাম ফুসফুস ২টি এবং ডান ফুসফুস ৩টি খণ্ডে বিভক্ত।"
+    },
+    {
+      q: "রক্তে প্রায় ৯৮% অক্সিজেন কোন রূপে পরিবাহিত হয়?",
+      opts: ["সোডিয়াম বাইকার্বনেট রূপে", "ভৌত দ্রবণ রূপে", "অক্সিহিমোগ্লোবিন রূপে", "কার্বামিনো যৌগ রূপে"],
+      ans: 2,
+      exp: "লোহিত কণিকার হিমোগ্লোবিনের সাথে শিথিল রাসায়নিক বন্ধনে অক্সিহিমোগ্লোবিন তৈরি হয়।"
+    },
+    {
+      q: "যক্ষ্মা রোগ প্রতিরোধে শিশুদের কোন প্রতিষেধক টিকা দেওয়া হয়?",
+      opts: ["বিসিজি (BCG)", "ডিপিটি (DPT)", "এমএমআর (MMR)", "পোলিও"],
+      ans: 0,
+      exp: "যক্ষ্মা প্রতিরোধে জন্মের পর শিশুদের বিসিজি (Bacillus Calmette-Guérin) টিকা দেওয়া বাধ্যতামূলক।"
+    }
+  ];
+
+  let curQIdx = 0;
+  let score = 0;
+  let qAnswered = false;
+
+  function loadQuiz(idx) {
+    qAnswered = false;
+    const q = quizList[idx];
+    document.getElementById('simQuizQ').innerText = `${idx + 1}. ${q.q}`;
+    const box = document.getElementById('simQuizOptions');
+    box.innerHTML = '';
+    document.getElementById('simQuizFeedback').innerText = '';
+
+    q.opts.forEach((txt, optIdx) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.innerText = txt;
+      btn.onclick = () => checkAns(optIdx, btn);
+      box.appendChild(btn);
+    });
+  }
+
+  function checkAns(selectedIdx, btnEl) {
+    if (qAnswered) return;
+    qAnswered = true;
+    const q = quizList[curQIdx];
+    const opts = document.querySelectorAll('.quiz-opt');
+
+    if (selectedIdx === q.ans) {
+      btnEl.classList.add('correct');
+      score++;
+      document.getElementById('quizScore').innerText = score;
+      document.getElementById('simQuizFeedback').innerHTML = `<span style="color:#16a34a">✅ চমৎকার! ${q.exp}</span>`;
+    } else {
+      btnEl.classList.add('wrong');
+      opts[q.ans].classList.add('correct');
+      document.getElementById('simQuizFeedback').innerHTML = `<span style="color:#dc2626">❌ ভুল উত্তর। সঠিক উত্তর: ${q.opts[q.ans]} — ${q.exp}</span>`;
+    }
+  }
+
+  function nextQuizQuestion() {
+    curQIdx = (curQIdx + 1) % quizList.length;
+    loadQuiz(curQIdx);
+  }
+
+  // Initialize
+  updateBreathing(50);
+  loadQuiz(0);
+</script>
+</body>
+</html>

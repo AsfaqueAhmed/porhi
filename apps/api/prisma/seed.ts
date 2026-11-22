@@ -17,6 +17,18 @@ import { seedChapter11 } from './seed-chapter-11';
 import { seedChapter12 } from './seed-chapter-12';
 import { seedBiologyChapter1 } from './seed-biology-chapter-1';
 import { seedBiologyChapter2 } from './seed-biology-chapter-2';
+import { seedBiologyChapter3 } from './seed-biology-chapter-3';
+import { seedBiologyChapter4 } from './seed-biology-chapter-4';
+import { seedBiologyChapter5 } from './seed-biology-chapter-5';
+import { seedBiologyChapter6 } from './seed-biology-chapter-6';
+import { seedBiologyChapter7 } from './seed-biology-chapter-7';
+import { seedBiologyChapter8 } from './seed-biology-chapter-8';
+import { seedBiologyChapter9 } from './seed-biology-chapter-9';
+import { seedBiologyChapter10 } from './seed-biology-chapter-10';
+import { seedBiologyChapter11 } from './seed-biology-chapter-11';
+import { seedBiologyChapter12 } from './seed-biology-chapter-12';
+import { seedBiologyChapter13 } from './seed-biology-chapter-13';
+import { seedBiologyChapter14 } from './seed-biology-chapter-14';
 import { seedChemistryChapter1 } from './seed-chemistry-chapter-1';
 import { seedChemistryChapter2 } from './seed-chemistry-chapter-2';
 import { seedChemistryChapter3 } from './seed-chemistry-chapter-3';
@@ -478,11 +490,21 @@ export async function seed(prisma: PrismaClient) {
   // 17. Seed Chapter 12 full curriculum and question bank
   await seedChapter12(prisma);
 
-  // 18. Seed SSC Biology Chapter 1 full curriculum and question bank
+  // 18. Seed SSC Biology Chapters 1 to 14 full curriculum and question bank
   await seedBiologyChapter1(prisma);
-
-  // 19. Seed SSC Biology Chapter 2 full curriculum and question bank
   await seedBiologyChapter2(prisma);
+  await seedBiologyChapter3(prisma);
+  await seedBiologyChapter4(prisma);
+  await seedBiologyChapter5(prisma);
+  await seedBiologyChapter6(prisma);
+  await seedBiologyChapter7(prisma);
+  await seedBiologyChapter8(prisma);
+  await seedBiologyChapter9(prisma);
+  await seedBiologyChapter10(prisma);
+  await seedBiologyChapter11(prisma);
+  await seedBiologyChapter12(prisma);
+  await seedBiologyChapter13(prisma);
+  await seedBiologyChapter14(prisma);
 
   // 20. Seed SSC Chemistry Chapters 1 to 12 full curriculum and question bank
   await seedChemistryChapter1(prisma);

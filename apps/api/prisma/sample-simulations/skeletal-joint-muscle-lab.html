@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>মানব কঙ্কালসন্ধি ও পেশি বলবিদ্যা ল্যাব | poRi Interactive</title>
+  <style>
+    /* PORI UNIFIED SIMULATOR THEME */
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-accent: #0f766e;
+      --pori-accent-soft: #ecfdf5;
+      --pori-accent-border: #99f6e4;
+      --pori-accent-ink: #134e4a;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-amber-ink: #92400e;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-border: #fecdd3;
+      --pori-rose-ink: #9f1239;
+      --pori-blue-soft: #eff6ff;
+      --pori-blue-border: #bfdbfe;
+      --pori-blue-ink: #1e40af;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+    .app {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .head h1 {
+      margin: 0;
+      font-size: 1.35rem;
+      color: var(--pori-heading);
+    }
+    .head p {
+      margin: 4px 0 0 0;
+      font-size: 0.88rem;
+      color: var(--pori-muted);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--pori-accent-soft);
+      border: 1px solid var(--pori-accent-border);
+      color: var(--pori-accent-ink);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    /* Standardized Pedagogical Boxes (Intro & Explainer) */
+    .intro-box {
+      background: #eff6ff !important;
+      border-left: 4px solid #3b82f6 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.84rem !important;
+      color: #1e3a8a !important;
+      line-height: 1.6 !important;
+      margin-bottom: 14px !important;
+    }
+    .intro-box strong {
+      color: #172554 !important;
+    }
+    .insight-box, .explainer-box {
+      background: #f0fdfa !important;
+      border-left: 4px solid #0d9488 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.84rem !important;
+      color: #134e4a !important;
+      line-height: 1.6 !important;
+      margin-top: 14px !important;
+    }
+    .insight-box strong, .explainer-box strong {
+      color: #042f2e !important;
+    }
+
+    /* Tab Buttons */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+      overflow-x: auto;
+    }
+    .tab-btn {
+      padding: 8px 14px;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--pori-muted);
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .tab-btn:hover {
+      background: #f1f5f9;
+      color: var(--pori-ink);
+    }
+    .tab-btn.active {
+      background: var(--pori-accent);
+      color: #ffffff;
+      border-color: var(--pori-accent);
+    }
+
+    /* Layout Grids */
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 820px) {
+      .sim-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .canvas-card {
+      background: #ffffff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      min-height: 380px;
+    }
+    .ctrl-card {
+      background: #ffffff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .ctrl-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .ctrl-group label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--pori-heading);
+      display: flex;
+      justify-content: space-between;
+    }
+    .range-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    input[type="range"] {
+      flex: 1;
+      accent-color: var(--pori-accent);
+      height: 6px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      cursor: pointer;
+    }
+    .btn-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .btn-action {
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--pori-border);
+      background: #f8fafc;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--pori-heading);
+      transition: all 0.15s;
+    }
+    .btn-action:hover {
+      background: var(--pori-accent-soft);
+      border-color: var(--pori-accent-border);
+      color: var(--pori-accent-ink);
+    }
+    .btn-action.active-act {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .metric-card {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
+    .metric-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--pori-muted);
+      text-transform: uppercase;
+    }
+    .metric-value {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--pori-accent-ink);
+      margin: 2px 0;
+    }
+    .metric-sub {
+      font-size: 0.74rem;
+      color: var(--pori-muted);
+    }
+
+    /* Status indicator pills */
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+    .pill-red { background: var(--pori-rose-soft); color: var(--pori-rose-ink); border: 1px solid var(--pori-rose-border); }
+    .pill-green { background: var(--pori-accent-soft); color: var(--pori-accent-ink); border: 1px solid var(--pori-accent-border); }
+    .pill-blue { background: var(--pori-blue-soft); color: var(--pori-blue-ink); border: 1px solid var(--pori-blue-border); }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="head">
+    <div>
+      <span class="badge">SSC জীববিজ্ঞান · অধ্যায় ৯</span>
+      <h1>মানব কঙ্কালসন্ধি ও পেশি বলবিদ্যা ল্যাব</h1>
+      <p>কবজা সন্ধি ও বাইসেপস-ট্রাইসেপস বিপরীতমুখী ক্রিয়া, সাইনোভিয়াল ফ্লুইডের ঘর্ষণরক্ষা এবং সন্ধির প্রকারভেদ এক্সপ্লোরার</p>
+    </div>
+  </div>
+
+  <!-- 1. Intro Section (Before Interactive) -->
+  <div class="intro-box">
+    <strong>📖 পরীক্ষার পরিচিতি ও মূল তত্ত্ব (পাঠ্যবই পৃষ্ঠা ১৯০–১৯৮):</strong><br>
+    কঙ্কালতন্ত্র ও পেশিতন্ত্রের সুসমন্বিত মিথস্ক্রিয়ায় মানবদেহ দৃঢ়তা পায় এবং স্থানান্তরিত হয়। মাংসপেশি কেবল <b>সংকোচনের মাধ্যমে টানতে (Pull)</b> পারে, কিন্তু কোনো অঙ্গকে বিপরীত দিকে ধাক্কা দিতে পারে না। তাই কনুই ভাঁজ (Flexion) করতে <b>বাইসেপস পেশি সংকুচিত</b> হয়ে রেডিয়াস ও আলনাকে হিউমেরাসের দিকে টানে এবং <b>ট্রাইসেপস শিথিল</b> থাকে। আবার হাত সোজা (Extension) করতে <b>ট্রাইসেপস সংকুচিত</b> হয়ে আলনাকে টেনে সোজা করে এবং বাইসেপস শিথিল হয়। অস্থিসন্ধির ভেতরে <b>আর্টিকুলার তরুণাস্থি</b> এবং পিচ্ছিল <b>সাইনোভিয়াল রস (Synovial fluid)</b> ঘর্ষণ প্রায় শূন্যের কোঠায় নামিয়ে এনে হাড়কে ক্ষয় থেকে রক্ষা করে।
+  </div>
+
+  <!-- 2. Interactive Navigation Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="setTab('arm')">💪 বাইসেপস-ট্রাইসেপস ও কবজা সন্ধি ল্যাব</button>
+    <button class="tab-btn" onclick="setTab('synovial')">💧 সাইনোভিয়াল সন্ধি ও ঘর্ষণ ল্যাব</button>
+    <button class="tab-btn" onclick="setTab('types')">🦴 সন্ধির প্রকারভেদ (বল-কোটর বনাম কবজা)</button>
+  </div>
+
+  <!-- 3. Interactive Workspaces -->
+  <!-- TAB 1: ARM BIOMECHANICS -->
+  <div id="tab-arm" class="sim-grid">
+    <div class="canvas-card">
+      <svg id="arm-svg" viewBox="0 0 460 360" width="100%" height="340" style="background:#fafcff;border-radius:10px;">
+        <defs>
+          <!-- Gradients for realistic muscle and bone -->
+          <linearGradient id="boneGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#fffbeb" />
+            <stop offset="100%" stop-color="#e2e8f0" />
+          </linearGradient>
+          <linearGradient id="bicepsActive" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ef4444" />
+            <stop offset="50%" stop-color="#f87171" />
+            <stop offset="100%" stop-color="#dc2626" />
+          </linearGradient>
+          <linearGradient id="bicepsRelaxed" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#93c5fd" />
+            <stop offset="100%" stop-color="#bfdbfe" />
+          </linearGradient>
+          <linearGradient id="tricepsActive" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#ef4444" />
+            <stop offset="100%" stop-color="#b91c1c" />
+          </linearGradient>
+          <linearGradient id="tricepsRelaxed" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#93c5fd" />
+            <stop offset="100%" stop-color="#cbd5e1" />
+          </linearGradient>
+        </defs>
+
+        <!-- Shoulder / Scapula fixed anchor -->
+        <circle cx="100" cy="80" r="14" fill="#cbd5e1" stroke="#94a3b8" stroke-width="2" />
+        <text x="100" y="60" text-anchor="middle" font-size="11" font-weight="700" fill="#475569">স্কন্ধসন্ধি (Shoulder)</text>
+
+        <!-- Humerus Bone (Fixed Upper Arm) -->
+        <rect x="88" y="80" width="24" height="150" rx="10" fill="url(#boneGrad)" stroke="#94a3b8" stroke-width="2" />
+        <text x="70" y="155" text-anchor="middle" font-size="12" font-weight="700" fill="#64748b" transform="rotate(-90 70 155)">হিউমেরাস (অস্থি)</text>
+
+        <!-- Elbow Joint Circle (Pivot Point cx=100, cy=230) -->
+        <circle cx="100" cy="230" r="16" fill="#0f766e" opacity="0.15" />
+        <circle cx="100" cy="230" r="9" fill="#0f766e" />
+        <text x="60" y="235" text-anchor="end" font-size="11" font-weight="700" fill="#0f766e">কবজা সন্ধি (কনুই)</text>
+
+        <!-- Triceps Muscle (Posterior / Left side of Humerus) -->
+        <path id="triceps-path" d="M 88 100 Q 60 155 88 220" fill="none" stroke="url(#tricepsRelaxed)" stroke-width="20" stroke-linecap="round" />
+        <!-- Triceps Tendons -->
+        <line x1="88" y1="95" x2="88" y2="105" stroke="#ffffff" stroke-width="6" />
+        <line x1="88" y1="215" x2="88" y2="235" stroke="#ffffff" stroke-width="6" />
+        <text id="triceps-label" x="45" y="150" font-size="11" font-weight="700" fill="#64748b">ট্রাইসেপস</text>
+
+        <!-- Dynamic Forearm Group (Rotates around elbow 100, 230) -->
+        <g id="forearm-group" transform="rotate(45 100 230)">
+          <!-- Radius & Ulna Bone -->
+          <rect x="90" y="230" width="20" height="135" rx="8" fill="url(#boneGrad)" stroke="#94a3b8" stroke-width="2" />
+          <text x="120" y="300" font-size="10" font-weight="700" fill="#64748b">রেডিয়াস ও আলনা</text>
+          <!-- Hand / Wrist -->
+          <circle cx="100" cy="370" r="12" fill="#fed7aa" stroke="#fb923c" />
+          <!-- Tendon Insertion on Radius (Biceps Tuberosity) -->
+          <circle id="biceps-insertion" cx="106" cy="255" r="4" fill="#0f766e" />
+        </g>
+
+        <!-- Biceps Muscle (Anterior / Right side of Humerus) -->
+        <!-- Will be dynamically redrawn in JS based on arm angle -->
+        <path id="biceps-path" d="M 108 95 Q 145 160 106 250" fill="none" stroke="url(#bicepsActive)" stroke-width="26" stroke-linecap="round" />
+        <text id="biceps-label" x="155" y="160" font-size="11" font-weight="700" fill="#dc2626">বাইসেপস (সংকুচিত)</text>
+
+        <!-- Angle Indicator Arc -->
+        <path id="angle-arc" d="M 100 260 A 30 30 0 0 0 120 252" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-dasharray="3,3" />
+        <text id="angle-display-svg" x="128" y="270" font-size="11" font-weight="800" fill="#0284c7">৪৫°</text>
+      </svg>
+    </div>
+
+    <div class="ctrl-card">
+      <div class="ctrl-group">
+        <label>
+          <span>কনুইয়ের কোণ নিয়ন্ত্রণ (Elbow Angle)</span>
+          <span id="angle-val-label" class="pill pill-green">৪৫° (ভাঁজ / Flexion)</span>
+        </label>
+        <div class="range-wrap">
+          <input type="range" id="angle-slider" min="30" max="165" value="45" oninput="updateArmAngle(this.value)" />
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <label><span>দ্রুত অবস্থান প্রিসেট (Presets)</span></label>
+        <div class="btn-row">
+          <button class="btn-action active-act" id="btn-p1" onclick="setAnglePreset(35)">সম্পূর্ণ ভাঁজ (৩৫°)</button>
+          <button class="btn-action" id="btn-p2" onclick="setAnglePreset(90)">সমকোণ (৯০°)</button>
+          <button class="btn-action" id="btn-p3" onclick="setAnglePreset(165)">সম্পূর্ণ সোজা (১৬৫°)</button>
+          <button class="btn-action" id="btn-play" onclick="toggleAutoMove()">▶ স্বয়ংক্রিয় চলন</button>
+        </div>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-title">বাইসেপস পেশির অবস্থা</div>
+          <div class="metric-value" id="m-biceps">সংকুচিত</div>
+          <div class="metric-sub" id="m-biceps-sub">খাটো ও স্ফীত (টান সক্রিয়)</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">ট্রাইসেপস পেশির অবস্থা</div>
+          <div class="metric-value" id="m-triceps">শিথিল</div>
+          <div class="metric-sub" id="m-triceps-sub">প্রসারিত ও লম্বা</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">টেনডন চাপটান বল</div>
+          <div class="metric-value" id="m-tension">৩২০ N</div>
+          <div class="metric-sub">রেডিয়াসে যান্ত্রিক টান</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">চলনের ধরন</div>
+          <div class="metric-value" id="m-motion">ফ্লেক্সন</div>
+          <div class="metric-sub">কবজা সন্ধি দ্বারা আবদ্ধ</div>
+        </div>
+      </div>
+
+      <div class="insight-box" style="margin-top:0;font-size:0.78rem;">
+        <b>বলবিদ্যা পর্যবেক্ষণ:</b> পেশি কখনোই ধাক্কা দিতে পারে না। বাইসেপস ও ট্রাইসেপসের মতো বিপরীতমুখী জোড় পেশি পর্যায়ক্রমে সংকুচিত ও শিথিল হয়ে কবজা সন্ধির মাধ্যমে বাহুকে সচল রাখে।
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: SYNOVIAL JOINT & FRICTION LAB -->
+  <div id="tab-synovial" class="sim-grid" style="display:none;">
+    <div class="canvas-card">
+      <svg id="synovial-svg" viewBox="0 0 460 340" width="100%" height="320" style="background:#fafcff;border-radius:10px;">
+        <!-- Top Bone (Epiphysis with cancellous bone) -->
+        <path d="M 170 30 L 290 30 L 290 80 Q 290 120 260 130 L 200 130 Q 170 120 170 80 Z" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" />
+        <text x="230" y="70" text-anchor="middle" font-size="12" font-weight="700" fill="#64748b">উর্ধ্বস্থ অস্থি (পেরিঅস্টিয়াম)</text>
+
+        <!-- Top Articular Cartilage (Blue cushion) -->
+        <path id="top-cartilage" d="M 195 130 Q 230 142 265 130" fill="none" stroke="#38bdf8" stroke-width="12" stroke-linecap="round" />
+        <text x="310" y="134" font-size="11" font-weight="700" fill="#0284c7">আর্টিকুলার তরুণাস্থি</text>
+
+        <!-- Synovial Cavity & Fluid (Teal highlight) -->
+        <ellipse id="syn-fluid" cx="230" cy="155" rx="42" ry="14" fill="#99f6e4" opacity="0.8" stroke="#14b8a6" stroke-width="1.5" />
+        <text x="130" y="158" text-anchor="end" font-size="11" font-weight="700" fill="#0f766e">সাইনোভিয়াল রস (Fluid)</text>
+
+        <!-- Bottom Articular Cartilage -->
+        <path id="bot-cartilage" d="M 195 180 Q 230 168 265 180" fill="none" stroke="#38bdf8" stroke-width="12" stroke-linecap="round" />
+
+        <!-- Bottom Bone -->
+        <path d="M 200 180 L 260 180 Q 290 190 290 230 L 290 280 L 170 280 L 170 230 Q 170 190 200 180 Z" fill="#f8fafc" stroke="#94a3b8" stroke-width="2" />
+        <text x="230" y="240" text-anchor="middle" font-size="12" font-weight="700" fill="#64748b">নিম্নস্থ অস্থি</text>
+
+        <!-- Articular Capsule & Synovial Membrane (Bilateral outer lines) -->
+        <path d="M 175 110 Q 150 155 175 200" fill="none" stroke="#f43f5e" stroke-width="3" stroke-dasharray="4,2" />
+        <path d="M 285 110 Q 310 155 285 200" fill="none" stroke="#f43f5e" stroke-width="3" stroke-dasharray="4,2" />
+        <text x="330" y="180" font-size="10" font-weight="700" fill="#e11d48">সাইনোভিয়াল ঝিল্লি ও ক্যাপসুল</text>
+
+        <!-- Ligaments (Outer strong stabilizing straps) -->
+        <path d="M 160 90 Q 135 155 160 220" fill="none" stroke="#fbbf24" stroke-width="6" stroke-linecap="round" />
+        <path d="M 300 90 Q 325 155 300 220" fill="none" stroke="#fbbf24" stroke-width="6" stroke-linecap="round" />
+        <text x="95" y="115" font-size="11" font-weight="700" fill="#d97706">লিগামেন্ট (অস্থিবন্ধনী)</text>
+
+        <!-- Applied Force Arrow -->
+        <g id="load-arrow" transform="translate(230, 10)">
+          <line x1="0" y1="0" x2="0" y2="16" stroke="#ef4444" stroke-width="3" marker-end="url(#arrow)" />
+          <polygon points="-4,14 4,14 0,22" fill="#ef4444" />
+        </g>
+      </svg>
+    </div>
+
+    <div class="ctrl-card">
+      <div class="ctrl-group">
+        <label><span>সন্ধির স্বাস্থ্য অবস্থা (Joint Condition)</span></label>
+        <div class="btn-row">
+          <button class="btn-action active-act" id="btn-h1" onclick="setJointState('healthy')">সুস্থ সাইনোভিয়াল সন্ধি</button>
+          <button class="btn-action" id="btn-h2" onclick="setJointState('dry')">সাইনোভিয়াল রস হ্রাস</button>
+          <button class="btn-action" id="btn-h3" onclick="setJointState('arthritis')">আর্থ্রাইটিস (তরুণাস্থি ক্ষয়)</button>
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <label>
+          <span>সন্ধির ওপর প্রযুক্ত লোড বা ভর (Body Weight Load)</span>
+          <span id="load-val-label" class="pill pill-blue">৫০ kg</span>
+        </label>
+        <input type="range" id="load-slider" min="20" max="100" value="50" oninput="updateJointLoad(this.value)" />
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-title">ঘর্ষণ সহগ (&mu;)</div>
+          <div class="metric-value" id="m-friction">০.০০৩</div>
+          <div class="metric-sub" id="m-friction-sub">বরফের চেয়েও পিচ্ছিল</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">তরুণাস্থির ক্ষয় ঝুঁকি</div>
+          <div class="metric-value" id="m-wear">নগণ্য</div>
+          <div class="metric-sub" id="m-wear-sub">সুরক্ষিত তরুণাস্থি স্তর</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">চলনে শক্তি অপচয়</div>
+          <div class="metric-value" id="m-energy">০.২%</div>
+          <div class="metric-sub">অনায়াস অঙ্গসঞ্চালন</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">ব্যথা ও অস্বস্তি মাত্রা</div>
+          <div class="metric-value" id="m-pain">০ / ১০</div>
+          <div class="metric-sub">সম্পূর্ণ ব্যথামুক্ত</div>
+        </div>
+      </div>
+
+      <div class="insight-box" id="joint-desc" style="margin-top:0;font-size:0.78rem;">
+        <b>স্বাভাবিক অবস্থা:</b> সাইনোভিয়াল ফ্লুইড উচ্চ চাপেও দুটি তরুণাস্থি স্তরকে সরাসরি স্পর্শ করতে দেয় না। এতে ঘর্ষণ সহগ মাত্র ০.০০৩ থাকে, যা যেকোনো মানুষের তৈরি মেকানিক্যাল বিয়ারিং-এর চেয়ে কার্যকর।
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: JOINT TYPES COMPARISON -->
+  <div id="tab-types" class="sim-grid" style="display:none;">
+    <div class="canvas-card">
+      <svg id="types-svg" viewBox="0 0 460 320" width="100%" height="300" style="background:#fafcff;border-radius:10px;">
+        <!-- Dynamic view for joint types -->
+        <g id="ball-socket-view">
+          <!-- Cup / Socket -->
+          <path d="M 160 80 A 60 60 0 0 0 280 80 L 290 50 L 150 50 Z" fill="#e2e8f0" stroke="#64748b" stroke-width="2" />
+          <!-- Ball Head -->
+          <circle id="joint-ball" cx="220" cy="110" r="44" fill="#38bdf8" opacity="0.85" stroke="#0284c7" stroke-width="2" />
+          <line id="joint-stem" x1="220" y1="110" x2="220" y2="230" stroke="#64748b" stroke-width="14" stroke-linecap="round" />
+          <circle cx="220" cy="110" r="5" fill="#dc2626" />
+          <!-- Rotation Orbit Path -->
+          <ellipse cx="220" cy="230" rx="70" ry="22" fill="none" stroke="#0d9488" stroke-width="2" stroke-dasharray="4,3" />
+          <text x="220" y="275" text-anchor="middle" font-size="12" font-weight="700" fill="#0f766e">৩৬০° ত্রিমাত্রিক ঘূর্ণন (বহুমুখী চলন)</text>
+          <text x="220" y="35" text-anchor="middle" font-size="13" font-weight="800" fill="#1e293b">বল ও কোটরসন্ধি (স্কন্ধ ও উরুসন্ধি)</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="ctrl-card">
+      <div class="ctrl-group">
+        <label><span>সন্ধির ধরন নির্বাচন করুন</span></label>
+        <div class="btn-row">
+          <button class="btn-action active-act" id="btn-t1" onclick="selectJointType('ball')">১. বল ও কোটরসন্ধি</button>
+          <button class="btn-action" id="btn-t2" onclick="selectJointType('hinge')">২. কবজা সন্ধি (Hinge)</button>
+          <button class="btn-action" id="btn-t3" onclick="selectJointType('suture')">৩. নিশ্চল করোটিকা সন্ধি</button>
+        </div>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-title">সঞ্চালনের তল (Degrees of Freedom)</div>
+          <div class="metric-value" id="m-dof">৩টি তলে (3D)</div>
+          <div class="metric-sub" id="m-dof-sub">ঘূর্ণন ও বৃত্তাকার চলন</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">মানবদেহে অবস্থান</div>
+          <div class="metric-value" id="m-loc" style="font-size:0.95rem;">কাঁধ ও নিতম্ব</div>
+          <div class="metric-sub" id="m-loc-sub">Shoulder & Hip joints</div>
+        </div>
+      </div>
+
+      <div class="insight-box" id="type-details" style="margin-top:0;font-size:0.8rem;">
+        <b>বল ও কোটরসন্ধি (Ball and Socket Joint):</b> একটি অস্থির গোল মাথা অন্য অস্থির পেয়ালা সদৃশ কোটরে নিবিষ্ট থাকে। ফলে হাত বা পা সকল দিকে বাঁকানো, পাশে চালনা করা কিংবা বৃত্তাকারে ঘোরানো যায়।
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Explainer Section (After Interactive) -->
+  <div class="explainer-box">
+    <strong>💡 মূল ধারণা ও বোর্ড পরীক্ষার প্রশ্নোত্তর বিশ্লেষণ:</strong><br>
+    • <b>অ্যান্টাগনিস্টিক পেশির কার্যপ্রণালী:</b> পেশিকোষ স্নায়বিক উদ্দীপনায় সংকুচিত (ছোট ও পুরু) হতে পারে কিন্তু নিজে ধাক্কা দিয়ে দীর্ঘ হতে পারে না। ফলে কনুই ভাঁজ করার জন্য <b>বাইসেপস ব্র্যাকাই</b> সংকুচিত হয়ে রেডিয়াস-আলনাকে টানে এবং পেছনের <b>ট্রাইসেপস</b> শিথিল থাকে। বিপরীতক্রমে হাত সোজা করতে ট্রাইসেপস সংকুচিত হয়ে আলনার ওলিক্রেনন প্রসেসকে টানে এবং বাইসেপস শিথিল হয়।<br>
+    • <b>টেনডন বনাম লিগামেন্ট বলবিদ্যা:</b> টেনডন মাংসপেশির টানকে সরাসরি অস্থির গায়ে সঞ্চালিত করে, তাই এর স্থিতিস্থাপকতা নগণ্য (অস্থিতিস্থাপক কোলাজেন তন্তু) রাখা হয় যাতে যান্ত্রিক শক্তি নষ্ট না হয়। অপরদিকে লিগামেন্ট অস্থির সাথে অন্য অস্থিকে আটকে সন্ধির সীমা ধরে রাখে, তাই এতে পীত ইলাস্টিক তন্তু বেশি থাকে যা অস্থিকে স্থানচ্যুত না হয়ে নমনীয় সঞ্চালন করতে দেয়।<br>
+    • <b>সাইনোভিয়াল ফ্লুইডের গুরুত্ব:</b> সুস্থ সন্ধিতে আর্টিকুলার কার্টিলেজ ও সাইনোভিয়াল ফ্লুইডের ঘর্ষণ সহগ বরফের চেয়েও কম (&mu; &asymp; ০.০০৩)। মেনোপজ পরবর্তী অস্টিওপোরোসিস বা রিউমাটয়েড আর্থ্রাইটিসে এই তরুণাস্থি ও রস শুকিয়ে যাওয়ায় হাড়ে হাড়ে সরাসরি ঘর্ষণে তীব্র ব্যথা ও হাড়ের ক্ষয় সৃষ্টি হয়।
+  </div>
+</div>
+
+<script>
+  let currentTab = 'arm';
+  let isAutoMove = false;
+  let autoTimer = null;
+  let currentAngle = 45;
+  let autoDirection = 1;
+
+  function setTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+
+    document.getElementById('tab-arm').style.display = tab === 'arm' ? 'grid' : 'none';
+    document.getElementById('tab-synovial').style.display = tab === 'synovial' ? 'grid' : 'none';
+    document.getElementById('tab-types').style.display = tab === 'types' ? 'grid' : 'none';
+
+    if (tab !== 'arm' && isAutoMove) {
+      toggleAutoMove();
+    }
+  }
+
+  /* TAB 1: ARM BIOMECHANICS FUNCTIONS */
+  function updateArmAngle(deg) {
+    currentAngle = parseFloat(deg);
+    document.getElementById('angle-slider').value = currentAngle;
+    const rad = currentAngle * Math.PI / 180;
+
+    // Rotate forearm group
+    const forearm = document.getElementById('forearm-group');
+    if (forearm) {
+      forearm.setAttribute('transform', `rotate(${currentAngle} 100 230)`);
+    }
+
+    // Dynamic calculate insertion point of biceps on radius
+    // Pivot at (100, 230). In local coords, insertion is at (106, 255) -> dx=6, dy=25 -> dist = 25.7, angle = atan2(25, 6)
+    const localAngle = Math.atan2(25, 6);
+    const dist = Math.hypot(6, 25);
+    const globalAngle = localAngle + (currentAngle * Math.PI / 180);
+    const insX = 100 + dist * Math.sin(globalAngle);
+    const insY = 230 + dist * Math.cos(globalAngle);
+
+    // Biceps bulge control point (around x: 135 to 115 depending on contraction)
+    // More flexion (smaller deg) = more contraction = bigger bulge
+    const flexRatio = (165 - currentAngle) / (165 - 30); // 1 = fully flexed, 0 = fully extended
+    const bulgeX = 115 + flexRatio * 38;
+    const bulgeY = 160;
+    const strokeW = 16 + flexRatio * 16; // 16px extended to 32px flexed
+
+    const bicepsPath = document.getElementById('biceps-path');
+    if (bicepsPath) {
+      bicepsPath.setAttribute('d', `M 108 95 Q ${bulgeX} ${bulgeY} ${insX.toFixed(1)} ${insY.toFixed(1)}`);
+      bicepsPath.setAttribute('stroke-width', strokeW);
+      bicepsPath.setAttribute('stroke', flexRatio > 0.4 ? 'url(#bicepsActive)' : 'url(#bicepsRelaxed)');
+    }
+
+    // Triceps path
+    const tricepsPath = document.getElementById('triceps-path');
+    const tricepsW = 16 + (1 - flexRatio) * 14;
+    if (tricepsPath) {
+      tricepsPath.setAttribute('stroke-width', tricepsW);
+      tricepsPath.setAttribute('stroke', flexRatio < 0.5 ? 'url(#tricepsActive)' : 'url(#tricepsRelaxed)');
+    }
+
+    // Update labels and values
+    document.getElementById('angle-display-svg').textContent = Math.round(currentAngle) + '°';
+    const angleLabel = document.getElementById('angle-val-label');
+    const mBiceps = document.getElementById('m-biceps');
+    const mBicepsSub = document.getElementById('m-biceps-sub');
+    const mTriceps = document.getElementById('m-triceps');
+    const mTricepsSub = document.getElementById('m-triceps-sub');
+    const mTension = document.getElementById('m-tension');
+    const mMotion = document.getElementById('m-motion');
+
+    if (currentAngle < 60) {
+      angleLabel.textContent = Math.round(currentAngle) + '° (তীব্র ভাঁজ / Flexion)';
+      angleLabel.className = 'pill pill-red';
+      mBiceps.textContent = 'তীব্র সংকুচিত';
+      mBiceps.style.color = '#dc2626';
+      mBicepsSub.textContent = 'সর্বোচ্চ স্ফীত ও পুরু';
+      mTriceps.textContent = 'সম্পূর্ণ শিথিল';
+      mTriceps.style.color = '#64748b';
+      mTricepsSub.textContent = 'প্রসারিত ও টানমুক্ত';
+      mTension.textContent = Math.round(280 + flexRatio * 120) + ' N';
+      mMotion.textContent = 'ফ্লেক্সন (Flexion)';
+    } else if (currentAngle > 130) {
+      angleLabel.textContent = Math.round(currentAngle) + '° (সোজা / Extension)';
+      angleLabel.className = 'pill pill-blue';
+      mBiceps.textContent = 'সম্পূর্ণ শিথিল';
+      mBiceps.style.color = '#64748b';
+      mBicepsSub.textContent = 'প্রসারিত ও পাতলা';
+      mTriceps.textContent = 'সংকুচিত';
+      mTriceps.style.color = '#dc2626';
+      mTricepsSub.textContent = 'টানটান ও বল প্রয়োগকারী';
+      mTension.textContent = Math.round(40 + flexRatio * 50) + ' N';
+      mMotion.textContent = 'এক্সটেনশন (Extension)';
+    } else {
+      angleLabel.textContent = Math.round(currentAngle) + '° (মধ্যবর্তী অবস্থা)';
+      angleLabel.className = 'pill pill-green';
+      mBiceps.textContent = 'আংশিক সংকুচিত';
+      mBiceps.style.color = '#0f766e';
+      mBicepsSub.textContent = 'মধ্যবর্তী পেশি টান';
+      mTriceps.textContent = 'আংশিক শিথিল';
+      mTriceps.style.color = '#64748b';
+      mTricepsSub.textContent = 'স্থিতিস্থাপক টানমুক্ত';
+      mTension.textContent = Math.round(150 + flexRatio * 80) + ' N';
+      mMotion.textContent = 'সঞ্চালনশীল';
+    }
+  }
+
+  function setAnglePreset(deg) {
+    if (isAutoMove) toggleAutoMove();
+    document.querySelectorAll('#tab-arm .btn-action').forEach(b => b.classList.remove('active-act'));
+    if (deg === 35) document.getElementById('btn-p1').classList.add('active-act');
+    if (deg === 90) document.getElementById('btn-p2').classList.add('active-act');
+    if (deg === 165) document.getElementById('btn-p3').classList.add('active-act');
+    updateArmAngle(deg);
+  }
+
+  function toggleAutoMove() {
+    isAutoMove = !isAutoMove;
+    const btn = document.getElementById('btn-play');
+    if (isAutoMove) {
+      btn.textContent = '⏸ থামাও';
+      btn.classList.add('active-act');
+      autoTimer = setInterval(() => {
+        let nextAngle = currentAngle + autoDirection * 2.5;
+        if (nextAngle >= 160) {
+          nextAngle = 160;
+          autoDirection = -1;
+        } else if (nextAngle <= 35) {
+          nextAngle = 35;
+          autoDirection = 1;
+        }
+        updateArmAngle(nextAngle);
+      }, 35);
+    } else {
+      btn.textContent = '▶ স্বয়ংক্রিয় চলন';
+      btn.classList.remove('active-act');
+      clearInterval(autoTimer);
+      autoTimer = null;
+    }
+  }
+
+  /* TAB 2: SYNOVIAL FUNCTIONS */
+  let currentJointCondition = 'healthy';
+  let currentLoad = 50;
+
+  function setJointState(state) {
+    currentJointCondition = state;
+    document.querySelectorAll('#tab-synovial .btn-action').forEach(b => b.classList.remove('active-act'));
+    if (state === 'healthy') document.getElementById('btn-h1').classList.add('active-act');
+    if (state === 'dry') document.getElementById('btn-h2').classList.add('active-act');
+    if (state === 'arthritis') document.getElementById('btn-h3').classList.add('active-act');
+
+    const topCart = document.getElementById('top-cartilage');
+    const botCart = document.getElementById('bot-cartilage');
+    const fluid = document.getElementById('syn-fluid');
+    const desc = document.getElementById('joint-desc');
+
+    const mFric = document.getElementById('m-friction');
+    const mFricSub = document.getElementById('m-friction-sub');
+    const mWear = document.getElementById('m-wear');
+    const mWearSub = document.getElementById('m-wear-sub');
+    const mEnergy = document.getElementById('m-energy');
+    const mPain = document.getElementById('m-pain');
+
+    if (state === 'healthy') {
+      topCart.setAttribute('stroke-width', '12');
+      topCart.setAttribute('stroke', '#38bdf8');
+      botCart.setAttribute('stroke-width', '12');
+      botCart.setAttribute('stroke', '#38bdf8');
+      fluid.setAttribute('opacity', '0.8');
+      fluid.setAttribute('fill', '#99f6e4');
+
+      mFric.textContent = '০.০০৩';
+      mFric.style.color = '#0f766e';
+      mFricSub.textContent = 'বরফের চেয়েও পিচ্ছিল';
+      mWear.textContent = 'নগণ্য';
+      mWearSub.textContent = 'তরুণাস্থি সম্পূর্ণ অক্ষত';
+      mEnergy.textContent = '০.২%';
+      mPain.textContent = '০ / ১০';
+      mPain.style.color = '#0f766e';
+      desc.innerHTML = '<b>স্বাভাবিক অবস্থা:</b> সাইনোভিয়াল রস ও আর্টিকুলার তরুণাস্থি নিখুঁত কুশন তৈরি করে। ঘর্ষণ নেই বললেই চলে, অঙ্গ সঞ্চালনে কোনো ব্যথা হয় না।';
+    } else if (state === 'dry') {
+      topCart.setAttribute('stroke-width', '9');
+      topCart.setAttribute('stroke', '#0284c7');
+      botCart.setAttribute('stroke-width', '9');
+      botCart.setAttribute('stroke', '#0284c7');
+      fluid.setAttribute('opacity', '0.2');
+      fluid.setAttribute('fill', '#e0f2fe');
+
+      mFric.textContent = '০.০৪৫';
+      mFric.style.color = '#d97706';
+      mFricSub.textContent = 'ঘর্ষণ ১৫ গুণ বৃদ্ধি';
+      mWear.textContent = 'মাঝারি';
+      mWearSub.textContent = 'তরুণাস্থি পাতলা হচ্ছে';
+      mEnergy.textContent = '৩.৫%';
+      mPain.textContent = '৪ / ১০';
+      mPain.style.color = '#d97706';
+      desc.innerHTML = '<b>রস স্বল্পতা:</b> সাইনোভিয়াল ফ্লুইডের ক্ষরণ কমে যাওয়ায় অস্থির সংযোগস্থল শক্ত (stiff) লাগে এবং নাড়াচড়ায় খসখসে শব্দ ও অস্বস্তি হয়।';
+    } else if (state === 'arthritis') {
+      topCart.setAttribute('stroke-width', '4');
+      topCart.setAttribute('stroke', '#ef4444');
+      botCart.setAttribute('stroke-width', '4');
+      botCart.setAttribute('stroke', '#ef4444');
+      fluid.setAttribute('opacity', '0.1');
+      fluid.setAttribute('fill', '#fecdd3');
+
+      mFric.textContent = '০.২৫০';
+      mFric.style.color = '#dc2626';
+      mFricSub.textContent = 'হাড়ে হাড়ে তীব্র ঘর্ষণ';
+      mWear.textContent = 'মারাত্মক ক্ষয়';
+      mWearSub.textContent = 'তরুণাস্থি ধ্বংসপ্রাপ্ত';
+      mEnergy.textContent = '১৮.০%';
+      mPain.textContent = '৯ / ১০';
+      mPain.style.color = '#dc2626';
+      desc.innerHTML = '<b>রিউমাটয়েড আর্থ্রাইটিস:</b> অটোইমিউন প্রদাহের ফলে আর্টিকুলার কার্টিলেজ ভেঙে গেছে এবং ঝিল্লি ফুলে গেছে। হাড়ে হাড়ে সরাসরি সংঘাতের ফলে তীব্র যন্ত্রণা হয়।';
+    }
+  }
+
+  function updateJointLoad(val) {
+    currentLoad = val;
+    document.getElementById('load-val-label').textContent = val + ' kg';
+    const arrow = document.getElementById('load-arrow');
+    const scale = 0.6 + (val / 100) * 0.8;
+    if (arrow) {
+      arrow.setAttribute('transform', `translate(230, 5) scale(${scale})`);
+    }
+  }
+
+  /* TAB 3: JOINT TYPES FUNCTIONS */
+  function selectJointType(type) {
+    document.querySelectorAll('#tab-types .btn-action').forEach(b => b.classList.remove('active-act'));
+    const svgWrap = document.getElementById('types-svg');
+    const mDof = document.getElementById('m-dof');
+    const mDofSub = document.getElementById('m-dof-sub');
+    const mLoc = document.getElementById('m-loc');
+    const mLocSub = document.getElementById('m-loc-sub');
+    const desc = document.getElementById('type-details');
+
+    if (type === 'ball') {
+      document.getElementById('btn-t1').classList.add('active-act');
+      mDof.textContent = '৩টি তলে (3D)';
+      mDofSub.textContent = 'ঘূর্ণন, অ্যাবডাকশন ও সারকামডাকশন';
+      mLoc.textContent = 'কাঁধ ও নিতম্ব';
+      mLocSub.textContent = 'Shoulder & Hip joints';
+      desc.innerHTML = '<b>বল ও কোটরসন্ধি (Ball & Socket Joint):</b> গোল মাথা পেয়ালাসদৃশ কোটরে নিখুঁতভাবে অবস্থান করায় হাত বা পা ৩৬০° কোণে সকল দিকে স্বাধীনভাবে নড়াচড়া করানো যায়।';
+      svgWrap.innerHTML = `
+        <path d="M 160 80 A 60 60 0 0 0 280 80 L 290 50 L 150 50 Z" fill="#e2e8f0" stroke="#64748b" stroke-width="2" />
+        <circle id="joint-ball" cx="220" cy="110" r="44" fill="#38bdf8" opacity="0.85" stroke="#0284c7" stroke-width="2" />
+        <line id="joint-stem" x1="220" y1="110" x2="220" y2="230" stroke="#64748b" stroke-width="14" stroke-linecap="round" />
+        <circle cx="220" cy="110" r="5" fill="#dc2626" />
+        <ellipse cx="220" cy="230" rx="70" ry="22" fill="none" stroke="#0d9488" stroke-width="2" stroke-dasharray="4,3" />
+        <text x="220" y="275" text-anchor="middle" font-size="12" font-weight="700" fill="#0f766e">৩৬০° ত্রিমাত্রিক ঘূর্ণন (বহুমুখী চলন)</text>
+        <text x="220" y="35" text-anchor="middle" font-size="13" font-weight="800" fill="#1e293b">বল ও কোটরসন্ধি (স্কন্ধ ও উরুসন্ধি)</text>
+      `;
+    } else if (type === 'hinge') {
+      document.getElementById('btn-t2').classList.add('active-act');
+      mDof.textContent = '১টি তলে (1D)';
+      mDofSub.textContent = 'কেবল ভাঁজ ও সোজা করা';
+      mLoc.textContent = 'কনুই, হাঁটু ও আঙুল';
+      mLocSub.textContent = 'Elbow, Knee & Phalanges';
+      desc.innerHTML = '<b>কবজা সন্ধি (Hinge Joint):</b> দরজার পাল্লার মতো কবজা দিয়ে আটকানো থাকে। এটি শুধুমাত্র একদিকে (একটি নির্দিষ্ট তলে) ভাঁজ (Flexion) ও সোজা (Extension) হতে পারে।';
+      svgWrap.innerHTML = `
+        <!-- Fixed Bone Base -->
+        <rect x="195" y="40" width="70" height="90" rx="10" fill="#e2e8f0" stroke="#64748b" stroke-width="2" />
+        <!-- Hinge Pin -->
+        <circle cx="230" cy="140" r="16" fill="#0f766e" />
+        <circle cx="230" cy="140" r="6" fill="#ffffff" />
+        <!-- Movable Arm -->
+        <line x1="230" y1="140" x2="310" y2="220" stroke="#64748b" stroke-width="16" stroke-linecap="round" />
+        <!-- Angular swing arc -->
+        <path d="M 310 220 A 100 100 0 0 1 230 240" fill="none" stroke="#0284c7" stroke-width="3" stroke-dasharray="4,3" />
+        <text x="230" y="275" text-anchor="middle" font-size="12" font-weight="700" fill="#0284c7">একমুখী দরজার পাল্লার মতো চলন (180°)</text>
+        <text x="230" y="25" text-anchor="middle" font-size="13" font-weight="800" fill="#1e293b">কবজা সন্ধি (কনুই ও হাঁটু)</text>
+      `;
+    } else if (type === 'suture') {
+      document.getElementById('btn-t3').classList.add('active-act');
+      mDof.textContent = '০টি তলে (0D - অনড়)';
+      mDofSub.textContent = 'সম্পূর্ণরূপে নিশ্চল';
+      mLoc.textContent = 'মাথার খুলির করোটিকা';
+      mLocSub.textContent = 'Cranial Sutures';
+      desc.innerHTML = '<b>নিশ্চল অস্থিসন্ধি (Fixed Suture Joint):</b> অস্থিগুলোর প্রান্তভাগ করাতের দাঁতের মতো একে অপরের খাঁজে শক্তভাবে এঁটে থাকে। কোনো ফাঁকা স্থান বা সাইনোভিয়াল গহ্বর থাকে না, ফলে অস্থি অনড় থাকে ও মস্তিষ্ককে সুরক্ষা দেয়।';
+      svgWrap.innerHTML = `
+        <!-- Suture plates interlocking -->
+        <path d="M 140 60 L 210 60 L 210 100 L 225 110 L 205 125 L 225 145 L 205 165 L 225 185 L 210 200 L 210 240 L 140 240 Z" fill="#fef3c7" stroke="#d97706" stroke-width="2" />
+        <path d="M 320 60 L 215 60 L 215 100 L 230 110 L 210 125 L 230 145 L 210 165 L 230 185 L 215 200 L 215 240 L 320 240 Z" fill="#ecfdf5" stroke="#059669" stroke-width="2" />
+        <text x="230" y="275" text-anchor="middle" font-size="12" font-weight="700" fill="#b45309">অনড় খাঁজকাটা সিউচার সন্ধি (০° চলন)</text>
+        <text x="230" y="35" text-anchor="middle" font-size="13" font-weight="800" fill="#1e293b">নিশ্চল অস্থিসন্ধি (করোটিকা)</text>
+      `;
+    }
+  }
+
+  // Initial load
+  updateArmAngle(45);
+</script>
+</body>
+</html>

@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>নেফ্রন, বৃক্কের শারীরবৃত্ত ও ডায়ালাইসিস ল্যাব | poRi Interactive</title>
+  <style>
+    /* PORI UNIFIED SIMULATOR THEME */
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-accent: #0f766e;
+      --pori-accent-soft: #ecfdf5;
+      --pori-accent-border: #99f6e4;
+      --pori-accent-ink: #134e4a;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-amber-ink: #92400e;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-border: #fecdd3;
+      --pori-rose-ink: #9f1239;
+      --pori-blue-soft: #eff6ff;
+      --pori-blue-border: #bfdbfe;
+      --pori-blue-ink: #1e40af;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+    .app {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .head h1 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--pori-heading);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--pori-accent-ink);
+      background: var(--pori-accent-soft);
+      border: 1px solid var(--pori-accent-border);
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .head p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--pori-muted);
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--pori-border);
+      background: var(--pori-surface);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--pori-muted);
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      background: var(--pori-accent-soft);
+      color: var(--pori-accent-ink);
+    }
+    .tab-btn.active {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+    }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+    }
+    @media (max-width: 860px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+    .viewport-card {
+      background: #fafbfc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .canvas-wrap {
+      width: 100%;
+      height: 340px;
+      background: #ffffff;
+      border: 1px solid var(--pori-border);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .control-panel {
+      background: var(--pori-bg);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .panel-section-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--pori-heading);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px dashed var(--pori-border);
+      padding-bottom: 4px;
+      margin: 0;
+    }
+    .ctrl-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .ctrl-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--pori-ink);
+      display: flex;
+      justify-content: space-between;
+    }
+    .ctrl-label span.val {
+      color: var(--pori-accent);
+      font-weight: 700;
+    }
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--pori-accent);
+      cursor: pointer;
+    }
+    .btn-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .btn-chip {
+      background: #fff;
+      border: 1px solid var(--pori-border);
+      border-radius: 8px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--pori-ink);
+      transition: all 0.15s;
+    }
+    .btn-chip:hover {
+      background: var(--pori-accent-soft);
+      border-color: var(--pori-accent-border);
+    }
+    .btn-chip.active {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .metric-card {
+      background: #fff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 10px;
+      padding: 8px 10px;
+      text-align: center;
+    }
+    .metric-title {
+      font-size: 11px;
+      color: var(--pori-muted);
+      font-weight: 600;
+    }
+    .metric-value {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--pori-heading);
+      margin-top: 2px;
+    }
+    .metric-sub {
+      font-size: 10px;
+      color: var(--pori-accent);
+      font-weight: 600;
+    }
+    .legend-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      font-size: 11px;
+      background: #fff;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--pori-border-soft);
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .legend-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+    }
+
+    /* Standardized Pedagogical Boxes (Intro & Explainer) */
+    .intro-box {
+      background: #eff6ff !important;
+      border-left: 4px solid #3b82f6 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.84rem !important;
+      color: #1e3a8a !important;
+      line-height: 1.6 !important;
+      margin-bottom: 14px !important;
+    }
+    .intro-box strong {
+      color: #172554 !important;
+    }
+    .insight-box, .explainer-box {
+      background: #f0fdfa !important;
+      border-left: 4px solid #0d9488 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.84rem !important;
+      color: #134e4a !important;
+      line-height: 1.6 !important;
+      margin-top: 14px !important;
+    }
+    .insight-box strong, .explainer-box strong {
+      color: #042f2e !important;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="head">
+    <div>
+      <h1>
+        <span>🧪 নেফ্রন, বৃক্কের শারীরবৃত্ত ও ডায়ালাইসিস ল্যাব</span>
+        <span class="badge">SSC Biology · অধ্যায় ৮</span>
+      </h1>
+      <p>অতিপরিস্রাবণ, নির্বাচনমূলক পুনঃশোষণ, অসমোরেগুলেশন এবং কৃত্রিম ডায়ালাইজার মেশিনের সক্রিয় মেকানিজম ল্যাব</p>
+    </div>
+  </div>
+
+  <!-- 1. Intro Section (Before Interactive) -->
+  <div class="intro-box">
+    <strong>📖 পরীক্ষার পরিচিতি ও মূল তত্ত্ব (পাঠ্যবই পৃষ্ঠা ১৭৮–১৮৯):</strong><br>
+    মানবদেহের প্রধান রেচন অঙ্গ বৃক্ক এবং এর কার্যকরী একক হলো <b>নেফ্রন (Nephron)</b>, যার সংখ্যা প্রতি বৃক্কে ১০–১২ লাখ। বোম্যান্স ক্যাপসুলে রক্তের উচ্চ চাপে রক্তরস অতিপরিস্রুত (Ultrafiltration) হয়ে <b>গ্লোমেরুলার ফিল্ট্রেট</b> তৈরি হয়। এরপর রেনাল টিউবিউল ও হেনলির লুপে প্রয়োজনীয় পানি, গ্লুকোজ ও লবণ প্রায় ৯৯% হারে পুনঃশোষিত হয়ে অবশিষ্ট নাইট্রোজেন বর্জ্য (ইউরিয়া, ইউরিক এসিড, ক্রিয়েটিনিন) মূত্ররূপে নিষ্ক্রান্ত হয়। কিডনি সম্পূর্ণ বিকল হলে কৃত্রিম <b>ডায়ালাইজার যন্ত্রের</b> অর্ধভেদ্য সেলোফেন নালিকা ও ডায়ালাইজিং ফ্লুইডের বিপরীতমুখী প্রবাহের (Counter-current diffusion) মাধ্যমে রক্তকে বিষাক্ত বর্জ্যমুক্ত করা হয়।
+  </div>
+
+  <!-- 2. Interactive Navigation Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-nephron" onclick="switchTab('nephron')">🔬 নেফ্রন ফিল্ট্রেশন ও পুনঃশোষণ</button>
+    <button class="tab-btn" id="tab-dialysis" onclick="switchTab('dialysis')">💉 কৃত্রিম ডায়ালাইসিস মেশিন ল্যাব</button>
+    <button class="tab-btn" id="tab-stones" onclick="switchTab('stones')">🪨 কিডনির অ্যানাটমি ও স্টোন ঝুঁকি ক্যালকুলেটর</button>
+  </div>
+
+  <!-- 3. Interactive Main Section -->
+  <div class="main-grid">
+
+    <!-- Viewport Panel -->
+    <div class="viewport-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span id="canvas-status-title" style="font-weight:700;font-size:14px;color:var(--pori-heading);">নেফ্রন আল্ট্রাফিল্ট্রেশন ডায়নামিক ভিউ</span>
+        <span id="flow-speed-tag" class="badge">সক্রিয় অ্যানিমেশন</span>
+      </div>
+
+      <div class="canvas-wrap">
+        <canvas id="simCanvas" width="600" height="340"></canvas>
+      </div>
+
+      <div class="legend-row" id="canvas-legend">
+        <div class="legend-item"><span class="legend-dot" style="background:#ef4444;"></span> রক্তকণিকা (আটকা পড়ে)</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#3b82f6;"></span> প্রোটিন (আটকা পড়ে)</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#10b981;"></span> গ্লুকোজ (১০০% পুনঃশোষিত)</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#eab308;"></span> পানি ও লবণ (৯৯% পুনঃশোষিত)</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#8b5cf6;"></span> ইউরিয়া ও বর্জ্য (মূত্রে নিষ্ক্রান্ত)</div>
+      </div>
+    </div>
+
+    <!-- Controls & Data Panel -->
+    <div class="control-panel">
+      <!-- Section A: Tab-Specific Controls -->
+      <div id="controls-nephron">
+        <h4 class="panel-section-title">শারীরবৃত্তীয় নিয়ন্ত্রণ ও ইনপুট</h4>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">
+            <span>রক্তচাপ / গ্লোমেরুলার প্রেশার</span>
+            <span class="val" id="bp-val">৬০ mmHg (স্বাভাবিক)</span>
+          </label>
+          <input type="range" id="bp-slider" min="40" max="80" value="60" oninput="updateNephronParams()" />
+        </div>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">
+            <span>দেহের হাইড্রেশন / পানি গ্রহণ</span>
+            <span class="val" id="hyd-val">স্বাভাবিক (২.৫ লিটার)</span>
+          </label>
+          <input type="range" id="hyd-slider" min="1" max="5" step="0.5" value="2.5" oninput="updateNephronParams()" />
+        </div>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">রোগ অবস্থা / কন্ডিশন</label>
+          <div class="btn-row">
+            <button class="btn-chip active" id="cond-normal" onclick="setCondition('normal')">স্বাভাবিক</button>
+            <button class="btn-chip" id="cond-diabetic" onclick="setCondition('diabetic')">ডায়াবেটিস</button>
+            <button class="btn-chip" id="cond-hypo" onclick="setCondition('hypo')">পানিশূন্যতা</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="controls-dialysis" style="display:none;">
+        <h4 class="panel-section-title">ডায়ালাইজার মেশিন প্যারামিটার</h4>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">
+            <span>রক্ত প্রবাহের বেগ (Qb)</span>
+            <span class="val" id="qb-val">৩০০ mL/min</span>
+          </label>
+          <input type="range" id="qb-slider" min="150" max="450" step="25" value="300" oninput="updateDialysisParams()" />
+        </div>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">
+            <span>ডায়ালাইসিস সময় অতিবাহিত</span>
+            <span class="val" id="time-val">০ ঘণ্টা</span>
+          </label>
+          <input type="range" id="time-slider" min="0" max="4" step="0.5" value="0" oninput="updateDialysisParams()" />
+        </div>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">হেপারিন ইনফিউশন</label>
+          <div class="btn-row">
+            <button class="btn-chip active" id="hep-on" onclick="toggleHeparin(true)">হেপারিন সক্রিয় (স্বাভাবিক)</button>
+            <button class="btn-chip" id="hep-off" onclick="toggleHeparin(false)">হেপারিন বন্ধ (ঝুঁকি)</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="controls-stones" style="display:none;">
+        <h4 class="panel-section-title">কিডনি পাথর ঝুঁকি প্যারামিটার</h4>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">
+            <span>দৈনিক বিশুদ্ধ পানি পান</span>
+            <span class="val" id="water-val">২.০ লিটার</span>
+          </label>
+          <input type="range" id="water-slider" min="0.5" max="4" step="0.5" value="2.0" oninput="updateStoneRisk()" />
+        </div>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">
+            <span>প্রাণিজ প্রোটিন (লাল মাংস)</span>
+            <span class="val" id="meat-val">মাঝারি</span>
+          </label>
+          <input type="range" id="meat-slider" min="1" max="3" value="2" oninput="updateStoneRisk()" />
+        </div>
+
+        <div class="ctrl-group">
+          <label class="ctrl-label">অক্সালেটযুক্ত খাবার (টমেটো/পালং)</label>
+          <div class="btn-row">
+            <button class="btn-chip" id="ox-low" onclick="setOxalate(1)">স্বল্প</button>
+            <button class="btn-chip active" id="ox-med" onclick="setOxalate(2)">পরিমিত</button>
+            <button class="btn-chip" id="ox-high" onclick="setOxalate(3)">উচ্চ</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section B: Live Calculated Metrics -->
+      <h4 class="panel-section-title" style="margin-top:6px;">লাইভ পরিমাপ ও ডায়াগনস্টিকস</h4>
+      <div class="metric-grid">
+        <div class="metric-card">
+          <div class="metric-title" id="m1-title">ফিল্ট্রেট উৎপাদন (GFR)</div>
+          <div class="metric-value" id="m1-val">১২৫ mL/min</div>
+          <div class="metric-sub" id="m1-sub">১৮০ লিটার/দিন</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title" id="m2-title">পুনঃশোষণ হার</div>
+          <div class="metric-value" id="m2-val">৯৯.২%</div>
+          <div class="metric-sub" id="m2-sub">পানি ও প্রয়োজনীয় দ্রাব</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title" id="m3-title">মূত্র উৎপাদন হার</div>
+          <div class="metric-value" id="m3-val">১.৪ লিটার/দিন</div>
+          <div class="metric-sub" id="m3-sub">স্বাভাবিক বর্ণ: হালকা খড়</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title" id="m4-title">রক্তের ক্রিয়েটিনিন</div>
+          <div class="metric-value" id="m4-val">০.৯ mg/dL</div>
+          <div class="metric-sub" id="m4-sub">কিডনি সুস্থ ও সক্রিয়</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Explainer Section (After Interactive) -->
+  <div class="explainer-box">
+    <strong>💡 মূল ধারণা ও বোর্ড পরীক্ষার প্রশ্নোত্তর বিশ্লেষণ:</strong><br>
+    • <b>গ্লোমেরুলার পরিস্রাবণ চাপ:</b> অ্যাফারেন্ট ধমনিকার ব্যাস ইফারেন্ট ধমনিকার চেয়ে চওড়া হওয়ায় গ্লোমেরুলাসে প্রায় ৬০ mmHg রক্তচাপ তৈরি হয়, যা ক্যাপসুলের বিরোধী চাপকে (ক্যাপসুলার প্রেশার ১৮ mmHg + রক্তরসের কলয়েড অভিস্রবণিক চাপ ৩২ mmHg = ৫০ mmHg) অতিক্রম করে কার্যকর ১০ mmHg পরিস্রাবণ চাপে তরল ছেঁকে বের করে।<br>
+    • <b>১৮০ লিটার বনাম ১.৫ লিটার:</b> দিনে ১৮০ লিটার ফিল্ট্রেট উৎপন্ন হলেও প্রক্সিমাল প্যাঁচানো নালিকায় (PCT) ১০০% গ্লুকোজ ও অ্যামিনো এসিড এবং হেনলির লুপ ও সংগ্রাহী নালিকায় ৯৯% পানি রক্তে পুনঃশোষিত হওয়ায় প্রতিদিন মাত্র ১.৫ লিটার মূত্র হিসেবে নির্গত হয়।<br>
+    • <b>হেমোডায়ালাইসিসের মূল চাবিকাঠি:</b> রক্ত ও ডায়ালাইজিং ফ্লুইডের বিপরীতমুখী প্রবাহের (Counter-current) কারণে পুরো নালিকা জুড়ে ব্যাপনের জন্য সর্বোচ্চ ঘনত্ব নতিমাত্রা (Concentration gradient) বজায় থাকে; হেপারিন রক্ত জমাট বাঁধতে বাধা দেয় এবং সেলোফেন টিউব রক্তকণিকা ও প্রোটিন আটকে কেবল ইউরিয়া ও বিষাক্ত বর্জ্য বের হতে দেয়।
+  </div>
+</div>
+
+<script>
+  let currentTab = 'nephron';
+  let animId = null;
+
+  // Nephron State
+  let bp = 60;
+  let hydration = 2.5;
+  let condition = 'normal'; // 'normal', 'diabetic', 'hypo'
+
+  // Dialysis State
+  let qb = 300;
+  let dialTime = 0;
+  let heparinOn = true;
+
+  // Stone Risk State
+  let waterIntake = 2.0;
+  let meatIntake = 2; // 1, 2, 3
+  let oxalateLevel = 2; // 1, 2, 3
+
+  // Animation particles
+  const particles = [];
+  for (let i = 0; i < 45; i++) {
+    particles.push({
+      x: Math.random() * 600,
+      y: Math.random() * 340,
+      type: Math.floor(Math.random() * 5), // 0: RBC, 1: Protein, 2: Glucose, 3: Water/Salt, 4: Urea
+      progress: Math.random(),
+      speed: 0.003 + Math.random() * 0.004
+    });
+  }
+
+  function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+
+    document.getElementById('controls-nephron').style.display = tab === 'nephron' ? 'block' : 'none';
+    document.getElementById('controls-dialysis').style.display = tab === 'dialysis' ? 'block' : 'none';
+    document.getElementById('controls-stones').style.display = tab === 'stones' ? 'block' : 'none';
+
+    const titleEl = document.getElementById('canvas-status-title');
+    const legendEl = document.getElementById('canvas-legend');
+
+    if (tab === 'nephron') {
+      titleEl.textContent = 'নেফ্রন আল্ট্রাফিল্ট্রেশন ডায়নামিক ভিউ';
+      legendEl.innerHTML = `
+        <div class="legend-item"><span class="legend-dot" style="background:#ef4444;"></span> রক্তকণিকা (আটকা পড়ে)</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#3b82f6;"></span> প্রোটিন (আটকা পড়ে)</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#10b981;"></span> গ্লুকোজ (১০০% পুনঃশোষিত)</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#eab308;"></span> পানি ও লবণ (৯৯% পুনঃশোষিত)</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#8b5cf6;"></span> ইউরিয়া ও বর্জ্য (মূত্রে নিষ্ক্রান্ত)</div>
+      `;
+      updateNephronParams();
+    } else if (tab === 'dialysis') {
+      titleEl.textContent = 'কৃত্রিম ডায়ালাইজার সেলোফেন চেম্বার ও ফ্লুইড সংবহন';
+      legendEl.innerHTML = `
+        <div class="legend-item"><span class="legend-dot" style="background:#dc2626;"></span> ধমনির অশোধিত রক্ত</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#2563eb;"></span> শিরার পরিশোধিত রক্ত</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#059669;"></span> তাজা ডায়ালাইজিং ফ্লুইড</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#9333ea;"></span> ব্যবহৃত বর্জ্যযুক্ত ফ্লুইড</div>
+      `;
+      updateDialysisParams();
+    } else {
+      titleEl.textContent = 'বৃক্কের লম্বচ্ছেদ ও পেলভিস স্টোন এক্সপ্লোরার';
+      legendEl.innerHTML = `
+        <div class="legend-item"><span class="legend-dot" style="background:#991b1b;"></span> রেনাল কর্টেক্স</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#f87171;"></span> রেনাল পিরামিড (মেডুলা)</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#fbbf24;"></span> পেলভিস গহ্বর</div>
+        <div class="legend-item"><span class="legend-dot" style="background:#475569;"></span> ক্যালসিয়াম অক্সালেট কেলাস</div>
+      `;
+      updateStoneRisk();
+    }
+  }
+
+  function updateNephronParams() {
+    bp = parseInt(document.getElementById('bp-slider').value, 10);
+    hydration = parseFloat(document.getElementById('hyd-slider').value);
+
+    let gfr = Math.round((bp / 60) * 125);
+    if (condition === 'hypo') gfr = Math.round(gfr * 0.6);
+    let totalLiters = Math.round((gfr * 60 * 24) / 1000);
+
+    let reabPct = 99.2;
+    let urineL = 1.4;
+
+    if (hydration > 3) {
+      urineL = (1.4 + (hydration - 2.5) * 0.8).toFixed(1);
+      reabPct = (((totalLiters - urineL) / totalLiters) * 100).toFixed(1);
+    } else if (hydration < 2 || condition === 'hypo') {
+      urineL = (0.5 + hydration * 0.2).toFixed(1);
+      reabPct = 99.7;
+    }
+
+    document.getElementById('bp-val').textContent = bp + ' mmHg (' + (bp === 60 ? 'স্বাভাবিক' : bp > 60 ? 'উচ্চ চাপ' : 'নিম্ন চাপ') + ')';
+    document.getElementById('hyd-val').textContent = hydration + ' লিটার (' + (hydration > 3 ? 'অতিরিক্ত পানি' : hydration < 2 ? 'পানিস্বল্প' : 'স্বাভাবিক') + ')';
+
+    document.getElementById('m1-title').textContent = 'ফিল্ট্রেট উৎপাদন (GFR)';
+    document.getElementById('m1-val').textContent = gfr + ' mL/min';
+    document.getElementById('m1-sub').textContent = totalLiters + ' লিটার/দিন';
+
+    document.getElementById('m2-title').textContent = 'পুনঃশোষণ হার';
+    document.getElementById('m2-val').textContent = reabPct + '%';
+    document.getElementById('m2-sub').textContent = condition === 'diabetic' ? '⚠️ গ্লুকোজ মূত্রে অপচয়' : 'পানি ও পুষ্টিউপাদান';
+
+    document.getElementById('m3-title').textContent = 'মূত্র উৎপাদন হার';
+    document.getElementById('m3-val').textContent = urineL + ' লিটার/দিন';
+    document.getElementById('m3-sub').textContent = hydration < 2 ? 'ঘন ও গাঢ় মূত্র' : 'স্বাভাবিক বর্ণ: খড়';
+
+    document.getElementById('m4-title').textContent = 'রক্তের ক্রিয়েটিনিন';
+    document.getElementById('m4-val').textContent = (condition === 'hypo' ? '১.৪' : '০.৯') + ' mg/dL';
+    document.getElementById('m4-sub').textContent = 'কিডনি ফিল্ট্রেশন স্বাভাবিক';
+  }
+
+  function setCondition(cond) {
+    condition = cond;
+    document.getElementById('cond-normal').classList.toggle('active', cond === 'normal');
+    document.getElementById('cond-diabetic').classList.toggle('active', cond === 'diabetic');
+    document.getElementById('cond-hypo').classList.toggle('active', cond === 'hypo');
+    updateNephronParams();
+  }
+
+  function updateDialysisParams() {
+    qb = parseInt(document.getElementById('qb-slider').value, 10);
+    dialTime = parseFloat(document.getElementById('time-slider').value);
+
+    document.getElementById('qb-val').textContent = qb + ' mL/min';
+    document.getElementById('time-val').textContent = dialTime + ' ঘণ্টা';
+
+    let initialCreatinine = 7.5;
+    let initialUrea = 180;
+
+    let clearedRatio = (dialTime / 4) * (qb / 300);
+    if (!heparinOn) clearedRatio *= 0.3; // Clotting severely impairs clearance
+    clearedRatio = Math.min(0.75, clearedRatio);
+
+    let curCreatinine = (initialCreatinine * (1 - clearedRatio)).toFixed(1);
+    let curUrea = Math.round(initialUrea * (1 - clearedRatio));
+
+    document.getElementById('m1-title').textContent = 'রক্তের ক্রিয়েটিনিন';
+    document.getElementById('m1-val').textContent = curCreatinine + ' mg/dL';
+    document.getElementById('m1-sub').textContent = 'শুরুতে ছিল ৭.৫ mg/dL';
+
+    document.getElementById('m2-title').textContent = 'রক্তের ইউরিয়া';
+    document.getElementById('m2-val').textContent = curUrea + ' mg/dL';
+    document.getElementById('m2-sub').textContent = 'শুরুতে ছিল ১৮০ mg/dL';
+
+    document.getElementById('m3-title').textContent = 'হেপারিন অবস্থা';
+    document.getElementById('m3-val').textContent = heparinOn ? '✅ সচল' : '⚠️ বন্ধ!';
+    document.getElementById('m3-sub').textContent = heparinOn ? 'টিউবে রক্ত তরল' : 'রক্ত জমাট বাঁধার ঝুঁকি';
+
+    document.getElementById('m4-title').textContent = 'বর্জ্য অপসারণ দক্ষতা';
+    document.getElementById('m4-val').textContent = Math.round(clearedRatio * 100) + '%';
+    document.getElementById('m4-sub').textContent = dialTime >= 4 ? 'সেশন সম্পন্ন' : 'সেশন চলমান';
+  }
+
+  function toggleHeparin(state) {
+    heparinOn = state;
+    document.getElementById('hep-on').classList.toggle('active', state);
+    document.getElementById('hep-off').classList.toggle('active', !state);
+    updateDialysisParams();
+  }
+
+  function updateStoneRisk() {
+    waterIntake = parseFloat(document.getElementById('water-slider').value);
+    meatIntake = parseInt(document.getElementById('meat-slider').value, 10);
+
+    document.getElementById('water-val').textContent = waterIntake + ' লিটার';
+    document.getElementById('meat-val').textContent = meatIntake === 1 ? 'কম' : meatIntake === 2 ? 'মাঝারি' : 'উচ্চ মাত্রা';
+
+    let riskScore = 0;
+    if (waterIntake < 1.5) riskScore += 40;
+    else if (waterIntake < 2.5) riskScore += 15;
+
+    if (meatIntake === 3) riskScore += 30;
+    else if (meatIntake === 2) riskScore += 10;
+
+    if (oxalateLevel === 3) riskScore += 30;
+    else if (oxalateLevel === 2) riskScore += 10;
+
+    riskScore = Math.min(95, riskScore);
+
+    let riskText = 'স্বল্প ঝুঁকি';
+    let riskColor = '#10b981';
+    let reco = 'পর্যাপ্ত পানি পান অব্যাহত রাখুন';
+
+    if (riskScore >= 65) {
+      riskText = '🚨 উচ্চ ঝুঁকি!';
+      riskColor = '#ef4444';
+      reco = 'পানি বৃদ্ধি ও মাংস নিয়ন্ত্রণ করুন';
+    } else if (riskScore >= 35) {
+      riskText = '⚠️ মাঝারি ঝুঁকি';
+      riskColor = '#f59e0b';
+      reco = 'পানি বাড়িয়ে ৩ লিটার করুন';
+    }
+
+    document.getElementById('m1-title').textContent = 'পাথর সৃষ্টির ঝুঁকি';
+    document.getElementById('m1-val').textContent = riskText;
+    document.getElementById('m1-val').style.color = riskColor;
+    document.getElementById('m1-sub').textContent = 'স্কোর: ' + riskScore + '/১০০';
+
+    document.getElementById('m2-title').textContent = 'সম্ভাব্য পাথরের ধরন';
+    document.getElementById('m2-val').textContent = oxalateLevel >= 2 ? 'ক্যালসিয়াম অক্সালেট' : 'ইউরিক এসিড';
+    document.getElementById('m2-sub').textContent = '৭৫-৮০% ক্ষেত্রে সাধারণ';
+
+    document.getElementById('m3-title').textContent = 'প্রস্তাবিত পানি গ্রহণ';
+    document.getElementById('m3-val').textContent = '৩.০ – ৩.৫ L';
+    document.getElementById('m3-sub').textContent = 'দৈনিক বিশুদ্ধ পানি';
+
+    document.getElementById('m4-title').textContent = 'চিকিৎসা নির্দেশিকা';
+    document.getElementById('m4-val').textContent = riskScore > 60 ? 'লিথোট্রিপসি / ইউএসজি' : 'জীবনযাপন নিয়ন্ত্রণ';
+    document.getElementById('m4-sub').textContent = reco;
+  }
+
+  function setOxalate(lvl) {
+    oxalateLevel = lvl;
+    document.getElementById('ox-low').classList.toggle('active', lvl === 1);
+    document.getElementById('ox-med').classList.toggle('active', lvl === 2);
+    document.getElementById('ox-high').classList.toggle('active', lvl === 3);
+    updateStoneRisk();
+  }
+
+  // Canvas Rendering Loop
+  const canvas = document.getElementById('simCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function render() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    if (currentTab === 'nephron') {
+      drawNephronScene();
+    } else if (currentTab === 'dialysis') {
+      drawDialysisScene();
+    } else {
+      drawStonesScene();
+    }
+
+    animId = requestAnimationFrame(render);
+  }
+
+  function drawNephronScene() {
+    // Background gradient
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, 340);
+    bgGrad.addColorStop(0, '#f8fafc');
+    bgGrad.addColorStop(0.5, '#f1f5f9');
+    bgGrad.addColorStop(1, '#e2e8f0');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, 600, 340);
+
+    // Cortex / Medulla boundary line
+    ctx.strokeStyle = '#cbd5e1';
+    ctx.setLineDash([6, 6]);
+    ctx.beginPath();
+    ctx.moveTo(0, 160);
+    ctx.lineTo(600, 160);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = '#64748b';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText('কর্টেক্স অঞ্চল (CORTEX)', 16, 22);
+    ctx.fillText('মেডুলা অঞ্চল (MEDULLA)', 16, 178);
+
+    // Draw Bowman's Capsule & Tubules
+    ctx.strokeStyle = '#0d9488';
+    ctx.lineWidth = 14;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    // Tubule path: Bowman's -> PCT -> Loop of Henle -> DCT -> Collecting duct
+    ctx.beginPath();
+    // Bowman's cup
+    ctx.arc(110, 80, 34, 0.3 * Math.PI, 1.7 * Math.PI, false);
+    // PCT
+    ctx.bezierCurveTo(170, 40, 190, 120, 240, 80);
+    // Descending Henle
+    ctx.lineTo(240, 260);
+    // Hairpin curve
+    ctx.arc(265, 260, 25, Math.PI, 0, true);
+    // Ascending Henle
+    ctx.lineTo(290, 80);
+    // DCT
+    ctx.bezierCurveTo(330, 40, 370, 120, 420, 80);
+    ctx.stroke();
+
+    // Tubule inner lumen
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 8;
+    ctx.stroke();
+
+    // Collecting duct (vertical trunk)
+    ctx.strokeStyle = '#d97706';
+    ctx.lineWidth = 16;
+    ctx.beginPath();
+    ctx.moveTo(420, 30);
+    ctx.lineTo(420, 310);
+    ctx.stroke();
+
+    ctx.strokeStyle = '#fef3c7';
+    ctx.lineWidth = 8;
+    ctx.stroke();
+
+    ctx.fillStyle = '#92400e';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.fillText('সংগ্রাহী নালিকা', 435, 170);
+    ctx.fillText('মূত্র নিষ্কাশন ↓', 400, 328);
+
+    // Bowman's Glomerulus
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.moveTo(50, 40); // Afferent arteriole
+    ctx.lineTo(95, 75);
+    // capillary tangle
+    ctx.arc(105, 80, 14, 0, Math.PI * 2);
+    ctx.lineTo(50, 115); // Efferent arteriole
+    ctx.stroke();
+
+    ctx.fillStyle = '#991b1b';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('অ্যাফারেন্ট ধমনিকা (চওড়া)', 10, 36);
+    ctx.fillText('ইফারেন্ট ধমনিকা', 10, 130);
+
+    // Move & Render filtered particles
+    particles.forEach(p => {
+      p.progress += p.speed;
+      if (p.progress > 1) p.progress = 0;
+
+      let px, py;
+      if (p.type === 0 || p.type === 1) {
+        // RBC & Protein: Stay in blood, do not cross to tubule
+        px = 50 + (p.progress * 55);
+        py = p.type === 0 ? 40 + p.progress * 70 : 50 + p.progress * 60;
+      } else {
+        // Glucose, Water, Urea: Filter into tubule
+        if (p.progress < 0.25) {
+          // in PCT
+          px = 110 + p.progress * 500;
+          py = 70 + Math.sin(p.progress * 20) * 20;
+        } else if (p.progress < 0.6) {
+          // in Loop of Henle
+          let hp = (p.progress - 0.25) / 0.35;
+          if (hp < 0.5) {
+            px = 240;
+            py = 80 + hp * 360;
+          } else {
+            px = 290;
+            py = 260 - (hp - 0.5) * 360;
+          }
+        } else if (p.progress < 0.85) {
+          // DCT
+          px = 290 + (p.progress - 0.6) * 500;
+          py = 80 + Math.cos(p.progress * 15) * 18;
+        } else {
+          // Collecting duct
+          px = 420;
+          py = 80 + (p.progress - 0.85) * 1400;
+        }
+      }
+
+      // Reabsorption effect: Glucose disappears in PCT unless diabetic
+      if (p.type === 2 && condition !== 'diabetic' && p.progress > 0.28) {
+        return; // Reabsorbed 100%!
+      }
+
+      ctx.beginPath();
+      ctx.arc(px, py, p.type === 0 ? 5 : p.type === 1 ? 4 : 3, 0, Math.PI * 2);
+      ctx.fillStyle = p.type === 0 ? '#ef4444' : p.type === 1 ? '#3b82f6' : p.type === 2 ? '#10b981' : p.type === 3 ? '#eab308' : '#8b5cf6';
+      ctx.fill();
+    });
+  }
+
+  function drawDialysisScene() {
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 0, 600, 340);
+
+    // Patient Arm representation (Left)
+    ctx.fillStyle = '#fde68a';
+    ctx.fillRect(10, 110, 60, 120);
+    ctx.fillStyle = '#1e293b';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText('রোগীর হাত', 16, 175);
+
+    // Arterial Blood Line (Red) to machine
+    ctx.strokeStyle = '#ef4444';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(70, 140);
+    ctx.lineTo(130, 140);
+    ctx.lineTo(130, 70);
+    ctx.lineTo(210, 70);
+    ctx.stroke();
+
+    // Heparin Pump Box
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(110, 90, 40, 35);
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = '9px sans-serif';
+    ctx.fillText('হেপারিন', 112, 110);
+
+    // Dialyzer Chamber (Center Cylinder)
+    ctx.fillStyle = '#1e293b';
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(210, 40, 180, 260, 16);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('কৃত্রিম ডায়ালাইজার চেম্বার', 232, 60);
+
+    // Semipermeable cellophane tubes (Array of 8 tubes)
+    for (let i = 0; i < 7; i++) {
+      let ty = 80 + i * 28;
+      ctx.strokeStyle = '#475569';
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.moveTo(225, ty);
+      ctx.lineTo(375, ty);
+      ctx.stroke();
+
+      // Blood flow in tubes
+      ctx.strokeStyle = '#b91c1c';
+      ctx.lineWidth = 4;
+      ctx.stroke();
+    }
+
+    // Dialysate Flow arrows (Counter-current: flowing bottom to top or around)
+    ctx.fillStyle = '#10b981';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('↑ তাজা ফ্লুইড প্রবেশ (বর্জ্যহীন)', 230, 290);
+    ctx.fillText('↑ ব্যবহৃত ফ্লুইড নিষ্কাশন (ইউরিয়াযুক্ত)', 220, 75);
+
+    // Venous Blood Line (Blue) back to arm
+    ctx.strokeStyle = '#3b82f6';
+    ctx.lineWidth = 6;
+    ctx.beginPath();
+    ctx.moveTo(390, 240);
+    ctx.lineTo(460, 240);
+    ctx.lineTo(460, 190);
+    ctx.lineTo(70, 190);
+    ctx.stroke();
+
+    // Bubble Trap
+    ctx.fillStyle = '#0284c7';
+    ctx.beginPath();
+    ctx.arc(460, 215, 14, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = '8px sans-serif';
+    ctx.fillText('ফাঁদ', 452, 218);
+
+    // Waste diffusion particles from tubes into dialysate
+    for (let j = 0; j < 25; j++) {
+      let t = (Date.now() * 0.002 + j * 0.3) % 1;
+      let rx = 240 + Math.sin(j + t) * 110;
+      let ry = 80 + (j % 7) * 28 + t * 14;
+      ctx.fillStyle = '#a855f7';
+      ctx.beginPath();
+      ctx.arc(rx, ry, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function drawStonesScene() {
+    ctx.fillStyle = '#fff7ed';
+    ctx.fillRect(0, 0, 600, 340);
+
+    // Kidney Outline (Bean shape)
+    ctx.save();
+    ctx.translate(220, 170);
+    ctx.beginPath();
+    ctx.moveTo(0, -120);
+    ctx.bezierCurveTo(140, -120, 160, 120, 0, 120); // Outer convex
+    ctx.bezierCurveTo(-40, 70, -40, -70, 0, -120); // Inner concave (Hilum)
+    ctx.closePath();
+
+    // Cortex
+    ctx.fillStyle = '#991b1b';
+    ctx.fill();
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#7f1d1d';
+    ctx.stroke();
+
+    // Medulla inner region
+    ctx.beginPath();
+    ctx.moveTo(10, -90);
+    ctx.bezierCurveTo(110, -90, 120, 90, 10, 90);
+    ctx.bezierCurveTo(-20, 50, -20, -50, 10, -90);
+    ctx.fillStyle = '#ef4444';
+    ctx.fill();
+
+    // Renal Pyramids (5 Triangles)
+    ctx.fillStyle = '#b91c1c';
+    for (let p = -2; p <= 2; p++) {
+      let py = p * 36;
+      ctx.beginPath();
+      ctx.moveTo(35, py - 12);
+      ctx.lineTo(85, py);
+      ctx.lineTo(35, py + 12);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    // Renal Pelvis (Funnel)
+    ctx.fillStyle = '#fef08a';
+    ctx.beginPath();
+    ctx.moveTo(30, -40);
+    ctx.lineTo(-30, -10);
+    ctx.lineTo(-30, 10);
+    ctx.lineTo(30, 40);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#ca8a04';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Ureter extending down
+    ctx.strokeStyle = '#fde047';
+    ctx.lineWidth = 14;
+    ctx.beginPath();
+    ctx.moveTo(-30, 0);
+    ctx.bezierCurveTo(-90, 60, -90, 130, -90, 160);
+    ctx.stroke();
+
+    // Kidney stones (Calculi) based on risk
+    let stoneCount = (waterIntake < 2 ? 6 : 1) + (meatIntake === 3 ? 4 : 0);
+    ctx.fillStyle = '#334155';
+    for (let s = 0; s < stoneCount; s++) {
+      let sx = 10 + (s % 3) * 8;
+      let sy = -15 + s * 7;
+      ctx.beginPath();
+      ctx.arc(sx, sy, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.restore();
+
+    // Labels
+    ctx.fillStyle = '#1e293b';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('রেনাল কর্টেক্স', 380, 70);
+    ctx.fillText('রেনাল পিরামিড (মেডুলা)', 380, 170);
+    ctx.fillText('রেনাল পেলভিস ও ইউরেটার', 40, 200);
+
+    if (waterIntake < 1.5 || meatIntake === 3) {
+      ctx.fillStyle = '#dc2626';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.fillText('⚠️ পেলভিসে ক্যালসিয়াম অক্সালেট পাথর সঞ্চিত!', 40, 50);
+    }
+  }
+
+  // Initial setup
+  updateNephronParams();
+  render();
+</script>
+</body>
+</html>

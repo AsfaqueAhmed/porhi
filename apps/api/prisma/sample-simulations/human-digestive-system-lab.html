@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>মানব পরিপাকতন্ত্র, এনজাইম ও BMI/BMR ল্যাব | poRi</title>
+  <style>
+    /* PORI UNIFIED SIMULATOR THEME */
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-accent: #0f766e;
+      --pori-accent-soft: #ecfdf5;
+      --pori-accent-border: #99f6e4;
+      --pori-accent-ink: #134e4a;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-amber-ink: #92400e;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-border: #fecdd3;
+      --pori-rose-ink: #9f1239;
+      --pori-blue-soft: #eff6ff;
+      --pori-blue-border: #bfdbfe;
+      --pori-blue-ink: #1e40af;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+    .app {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .head h1 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--pori-heading);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--pori-accent-ink);
+      background: var(--pori-accent-soft);
+      border: 1px solid var(--pori-accent-border);
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .head p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--pori-muted);
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--pori-border);
+      background: var(--pori-surface);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--pori-muted);
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      background: var(--pori-accent-soft);
+      color: var(--pori-accent-ink);
+    }
+    .tab-btn.active {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+    }
+    @media (max-width: 860px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+    .viewport-card {
+      background: #fafbfc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .viewport-toolbar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .viewport-toolbar select, .viewport-toolbar button {
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1px solid var(--pori-border);
+      background: #fff;
+      cursor: pointer;
+    }
+    .viewport-toolbar button.primary {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+    }
+    .svg-wrap {
+      width: 100%;
+      max-width: 520px;
+      min-height: 480px;
+      background: #ffffff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .organ-node {
+      cursor: pointer;
+      transition: transform 0.15s, filter 0.15s;
+    }
+    .organ-node:hover {
+      filter: drop-shadow(0 0 6px rgba(15, 118, 110, 0.6));
+    }
+    .organ-node.selected path, .organ-node.selected rect, .organ-node.selected ellipse {
+      stroke: #0f766e !important;
+      stroke-width: 3px !important;
+    }
+    .bolus {
+      fill: #e11d48;
+      transition: cx 0.6s ease, cy 0.6s ease;
+    }
+    .panel {
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 16px;
+    }
+    .panel h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      color: var(--pori-heading);
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 6px;
+    }
+    .tag-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin: 8px 0;
+    }
+    .tag {
+      font-size: 11px;
+      padding: 2px 7px;
+      border-radius: 6px;
+      font-weight: 600;
+      background: #f1f5f9;
+      color: #334155;
+    }
+    .tag.green { background: #dcfce7; color: #166534; }
+    .tag.amber { background: #fef3c7; color: #92400e; }
+    .tag.rose { background: #ffe4e6; color: #9f1239; }
+    .tag.blue { background: #e0f2fe; color: #0369a1; }
+    .stat-list {
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+      font-size: 13px;
+    }
+    .stat-list li {
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+    .stat-list strong {
+      color: var(--pori-heading);
+    }
+    /* Mode 2 Styles */
+    .lab-box {
+      background: #fff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    .enzyme-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .enzyme-card {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border);
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .enzyme-card h4 {
+      margin: 0 0 6px;
+      color: var(--pori-accent-ink);
+      font-size: 15px;
+    }
+    /* Mode 3 Calculator */
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 680px) {
+      .calc-grid { grid-template-columns: 1fr; }
+    }
+    .form-group {
+      margin-bottom: 12px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--pori-heading);
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--pori-border);
+      font-size: 14px;
+    }
+    .result-box {
+      background: var(--pori-accent-soft);
+      border: 1px solid var(--pori-accent-border);
+      border-radius: 12px;
+      padding: 16px;
+      color: var(--pori-accent-ink);
+      text-align: center;
+    }
+    .result-val {
+      font-size: 28px;
+      font-weight: 800;
+      margin: 6px 0;
+    }
+    .footer-note {
+      text-align: center;
+      font-size: 12px;
+      color: var(--pori-muted);
+      margin-top: 20px;
+      border-top: 1px solid var(--pori-border-soft);
+      padding-top: 12px;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="head">
+    <div>
+      <h1>
+        <span>মানব পরিপাকতন্ত্র ও পুষ্টি ল্যাব</span>
+        <span class="badge">SSC জীববিজ্ঞান অধ্যায় ৫</span>
+      </h1>
+      <p>পৌষ্টিকনালির শারীরস্থান, বিভিন্ন অংশে খাদ্যের রাসায়নিক রূপান্তর, পাচক এনজাইম এবং BMI ও BMR নির্ণায়ক সিমুলেশন।</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('tract')">১. পরিপাকনালি ও ট্রানজিট সিমুলেটর</button>
+    <button class="tab-btn" onclick="switchTab('enzymes')">২. এনজাইম ও পরিপাক রস ল্যাব</button>
+    <button class="tab-btn" onclick="switchTab('calculator')">৩. BMI & BMR ক্যালকুলেটর</button>
+    <button class="tab-btn" onclick="switchTab('quiz')">৪. স্ব-মূল্যায়ন কুইজ</button>
+  </div>
+
+  <!-- TAB 1: TRACT & TRANSIT SIMULATOR -->
+  <div id="tab-tract" class="tab-content active">
+    <div class="main-grid">
+      <div class="viewport-card">
+        <div class="viewport-toolbar">
+          <div>
+            <label style="font-size:12px;font-weight:600;margin-right:4px;">খাদ্য নির্বাচন:</label>
+            <select id="food-select" onchange="resetTransit()">
+              <option value="carb">ভাত / রুটি (শর্করা প্রধান)</option>
+              <option value="protein">মাছ / ডিম / মাংস (আমিষ প্রধান)</option>
+              <option value="fat">মাখন / তেল (স্নেহ প্রধান)</option>
+              <option value="roughage">শাকসবজি / সালাদ (খাদ্য আঁশ / রাফেজ)</option>
+            </select>
+          </div>
+          <div>
+            <button class="primary" id="btn-transit" onclick="toggleTransit()">পরিপাক প্রক্রিয়া শুরু করো ▶</button>
+            <button onclick="resetTransit()">রিসেট ↺</button>
+          </div>
+        </div>
+
+        <div class="svg-wrap">
+          <svg viewBox="0 0 320 460" width="100%" height="100%">
+            <!-- Body Outline -->
+            <path d="M 80,40 Q 160,20 240,40 Q 260,80 250,140 Q 270,220 260,380 Q 250,450 220,450 L 100,450 Q 70,450 60,380 Q 50,220 70,140 Q 60,80 80,40 Z" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
+
+            <!-- 1. Mouth & Pharynx -->
+            <g class="organ-node" id="node-mouth" onclick="selectOrgan('mouth')">
+              <ellipse cx="160" cy="55" rx="22" ry="14" fill="#fed7aa" stroke="#ea580c" stroke-width="2"/>
+              <text x="160" y="59" font-size="10" font-weight="700" fill="#9a3412" text-anchor="middle">মুখবিবর</text>
+            </g>
+
+            <!-- Salivary Gland indicators -->
+            <circle cx="132" cy="55" r="4" fill="#f97316"/>
+            <circle cx="188" cy="55" r="4" fill="#f97316"/>
+
+            <!-- 2. Esophagus -->
+            <g class="organ-node" id="node-esophagus" onclick="selectOrgan('esophagus')">
+              <path d="M 157,69 L 157,145 L 163,145 L 163,69 Z" fill="#fbcfe8" stroke="#db2777" stroke-width="2"/>
+              <text x="175" y="110" font-size="9" font-weight="600" fill="#be185d">অন্ননালি</text>
+            </g>
+
+            <!-- 3. Stomach -->
+            <g class="organ-node" id="node-stomach" onclick="selectOrgan('stomach')">
+              <path d="M 160,145 C 190,145 205,175 195,205 C 185,225 155,225 145,210 C 135,195 130,170 160,145 Z" fill="#fecdd3" stroke="#e11d48" stroke-width="2"/>
+              <text x="172" y="185" font-size="11" font-weight="700" fill="#9f1239" text-anchor="middle">পাকস্থলী</text>
+            </g>
+
+            <!-- 4. Liver & Gallbladder -->
+            <g class="organ-node" id="node-liver" onclick="selectOrgan('liver')">
+              <path d="M 100,150 Q 145,140 152,165 Q 140,205 105,195 Q 90,175 100,150 Z" fill="#bbf7d0" stroke="#16a34a" stroke-width="2"/>
+              <ellipse cx="138" cy="190" rx="7" ry="5" fill="#15803d" stroke="#14532d"/>
+              <text x="122" y="172" font-size="10" font-weight="700" fill="#166534" text-anchor="middle">যকৃৎ</text>
+            </g>
+
+            <!-- 5. Pancreas -->
+            <g class="organ-node" id="node-pancreas" onclick="selectOrgan('pancreas')">
+              <path d="M 148,212 Q 180,210 200,220 Q 170,228 148,218 Z" fill="#fef08a" stroke="#ca8a04" stroke-width="1.8"/>
+              <text x="176" y="222" font-size="8" font-weight="700" fill="#854d0e">অগ্ন্যাশয়</text>
+            </g>
+
+            <!-- 6. Small Intestine (Duodenum, Jejunum, Ileum) -->
+            <g class="organ-node" id="node-small-int" onclick="selectOrgan('small-int')">
+              <path d="M 148,220 Q 130,230 135,245 Q 185,245 175,265 Q 130,265 140,285 Q 185,285 170,305 Q 135,305 150,320" fill="none" stroke="#fdba74" stroke-width="12" stroke-linecap="round"/>
+              <text x="160" y="278" font-size="11" font-weight="700" fill="#c2410c" text-anchor="middle">ক্ষুদ্রান্ত্র</text>
+            </g>
+
+            <!-- 7. Large Intestine (Cecum, Appendix, Colon, Rectum) -->
+            <g class="organ-node" id="node-large-int" onclick="selectOrgan('large-int')">
+              <!-- Colon frame -->
+              <path d="M 118,335 L 118,220 Q 118,205 135,205 L 195,205 Q 210,205 210,220 L 210,335 L 175,335 L 175,375" fill="none" stroke="#94a3b8" stroke-width="14" stroke-linejoin="round" stroke-linecap="round"/>
+              <!-- Appendix tag -->
+              <path d="M 112,342 Q 105,355 110,360" fill="none" stroke="#ef4444" stroke-width="3"/>
+              <text x="105" y="375" font-size="8" font-weight="600" fill="#b91c1c">অ্যাপেন্ডিক্স</text>
+              <text x="165" y="200" font-size="10" font-weight="700" fill="#334155" text-anchor="middle">কোলন</text>
+              <text x="175" y="390" font-size="9" font-weight="700" fill="#475569" text-anchor="middle">মলাশয়</text>
+            </g>
+
+            <!-- Animated Food Bolus -->
+            <circle id="bolus" class="bolus" cx="160" cy="55" r="7"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Detail Inspector Panel -->
+      <div class="panel" id="organ-inspector">
+        <h3 id="organ-title">মুখবিবর (Mouth / Buccal Cavity)</h3>
+        <div class="tag-row" id="organ-tags">
+          <span class="tag green">শর্করা পরিপাক</span>
+          <span class="tag blue">pH ৬.৫–৬.৮</span>
+          <span class="tag amber">টায়ালিন ও মল্টেজ</span>
+        </div>
+        <ul class="stat-list" id="organ-desc">
+          <li><strong>যান্ত্রিক কাজ:</strong> দাঁত (৩২টি) দিয়ে খাদ্য চর্বণ ও পিষ্ট করা এবং জিহ্বার স্বাদমুকুল দিয়ে স্বাদ গ্রহণ।</li>
+          <li><strong>এনজাইম ও নিঃসরণ:</strong> ৩ জোড়া লালাগ্রন্থি থেকে টায়ালিন ও মল্টেজ ক্ষরিত হয়।</li>
+          <li><strong>রাসায়নিক বিক্রিয়া:</strong> সিদ্ধ শ্বেতসার ভেঙে মল্টোজে পরিণত হয়। আমিষ ও চর্বির কোনো রাসায়নিক পরিবর্তন এখানে ঘটে না।</li>
+          <li><strong>পরবর্তী গন্তব্য:</strong> পেরিস্টালসিস আন্দোলনের মাধ্যমে খাদ্য অন্ননালি হয়ে পাকস্থলীতে পৌঁছায়।</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: ENZYMES & DIGESTIVE JUICES -->
+  <div id="tab-enzymes" class="tab-content">
+    <div class="lab-box">
+      <h3 style="margin-top:0;color:var(--pori-heading);">🧪 পরিপাক রস ও এনজাইম অ্যাকশন ল্যাব</h3>
+      <p style="font-size:13px;color:var(--pori-muted);">মানবদেহের প্রধান পরিপাক রসগুলোর অম্ল-ক্ষারত্ব (pH) এবং কোন এনজাইম কোন খাদ্যের ওপর কাজ করে তা পর্যবেক্ষণ করো:</p>
+
+      <div class="enzyme-grid">
+        <div class="enzyme-card">
+          <h4>১. লালারস (Saliva)</h4>
+          <span class="tag blue">pH: ৬.৫–৬.৮ (মৃদু অম্লীয়)</span>
+          <ul style="font-size:13px;margin:8px 0 0;padding-left:18px;">
+            <li><b>উৎস:</b> প্যারোটিড, সাবম্যান্ডিবুলার ও সাবলিঙ্গুয়াল গ্রন্থি।</li>
+            <li><b>টায়ালিন:</b> সিদ্ধ শ্বেতসার → মল্টোজ।</li>
+            <li><b>মল্টেজ:</b> মল্টোজ → গ্লুকোজ।</li>
+            <li><b>অনুপস্থিত:</b> কোনো প্রোটিওলাইটিক বা লাইপোলাইটিক এনজাইম নেই।</li>
+          </ul>
+        </div>
+
+        <div class="enzyme-card">
+          <h4>২. গ্যাস্ট্রিক জুস (Gastric Juice)</h4>
+          <span class="tag rose">pH: ১.৫–২.৫ (তীব্র অম্লীয়)</span>
+          <ul style="font-size:13px;margin:8px 0 0;padding-left:18px;">
+            <li><b>HCl:</b> জীবাণু ধ্বংস ও পেপসিনোজেনকে পেপসিনে রূপান্তর।</li>
+            <li><b>পেপসিন:</b> আমিষ → প্রোটিওজ ও পেপটন।</li>
+            <li><b>রেনিন (শিশুদের):</b> দুধের কেসিন → প্যারাকেসিন।</li>
+            <li><b>শর্করা ও চর্বি:</b> অম্লীয় পরিবেশে পরিপাক হয় না।</li>
+          </ul>
+        </div>
+
+        <div class="enzyme-card">
+          <h4>৩. পিত্তরস (Bile)</h4>
+          <span class="tag green">pH: ৭.৮–৮.৬ (ক্ষারীয়)</span>
+          <ul style="font-size:13px;margin:8px 0 0;padding-left:18px;">
+            <li><b>উৎস:</b> যকৃতে তৈরি, পিত্তথলিতে জমা।</li>
+            <li><b>এনজাইম:</b> কোনো এনজাইম নেই!</li>
+            <li><b>পিত্তলবণ:</b> চর্বির ইমালসিফিকেশন (Emulsification) ঘটায়।</li>
+            <li><b>কাজ:</b> পাকস্থলীর অম্লীয় কাইমকে ক্ষারীয় মাধ্যমে আনে।</li>
+          </ul>
+        </div>
+
+        <div class="enzyme-card">
+          <h4>৪. অগ্ন্যাশয় রস (Pancreatic Juice)</h4>
+          <span class="tag amber">pH: ৭.৫–৮.৫ (ক্ষারীয়)</span>
+          <ul style="font-size:13px;margin:8px 0 0;padding-left:18px;">
+            <li><b>ট্রিপসিন ও কাইমোট্রিপসিন:</b> আমিষ → সরল পেপটাইড।</li>
+            <li><b>অগ্ন্যাশয় অ্যামাইলেজ:</b> শর্করা → মল্টোজ।</li>
+            <li><b>অগ্ন্যাশয় লাইপেস:</b> ফ্যাট → ফ্যাটি এসিড ও গ্লিসারল।</li>
+          </ul>
+        </div>
+
+        <div class="enzyme-card">
+          <h4>৫. আন্ত্রিক রস (Succus Entericus)</h4>
+          <span class="tag blue">pH: ৭.৫–৮.০ (ক্ষারীয়)</span>
+          <ul style="font-size:13px;margin:8px 0 0;padding-left:18px;">
+            <li><b>পেপটিডেজ (ইরেপসিন):</b> পেপটাইড → অ্যামাইনো এসিড।</li>
+            <li><b>মল্টেজ, সুক্রেজ, ল্যাকটেজ:</b> যথাক্রমে গ্লুকোজ, ফ্রুক্টোজ ও গ্যালাকটোজ উৎপন্ন করে।</li>
+            <li><b>আন্ত্রিক লাইপেস:</b> অবশিষ্ট চর্বি ভেঙে শোষণযোগ্য করে।</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: BMI & BMR CALCULATOR -->
+  <div id="tab-calculator" class="tab-content">
+    <div class="lab-box">
+      <h3 style="margin-top:0;color:var(--pori-heading);">⚖️ পুষ্টিমান, BMR ও BMI স্বয়ংক্রিয় ক্যালকুলেটর</h3>
+      <p style="font-size:13px;color:var(--pori-muted)">হ্যারিস-বেনেডিক্ট সমীকরণ ও বিশ্ব স্বাস্থ্য সংস্থার মানদণ্ড অনুযায়ী তোমার মৌলিক বিপাকীয় ক্যালরি ও দেহের সঠিক ভরসূচি হিসাব করো:</p>
+
+      <div class="calc-grid">
+        <div>
+          <div class="form-group">
+            <label>লিঙ্গ:</label>
+            <select id="user-gender" onchange="calculateHealth()">
+              <option value="male">পুরুষ (Male)</option>
+              <option value="female">নারী (Female)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>বয়স (বছর):</label>
+            <input type="number" id="user-age" value="16" min="10" max="90" oninput="calculateHealth()" />
+          </div>
+          <div class="form-group">
+            <label>ওজন (কেজি - kg):</label>
+            <input type="number" id="user-weight" value="55" min="20" max="200" oninput="calculateHealth()" />
+          </div>
+          <div class="form-group">
+            <label>উচ্চতা (সেমি - cm):</label>
+            <input type="number" id="user-height" value="162" min="80" max="240" oninput="calculateHealth()" />
+          </div>
+          <div class="form-group">
+            <label>দৈনন্দিন পরিশ্রমের মাত্রা:</label>
+            <select id="user-activity" onchange="calculateHealth()">
+              <option value="1.2">পরিশ্রমহীন / বসে থাকা জীবন (১.২)</option>
+              <option value="1.375">হালকা পরিশ্রমী (সপ্তাহে ১-৩ দিন খেলাধুলা) (১.৩৭৫)</option>
+              <option value="1.55" selected>মাঝারি পরিশ্রমী (সপ্তাহে ৩-৫ দিন ব্যায়াম) (১.৫৫)</option>
+              <option value="1.725">কঠোর পরিশ্রমী (সপ্তাহে ৬-৭ দিন ব্যায়াম) (১.৭২৫)</option>
+              <option value="1.9">অত্যন্ত কঠোর পরিশ্রমী (দিনমজুর / ক্রীড়াবিদ) (১.৯)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <div class="result-box">
+            <div style="font-size:13px;font-weight:700;">তোমার বডি মাস ইনডেক্স (BMI)</div>
+            <div class="result-val" id="res-bmi">২০.৯৫</div>
+            <div id="res-bmi-status" style="font-weight:750;font-size:15px;color:#047857;">সুস্বাস্থ্যের স্বাভাবিক ও আদর্শ মান (১৮.৫ – ২৪.৯)</div>
+            <small id="res-bmi-tip" style="display:block;margin-top:4px;">সুষম খাদ্য ও নিয়মিত শরীরচর্চা বজায় রাখো।</small>
+          </div>
+
+          <div class="result-box" style="margin-top:14px;background:#eff6ff;border-color:#bfdbfe;color:#1e40af;">
+            <div style="font-size:13px;font-weight:700;">মৌল বিপাকীয় হার (BMR)</div>
+            <div class="result-val" id="res-bmr">১৪২২ kcal</div>
+            <div style="font-size:13px;color:#1d4ed8;">দৈনিক প্রয়োজনীয় মোট শক্তি: <strong id="res-daily-cal">২২০৫ kcal</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: SELF-QUIZ -->
+  <div id="tab-quiz" class="tab-content">
+    <div class="lab-box">
+      <h3 style="margin-top:0;color:var(--pori-heading);">📝 ইন্টারেক্টিভ কুইজ ও আত্মযাচাই</h3>
+      <div id="quiz-container">
+        <div style="margin-bottom:16px;">
+          <p><strong>১. পাকস্থলীর কোন কোষ থেকে হাইড্রোক্লোরিক এসিড (HCl) ক্ষরিত হয়?</strong></p>
+          <button class="tab-btn" onclick="checkQ(1, false, this)">ক. পেপটিক বা চিফ কোষ</button>
+          <button class="tab-btn" onclick="checkQ(1, true, this)">খ. প্যারাইটাল বা অক্সিন্টিক কোষ</button>
+          <button class="tab-btn" onclick="checkQ(1, false, this)">গ. গবলেট কোষ</button>
+          <button class="tab-btn" onclick="checkQ(1, false, this)">ঘ. আলফা কোষ</button>
+          <div id="q1-feedback" style="display:none;margin-top:6px;font-size:13px;"></div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <p><strong>২. চর্বি পরিপাকের উৎপাদ ফ্যাটি এসিড ও গ্লিসারল ভিলাইর কোথায় শোষিত হয়?</strong></p>
+          <button class="tab-btn" onclick="checkQ(2, false, this)">ক. রক্তকৈশিক জালিকা</button>
+          <button class="tab-btn" onclick="checkQ(2, true, this)">খ. কেন্দ্রীয় ল্যাকটিয়াল (লসিকা নালি)</button>
+          <button class="tab-btn" onclick="checkQ(2, false, this)">গ. হেপাটিক পোর্টাল শিরা</button>
+          <button class="tab-btn" onclick="checkQ(2, false, this)">ঘ. অগ্ন্যাশয় নালি</button>
+          <div id="q2-feedback" style="display:none;margin-top:6px;font-size:13px;"></div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <p><strong>৩. মানবদেহের জৈব রসায়নাগার বলা হয় কোন অঙ্গকে?</strong></p>
+          <button class="tab-btn" onclick="checkQ(3, true, this)">ক. যকৃৎ (Liver)</button>
+          <button class="tab-btn" onclick="checkQ(3, false, this)">খ. অগ্ন্যাশয়</button>
+          <button class="tab-btn" onclick="checkQ(3, false, this)">গ. পাকস্থলী</button>
+          <button class="tab-btn" onclick="checkQ(3, false, this)">ঘ. প্লীহা</button>
+          <div id="q3-feedback" style="display:none;margin-top:6px;font-size:13px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-note">
+    © ২০২৬ পড়ি (poRi) · SSC জীববিজ্ঞান পঞ্চম অধ্যায়: খাদ্য, পুষ্টি এবং পরিপাক · অফলাইন ও অনলাইন প্রস্তুত ল্যাব
+  </div>
+</div>
+
+<script>
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.getElementById('tab-' + tabId).classList.add('active');
+  }
+
+  const organData = {
+    mouth: {
+      title: "মুখবিবর (Mouth / Buccal Cavity)",
+      tags: [
+        { text: "শর্করা পরিপাক", cls: "green" },
+        { text: "pH ৬.৫–৬.৮", cls: "blue" },
+        { text: "টায়ালিন ও মল্টেজ", cls: "amber" }
+      ],
+      desc: [
+        "<strong>যান্ত্রিক কাজ:</strong> ৩২টি দাঁত দ্বারা খাদ্য চর্বণ এবং জিহ্বার সাহায্যে লালার সাথে মিশ্রণ।",
+        "<strong>এনজাইম:</strong> লালারসের টায়ালিন সিদ্ধ শ্বেতসারকে মল্টোজে ভাঙে।",
+        "<strong>সীমাবদ্ধতা:</strong> মুখবিবরে কোনো আমিষ বা স্নেহ পরিপাক হয় না।"
+      ]
+    },
+    esophagus: {
+      title: "গলবিল ও অন্ননালি (Pharynx & Esophagus)",
+      tags: [
+        { text: "পেরিস্টালসিস চলন", cls: "blue" },
+        { text: "কোনো পরিপাক ঘটে না", cls: "rose" }
+      ],
+      desc: [
+        "<strong>কাজ:</strong> খাদ্যপিণ্ডকে মুখ থেকে পাকস্থলীতে পৌঁছে দেওয়া।",
+        "<strong>পেরিস্টালসিস:</strong> অন্ননালির পেশির ছন্দোময় সংকোচন ও প্রসারণ।"
+      ]
+    },
+    stomach: {
+      title: "পাকস্থলী (Stomach)",
+      tags: [
+        { text: "আমিষ পরিপাক", cls: "green" },
+        { text: "pH ১.৫–২.৫ (তীব্র অম্লীয়)", cls: "rose" },
+        { text: "HCl ও পেপসিন", cls: "amber" }
+      ],
+      desc: [
+        "<strong>হাইড্রোক্লোরিক এসিড:</strong> ক্ষতিকর জীবাণু ধ্বংস করে ও পেপসিনোজেনকে পেপসিনে রূপান্তর করে।",
+        "<strong>পেপসিন:</strong> আমিষকে প্রোটিওজ ও পেপটনে পরিণত করে।",
+        "<strong>কাইম (Chyme):</strong> পাকস্থলীর মন্থন গতির ফলে সৃষ্ট অম্লীয় অর্ধপাচিত লেই।"
+      ]
+    },
+    liver: {
+      title: "যকৃৎ ও পিত্তথলি (Liver & Gallbladder)",
+      tags: [
+        { text: "দেহের বৃহত্তম গ্রন্থি", cls: "green" },
+        { text: "পিত্তরস উৎপাদন", cls: "amber" },
+        { text: "জৈব রসায়নাগার", cls: "blue" }
+      ],
+      desc: [
+        "<strong>পিত্তরস:</strong> কোনো এনজাইম থাকে না; পিত্তলবণ চর্বিকে ইমালসিফাই করে।",
+        "<strong>বিপাক:</strong> গ্লাইকোজেন সঞ্চয় ও অরনিথিন চক্রে অ্যামোনিয়া থেকে ইউরিয়া উৎপাদন।"
+      ]
+    },
+    pancreas: {
+      title: "অগ্ন্যাশয় (Pancreas - মিশ্র গ্রন্থি)",
+      tags: [
+        { text: "বহিঃক্ষরা এনজাইম", cls: "amber" },
+        { text: "ইনসুলিন ও গ্লুকাগন", cls: "green" }
+      ],
+      desc: [
+        "<strong>বহিঃক্ষরা রস:</strong> ট্রিপসিন, কাইমোট্রিপসিন, অ্যামাইলেজ ও লাইপেস।",
+        "<strong>অন্তঃক্ষরা হরমোন:</strong> বিটা কোষ থেকে ইনসুলিন (রক্তে গ্লুকোজ কমায়) ও আলফা কোষ থেকে গ্লুকাগন।"
+      ]
+    },
+    'small-int': {
+      title: "ক্ষুদ্রান্ত্র (Small Intestine — ডিওডেনাম, জেজুনাম ও ইলিয়াম)",
+      tags: [
+        { text: "পূর্ণাঙ্গ পরিপাক", cls: "green" },
+        { text: "খাদ্য শোষণ (ভিলাই)", cls: "blue" },
+        { text: "pH ৭.৫–৮.৫", cls: "amber" }
+      ],
+      desc: [
+        "<strong>পরিপাক:</strong> অগ্ন্যাশয় ও আন্ত্রিক রসের প্রভাবে শর্করা গ্লুকোজে, আমিষ অ্যামাইনো এসিডে এবং চর্বি ফ্যাটি এসিড-গ্লিসারলে পরিণত হয়।",
+        "<strong>শোষণ:</strong> ইলিয়ামের ভিলাইর রক্তজালকে গ্লুকোজ-অ্যামাইনো এসিড এবং ল্যাকটিয়ালে চর্বি শোষিত হয়।"
+      ]
+    },
+    'large-int': {
+      title: "বৃহদান্ত্র (Large Intestine — কোলন ও মলাশয়)",
+      tags: [
+        { text: "পানি পুনঃশোষণ", cls: "blue" },
+        { text: "মল গঠন ও ত্যাগ", cls: "amber" },
+        { text: "অ্যাপেন্ডিক্স", cls: "rose" }
+      ],
+      desc: [
+        "<strong>কাজ:</strong> অপাচ্য অংশ থেকে জল ও খনিজ শোষণ এবং মল গঠন।",
+        "<strong>রোগ:</strong> সিকামে যুক্ত অ্যাপেন্ডিক্সে প্রদাহ হলে অ্যাপেন্ডিসাইটিস হয়।"
+      ]
+    }
+  };
+
+  function selectOrgan(id) {
+    document.querySelectorAll('.organ-node').forEach(n => n.classList.remove('selected'));
+    const node = document.getElementById('node-' + id);
+    if (node) node.classList.add('selected');
+
+    const data = organData[id];
+    if (!data) return;
+
+    document.getElementById('organ-title').textContent = data.title;
+    const tagRow = document.getElementById('organ-tags');
+    tagRow.innerHTML = data.tags.map(t => `<span class="tag ${t.cls}">${t.text}</span>`).join('');
+    const descList = document.getElementById('organ-desc');
+    descList.innerHTML = data.desc.map(d => `<li>${d}</li>`).join('');
+  }
+
+  // Animation Transit
+  const waypoints = [
+    { cx: 160, cy: 55, organ: 'mouth' },
+    { cx: 160, cy: 110, organ: 'esophagus' },
+    { cx: 165, cy: 185, organ: 'stomach' },
+    { cx: 155, cy: 235, organ: 'small-int' },
+    { cx: 160, cy: 290, organ: 'small-int' },
+    { cx: 120, cy: 260, organ: 'large-int' },
+    { cx: 205, cy: 260, organ: 'large-int' },
+    { cx: 175, cy: 385, organ: 'large-int' }
+  ];
+  let animIdx = 0;
+  let animTimer = null;
+
+  function toggleTransit() {
+    const btn = document.getElementById('btn-transit');
+    if (animTimer) {
+      clearInterval(animTimer);
+      animTimer = null;
+      btn.textContent = 'চালনা করো ▶';
+    } else {
+      btn.textContent = 'বিরতি ⏸';
+      animTimer = setInterval(() => {
+        animIdx = (animIdx + 1) % waypoints.length;
+        const pt = waypoints[animIdx];
+        const b = document.getElementById('bolus');
+        b.setAttribute('cx', pt.cx);
+        b.setAttribute('cy', pt.cy);
+        selectOrgan(pt.organ);
+      }, 1200);
+    }
+  }
+
+  function resetTransit() {
+    if (animTimer) {
+      clearInterval(animTimer);
+      animTimer = null;
+      document.getElementById('btn-transit').textContent = 'পরিপাক প্রক্রিয়া শুরু করো ▶';
+    }
+    animIdx = 0;
+    const b = document.getElementById('bolus');
+    b.setAttribute('cx', waypoints[0].cx);
+    b.setAttribute('cy', waypoints[0].cy);
+    selectOrgan('mouth');
+  }
+
+  // BMI & BMR Calculator
+  function calculateHealth() {
+    const gender = document.getElementById('user-gender').value;
+    const age = parseFloat(document.getElementById('user-age').value) || 16;
+    const weight = parseFloat(document.getElementById('user-weight').value) || 50;
+    const heightCm = parseFloat(document.getElementById('user-height').value) || 160;
+    const activity = parseFloat(document.getElementById('user-activity').value) || 1.55;
+
+    // BMI = weight / (heightInMeters)^2
+    const hM = heightCm / 100;
+    const bmi = weight / (hM * hM);
+    document.getElementById('res-bmi').textContent = bmi.toFixed(2);
+
+    let status = '';
+    let color = '';
+    let tip = '';
+    if (bmi < 18.5) {
+      status = 'কম ওজন (Underweight)';
+      color = '#b45309';
+      tip = 'পরিমিত পুষ্টিকর সুষম খাদ্য গ্রহণ করে ওজন বৃদ্ধি করা প্রয়োজন।';
+    } else if (bmi <= 24.9) {
+      status = 'সুস্বাস্থ্যের আদর্শ মান (Normal Weight)';
+      color = '#047857';
+      tip = 'অভিনন্দন! নিয়মিত ব্যায়াম ও সুষম খাদ্য বজায় রেখে আদর্শ ওজন ধরে রাখো।';
+    } else if (bmi <= 29.9) {
+      status = 'অতিরিক্ত ওজন (Overweight)';
+      color = '#c2410c';
+      tip = 'পরিমিত খাদ্য গ্রহণ, অতিরিক্ত ক্যালরি বর্জন ও নিয়মিত শরীরচর্চা দরকার।';
+    } else {
+      status = 'স্থূলতা (Obese)';
+      color = '#b91c1c';
+      tip = 'চিকিৎসকের পরামর্শে পরিকল্পিত খাদ্যতালিকা ও ব্যায়াম অনুসরণ আবশ্যক।';
+    }
+    const statElem = document.getElementById('res-bmi-status');
+    statElem.textContent = status;
+    statElem.style.color = color;
+    document.getElementById('res-bmi-tip').textContent = tip;
+
+    // BMR (Harris-Benedict)
+    let bmr = 0;
+    if (gender === 'male') {
+      bmr = 66 + (13.7 * weight) + (5 * heightCm) - (6.8 * age);
+    } else {
+      bmr = 655 + (9.6 * weight) + (1.8 * heightCm) - (4.7 * age);
+    }
+    document.getElementById('res-bmr').textContent = Math.round(bmr) + ' kcal';
+    const dailyCal = bmr * activity;
+    document.getElementById('res-daily-cal').textContent = Math.round(dailyCal) + ' kcal';
+  }
+
+  function checkQ(qNum, isCorrect, btn) {
+    const fb = document.getElementById('q' + qNum + '-feedback');
+    fb.style.display = 'block';
+    if (isCorrect) {
+      fb.style.color = '#166534';
+      fb.innerHTML = '✅ <b>সঠিক উত্তর!</b> চমৎকার ধারণা।';
+    } else {
+      fb.style.color = '#991b1b';
+      fb.innerHTML = '❌ <b>ভুল হয়েছে।</b> সঠিক উত্তর পুনরায় চেষ্টা করো।';
+    }
+  }
+
+  // Initialize
+  calculateHealth();
+</script>
+</body>
+</html>

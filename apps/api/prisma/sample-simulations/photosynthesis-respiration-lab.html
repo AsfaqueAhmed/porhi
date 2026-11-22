@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>সালোকসংশ্লেষণ ও শ্বসন ভার্চুয়াল ল্যাব | poRi</title>
+  <style>
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-accent: #0f766e;
+      --pori-accent-soft: #ecfdf5;
+      --pori-accent-border: #99f6e4;
+      --pori-accent-ink: #134e4a;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-amber-ink: #92400e;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-border: #fecdd3;
+      --pori-rose-ink: #9f1239;
+      --pori-blue-soft: #eff6ff;
+      --pori-blue-border: #bfdbfe;
+      --pori-blue-ink: #1e40af;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+    .app {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .head h1 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--pori-heading);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--pori-accent-ink);
+      background: var(--pori-accent-soft);
+      border: 1px solid var(--pori-accent-border);
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .head p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--pori-muted);
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--pori-border);
+      background: var(--pori-surface);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--pori-muted);
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      background: var(--pori-accent-soft);
+      color: var(--pori-accent-ink);
+    }
+    .tab-btn.active {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+    }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 16px;
+    }
+    @media (max-width: 860px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+    .viewport-card {
+      background: #fafbfc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    canvas {
+      background: linear-gradient(180deg, #f0fdfa 0%, #e0f2fe 100%);
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 580px;
+      height: 380px;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .ctrl-card {
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .ctrl-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .ctrl-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--pori-heading);
+    }
+    .ctrl-val {
+      color: var(--pori-accent);
+      font-weight: 700;
+    }
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--pori-accent);
+      cursor: pointer;
+    }
+    .btn-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .color-btn {
+      flex: 1;
+      padding: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 8px;
+      border: 1px solid var(--pori-border);
+      background: #fff;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .color-btn.active {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+    }
+    .readout-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .readout-box {
+      background: var(--pori-accent-soft);
+      border: 1px solid var(--pori-accent-border);
+      border-radius: 10px;
+      padding: 8px 10px;
+      text-align: center;
+    }
+    .readout-box .title {
+      font-size: 11px;
+      color: var(--pori-accent-ink);
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .readout-box .number {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f766e;
+    }
+    .info-card {
+      background: #fff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+    .info-card h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      color: var(--pori-heading);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      margin-top: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th, td {
+      border: 1px solid var(--pori-border-soft);
+      padding: 8px 10px;
+      text-align: left;
+    }
+    th {
+      background: #f8fafc;
+      font-weight: 700;
+      color: var(--pori-heading);
+    }
+    .challenge-box {
+      background: var(--pori-amber-soft);
+      border: 1px solid var(--pori-amber-border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--pori-amber-ink);
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="head">
+    <div>
+      <h1>🌿 সালোকসংশ্লেষণ ও শ্বসন ভার্চুয়াল ল্যাব</h1>
+      <p>SSC জীববিজ্ঞান অধ্যায় ৪ (জীবনীশক্তি) · হাইড্রিলা পরীক্ষা, প্রভাবক বিশ্লেষণ ও ৩৮ ATP শক্তির হিসাব</p>
+    </div>
+    <span class="badge">NCTB কারিকুলাম ২০২৬</span>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('photo')">🌿 ১. সালোকসংশ্লেষণ ও অক্সিজেন ল্যাব</button>
+    <button class="tab-btn" onclick="switchTab('resp')">⚡ ২. শ্বসন ও ৩৮ ATP ব্যালেন্স শিট</button>
+    <button class="tab-btn" onclick="switchTab('quiz')">🧪 ৩. ল্যাব চ্যালেঞ্জ ও ব্যাখ্যা</button>
+  </div>
+
+  <!-- TAB 1: Photosynthesis Simulation -->
+  <div id="tab-photo">
+    <div class="main-grid">
+      <div class="viewport-card">
+        <canvas id="photoCanvas" width="560" height="380"></canvas>
+        <div style="font-size:12px;color:var(--pori-muted);margin-top:8px;">
+          💡 <b>বাস্তব পর্যবেক্ষণ:</b> আলোর তীব্রতা ও CO₂ বাড়ালে হাইড্রিলা থেকে নির্গত O₂ বুদবুদের বেগ দ্রুত বাড়ে।
+        </div>
+      </div>
+
+      <div class="ctrl-card">
+        <div class="ctrl-group">
+          <div class="ctrl-header">
+            <span>💡 আলোর তীব্রতা (Light Intensity)</span>
+            <span class="ctrl-val" id="val-light">৭০%</span>
+          </div>
+          <input type="range" id="rng-light" min="0" max="100" value="70" oninput="updateSim()">
+        </div>
+
+        <div class="ctrl-group">
+          <div class="ctrl-header">
+            <span>🎨 আলোর বর্ণ / ফিল্টার (Light Color)</span>
+          </div>
+          <div class="btn-group">
+            <button class="color-btn active" onclick="setColor('white', this)">সাদা</button>
+            <button class="color-btn" onclick="setColor('red', this)">লাল</button>
+            <button class="color-btn" onclick="setColor('blue', this)">নীল</button>
+            <button class="color-btn" onclick="setColor('green', this)">সবুজ</button>
+          </div>
+        </div>
+
+        <div class="ctrl-group">
+          <div class="ctrl-header">
+            <span>🫧 পানিতে CO₂ মাত্রা (Sodium Bicarbonate)</span>
+            <span class="ctrl-val" id="val-co2">০.০৫%</span>
+          </div>
+          <input type="range" id="rng-co2" min="0" max="15" value="5" oninput="updateSim()">
+        </div>
+
+        <div class="ctrl-group">
+          <div class="ctrl-header">
+            <span>🌡️ তাপমাত্রা (°C)</span>
+            <span class="ctrl-val" id="val-temp">২৮°C</span>
+          </div>
+          <input type="range" id="rng-temp" min="5" max="50" value="28" oninput="updateSim()">
+        </div>
+
+        <div class="readout-grid">
+          <div class="readout-box">
+            <div class="title">O₂ বুদবুদ / মিনিট</div>
+            <div class="number" id="meter-bubbles">৪২</div>
+          </div>
+          <div class="readout-box">
+            <div class="title">সালোকসংশ্লেষণ দক্ষতা</div>
+            <div class="number" id="meter-rate">৭৮%</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <h3>🔍 বৈজ্ঞানিক পর্যবেক্ষণ ও নীতি</h3>
+      <p style="margin:0;font-size:13px;line-height:1.7;">
+        <b>১. আলোর বর্ণ প্রভাব:</b> ক্লোরোফিল 'a' ও 'b' মূলত <b>লাল (৬৬০ nm)</b> ও <b>নীল (৪৩০ nm)</b> আলো সর্বাধিক শোষণ করে। সবুজ আলো প্রতিফলিত হয়ে যায়, তাই সবুজ আলোতে সালোকসংশ্লেষণের হার সর্বনিম্ন প্রায় শূন্যে নেমে আসে!<br>
+        <b>২. তাপমাত্রার প্রভাব:</b> ২২°C থেকে ৩৫°C এর মধ্যে এনজাইমগুলো (যেমন: RuBisCO) সর্বোচ্চ গতিতে কাজ করে। ৪০°C-এর বেশি তাপমাত্রায় প্রোটিন ও এনজাইম ডিনেচার্ড (Denatured) হয়ে যায়, ফলে বিক্রিয়া বন্ধ হয়ে যায়।<br>
+        <b>৩. সোডিয়াম বাইকার্বনেট ($NaHCO_3$):</b> পানিতে দ্রবীভূত হয়ে প্রচুর কার্বন ডাই-অক্সাইড মুক্ত করে যা সালোকসংশ্লেষণের কাঁচামাল হিসেবে কাজ করে।
+      </p>
+    </div>
+  </div>
+
+  <!-- TAB 2: Respiration 38 ATP Balance Sheet -->
+  <div id="tab-resp" style="display:none;">
+    <div class="main-grid">
+      <div class="viewport-card" style="justify-content:flex-start;">
+        <h3 style="margin:4px 0 12px;color:#0f766e;">⚡ সবাত ও অবাত শ্বসনের এটিপি ক্যালকুলেটর</h3>
+        
+        <div style="width:100%;background:#fff;border:1px solid #cbd5e1;border-radius:12px;padding:14px;margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <label style="font-weight:700;font-size:14px;">গ্লুকোজের পরিমাণ (মোল):</label>
+            <input type="number" id="glucose-mol" min="1" max="100" value="1" style="width:70px;padding:4px 8px;border:1px solid #cbd5e1;border-radius:6px;font-weight:bold;text-align:center;" oninput="calcATP()">
+          </div>
+          <div style="display:flex;gap:10px;">
+            <label><input type="radio" name="resp-type" value="aerobic" checked onchange="calcATP()"> <b>সবাত শ্বসন (Aerobic)</b></label>
+            <label><input type="radio" name="resp-type" value="anaerobic" onchange="calcATP()"> <b>অবাত শ্বসন (Anaerobic)</b></label>
+          </div>
+        </div>
+
+        <div class="table-wrap" style="width:100%;">
+          <table>
+            <thead>
+              <tr>
+                <th>ধাপ / পর্যায়</th>
+                <th>সংঘটনস্থল</th>
+                <th>প্রাথমিক উৎপাদ</th>
+                <th>মোট ATP রূপান্তর</th>
+              </tr>
+            </thead>
+            <tbody id="atp-breakdown">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="ctrl-card">
+        <h4 style="margin:0 0 10px;color:#0f766e;">📊 সর্বমোট শক্তির আউটপুট</h4>
+        
+        <div class="readout-box" style="padding:14px;">
+          <div class="title">মোট উৎপন্ন ATP</div>
+          <div class="number" id="total-atp" style="font-size:32px;">৩৮ টি</div>
+        </div>
+
+        <div class="readout-box" style="padding:14px;background:#fefce8;border-color:#fde047;">
+          <div class="title" style="color:#854d0e;">মোট শক্তি (Energy)</div>
+          <div class="number" id="total-energy" style="font-size:24px;color:#a16207;">৬৮৬ kcal</div>
+          <small style="color:#713f12;font-size:11px;">(বা প্রায় ২৮৭২ kJ)</small>
+        </div>
+
+        <div style="background:#f1f5f9;border-radius:10px;padding:12px;font-size:12px;line-height:1.7;">
+          <b>🔑 NCTB স্বর্ণসূত্র:</b><br>
+          • ১ NADH + H⁺ = ৩ ATP<br>
+          • ১ FADH₂ = ২ ATP<br>
+          • ১ GTP = ১ ATP<br>
+          • ১ মোল ATP ভেঙে মুক্ত হয় ৭.৩ kcal শক্তি।
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: Quiz & Challenge -->
+  <div id="tab-quiz" style="display:none;">
+    <div class="challenge-box">
+      <h3 style="margin:0 0 6px;color:#92400e;">🎯 ল্যাব চ্যালেঞ্জ ১: সর্বোচ্চ বুদবুদ হার অর্জন করো!</h3>
+      <p style="margin:0;line-height:1.6;">
+        সালোকসংশ্লেষণ ল্যাবে যাও এবং স্লাইডারগুলো পরিবর্তন করে <b>৮০টির বেশি বুদবুদ/মিনিট</b> তৈরি করো। (ইঙ্গিত: আলোর বর্ণ সাদা বা লাল রাখো, তাপমাত্রা ২৫°–৩২°C করো এবং সোডিয়াম বাইকার্বনেট মাত্রা বাড়িয়ে দাও)।
+      </p>
+    </div>
+
+    <div class="info-card">
+      <h3>❓ সাধারণ ভাইভা ও বোর্ড প্রশ্নোত্তর</h3>
+      <ul style="margin:6px 0 0;padding-left:20px;font-size:13px;line-height:1.8;">
+        <li><b>প্রশ্ন: শীতকালে জলাশয়ে হাইড্রিলা উদ্ভিদে অক্সিজেন নির্গমন কমে যায় কেন?</b><br>
+        উত্তর: শীতকালে পানির তাপমাত্রা কম থাকে (১৫°C-এর নিচে), যা সালোকসংশ্লেষণের এনজাইমের গতি ধীর করে দেয়।</li>
+        <li><b>প্রশ্ন: সবুজ আলোতে গাছ ভালো বাড়ে না কেন?</b><br>
+        উত্তর: ক্লোরোফিল সবুজ আলো শোষণ করতে পারে না বরং অধিকাংশ প্রতিফলিত করে দেয়, ফলে আলোক বিক্রিয়া বন্ধের উপক্রম হয়।</li>
+        <li><b>প্রশ্ন: ১ অণু গ্লুকোজ থেকে অবাত শ্বসনে মাত্র ২টি ATP পাওয়া যায় কেন?</b><br>
+        উত্তর: অবাত শ্বসনে অক্সিজেন না থাকায় পাইরুভিক এসিড জারিত হতে পারে না; বরং গ্লাইকোলাইসিসে সৃষ্ট NADH খরচ হয়ে পাইরুভিক এসিডকে অ্যালকোহল বা ল্যাকটিক এসিডে পরিণত করে।</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+  let curTab = 'photo';
+  let curColor = 'white';
+
+  function switchTab(t) {
+    curTab = t;
+    document.querySelectorAll('.tab-btn').forEach((b, i) => {
+      b.classList.toggle('active', (t === 'photo' && i === 0) || (t === 'resp' && i === 1) || (t === 'quiz' && i === 2));
+    });
+    document.getElementById('tab-photo').style.display = t === 'photo' ? 'block' : 'none';
+    document.getElementById('tab-resp').style.display = t === 'resp' ? 'block' : 'none';
+    document.getElementById('tab-quiz').style.display = t === 'quiz' ? 'block' : 'none';
+    if (t === 'resp') calcATP();
+  }
+
+  function setColor(c, btn) {
+    curColor = c;
+    document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    updateSim();
+  }
+
+  // Canvas Simulation
+  const canvas = document.getElementById('photoCanvas');
+  const ctx = canvas.getContext('2d');
+  let bubbles = [];
+
+  class Bubble {
+    constructor(x, y) {
+      this.x = x + (Math.random() - 0.5) * 12;
+      this.y = y;
+      this.r = 2 + Math.random() * 3.5;
+      this.vy = 1.2 + Math.random() * 1.5;
+      this.vx = (Math.random() - 0.5) * 0.4;
+    }
+    update() {
+      this.y -= this.vy;
+      this.x += this.vx;
+    }
+    draw(ctx) {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
+      ctx.strokeStyle = 'rgba(15, 118, 110, 0.6)';
+      ctx.lineWidth = 1;
+      ctx.fill();
+      ctx.stroke();
+    }
+  }
+
+  function getCalculatedRate() {
+    const light = parseFloat(document.getElementById('rng-light').value);
+    const co2 = parseFloat(document.getElementById('rng-co2').value);
+    const temp = parseFloat(document.getElementById('rng-temp').value);
+
+    // Color efficiency factor
+    let colorFactor = 1.0;
+    if (curColor === 'red') colorFactor = 1.15;
+    else if (curColor === 'blue') colorFactor = 1.05;
+    else if (curColor === 'green') colorFactor = 0.08;
+
+    // Light factor (0 to 1)
+    const lFac = light / 100;
+
+    // CO2 factor
+    const cFac = Math.min(1.2, co2 / 8);
+
+    // Temperature factor (Bell curve around 28C)
+    let tFac = 0;
+    if (temp >= 10 && temp <= 45) {
+      tFac = Math.exp(-Math.pow(temp - 30, 2) / 120);
+    }
+
+    const rawRate = lFac * cFac * tFac * colorFactor;
+    return Math.max(0, Math.min(1.0, rawRate));
+  }
+
+  function updateSim() {
+    const light = document.getElementById('rng-light').value;
+    const co2 = (document.getElementById('rng-co2').value / 100).toFixed(2);
+    const temp = document.getElementById('rng-temp').value;
+
+    document.getElementById('val-light').textContent = light + '%';
+    document.getElementById('val-co2').textContent = co2 + '%';
+    document.getElementById('val-temp').textContent = temp + '°C';
+
+    const rate = getCalculatedRate();
+    const bubbleRate = Math.round(rate * 85);
+    const effPct = Math.round(rate * 100);
+
+    document.getElementById('meter-bubbles').textContent = bubbleRate;
+    document.getElementById('meter-rate').textContent = effPct + '%';
+  }
+
+  function drawSim() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw Light Beam / Lamp
+    const lightVal = parseFloat(document.getElementById('rng-light').value);
+    let beamColor = 'rgba(254, 240, 138, 0.25)';
+    if (curColor === 'red') beamColor = 'rgba(248, 113, 113, 0.3)';
+    else if (curColor === 'blue') beamColor = 'rgba(96, 165, 250, 0.3)';
+    else if (curColor === 'green') beamColor = 'rgba(74, 222, 128, 0.3)';
+
+    if (lightVal > 5) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(40, 20);
+      ctx.lineTo(200, 360);
+      ctx.lineTo(360, 360);
+      ctx.lineTo(60, 20);
+      ctx.closePath();
+      ctx.fillStyle = beamColor;
+      ctx.globalAlpha = lightVal / 100;
+      ctx.fill();
+      ctx.restore();
+
+      // Lamp icon
+      ctx.fillStyle = '#475569';
+      ctx.fillRect(25, 10, 30, 20);
+      ctx.beginPath();
+      ctx.arc(40, 30, 16, 0, Math.PI);
+      ctx.fillStyle = '#fef08a';
+      ctx.fill();
+    }
+
+    // Draw Beaker
+    const bx = 190, by = 130, bw = 180, bh = 220;
+    ctx.fillStyle = 'rgba(224, 242, 254, 0.6)';
+    ctx.fillRect(bx, by, bw, bh);
+
+    ctx.strokeStyle = '#0284c7';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(bx - 10, by);
+    ctx.lineTo(bx, by);
+    ctx.lineTo(bx, by + bh);
+    ctx.lineTo(bx + bw, by + bh);
+    ctx.lineTo(bx + bw, by);
+    ctx.lineTo(bx + bw + 10, by);
+    ctx.stroke();
+
+    // Water line
+    ctx.fillStyle = 'rgba(56, 189, 248, 0.25)';
+    ctx.fillRect(bx + 2, by + 25, bw - 4, bh - 27);
+
+    // Glass Funnel
+    const fx = bx + bw / 2, fy = by + bh - 10;
+    ctx.strokeStyle = '#0369a1';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(fx - 55, fy);
+    ctx.lineTo(fx, fy - 65);
+    ctx.lineTo(fx + 55, fy);
+    ctx.stroke();
+
+    // Funnel Stem
+    ctx.beginPath();
+    ctx.moveTo(fx - 5, fy - 65);
+    ctx.lineTo(fx - 5, fy - 140);
+    ctx.moveTo(fx + 5, fy - 65);
+    ctx.lineTo(fx + 5, fy - 140);
+    ctx.stroke();
+
+    // Test tube over funnel
+    const ttw = 26, tth = 130, ttx = fx - 13, tty = fy - 160;
+    ctx.fillStyle = 'rgba(240, 249, 255, 0.7)';
+    ctx.fillRect(ttx, tty, ttw, tth);
+    ctx.strokeStyle = '#0369a1';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(ttx, tty, ttw, tth);
+
+    // Oxygen gas pocket at top of test tube
+    const gasHeight = Math.min(45, (bubbles.length % 50) + 10);
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+    ctx.fillRect(ttx + 2, tty + 2, ttw - 4, gasHeight);
+    ctx.fillStyle = '#0f766e';
+    ctx.font = '10px sans-serif';
+    ctx.fillText('O₂ গ্যাস', ttx - 2, tty - 6);
+
+    // Draw Hydrilla Plant (Leaves)
+    ctx.strokeStyle = '#15803d';
+    ctx.fillStyle = '#22c55e';
+    ctx.lineWidth = 2;
+    for (let i = 0; i < 5; i++) {
+      const hx = fx - 35 + i * 18;
+      const hy = fy - 10 - (i % 2) * 12;
+      ctx.beginPath();
+      ctx.ellipse(hx, hy, 12, 5, (i - 2) * 0.4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    // Spawn and update bubbles
+    const rate = getCalculatedRate();
+    if (rate > 0.05 && Math.random() < rate * 0.4) {
+      bubbles.push(new Bubble(fx, fy - 140));
+    }
+
+    for (let i = bubbles.length - 1; i >= 0; i--) {
+      bubbles[i].update();
+      bubbles[i].draw(ctx);
+      if (bubbles[i].y < tty + gasHeight) {
+        bubbles.splice(i, 1);
+      }
+    }
+
+    requestAnimationFrame(drawSim);
+  }
+
+  // Respiration ATP Calculation
+  function calcATP() {
+    const mol = parseInt(document.getElementById('glucose-mol').value) || 1;
+    const type = document.querySelector('input[name="resp-type"]:checked').value;
+    const tbody = document.getElementById('atp-breakdown');
+    tbody.innerHTML = '';
+
+    if (type === 'aerobic') {
+      const gATP = 8 * mol;
+      const aATP = 6 * mol;
+      const kATP = 24 * mol;
+      const totATP = 38 * mol;
+      const totKcal = 686 * mol;
+
+      tbody.innerHTML = `
+        <tr>
+          <td><b>১. গ্লাইকোলাইসিস</b></td>
+          <td>সাইটোপ্লাজম</td>
+          <td>২ ATP (নিট) + ২ NADH (${2 * mol} অণু)</td>
+          <td><b>${gATP} ATP</b></td>
+        </tr>
+        <tr>
+          <td><b>২. অ্যাসিটাইল কো-এ</b></td>
+          <td>সাইটোপ্লাজম/মাইটোকন্ড্রিয়া</td>
+          <td>২ CO₂ + ২ NADH (${2 * mol} অণু)</td>
+          <td><b>${aATP} ATP</b></td>
+        </tr>
+        <tr>
+          <td><b>৩. ক্রেবস চক্র</b></td>
+          <td>মাইটোকন্ড্রিয়ার ম্যাট্রিক্স</td>
+          <td>৪ CO₂ + ৬ NADH + ২ FADH₂ + ২ GTP</td>
+          <td><b>${kATP} ATP</b></td>
+        </tr>
+      `;
+
+      document.getElementById('total-atp').textContent = totATP + ' টি';
+      document.getElementById('total-energy').textContent = totKcal + ' kcal';
+    } else {
+      const totATP = 2 * mol;
+      const totKcal = 50 * mol;
+
+      tbody.innerHTML = `
+        <tr>
+          <td><b>১. গ্লুকোজের অসম্পূর্ণ জারণ</b></td>
+          <td>সাইটোপ্লাজম</td>
+          <td>২ অণু পাইরুভিক এসিড + ২ ATP</td>
+          <td><b>${2 * mol} ATP</b></td>
+        </tr>
+        <tr>
+          <td><b>২. পাইরুভিক এসিড বিজারণ</b></td>
+          <td>সাইটোপ্লাজম</td>
+          <td>২ অণু ইথাইল অ্যালকোহল ও CO₂ (বা ল্যাকটিক এসিড)</td>
+          <td><b>০ ATP</b> (শক্তি খরচ হয়)</td>
+        </tr>
+      `;
+
+      document.getElementById('total-atp').textContent = totATP + ' টি';
+      document.getElementById('total-energy').textContent = totKcal + ' kcal';
+    }
+  }
+
+  // Initialize
+  updateSim();
+  drawSim();
+  calcATP();
+</script>
+</body>
+</html>

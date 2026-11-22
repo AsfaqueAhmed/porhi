@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>মাইটোসিস কোষ বিভাজন ও ক্রোমোজোম ডাইনামিক্স ল্যাব | poRi</title>
+  <style>
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-accent: #0f766e;
+      --pori-accent-soft: #ecfdf5;
+      --pori-accent-border: #99f6e4;
+      --pori-accent-ink: #134e4a;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-amber-ink: #92400e;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-border: #fecdd3;
+      --pori-rose-ink: #9f1239;
+      --pori-blue-soft: #eff6ff;
+      --pori-blue-border: #bfdbfe;
+      --pori-blue-ink: #1e40af;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+    .app {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 14px;
+      margin-bottom: 16px;
+    }
+    .head h1 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--pori-heading);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--pori-accent-ink);
+      background: var(--pori-accent-soft);
+      border: 1px solid var(--pori-accent-border);
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .head p {
+      margin: 4px 0 0;
+      font-size: 13.5px;
+      color: var(--pori-muted);
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--pori-border);
+      background: var(--pori-surface);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--pori-muted);
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      background: var(--pori-accent-soft);
+      color: var(--pori-accent-ink);
+    }
+    .tab-btn.active {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+    }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+    }
+    @media (max-width: 860px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+    .viewport-card {
+      background: #fafbfc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .svg-container {
+      width: 100%;
+      max-width: 580px;
+      height: 380px;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.02);
+    }
+    .svg-container svg {
+      width: 100%;
+      height: 100%;
+    }
+    .ctrl-bar {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+      width: 100%;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 7px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--pori-border);
+      background: var(--pori-surface);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--pori-ink);
+      transition: all 0.15s;
+    }
+    .btn:hover {
+      border-color: var(--pori-accent);
+      background: var(--pori-accent-soft);
+      color: var(--pori-accent-ink);
+    }
+    .btn.primary {
+      background: var(--pori-accent);
+      color: #ffffff;
+      border-color: var(--pori-accent);
+    }
+    .btn.primary:hover {
+      background: #115e59;
+    }
+    .timeline {
+      display: flex;
+      gap: 4px;
+      margin-top: 12px;
+      width: 100%;
+      max-width: 580px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+    .step-pill {
+      flex: 1;
+      text-align: center;
+      padding: 6px 4px;
+      border-radius: 6px;
+      background: #e2e8f0;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--pori-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .step-pill.active {
+      background: var(--pori-accent);
+      color: #ffffff;
+    }
+    .inspector-card {
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .inspector-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--pori-heading);
+      margin: 0;
+    }
+    .inspector-sub {
+      font-size: 12.5px;
+      color: var(--pori-accent);
+      font-weight: 600;
+    }
+    .desc-box {
+      background: var(--pori-accent-soft);
+      border: 1px solid var(--pori-accent-border);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 12.5px;
+      color: var(--pori-accent-ink);
+      line-height: 1.6;
+    }
+    .mnemonic-box {
+      background: var(--pori-amber-soft);
+      border: 1px solid var(--pori-amber-border);
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 12px;
+      color: var(--pori-amber-ink);
+      line-height: 1.5;
+    }
+    .attr-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      padding: 4px 0;
+      border-bottom: 1px dashed var(--pori-border-soft);
+    }
+    .attr-label { color: var(--pori-muted); }
+    .attr-val { font-weight: 600; color: var(--pori-heading); }
+    /* Quiz mode */
+    .quiz-box {
+      background: #ffffff;
+      border: 1px solid var(--pori-border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 14px;
+    }
+    .quiz-opt {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 9px 12px;
+      margin: 6px 0;
+      border-radius: 8px;
+      border: 1px solid var(--pori-border);
+      background: #f8fafc;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .quiz-opt:hover { background: #f1f5f9; }
+    .quiz-opt.right { background: #dcfce7; border-color: #22c55e; color: #15803d; font-weight: 600; }
+    .quiz-opt.wrong { background: #fee2e2; border-color: #ef4444; color: #b91c1c; }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="head">
+    <div>
+      <h1>🔬 মাইটোসিস কোষ বিভাজন ও ক্রোমোজোম ল্যাব <span class="badge">SSC অধ্যায় ৩</span></h1>
+      <p>ইন্টারফেজ থেকে সাইটোকাইনেসিস—মাইটোসিসের প্রতিটি পর্যায় পর্যবেক্ষণ, ক্রোমোজোম চলন (V, L, J, I) এবং সক্রিয় আত্মযাচাই।</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="setMode('mitosis')">🔄 মাইটোসিস স্টেজ সিমুলেটর</button>
+    <button class="tab-btn" onclick="setMode('chromosome')">🧬 ক্রোমোজোম রূপ এক্সপ্লোরার (V, L, J, I)</button>
+    <button class="tab-btn" onclick="setMode('comparison')">⚖️ মাইটোসিস বনাম মিয়োসিস তুলনা</button>
+    <button class="tab-btn" onclick="setMode('quiz')">⚡ ড্রিল ও তাৎক্ষণিক কুইজ</button>
+  </div>
+
+  <!-- MODE 1: MITOSIS SIMULATOR -->
+  <div id="mode-mitosis" class="main-grid">
+    <div class="viewport-card">
+      <div style="display:flex;justify-content:space-between;width:100%;max-width:580px;margin-bottom:8px;">
+        <span style="font-size:12px;font-weight:600;color:var(--pori-muted);" id="cell-type-label">উদ্ভিদকোষ পর্যবেক্ষণ</span>
+        <label style="font-size:12px;cursor:pointer;color:var(--pori-accent);font-weight:600;">
+          <input type="checkbox" id="toggle-animal" onchange="toggleCellType()"> প্রাণিকোষ মোড (সেন্ট্রিওল ও খাঁজ)
+        </label>
+      </div>
+
+      <div class="svg-container" id="mitosis-stage-svg">
+        <!-- Dynamic SVG will be rendered here -->
+      </div>
+
+      <div class="timeline" id="stage-timeline">
+        <div class="step-pill active" onclick="goToStage(0)">ইন্টারফেজ</div>
+        <div class="step-pill" onclick="goToStage(1)">প্রোফেজ</div>
+        <div class="step-pill" onclick="goToStage(2)">প্রো-মেটাফেজ</div>
+        <div class="step-pill" onclick="goToStage(3)">মেটাফেজ</div>
+        <div class="step-pill" onclick="goToStage(4)">অ্যানাফেজ</div>
+        <div class="step-pill" onclick="goToStage(5)">টেলোফেজ</div>
+        <div class="step-pill" onclick="goToStage(6)">সাইটোকাইনেসিস</div>
+      </div>
+
+      <div class="ctrl-bar">
+        <button class="btn" onclick="prevStage()">◀ পূর্ববর্তী ধাপ</button>
+        <button class="btn primary" id="play-btn" onclick="togglePlay()">▶ অটো অ্যানিমেশন</button>
+        <button class="btn" onclick="nextStage()">পরবর্তী ধাপ ▶</button>
+        <button class="btn" onclick="goToStage(0)">↺ রিসেট</button>
+      </div>
+    </div>
+
+    <div class="inspector-card">
+      <div>
+        <h2 class="inspector-title" id="stage-title">ইন্টারফেজ (Interphase)</h2>
+        <span class="inspector-sub" id="stage-en">Pre-mitotic Preparation Stage</span>
+      </div>
+
+      <div class="attr-row">
+        <span class="attr-label">ক্রোমোজোম অবস্থা:</span>
+        <span class="attr-val" id="stage-chrom">ক্রোমাটিন সূক্ষ্ম জালিকা</span>
+      </div>
+      <div class="attr-row">
+        <span class="attr-label">নিউক্লিয়ার মেমব্রেন:</span>
+        <span class="attr-val" id="stage-mem">সম্পূর্ণ অক্ষত ও স্পষ্ট</span>
+      </div>
+      <div class="attr-row">
+        <span class="attr-label">স্পিন্ডল কাঠামো:</span>
+        <span class="attr-val" id="stage-spindle">অনুপস্থিত (প্রস্তুতি পর্যায়)</span>
+      </div>
+      <div class="attr-row">
+        <span class="attr-label">সেন্ট্রোমিয়ার বিভাজন:</span>
+        <span class="attr-val" id="stage-centro">ঘটে না</span>
+      </div>
+
+      <div class="desc-box" id="stage-desc">
+        কোষ বিভাজন শুরুর পূর্বে নিউক্লিয়াসে প্রয়োজনীয় জৈব রাসায়নিক উপাদান ও শক্তি সঞ্চয়ের বিশেষ প্রস্তুতিমূলক কাজ সম্পন্ন হয়। নিউক্লিয়াস স্পষ্ট এবং ক্রোমাটিন সূক্ষ্ম জালিকাকারে থাকে।
+      </div>
+
+      <div class="mnemonic-box">
+        <strong>⚡ দ্রুত মনে রাখার কৌশল (Mnemonic):</strong>
+        <span id="stage-mnemonic">P-PM-M-A-T (প্রোফেজ → প্রো-মেটাফেজ → মেটাফেজ → অ্যানাফেজ → টেলোফেজ)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODE 2: CHROMOSOME MORPHOLOGY -->
+  <div id="mode-chromosome" class="main-grid" style="display:none;">
+    <div class="viewport-card">
+      <div class="svg-container" id="chromo-svg">
+        <!-- SVG for V, L, J, I -->
+      </div>
+      <div class="ctrl-bar" style="margin-top:14px;">
+        <button class="btn primary" onclick="showChromo('meta')">মেটাসেন্ট্রিক (V)</button>
+        <button class="btn" onclick="showChromo('sub')">সাবমেটাসেন্ট্রিক (L)</button>
+        <button class="btn" onclick="showChromo('acro')">অ্যাক্রোসেন্ট্রিক (J)</button>
+        <button class="btn" onclick="showChromo('telo')">টেলোসেন্ট্রিক (I)</button>
+      </div>
+    </div>
+
+    <div class="inspector-card">
+      <div>
+        <h2 class="inspector-title" id="chromo-title">মেটাসেন্ট্রিক ক্রোমোজোম (Metacentric)</h2>
+        <span class="inspector-sub" id="chromo-sub">ইংরেজি 'V' আকৃতির রূপ</span>
+      </div>
+
+      <div class="attr-row">
+        <span class="attr-label">সেন্ট্রোমিয়ার অবস্থান:</span>
+        <span class="attr-val" id="chromo-pos">ক্রোমোজোমের ঠিক মাঝখানে</span>
+      </div>
+      <div class="attr-row">
+        <span class="attr-label">বাহুদ্বয়ের অনুপাত:</span>
+        <span class="attr-val" id="chromo-ratio">সমান সমান (p-arm = q-arm)</span>
+      </div>
+      <div class="attr-row">
+        <span class="attr-label">অ্যানাফেজ চলন রূপ:</span>
+        <span class="attr-val" id="chromo-shape">ইংরেজি V বর্ণের মতো</span>
+      </div>
+
+      <div class="desc-box" id="chromo-desc">
+        অ্যানাফেজ ধাপে মেরুর দিকে আকর্ষণের সময় সেন্ট্রোমিয়ার ঠিক মাঝখানে থাকায় দুটি সমান বাহু পেছন দিকে বেকে যায়। ফলে এটি দেখতে ইংরেজি 'V' অক্ষরের মতো দেখায়।
+      </div>
+
+      <div class="mnemonic-box">
+        <strong>💡 মনে রাখার ট্রিক:</strong>
+        <i>"ভাজা লেবু জলদি খাও"</i> = V (মেটাসেন্ট্রিক), L (সাবমেটাসেন্ট্রিক), J (অ্যাক্রোসেন্ট্রিক), I (টেলোসেন্ট্রিক)।
+      </div>
+    </div>
+  </div>
+
+  <!-- MODE 3: COMPARISON -->
+  <div id="mode-comparison" style="display:none;">
+    <div style="background:#fff;border:1px solid var(--pori-border);border-radius:14px;padding:20px;overflow-x:auto;">
+      <h3 style="margin-top:0;color:var(--pori-heading);">⚖️ মাইটোসিস বনাম মিয়োসিস সম্পূর্ণ তুলনামূলক ছক</h3>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;line-height:1.7;">
+        <thead>
+          <tr style="background:#f1f5f9;text-align:left;">
+            <th style="padding:10px;border-bottom:2px solid var(--pori-border);">তুলনার বিষয়</th>
+            <th style="padding:10px;border-bottom:2px solid var(--pori-border);color:#0f766e;">মাইটোসিস (Mitosis)</th>
+            <th style="padding:10px;border-bottom:2px solid var(--pori-border);color:#1e40af;">মিয়োসিস (Meiosis)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;"><strong>বিভাজনের স্থান</strong></td>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;">জীবের দেহকোষ (Somatic cell) ও বর্ধনশীল ভাজক টিস্যু</td>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;">জনন মাতৃকোষ (Germ mother cell) এবং নিম্নশ্রেণির জাইগোটে</td>
+          </tr>
+          <tr>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;"><strong>নিউক্লিয়াস বিভাজন</strong></td>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;">নিউক্লিয়াস মাত্র একবার বিভাজিত হয়</td>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;">নিউক্লিয়াস পর পর দুবার বিভাজিত হয়</td>
+          </tr>
+          <tr>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;"><strong>ক্রোমোজোম বিভাজন</strong></td>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;">ক্রোমোজোম একবার বিভাজিত হয়</td>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;">ক্রোমোজোম মাত্র একবার বিভাজিত হয় (হ্রাস ঘটে)</td>
+          </tr>
+          <tr>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;"><strong>উৎপন্ন অপত্য কোষ</strong></td>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;">২টি অপত্য কোষ সৃষ্টি হয়</td>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;">৪টি অপত্য কোষ সৃষ্টি হয়</td>
+          </tr>
+          <tr>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;"><strong>ক্রোমোজোম সংখ্যা</strong></td>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;">মাতৃকোষের সমান থাকে (2n → 2n)</td>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;">মাতৃকোষের অর্ধেক হয় (2n → n)</td>
+          </tr>
+          <tr>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;"><strong>অন্য নাম</strong></td>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;">সমীকরণিক বিভাজন (Equational)</td>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;">হ্রাসমূলক বিভাজন (Reductional)</td>
+          </tr>
+          <tr>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;"><strong>প্রধান ভূমিকা</strong></td>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;">দেহের বৃদ্ধি, পুনরুৎপত্তি ও ক্ষত নিরাময়</td>
+            <td style="padding:10px;border-bottom:1px solid #e2e8f0;">প্রজাতির ক্রোমোজোম ধ্রুব রাখা ও জেনেটিক বৈচিত্র্য সৃষ্টি</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- MODE 4: QUIZ -->
+  <div id="mode-quiz" style="display:none;">
+    <div class="quiz-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 style="margin:0;color:var(--pori-heading);">⚡ মাইটোসিস চ্যালেঞ্জ কুইজ</h3>
+        <span style="font-weight:700;color:var(--pori-accent);" id="quiz-score">স্কোর: ০/০</span>
+      </div>
+      <p id="q-stem" style="font-size:15px;font-weight:600;margin-bottom:14px;"></p>
+      <div id="q-opts"></div>
+      <div id="q-feedback" style="margin-top:14px;font-size:13px;padding:10px;border-radius:8px;display:none;"></div>
+      <button class="btn primary" id="q-next-btn" style="margin-top:12px;display:none;" onclick="loadNextQuestion()">পরবর্তী প্রশ্ন ▶</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // STAGES DATA
+  const stages = [
+    {
+      title: "ইন্টারফেজ (Interphase)",
+      en: "Pre-mitotic Preparation Stage",
+      chrom: "ক্রোমাটিন সূক্ষ্ম জালিকা",
+      mem: "সম্পূর্ণ অক্ষত ও স্পষ্ট",
+      spindle: "অনুপস্থিত (প্রস্তুতি পর্যায়)",
+      centro: "ঘটে না",
+      desc: "কোষ বিভাজন শুরুর পূর্বে নিউক্লিয়াসে প্রয়োজনীয় জৈব রাসায়নিক উপাদান, এটিপি ও ডিএনএ অনুলিপন সম্পন্ন হয়। নিউক্লিয়াস আকারে বড় থাকে এবং ক্রোমাটিন সূক্ষ্ম জালিকাকারে বিন্যস্ত থাকে।",
+      mnemonic: "P-PM-M-A-T (প্রোফেজ → প্রো-মেটাফেজ → মেটাফেজ → অ্যানাফেজ → টেলোফেজ)"
+    },
+    {
+      title: "প্রোফেজ (Prophase)",
+      en: "First & Longest Mitotic Phase",
+      chrom: "সংকুচিত, স্পষ্ট ২ ক্রোমাটিড বিশিষ্ট",
+      mem: "বিদ্যমান, বিলুপ্তির সূচনা",
+      spindle: "তৈরি হতে শুরু করে",
+      centro: "অবিভক্ত (একত্রে যুক্ত)",
+      desc: "নিউক্লিয়াস আকারে বড় হয়। ক্রোমোজোমগুলো সংকুচিত হয়ে ক্রমশ মোটা ও খাটো হতে শুরু করে। প্রতিটি ক্রোমোজোম সেন্ট্রোমিয়ার ব্যতীত লম্বালম্বিভাবে বিভক্ত হয়ে দুটি ক্রোমাটিড উৎপন্ন করে।",
+      mnemonic: "Pro = প্রথমে ক্রোমোজোম দৃশ্যমান ও খাটো হওয়া।"
+    },
+    {
+      title: "প্রো-মেটাফেজ (Pro-metaphase)",
+      en: "Transition to Metaphase",
+      chrom: "স্পিন্ডল তন্তুর সাথে সংযুক্ত হচ্ছে",
+      mem: "লুপ্তপ্রায় (Disappearing)",
+      spindle: "সুস্পষ্ট দুই মেরুবিশিষ্ট স্পিন্ডল যন্ত্র",
+      centro: "আকর্ষণ তন্তুর সাথে যুক্ত",
+      desc: "মাইক্রোটিউবিউল তন্তু দিয়ে দুই মেরুবিশিষ্ট স্পিন্ডল যন্ত্র তৈরি হয়। ক্রোমোজোমের সেন্ট্রোমিয়ার স্পিন্ডলের আকর্ষণ তন্তুর (Traction fibre) সাথে যুক্ত হয়। প্রাণিকোষে অ্যাস্টার রশ্মি বিচ্ছুরিত হয়।",
+      mnemonic: "স্পিন্ডল যন্ত্র তৈরি ও আকর্ষণ তন্তুতে ক্রোমোজোম নোঙর করা।"
+    },
+    {
+      title: "মেটাফেজ (Metaphase)",
+      en: "Equatorial Alignment Phase",
+      chrom: "সর্বাধিক খাটো, মোটা ও স্পষ্ট",
+      mem: "সম্পূর্ণ বিলুপ্ত",
+      spindle: "পূর্ণাঙ্গ ও সুগঠিত",
+      centro: "বিষুবীয় অঞ্চলে সারিবদ্ধ, শেষভাগে বিভাজন শুরু",
+      desc: "সব ক্রোমোজোম স্পিন্ডল যন্ত্রের বিষুবীয় অঞ্চলে অবস্থান নেয় (মেটাকাইনেসিস)। ক্রোমোজোমগুলো সর্বাধিক খাটো ও মোটা হয়। পর্যায়ের শেষভাগে সেন্ট্রোমিয়ারের পূর্ণ বিভাজন সূচিত হয়।",
+      mnemonic: "M for Metaphase = Middle (বিষুবীয় অঞ্চলে ক্রোমোজোমের সমাহার)!"
+    },
+    {
+      title: "অ্যানাফেজ (Anaphase)",
+      en: "Poleward Movement Phase",
+      chrom: "অপত্য ক্রোমোজোমে রূপান্তর (V, L, J, I)",
+      mem: "সম্পূর্ণ অনুপস্থিত",
+      spindle: "আকর্ষণ তন্তু সংকুচিত",
+      centro: "সম্পূর্ণ বিভক্ত এবং মেরুর দিকে অগ্রগামী",
+      desc: "প্রতিটি সেন্ট্রোমিয়ার দুভাগে বিভক্ত হওয়ায় ক্রোমাটিড দুটি আলাদা হয়ে অপত্য ক্রোমোজোমে রূপ নেয়। সেন্ট্রোমিয়ার অগ্রগামী হয়ে বিপরীত মেরুর দিকে ধাবিত হয় এবং V, L, J, I অক্ষরের মতো আকৃতি ধারণ করে।",
+      mnemonic: "A for Anaphase = Away (মেরুর দিকে অপত্য ক্রোমোজোমের ছুটে চলা)!"
+    },
+    {
+      title: "টেলোফেজ (Telophase)",
+      en: "Final Stage of Karyokinesis",
+      chrom: "মেরুতে স্থির, পুনরায় সরু ও দীর্ঘ",
+      mem: "পুনর্গঠিত (Reappearing)",
+      spindle: "ভেঙে পড়ে অদৃশ্য হচ্ছে",
+      centro: "পুনরায় ক্রোমাটিন তন্তুতে মিশ্রিত",
+      desc: "প্রোফেজের বিপরীত ঘটনা ঘটে। দুই মেরুর ক্রোমোজোমগুলোকে ঘিরে নিউক্লিয়ার ঝিল্লি ও নিউক্লিওলাসের পুনর্গঠন হয়। ফলে দুই প্রান্তে দুটি সুনির্দিষ্ট অপত্য নিউক্লিয়াস আত্মপ্রকাশ করে।",
+      mnemonic: "T for Telophase = Two Nuclei (দুটি নতুন নিউক্লিয়াসের জন্ম)!"
+    },
+    {
+      title: "সাইটোকাইনেসিস (Cytokinesis)",
+      en: "Division of Cytoplasm",
+      chrom: "সম্পূর্ণ ক্রোমাটিন জালিকা",
+      mem: "সম্পূর্ণ অক্ষত",
+      spindle: "সম্পূর্ণ বিলুপ্ত",
+      centro: "দুই অপত্য কোষে সমবন্টিত",
+      desc: "উদ্ভিদকোষে বিষুবীয় তলে এন্ডোপ্লাজমিক জালিকা ও গলজি উপাদান মিলে কোষপ্লেট (Cell plate) তৈরি করে। প্রাণিকোষে প্লাজমামেমব্রেন খাঁজ সৃষ্টির মাধ্যমে দুটি পৃথক অপত্য কোষে বিভক্ত হয়।",
+      mnemonic: "সাইটোকাইনেসিস = সাইটোপ্লাজম দুভাগ হয়ে ২ অপত্য কোষ তৈরি।"
+    }
+  ];
+
+  let currentStage = 0;
+  let isAnimal = false;
+  let timer = null;
+
+  function setMode(mode) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+
+    document.getElementById('mode-mitosis').style.display = mode === 'mitosis' ? 'grid' : 'none';
+    document.getElementById('mode-chromosome').style.display = mode === 'chromosome' ? 'grid' : 'none';
+    document.getElementById('mode-comparison').style.display = mode === 'comparison' ? 'block' : 'none';
+    document.getElementById('mode-quiz').style.display = mode === 'quiz' ? 'block' : 'none';
+
+    if (mode === 'chromosome') showChromo('meta');
+    if (mode === 'quiz') startQuiz();
+  }
+
+  function toggleCellType() {
+    isAnimal = document.getElementById('toggle-animal').checked;
+    document.getElementById('cell-type-label').textContent = isAnimal ? "প্রাণিকোষ পর্যবেক্ষণ (সেন্ট্রিওল/অ্যাস্টার)" : "উদ্ভিদকোষ পর্যবেক্ষণ (কোষপ্রাচীর/কোষপ্লেট)";
+    renderStageSvg();
+  }
+
+  function goToStage(idx) {
+    currentStage = idx;
+    updateStageUI();
+  }
+
+  function nextStage() {
+    currentStage = (currentStage + 1) % stages.length;
+    updateStageUI();
+  }
+
+  function prevStage() {
+    currentStage = (currentStage - 1 + stages.length) % stages.length;
+    updateStageUI();
+  }
+
+  function togglePlay() {
+    const btn = document.getElementById('play-btn');
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+      btn.textContent = "▶ অটো অ্যানিমেশন";
+      btn.classList.add('primary');
+    } else {
+      btn.textContent = "⏸ থামাও";
+      btn.classList.remove('primary');
+      timer = setInterval(() => {
+        nextStage();
+      }, 2500);
+    }
+  }
+
+  function updateStageUI() {
+    const s = stages[currentStage];
+    document.getElementById('stage-title').textContent = s.title;
+    document.getElementById('stage-en').textContent = s.en;
+    document.getElementById('stage-chrom').textContent = s.chrom;
+    document.getElementById('stage-mem').textContent = s.mem;
+    document.getElementById('stage-spindle').textContent = s.spindle;
+    document.getElementById('stage-centro').textContent = s.centro;
+    document.getElementById('stage-desc').textContent = s.desc;
+    document.getElementById('stage-mnemonic').textContent = s.mnemonic;
+
+    const pills = document.querySelectorAll('.step-pill');
+    pills.forEach((p, i) => {
+      p.classList.toggle('active', i === currentStage);
+    });
+
+    renderStageSvg();
+  }
+
+  function renderStageSvg() {
+    const container = document.getElementById('mitosis-stage-svg');
+    const cellWall = isAnimal ? 'rx="150" ry="150" stroke="#0284c7" fill="#f0f9ff"' : 'rx="30" ry="30" stroke="#059669" stroke-width="8" fill="#f0fdf4"';
+    let innerSvg = '';
+
+    // Stage 0: Interphase
+    if (currentStage === 0) {
+      innerSvg = `
+        <circle cx="280" cy="180" r="95" fill="#fef3c7" stroke="#d97706" stroke-width="3" stroke-dasharray="none"/>
+        <circle cx="250" cy="150" r="18" fill="#b45309" opacity="0.8"/>
+        <!-- Chromatin threads -->
+        <path d="M 220 160 Q 250 200 280 170 T 330 200 Q 300 230 260 210 T 220 180" fill="none" stroke="#dc2626" stroke-width="2.5" opacity="0.7"/>
+        <path d="M 240 140 Q 280 150 310 170 T 320 220 Q 280 240 240 210" fill="none" stroke="#2563eb" stroke-width="2.5" opacity="0.7"/>
+        <text x="280" y="295" text-anchor="middle" font-size="12" fill="#475569" font-weight="600">নিউক্লিয়ার মেমব্রেন ও ক্রোমাটিন তন্তু</text>
+      `;
+    }
+    // Stage 1: Prophase
+    else if (currentStage === 1) {
+      innerSvg = `
+        <circle cx="280" cy="180" r="105" fill="#fef3c7" stroke="#d97706" stroke-width="3"/>
+        <circle cx="240" cy="140" r="14" fill="#b45309" opacity="0.5"/>
+        <!-- Thick chromosomes condensing -->
+        <g stroke="#dc2626" stroke-width="5" stroke-linecap="round">
+          <line x1="240" y1="165" x2="270" y2="205"/>
+          <line x1="242" y1="205" x2="268" y2="165"/>
+          <circle cx="255" cy="185" r="4" fill="#fbbf24" stroke="#000" stroke-width="1"/>
+        </g>
+        <g stroke="#2563eb" stroke-width="5" stroke-linecap="round">
+          <line x1="290" y1="165" x2="320" y2="205"/>
+          <line x1="292" y1="205" x2="318" y2="165"/>
+          <circle cx="305" cy="185" r="4" fill="#fbbf24" stroke="#000" stroke-width="1"/>
+        </g>
+        <text x="280" y="305" text-anchor="middle" font-size="12" fill="#475569" font-weight="600">ক্রোমোজোম সংকুচিত ও ২ ক্রোমাটিড বিশিষ্ট</text>
+      `;
+    }
+    // Stage 2: Pro-metaphase
+    else if (currentStage === 2) {
+      innerSvg = `
+        <!-- Spindle fibres -->
+        <path d="M 170 180 Q 280 110 390 180" fill="none" stroke="#cbd5e1" stroke-width="1.5"/>
+        <path d="M 170 180 Q 280 145 390 180" fill="none" stroke="#0f766e" stroke-width="2"/>
+        <path d="M 170 180 Q 280 215 390 180" fill="none" stroke="#0f766e" stroke-width="2"/>
+        <path d="M 170 180 Q 280 250 390 180" fill="none" stroke="#cbd5e1" stroke-width="1.5"/>
+        <!-- Breaking nuclear envelope -->
+        <circle cx="280" cy="180" r="100" fill="none" stroke="#d97706" stroke-width="2.5" stroke-dasharray="6,8"/>
+        <!-- Chromosomes attaching -->
+        <g stroke="#dc2626" stroke-width="5" stroke-linecap="round">
+          <line x1="255" y1="135" x2="275" y2="165"/>
+          <line x1="255" y1="165" x2="275" y2="135"/>
+          <circle cx="265" cy="150" r="4" fill="#fbbf24"/>
+        </g>
+        <g stroke="#2563eb" stroke-width="5" stroke-linecap="round">
+          <line x1="285" y1="195" x2="305" y2="225"/>
+          <line x1="285" y1="225" x2="305" y2="195"/>
+          <circle cx="295" cy="210" r="4" fill="#fbbf24"/>
+        </g>
+        <!-- Centrosomes/Asters if animal -->
+        ${isAnimal ? `
+          <circle cx="170" cy="180" r="6" fill="#f59e0b"/>
+          <circle cx="390" cy="180" r="6" fill="#f59e0b"/>
+          <path d="M 160 170 L 150 160 M 160 190 L 150 200 M 170 170 L 170 160 M 170 190 L 170 200" stroke="#f59e0b" stroke-width="2"/>
+          <path d="M 400 170 L 410 160 M 400 190 L 410 200 M 390 170 L 390 160 M 390 190 L 390 200" stroke="#f59e0b" stroke-width="2"/>
+        ` : ''}
+        <text x="280" y="305" text-anchor="middle" font-size="12" fill="#475569" font-weight="600">স্পিন্ডল গঠন ও আকর্ষণ তন্তুতে সংযুক্তি</text>
+      `;
+    }
+    // Stage 3: Metaphase
+    else if (currentStage === 3) {
+      innerSvg = `
+        <!-- Spindle fibres -->
+        <path d="M 140 180 Q 280 80 420 180" fill="none" stroke="#cbd5e1" stroke-width="1.5"/>
+        <path d="M 140 180 Q 280 130 420 180" fill="none" stroke="#0f766e" stroke-width="2.5"/>
+        <path d="M 140 180 Q 280 180 420 180" fill="none" stroke="#0f766e" stroke-width="2.5"/>
+        <path d="M 140 180 Q 280 230 420 180" fill="none" stroke="#0f766e" stroke-width="2.5"/>
+        <path d="M 140 180 Q 280 280 420 180" fill="none" stroke="#cbd5e1" stroke-width="1.5"/>
+        <!-- Equatorial plate line -->
+        <line x1="280" y1="90" x2="280" y2="270" stroke="#94a3b8" stroke-dasharray="4,4"/>
+        <!-- Chromosomes aligned at equator (Metakinesis) -->
+        <g stroke="#dc2626" stroke-width="6" stroke-linecap="round">
+          <line x1="270" y1="120" x2="290" y2="120"/>
+          <line x1="280" y1="110" x2="280" y2="130"/>
+          <circle cx="280" cy="120" r="4" fill="#fbbf24"/>
+        </g>
+        <g stroke="#2563eb" stroke-width="6" stroke-linecap="round">
+          <line x1="270" y1="180" x2="290" y2="180"/>
+          <line x1="280" y1="170" x2="280" y2="190"/>
+          <circle cx="280" cy="180" r="4" fill="#fbbf24"/>
+        </g>
+        <g stroke="#dc2626" stroke-width="6" stroke-linecap="round">
+          <line x1="270" y1="240" x2="290" y2="240"/>
+          <line x1="280" y1="230" x2="280" y2="250"/>
+          <circle cx="280" cy="240" r="4" fill="#fbbf24"/>
+        </g>
+        ${isAnimal ? `
+          <circle cx="140" cy="180" r="6" fill="#f59e0b"/>
+          <circle cx="420" cy="180" r="6" fill="#f59e0b"/>
+        ` : ''}
+        <text x="280" y="305" text-anchor="middle" font-size="12" fill="#0f766e" font-weight="700">বিষুবীয় অঞ্চলে মেটাকাইনেসিস (সর্বোচ্চ সংকোচন)</text>
+      `;
+    }
+    // Stage 4: Anaphase
+    else if (currentStage === 4) {
+      innerSvg = `
+        <line x1="280" y1="90" x2="280" y2="270" stroke="#e2e8f0" stroke-dasharray="4,4"/>
+        <!-- Spindle pulling -->
+        <path d="M 130 180 L 220 130" stroke="#0f766e" stroke-width="2"/>
+        <path d="M 130 180 L 220 230" stroke="#0f766e" stroke-width="2"/>
+        <path d="M 430 180 L 340 130" stroke="#0f766e" stroke-width="2"/>
+        <path d="M 430 180 L 340 230" stroke="#0f766e" stroke-width="2"/>
+        <!-- Moving Daughter Chromosomes: V and L shapes -->
+        <!-- Left group (moving to 130,180) -->
+        <g stroke="#dc2626" stroke-width="5" stroke-linecap="round" fill="none">
+          <path d="M 240 120 L 220 130 L 240 140"/>
+          <circle cx="220" cy="130" r="4" fill="#fbbf24"/>
+        </g>
+        <g stroke="#2563eb" stroke-width="5" stroke-linecap="round" fill="none">
+          <path d="M 240 220 L 220 230 L 235 245"/>
+          <circle cx="220" cy="230" r="4" fill="#fbbf24"/>
+        </g>
+        <!-- Right group (moving to 430,180) -->
+        <g stroke="#dc2626" stroke-width="5" stroke-linecap="round" fill="none">
+          <path d="M 320 120 L 340 130 L 320 140"/>
+          <circle cx="340" cy="130" r="4" fill="#fbbf24"/>
+        </g>
+        <g stroke="#2563eb" stroke-width="5" stroke-linecap="round" fill="none">
+          <path d="M 320 220 L 340 230 L 325 245"/>
+          <circle cx="340" cy="230" r="4" fill="#fbbf24"/>
+        </g>
+        <text x="280" y="305" text-anchor="middle" font-size="12" fill="#ea580c" font-weight="700">মেরুমুখী চলন (সেন্ট্রোমিয়ার অগ্রগামী, বাহু অনুগামী)</text>
+      `;
+    }
+    // Stage 5: Telophase
+    else if (currentStage === 5) {
+      innerSvg = `
+        <!-- Left Daughter Nucleus -->
+        <circle cx="200" cy="180" r="65" fill="#fef3c7" stroke="#d97706" stroke-width="2.5"/>
+        <circle cx="180" cy="165" r="10" fill="#b45309" opacity="0.6"/>
+        <path d="M 180 180 Q 200 195 220 180 T 210 200" fill="none" stroke="#dc2626" stroke-width="2"/>
+        <path d="M 190 170 Q 210 180 200 200" fill="none" stroke="#2563eb" stroke-width="2"/>
+        <!-- Right Daughter Nucleus -->
+        <circle cx="360" cy="180" r="65" fill="#fef3c7" stroke="#d97706" stroke-width="2.5"/>
+        <circle cx="380" cy="165" r="10" fill="#b45309" opacity="0.6"/>
+        <path d="M 340 180 Q 360 195 380 180 T 370 200" fill="none" stroke="#dc2626" stroke-width="2"/>
+        <path d="M 350 170 Q 370 180 360 200" fill="none" stroke="#2563eb" stroke-width="2"/>
+        <!-- Disappearing spindle -->
+        <line x1="230" y1="180" x2="330" y2="180" stroke="#cbd5e1" stroke-dasharray="3,3"/>
+        <text x="280" y="305" text-anchor="middle" font-size="12" fill="#16a34a" font-weight="700">দুই মেরুতে দুটি অপত্য নিউক্লিয়াস পুনর্গঠন</text>
+      `;
+    }
+    // Stage 6: Cytokinesis
+    else if (currentStage === 6) {
+      if (!isAnimal) {
+        // Plant: Cell plate
+        innerSvg = `
+          <!-- Cell plate forming in middle -->
+          <line x1="280" y1="70" x2="280" y2="290" stroke="#059669" stroke-width="6"/>
+          <g fill="#10b981">
+            <circle cx="280" cy="100" r="5"/><circle cx="280" cy="130" r="5"/>
+            <circle cx="280" cy="160" r="5"/><circle cx="280" cy="190" r="5"/>
+            <circle cx="280" cy="220" r="5"/><circle cx="280" cy="250" r="5"/>
+          </g>
+          <!-- Left and right nuclei -->
+          <circle cx="190" cy="180" r="50" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+          <circle cx="370" cy="180" r="50" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+          <text x="280" y="315" text-anchor="middle" font-size="12" fill="#059669" font-weight="700">উদ্ভিদকোষে মধ্যপর্দায় কোষপ্লেট (Cell Plate) সৃষ্টি</text>
+        `;
+      } else {
+        // Animal: Furrowing
+        innerSvg = `
+          <!-- Cleavage furrow indents -->
+          <path d="M 120 180 C 120 100 250 80 280 130 C 310 80 440 100 440 180 C 440 260 310 280 280 230 C 250 280 120 260 120 180 Z" fill="#f0f9ff" stroke="#0284c7" stroke-width="3"/>
+          <circle cx="200" cy="180" r="45" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+          <circle cx="360" cy="180" r="45" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+          <text x="280" y="315" text-anchor="middle" font-size="12" fill="#0284c7" font-weight="700">প্রাণিকোষে খাঁজ সৃষ্টি (Cleavage Furrow) দ্বারা ২ অপত্য কোষ</text>
+        `;
+      }
+    }
+
+    container.innerHTML = `
+      <svg viewBox="0 0 560 360">
+        <!-- Cell outline -->
+        <rect x="70" y="50" width="420" height="260" ${cellWall}/>
+        ${innerSvg}
+      </svg>
+    `;
+  }
+
+  // CHROMOSOME MORPHOLOGY
+  const chromoData = {
+    meta: {
+      title: "মেটাসেন্ট্রিক ক্রোমোজোম (Metacentric)",
+      sub: "ইংরেজি 'V' অক্ষরের রূপ",
+      pos: "সেন্ট্রোমিয়ার ঠিক মাঝখানে অবস্থিত",
+      ratio: "সমান দৈর্ঘ্য (p-arm = q-arm)",
+      shape: "ইংরেজি V বর্ণের মতো",
+      desc: "সেন্ট্রোমিয়ার ক্রোমোজোমের মাঝখানে থাকে বলে মেরুমুখী আকর্ষণের সময় এর দুটি বাহু সমানভাবে পেছন দিকে ঝুলে পড়ে এবং নিখুঁত ইংরেজি 'V' আকৃতি সৃষ্টি করে।",
+      svg: `
+        <svg viewBox="0 0 400 300">
+          <path d="M 140 120 L 200 190 L 260 120" fill="none" stroke="#dc2626" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="200" cy="190" r="14" fill="#fbbf24" stroke="#000" stroke-width="2"/>
+          <text x="200" y="235" text-anchor="middle" font-size="13" font-weight="700" fill="#0f766e">সেন্ট্রোমিয়ার (মাঝখানে)</text>
+          <text x="120" y="110" font-size="12" fill="#64748b">বাহু ১ (সমান)</text>
+          <text x="250" y="110" font-size="12" fill="#64748b">বাহু ২ (সমান)</text>
+          <path d="M 200 250 L 200 280" stroke="#0284c7" stroke-width="2" marker-end="url(#arrow)"/>
+          <text x="200" y="295" text-anchor="middle" font-size="11" fill="#0284c7">মেরুমুখী টান</text>
+        </svg>
+      `
+    },
+    sub: {
+      title: "সাব-মেটাসেন্ট্রিক ক্রোমোজোম (Sub-metacentric)",
+      sub: "ইংরেজি 'L' অক্ষরের রূপ",
+      pos: "মাঝখান থেকে কিছুটা একপাশে সরে অবস্থিত",
+      ratio: "একটি দীর্ঘ বাহু (q) এবং একটি কিছুটা ছোট বাহু (p)",
+      shape: "ইংরেজি L বর্ণের মতো",
+      desc: "সেন্ট্রোমিয়ারের অবস্থান সামান্য একপাশে সরে থাকায় একটি বাহু অন্যটির চেয়ে দৃশ্যমানভাবে দীর্ঘ হয়। অ্যানাফেজে এটি ইংরেজি 'L' অক্ষরের প্রতিচ্ছবি তৈরি করে।",
+      svg: `
+        <svg viewBox="0 0 400 300">
+          <path d="M 160 130 L 210 190 L 290 150" fill="none" stroke="#2563eb" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="210" cy="190" r="14" fill="#fbbf24" stroke="#000" stroke-width="2"/>
+          <text x="210" y="235" text-anchor="middle" font-size="13" font-weight="700" fill="#0284c7">সেন্ট্রোমিয়ার (একপাশে)</text>
+          <text x="135" y="120" font-size="12" fill="#64748b">ছোট বাহু (p)</text>
+          <text x="290" y="140" font-size="12" fill="#64748b">দীর্ঘ বাহু (q)</text>
+        </svg>
+      `
+    },
+    acro: {
+      title: "অ্যাক্রোসেন্ট্রিক ক্রোমোজোম (Acrocentric)",
+      sub: "ইংরেজি 'J' অক্ষরের রূপ",
+      pos: "এক প্রান্তের খুব কাছাকাছি অবস্থিত",
+      ratio: "একটি অতি দীর্ঘ বাহু ও একটি অতি ক্ষুদ্র বাহু",
+      shape: "ইংরেজি J বর্ণের মতো",
+      desc: "সেন্ট্রোমিয়ার একপ্রান্তের খুব নিকটে অবস্থান করায় একটি বাহু অত্যন্ত ছোট ও অপরটি অনেক লম্বা হয়। টান দেওয়ার সময় এটি ইংরেজি 'J' বা হুকের মতো বেকে যায়।",
+      svg: `
+        <svg viewBox="0 0 400 300">
+          <path d="M 185 165 L 210 190 L 310 140" fill="none" stroke="#f59e0b" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="210" cy="190" r="14" fill="#fbbf24" stroke="#000" stroke-width="2"/>
+          <text x="210" y="235" text-anchor="middle" font-size="13" font-weight="700" fill="#d97706">সেন্ট্রোমিয়ার (প্রান্তের নিকটে)</text>
+          <text x="155" y="155" font-size="12" fill="#64748b">অতি ক্ষুদ্র বাহু</text>
+          <text x="310" y="130" font-size="12" fill="#64748b">অতি দীর্ঘ বাহু</text>
+        </svg>
+      `
+    },
+    telo: {
+      title: "টেলোসেন্ট্রিক ক্রোমোজোম (Telocentric)",
+      sub: "ইংরেজি 'I' অক্ষরের রূপ",
+      pos: "একেবারে শেষ প্রান্তে অবস্থিত",
+      ratio: "কেবল একটিমাত্র দৃশ্যমান বাহু",
+      shape: "ইংরেজি I বা সোজা লাঠির মতো",
+      desc: "সেন্ট্রোমিয়ার একদম অগ্রভাগে থাকায় কোনো দ্বিতীয় বাহু দৃশ্যমান থাকে না। অ্যানাফেজ চলনে এটি সোজা লাঠি বা ইংরেজি 'I' অক্ষরের মতো দেখায়।",
+      svg: `
+        <svg viewBox="0 0 400 300">
+          <line x1="200" y1="180" x2="200" y2="80" stroke="#0f766e" stroke-width="18" stroke-linecap="round"/>
+          <circle cx="200" cy="180" r="14" fill="#fbbf24" stroke="#000" stroke-width="2"/>
+          <text x="200" y="225" text-anchor="middle" font-size="13" font-weight="700" fill="#0f766e">সেন্ট্রোমিয়ার (একদম শীর্ষে)</text>
+          <text x="240" y="130" font-size="12" fill="#64748b">একক দীর্ঘ বাহু</text>
+        </svg>
+      `
+    }
+  };
+
+  function showChromo(type) {
+    const d = chromoData[type];
+    document.getElementById('chromo-title').textContent = d.title;
+    document.getElementById('chromo-sub').textContent = d.sub;
+    document.getElementById('chromo-pos').textContent = d.pos;
+    document.getElementById('chromo-ratio').textContent = d.ratio;
+    document.getElementById('chromo-shape').textContent = d.shape;
+    document.getElementById('chromo-desc').textContent = d.desc;
+    document.getElementById('chromo-svg').innerHTML = d.svg;
+  }
+
+  // QUIZ ENGINE
+  const quizQuestions = [
+    {
+      q: "মাইটোসিস কোষ বিভাজনের কোন ধাপে ক্রোমোজোমগুলো বিষুবীয় অঞ্চলে অবস্থান নেয় (মেটাকাইনেসিস)?",
+      opts: ["প্রোফেজ", "মেটাফেজ", "অ্যানাফেজ", "টেলোফেজ"],
+      ans: 1,
+      exp: "মেটাফেজ ধাপে সব ক্রোমোজোম বিষুবীয় অঞ্চলে সারিবদ্ধ হয় এবং সর্বাধিক সংকুচিত, খাটো ও মোটা হয়।"
+    },
+    {
+      q: "অ্যানাফেজ ধাপে সেন্ট্রোমিয়ার ঠিক মাঝখানে অবস্থান করলে ক্রোমোজোমটি দেখতে কেমন দেখায়?",
+      opts: ["ইংরেজি V অক্ষরের মতো", "ইংরেজি L অক্ষরের মতো", "ইংরেজি J অক্ষরের মতো", "ইংরেজি I অক্ষরের মতো"],
+      ans: 0,
+      exp: "সেন্ট্রোমিয়ার মাঝখানে থাকলে তা মেটাসেন্ট্রিক এবং অ্যানাফেজে ইংরেজি V অক্ষরের রূপ ধারণ করে।"
+    },
+    {
+      q: "উদ্ভিদকোষের সাইটোকাইনেসিসে বিষুবীয় তলে কোনটি গঠিত হয়?",
+      opts: ["ক্লিভেজ খাঁজ", "কোষপ্লেট (Cell Plate)", "অ্যাস্টার রশ্মি", "নিউক্লিওলাস"],
+      ans: 1,
+      exp: "উদ্ভিদকোষে এন্ডোপ্লাজমিক জালিকা ও গলজি উপাদানের জমাটবদ্ধতায় কোষপ্লেট তৈরি হয়।"
+    },
+    {
+      q: "স্পিন্ডল তন্তুর সাথে ক্রোমোজোমের সেন্ট্রোমিয়ার সংযুক্ত তন্তুকে কী বলা হয়?",
+      opts: ["অ্যাস্টার তন্তু", "আকর্ষণ তন্তু (Traction fibre)", "ক্রোমাটিন তন্তু", "কোষকঙ্কাল"],
+      ans: 1,
+      exp: "যেসব স্পিন্ডল তন্তুর সাথে সেন্ট্রোমিয়ার যুক্ত থাকে তাদের আকর্ষণ তন্তু বা ক্রোমোজোমাল তন্তু বলে।"
+    },
+    {
+      q: "মাইটোসিসের কোন ধাপটিকে প্রোফেজের ঠিক বিপরীত ধাপ বলা হয়?",
+      opts: ["প্রো-মেটাফেজ", "মেটাফেজ", "অ্যানাফেজ", "টেলোফেজ"],
+      ans: 3,
+      exp: "টেলোফেজে প্রোফেজের বিপরীত প্রক্রিয়ায় ক্রোমোজোমে জলযোজন ঘটে, প্যাঁচ খুলে সরু হয় এবং নিউক্লিয়ার পর্দা ও নিউক্লিওলাস ফিরে আসে।"
+    }
+  ];
+
+  let qIndex = 0;
+  let qScore = 0;
+
+  function startQuiz() {
+    qIndex = 0;
+    qScore = 0;
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    const q = quizQuestions[qIndex];
+    document.getElementById('quiz-score').textContent = `স্কোর: ${qScore}/${qIndex}`;
+    document.getElementById('q-stem').textContent = `${qIndex + 1}. ${q.q}`;
+    const optsDiv = document.getElementById('q-opts');
+    optsDiv.innerHTML = '';
+    document.getElementById('q-feedback').style.display = 'none';
+    document.getElementById('q-next-btn').style.display = 'none';
+
+    q.opts.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'quiz-opt';
+      btn.textContent = `${['ক', 'খ', 'গ', 'ঘ'][i]}. ${opt}`;
+      btn.onclick = () => checkAns(i);
+      optsDiv.appendChild(btn);
+    });
+  }
+
+  function checkAns(chosen) {
+    const q = quizQuestions[qIndex];
+    const opts = document.querySelectorAll('.quiz-opt');
+    opts.forEach(b => b.disabled = true);
+
+    const fb = document.getElementById('q-feedback');
+    fb.style.display = 'block';
+
+    if (chosen === q.ans) {
+      opts[chosen].classList.add('right');
+      qScore++;
+      fb.style.background = '#dcfce7';
+      fb.style.color = '#15803d';
+      fb.innerHTML = `✅ <strong>সঠিক!</strong> ${q.exp}`;
+    } else {
+      opts[chosen].classList.add('wrong');
+      opts[q.ans].classList.add('right');
+      fb.style.background = '#fee2e2';
+      fb.style.color = '#b91c1c';
+      fb.innerHTML = `❌ <strong>ভুল হয়েছে।</strong> ${q.exp}`;
+    }
+
+    document.getElementById('quiz-score').textContent = `স্কোর: ${qScore}/${qIndex + 1}`;
+    const nextBtn = document.getElementById('q-next-btn');
+    if (qIndex < quizQuestions.length - 1) {
+      nextBtn.textContent = "পরবর্তী প্রশ্ন ▶";
+      nextBtn.style.display = 'inline-block';
+    } else {
+      nextBtn.textContent = "পুনরায় কুইজ শুরু করো ↺";
+      nextBtn.style.display = 'inline-block';
+      nextBtn.onclick = startQuiz;
+    }
+  }
+
+  function loadNextQuestion() {
+    qIndex++;
+    loadQuestion();
+  }
+
+  // Initialize
+  updateStageUI();
+</script>
+
+</body>
+</html>

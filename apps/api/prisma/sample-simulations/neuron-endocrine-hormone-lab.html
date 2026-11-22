@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>নিউরন স্নায়ু তাড়না, প্রতিবর্ত চাপ ও হরমোন ফিডব্যাক ল্যাব | poRi</title>
+  <style>
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-accent: #0f766e;
+      --pori-accent-soft: #ecfdf5;
+      --pori-accent-border: #99f6e4;
+      --pori-accent-ink: #134e4a;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-amber-ink: #92400e;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-border: #fecdd3;
+      --pori-rose-ink: #9f1239;
+      --pori-blue-soft: #eff6ff;
+      --pori-blue-border: #bfdbfe;
+      --pori-blue-ink: #1e40af;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+    .app {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .head h1 {
+      margin: 0;
+      font-size: 1.45rem;
+      color: var(--pori-heading);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      font-size: 0.75rem;
+      background: var(--pori-accent-soft);
+      color: var(--pori-accent-ink);
+      border: 1px solid var(--pori-accent-border);
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    /* Standardized Pedagogical Boxes (Intro & Explainer) */
+    .intro-box {
+      background: #eff6ff !important;
+      border-left: 4px solid #3b82f6 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.88rem !important;
+      color: #1e3a8a !important;
+      line-height: 1.6 !important;
+      margin-bottom: 16px !important;
+    }
+    .intro-box strong {
+      color: #172554 !important;
+    }
+    .insight-box, .explainer-box {
+      background: #f0fdfa !important;
+      border-left: 4px solid #0d9488 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.88rem !important;
+      color: #134e4a !important;
+      line-height: 1.6 !important;
+      margin-top: 18px !important;
+    }
+    .insight-box strong, .explainer-box strong {
+      color: #042f2e !important;
+    }
+
+    /* Tab Controls */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 2px solid var(--pori-border-soft);
+      padding-bottom: 8px;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 8px 16px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--pori-muted);
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      background: #f1f5f9;
+      color: var(--pori-ink);
+    }
+    .tab-btn.active {
+      background: var(--pori-accent);
+      color: #ffffff;
+    }
+
+    /* Lab Panels */
+    .panel {
+      display: none;
+    }
+    .panel.active {
+      display: block;
+    }
+
+    /* Canvas and SVG visualization containers */
+    .sim-stage {
+      background: #0f172a;
+      border-radius: 14px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Controls bar */
+    .controls-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-top: 14px;
+    }
+    .btn {
+      background: var(--pori-accent);
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn.secondary {
+      background: #ffffff;
+      color: var(--pori-ink);
+      border: 1px solid var(--pori-border);
+    }
+    .btn.danger {
+      background: #e11d48;
+      color: #fff;
+    }
+    .slider-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--pori-muted);
+    }
+    input[type="range"] {
+      cursor: pointer;
+    }
+
+    /* Status readout */
+    .readout-card {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .readout-item {
+      background: #f1f5f9;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.82rem;
+    }
+    .readout-item strong {
+      display: block;
+      color: var(--pori-heading);
+      font-size: 0.9rem;
+      margin-bottom: 2px;
+    }
+
+    /* SVG Canvas Styles */
+    svg text {
+      user-select: none;
+      font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="head">
+    <div>
+      <span class="badge">SSC জীববিজ্ঞান · অধ্যায় ১০ সমন্বয়</span>
+      <h1>🧬 নিউরন ইমপালস, প্রতিবর্ত চাপ ও হরমোন ফিডব্যাক ল্যাব</h1>
+    </div>
+    <div style="font-size:0.85rem;color:var(--pori-muted);">NCTB ২০২৬ পাঠ্যক্রম সম্বলিত ভার্চুয়াল ল্যাবরেটরি</div>
+  </div>
+
+  <!-- 1. Intro Section (Before Interactive) -->
+  <div class="intro-box">
+    <strong>📖 পরীক্ষার পরিচিতি ও মূল তত্ত্ব (পাঠ্যবই পৃষ্ঠা ২১০-২২৫):</strong><br>
+    মানবদেহের সমন্বয় ব্যবস্থা দুটি ঘনিষ্ঠ অংশীদার দ্বারা পরিচালিত হয়: দ্রুত সংকেত সঞ্চালনকারী <b>স্নায়ুতন্ত্র (Nervous System)</b> এবং ধীর অথচ সুদূরপ্রসারী রাসায়নিক <b>অন্তঃক্ষরা হরমোন তন্ত্র (Endocrine System)</b>।<br>
+    এই ভার্চুয়াল ল্যাবে তিনটি মৌলিক শারীরবৃত্তীয় প্রক্রিয়া স্বয়ংক্রিয়ভাবে পর্যবেক্ষণ করো:<br>
+    <b>১. নিউরন ও সাইন্যাপস:</b> মায়েলিনযুক্ত র‍্যানভিয়ারের পর্বে লম্ফমান সঞ্চালন (Saltatory conduction) এবং নিউরোট্রান্সমিটার নিঃসরণ।<br>
+    <b>২. প্রতিবর্ত চাপ (Reflex Arc):</b> সুষুম্নাকাণ্ডের ৫টি উপাদানের তাৎক্ষণিক প্রতিরক্ষামূলক অনৈচ্ছিক হাত প্রত্যাহার।<br>
+    <b>৩. হরমোন নেগেটিভ ফিডব্যাক:</b> ইনসুলিন ও গ্লুকাগন দ্বারা রক্তের গ্লুকোজের ভারসাম্য (হোমিওস্ট্যাসিস) নিয়ন্ত্রণ।
+  </div>
+
+  <!-- Tab Headers -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-neuron')">⚡ ১. নিউরন ও সাইন্যাপস সঞ্চালন</button>
+    <button class="tab-btn" onclick="switchTab('tab-reflex')">🖐️ ২. প্রতিবর্ত চাপ (Reflex Arc)</button>
+    <button class="tab-btn" onclick="switchTab('tab-hormone')">🩸 ৩. হরমোন ও রক্তের গ্লুকোজ ফিডব্যাক</button>
+  </div>
+
+  <!-- Tab 1: Neuron & Synapse -->
+  <div id="tab-neuron" class="panel active">
+    <div class="sim-stage">
+      <svg id="neuron-svg" width="940" height="280" viewBox="0 0 940 280">
+        <!-- Background grid/glow -->
+        <rect width="100%" height="100%" fill="#090d16" rx="10" />
+        
+        <!-- Pre-synaptic Neuron: Soma and Dendrites -->
+        <g id="soma-group" transform="translate(60, 140)">
+          <!-- Dendrites -->
+          <path d="M-20,-20 L-50,-60 M-20,0 L-60,-10 M-20,20 L-50,60 M-10,-35 L-40,-45 M-10,35 L-40,45" stroke="#38bdf8" stroke-width="4" stroke-linecap="round"/>
+          <!-- Cell Body -->
+          <circle cx="0" cy="0" r="32" fill="#0284c7" stroke="#38bdf8" stroke-width="3"/>
+          <circle cx="0" cy="0" r="14" fill="#0369a1" />
+          <text x="0" y="4" fill="#ffffff" font-size="11" text-anchor="middle" font-weight="700">কোষদেহ</text>
+        </g>
+        <text x="60" y="200" fill="#94a3b8" font-size="12" text-anchor="middle">ডেনড্রাইট ও নিউক্লিয়াস</text>
+
+        <!-- Axon Hillock & Axon Trunk -->
+        <line x1="92" y1="140" x2="520" y2="140" stroke="#0284c7" stroke-width="8" />
+
+        <!-- Myelin Sheaths and Nodes of Ranvier -->
+        <!-- Sheath 1 -->
+        <rect id="myelin1" x="120" y="125" width="70" height="30" rx="8" fill="#fcd34d" stroke="#f59e0b" stroke-width="2"/>
+        <text x="155" y="145" fill="#78350f" font-size="10" text-anchor="middle" font-weight="700">মায়েলিন ১</text>
+        <!-- Node 1 -->
+        <circle id="node1" cx="200" cy="140" r="6" fill="#38bdf8" />
+
+        <!-- Sheath 2 -->
+        <rect id="myelin2" x="210" y="125" width="70" height="30" rx="8" fill="#fcd34d" stroke="#f59e0b" stroke-width="2"/>
+        <text x="245" y="145" fill="#78350f" font-size="10" text-anchor="middle" font-weight="700">মায়েলিন ২</text>
+        <!-- Node 2 -->
+        <circle id="node2" cx="290" cy="140" r="6" fill="#38bdf8" />
+
+        <!-- Sheath 3 -->
+        <rect id="myelin3" x="300" y="125" width="70" height="30" rx="8" fill="#fcd34d" stroke="#f59e0b" stroke-width="2"/>
+        <text x="335" y="145" fill="#78350f" font-size="10" text-anchor="middle" font-weight="700">মায়েলিন ৩</text>
+        <!-- Node 3 -->
+        <circle id="node3" cx="380" cy="140" r="6" fill="#38bdf8" />
+
+        <!-- Sheath 4 -->
+        <rect id="myelin4" x="390" y="125" width="70" height="30" rx="8" fill="#fcd34d" stroke="#f59e0b" stroke-width="2"/>
+        <text x="425" y="145" fill="#78350f" font-size="10" text-anchor="middle" font-weight="700">মায়েলিন ৪</text>
+        <!-- Node 4 -->
+        <circle id="node4" cx="470" cy="140" r="6" fill="#38bdf8" />
+
+        <!-- Labels for Nodes -->
+        <text x="290" y="180" fill="#38bdf8" font-size="11" text-anchor="middle">রেনভিয়ারের পর্ব (Node of Ranvier)</text>
+
+        <!-- Axon Terminal (Synaptic Bulb) -->
+        <path d="M470,140 Q510,140 530,110 M470,140 Q510,140 530,170 M470,140 L540,140" stroke="#0284c7" stroke-width="4"/>
+        <!-- Synaptic Knob -->
+        <circle id="synaptic-knob" cx="545" cy="140" r="16" fill="#0ea5e9" stroke="#38bdf8" stroke-width="2"/>
+        <text x="545" y="115" fill="#38bdf8" font-size="11" text-anchor="middle">অ্যাক্সন বোতাম (Knob)</text>
+
+        <!-- Synaptic Cleft representation (gap ~ 30px) -->
+        <rect x="562" y="90" width="20" height="100" fill="rgba(56,189,248,0.06)" stroke="rgba(56,189,248,0.2)" stroke-dasharray="3,3" rx="4"/>
+        <text x="572" y="80" fill="#f59e0b" font-size="11" text-anchor="middle">সাইন্যাপটিক ফাঁক</text>
+
+        <!-- Neurotransmitter Particles Container -->
+        <g id="neurotransmitter-particles"></g>
+
+        <!-- Post-synaptic Dendrite -->
+        <path d="M585,100 C600,120 600,160 585,180 L620,170 C630,155 630,125 620,110 Z" fill="#059669" stroke="#10b981" stroke-width="2"/>
+        <line x1="620" y1="140" x2="720" y2="140" stroke="#10b981" stroke-width="8"/>
+        <!-- Next Neuron Soma -->
+        <circle id="post-soma" cx="750" cy="140" r="28" fill="#047857" stroke="#10b981" stroke-width="3"/>
+        <text x="750" y="144" fill="#ffffff" font-size="10" text-anchor="middle" font-weight="700">পরবর্তী নিউরন</text>
+
+        <!-- Animated Impulse Spark -->
+        <circle id="impulse-spark" cx="60" cy="140" r="8" fill="#f43f5e" opacity="0" filter="drop-shadow(0 0 6px #f43f5e)" />
+      </svg>
+    </div>
+
+    <div class="controls-bar">
+      <button class="btn" onclick="fireImpulse()">⚡ স্নায়ু উদ্দীপনা পাঠাও (Fire Impulse)</button>
+      <button class="btn secondary" id="btn-toggle-myelin" onclick="toggleMyelin()">মায়েলিন আবরণী: চালু (লম্ফমান দ্রুত বেগ)</button>
+      <div class="slider-wrap">
+        <label>নিউরোট্রান্সমিটার (অ্যাসিটাইলকোলিন):</label>
+        <input type="range" id="slider-nt" min="5" max="30" value="18" onchange="updateNtCount(this.value)">
+        <span id="nt-val">১৮ কণা</span>
+      </div>
+    </div>
+
+    <div class="readout-card">
+      <div class="readout-item">
+        <strong>সঞ্চালন বেগ (Conduction Speed):</strong>
+        <span id="speed-readout" style="color:#0f766e;font-weight:700;">১০০ মি/সেকেন্ড (Saltatory jumping)</span>
+      </div>
+      <div class="readout-item">
+        <strong>সাইন্যাপস অবস্থা:</strong>
+        <span id="synapse-status" style="color:#64748b;">অ্যাক্সন বোতাম নিষ্ক্রিয় (বিশ্রাম বিভব -৭০mV)</span>
+      </div>
+      <div class="readout-item">
+        <strong>প্রবাহের অভিমুখ:</strong>
+        <span style="color:#0369a1;font-weight:700;">সর্বদা একমুখী (Dendrite → Axon → Synapse)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 2: Reflex Arc -->
+  <div id="tab-reflex" class="panel">
+    <div class="sim-stage">
+      <svg id="reflex-svg" width="940" height="300" viewBox="0 0 940 300">
+        <rect width="100%" height="100%" fill="#0a0f1d" rx="10" />
+
+        <!-- 1. Stimulus: Candle Flame / Pin -->
+        <g id="stimulus-source" transform="translate(80, 200)">
+          <!-- Candle -->
+          <rect x="-8" y="0" width="16" height="50" fill="#e2e8f0" rx="3"/>
+          <!-- Flame -->
+          <path id="candle-flame" d="M0,0 Q-8,-20 0,-35 Q8,-20 0,0" fill="#f59e0b"/>
+          <circle cx="0" cy="-15" r="5" fill="#ef4444"/>
+          <text x="0" y="65" fill="#f59e0b" font-size="11" text-anchor="middle">১. উদ্দীপক (শিখা/তাপ)</text>
+        </g>
+
+        <!-- 2. Receptor in Skin / Hand -->
+        <g id="hand-arm" transform="translate(140, 160)">
+          <!-- Finger touching close to flame -->
+          <path id="hand-path" d="M0,0 C20,-10 60,-15 100,-10 L140,-25 L150,-10 L100,5 C60,10 20,10 0,0" fill="#fbcfe8" stroke="#f472b6" stroke-width="2"/>
+          <circle id="skin-receptor" cx="2" cy="0" r="7" fill="#ef4444" stroke="#fff" stroke-width="1.5"/>
+          <text x="35" y="30" fill="#f472b6" font-size="11" font-weight="750">২. গ্রাহক অঙ্গ (ত্বক)</text>
+        </g>
+
+        <!-- 3. Sensory Neuron Pathway (Blue dashed line to spinal cord) -->
+        <path id="sensory-path" d="M142,160 C240,110 380,80 500,110" fill="none" stroke="#38bdf8" stroke-width="4" stroke-dasharray="6,4"/>
+        <text x="310" y="85" fill="#38bdf8" font-size="11" font-weight="700">৩. সংবেদী নিউরন (পৃষ্ঠীয় মূল)</text>
+
+        <!-- Spinal Cord Cross Section -->
+        <g id="spinal-cord" transform="translate(560, 150)">
+          <!-- Outer White Matter -->
+          <ellipse cx="0" cy="0" rx="75" ry="60" fill="#334155" stroke="#64748b" stroke-width="3"/>
+          <!-- Inner H-shaped Gray Matter -->
+          <path d="M-40,-30 C-30,-15 -30,15 -40,30 C-20,10 -20,-10 -40,-30 Z M40,-30 C30,-15 30,15 40,30 C20,10 20,-10 40,-30 Z M-25,-5 L25,-5 L25,5 L-25,5 Z" fill="#64748b" stroke="#94a3b8" stroke-width="2"/>
+          <!-- Central Canal -->
+          <circle cx="0" cy="0" r="4" fill="#0f172a"/>
+          <!-- Interneuron / Relay in center -->
+          <circle id="interneuron" cx="0" cy="0" r="8" fill="#fbbf24" stroke="#d97706" stroke-width="2"/>
+          <text x="0" y="-40" fill="#fcd34d" font-size="11" font-weight="700" text-anchor="middle">৪. সুষুম্নাকাণ্ড (ইন্টারনিউরন)</text>
+        </g>
+
+        <!-- 4. Motor Neuron Pathway (Red line back to muscle) -->
+        <path id="motor-path" d="M520,180 C420,220 300,210 240,155" fill="none" stroke="#f43f5e" stroke-width="4" stroke-dasharray="6,4"/>
+        <text x="360" y="240" fill="#f43f5e" font-size="11" font-weight="700">৫. আজ্ঞাবাহী নিউরন (সম্মুখ মূল)</text>
+
+        <!-- Effector Bicep Muscle -->
+        <g id="effector-muscle" transform="translate(230, 145)">
+          <ellipse id="muscle-body" cx="0" cy="0" rx="22" ry="14" fill="#dc2626" stroke="#ef4444" stroke-width="2"/>
+          <text x="0" y="26" fill="#fca5a5" font-size="10" text-anchor="middle" font-weight="700">৬. কারক পেশি (বাইসেপস)</text>
+        </g>
+
+        <!-- Ascending Path to Brain (Sensory cortex notification) -->
+        <path d="M560,90 Q650,40 760,60" fill="none" stroke="#a855f7" stroke-width="3" stroke-dasharray="4,4"/>
+        <g transform="translate(800, 60)">
+          <circle cx="0" cy="0" r="26" fill="#581c87" stroke="#a855f7" stroke-width="2"/>
+          <text x="0" y="4" fill="#e9d5ff" font-size="10" text-anchor="middle" font-weight="700">মস্তিষ্ক</text>
+          <text x="0" y="42" fill="#c084fc" font-size="10" text-anchor="middle">দেরিতে ব্যথা অনুভব</text>
+        </g>
+
+        <!-- Pulse Dot Moving Along Path -->
+        <circle id="reflex-pulse" cx="142" cy="160" r="7" fill="#facc15" opacity="0"/>
+      </svg>
+    </div>
+
+    <div class="controls-bar">
+      <button class="btn danger" onclick="triggerReflex()">🔥 উদ্দীপক প্রয়োগ করো (আগুনে হাত লাগাও)</button>
+      <button class="btn secondary" onclick="resetReflex()">🔄 রিসেট করো</button>
+      <span id="reflex-stage-text" style="font-size:0.88rem;color:#0f766e;font-weight:700;">অবস্থা: উদ্দীপনার অপেক্ষায়...</span>
+    </div>
+
+    <div class="readout-card">
+      <div class="readout-item">
+        <strong>১ ও ২: গ্রাহক ও সেন্সরি সংকেত:</strong>
+        <span id="rf-step1">ত্বক তাপ অনুভব করে সুষুম্নাকাণ্ডে সংকেত পাঠায়</span>
+      </div>
+      <div class="readout-item">
+        <strong>৩ ও ৪: স্নায়ুকেন্দ্র ও মোটর নির্দেশ:</strong>
+        <span id="rf-step2">সুষুম্নাকাণ্ড তাৎক্ষণিক পেশি সংকোচনের নির্দেশ দেয়</span>
+      </div>
+      <div class="readout-item">
+        <strong>৫: কারক ও মস্তিষ্কের উপলব্ধি:</strong>
+        <span id="rf-step3">পেশি সংকুচিত হয়ে হাত সরে যায়, পরে মস্তিষ্ক ব্যথা পায়</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab 3: Hormone Glucose Feedback -->
+  <div id="tab-hormone" class="panel">
+    <div class="sim-stage" style="min-height:360px;">
+      <svg id="hormone-svg" width="940" height="320" viewBox="0 0 940 320">
+        <rect width="100%" height="100%" fill="#0a101f" rx="10" />
+
+        <!-- Blood Vessel in center -->
+        <rect x="50" y="130" width="840" height="60" fill="#881337" rx="10" stroke="#be123c" stroke-width="2"/>
+        <text x="70" y="165" fill="#fecdd3" font-size="13" font-weight="700">রক্তস্রোত (Blood Stream)</text>
+        
+        <!-- Glucose molecules container inside blood vessel -->
+        <g id="glucose-particles"></g>
+
+        <!-- Pancreas (Upper Center) -->
+        <g id="pancreas-gland" transform="translate(470, 60)">
+          <path d="M-70,0 C-40,-35 40,-35 70,0 C40,25 -40,25 -70,0 Z" fill="#ca8a04" stroke="#eab308" stroke-width="2"/>
+          <text x="0" y="-5" fill="#ffffff" font-size="12" text-anchor="middle" font-weight="800">অগ্ন্যাশয় (Pancreas)</text>
+          <text x="0" y="14" fill="#fef08a" font-size="10" text-anchor="middle">আইলেটস অব ল্যাঙ্গারহ্যানস</text>
+          <!-- Hormone secretor arrows -->
+          <path id="insulin-arrow" d="M-20,28 L-20,68" stroke="#10b981" stroke-width="4" marker-end="url(#arrow-green)" stroke-dasharray="4,2"/>
+          <text x="-25" y="55" fill="#10b981" font-size="10" text-anchor="end" font-weight="700">ইনসুলিন (β)</text>
+          <path id="glucagon-arrow" d="M20,28 L20,68" stroke="#f59e0b" stroke-width="4" marker-end="url(#arrow-yellow)" stroke-dasharray="4,2"/>
+          <text x="25" y="55" fill="#f59e0b" font-size="10" text-anchor="start" font-weight="700">গ্লুকাগন (α)</text>
+        </g>
+
+        <!-- Liver (Lower Left) -->
+        <g id="liver-organ" transform="translate(220, 255)">
+          <path d="M-80,-20 Q-20,-45 70,-20 Q60,30 -40,30 Z" fill="#991b1b" stroke="#dc2626" stroke-width="2"/>
+          <text x="0" y="-5" fill="#ffffff" font-size="12" text-anchor="middle" font-weight="800">যকৃৎ (Liver)</text>
+          <text id="liver-glycogen" x="0" y="14" fill="#fca5a5" font-size="10" text-anchor="middle">গ্লাইকোজেন সঞ্চয়: স্বাভাবিক</text>
+        </g>
+
+        <!-- Body Cells (Lower Right) -->
+        <g id="body-cells" transform="translate(720, 255)">
+          <circle cx="-35" cy="0" r="22" fill="#047857" stroke="#10b981" stroke-width="2"/>
+          <circle cx="10" cy="-15" r="20" fill="#047857" stroke="#10b981" stroke-width="2"/>
+          <circle cx="35" cy="10" r="22" fill="#047857" stroke="#10b981" stroke-width="2"/>
+          <text x="0" y="2" fill="#ffffff" font-size="12" text-anchor="middle" font-weight="800">দেহকোষ</text>
+          <text id="cell-uptake" x="0" y="38" fill="#a7f3d0" font-size="10" text-anchor="middle">কোষীয় গ্লুকোজ গ্রহণ</text>
+        </g>
+
+        <!-- Marker arrows -->
+        <defs>
+          <marker id="arrow-green" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981"/>
+          </marker>
+          <marker id="arrow-yellow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b"/>
+          </marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="controls-bar">
+      <button class="btn" style="background:#0284c7;" onclick="simulateMeal()">🍚 খাবার খাও (গ্লুকোজ বৃদ্ধি +4.0)</button>
+      <button class="btn" style="background:#ea580c;" onclick="simulateFast()">🏃 ব্যায়াম / উপবাস (গ্লুকোজ হ্রাস -3.5)</button>
+      <button class="btn secondary" onclick="resetGlucose()">🔄 স্বাভাবিক মাত্রা (5.0 mmol/L)</button>
+      <div class="slider-wrap">
+        <label>রক্তের গ্লুকোজ লেভেল:</label>
+        <input type="range" id="slider-glucose" min="2.0" max="14.0" step="0.5" value="5.0" oninput="setGlucose(parseFloat(this.value))">
+        <strong id="glucose-value" style="color:#0f766e;font-size:1rem;">5.0 mmol/L</strong>
+      </div>
+    </div>
+
+    <div class="readout-card">
+      <div class="readout-item">
+        <strong>রক্তের বর্তমান অবস্থা:</strong>
+        <span id="glucose-status" style="color:#059669;font-weight:700;">স্বাভাবিক রক্ত শর্করা (Homeostasis)</span>
+      </div>
+      <div class="readout-item">
+        <strong>সক্রিয় অগ্ন্যাশয় হরমোন:</strong>
+        <span id="active-hormone" style="color:#475569;">ভারসাম্য বজায় রয়েছে</span>
+      </div>
+      <div class="readout-item">
+        <strong>যকৃৎ ও কোষে প্রভাব:</strong>
+        <span id="action-summary">কোষে পরিমিত গ্লুকোজ প্রবেশ করছে</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Explainer Section (After Interactive) -->
+  <div class="insight-box">
+    <strong>🔬 ফলাফল বিশ্লেষণ ও বোর্ড পরীক্ষার ফাঁদ সতর্কতা (পাঠ্যবই পৃষ্ঠা ২১০-২২৫):</strong><br>
+    • <b>লম্ফমান সঞ্চালন (Saltatory conduction):</b> চর্বিজাতীয় মায়েলিন শিথ বিদ্যুৎ অপরিবাহী। ফলে স্নায়ু উদ্দীপনা কেবল মায়েলিনবিহীন রেনভিয়ারের পর্বগুলোতে লাফিয়ে লাফিয়ে সঞ্চালিত হয়, যা মায়েলিনহীন তন্তুর চেয়ে প্রায় <b>৫০ থেকে ১০০ গুণ দ্রুত বেগ</b> (১০০ মি/সেকেন্ড পর্যন্ত) নিশ্চিত করে।<br>
+    • <b>সাইন্যাপসের একমুখিতা (Unidirectionality):</b> নিউরোট্রান্সমিটার (অ্যাসিটাইলকোলিন) নিঃসরণকারী থলি বা ভেসিকল কেবল অ্যাক্সন প্রান্তের সাইন্যাপটিক নব-এই থাকে। ডেনড্রাইট প্রান্তে কেবল রিসেপ্টর থাকে। তাই উদ্দীপনা কেবল <i>অ্যাক্সন → সাইন্যাপস → পরবর্তী ডেনড্রাইটের</i> দিকেই যেতে পারে, কখনো উল্টো দিকে ফেরে না।<br>
+    • <b>প্রতিবর্ত চাপের স্বয়ংক্রিয়তা:</b> প্রতিবর্ত চাপের কেন্দ্র হলো <b>সুষুম্নাকাণ্ডের গ্রে ম্যাটার</b>। এটি মস্তিষ্কের অনুমতি ছাড়াই পেশিকে প্রত্যাহার করিয়ে তাৎক্ষণিক অঙ্গহানি রক্ষা করে। সংকেত পরে মস্তিষ্কে যাওয়ায় মানুষ ব্যথা উপলব্ধি করতে সামান্য সময় নেয়।<br>
+    • <b>গ্লুকোজের নেগেটিভ ফিডব্যাক:</b> খাওয়ার পর গ্লুকোজ বাড়লে অগ্ন্যাশয়ের $\beta$ কোষ থেকে <b>ইনসুলিন</b> নিঃসৃত হয়ে গ্লুকোজ কমায়। অনাহারে গ্লুকোজ কমলে $\alpha$ কোষ থেকে <b>গ্লুকাগন</b> ক্ষরিত হয়ে যকৃতের গ্লাইকোজেন ভেঙে গ্লুকোজ বাড়ায়। ইনসুলিনের অভাবে রক্তের অতিরিক্ত গ্লুকোজ মূত্রে অপচয় হয় (ডায়াবেটিস মেলিটাস)।
+  </div>
+</div>
+
+<script>
+  // Tab Switching
+  function switchTab(tabId) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    event.currentTarget.classList.add('active');
+  }
+
+  /* ---------------- Tab 1: Neuron Simulation Logic ---------------- */
+  let isMyelinated = true;
+  let ntParticlesCount = 18;
+  let isImpulseFiring = false;
+
+  function toggleMyelin() {
+    isMyelinated = !isMyelinated;
+    const btn = document.getElementById('btn-toggle-myelin');
+    const speed = document.getElementById('speed-readout');
+    const sheaths = [1, 2, 3, 4];
+    sheaths.forEach(i => {
+      const el = document.getElementById('myelin' + i);
+      if (el) el.setAttribute('fill', isMyelinated ? '#fcd34d' : '#334155');
+    });
+    if (isMyelinated) {
+      btn.innerText = 'মায়েলিন আবরণী: চালু (লম্ফমান দ্রুত বেগ)';
+      speed.innerText = '১০০ মি/সেকেন্ড (Saltatory jumping)';
+      speed.style.color = '#0f766e';
+    } else {
+      btn.innerText = 'মায়েলিন আবরণী: বন্ধ (ধারাবাহিক ধীর বেগ)';
+      speed.innerText = '১-২ মি/সেকেন্ড (Continuous slow)';
+      speed.style.color = '#d97706';
+    }
+  }
+
+  function updateNtCount(val) {
+    ntParticlesCount = parseInt(val, 10);
+    document.getElementById('nt-val').innerText = val + ' কণা';
+  }
+
+  function fireImpulse() {
+    if (isImpulseFiring) return;
+    isImpulseFiring = true;
+    const spark = document.getElementById('impulse-spark');
+    const status = document.getElementById('synapse-status');
+    const knob = document.getElementById('synaptic-knob');
+    const postSoma = document.getElementById('post-soma');
+
+    spark.setAttribute('opacity', '1');
+    status.innerText = 'স্নায়ু তাড়না সঞ্চালিত হচ্ছে (বিভব পরিবর্তন +৩০mV)...';
+    status.style.color = '#0284c7';
+
+    // Jump points: Node 1 (200), Node 2 (290), Node 3 (380), Node 4 (470), Knob (545)
+    const points = isMyelinated ? [60, 200, 290, 380, 470, 545] : [60, 150, 240, 330, 420, 510, 545];
+    const duration = isMyelinated ? 700 : 2000;
+    const stepTime = duration / points.length;
+
+    let idx = 0;
+    const interval = setInterval(() => {
+      if (idx < points.length) {
+        spark.setAttribute('cx', points[idx]);
+        idx++;
+      } else {
+        clearInterval(interval);
+        // Arrived at synaptic knob: release neurotransmitters
+        knob.setAttribute('fill', '#f59e0b');
+        status.innerText = 'অ্যাক্সন বোতামে ক্যালসিয়াম প্রবেশ ও অ্যাসিটাইলকোলিন ক্ষরণ!';
+        status.style.color = '#d97706';
+        releaseNeurotransmitters();
+
+        setTimeout(() => {
+          spark.setAttribute('opacity', '0');
+          postSoma.setAttribute('fill', '#10b981');
+          status.innerText = 'পরবর্তী নিউরনে সংকেত গৃহীত হয়েছে (একমুখী সঞ্চালন সম্পন্ন)!';
+          status.style.color = '#059669';
+
+          setTimeout(() => {
+            knob.setAttribute('fill', '#0ea5e9');
+            postSoma.setAttribute('fill', '#047857');
+            status.innerText = 'নিউরন স্বাভাবিক বিশ্রাম বিভবে ফিরেছে (-৭০mV)';
+            status.style.color = '#64748b';
+            isImpulseFiring = false;
+          }, 1200);
+        }, 900);
+      }
+    }, stepTime);
+  }
+
+  function releaseNeurotransmitters() {
+    const container = document.getElementById('neurotransmitter-particles');
+    container.innerHTML = '';
+    for (let i = 0; i < ntParticlesCount; i++) {
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      const startY = 110 + Math.random() * 60;
+      circle.setAttribute('cx', '545');
+      circle.setAttribute('cy', startY);
+      circle.setAttribute('r', '3');
+      circle.setAttribute('fill', '#f59e0b');
+      container.appendChild(circle);
+
+      // Animate diffusion across synaptic cleft (x from 545 to 585)
+      let curX = 545;
+      const targetX = 585 + Math.random() * 8;
+      const driftY = startY + (Math.random() - 0.5) * 20;
+      const moveInterval = setInterval(() => {
+        curX += 2;
+        circle.setAttribute('cx', curX);
+        if (curX >= targetX) {
+          clearInterval(moveInterval);
+          setTimeout(() => {
+            if (circle.parentNode) circle.parentNode.removeChild(circle);
+          }, 600);
+        }
+      }, 30);
+    }
+  }
+
+  /* ---------------- Tab 2: Reflex Arc Logic ---------------- */
+  let isReflexRunning = false;
+
+  function triggerReflex() {
+    if (isReflexRunning) return;
+    isReflexRunning = true;
+
+    const pulse = document.getElementById('reflex-pulse');
+    const hand = document.getElementById('hand-arm');
+    const muscle = document.getElementById('muscle-body');
+    const stageText = document.getElementById('reflex-stage-text');
+    const step1 = document.getElementById('rf-step1');
+    const step2 = document.getElementById('rf-step2');
+    const step3 = document.getElementById('rf-step3');
+
+    pulse.setAttribute('opacity', '1');
+    stageText.innerText = 'ধাপ ১: গ্রাহক অঙ্গ (ত্বক) তাপীয় উদ্দীপনা গ্রহণ করেছে!';
+    step1.innerText = 'ত্বকের সংবেদী স্নায়ু সংকেত সুষুম্নাকাণ্ডের দিকে ছুটছে';
+    step1.style.color = '#0284c7';
+
+    // Step 1: Move from hand (142,160) along sensory nerve to spinal cord (500,110)
+    let p = 0;
+    const sensoryTimer = setInterval(() => {
+      p += 0.05;
+      const cx = 142 + (500 - 142) * p;
+      const cy = 160 + (110 - 160) * p - Math.sin(p * Math.PI) * 40;
+      pulse.setAttribute('cx', cx);
+      pulse.setAttribute('cy', cy);
+
+      if (p >= 1) {
+        clearInterval(sensoryTimer);
+        // In spinal cord
+        stageText.innerText = 'ধাপ ২: সুষুম্নাকাণ্ডে ইন্টারনিউরন সিদ্ধান্ত তৈরি করল!';
+        step2.innerText = 'সুষুম্নাকাণ্ড তাৎক্ষণিক মোটর নির্দেশ পাঠাচ্ছে';
+        step2.style.color = '#d97706';
+
+        setTimeout(() => {
+          // Step 2: Return along motor nerve to muscle (520,180 to 240,155)
+          let q = 0;
+          const motorTimer = setInterval(() => {
+            q += 0.05;
+            const mx = 520 + (240 - 520) * q;
+            const my = 180 + (155 - 180) * q + Math.sin(q * Math.PI) * 35;
+            pulse.setAttribute('cx', mx);
+            pulse.setAttribute('cy', my);
+
+            if (q >= 1) {
+              clearInterval(motorTimer);
+              pulse.setAttribute('opacity', '0');
+              // Muscle contraction & hand jerks away
+              stageText.innerText = 'ধাপ ৩: বাইসেপস পেশি সংকুচিত—হাত তাৎক্ষণিক প্রত্যাহার!';
+              muscle.setAttribute('fill', '#10b981');
+              hand.style.transition = 'transform 0.15s ease-out';
+              hand.style.transform = 'translate(140px, 110px) rotate(-15deg)';
+              step3.innerText = 'হাত নিরাপদ স্থানে সরে গেল। এখন সংকেত মস্তিষ্কে গিয়ে ব্যথা অনুভব করাচ্ছে!';
+              step3.style.color = '#059669';
+
+              isReflexRunning = false;
+            }
+          }, 25);
+        }, 150);
+      }
+    }, 25);
+  }
+
+  function resetReflex() {
+    const hand = document.getElementById('hand-arm');
+    const muscle = document.getElementById('muscle-body');
+    const stageText = document.getElementById('reflex-stage-text');
+    const pulse = document.getElementById('reflex-pulse');
+    hand.style.transition = 'transform 0.3s ease-in';
+    hand.style.transform = 'translate(140px, 160px) rotate(0deg)';
+    muscle.setAttribute('fill', '#dc2626');
+    pulse.setAttribute('opacity', '0');
+    stageText.innerText = 'অবস্থা: উদ্দীপনার অপেক্ষায়...';
+  }
+
+  /* ---------------- Tab 3: Glucose Hormone Feedback Logic ---------------- */
+  let currentGlucose = 5.0;
+
+  function setGlucose(val) {
+    currentGlucose = Math.round(val * 10) / 10;
+    document.getElementById('slider-glucose').value = currentGlucose;
+    document.getElementById('glucose-value').innerText = currentGlucose.toFixed(1) + ' mmol/L';
+    updateGlucoseVisualization();
+  }
+
+  function simulateMeal() {
+    setGlucose(Math.min(14.0, currentGlucose + 4.0));
+  }
+
+  function simulateFast() {
+    setGlucose(Math.max(2.0, currentGlucose - 3.5));
+  }
+
+  function resetGlucose() {
+    setGlucose(5.0);
+  }
+
+  function updateGlucoseVisualization() {
+    const status = document.getElementById('glucose-status');
+    const hormone = document.getElementById('active-hormone');
+    const action = document.getElementById('action-summary');
+    const liverTxt = document.getElementById('liver-glycogen');
+    const cellTxt = document.getElementById('cell-uptake');
+    const insArrow = document.getElementById('insulin-arrow');
+    const gluArrow = document.getElementById('glucagon-arrow');
+
+    // Update Glucose Particles in Blood Vessel
+    const gContainer = document.getElementById('glucose-particles');
+    gContainer.innerHTML = '';
+    const numDots = Math.floor(currentGlucose * 4);
+    for (let i = 0; i < numDots; i++) {
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', 120 + Math.random() * 750);
+      circle.setAttribute('cy', 140 + Math.random() * 40);
+      circle.setAttribute('r', '3.5');
+      circle.setAttribute('fill', '#facc15');
+      gContainer.appendChild(circle);
+    }
+
+    if (currentGlucose > 6.5) {
+      // High Glucose -> Insulin secreted
+      status.innerText = 'উচ্চ রক্ত শর্করা (Hyperglycemia: ' + currentGlucose.toFixed(1) + ' mmol/L)';
+      status.style.color = '#dc2626';
+      hormone.innerText = 'বিটা (β) কোষ সক্রিয় → ইনসুলিন নিঃসরণ বৃদ্ধি!';
+      hormone.style.color = '#059669';
+      action.innerText = 'ইনসুলিন রক্ত থেকে গ্লুকোজ কোষে ঢোকাচ্ছে ও যকৃতে গ্লাইকোজেন জমা করছে।';
+      liverTxt.innerText = 'গ্লাইকোজেনেসিস সক্রিয় (গ্লুকোজ সঞ্চয় ↑)';
+      cellTxt.innerText = 'কোষে দ্রুত গ্লুকোজ শোষণ হচ্ছে';
+      insArrow.setAttribute('stroke-width', '6');
+      gluArrow.setAttribute('stroke-width', '1');
+    } else if (currentGlucose < 4.0) {
+      // Low Glucose -> Glucagon secreted
+      status.innerText = 'নিম্ন রক্ত শর্করা (Hypoglycemia: ' + currentGlucose.toFixed(1) + ' mmol/L)';
+      status.style.color = '#ea580c';
+      hormone.innerText = 'আলফা (α) কোষ সক্রিয় → গ্লুকাগন নিঃসরণ বৃদ্ধি!';
+      hormone.style.color = '#d97706';
+      action.innerText = 'গ্লুকাগন যকৃতের সঞ্চিত গ্লাইকোজেন ভেঙে রক্তে মুক্ত গ্লুকোজ সরবরাহ করছে।';
+      liverTxt.innerText = 'গ্লাইকোজেনোলাইসিস সক্রিয় (গ্লাইকোজেন ভাঙন ↑)';
+      cellTxt.innerText = 'কোষীয় শক্তি সঞ্চয় মোড';
+      insArrow.setAttribute('stroke-width', '1');
+      gluArrow.setAttribute('stroke-width', '6');
+    } else {
+      // Normal
+      status.innerText = 'স্বাভাবিক রক্ত শর্করা (Homeostasis: ' + currentGlucose.toFixed(1) + ' mmol/L)';
+      status.style.color = '#059669';
+      hormone.innerText = 'ইনসুলিন ও গ্লুকাগন সুষম ভারসাম্যে রয়েছে।';
+      hormone.style.color = '#475569';
+      action.innerText = 'দেহের স্বাভাবিক বিপাকীয় কাজ সুন্দরভাবে চলছে।';
+      liverTxt.innerText = 'গ্লাইকোজেন সঞ্চয়: পরিমিত';
+      cellTxt.innerText = 'কোষীয় গ্লুকোজ গ্রহণ: স্বাভাবিক';
+      insArrow.setAttribute('stroke-width', '3');
+      gluArrow.setAttribute('stroke-width', '3');
+    }
+  }
+
+  // Initialize
+  updateGlucoseVisualization();
+</script>
+</body>
+</html>

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>উদ্ভিদে প্রস্বেদন ও মানব রক্ত সংবহন ইন্টারেক্টিভ ল্যাব | poRi</title>
+  <style>
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-accent: #0f766e;
+      --pori-accent-soft: #ecfdf5;
+      --pori-accent-border: #99f6e4;
+      --pori-accent-ink: #134e4a;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-amber-ink: #92400e;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-border: #fecdd3;
+      --pori-rose-ink: #9f1239;
+      --pori-blue-soft: #eff6ff;
+      --pori-blue-border: #bfdbfe;
+      --pori-blue-ink: #1e40af;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+    .app {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 12px;
+      margin-bottom: 14px;
+    }
+    .head h1 {
+      margin: 0;
+      font-size: 20px;
+      color: var(--pori-heading);
+    }
+    .head p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--pori-muted);
+    }
+    .mode-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 10px;
+    }
+    .mode-tab {
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--pori-border);
+      background: var(--pori-surface);
+      color: var(--pori-muted);
+      font-weight: 700;
+      font-size: 13.5px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mode-tab.active {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+      box-shadow: 0 4px 12px rgba(15, 118, 110, 0.2);
+    }
+
+    /* Pedagogical Boxes */
+    .intro-box {
+      background: #eff6ff !important;
+      border-left: 4px solid #3b82f6 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.86rem !important;
+      color: #1e3a8a !important;
+      line-height: 1.6 !important;
+      margin-bottom: 14px !important;
+    }
+    .intro-box strong { color: #172554 !important; }
+    .insight-box, .explainer-box {
+      background: #f0fdfa !important;
+      border-left: 4px solid #0d9488 !important;
+      padding: 12px 16px !important;
+      border-radius: 0 12px 12px 0 !important;
+      font-size: 0.86rem !important;
+      color: #134e4a !important;
+      line-height: 1.6 !important;
+      margin-top: 14px !important;
+    }
+    .insight-box strong, .explainer-box strong { color: #042f2e !important; }
+
+    /* Layout grid */
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 820px) {
+      .sim-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Stage Panel */
+    .stage-card {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .stage-svg-wrap {
+      width: 100%;
+      height: 380px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .stage-svg-wrap svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Controls Panel */
+    .control-card {
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .control-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--pori-heading);
+    }
+    .control-label span {
+      color: var(--pori-accent);
+      font-weight: 800;
+    }
+    .range-input {
+      width: 100%;
+      accent-color: var(--pori-accent);
+    }
+    .metrics-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 4px;
+    }
+    .metric-box {
+      background: #f1f5f9;
+      border-radius: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--pori-border-soft);
+      text-align: center;
+    }
+    .metric-title {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--pori-muted);
+      text-transform: uppercase;
+    }
+    .metric-value {
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--pori-heading);
+      margin-top: 2px;
+    }
+    .status-badge {
+      padding: 8px 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      text-align: center;
+      margin-top: 6px;
+    }
+    .status-badge.normal {
+      background: var(--pori-accent-soft);
+      color: var(--pori-accent-ink);
+      border: 1px solid var(--pori-accent-border);
+    }
+    .status-badge.wilting {
+      background: var(--pori-rose-soft);
+      color: var(--pori-rose-ink);
+      border: 1px solid var(--pori-rose-border);
+    }
+    .status-badge.night {
+      background: var(--pori-blue-soft);
+      color: var(--pori-blue-ink);
+      border: 1px solid var(--pori-blue-border);
+    }
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .chip {
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--pori-border);
+      background: #f8fafc;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--pori-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .chip:hover {
+      background: var(--pori-accent-soft);
+      color: var(--pori-accent-ink);
+      border-color: var(--pori-accent);
+    }
+    .details-box {
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12.5px;
+      color: #92400e;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="head">
+    <div>
+      <h1>জীবে পরিবহন সিমুলেশন ল্যাব (Transport in Organisms Lab)</h1>
+      <p>NCTB জীববিজ্ঞান অধ্যায় ৬ · উদ্ভিদের প্রস্বেদন প্রভাবক ও মানব হৃদপিণ্ডের কার্ডিয়াক চক্র বিশ্লেষণ</p>
+    </div>
+  </div>
+
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tabPlant" onclick="switchMode('plant')">🌿 উদ্ভিদ প্রস্বেদন ও বাষ্পমোচন ল্যাব</button>
+    <button class="mode-tab" id="tabHeart" onclick="switchMode('heart')">🫀 মানব হৃদপিণ্ড ও রক্ত সংবহন ল্যাব</button>
+  </div>
+
+  <!-- 1. Pedagogical Intro Box -->
+  <div class="intro-box" id="introText">
+    <strong>📖 পরীক্ষার পরিচিতি ও মূল তত্ত্ব (পাঠ্যবই পৃষ্ঠা ১২৫-১৩৬):</strong><br>
+    উদ্ভিদের মূলরোম দ্বারা শোষিত পানি জাইলেম নালী দিয়ে পাতায় পৌঁছায় এবং সেখান থেকে ৯০-৯৫% পানি পত্ররন্ধ্র (স্টোমাটা) দিয়ে বাষ্পাকারে বায়ুমণ্ডলে নির্গত হয় (প্রস্বেদন)। আলোর উপস্থিতি, তাপমাত্রা, বাতাসের আপেক্ষিক আর্দ্রতা ও বায়ুপ্রবাহ কীভাবে পত্ররন্ধ্র খোলা-বন্ধ এবং প্রস্বেদনের হার নিয়ন্ত্রণ করে নিচে বিভিন্ন স্লাইডার পরিবর্তন করে স্বচক্ষে পর্যবেক্ষণ করো।
+  </div>
+
+  <!-- Mode 1: Plant Transpiration Simulation -->
+  <div id="plantView" class="sim-grid">
+    <div class="stage-card">
+      <div class="stage-svg-wrap">
+        <svg viewBox="0 0 460 380" id="plantSvg">
+          <!-- Sky / Background -->
+          <rect x="0" y="0" width="460" height="280" id="skyBg" fill="#f0f9ff" rx="10"/>
+          <!-- Sun -->
+          <circle cx="60" cy="50" r="26" id="sunCircle" fill="#fbbf24" stroke="#f59e0b" stroke-width="2"/>
+          <g id="sunRays" stroke="#fbbf24" stroke-width="3" stroke-linecap="round">
+            <line x1="60" y1="14" x2="60" y2="6"/>
+            <line x1="60" y1="86" x2="60" y2="94"/>
+            <line x1="24" y1="50" x2="16" y2="50"/>
+            <line x1="96" y1="50" x2="104" y2="50"/>
+          </g>
+          <!-- Soil / Ground -->
+          <rect x="0" y="270" width="460" height="110" fill="#78350f" rx="0"/>
+          <rect x="0" y="270" width="460" height="12" fill="#84cc16"/>
+          <!-- Roots -->
+          <g stroke="#fef3c7" stroke-width="3" stroke-linecap="round" fill="none">
+            <path d="M 230 280 Q 220 310 200 340 M 230 280 Q 240 315 260 350 M 230 280 L 230 360"/>
+            <path d="M 215 300 Q 190 320 170 330 M 240 310 Q 270 325 290 335"/>
+          </g>
+          <!-- Capillary Water Particles -->
+          <g id="soilWater">
+            <circle cx="180" cy="310" r="3" fill="#38bdf8"/>
+            <circle cx="210" cy="350" r="3" fill="#38bdf8"/>
+            <circle cx="255" cy="330" r="3" fill="#38bdf8"/>
+            <circle cx="280" cy="350" r="3" fill="#38bdf8"/>
+          </g>
+          <!-- Stem with Xylem Tube -->
+          <rect x="222" y="110" width="16" height="170" fill="#15803d" rx="4"/>
+          <!-- Xylem water flow stream inside stem -->
+          <rect x="227" y="115" width="6" height="160" fill="#67e8f9" opacity="0.8"/>
+          <g id="xylemArrows" fill="#0284c7">
+            <polygon points="230,130 227,138 233,138"/>
+            <polygon points="230,190 227,198 233,198"/>
+            <polygon points="230,250 227,258 233,258"/>
+          </g>
+          <!-- Leaves -->
+          <g id="plantLeaves">
+            <!-- Left Leaf -->
+            <path d="M 222 190 C 160 170 120 190 100 170 C 130 220 190 210 222 195" fill="#22c55e" stroke="#16a34a" stroke-width="2"/>
+            <!-- Right Leaf -->
+            <path d="M 238 160 C 300 140 340 160 360 140 C 330 190 270 180 238 165" fill="#22c55e" stroke="#16a34a" stroke-width="2"/>
+            <!-- Top Leaf Cluster -->
+            <path d="M 230 110 C 200 60 170 70 180 40 C 220 50 225 90 230 110" fill="#16a34a"/>
+            <path d="M 230 110 C 260 60 290 70 280 40 C 240 50 235 90 230 110" fill="#15803d"/>
+          </g>
+          <!-- Stoma Magnifier Inset Box -->
+          <g transform="translate(310, 20)">
+            <rect x="0" y="0" width="135" height="110" fill="#ffffff" stroke="#0f766e" stroke-width="2" rx="10" filter="drop-shadow(0 2px 5px rgba(0,0,0,0.1))"/>
+            <text x="67" y="18" font-size="10.5" font-weight="bold" fill="#0f766e" text-anchor="middle">পত্ররন্ধ্র (স্টোমাটা)</text>
+            <!-- Guard cells -->
+            <g id="guardCells" transform="translate(67, 60)">
+              <ellipse id="guardLeft" cx="-12" cy="0" rx="12" ry="24" fill="#86efac" stroke="#16a34a" stroke-width="2"/>
+              <ellipse id="guardRight" cx="12" cy="0" rx="12" ry="24" fill="#86efac" stroke="#16a34a" stroke-width="2"/>
+              <ellipse id="stomaPore" cx="0" cy="0" rx="5" ry="16" fill="#1e293b"/>
+            </g>
+            <text x="67" y="98" id="stomaStatusText" font-size="10" font-weight="bold" fill="#334155" text-anchor="middle">উন্মুক্ততা: ৮০%</text>
+          </g>
+          <!-- Water Vapor Particles coming out from leaves -->
+          <g id="vaporGroup" fill="#38bdf8" opacity="0.8">
+            <circle cx="140" cy="160" r="4"/>
+            <circle cx="160" cy="140" r="5"/>
+            <circle cx="310" cy="130" r="4"/>
+            <circle cx="330" cy="115" r="5"/>
+            <circle cx="210" cy="40" r="4"/>
+          </g>
+        </svg>
+      </div>
+      <div id="plantStatusBanner" class="status-badge normal">
+        স্বাভাবিক প্রস্বেদন: শোষণ ও বাষ্পমোচনের ভারসাম্য বজায় আছে
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="control-group">
+        <label class="control-label">১. আলোর তীব্রতা (Light Intensity): <span id="valLight">৮০%</span></label>
+        <input type="range" class="range-input" id="rangeLight" min="0" max="100" value="80" oninput="updatePlantSim()"/>
+      </div>
+      <div class="control-group">
+        <label class="control-label">২. তাপমাত্রা (Temperature): <span id="valTemp">২৮°C</span></label>
+        <input type="range" class="range-input" id="rangeTemp" min="15" max="45" value="28" oninput="updatePlantSim()"/>
+      </div>
+      <div class="control-group">
+        <label class="control-label">৩. বায়ুমণ্ডলের আপেক্ষিক আর্দ্রতা (Humidity): <span id="valHumidity">৫০%</span></label>
+        <input type="range" class="range-input" id="rangeHumidity" min="10" max="95" value="50" oninput="updatePlantSim()"/>
+      </div>
+      <div class="control-group">
+        <label class="control-label">৪. বায়ুপ্রবাহ (Wind Speed): <span id="valWind">১০ km/h</span></label>
+        <input type="range" class="range-input" id="rangeWind" min="0" max="50" value="10" oninput="updatePlantSim()"/>
+      </div>
+
+      <div class="metrics-panel">
+        <div class="metric-box">
+          <div class="metric-title">প্রস্বেদন হার</div>
+          <div class="metric-value" id="valTransRate">৪৫ mL/h</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-title">পানি শোষণ হার</div>
+          <div class="metric-value" id="valAbsorbRate">৪০ mL/h</div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <span style="font-size:12px;font-weight:700;color:var(--pori-muted)">জলবায়ু পরিস্থিতি প্রি-সেট:</span>
+        <div class="preset-chips">
+          <button class="chip" onclick="setPlantPreset(90, 32, 40, 15)">☀️ উজ্জ্বল রোদ</button>
+          <button class="chip" onclick="setPlantPreset(20, 24, 90, 5)">🌧️ বর্ষার মেঘলা দিন</button>
+          <button class="chip" onclick="setPlantPreset(95, 42, 15, 35)">🌵 শুষ্ক খরা (উইল্টিং)</button>
+          <button class="chip" onclick="setPlantPreset(0, 20, 75, 0)">🌙 রাতের অন্ধকার</button>
+        </div>
+      </div>
+
+      <div class="details-box">
+        <strong>💡 বোর্ড পরীক্ষা টিপ:</strong> আর্দ্রতা বাড়লে প্রস্বেদন <em>কমে</em> (ব্যস্তানুপাতিক); আলো ও তাপমাত্রা বাড়লে প্রস্বেদন <em>বাড়ে</em> (সমানুপাতিক)।
+      </div>
+    </div>
+  </div>
+
+  <!-- Mode 2: Human Heart & Circulation Simulation -->
+  <div id="heartView" class="sim-grid" style="display:none;">
+    <div class="stage-card">
+      <div class="stage-svg-wrap">
+        <svg viewBox="0 0 460 380" id="heartSvg">
+          <!-- Outer Pericardium Outline -->
+          <path d="M 230 360 C 110 260 80 180 80 120 C 80 50 160 50 230 110 C 300 50 380 50 380 120 C 380 180 350 260 230 360 Z" fill="#ffe4e6" stroke="#f43f5e" stroke-width="4"/>
+          <!-- Superior & Inferior Vena Cava (Blue) -->
+          <path d="M 140 30 L 140 100" stroke="#0284c7" stroke-width="20" stroke-linecap="round"/>
+          <text x="140" y="24" font-size="10" font-weight="bold" fill="#0369a1" text-anchor="middle">ঊর্ধ্ব মহাশিরার রক্ত</text>
+          <!-- Aorta (Red Arch) -->
+          <path d="M 230 110 C 230 30 290 30 290 70 L 290 90" stroke="#dc2626" stroke-width="22" fill="none" stroke-linecap="round"/>
+          <text x="290" y="24" font-size="10" font-weight="bold" fill="#b91c1c" text-anchor="middle">মহাধমনী (অ্যাওর্টা)</text>
+          <!-- Pulmonary Artery (Blue) -->
+          <path d="M 200 90 Q 230 60 260 90" stroke="#0ea5e9" stroke-width="14" fill="none"/>
+          <!-- Four Chambers -->
+          <!-- Right Atrium (ডান অলিন্দ) -->
+          <rect x="120" y="110" width="90" height="80" rx="14" fill="#bae6fd" stroke="#0284c7" stroke-width="2" id="chamberRA"/>
+          <text x="165" y="145" font-size="12" font-weight="bold" fill="#0369a1" text-anchor="middle">ডান অলিন্দ</text>
+          <text x="165" y="162" font-size="10" fill="#0284c7" text-anchor="middle">(CO₂ যুক্ত রক্ত)</text>
+          <!-- Left Atrium (বাম অলিন্দ) -->
+          <rect x="250" y="110" width="90" height="80" rx="14" fill="#fecdd3" stroke="#e11d48" stroke-width="2" id="chamberLA"/>
+          <text x="295" y="145" font-size="12" font-weight="bold" fill="#9f1239" text-anchor="middle">বাম অলিন্দ</text>
+          <text x="295" y="162" font-size="10" fill="#be123c" text-anchor="middle">(O₂ যুক্ত রক্ত)</text>
+          <!-- Right Ventricle (ডান নিলয়) -->
+          <rect x="120" y="210" width="90" height="110" rx="14" fill="#93c5fd" stroke="#1d4ed8" stroke-width="2" id="chamberRV"/>
+          <text x="165" y="255" font-size="12" font-weight="bold" fill="#1e3a8a" text-anchor="middle">ডান নিলয়</text>
+          <text x="165" y="272" font-size="10" fill="#1e40af" text-anchor="middle">ফুসফুসে রক্ত পাঠায়</text>
+          <!-- Left Ventricle (বাম নিলয় - পুরু মায়োকার্ডিয়াম) -->
+          <rect x="250" y="210" width="90" height="110" rx="14" fill="#fda4af" stroke="#be123c" stroke-width="4" id="chamberLV"/>
+          <text x="295" y="255" font-size="12" font-weight="bold" fill="#881337" text-anchor="middle">বাম নিলয়</text>
+          <text x="295" y="272" font-size="10" fill="#9f1239" text-anchor="middle">দেহে রক্ত পাঠায় (পুরু)</text>
+          <!-- Valves -->
+          <!-- Tricuspid Valve -->
+          <g id="valveTricuspid" transform="translate(165, 195)">
+            <line x1="-15" y1="0" x2="15" y2="0" stroke="#f59e0b" stroke-width="4"/>
+            <text x="0" y="-4" font-size="9" font-weight="bold" fill="#b45309" text-anchor="middle">ট্রাইকাসপিড</text>
+          </g>
+          <!-- Bicuspid / Mitral Valve -->
+          <g id="valveBicuspid" transform="translate(295, 195)">
+            <line x1="-15" y1="0" x2="15" y2="0" stroke="#f59e0b" stroke-width="4"/>
+            <text x="0" y="-4" font-size="9" font-weight="bold" fill="#b45309" text-anchor="middle">বাইকাসপিড</text>
+          </g>
+          <!-- SA Node Dot -->
+          <circle cx="130" cy="120" r="6" fill="#eab308" stroke="#ca8a04" stroke-width="2" id="saNodeIndicator"/>
+          <text x="110" y="112" font-size="9" font-weight="bold" fill="#854d0e">SA Node</text>
+        </svg>
+      </div>
+      <div id="heartCycleBanner" class="status-badge normal">
+        কার্ডিয়াক চক্র ধাপ: অলিন্দের ডায়াস্টোল ও নিলয়ের সিস্টোল
+      </div>
+    </div>
+
+    <div class="control-card">
+      <div class="control-group">
+        <label class="control-label">হৃদস্পন্দন হার (Heart Rate): <span id="valHeartRate">৭২ bpm</span></label>
+        <input type="range" class="range-input" id="rangeHeartRate" min="50" max="140" value="72" oninput="updateHeartSim()"/>
+      </div>
+
+      <div class="metrics-panel">
+        <div class="metric-box">
+          <div class="metric-title">সিস্টোলিক রক্তচাপ</div>
+          <div class="metric-value" id="valSysBP" style="color:#dc2626">১২০ mmHg</div>
+        </div>
+        <div class="metric-box">
+          <div class="metric-title">ডায়াস্টোলিক রক্তচাপ</div>
+          <div class="metric-value" id="valDiaBP" style="color:#0284c7">৮০ mmHg</div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <span style="font-size:12px;font-weight:700;color:var(--pori-muted)">শারীরিক ক্রিয়াকলাপ প্রি-সেট:</span>
+        <div class="preset-chips">
+          <button class="chip" onclick="setHeartPreset(65, 115, 75)">🛌 পূর্ণ বিশ্রাম</button>
+          <button class="chip" onclick="setHeartPreset(75, 120, 80)">🚶 স্বাভাবিক হাঁটা</button>
+          <button class="chip" onclick="setHeartPreset(125, 148, 92)">🏃 তীব্র দৌড় / ব্যায়াম</button>
+          <button class="chip" onclick="setHeartPreset(90, 155, 98)">⚠️ উচ্চ রক্তচাপ রোগী</button>
+        </div>
+      </div>
+
+      <div class="details-box">
+        <strong>⏱️ কার্ডিয়াক চক্র সময়কাল (০.৮ সেকেন্ড):</strong><br>
+        • অলিন্দ সিস্টোল: ০.১ সে | ডায়াস্টোল: ০.৭ সে<br>
+        • নিলয় সিস্টোল: ০.৩ সে | ডায়াস্টোল: ০.৫ সে<br>
+        • কপাটিকার শব্দ: সিস্টোলে 'LUB' (বাই/ট্রাইকাসপিড বন্ধ) এবং ডায়াস্টোলে 'DUB' (সেমিলুনার বন্ধ)।
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Pedagogical Explainer / Insight Box -->
+  <div class="insight-box" id="explainerText">
+    <strong>🔬 ফলাফল বিশ্লেষণ ও বোর্ড পরীক্ষার ফাঁদ সতর্কতা (পাঠ্যবই পৃষ্ঠা ১৩৫-১৫৪):</strong><br>
+    • <b>প্রস্বেদন টান বনাম উইল্টিং:</b> শুষ্ক আবহাওয়ায় শোষণের চেয়ে প্রস্বেদনের হার বেশি হলে কোষরস শুকিয়ে গাছ নেতিয়ে পড়ে (Wilting)। তাই বিজ্ঞানী কার্টিস প্রস্বেদনকে 'প্রয়োজনীয় অমঙ্গল' বলেছেন।<br>
+    • <b>বাম নিলয়ের প্রাচীর কেন পুরু?</b> ডান নিলয় কেবল পার্শ্ববর্তী ফুসফুসে রক্ত পাঠায়, কিন্তু বাম নিলয়কে তীব্র চাপে মহাধমনী দিয়ে সারা দেহের শীর্ষ পর্যন্ত রক্ত পাম্প করতে হয়।<br>
+    • <b>রক্তের স্বাভাবিক চাপ:</b> আদর্শ সিস্টোলিক চাপ ১২০ mmHg এবং ডায়াস্টোলিক চাপ ৮০ mmHg; ধারাবাহিক ১৪০/৯০ mmHg বা বেশি হলে তা হাইপারটেনশন বা উচ্চ রক্তচাপ।
+  </div>
+</div>
+
+<script>
+  let currentMode = 'plant';
+
+  function switchMode(mode) {
+    currentMode = mode;
+    document.getElementById('tabPlant').classList.toggle('active', mode === 'plant');
+    document.getElementById('tabHeart').classList.toggle('active', mode === 'heart');
+    document.getElementById('plantView').style.display = mode === 'plant' ? 'grid' : 'none';
+    document.getElementById('heartView').style.display = mode === 'heart' ? 'grid' : 'none';
+
+    if (mode === 'plant') {
+      document.getElementById('introText').innerHTML = `
+        <strong>📖 পরীক্ষার পরিচিতি ও মূল তত্ত্ব (পাঠ্যবই পৃষ্ঠা ১২৫-১৩৬):</strong><br>
+        উদ্ভিদের মূলরোম দ্বারা শোষিত পানি জাইলেম নালী দিয়ে পাতায় পৌঁছায় এবং সেখান থেকে ৯০-৯৫% পানি পত্ররন্ধ্র (স্টোমাটা) দিয়ে বাষ্পাকারে বায়ুমণ্ডলে নির্গত হয় (প্রস্বেদন)। আলোর উপস্থিতি, তাপমাত্রা, বাতাসের আপেক্ষিক আর্দ্রতা ও বায়ুপ্রবাহ কীভাবে পত্ররন্ধ্র খোলা-বন্ধ এবং প্রস্বেদনের হার নিয়ন্ত্রণ করে নিচে বিভিন্ন স্লাইডার পরিবর্তন করে স্বচক্ষে পর্যবেক্ষণ করো।`;
+    } else {
+      document.getElementById('introText').innerHTML = `
+        <strong>📖 পরীক্ষার পরিচিতি ও মূল তত্ত্ব (পাঠ্যবই পৃষ্ঠা ১৪৮-১৫৪):</strong><br>
+        মানব হৃদপিণ্ড একটি স্বয়ংক্রিয় পেশিবহুল চার-প্রকোষ্ঠবিশিষ্ট অঙ্গ যা দ্বৈত রক্ত সংবহন চালায়। ডান পাশ কার্বন ডাই-অক্সাইডযুক্ত রক্ত ফুসফুসে পাঠায় এবং বাম পাশ অক্সিজেনযুক্ত রক্ত সারা দেহে পাম্প করে। প্রতি মিনিটে ৭২ বার ছন্দময় সংকোচন (সিস্টোল) ও প্রসারণের (ডায়াস্টোল) মাধ্যমে রক্তচাপ নিয়ন্ত্রিত হয়।`;
+    }
+  }
+
+  function updatePlantSim() {
+    const light = parseInt(document.getElementById('rangeLight').value, 10);
+    const temp = parseInt(document.getElementById('rangeTemp').value, 10);
+    const hum = parseInt(document.getElementById('rangeHumidity').value, 10);
+    const wind = parseInt(document.getElementById('rangeWind').value, 10);
+
+    document.getElementById('valLight').innerText = light + '%';
+    document.getElementById('valTemp').innerText = temp + '°C';
+    document.getElementById('valHumidity').innerText = hum + '%';
+    document.getElementById('valWind').innerText = wind + ' km/h';
+
+    // Stomatal aperture: governed by light & temp
+    let aperture = Math.min(100, Math.round((light * 0.7) + (temp * 0.8) - (hum * 0.15)));
+    if (light < 10) aperture = 5; // closed at night
+    aperture = Math.max(5, Math.min(100, aperture));
+
+    // Transpiration Rate: proportional to aperture, temp, wind, inversely to humidity
+    let transRate = Math.round((aperture * 0.5) + (temp * 0.8) + (wind * 0.4) - (hum * 0.35));
+    transRate = Math.max(2, transRate);
+
+    // Absorption rate
+    let absorbRate = Math.round(transRate * 0.92);
+
+    document.getElementById('valTransRate').innerText = transRate + ' mL/h';
+    document.getElementById('valAbsorbRate').innerText = absorbRate + ' mL/h';
+    document.getElementById('stomaStatusText').innerText = 'উন্মুক্ততা: ' + aperture + '%';
+
+    // SVG Stoma width update
+    const poreRx = (aperture / 100) * 8;
+    document.getElementById('stomaPore').setAttribute('rx', Math.max(1, poreRx));
+
+    // Status Banner
+    const banner = document.getElementById('plantStatusBanner');
+    if (light === 0) {
+      banner.className = 'status-badge night';
+      banner.innerText = '🌙 রাতের অবস্থা: পত্ররন্ধ্র প্রায় সম্পূর্ণ বন্ধ, প্রস্বেদন নগণ্য';
+    } else if (transRate > absorbRate + 15 || (temp > 38 && hum < 25)) {
+      banner.className = 'status-badge wilting';
+      banner.innerText = '⚠️ তীব্র বাষ্পমোচন ও উইল্টিং ঝুঁকি! শোষণের চেয়ে প্রস্বেদন বেশি হওয়ায় গাছ নেতিয়ে পড়ছে';
+    } else {
+      banner.className = 'status-badge normal';
+      banner.innerText = 'স্বাভাবিক প্রস্বেদন: শোষণ ও বাষ্পমোচনের ভারসাম্য বজায় আছে';
+    }
+  }
+
+  function setPlantPreset(l, t, h, w) {
+    document.getElementById('rangeLight').value = l;
+    document.getElementById('rangeTemp').value = t;
+    document.getElementById('rangeHumidity').value = h;
+    document.getElementById('rangeWind').value = w;
+    updatePlantSim();
+  }
+
+  function updateHeartSim() {
+    const hr = parseInt(document.getElementById('rangeHeartRate').value, 10);
+    document.getElementById('valHeartRate').innerText = hr + ' bpm';
+
+    // BP estimation based on heart rate
+    let sysBP = Math.round(100 + (hr - 60) * 0.5);
+    let diaBP = Math.round(70 + (hr - 60) * 0.25);
+
+    document.getElementById('valSysBP').innerText = sysBP + ' mmHg';
+    document.getElementById('valDiaBP').innerText = diaBP + ' mmHg';
+
+    const banner = document.getElementById('heartCycleBanner');
+    if (sysBP >= 140 || diaBP >= 90) {
+      banner.className = 'status-badge wilting';
+      banner.innerText = '⚠️ উচ্চ রক্তচাপ (উচ্চ সিস্টোলিক ' + sysBP + ' mmHg / ডায়াস্টোলিক ' + diaBP + ' mmHg)';
+    } else {
+      banner.className = 'status-badge normal';
+      banner.innerText = 'স্বাভাবিক কার্ডিয়াক চক্র: হৃদস্পন্দন ' + hr + ' bpm, রক্তচাপ আদর্শ সীমার মধ্যে';
+    }
+  }
+
+  function setHeartPreset(hr, sys, dia) {
+    document.getElementById('rangeHeartRate').value = hr;
+    document.getElementById('valHeartRate').innerText = hr + ' bpm';
+    document.getElementById('valSysBP').innerText = sys + ' mmHg';
+    document.getElementById('valDiaBP').innerText = dia + ' mmHg';
+
+    const banner = document.getElementById('heartCycleBanner');
+    if (sys >= 140 || dia >= 90) {
+      banner.className = 'status-badge wilting';
+      banner.innerText = '⚠️ উচ্চ রক্তচাপ (উচ্চ সিস্টোলিক ' + sys + ' mmHg / ডায়াস্টোলিক ' + dia + ' mmHg)';
+    } else {
+      banner.className = 'status-badge normal';
+      banner.innerText = 'স্বাভাবিক কার্ডিয়াক চক্র: হৃদস্পন্দন ' + hr + ' bpm, রক্তচাপ আদর্শ সীমার মধ্যে';
+    }
+  }
+
+  // Initialize
+  updatePlantSim();
+  updateHeartSim();
+</script>
+</body>
+</html>
