@@ -151,11 +151,14 @@ function loadQuestionsWithTsx(batchFiles) {
 
     function extractQuestionsFromExports(mod) {
       const sources = [mod, mod?.default, mod?.['module.exports']].filter(Boolean);
+      const seenArrays = new Set();
       const found = [];
       for (const src of sources) {
         if (typeof src === 'object') {
           for (const val of Object.values(src)) {
             if (Array.isArray(val)) {
+              if (seenArrays.has(val)) continue;
+              seenArrays.add(val);
               for (const item of val) {
                 if (item && typeof item === 'object' && item.id && item.type) {
                   found.push(item);
@@ -201,6 +204,14 @@ function loadQuestionsWithTsx(batchFiles) {
 
   if (res.error) {
     throw new Error(`Failed to execute tsx: ${res.error.message}`);
+  }
+
+  if (res.stderr && res.stderr.includes('FAILED_IMPORT:')) {
+    const importErrors = res.stderr
+      .split('\n')
+      .filter(line => line.includes('FAILED_IMPORT:'))
+      .join('\n');
+    throw new Error(`Import errors encountered in tsx sub-process:\n${importErrors}`);
   }
 
   const stdout = res.stdout || '';
@@ -290,7 +301,9 @@ function validateQuestion(q, chapterConfig, index) {
           errors.push(...validateLatexString(q.explanation.coreConcept, `${qId}.explanation.coreConcept`));
         }
 
-        if (q.explanation.stepDerivation) {
+        if (!q.explanation.stepDerivation || typeof q.explanation.stepDerivation !== 'string' || q.explanation.stepDerivation.trim().length === 0) {
+          errors.push(`Question ${qId}: explanation missing non-empty 'stepDerivation'`);
+        } else {
           errors.push(...validateLatexString(q.explanation.stepDerivation, `${qId}.explanation.stepDerivation`));
         }
         if (q.explanation.proTipShortcut) {
@@ -301,6 +314,11 @@ function validateQuestion(q, chapterConfig, index) {
         if (!dist || typeof dist !== 'object' || Object.keys(dist).length < 3) {
           errors.push(`Question ${qId}: distractorAnalysis missing or incomplete (must analyze all 3 incorrect options, found ${dist ? Object.keys(dist).length : 0})`);
         } else {
+          for (const incId of incorrectOptIds) {
+            if (!dist[incId] || typeof dist[incId] !== 'string' || dist[incId].trim().length === 0) {
+              errors.push(`Question ${qId}: distractorAnalysis missing explanation for incorrect option '${incId}'`);
+            }
+          }
           for (const [key, val] of Object.entries(dist)) {
             if (!val || typeof val !== 'string' || val.trim().length === 0) {
               errors.push(`Question ${qId}: distractorAnalysis for '${key}' is empty`);
@@ -335,11 +353,10 @@ function validateQuestion(q, chapterConfig, index) {
         if (!item || typeof item !== 'object') {
           errors.push(`Question ${qId}: cqRubric missing tier '${tier.key}'`);
         } else {
-          if (typeof item.mark !== 'number' || item.mark < 1) {
-            errors.push(`Question ${qId}: cqRubric.${tier.key}.mark must be number >= 1, got ${item.mark}`);
-          } else {
-            rubricTotal += item.mark;
+          if (typeof item.mark !== 'number' || item.mark !== tier.expectedMark) {
+            errors.push(`Question ${qId}: cqRubric.${tier.key}.mark must be ${tier.expectedMark}, got ${item.mark}`);
           }
+          rubricTotal += (typeof item.mark === 'number' ? item.mark : 0);
           if (!item.criteria || typeof item.criteria !== 'string' || item.criteria.trim().length === 0) {
             errors.push(`Question ${qId}: cqRubric.${tier.key} missing non-empty 'criteria'`);
           } else {
@@ -550,7 +567,8 @@ function main() {
       const val = parseInt(args[i + 1], 10);
       if (![1, 2, 3].includes(val)) {
         console.error(`\n❌ Error: Invalid chapter '${args[i + 1]}'. Expected 1, 2, or 3.`);
-        process.exit(1);
+        process.exitCode = 1;
+        return;
       }
       targetChapters = [val];
       i++;
@@ -562,7 +580,8 @@ Options:
   --chapter, -c <1|2|3>  Validate only the specified chapter (1, 2, or 3)
   --help, -h             Show this help message
 `);
-      process.exit(0);
+      process.exitCode = 0;
+      return;
     }
   }
 
@@ -591,10 +610,10 @@ Options:
   console.log(`======================================================================`);
   if (allPassed) {
     console.log(`🎉 All Wave 1 validation checks passed successfully!`);
-    process.exit(0);
+    process.exitCode = 0;
   } else {
     console.log(`❌ Wave 1 validation failed. Review the errors above.`);
-    process.exit(1);
+    process.exitCode = 1;
   }
 }
 

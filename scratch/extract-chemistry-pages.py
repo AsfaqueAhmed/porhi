@@ -66,7 +66,7 @@ def extract_pages(dpi: int = 150):
         )
 
         for book_p in range(ch["book_start"], ch["book_end"] + 1):
-            pdf_idx = book_p + 4  # 0-indexed PDF page
+            pdf_idx = ch["pdf_start_0idx"] + (book_p - ch["book_start"])
             if pdf_idx >= len(doc):
                 print(
                     f"Warning: PDF index {pdf_idx} out of range (max {len(doc) - 1})",
