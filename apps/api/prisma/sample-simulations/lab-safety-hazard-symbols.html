@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ল্যাবরেটরি নিরাপত্তা ও রাসায়নিক ঝুঁকি সংকেত ল্যাব | poRi</title>
+  <style>
+    /* PORI UNIFIED SIMULATOR THEME */
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-accent: #0f766e;
+      --pori-accent-soft: #ecfdf5;
+      --pori-accent-border: #99f6e4;
+      --pori-accent-ink: #134e4a;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-amber-ink: #92400e;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-border: #fecdd3;
+      --pori-rose-ink: #9f1239;
+      --pori-danger: #dc2626;
+      --pori-danger-soft: #fef2f2;
+      --pori-blue-soft: #f0f9ff;
+      --pori-blue-border: #bae6fd;
+      --pori-blue-ink: #0369a1;
+      --ghs-red: #cc0000;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      padding: 16px;
+    }
+    .app {
+      max-width: 1080px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 14px;
+    }
+    .badge {
+      display: inline-block;
+      background: var(--pori-accent-soft);
+      color: var(--pori-accent-ink);
+      border: 1px solid var(--pori-accent-border);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    h1 { font-size: 22px; color: var(--pori-heading); margin-top: 4px; }
+    .sub { font-size: 13px; color: var(--pori-muted); }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .tab-btn {
+      border: 1px solid var(--pori-border);
+      background: #fff;
+      color: var(--pori-heading);
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s ease-in-out;
+    }
+    .tab-btn:hover { background: #f1f5f9; }
+    .tab-btn.active {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+      box-shadow: 0 2px 6px rgba(15, 118, 110, 0.25);
+    }
+    .pane { display: none; }
+    .pane.active { display: block; }
+
+    /* GRID LAYOUTS */
+    .grid-workbench {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+    @media (max-width: 840px) {
+      .grid-workbench { grid-template-columns: 1fr; }
+    }
+
+    /* SHELF & BENCH */
+    .workbench-card {
+      background: linear-gradient(180deg, #f8fafc 0%, #edf2f7 100%);
+      border: 1px solid var(--pori-border);
+      border-radius: 16px;
+      padding: 18px;
+      position: relative;
+    }
+    .bench-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--pori-heading);
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .shelf-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 580px) {
+      .shelf-row { grid-template-columns: repeat(2, 1fr); }
+    }
+    .bottle {
+      background: #ffffff;
+      border: 2px solid var(--pori-border);
+      border-radius: 12px;
+      padding: 10px 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      user-select: none;
+    }
+    .bottle:hover {
+      transform: translateY(-3px);
+      border-color: var(--pori-accent);
+      box-shadow: 0 6px 14px rgba(15, 118, 110, 0.15);
+    }
+    .bottle.active {
+      border-color: var(--pori-accent);
+      background: #f0fdfa;
+      box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.2);
+    }
+    .bottle svg.icon {
+      width: 50px;
+      height: 50px;
+      margin-bottom: 6px;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+    }
+    .bottle-label {
+      font-size: 12px;
+      font-weight: 750;
+      color: var(--pori-heading);
+      line-height: 1.3;
+    }
+    .bottle-chem {
+      font-size: 10.5px;
+      color: var(--pori-muted);
+      margin-top: 2px;
+      font-family: monospace;
+    }
+
+    /* INSPECTION PANEL */
+    .inspect-card {
+      background: #ffffff;
+      border: 1px solid var(--pori-border);
+      border-radius: 16px;
+      padding: 18px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    }
+    .inspect-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--pori-border-soft);
+    }
+    .inspect-symbol-big {
+      width: 72px;
+      height: 72px;
+      flex-shrink: 0;
+    }
+    .inspect-titles h2 {
+      font-size: 18px;
+      color: var(--pori-heading);
+      line-height: 1.25;
+    }
+    .inspect-titles .eng-name {
+      font-size: 13px;
+      color: var(--pori-muted);
+      font-weight: 600;
+    }
+    .detail-box {
+      margin-bottom: 12px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+    }
+    .detail-box.warn {
+      background: var(--pori-rose-soft);
+      border-left: 4px solid var(--pori-danger);
+      color: var(--pori-rose-ink);
+    }
+    .detail-box.safe {
+      background: var(--pori-accent-soft);
+      border-left: 4px solid var(--pori-accent);
+      color: var(--pori-accent-ink);
+    }
+    .detail-box.info {
+      background: var(--pori-blue-soft);
+      border-left: 4px solid var(--pori-blue-ink);
+      color: var(--pori-blue-ink);
+    }
+    .prop-row {
+      display: flex;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+    .prop-label {
+      width: 100px;
+      flex-shrink: 0;
+      color: var(--pori-muted);
+      font-weight: 700;
+    }
+    .prop-val {
+      color: var(--pori-heading);
+      flex-grow: 1;
+    }
+
+    /* REACTION JAR & SPILL STAGE */
+    .spill-stage {
+      background: radial-gradient(circle at 50% 30%, #1e293b 0%, #0f172a 100%);
+      border-radius: 16px;
+      padding: 12px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 4px 16px rgba(0,0,0,0.5);
+      border: 1px solid #334155;
+    }
+    #spillCanvas {
+      width: 100%;
+      height: 340px;
+      display: block;
+      border-radius: 12px;
+    }
+    .stage-mode-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .mode-pills {
+      display: flex;
+      gap: 6px;
+      background: #e2e8f0;
+      padding: 3px;
+      border-radius: 10px;
+    }
+    .mode-pill {
+      border: none;
+      background: transparent;
+      padding: 5px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 750;
+      color: #475569;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+    }
+    .mode-pill.active {
+      background: #ffffff;
+      color: var(--pori-accent-ink);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .spill-controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+      align-items: center;
+    }
+    .action-btn {
+      padding: 9px 16px;
+      border-radius: 10px;
+      font-size: 13.5px;
+      font-weight: 750;
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-acid { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+    .btn-acid:hover { background: #fecaca; }
+    .btn-neut { background: #dcfce7; color: #166534; border-color: #86efac; }
+    .btn-neut:hover { background: #bbf7d0; }
+    .btn-water { background: #e0f2fe; color: #075985; border-color: #7dd3fc; }
+    .btn-water:hover { background: #bae6fd; }
+    .btn-wipe { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
+    .btn-wipe:hover { background: #e2e8f0; }
+
+    .spill-hud {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .hud-card {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      text-align: center;
+    }
+    .hud-label { font-size: 11px; font-weight: 700; color: var(--pori-muted); text-transform: uppercase; }
+    .hud-val { font-size: 16px; font-weight: 800; color: var(--pori-heading); margin-top: 2px; }
+    .hud-status { font-size: 12px; font-weight: 700; }
+
+    /* SPILL LOG & ALERTS */
+    .spill-log {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      line-height: 1.6;
+      transition: all 0.3s;
+    }
+    .spill-log.danger {
+      background: var(--pori-danger-soft);
+      border: 1px solid #fca5a5;
+      color: #991b1b;
+    }
+    .spill-log.success {
+      background: var(--pori-accent-soft);
+      border: 1px solid var(--pori-accent-border);
+      color: var(--pori-accent-ink);
+    }
+    .spill-log.neutral {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      color: var(--pori-muted);
+    }
+
+    /* PPE TAB */
+    .ppe-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .ppe-card {
+      background: #ffffff;
+      border: 2px solid var(--pori-border);
+      border-radius: 14px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .ppe-card:hover {
+      border-color: var(--pori-accent);
+      transform: translateY(-2px);
+    }
+    .ppe-card.equipped {
+      border-color: var(--pori-accent);
+      background: #f0fdfa;
+    }
+    .ppe-check {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid var(--pori-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 900;
+      color: transparent;
+      background: #fff;
+    }
+    .ppe-card.equipped .ppe-check {
+      background: var(--pori-accent);
+      border-color: var(--pori-accent);
+      color: #fff;
+    }
+    .ppe-icon { font-size: 30px; margin-bottom: 8px; }
+    .ppe-name { font-size: 15px; font-weight: 800; color: var(--pori-heading); }
+    .ppe-desc { font-size: 12px; color: var(--pori-muted); margin-top: 4px; }
+
+    .ppe-meter {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .bar-wrap {
+      flex: 1;
+      min-width: 200px;
+      background: #e2e8f0;
+      height: 16px;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ef4444, #f59e0b, #10b981);
+      transition: width 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <div class="head">
+    <div>
+      <span class="badge">রসায়ন ১ম অধ্যায় · এলিভেটেড ল্যাব সিমুলেটর</span>
+      <h1>ল্যাবরেটরি নিরাপত্তা বিধি, ৮টি GHS প্রতীক ও কেমিক্যাল রিঅ্যাকশন জার</h1>
+      <p class="sub">কাচের রিঅ্যাকশন জারে অ্যাসিড-প্রশমন বিক্রিয়া, বুদবুদ নির্গমন, বিপজ্জনক স্প্যাটারিং ও পিপিই গিয়ার টেস্ট।</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="setTab('workbench')">১. ল্যাব ওয়ার্কবেঞ্চ ও প্রতীক অন্বেষণ</button>
+    <button class="tab-btn" onclick="setTab('spill')">২. কেমিক্যাল রিঅ্যাকশন জার ও প্রশমন সিমুলেটর</button>
+    <button class="tab-btn" onclick="setTab('ppe')">৩. পিপিই (PPE) ও ল্যাব নিরাপত্তা নির্দেশিকা</button>
+  </div>
+
+  <!-- TAB 1: WORKBENCH -->
+  <div id="tab-workbench" class="pane active">
+    <div class="grid-workbench">
+      <div class="workbench-card">
+        <div class="bench-title">
+          <span>🧪 রিএজেন্ট সেলফ (বোতল নির্বাচন করো)</span>
+          <span style="font-size:12px;color:var(--pori-muted);font-weight:normal">৮টি আন্তর্জাতিক GHS সংকেত</span>
+        </div>
+        <div class="shelf-row" id="shelfRow">
+          <!-- Generated via JS -->
+        </div>
+        <div style="background:#ffffff;border:1px solid var(--pori-border-soft);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--pori-muted);">
+          💡 <b>শিক্ষণ টিপ:</b> আন্তর্জাতিকভাবে স্বীকৃত এই সংকেতগুলো গ্লোবালি হারমোনাইজড সিস্টেম (GHS)-এর অন্তর্ভুক্ত। লাল রম্বস (ডায়মন্ড) ফ্রেমের ভেতরে সাদা পটভূমিতে কালো প্রতীকটি সংশ্লিষ্ট রাসায়নিকের তাৎক্ষণিক ঝুঁকির রূপ তুলে ধরে।
+        </div>
+      </div>
+
+      <div class="inspect-card" id="inspectCard">
+        <!-- Replaced via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: REACTION JAR & SPILL MITIGATION -->
+  <div id="tab-spill" class="pane">
+    <div class="workbench-card" style="margin-bottom:16px;">
+      <div class="stage-mode-bar">
+        <div class="bench-title" style="margin-bottom:0;">
+          <span>⚗️ ল্যাবরেটরি রিঅ্যাকশন জার ও প্রশমন ওয়ার্কবেঞ্চ</span>
+        </div>
+        <div class="mode-pills">
+          <button class="mode-pill active" id="btnModeJar" onclick="setViewMode('jar')">⚗️ কাচের রিঅ্যাকশন জার (Beaker Jar)</button>
+          <button class="mode-pill" id="btnModeBench" onclick="setViewMode('bench')">🧪 ওয়ার্কবেঞ্চ টেবিল সারফেস</button>
+        </div>
+      </div>
+
+      <div class="spill-stage">
+        <canvas id="spillCanvas" width="920" height="340"></canvas>
+      </div>
+
+      <div class="spill-controls">
+        <button class="action-btn btn-acid" onclick="triggerAction('acid')">🧪 জারে ঘনীভূত অ্যাসিড নাও (HCl)</button>
+        <button class="action-btn btn-neut" onclick="triggerAction('neutralizer')">🧂 NaHCO₃ (খাবার সোডা) যোগ করো</button>
+        <button class="action-btn btn-water" onclick="triggerAction('water')">💧 সরাসরি পানি ঢালো (বিপজ্জনক ভুল!)</button>
+        <button class="action-btn btn-wipe" onclick="triggerAction('reset')">🔄 জার ধৌত ও পরিষ্কার করো</button>
+      </div>
+
+      <div class="spill-hud">
+        <div class="hud-card">
+          <div class="hud-label">পাত্রের পদার্থ</div>
+          <div class="hud-val" id="hudSubstance">পরিষ্কার জার (খালি)</div>
+        </div>
+        <div class="hud-card">
+          <div class="hud-label">ডিজিটাল pH ইলেকট্রোড</div>
+          <div class="hud-val" id="hudPH" style="color:var(--pori-accent);">৭.০ (নিরপেক্ষ)</div>
+        </div>
+        <div class="hud-card">
+          <div class="hud-label">থার্মোমিটার রিডিং</div>
+          <div class="hud-val" id="hudTemp">২৫°C (স্বাভাবিক)</div>
+        </div>
+        <div class="hud-card">
+          <div class="hud-label">নিরাপত্তা স্ট্যাটাস</div>
+          <div class="hud-val hud-status" id="hudStatus" style="color:var(--pori-accent);">নিরাপদ ✅</div>
+        </div>
+      </div>
+
+      <div class="spill-log neutral" id="spillLog">
+        ল্যাবরেটরির কাচের জারে অ্যাসিড-ক্ষারক প্রশমন বিক্রিয়া সরাসরি পরীক্ষা করা যায়। উপরের বোতাম চেপে জারে ঘনীভূত অ্যাসিড ঢালো।
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:14px;font-size:13px;color:#166534;">
+        <b>✅ সঠিক পদ্ধতি (সোডিয়াম বাইকার্বোনেট প্রশমন):</b><br>
+        অ্যাসিডের ওপর সরাসরি পানি না ঢেলে মৃদু ক্ষার সোডিয়াম বাইকার্বোনেট ($NaHCO_3$) যোগ করতে হয়।<br>
+        বিক্রিয়া: <code>HCl + NaHCO₃ → NaCl + H₂O + CO₂↑</code><br>
+        শান্তভাবে কার্বন ডাই অক্সাইডের বুদবুদ সৃষ্টি হয় এবং অতিরিক্ত তাপ ছাড়াই নিরাপদে লবণ পানিতে রূপান্তরিত হয় (pH ৭.০)।
+      </div>
+      <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:14px;font-size:13px;color:#991b1b;">
+        <b>❌ মারাত্মক ভুল (ঘনীভূত অ্যাসিডে সরাসরি পানি ঢালা):</b><br>
+        ঘনীভূত অ্যাসিডে পানি ঢাললে পানির সংস্পর্শে তীব্র স্থানীয় তাপ ($Exothermic Heat$) উৎপন্ন হয়। পানি মুহূর্তের মধ্যে ফুটে বাষ্প হয়ে অ্যাসিডের ফোঁটাকে কাচের জার থেকে বাইরে বিস্ফোরক গতিতে ছিটিয়ে দেয় ($Acid Spattering$), যা মুখ ও চোখে মারাত্মক অ্যাসিড বার্ন তৈরি করে!
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: PPE & SAFETY GUIDELINES -->
+  <div id="tab-ppe" class="pane">
+    <div style="margin-bottom:16px;">
+      <h3 style="font-size:16px;color:var(--pori-heading);margin-bottom:6px;">ব্যক্তিগত নিরাপত্তা সরঞ্জাম (PPE - Personal Protective Equipment)</h3>
+      <p style="font-size:13px;color:var(--pori-muted);">ল্যাবরেটরিতে প্রবেশের পূর্বে শরীর ও অঙ্গপ্রত্যঙ্গের সুরক্ষায় নির্ধারিত চারটি মূল সরঞ্জাম পরিধান করো:</p>
+    </div>
+
+    <div class="ppe-grid" id="ppeGrid">
+      <div class="ppe-card" id="ppe-coat" onclick="togglePPE('coat')">
+        <div class="ppe-check">✓</div>
+        <div class="ppe-icon">🥼</div>
+        <div class="ppe-name">১. ল্যাবরেটরি অ্যাপ্রন</div>
+        <div class="ppe-desc">সুতি কাপড়ের সাদা অ্যাপ্রন শরীর ও স্বাভাবিক পোশাককে ক্ষতিকর অ্যাসিড বা ক্ষারের ছিটে থেকে রক্ষা করে। এটি সহজে খুলে ফেলা যায়।</div>
+      </div>
+      <div class="ppe-card" id="ppe-goggles" onclick="togglePPE('goggles')">
+        <div class="ppe-check">✓</div>
+        <div class="ppe-icon">🥽</div>
+        <div class="ppe-name">২. সেফটি গগলস (চশমা)</div>
+        <div class="ppe-desc">রাসায়নিকের ক্ষতিকর কণা, বিস্ফোরক কণা বা ফুটন্ত তরলের ছিটে থেকে অতি সংবেদনশীল চোখকে সম্পূর্ণ সুরক্ষিত রাখে।</div>
+      </div>
+      <div class="ppe-card" id="ppe-gloves" onclick="togglePPE('gloves')">
+        <div class="ppe-check">✓</div>
+        <div class="ppe-icon">🧤</div>
+        <div class="ppe-name">৩. হ্যান্ড গ্লাভস</div>
+        <div class="ppe-desc">নাইট্রাইল বা ল্যাটেক্সের গ্লাভস ত্বক দিয়ে ক্ষতিকর রাসায়নিক শোষণ এবং অ্যাসিড/ক্ষারের ক্ষয়কারী ক্ষত রোধ করে।</div>
+      </div>
+      <div class="ppe-card" id="ppe-fume" onclick="togglePPE('fume')">
+        <div class="ppe-check">✓</div>
+        <div class="ppe-icon">🌬️</div>
+        <div class="ppe-name">৪. ফিউম হুড (Fume Hood)</div>
+        <div class="ppe-desc">বিষাক্ত, দুর্গন্ধযুক্ত বা ক্ষতিকর গ্যাস (যেমন Cl₂, SO₂, NH₃, NO₂) উৎপন্ন হওয়ার বিক্রিয়াগুলো ফিউম হুডের ভেতরে করতে হয়।</div>
+      </div>
+    </div>
+
+    <div class="ppe-meter">
+      <div>
+        <div style="font-size:14px;font-weight:800;color:var(--pori-heading);" id="ppeStatusText">সুরক্ষা প্রস্তুতি: অরক্ষিত (০/৪)</div>
+        <div style="font-size:12px;color:var(--pori-muted);" id="ppeAdvise">ল্যাবরেটরিতে কাজ শুরুর আগে অবশ্যই সবগুলো সরঞ্জাম নিশ্চিত করো।</div>
+      </div>
+      <div class="bar-wrap">
+        <div class="bar-fill" id="ppeBar"></div>
+      </div>
+    </div>
+
+    <div style="margin-top:20px;background:#f8fafc;border:1px solid var(--pori-border-soft);border-radius:14px;padding:16px;">
+      <h4 style="font-size:14px;color:var(--pori-heading);margin-bottom:8px;">⚠️ ল্যাবরেটরির অতিরিক্ত সাধারণ নিরাপত্তা বিধি:</h4>
+      <ul style="font-size:13px;color:var(--pori-muted);line-height:1.7;padding-left:18px;">
+        <li>কখনো ল্যাবরেটরির ভেতর খাবার বা পানীয় গ্রহণ করা যাবে না।</li>
+        <li>রাসায়নিক পদার্থ কখনো সরাসরি শুঁকে দেখা বা খালি মুখে স্বাদ নেওয়া সম্পূর্ণ নিষিদ্ধ।</li>
+        <li>টেস্টটিউবে কোনো তরল গরম করার সময় টেস্টটিউবের মুখ কখনোই নিজের বা সহপাঠীর দিকে তাক করা যাবে না।</li>
+        <li>অ্যাসিড পাতলা করার সময় সবসময় পানির মধ্যে ফোঁটায় ফোঁটায় অ্যাসিড ঢালতে হয়, অ্যাসিডের মধ্যে কখনো পানি নয়।</li>
+        <li>ব্যবহৃত ক্ষতিকর বর্জ্য সরাসরি বেসিন বা ডাস্টবিনে না ফেলে নির্দিষ্ট রাসায়নিক বর্জ্য পাত্রে সংরক্ষণ করতে হয়।</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+/* 8 GHS HAZARD SYMBOLS DATA WITH INLINE SVG */
+const GHS_DATA = [
+  {
+    id: "explosive",
+    nameBangla: "বিস্ফোরক দ্রব্য",
+    nameEng: "Explosive (GHS01)",
+    formula: "TNT / জৈব পারক্সাইড",
+    examples: "টিএনটি (Trinitrotoluene), গানপাউডার, নাইট্রোগ্লিসারিন, জৈব পারক্সাইড।",
+    hazard: "সামান্য আঘাত, ঘর্ষণ, চাপ বা তাপে তীব্র বিস্ফোরণ ঘটতে পারে। এতে জীবন ও সম্পদের বিপুল ক্ষতি হতে পারে।",
+    precautions: "খুব সাবধানে নাড়াচাড়া করা, আঘাত ও তাপ থেকে দূরে রাখা এবং বিশেষ সুরক্ষিত ভাণ্ডারে সংরক্ষণ করা।",
+    disposal: "কখনোই সাধারণ ডাস্টবিনে ফেলা যাবে না; নির্দিষ্ট উচ্চ সতর্কতা বিধি মেনে ধ্বংস করতে হয়।",
+    svg: `<svg viewBox="0 0 100 100" class="icon"><polygon points="50,4 96,50 50,96 4,50" fill="#fff" stroke="#cc0000" stroke-width="7" stroke-linejoin="round"/><circle cx="50" cy="52" r="13" fill="#111"/><line x1="50" y1="36" x2="50" y2="24" stroke="#111" stroke-width="4"/><line x1="62" y1="42" x2="72" y2="34" stroke="#111" stroke-width="4"/><line x1="38" y1="42" x2="28" y2="34" stroke="#111" stroke-width="4"/><line x1="65" y1="52" x2="77" y2="52" stroke="#111" stroke-width="4"/><line x1="35" y1="52" x2="23" y2="52" stroke="#111" stroke-width="4"/><polygon points="48,22 52,22 50,18" fill="#111"/><circle cx="44" cy="48" r="2.5" fill="#fff"/><circle cx="56" cy="48" r="2.5" fill="#fff"/></svg>`
+  },
+  {
+    id: "flammable",
+    nameBangla: "দাহ্য পদার্থ",
+    nameEng: "Flammable (GHS02)",
+    formula: "C₂H₅OH / অ্যাসিটোন",
+    examples: "অ্যালকোহল (ইথানল), ইথার, অ্যাসিটোন, পেট্রোলিয়াম, এলপিজি গ্যাস।",
+    hazard: "এসব পদার্থ অতি দ্রুত বাতাসে আগুন ধরে জ্বলে ওঠে এবং মারাত্মক অগ্নিকাণ্ড ঘটাতে পারে।",
+    precautions: "আগুন বা কোনো তাপের উৎস ও বৈদ্যুতিক স্ফুলিঙ্গ থেকে সর্বদা দূরে নিরাপদ স্থানে রাখতে হবে।",
+    disposal: "বায়ুরোধী পাত্রে বায়ুর চলাচলযুক্ত স্থানে সংরক্ষণ ও নির্দিষ্ট প্রক্রিয়ায় নিষ্কাশন।",
+    svg: `<svg viewBox="0 0 100 100" class="icon"><polygon points="50,4 96,50 50,96 4,50" fill="#fff" stroke="#cc0000" stroke-width="7" stroke-linejoin="round"/><path d="M48,24 C48,24 58,35 52,47 C57,41 62,45 62,54 C62,64 54,72 44,72 C33,72 28,62 31,52 C33,45 38,44 38,44 C38,44 36,54 44,55 C44,48 40,36 48,24 Z" fill="#111"/><path d="M50,52 C50,52 54,58 51,64 C48,68 44,68 44,68 C44,68 42,62 46,60 C46,56 45,54 50,52 Z" fill="#fff"/></svg>`
+  },
+  {
+    id: "oxidizing",
+    nameBangla: "জারক পদার্থ",
+    nameEng: "Oxidizing (GHS03)",
+    formula: "KMnO₄ / H₂O₂",
+    examples: "পটাশিয়াম পারম্যাঙ্গানেট (KMnO₄), হাইড্রোজেন পারক্সাইড (H₂O₂), ঘনীভূত নাইট্রিক এসিড (HNO₃)।",
+    hazard: "নিজে হয়তো সরাসরি জ্বলে না, কিন্তু অক্সিজেন সরবরাহ করে অন্য দাহ্য বস্তুকে তীব্রভাবে জ্বলতে সহায়তা করে।",
+    precautions: "দাহ্য ও জৈব পদার্থ থেকে সম্পূর্ণ আলাদা রাখতে হবে। উপযুক্ত সুরক্ষামূলক সরঞ্জাম ছাড়া স্পর্শ নিষিদ্ধ।",
+    disposal: "বিজারক পদার্থের সংস্পর্শ এড়িয়ে বিশেষ বর্জ্য জারে ফেলতে হয়।",
+    svg: `<svg viewBox="0 0 100 100" class="icon"><polygon points="50,4 96,50 50,96 4,50" fill="#fff" stroke="#cc0000" stroke-width="7" stroke-linejoin="round"/><circle cx="50" cy="58" r="16" fill="none" stroke="#111" stroke-width="6"/><path d="M48,25 C48,25 57,34 52,43 C56,38 60,42 60,48 C58,48 54,44 50,48 C50,43 45,34 48,25 Z" fill="#111"/></svg>`
+  },
+  {
+    id: "corrosive",
+    nameBangla: "ক্ষয়কারী পদার্থ",
+    nameEng: "Corrosive (GHS05)",
+    formula: "Conc. HCl / NaOH",
+    examples: "ঘনীভূত হাইড্রোক্লোরিক এসিড (HCl), সালফিউরিক এসিড (H₂SO₄), সোডিয়াম হাইড্রোক্সাইড (NaOH)।",
+    hazard: "ত্বকে লাগলে মারাত্মক ক্ষত ও পুড়ে যাওয়ার সৃষ্টি হয়; ধাতু ও ল্যাবরেটরি বেঞ্চ ক্ষয় করে নষ্ট করে।",
+    precautions: "হাতে গ্লাভস, চোখে সেফটি চশমা ও অ্যাপ্রন পরে কাজ করতে হয়। ড্রপার দিয়ে খুব ধীরে ঢালতে হয়।",
+    disposal: "প্রথমে ক্ষার বা এসিড দ্বারা প্রশমিত (Neutralized) করে প্রচুর পানি সহকারে নিষ্কাশন করতে হয়।",
+    svg: `<svg viewBox="0 0 100 100" class="icon"><polygon points="50,4 96,50 50,96 4,50" fill="#fff" stroke="#cc0000" stroke-width="7" stroke-linejoin="round"/><rect x="25" y="66" width="50" height="8" rx="2" fill="#111"/><path d="M28,32 L40,38 L36,44 L24,38 Z" fill="#111"/><polygon points="36,43 38,48 34,48" fill="#111"/><rect x="36" y="62" width="6" height="4" fill="#fff"/><path d="M72,32 L60,38 L64,44 L76,38 Z" fill="#111"/><polygon points="64,43 62,48 66,48" fill="#111"/><path d="M54,58 C54,58 64,56 68,60 C72,64 68,68 62,68 L50,68" stroke="#111" stroke-width="4" fill="none"/></svg>`
+  },
+  {
+    id: "toxic",
+    nameBangla: "বিষাক্ত পদার্থ",
+    nameEng: "Toxic (GHS06)",
+    formula: "Methanol / KCN",
+    examples: "মিথানল (CH₃OH), মারকারি ক্লোরাইড (HgCl₂), পটাশিয়াম সায়ানাইড (KCN), আর্সেনিক যৌগ।",
+    hazard: "শ্বাসপ্রশ্বাসে, ত্বকের সংস্পর্শে বা মুখ দিয়ে দেহে প্রবেশ করলে মারাত্মক বিষক্রিয়া ও তাৎক্ষণিক মৃত্যু হতে পারে।",
+    precautions: "সবসময় ফিউম হুডের ভেতরে ব্যবহার করতে হবে; বিশেষ মাস্ক ও প্রতিরোধক গ্লাভস পরা বাধ্যতামূলক।",
+    disposal: "কখনোই পরিবেশ বা পানিতে ফেলা যাবে না। আলাদা বিষাক্ত বর্জ্য সংরক্ষণ জারে জমা রাখতে হয়।",
+    svg: `<svg viewBox="0 0 100 100" class="icon"><polygon points="50,4 96,50 50,96 4,50" fill="#fff" stroke="#cc0000" stroke-width="7" stroke-linejoin="round"/><circle cx="50" cy="44" r="14" fill="#111"/><circle cx="45" cy="43" r="3.5" fill="#fff"/><circle cx="55" cy="43" r="3.5" fill="#fff"/><polygon points="50,48 48,52 52,52" fill="#fff"/><rect x="44" y="58" width="12" height="8" rx="2" fill="#111"/><line x1="46" y1="58" x2="46" y2="66" stroke="#fff" stroke-width="1.5"/><line x1="50" y1="58" x2="50" y2="66" stroke="#fff" stroke-width="1.5"/><line x1="54" y1="58" x2="54" y2="66" stroke="#fff" stroke-width="1.5"/><line x1="30" y1="36" x2="70" y2="68" stroke="#111" stroke-width="5" stroke-linecap="round"/><line x1="30" y1="68" x2="70" y2="36" stroke="#111" stroke-width="5" stroke-linecap="round"/></svg>`
+  },
+  {
+    id: "harmful",
+    nameBangla: "ক্ষতিকর / উত্তেজক",
+    nameEng: "Harmful / Irritant (GHS07)",
+    formula: "NH₃ / লঘু অ্যাসিড",
+    examples: "অ্যামোনিয়া দ্রবণ (NH₃), ব্লিচিং পাউডার, লঘু ক্ষার ও এসিড, ক্লোরিন গ্যাস।",
+    hazard: "ত্বকে চুলকানি বা প্রদাহ সৃষ্টি করে, শ্বাসতন্ত্রে অস্বস্তি ও চোখ জ্বালাপোড়ার কারণ হতে পারে।",
+    precautions: "মাস্ক ও হ্যান্ড গ্লাভস ব্যবহার করতে হবে। রাসায়নিক সরাসরি গন্ধ নেওয়া পরিহার করতে হবে।",
+    disposal: "পরিমিত মাত্রায় প্রশমিত করে ড্রেনে নিষ্কাশন করা যায়।",
+    svg: `<svg viewBox="0 0 100 100" class="icon"><polygon points="50,4 96,50 50,96 4,50" fill="#fff" stroke="#cc0000" stroke-width="7" stroke-linejoin="round"/><rect x="46" y="28" width="8" height="26" rx="4" fill="#111"/><circle cx="50" cy="66" r="5" fill="#111"/></svg>`
+  },
+  {
+    id: "health",
+    nameBangla: "স্বাস্থ্য ঝুঁকি (দীর্ঘমেয়াদী)",
+    nameEng: "Health Hazard (GHS08)",
+    formula: "C₆H₆ / CCl₄",
+    examples: "বেনজিন (C₆H₆), কার্বন টেট্রাক্লোরাইড (CCl₄), ফেনল, অ্যাসবেসটস, লেড যৌগ।",
+    hazard: "কার্সিনোজেনিক (ক্যান্সার সৃষ্টিকারী), জেনেটিক মিউটেশনকারী এবং প্রজনন অঙ্গের দীর্ঘমেয়াদী ক্ষতি করে।",
+    precautions: "বাষ্প যেন শরীরে প্রবেশ না করে সেজন্য ফিউম হুডে ও সর্বোচ্চ সুরক্ষামূলক সরঞ্জামে কাজ করতে হয়।",
+    disposal: "বিশেষ বিপজ্জনক রাসায়নিক শোধনাগারে প্রক্রিয়াজাত করে ধ্বংস করতে হয়।",
+    svg: `<svg viewBox="0 0 100 100" class="icon"><polygon points="50,4 96,50 50,96 4,50" fill="#fff" stroke="#cc0000" stroke-width="7" stroke-linejoin="round"/><circle cx="50" cy="32" r="7" fill="#111"/><path d="M40,46 C40,43 45,41 50,41 C55,41 60,43 60,46 L64,68 L36,68 Z" fill="#111"/><polygon points="50,46 52,53 58,54 53,58 55,64 50,60 45,64 47,58 42,54 48,53" fill="#fff"/></svg>`
+  },
+  {
+    id: "environmental",
+    nameBangla: "পরিবেশের জন্য ক্ষতিকর",
+    nameEng: "Environmental Hazard (GHS09)",
+    formula: "Pb, Cd লবণ / CFC",
+    examples: "সীসা (Pb) ও ক্যাডমিয়াম (Cd)-এর ভারী লবণ, মারকারি যৌগ, ক্লোরোফ্লুরোকার্বন (CFC)।",
+    hazard: "জলাশয়ে মিশলে মাছ ও জলজ উদ্ভিদ বিনষ্ট করে; খাদ্যশৃঙ্খলে প্রবেশ করে দীর্ঘমেয়াদে বাস্তুতন্ত্র ধ্বংস করে।",
+    precautions: "কখনোই ল্যাবরেটরির সাধারণ নর্দমা বা মাটিতে ফেলা যাবে না; নির্দিষ্ট নিরাপদ বর্জ্য পাত্রে জমা করতে হয়।",
+    disposal: "রাসায়নিক রূপান্তর প্রক্রিয়ায় বিষমুক্ত করে পুনঃব্যবহার বা নিরাপদ রিসাইক্লিং বাধ্যতামূলক।",
+    svg: `<svg viewBox="0 0 100 100" class="icon"><polygon points="50,4 96,50 50,96 4,50" fill="#fff" stroke="#cc0000" stroke-width="7" stroke-linejoin="round"/><path d="M38,66 L38,36 L34,32 M38,44 L44,38 M38,52 L32,46" stroke="#111" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M68,54 C62,54 58,58 54,58 C52,58 48,56 46,58 C50,62 58,64 68,62 L74,68 L74,50 Z" fill="#111"/><line x1="20" y1="70" x2="80" y2="70" stroke="#111" stroke-width="4"/></svg>`
+  }
+];
+
+let currentSymbol = GHS_DATA[0];
+
+function renderShelf() {
+  const shelf = document.getElementById("shelfRow");
+  shelf.innerHTML = GHS_DATA.map(item => `
+    <div class="bottle ${item.id === currentSymbol.id ? 'active' : ''}" onclick="selectSymbol('${item.id}')">
+      ${item.svg}
+      <div class="bottle-label">${item.nameBangla}</div>
+      <div class="bottle-chem">${item.formula}</div>
+    </div>
+  `).join('');
+}
+
+function selectSymbol(id) {
+  currentSymbol = GHS_DATA.find(x => x.id === id);
+  renderShelf();
+  renderInspectCard();
+}
+
+function renderInspectCard() {
+  const card = document.getElementById("inspectCard");
+  const s = currentSymbol;
+  card.innerHTML = `
+    <div class="inspect-head">
+      <div class="inspect-symbol-big">${s.svg}</div>
+      <div class="inspect-titles">
+        <h2>${s.nameBangla}</h2>
+        <div class="eng-name">${s.nameEng}</div>
+      </div>
+    </div>
+
+    <div class="detail-box warn">
+      <b>⚠️ তাৎক্ষণিক ঝুঁকি ও বিপদ:</b> ${s.hazard}
+    </div>
+
+    <div class="prop-row">
+      <div class="prop-label">🧪 উদাহরণ:</div>
+      <div class="prop-val">${s.examples}</div>
+    </div>
+
+    <div class="prop-row">
+      <div class="prop-label">🛡️ সতর্কতা:</div>
+      <div class="prop-val">${s.precautions}</div>
+    </div>
+
+    <div class="prop-row">
+      <div class="prop-label">♻️ বর্জ্য ব্যবস্থাপনা:</div>
+      <div class="prop-val">${s.disposal}</div>
+    </div>
+
+    <div class="detail-box safe" style="margin-top:14px;">
+      <b>📋 ল্যাবরেটরি বিধিমালার সারসংক্ষেপ:</b> রাসায়নিকের পাত্রের গায়ে এই চিহ্ন দেখলে অবিলম্বে প্রয়োজনীয় ব্যক্তিগত সুরক্ষা সরঞ্জাম পরিধান করে নির্দেশিত পদ্ধতিতে সাবধানে ব্যবহার করো।
+    </div>
+  `;
+}
+
+/* TAB NAVIGATION */
+function setTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  
+  if (name === 'workbench') {
+    document.querySelectorAll('.tab-btn')[0].classList.add('active');
+    document.getElementById('tab-workbench').classList.add('active');
+  } else if (name === 'spill') {
+    document.querySelectorAll('.tab-btn')[1].classList.add('active');
+    document.getElementById('tab-spill').classList.add('active');
+    startSimLoop();
+  } else if (name === 'ppe') {
+    document.querySelectorAll('.tab-btn')[2].classList.add('active');
+    document.getElementById('tab-ppe').classList.add('active');
+  }
+}
+
+/* =========================================================================
+   ELEVATED GLASS REACTION JAR & SPILL WORKBENCH SIMULATION
+========================================================================= */
+const canvas = document.getElementById('spillCanvas');
+const ctx = canvas.getContext('2d');
+
+let viewMode = 'jar'; // 'jar' or 'bench'
+let reactionState = 'empty'; // 'empty', 'acid', 'neutralizing', 'neutralized', 'spattering'
+let currentLiquidVolume = 0; // 0 to 300 ml
+let targetLiquidVolume = 0;
+let liquidColor = { r: 239, g: 68, b: 68, a: 0.75 }; // Default acid red
+let targetColor = { r: 239, g: 68, b: 68, a: 0.75 };
+let thermometerTemp = 25.0; // °C
+let targetTemp = 25.0;
+let currentPH = 7.0;
+let targetPH = 7.0;
+
+let bubbles = [];
+let spatters = [];
+let powders = [];
+let vapors = [];
+let animId = null;
+
+function setViewMode(mode) {
+  viewMode = mode;
+  document.getElementById('btnModeJar').classList.toggle('active', mode === 'jar');
+  document.getElementById('btnModeBench').classList.toggle('active', mode === 'bench');
+}
+
+class Bubble {
+  constructor(x, y, maxR) {
+    this.x = x;
+    this.y = y;
+    this.r = Math.random() * (maxR || 4) + 1.5;
+    this.vy = -(Math.random() * 2.5 + 1.2);
+    this.vx = (Math.random() - 0.5) * 1.0;
+    this.alpha = 0.9;
+  }
+  update(topY) {
+    this.x += this.vx;
+    this.y += this.vy;
+    if (this.y <= topY + 4) {
+      this.alpha -= 0.08;
+    }
+  }
+  draw(ctx) {
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, this.alpha);
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 1.2;
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+class PowderParticle {
+  constructor(x, y) {
+    this.x = x + (Math.random() - 0.5) * 30;
+    this.y = y;
+    this.vy = Math.random() * 3 + 2;
+    this.vx = (Math.random() - 0.5) * 1;
+    this.r = Math.random() * 2 + 1.2;
+    this.alpha = 1;
+  }
+  update(liquidBottomY) {
+    this.x += this.vx;
+    this.y += this.vy;
+    if (this.y > liquidBottomY - 6) {
+      this.alpha -= 0.05;
+    }
+  }
+  draw(ctx) {
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, this.alpha);
+    ctx.fillStyle = '#f8fafc';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+class SpatterDrop {
+  constructor(x, y) {
+    this.x = x + (Math.random() - 0.5) * 40;
+    this.y = y;
+    this.vx = (Math.random() - 0.5) * 9;
+    this.vy = -(Math.random() * 8 + 5);
+    this.r = Math.random() * 3.5 + 2;
+    this.alpha = 1;
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.vy += 0.28; // gravity
+    this.alpha -= 0.012;
+  }
+  draw(ctx) {
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, this.alpha);
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+class VaporPuff {
+  constructor(x, y, color) {
+    this.x = x + (Math.random() - 0.5) * 30;
+    this.y = y;
+    this.vx = (Math.random() - 0.5) * 1.5;
+    this.vy = -(Math.random() * 2 + 1);
+    this.r = Math.random() * 8 + 6;
+    this.alpha = 0.55;
+    this.color = color || 'rgba(255, 255, 255, ';
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.r += 0.35;
+    this.alpha -= 0.01;
+  }
+  draw(ctx) {
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, this.alpha);
+    ctx.fillStyle = this.color + this.alpha + ')';
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function startSimLoop() {
+  if (animId) cancelAnimationFrame(animId);
+  function render() {
+    updatePhysics();
+    drawScene();
+    animId = requestAnimationFrame(render);
+  }
+  render();
+}
+
+function updatePhysics() {
+  // Volume lerp
+  currentLiquidVolume += (targetLiquidVolume - currentLiquidVolume) * 0.08;
+  // Temp lerp
+  thermometerTemp += (targetTemp - thermometerTemp) * 0.06;
+  // PH lerp
+  currentPH += (targetPH - currentPH) * 0.06;
+  // Color lerp
+  liquidColor.r += (targetColor.r - liquidColor.r) * 0.05;
+  liquidColor.g += (targetColor.g - liquidColor.g) * 0.05;
+  liquidColor.b += (targetColor.b - liquidColor.b) * 0.05;
+
+  // Particle spawn
+  if (viewMode === 'jar') {
+    const jarX = canvas.width / 2;
+    const jarY = 70;
+    const jarW = 200;
+    const jarH = 220;
+    const liquidH = (currentLiquidVolume / 500) * (jarH - 30);
+    const liquidTopY = (jarY + jarH - 15) - liquidH;
+    const liquidBottomY = jarY + jarH - 15;
+
+    if (reactionState === 'neutralizing' && currentLiquidVolume > 50) {
+      if (Math.random() < 0.8) {
+        powders.push(new PowderParticle(jarX, jarY + 10));
+      }
+      for (let i = 0; i < 3; i++) {
+        bubbles.push(new Bubble(jarX - jarW/2 + 25 + Math.random() * (jarW - 50), liquidBottomY - Math.random() * 20, 5));
+      }
+      if (Math.random() < 0.35) {
+        vapors.push(new VaporPuff(jarX, jarY, 'rgba(255, 255, 255, '));
+      }
+    }
+
+    if (reactionState === 'spattering' && currentLiquidVolume > 50) {
+      if (Math.random() < 0.7) {
+        spatters.push(new SpatterDrop(jarX, liquidTopY));
+      }
+      if (Math.random() < 0.6) {
+        vapors.push(new VaporPuff(jarX, jarY - 10, 'rgba(254, 202, 202, '));
+      }
+      for (let i = 0; i < 4; i++) {
+        bubbles.push(new Bubble(jarX - jarW/2 + 20 + Math.random() * (jarW - 40), liquidBottomY - Math.random() * 30, 7));
+      }
+    }
+
+    // Update bubbles
+    for (let i = bubbles.length - 1; i >= 0; i--) {
+      bubbles[i].update(liquidTopY);
+      if (bubbles[i].alpha <= 0 || bubbles[i].y < liquidTopY) {
+        bubbles.splice(i, 1);
+      }
+    }
+    // Update powders
+    for (let i = powders.length - 1; i >= 0; i--) {
+      powders[i].update(liquidBottomY);
+      if (powders[i].alpha <= 0 || powders[i].y > liquidBottomY) {
+        powders.splice(i, 1);
+      }
+    }
+  } else {
+    // Benchtop spill mode particles
+    const cx = canvas.width / 2;
+    const cy = canvas.height * 0.65;
+    if (reactionState === 'neutralizing' && Math.random() < 0.7) {
+      bubbles.push(new Bubble(cx + (Math.random() - 0.5) * 260, cy + (Math.random() - 0.5) * 50, 4));
+    }
+    if (reactionState === 'spattering' && Math.random() < 0.8) {
+      spatters.push(new SpatterDrop(cx, cy));
+    }
+    for (let i = bubbles.length - 1; i >= 0; i--) {
+      bubbles[i].update(cy - 20);
+      if (bubbles[i].alpha <= 0) bubbles.splice(i, 1);
+    }
+  }
+
+  // Update spatters & vapors for both modes
+  for (let i = spatters.length - 1; i >= 0; i--) {
+    spatters[i].update();
+    if (spatters[i].alpha <= 0 || spatters[i].y > canvas.height) {
+      spatters.splice(i, 1);
+    }
+  }
+  for (let i = vapors.length - 1; i >= 0; i--) {
+    vapors[i].update();
+    if (vapors[i].alpha <= 0) {
+      vapors.splice(i, 1);
+    }
+  }
+
+  // Update HUD values
+  document.getElementById('hudPH').textContent = currentPH.toFixed(1) + (currentPH < 3 ? ' (তীব্র অম্লীয়)' : (currentPH > 6.5 ? ' (নিরপেক্ষ)' : ' (প্রশমিত)'));
+  document.getElementById('hudPH').style.color = currentPH < 3 ? '#ef4444' : (currentPH > 6.5 ? 'var(--pori-accent)' : '#f59e0b');
+  document.getElementById('hudTemp').textContent = Math.round(thermometerTemp) + '°C' + (thermometerTemp > 60 ? ' (উত্তপ্ত!)' : '');
+  document.getElementById('hudTemp').style.color = thermometerTemp > 60 ? '#dc2626' : 'var(--pori-heading)';
+}
+
+function drawScene() {
+  const w = canvas.width;
+  const h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+
+  // Background room atmosphere
+  const bgGrad = ctx.createLinearGradient(0, 0, 0, h);
+  bgGrad.addColorStop(0, '#0f172a');
+  bgGrad.addColorStop(0.7, '#1e293b');
+  bgGrad.addColorStop(1, '#0b1120');
+  ctx.fillStyle = bgGrad;
+  ctx.fillRect(0, 0, w, h);
+
+  // Bench wooden table top
+  const tableY = h - 65;
+  const benchGrad = ctx.createLinearGradient(0, tableY, 0, h);
+  benchGrad.addColorStop(0, '#334155');
+  benchGrad.addColorStop(0.15, '#1e293b');
+  benchGrad.addColorStop(1, '#0f172a');
+  ctx.fillStyle = benchGrad;
+  ctx.fillRect(0, tableY, w, h - tableY);
+
+  // Wooden surface line
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, tableY);
+  ctx.lineTo(w, tableY);
+  ctx.stroke();
+
+  if (viewMode === 'jar') {
+    drawJarScene(w, h, tableY);
+  } else {
+    drawBenchSpillScene(w, h, tableY);
+  }
+
+  // Draw any active spatters and vapors on top
+  vapors.forEach(v => v.draw(ctx));
+  spatters.forEach(s => s.draw(ctx));
+}
+
+function drawJarScene(w, h, tableY) {
+  const jarX = w / 2;
+  const jarY = 70;
+  const jarW = 200;
+  const jarH = 220;
+
+  // 1. Magnetic Stirrer / Stand base
+  const standW = 260;
+  const standH = 26;
+  const standX = jarX - standW / 2;
+  const standY = tableY - standH + 8;
+
+  // Stand shadow
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(jarX, tableY + 5, standW / 2 + 10, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Stand body
+  const standGrad = ctx.createLinearGradient(0, standY, 0, standY + standH);
+  standGrad.addColorStop(0, '#cbd5e1');
+  standGrad.addColorStop(0.5, '#94a3b8');
+  standGrad.addColorStop(1, '#64748b');
+  ctx.fillStyle = standGrad;
+  ctx.beginPath();
+  ctx.roundRect(standX, standY, standW, standH, 8);
+  ctx.fill();
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+
+  // Stand ceramic white plate
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.roundRect(jarX - jarW/2 - 12, standY - 3, jarW + 24, 6, 3);
+  ctx.fill();
+
+  // 2. Jar Liquid Rendering (if volume > 0)
+  const bLeft = jarX - jarW / 2;
+  const bRight = jarX + jarW / 2;
+  const bBottom = jarY + jarH - 12;
+  const liquidH = (currentLiquidVolume / 500) * (jarH - 30);
+  const liquidTopY = bBottom - liquidH;
+
+  if (currentLiquidVolume > 2) {
+    ctx.save();
+    // Clip liquid inside jar shape
+    ctx.beginPath();
+    ctx.roundRect(bLeft + 6, jarY + 8, jarW - 12, jarH - 20, [0, 0, 14, 14]);
+    ctx.clip();
+
+    // Liquid body
+    const colStr = `rgba(${Math.round(liquidColor.r)}, ${Math.round(liquidColor.g)}, ${Math.round(liquidColor.b)}, ${liquidColor.a})`;
+    const liqGrad = ctx.createLinearGradient(bLeft, 0, bRight, 0);
+    liqGrad.addColorStop(0, `rgba(${Math.round(liquidColor.r*0.7)}, ${Math.round(liquidColor.g*0.7)}, ${Math.round(liquidColor.b*0.7)}, 0.9)`);
+    liqGrad.addColorStop(0.2, colStr);
+    liqGrad.addColorStop(0.8, colStr);
+    liqGrad.addColorStop(1, `rgba(${Math.round(liquidColor.r*0.6)}, ${Math.round(liquidColor.g*0.6)}, ${Math.round(liquidColor.b*0.6)}, 0.9)`);
+
+    ctx.fillStyle = liqGrad;
+    ctx.fillRect(bLeft + 6, liquidTopY, jarW - 12, liquidH + 20);
+
+    // Liquid surface meniscus
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.45)';
+    ctx.beginPath();
+    ctx.ellipse(jarX, liquidTopY, jarW / 2 - 10, 6, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Draw active bubbles & powder inside liquid
+    bubbles.forEach(b => b.draw(ctx));
+    powders.forEach(p => p.draw(ctx));
+
+    // Internal heat glow in spattering state
+    if (reactionState === 'spattering') {
+      const heatGrad = ctx.createRadialGradient(jarX, bBottom - liquidH/2, 10, jarX, bBottom - liquidH/2, 90);
+      heatGrad.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+      heatGrad.addColorStop(0.4, 'rgba(239, 68, 68, 0.6)');
+      heatGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = heatGrad;
+      ctx.fillRect(bLeft, liquidTopY, jarW, liquidH + 20);
+    }
+    ctx.restore();
+  }
+
+  // 3. Realistic Glass Jar Body (Borosilicate Beaker)
+  ctx.save();
+  // Glass outer border & reflections
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.75)';
+  ctx.lineWidth = 3.5;
+  ctx.beginPath();
+  // Spout on top left
+  ctx.moveTo(bLeft - 8, jarY);
+  ctx.lineTo(bLeft, jarY + 8);
+  ctx.lineTo(bLeft, bBottom - 14);
+  // Bottom rounded corner
+  ctx.arcTo(bLeft, bBottom, bLeft + 14, bBottom, 14);
+  ctx.lineTo(bRight - 14, bBottom);
+  ctx.arcTo(bRight, bBottom, bRight, bBottom - 14, 14);
+  ctx.lineTo(bRight, jarY + 8);
+  ctx.lineTo(bRight + 4, jarY);
+  ctx.stroke();
+
+  // Glass top rim opening ellipse
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.ellipse(jarX, jarY + 4, jarW / 2 + 2, 7, 0, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Glass vertical specular highlights
+  const specGrad = ctx.createLinearGradient(bLeft, 0, bLeft + 30, 0);
+  specGrad.addColorStop(0, 'rgba(255, 255, 255, 0.35)');
+  specGrad.addColorStop(1, 'transparent');
+  ctx.fillStyle = specGrad;
+  ctx.fillRect(bLeft + 3, jarY + 8, 25, jarH - 22);
+
+  const rightSpec = ctx.createLinearGradient(bRight - 18, 0, bRight, 0);
+  rightSpec.addColorStop(0, 'transparent');
+  rightSpec.addColorStop(1, 'rgba(255, 255, 255, 0.25)');
+  ctx.fillStyle = rightSpec;
+  ctx.fillRect(bRight - 18, jarY + 8, 15, jarH - 22);
+
+  // 4. Volume Graduation Tick Marks (100ml, 200ml, 300ml, 400ml, 500ml)
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+  ctx.lineWidth = 1.5;
+  ctx.font = '10px monospace';
+  ctx.textAlign = 'left';
+
+  const marks = [100, 200, 300, 400, 500];
+  marks.forEach(ml => {
+    const markY = bBottom - (ml / 500) * (jarH - 30);
+    ctx.beginPath();
+    ctx.moveTo(bLeft + 6, markY);
+    ctx.lineTo(bLeft + 24, markY);
+    ctx.stroke();
+    ctx.fillText(`${ml} mL`, bLeft + 28, markY + 3.5);
+  });
+  ctx.restore();
+
+  // 5. Dipped Instruments: Glass Thermometer & Digital pH Probe
+  // Glass Thermometer on left
+  const thX = jarX - 45;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+  ctx.lineWidth = 5;
+  ctx.beginPath();
+  ctx.moveTo(thX, jarY - 30);
+  ctx.lineTo(thX, bBottom - 18);
+  ctx.stroke();
+
+  // Thermometer bulb & mercury column
+  const tPct = Math.min(1, Math.max(0, (thermometerTemp - 15) / 85));
+  const thBulbY = bBottom - 18;
+  const thColTop = thBulbY - tPct * 90;
+
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(thX, thBulbY);
+  ctx.lineTo(thX, thColTop);
+  ctx.stroke();
+
+  ctx.fillStyle = '#ef4444';
+  ctx.beginPath();
+  ctx.arc(thX, thBulbY, 6, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Thermometer top label
+  ctx.fillStyle = '#e2e8f0';
+  ctx.font = '11px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText(`${Math.round(thermometerTemp)}°C`, thX, jarY - 36);
+  ctx.restore();
+
+  // Digital pH Probe on right
+  const phX = jarX + 50;
+  ctx.save();
+  // Cable & Stem
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(phX, jarY - 35);
+  ctx.lineTo(phX, bBottom - 25);
+  ctx.stroke();
+
+  // Glass Bulb of probe
+  ctx.fillStyle = '#93c5fd';
+  ctx.beginPath();
+  ctx.arc(phX, bBottom - 25, 5, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Probe head badge
+  ctx.fillStyle = '#0f172a';
+  ctx.strokeStyle = '#38bdf8';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.roundRect(phX - 25, jarY - 55, 50, 18, 5);
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.fillStyle = currentPH < 3 ? '#ef4444' : (currentPH > 6.5 ? '#10b981' : '#f59e0b');
+  ctx.font = 'bold 11px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText(`pH ${currentPH.toFixed(1)}`, phX, jarY - 42);
+  ctx.restore();
+
+  // Scene Title Text
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '12px system-ui';
+  ctx.textAlign = 'left';
+  ctx.fillText('⚗️ ল্যাবরেটরি রিঅ্যাকশন বিকার জার (৫০০ mL Borosilicate Beaker)', 18, 26);
+}
+
+function drawBenchSpillScene(w, h, tableY) {
+  const cx = w / 2;
+  const cy = tableY + 8;
+
+  // Table grid perspective
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for (let x = 60; x < w; x += 90) {
+    ctx.moveTo(x, tableY);
+    ctx.lineTo(x, h);
+  }
+  ctx.stroke();
+
+  // Surface Spill Puddle
+  if (reactionState !== 'empty') {
+    ctx.save();
+    const colStr = `rgba(${Math.round(liquidColor.r)}, ${Math.round(liquidColor.g)}, ${Math.round(liquidColor.b)}, 0.8)`;
+    ctx.fillStyle = colStr;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, 210, 50, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Specular highlight on spill
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.28)';
+    ctx.beginPath();
+    ctx.ellipse(cx - 55, cy - 12, 65, 14, -0.15, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Draw bubbles on bench
+    bubbles.forEach(b => b.draw(ctx));
+    ctx.restore();
+  }
+
+  // Scene Title Text
+  ctx.fillStyle = '#94a3b8';
+  ctx.font = '12px system-ui';
+  ctx.textAlign = 'left';
+  ctx.fillText('🧪 ল্যাবরেটরি বেঞ্চ সারফেস ভিউ (Tabletop Spill Surface View)', 18, 26);
+}
+
+/* ACTIONS */
+function triggerAction(action) {
+  const log = document.getElementById('spillLog');
+  const status = document.getElementById('hudStatus');
+
+  if (action === 'acid') {
+    reactionState = 'acid';
+    targetLiquidVolume = 250;
+    targetColor = { r: 239, g: 68, b: 68, a: 0.8 };
+    targetPH = 1.2;
+    targetTemp = 25.0;
+
+    document.getElementById('hudSubstance').textContent = 'ঘনীভূত হাইড্রোক্লোরিক অ্যাসিড (HCl)';
+    status.textContent = 'বিপদ! তীব্র ক্ষয়কারী ⚠️';
+    status.style.color = '#ef4444';
+
+    log.className = 'spill-log danger';
+    log.innerHTML = '<b>🚨 অ্যাসিড গ্রহণ সম্পন্ন:</b> রিঅ্যাকশন জারে ২৫০ মিলি ঘনীভূত HCl অ্যাসিড নেওয়া হয়েছে। ডিজিটাল ইলেকট্রোড তীব্র অম্লতা (pH ১.২) প্রদর্শন করছে। এটি অত্যন্ত ক্ষয়কারী (Corrosive); কোনো অবস্থাতেই পানি যোগ করা যাবে না।';
+  }
+  else if (action === 'neutralizer') {
+    if (reactionState === 'empty' || currentLiquidVolume < 30) {
+      alert('প্রথমে জারে অ্যাসিড ঢালো!');
+      return;
+    }
+    reactionState = 'neutralizing';
+    targetLiquidVolume = 280;
+    targetColor = { r: 245, g: 158, b: 11, a: 0.85 }; // amber during effervescence
+    targetPH = 4.8;
+    targetTemp = 28.5;
+
+    document.getElementById('hudSubstance').textContent = 'NaHCO₃ যোগ হচ্ছে (বুদবুদ নির্গমন...)';
+    status.textContent = 'প্রশমন বিক্রিয়া চলমান ✨';
+    status.style.color = '#f59e0b';
+
+    log.className = 'spill-log success';
+    log.innerHTML = '<b>✨ তীব্র বুদবুদ সৃষ্টি হচ্ছে (Effervescence):</b> খাবার সোডা ($NaHCO_3$) অ্যাসিডের সাথে বিক্রিয়া করে প্রচুর কার্বন ডাই অক্সাইড ($CO_2\\uparrow$) বুদবুদ তৈরি করছে।<br><code>HCl + NaHCO₃ → NaCl + H₂O + CO₂↑</code>';
+
+    setTimeout(() => {
+      reactionState = 'neutralized';
+      targetColor = { r: 16, g: 185, b: 129, a: 0.75 }; // Emerald green (neutral)
+      targetPH = 7.0;
+      targetTemp = 25.0;
+
+      document.getElementById('hudSubstance').textContent = 'লবণ পানি (NaCl + H₂O দ্রবণ)';
+      status.textContent = 'নিরাপদ ও নিরপেক্ষ ✅';
+      status.style.color = 'var(--pori-accent)';
+
+      log.innerHTML = '<b>✅ সফল প্রশমন:</b> অ্যাসিড সম্পূর্ণ নিরপেক্ষ লবণ পানিতে রূপান্তরিত হয়েছে (pH ৭.০)। কোনো তাপীয় বিপদ ছাড়াই বিক্রিয়া সম্পন্ন হয়েছে। এটি এখন সহজেই নিষ্কাশনযোগ্য।';
+    }, 2800);
+  }
+  else if (action === 'water') {
+    if (reactionState === 'empty' || currentLiquidVolume < 30) {
+      alert('প্রথমে জারে অ্যাসিড ঢালো!');
+      return;
+    }
+    reactionState = 'spattering';
+    targetLiquidVolume = 320;
+    targetColor = { r: 220, g: 38, b: 38, a: 0.95 };
+    targetPH = 1.8;
+    targetTemp = 96.0;
+
+    document.getElementById('hudSubstance').textContent = 'অ্যাসিড + পানি (বিস্ফোরক স্ফুটন!)';
+    status.textContent = 'বিস্ফোরক ছিটকে পড়া 💥';
+    status.style.color = '#dc2626';
+
+    log.className = 'spill-log danger';
+    log.innerHTML = '<b>💥 মারাত্মক ভুল ও চরম বিপদ!</b> ঘনীভূত অ্যাসিডের ওপর সরাসরি পানি ঢালায় স্থানীয়ভাবে প্রচণ্ড তাপ ($Exothermic\\ Heat$) তৈরি হয়েছে! পানি তাৎক্ষণিক ফুটে উঠে ফুটন্ত অ্যাসিডকে জার থেকে চতুর্দিকে ছিটিয়ে দিচ্ছে ($Spattering$)! থার্মোমিটার ৯৬°C স্পর্শ করেছে। এটি চোখ বা ত্বকে লাগলে অন্ধত্ব বা স্থায়ী ক্ষত সৃষ্টি করত!';
+  }
+  else if (action === 'reset') {
+    reactionState = 'empty';
+    targetLiquidVolume = 0;
+    currentLiquidVolume = 0;
+    targetColor = { r: 239, g: 68, b: 68, a: 0.75 };
+    targetPH = 7.0;
+    targetTemp = 25.0;
+    bubbles = [];
+    spatters = [];
+    powders = [];
+    vapors = [];
+
+    document.getElementById('hudSubstance').textContent = 'পরিষ্কার জার (খালি)';
+    status.textContent = 'নিরাপদ ✅';
+    status.style.color = 'var(--pori-accent)';
+
+    log.className = 'spill-log neutral';
+    log.innerHTML = 'জার ধৌত করে পরিষ্কার করা হয়েছে। ডিজিটাল ইলেকট্রোড ও থার্মোমিটার স্বাভাবিক অবস্থায় ফিরে এসেছে। নতুন পরীক্ষার জন্য প্রস্তুত।';
+  }
+}
+
+/* =========================================================================
+   PPE GEAR MANAGEMENT
+========================================================================= */
+const ppeItems = {
+  coat: false,
+  goggles: false,
+  gloves: false,
+  fume: false
+};
+
+function togglePPE(item) {
+  ppeItems[item] = !ppeItems[item];
+  const card = document.getElementById('ppe-' + item);
+  if (ppeItems[item]) {
+    card.classList.add('equipped');
+  } else {
+    card.classList.remove('equipped');
+  }
+  updatePPEMeter();
+}
+
+function updatePPEMeter() {
+  const count = Object.values(ppeItems).filter(Boolean).length;
+  const pct = (count / 4) * 100;
+  const bar = document.getElementById('ppeBar');
+  bar.style.width = pct + '%';
+
+  const statusText = document.getElementById('ppeStatusText');
+  const advise = document.getElementById('ppeAdvise');
+
+  const bnNums = ['০', '১', '২', '৩', '৪'];
+
+  if (count === 0) {
+    statusText.textContent = `সুরক্ষা প্রস্তুতি: অরক্ষিত (${bnNums[count]}/৪)`;
+    advise.textContent = 'ল্যাবরেটরিতে কাজ শুরুর আগে অবশ্যই সবগুলো সরঞ্জাম নিশ্চিত করো।';
+  } else if (count < 4) {
+    statusText.textContent = `সুরক্ষা প্রস্তুতি: আংশিক সংরক্ষিত (${bnNums[count]}/৪)`;
+    advise.textContent = 'এখনো কিছু গুরুত্বপূর্ণ নিরাপত্তা গিয়ার বাকি রয়েছে। সম্পূর্ণ সুরক্ষার জন্য সবগুলো পরিধান করো।';
+  } else {
+    statusText.textContent = `সুরক্ষা প্রস্তুতি: পূর্ণাঙ্গ সুরক্ষিত (${bnNums[count]}/৪) 🛡️`;
+    advise.textContent = 'চমৎকার! আপনি এখন যেকোনো সাধারণ বা বিপজ্জনক রাসায়নিক নিয়ে নিরাপদভাবে কাজ করার জন্য প্রস্তুত।';
+  }
+}
+
+// Initialization on load
+document.addEventListener('DOMContentLoaded', () => {
+  renderShelf();
+  renderInspectCard();
+  updatePPEMeter();
+  startSimLoop();
+});
+</script>
+</body>
+</html>

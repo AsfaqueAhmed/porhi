@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>আমাদের জীবনে রসায়ন ল্যাবরেটরি | poRi Chemistry Lab</title>
+  <style>
+    /* PORI UNIFIED SIMULATOR THEME */
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-accent: #0f766e;
+      --pori-accent-soft: #ecfdf5;
+      --pori-accent-border: #99f6e4;
+      --pori-accent-ink: #134e4a;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-amber-ink: #92400e;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-border: #fecdd3;
+      --pori-rose-ink: #9f1239;
+      --pori-blue-soft: #eff6ff;
+      --pori-blue-border: #bfdbfe;
+      --pori-blue-ink: #1e40af;
+      --pori-indigo-soft: #eef2ff;
+      --pori-indigo-border: #c7d2fe;
+      --pori-indigo-ink: #3730a3;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+    }
+    .app {
+      max-width: 1040px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 28px rgba(15, 23, 42, 0.06);
+    }
+    .head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .head h1 {
+      margin: 0;
+      font-size: 22px;
+      color: var(--pori-heading);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--pori-accent-ink);
+      background: var(--pori-accent-soft);
+      border: 1px solid var(--pori-accent-border);
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+    .head p {
+      margin: 4px 0 0;
+      font-size: 13px;
+      color: var(--pori-muted);
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--pori-border);
+      background: var(--pori-surface);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--pori-muted);
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      background: var(--pori-accent-soft);
+      color: var(--pori-accent-ink);
+    }
+    .tab-btn.active {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+    }
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 16px;
+    }
+    @media (max-width: 860px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+    .viewport-card {
+      background: #fafbfc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    .canvas-container {
+      width: 100%;
+      height: 380px;
+      position: relative;
+      border-radius: 10px;
+      background: #ffffff;
+      border: 1px solid var(--pori-border-soft);
+      overflow: hidden;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .status-overlay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--pori-border);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      color: var(--pori-heading);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      z-index: 5;
+    }
+    .panel-card {
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .panel-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--pori-heading);
+      margin: 0;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .control-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--pori-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+    .control-slider {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: #cbd5e1;
+      outline: none;
+      -webkit-appearance: none;
+    }
+    .control-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--pori-accent);
+      cursor: pointer;
+    }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--pori-border);
+      background: #f8fafc;
+      color: var(--pori-heading);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+    .btn:hover {
+      background: var(--pori-accent-soft);
+      border-color: var(--pori-accent-border);
+      color: var(--pori-accent-ink);
+    }
+    .btn.primary {
+      background: var(--pori-accent);
+      border-color: var(--pori-accent);
+      color: #fff;
+    }
+    .btn.primary:hover {
+      background: #115e59;
+    }
+    .readout-box {
+      background: var(--pori-accent-soft);
+      border: 1px solid var(--pori-accent-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: var(--pori-accent-ink);
+      line-height: 1.5;
+    }
+    .formula-tag {
+      display: inline-block;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #0f172a;
+    }
+    .fact-card {
+      background: var(--pori-amber-soft);
+      border: 1px solid var(--pori-amber-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: var(--pori-amber-ink);
+      line-height: 1.5;
+    }
+    .quiz-box {
+      margin-top: 16px;
+      border-top: 1px dashed var(--pori-border);
+      padding-top: 12px;
+    }
+    .quiz-q {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--pori-heading);
+      margin-bottom: 6px;
+    }
+    .quiz-opt {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 6px 10px;
+      margin: 4px 0;
+      border-radius: 6px;
+      border: 1px solid var(--pori-border);
+      background: #fff;
+      font-size: 11px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .quiz-opt:hover {
+      background: #f1f5f9;
+    }
+    .quiz-opt.correct {
+      background: #d1fae5;
+      border-color: #34d399;
+      color: #065f46;
+      font-weight: 700;
+    }
+    .quiz-opt.wrong {
+      background: #fee2e2;
+      border-color: #f87171;
+      color: #991b1b;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="head">
+    <div>
+      <h1>🧪 আমাদের জীবনে রসায়ন ল্যাবরেটরি <span class="badge">অধ্যায় ১২ · সিমুলেটর</span></h1>
+      <p>স্যাপোনিফিকেশন (সাবান তৈরি), মাইসেল ও ময়লা পরিষ্কারের কৌশল এবং ভিনেগার-বেকিং সোডার গ্যাস নির্গমন পরীক্ষা</p>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-soap" onclick="switchTab('soap')">🧼 ১. স্যাপোনিফিকেশন (সাবান তৈরি)</button>
+    <button class="tab-btn" id="tab-micelle" onclick="switchTab('micelle')">🫧 ২. মাইসেল ও ময়লা পরিষ্কারের কৌশল</button>
+    <button class="tab-btn" id="tab-effervescence" onclick="switchTab('effervescence')">🧪 ৩. ভিনেগার ও বেকিং সোডা (CO₂ পরীক্ষা)</button>
+  </div>
+
+  <div class="main-grid">
+    <!-- Viewport Column -->
+    <div class="viewport-card">
+      <div class="canvas-container">
+        <canvas id="simCanvas" width="600" height="380"></canvas>
+        <div class="status-overlay" id="statusOverlay">
+          অবস্থা: প্রস্তুত
+        </div>
+      </div>
+      <div style="width: 100%; margin-top: 10px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--pori-muted);">
+        <span>💡 ইন্টারঅ্যাকশন: কন্ট্রোল প্যানেল থেকে বিক্রিয়ার উপাদান ও শর্ত পরিবর্তন করে দেখুন।</span>
+        <button class="btn" onclick="resetCurrentSim()" style="padding: 4px 8px; font-size: 11px;">🔄 রিসেট</button>
+      </div>
+    </div>
+
+    <!-- Controls & Explanation Column -->
+    <div class="panel-card" id="controlPanel">
+      <!-- Dynamic content injected by JavaScript based on active tab -->
+    </div>
+  </div>
+</div>
+
+<script>
+// --- Global State ---
+let currentTab = 'soap';
+const canvas = document.getElementById('simCanvas');
+const ctx = canvas.getContext('2d');
+const overlay = document.getElementById('statusOverlay');
+const panel = document.getElementById('controlPanel');
+
+let animFrameId = null;
+let animTimer = 0;
+
+// --- Tab 1: Soap State ---
+let soapState = {
+  fat: 'stearin', // stearin, palm, olive
+  alkali: 'NaOH', // NaOH (কঠিন সাবান), KOH (নরম সাবান)
+  temp: 80, // 40 - 100 C
+  isHeating: false,
+  progress: 0, // 0 - 100%
+  saltedOut: false,
+  isStirring: false,
+  stirAngle: 0
+};
+
+// --- Tab 2: Micelle State ---
+let micelleState = {
+  waterType: 'soft', // soft vs hard
+  cleaningStep: 0, // 0: unwashed, 1: soap added, 2: micelle formed, 3: grease lifted, 4: rinsed
+  surfactantType: 'soap', // soap vs detergent
+  agitation: 0
+};
+
+// --- Tab 3: Effervescence State ---
+let effState = {
+  reagent: 'bakingSoda', // bakingSoda (NaHCO3), eggShell (CaCO3)
+  acidAmount: 50, // 10 - 100 mL
+  reactionProgress: 0,
+  gasVolume: 0, // in mL
+  limewaterTested: false,
+  limewaterCloudy: false,
+  flameTested: false,
+  flameExtinguished: false,
+  bubbles: []
+};
+
+function switchTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  renderControls();
+}
+
+function resetCurrentSim() {
+  if (currentTab === 'soap') {
+    soapState.progress = 0;
+    soapState.isHeating = false;
+    soapState.saltedOut = false;
+    soapState.isStirring = false;
+  } else if (currentTab === 'micelle') {
+    micelleState.cleaningStep = 0;
+    micelleState.agitation = 0;
+  } else if (currentTab === 'effervescence') {
+    effState.reactionProgress = 0;
+    effState.gasVolume = 0;
+    effState.limewaterTested = false;
+    effState.limewaterCloudy = false;
+    effState.flameTested = false;
+    effState.flameExtinguished = false;
+    effState.bubbles = [];
+  }
+  renderControls();
+}
+
+// -------------------------------------------------------------
+// CONTROL PANELS RENDERING
+// -------------------------------------------------------------
+function renderControls() {
+  if (currentTab === 'soap') {
+    panel.innerHTML = `
+      <div class="panel-title">
+        <span>🧼 স্যাপোনিফিকেশন কন্ট্রোল</span>
+        <span class="formula-tag">তেল + ক্ষার → সাবান + গ্লিসারিন</span>
+      </div>
+      <div class="control-group">
+        <label class="control-label">তেল বা চর্বির ধরন:
+          <span style="font-weight:700; color:var(--pori-accent)">
+            ${soapState.fat === 'stearin' ? 'গ্লিসারিল স্টিয়ারেট (চর্বি)' : soapState.fat === 'palm' ? 'পাম অয়েল' : 'অলিভ অয়েল'}
+          </span>
+        </label>
+        <div class="btn-row">
+          <button class="btn ${soapState.fat==='stearin'?'primary':''}" onclick="soapState.fat='stearin'; renderControls();">গরুর চর্বি/নারকেল</button>
+          <button class="btn ${soapState.fat==='palm'?'primary':''}" onclick="soapState.fat='palm'; renderControls();">পাম অয়েল</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">ক্ষার নির্বাচন:
+          <span style="font-weight:700; color:var(--pori-accent)">${soapState.alkali==='NaOH'?'NaOH (সোডিয়াম স্টিয়ারেট - শক্ত সাবান)':'KOH (পটাশিয়াম লবণ - নরম সাবান)'}</span>
+        </label>
+        <div class="btn-row">
+          <button class="btn ${soapState.alkali==='NaOH'?'primary':''}" onclick="soapState.alkali='NaOH'; renderControls();">NaOH (কাপড় কাঁচা)</button>
+          <button class="btn ${soapState.alkali==='KOH'?'primary':''}" onclick="soapState.alkali='KOH'; renderControls();">KOH (গোসল/তরল)</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">তাপমাত্রা (°C): <b>${soapState.temp}°C</b></label>
+        <input type="range" class="control-slider" min="40" max="100" value="${soapState.temp}" oninput="soapState.temp=parseInt(this.value); renderControls();">
+      </div>
+
+      <div class="btn-row" style="margin-top:4px;">
+        <button class="btn primary" onclick="startSoapHeating()">
+          ${soapState.isHeating ? '🔥 উত্তপ্ত হচ্ছে...' : '🔥 উত্তপ্ত ও বিক্রিয়া শুরু'}
+        </button>
+        <button class="btn" onclick="soapSaltingOut()" ${soapState.progress < 80 ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}>
+          🧂 সল্টিং আউট (NaCl যোগ)
+        </button>
+      </div>
+
+      <div class="readout-box">
+        <b>বিক্রিয়া অগ্রগতি:</b> ${Math.round(soapState.progress)}%<br>
+        <b>pH মান:</b> ${(13.5 - (soapState.progress/100)*4.5).toFixed(1)} (ক্ষারীয় দ্রবণ প্রশমিত হচ্ছে)<br>
+        <b>অবস্থা:</b> ${soapState.progress >= 100 ? (soapState.saltedOut ? '✅ সাবান উপরে ভেসে উঠেছে (Curd soap) এবং নিচে তরল গ্লিসারিন আলাদা হয়েছে!' : 'বিক্রিয়া সম্পন্ন। এবার NaCl দিয়ে সল্টিং আউট করুন।') : soapState.isHeating ? 'হাইড্রোলাইসিস বিক্রিয়া চলমান...' : 'বিক্রিয়া শুরু করতে "উত্তপ্ত করুন" চাপুন।'}
+      </div>
+
+      <div class="fact-card">
+        <b>💡 মূল বিক্রিয়া:</b><br>
+        গ্লিসারিল ট্রাই-স্টিয়ারেট + 3NaOH → 3 সোডিয়াম স্টিয়ারেট (সাবান) + গ্লিসারল। লবণ (NaCl) যোগ করলে সাধারণ আয়ন প্রভাবে সাবান অদ্রবণীয় হয়ে উপরে কেক আকারে ভেসে ওঠে।
+      </div>
+
+      <div class="quiz-box">
+        <div class="quiz-q">❓ স্যাপোনিফিকেশনের প্রধান উপজাত (by-product) কোনটি?</div>
+        <button class="quiz-opt" onclick="checkQuiz(this, true)">গ্লিসারিন (Glycerol / ট্রাইহাইড্রক্সি অ্যালকোহল)</button>
+        <button class="quiz-opt" onclick="checkQuiz(this, false)">ইথানল</button>
+        <button class="quiz-opt" onclick="checkQuiz(this, false)">সোডিয়াম ক্লোরাইড</button>
+      </div>
+    `;
+  } else if (currentTab === 'micelle') {
+    panel.innerHTML = `
+      <div class="panel-title">
+        <span>🫧 মাইসেল ও ময়লা পরিষ্কার</span>
+        <span class="formula-tag">Hydrophobic Tail + Hydrophilic Head</span>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">পরিষ্কারক সামগ্রী:
+          <span style="font-weight:700; color:var(--pori-accent)">${micelleState.surfactantType==='soap'?'সাবান (R-COONa)':'ডিটারজেন্ট (R-SO₃Na)'}</span>
+        </label>
+        <div class="btn-row">
+          <button class="btn ${micelleState.surfactantType==='soap'?'primary':''}" onclick="micelleState.surfactantType='soap'; renderControls();">সাবান</button>
+          <button class="btn ${micelleState.surfactantType==='detergent'?'primary':''}" onclick="micelleState.surfactantType='detergent'; renderControls();">ডিটারজেন্ট</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">পানির ধরন:
+          <span style="font-weight:700; color:var(--pori-accent)">${micelleState.waterType==='soft'?'মৃদু পানি (Soft Water)':'খর পানি (Ca²⁺, Mg²⁺ সমৃদ্ধ)'}</span>
+        </label>
+        <div class="btn-row">
+          <button class="btn ${micelleState.waterType==='soft'?'primary':''}" onclick="micelleState.waterType='soft'; renderControls();">মৃদু পানি</button>
+          <button class="btn ${micelleState.waterType==='hard'?'primary':''}" onclick="micelleState.waterType='hard'; renderControls();">খর পানি (Hard)</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">পরিষ্কারের ধাপ:</label>
+        <div class="btn-row">
+          <button class="btn ${micelleState.cleaningStep===0?'primary':''}" onclick="micelleState.cleaningStep=0; renderControls();">১. তেলযুক্ত ময়লা</button>
+          <button class="btn ${micelleState.cleaningStep===1?'primary':''}" onclick="micelleState.cleaningStep=1; renderControls();">২. পরিষ্কারক যোগ</button>
+          <button class="btn ${micelleState.cleaningStep===2?'primary':''}" onclick="micelleState.cleaningStep=2; renderControls();">৩. মাইসেল গঠন</button>
+          <button class="btn ${micelleState.cleaningStep>=3?'primary':''}" onclick="micelleState.cleaningStep=3; renderControls();">৪. কাপড় থেকে ময়লা দূর</button>
+        </div>
+      </div>
+
+      <div class="readout-box">
+        ${getMicelleReadout()}
+      </div>
+
+      <div class="fact-card">
+        <b>💡 কেন খর পানিতে ডিটারজেন্ট সেরা?</b><br>
+        খর পানির Ca²⁺ ও Mg²⁺ আয়ন সাবানের সাথে বিক্রিয়া করে অদ্রবণীয় আঠালো গাদ (Scum) তৈরি করে। কিন্তু ডিটারজেন্টের ক্যালসিয়াম ও ম্যাগনেসিয়াম লবণ পানিতে দ্রবণীয়, তাই ডিটারজেন্ট খর পানিতেও সম্পূর্ণ কার্যকর থাকে।
+      </div>
+
+      <div class="quiz-box">
+        <div class="quiz-q">❓ সাবানের হাইড্রোকার্বন শৃঙ্খলটির ধর্ম কেমন?</div>
+        <button class="quiz-opt" onclick="checkQuiz(this, true)">হাইড্রোফোবিক (পানি-বিকর্ষী / তেল-আকর্ষী)</button>
+        <button class="quiz-opt" onclick="checkQuiz(this, false)">হাইড্রোফিলিক (পানি-আকর্ষী)</button>
+      </div>
+    `;
+  } else if (currentTab === 'effervescence') {
+    panel.innerHTML = `
+      <div class="panel-title">
+        <span>🧪 ভিনেগার ও কার্বনেট পরীক্ষা</span>
+        <span class="formula-tag">CH₃COOH + Carbonate → CO₂↑</span>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">কার্বনেট উপাদান নির্বাচন:
+          <span style="font-weight:700; color:var(--pori-accent)">${effState.reagent==='bakingSoda'?'বেকিং সোডা (NaHCO₃)':'ডিমের খোসার গুঁড়া (CaCO₃)'}</span>
+        </label>
+        <div class="btn-row">
+          <button class="btn ${effState.reagent==='bakingSoda'?'primary':''}" onclick="effState.reagent='bakingSoda'; renderControls();">বেকিং সোডা (NaHCO₃)</button>
+          <button class="btn ${effState.reagent==='eggshell'?'primary':''}" onclick="effState.reagent='eggshell'; renderControls();">ডিমের খোসা (CaCO₃)</button>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label class="control-label">ভিনেগারের পরিমাণ: <b>${effState.acidAmount} mL</b> (৪-১০% CH₃COOH)</label>
+        <input type="range" class="control-slider" min="10" max="100" value="${effState.acidAmount}" oninput="effState.acidAmount=parseInt(this.value); renderControls();">
+      </div>
+
+      <div class="btn-row" style="margin-top:4px;">
+        <button class="btn primary" onclick="startEffervescence()">
+          🧪 ভিনেগার ঢালুন (বিক্রিয়া শুরু)
+        </button>
+      </div>
+
+      <div class="readout-box">
+        <b>সংগৃহীত CO₂ গ্যাস:</b> ${Math.round(effState.gasVolume)} mL<br>
+        <b>বুদবুদের হার:</b> ${effState.reactionProgress > 0 && effState.reactionProgress < 100 ? 'তীব্র বুদবুদ সৃষ্টি (বুদবুদ নির্গমন)' : effState.reactionProgress >= 100 ? 'বিক্রিয়া সমাপ্ত' : 'অপেক্ষমান'}<br>
+        <b>চুনের পানি পরীক্ষা:</b> ${effState.limewaterTested ? (effState.limewaterCloudy ? '⚪ চুনের পানি ঘোলা হয়েছে (CaCO₃ অধঃক্ষেপ)!' : 'স্বচ্ছ') : 'পরীক্ষা করা হয়নি'}<br>
+        <b>শিখা পরীক্ষা:</b> ${effState.flameTested ? (effState.flameExtinguished ? '🧯 জ্বলন্ত কাঠি নিভে গেছে!' : 'জ্বলছে') : 'পরীক্ষা করা হয়নি'}
+      </div>
+
+      <div class="btn-row">
+        <button class="btn" onclick="testLimewater()" ${effState.gasVolume < 10 ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}>
+          🥛 চুনের পানি পরীক্ষা
+        </button>
+        <button class="btn" onclick="testFlame()" ${effState.gasVolume < 10 ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : ''}>
+          🕯️ জ্বলন্ত কাঠি পরীক্ষা
+        </button>
+      </div>
+
+      <div class="fact-card">
+        <b>💡 রাসায়নিক সমীকরণ:</b><br>
+        NaHCO₃ + CH₃COOH → CH₃COONa + H₂O + CO₂↑<br>
+        CaCO₃ + 2CH₃COOH → (CH₃COO)₂Ca + H₂O + CO₂↑<br>
+        উৎপন্ন CO₂ গ্যাস চুনের পানিকে ঘোলা করে: Ca(OH)₂ + CO₂ → CaCO₃↓ + H₂O।
+      </div>
+
+      <div class="quiz-box">
+        <div class="quiz-q">❓ কেক তৈরিতে বেকিং পাউডারের ভূমিকা কী?</div>
+        <button class="quiz-opt" onclick="checkQuiz(this, true)">উত্তাপে CO₂ গ্যাস নির্গত করে কেককে ফাঁপা ও নরম করে</button>
+        <button class="quiz-opt" onclick="checkQuiz(this, false)">অক্সিজেন গ্যাস তৈরি করে কেক লাল করে</button>
+      </div>
+    `;
+  }
+}
+
+function getMicelleReadout() {
+  if (micelleState.waterType === 'hard' && micelleState.surfactantType === 'soap') {
+    return `<b style="color:var(--pori-rose-ink)">⚠️ খর পানিতে সাবান অকার্যকর:</b><br>
+    সাবান খর পানির Ca²⁺/Mg²⁺ এর সাথে বিক্রিয়া করে অদ্রবণীয় সাদা আঠালো ছিবড়া বা স্কাম [$(C₁₇H₃₅COO)₂Ca$] তৈরি করেছে। ফেনা হচ্ছে না এবং ময়লা পরিষ্কার হচ্ছে না।`;
+  }
+  if (micelleState.cleaningStep === 0) {
+    return `<b>ধাপ ১:</b> কাপড়ের ফাইবারে হাইড্রোকার্বন ও তৈলাক্ত গ্রিজ ময়লা আটকে আছে। পানি একাকী এই তৈলাক্ত ময়লা দ্রবীভূত করতে পারে না।`;
+  } else if (micelleState.cleaningStep === 1) {
+    return `<b>ধাপ ২:</b> ${micelleState.surfactantType==='soap'?'সাবান':'ডিটারজেন্ট'} যোগ করা হয়েছে। অণুগুলোর তেল-আকর্ষী লেজ ময়লার ভেতর প্রবেশ করছে এবং পানি-আকর্ষী মাথা বাইরের দিকে রয়েছে।`;
+  } else if (micelleState.cleaningStep === 2) {
+    return `<b>ধাপ ৩:</b> তেলের ফোঁটার চারদিকে গোলাকার **মাইসেল (Micelle)** গঠিত হয়েছে। বাইরের ঋণাত্মক আধানগুলো পানির সংস্পর্শে থাকে।`;
+  } else {
+    return `<b>ধাপ ৪:</b> পানি নাড়ানোর ফলে ঋণাত্মক আয়নগুলোর পারস্পরিক বিকর্ষণে মাইসেলটি ময়লাসহ কাপড় থেকে সম্পূর্ণ বিচ্ছিন্ন হয়ে পানিতে ভেসে গেছে! কাপড় এখন পরিষ্কার।`;
+  }
+}
+
+function checkQuiz(btn, isCorrect) {
+  const parent = btn.parentElement;
+  parent.querySelectorAll('.quiz-opt').forEach(b => {
+    b.disabled = true;
+  });
+  if (isCorrect) {
+    btn.classList.add('correct');
+  } else {
+    btn.classList.add('wrong');
+  }
+}
+
+// -------------------------------------------------------------
+// SIMULATION ACTION HANDLERS
+// -------------------------------------------------------------
+function startSoapHeating() {
+  if (soapState.isHeating) return;
+  soapState.isHeating = true;
+  renderControls();
+}
+
+function soapSaltingOut() {
+  if (soapState.progress < 80) return;
+  soapState.saltedOut = true;
+  renderControls();
+}
+
+function startEffervescence() {
+  if (effState.reactionProgress > 0 && effState.reactionProgress < 100) return;
+  effState.reactionProgress = 1;
+  effState.gasVolume = 0;
+  effState.limewaterTested = false;
+  effState.limewaterCloudy = false;
+  effState.flameTested = false;
+  effState.flameExtinguished = false;
+  renderControls();
+}
+
+function testLimewater() {
+  effState.limewaterTested = true;
+  effState.limewaterCloudy = true;
+  renderControls();
+}
+
+function testFlame() {
+  effState.flameTested = true;
+  effState.flameExtinguished = true;
+  renderControls();
+}
+
+// -------------------------------------------------------------
+// CANVAS ANIMATION LOOP
+// -------------------------------------------------------------
+function animate() {
+  animTimer++;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (currentTab === 'soap') {
+    drawSoapSimulation();
+  } else if (currentTab === 'micelle') {
+    drawMicelleSimulation();
+  } else if (currentTab === 'effervescence') {
+    drawEffervescenceSimulation();
+  }
+
+  animFrameId = requestAnimationFrame(animate);
+}
+
+// --- DRAW TAB 1: SOAP SIMULATION ---
+function drawSoapSimulation() {
+  const cx = 300;
+  const cy = 200;
+
+  // Reaction logic update
+  if (soapState.isHeating && soapState.progress < 100) {
+    const rate = 0.25 * (soapState.temp / 80);
+    soapState.progress = Math.min(100, soapState.progress + rate);
+    if (soapState.progress >= 100) {
+      soapState.isHeating = false;
+      renderControls();
+    }
+  }
+
+  overlay.innerText = `স্যাপোনিফিকেশন ল্যাব | প্রগ্রেস: ${Math.round(soapState.progress)}% | তাপমাত্রা: ${soapState.temp}°C | ক্ষার: ${soapState.alkali}`;
+
+  // 1. Draw Bunsen Burner & Stand
+  ctx.fillStyle = '#64748b';
+  ctx.fillRect(cx - 70, 310, 140, 10); // tripod top
+  ctx.fillRect(cx - 65, 320, 10, 50); // tripod leg left
+  ctx.fillRect(cx + 55, 320, 10, 50); // tripod leg right
+  ctx.fillRect(cx - 15, 335, 30, 35); // burner base
+
+  // Burner Flame
+  if (soapState.isHeating) {
+    const flameH = 25 + Math.sin(animTimer * 0.4) * 5;
+    const grad = ctx.createRadialGradient(cx, 330, 2, cx, 320, 20);
+    grad.addColorStop(0, '#60a5fa');
+    grad.addColorStop(0.4, '#38bdf8');
+    grad.addColorStop(0.8, '#f59e0b');
+    grad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.moveTo(cx - 14, 335);
+    ctx.quadraticCurveTo(cx, 335 - flameH, cx + 14, 335);
+    ctx.fill();
+  }
+
+  // 2. Beaker
+  const bw = 160;
+  const bh = 180;
+  const bx = cx - bw / 2;
+  const by = 310 - bh;
+
+  // Liquid inside beaker
+  const liquidH = 120;
+  const liquidY = by + bh - liquidH;
+
+  // Color changes based on progress
+  let liquidColor;
+  if (!soapState.saltedOut) {
+    const r = Math.round(245 - (soapState.progress / 100) * 30);
+    const g = Math.round(180 + (soapState.progress / 100) * 50);
+    const b = Math.round(100 + (soapState.progress / 100) * 80);
+    liquidColor = `rgb(${r}, ${g}, ${b})`;
+  } else {
+    // Salted out: Curd soap top layer + glycerol bottom layer
+    liquidColor = '#fef08a';
+  }
+
+  ctx.fillStyle = liquidColor;
+  ctx.fillRect(bx + 6, liquidY, bw - 12, liquidH);
+
+  // If salted out, draw soap cake layer on top
+  if (soapState.saltedOut) {
+    ctx.fillStyle = '#f8fafc'; // white curd soap
+    ctx.fillRect(bx + 6, liquidY, bw - 12, 34);
+    ctx.strokeStyle = '#e2e8f0';
+    ctx.strokeRect(bx + 6, liquidY, bw - 12, 34);
+
+    ctx.fillStyle = '#0f766e';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText('🧼 সাবানের স্তর (Curd Soap)', bx + 16, liquidY + 22);
+
+    ctx.fillStyle = '#b45309';
+    ctx.fillText('🧪 গ্লিসারিন ও লবণ দ্রবণ', bx + 22, liquidY + 70);
+  }
+
+  // Heating Bubbles
+  if (soapState.isHeating) {
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+    for (let i = 0; i < 8; i++) {
+      const bxPos = bx + 20 + ((i * 19 + animTimer * 2) % (bw - 40));
+      const byPos = liquidY + liquidH - ((animTimer * 2 + i * 25) % liquidH);
+      ctx.beginPath();
+      ctx.arc(bxPos, byPos, 3 + (i % 3), 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Glass Beaker Outline
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = '#94a3b8';
+  ctx.beginPath();
+  ctx.moveTo(bx - 10, by);
+  ctx.lineTo(bx + 4, by);
+  ctx.lineTo(bx + 4, by + bh);
+  ctx.lineTo(bx + bw - 4, by + bh);
+  ctx.lineTo(bx + bw - 4, by);
+  ctx.stroke();
+
+  // Volume graduation marks
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = '#64748b';
+  for (let m = 1; m <= 4; m++) {
+    const my = by + bh - m * 28;
+    ctx.beginPath();
+    ctx.moveTo(bx + 4, my);
+    ctx.lineTo(bx + 18, my);
+    ctx.stroke();
+  }
+
+  // Stirring Rod
+  ctx.save();
+  ctx.translate(cx, by + 40);
+  const tilt = Math.sin(animTimer * 0.1) * 0.12;
+  ctx.rotate(tilt);
+  ctx.fillStyle = '#cbd5e1';
+  ctx.fillRect(-4, -60, 8, 140);
+  ctx.restore();
+
+  // Floating Molecules / Reactants Labeling
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 12px sans-serif';
+  if (!soapState.saltedOut) {
+    if (soapState.progress < 50) {
+      ctx.fillText('চর্বি (তেল) + ক্ষার (NaOH) মিশ্রণ', cx - 80, liquidY - 12);
+    } else {
+      ctx.fillText('স্যাপোনিফিকেশন বিক্রিয়া চলছে...', cx - 75, liquidY - 12);
+    }
+  }
+}
+
+// --- DRAW TAB 2: MICELLE & DIRT CLEANING ---
+function drawMicelleSimulation() {
+  const cx = 300;
+  const cy = 200;
+
+  overlay.innerText = `মাইসেল সিমুলেশন | পানি: ${micelleState.waterType==='soft'?'মৃদু':'খর (Hard)'} | পরিষ্কারক: ${micelleState.surfactantType==='soap'?'সাবান':'ডিটারজেন্ট'}`;
+
+  // Water Background
+  ctx.fillStyle = micelleState.waterType === 'soft' ? '#f0fdfa' : '#f8fafc';
+  ctx.fillRect(40, 40, 520, 300);
+  ctx.strokeStyle = '#cbd5e1';
+  ctx.strokeRect(40, 40, 520, 300);
+
+  // Hard water ions (Ca2+, Mg2+) if hard water
+  if (micelleState.waterType === 'hard') {
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = 'bold 11px sans-serif';
+    for (let i = 0; i < 6; i++) {
+      const ix = 70 + (i * 85);
+      const iy = 65 + ((i * 35 + animTimer * 0.5) % 80);
+      ctx.fillText(i % 2 === 0 ? 'Ca²⁺' : 'Mg²⁺', ix, iy);
+    }
+  }
+
+  // Cloth Fabric at bottom
+  ctx.fillStyle = '#e2e8f0';
+  ctx.fillRect(40, 270, 520, 70);
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 1;
+  for (let fx = 40; fx < 560; fx += 16) {
+    ctx.beginPath();
+    ctx.moveTo(fx, 270);
+    ctx.lineTo(fx + 10, 340);
+    ctx.stroke();
+  }
+  ctx.fillStyle = '#475569';
+  ctx.font = 'bold 12px sans-serif';
+  ctx.fillText('🧵 কাপড়ের সুতা (Fabric Fiber)', 50, 330);
+
+  // Dirt Position logic
+  let dirtY = 270;
+  if (micelleState.cleaningStep >= 3) {
+    if (micelleState.waterType === 'hard' && micelleState.surfactantType === 'soap') {
+      dirtY = 270; // stays on cloth because soap failed
+    } else {
+      dirtY = 170 - Math.sin(animTimer * 0.05) * 8; // lifted and floating away
+    }
+  } else if (micelleState.cleaningStep === 2) {
+    dirtY = 250;
+  }
+
+  // Draw Dirt / Grease Droplet
+  const dirtR = 26;
+  ctx.fillStyle = (micelleState.waterType === 'hard' && micelleState.surfactantType === 'soap') ? '#a16207' : '#78350f';
+  ctx.beginPath();
+  ctx.arc(cx, dirtY, dirtR, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = '#fef3c7';
+  ctx.font = 'bold 10px sans-serif';
+  ctx.fillText('তৈলাক্ত ময়লা', cx - 22, dirtY + 3);
+
+  // If hard water + soap: draw SCUM curd precipitate
+  if (micelleState.waterType === 'hard' && micelleState.surfactantType === 'soap') {
+    ctx.fillStyle = 'rgba(254, 243, 199, 0.9)';
+    ctx.strokeStyle = '#ca8a04';
+    ctx.lineWidth = 2;
+    for (let s = 0; s < 7; s++) {
+      const sx = cx - 45 + s * 14;
+      const sy = dirtY - 20 + Math.sin(s + animTimer * 0.1) * 8;
+      ctx.beginPath();
+      ctx.arc(sx, sy, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#b91c1c';
+    ctx.font = 'bold 12px sans-serif';
+    ctx.fillText('⚠️ অদ্রবণীয় স্কাম / ছিবড়া [(C₁₇H₃₅COO)₂Ca↓]', cx - 110, dirtY - 45);
+    return;
+  }
+
+  // Draw Surfactant Molecules (Soap/Detergent)
+  const numMolecules = 12;
+  if (micelleState.cleaningStep >= 1) {
+    for (let i = 0; i < numMolecules; i++) {
+      const angle = (i / numMolecules) * Math.PI * 2 + animTimer * 0.01;
+      let tailLen = 28;
+      let headDist = dirtR + tailLen;
+
+      if (micelleState.cleaningStep === 1) {
+        // Approaching dirt
+        headDist = dirtR + 45;
+      }
+
+      const tailX = cx + Math.cos(angle) * dirtR;
+      const tailY = dirtY + Math.sin(angle) * dirtR;
+      const headX = cx + Math.cos(angle) * headDist;
+      const headY = dirtY + Math.sin(angle) * headDist;
+
+      // Hydrophobic Tail (Wiggly zigzag line)
+      ctx.strokeStyle = '#0f766e';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(headX, headY);
+      const midX = (headX + tailX) / 2 + Math.sin(animTimer * 0.1 + i) * 3;
+      const midY = (headY + tailY) / 2 + Math.cos(animTimer * 0.1 + i) * 3;
+      ctx.lineTo(midX, midY);
+      ctx.lineTo(tailX, tailY);
+      ctx.stroke();
+
+      // Hydrophilic Head (Polar Circle)
+      ctx.fillStyle = micelleState.surfactantType === 'soap' ? '#3b82f6' : '#8b5cf6';
+      ctx.beginPath();
+      ctx.arc(headX, headY, 6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      // Ionic Sign (-)
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 8px sans-serif';
+      ctx.fillText('-', headX - 2, headY + 3);
+    }
+  }
+
+  // Labels
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 11px sans-serif';
+  if (micelleState.cleaningStep === 2) {
+    ctx.fillText('পোলার শীর্ষ (-COO⁻ বা -SO₃⁻, পানি-আকর্ষী)', cx + 45, dirtY - 35);
+    ctx.fillText('অপোলার লেজ (তেল-আকর্ষী ময়লার ভেতর বিদ্ধ)', cx + 45, dirtY - 15);
+  } else if (micelleState.cleaningStep >= 3) {
+    ctx.fillStyle = '#059669';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillText('✨ মাইসেল তৈরি হয়ে ময়লা সম্পূর্ণ দ্রবীভূত ও মুক্ত!', cx - 120, 75);
+  }
+}
+
+// --- DRAW TAB 3: EFFERVESCENCE & CO2 TEST ---
+function drawEffervescenceSimulation() {
+  const cx = 240;
+  const cy = 240;
+
+  // Reaction logic
+  if (effState.reactionProgress > 0 && effState.reactionProgress < 100) {
+    effState.reactionProgress += 0.8;
+    const maxGas = effState.acidAmount * 1.5;
+    effState.gasVolume = (effState.reactionProgress / 100) * maxGas;
+
+    // Generate bubbles in flask
+    if (Math.random() < 0.6) {
+      effState.bubbles.push({
+        x: cx - 35 + Math.random() * 70,
+        y: cy + 40,
+        r: 2 + Math.random() * 3,
+        speed: 1.5 + Math.random() * 2
+      });
+    }
+
+    if (effState.reactionProgress >= 100) {
+      renderControls();
+    }
+  }
+
+  // Update bubbles
+  for (let i = effState.bubbles.length - 1; i >= 0; i--) {
+    effState.bubbles[i].y -= effState.bubbles[i].speed;
+    if (effState.bubbles[i].y < cy - 10) {
+      effState.bubbles.splice(i, 1);
+    }
+  }
+
+  overlay.innerText = `ভিনেগার + কার্বনেট | গ্যাস: ${Math.round(effState.gasVolume)} mL | চুনের পানি: ${effState.limewaterCloudy?'ঘোলা':'স্বচ্ছ'}`;
+
+  // 1. Conical Flask (Erlenmeyer Flask)
+  ctx.fillStyle = 'rgba(238, 242, 255, 0.4)';
+  ctx.beginPath();
+  ctx.moveTo(cx - 15, cy - 60);
+  ctx.lineTo(cx - 15, cy - 20);
+  ctx.lineTo(cx - 55, cy + 60);
+  ctx.lineTo(cx + 55, cy + 60);
+  ctx.lineTo(cx + 15, cy - 20);
+  ctx.lineTo(cx + 15, cy - 60);
+  ctx.closePath();
+  ctx.fill();
+
+  // Reactant Powder at bottom
+  ctx.fillStyle = '#f8fafc';
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 54, 45, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Acid Liquid in flask
+  if (effState.reactionProgress > 0) {
+    ctx.fillStyle = 'rgba(186, 230, 253, 0.6)';
+    ctx.beginPath();
+    ctx.moveTo(cx - 40, cy + 20);
+    ctx.lineTo(cx - 55, cy + 60);
+    ctx.lineTo(cx + 55, cy + 60);
+    ctx.lineTo(cx + 40, cy + 20);
+    ctx.closePath();
+    ctx.fill();
+
+    // Draw active bubbles
+    ctx.fillStyle = '#ffffff';
+    effState.bubbles.forEach(b => {
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+
+  // Flask Outline
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.moveTo(cx - 15, cy - 60);
+  ctx.lineTo(cx - 15, cy - 20);
+  ctx.lineTo(cx - 55, cy + 60);
+  ctx.lineTo(cx + 55, cy + 60);
+  ctx.lineTo(cx + 15, cy - 20);
+  ctx.lineTo(cx + 15, cy - 60);
+  ctx.stroke();
+
+  // Cork/Rubber Stopper
+  ctx.fillStyle = '#78350f';
+  ctx.fillRect(cx - 14, cy - 64, 28, 12);
+
+  // Delivery Tube (Glass delivery tube leading from flask to test tube)
+  ctx.strokeStyle = '#94a3b8';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - 60);
+  ctx.lineTo(cx, cy - 90);
+  ctx.lineTo(440, cy - 90);
+  ctx.lineTo(440, cy + 10);
+  ctx.stroke();
+
+  // 2. Limewater Test Tube on Right
+  const ttx = 440;
+  const tty = cy + 40;
+  const ttw = 28;
+  const tth = 90;
+
+  // Limewater inside tube
+  ctx.fillStyle = effState.limewaterCloudy ? 'rgba(241, 245, 249, 0.95)' : 'rgba(224, 242, 254, 0.5)';
+  ctx.beginPath();
+  ctx.roundRect(ttx - ttw/2 + 2, tty - tth/2 + 20, ttw - 4, tth - 22, [0, 0, 10, 10]);
+  ctx.fill();
+
+  // Test tube outline
+  ctx.strokeStyle = '#64748b';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.roundRect(ttx - ttw/2, tty - tth/2, ttw, tth, [0, 0, 12, 12]);
+  ctx.stroke();
+
+  // Bubbles in Limewater test tube
+  if (effState.reactionProgress > 0 && effState.reactionProgress < 100) {
+    ctx.fillStyle = '#ffffff';
+    for (let k = 0; k < 3; k++) {
+      const byk = tty + 30 - ((animTimer * 2 + k * 15) % 40);
+      ctx.beginPath();
+      ctx.arc(ttx + (k % 2 === 0 ? 3 : -3), byk, 2.5, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Labels
+  ctx.fillStyle = '#0f172a';
+  ctx.font = 'bold 11px sans-serif';
+  ctx.fillText(effState.reagent === 'bakingSoda' ? 'বেকিং সোডা + ভিনেগার' : 'ডিমের খোসা + ভিনেগার', cx - 60, cy + 80);
+  ctx.fillText('চুনের পানি [Ca(OH)₂]', ttx - 45, tty + tth/2 + 18);
+
+  if (effState.limewaterCloudy) {
+    ctx.fillStyle = '#0f766e';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.fillText('ঘোলা চুনের পানি (CaCO₃↓)', ttx - 55, tty - tth/2 - 6);
+  }
+
+  // 3. Flame Test Visualization if tested
+  if (effState.flameTested) {
+    const fx = cx + 80;
+    const fy = cy - 40;
+    // Wood splint
+    ctx.fillStyle = '#d97706';
+    ctx.fillRect(fx, fy, 40, 4);
+
+    if (effState.flameExtinguished) {
+      // Smoke
+      ctx.fillStyle = 'rgba(148, 163, 184, 0.7)';
+      ctx.beginPath();
+      ctx.arc(fx - 4, fy + 2, 4 + Math.sin(animTimer*0.2)*2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#b91c1c';
+      ctx.font = 'bold 10px sans-serif';
+      ctx.fillText('নিভে গেছে! (CO₂ দহনে বাধা দেয়)', fx - 30, fy - 12);
+    }
+  }
+}
+
+// Start Simulator
+renderControls();
+animate();
+</script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৮.৫ গ্যালভানিক কোষ ও ড্যানিয়েল সেল | পড়ি রসায়ন</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+  <script defer src="chem.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html">পড়ি <span>•</span> Chemistry</a>
+    <span class="crumb">অধ্যায় ৮ · পাঠ ৮.৫</span>
+  </div>
+</header>
+<main>
+
+  <span class="badge">অধ্যায় ৮ · পাঠ ৫</span>
+  <h1 class="title">৮.৫ গ্যালভানিক কোষ ও ড্যানিয়েল সেল</h1>
+  <p class="subtitle">Galvanic Cell and Daniell Cell · পাঠ্যবই পৃষ্ঠা ১৯৪–১৯৯</p>
+
+  <section class="goal">
+    <h2>🎯 এই পাঠের মূল শিখনফল</h2>
+    <ul>
+      <li>ড্যানিয়েল সেলের গঠন, অ্যানোড-ক্যাথোডের বিক্রিয়া ও প্রমাণ বিভব ($1.10\text{ V}$) নিখুঁতভাবে ব্যাখ্যা করা।</li>
+      <li>তড়িৎ নিরপেক্ষতা রক্ষা ও সার্কিট চালনায় <b>লবণ সেতু (Salt Bridge)</b>-এর অপরিহার্য ভূমিকা অনুধাবন করা।</li>
+      <li>তড়িৎ বিশ্লেষ্য কোষ ও গ্যালভানিক কোষের গঠন ও তড়িৎদ্বার চিহ্নের তুলনামূলক পার্থক্য স্পষ্ট করা।</li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2>১. গ্যালভানিক কোষের মূলনীতি</h2>
+    <p>যে তড়িৎ রাসায়নিক কোষে স্বতঃস্ফূর্ত রাসায়নিক বিক্রিয়া (রেডক্স বিক্রিয়া)-র মাধ্যমে রাসায়নিক শক্তি সরাসরি বিদ্যুৎ শক্তিতে রূপান্তরিত হয় তাকে <b>গ্যালভানিক কোষ</b> বা ভোল্টায়িক কোষ বলে। এর সর্বশ্রেষ্ঠ এবং বহুল পরিচিত রূপ হলো ১৮৩৬ সালে উদ্ভাবিত <b>ড্যানিয়েল সেল (Daniell Cell)</b>।</p>
+
+    <h3>২. ড্যানিয়েল সেলের গঠন ও অর্ধকোষ বিক্রিয়াসমূহ</h3>
+    <div class="grid">
+      <div class="term">
+        <strong>জিংক অ্যানোড অর্ধকোষ (−)</strong>
+        <small>$1.0\text{ M } \text{ZnSO}_4$ দ্রবণে নিমজ্জিত জিংক ($\text{Zn}$) দণ্ড। এখানে জারণ ঘটে:
+        $$\text{Zn}(\text{s}) \rightarrow \text{Zn}^{2+}(\text{aq}) + 2\text{e}^-$$
+        জিংক পরমাণু ইলেকট্রন বর্জন করে দ্রবণে যায়, ফলে অ্যানোডের ভর হ্রাস পায়।</small>
+      </div>
+      <div class="term">
+        <strong>কপার ক্যাথোড অর্ধকোষ (+)</strong>
+        <small>$1.0\text{ M } \text{CuSO}_4$ দ্রবণে নিমজ্জিত কপার ($\text{Cu}$) দণ্ড। এখানে বিজারণ ঘটে:
+        $$\text{Cu}^{2+}(\text{aq}) + 2\text{e}^- \rightarrow \text{Cu}(\text{s})$$
+        দ্রবণ থেকে কপার আয়ন ইলেকট্রন গ্রহণ করে ধাতব কপাররূপে ক্যাথোডে জমা হয়, ফলে ক্যাথোডের ভর বাড়ে।</small>
+      </div>
+    </div>
+
+    <div class="formula">
+      $$\textbf{সার্বিক কোষ বিক্রিয়া: } \text{Zn}(\text{s}) + \text{Cu}^{2+}(\text{aq}) \rightarrow \text{Zn}^{2+}(\text{aq}) + \text{Cu}(\text{s})$$
+      $$\textbf{প্রমাণ কোষ বিভব: } E^\circ_{\text{cell}} = E^\circ_{\text{Zn}/\text{Zn}^{2+}} + E^\circ_{\text{Cu}^{2+}/\text{Cu}} = 0.76\text{ V} + 0.34\text{ V} = \mathbf{1.10\text{ V}}$$
+    </div>
+
+    <h3>৩. লবণ সেতুর (Salt Bridge) ভূমিকা</h3>
+    <p>ড্যানিয়েল সেলের দুটি দ্রবণকে সংযোগ করার জন্য পটাসিয়াম ক্লোরাইড ($\text{KCl}$) বা অ্যামোনিয়াম নাইট্রেট ($\text{NH}_4\text{NO}_3$) মিশ্রিত অ্যাগার-অ্যাগার জেলপূর্ণ একটি উল্টানো U-নল ব্যবহার করা হয়, যাকে <b>লবণ সেতু</b> বলে। লবণ সেতুর প্রধান তিনটি কাজ:</p>
+    <ol>
+      <li><b>অভ্যন্তরীণ বর্তনী সংযোগ:</b> দুটি অর্ধকোষের দ্রবণকে সরাসরি মিশ্রিত না করে তড়িৎ প্রবাহের পথ সুগম করে।</li>
+      <li><b>আয়ন নিরপেক্ষতা রক্ষা:</b> জিংক পাত্রে অবিরাম $\text{Zn}^{2+}$ উৎপন্ন হওয়ায় ধনাত্মক চার্জের আধিক্য দেখা দেয়। লবণ সেতু থেকে $\text{Cl}^-$ অ্যানায়ন এসে এই অতিরিক্ত $\text{Zn}^{2+}$ কে প্রশমিত করে। অনুরূপভাবে কপার পাত্রে $\text{Cu}^{2+}$ কমে যাওয়ায় সালফেট ($\text{SO}_4^{2-}$) এর আধিক্য হয়; লবণ সেতু থেকে $\text{K}^+$ ক্যাটায়ন গিয়ে তা প্রশমিত করে।</li>
+      <li><b>তরল সংযোগ বিভব রোধ:</b> দুটি তরল স্তরের মিলনস্থলে অতিরিক্ত বিভব পার্থক্য সৃষ্টি হতে দেয় না।</li>
+    </ol>
+    <div class="highlight-box">
+      <b>সতর্কতা:</b> লবণ সেতু সরিয়ে নিলে আয়ন জমার কারণে মাত্র কয়েক মিলিসেকেন্ডেই কোষের তড়িৎপ্রবাহ শূন্য হয়ে যাবে!
+    </div>
+
+    <h3>৪. তড়িৎ বিশ্লেষ্য কোষ বনাম গ্যালভানিক কোষের পার্থক্য</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>তুলনার বিষয়</th>
+            <th>তড়িৎ বিশ্লেষ্য কোষ (Electrolytic Cell)</th>
+            <th>গ্যালভানিক কোষ (Galvanic Cell)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>শক্তির রূপান্তর</b></td>
+            <td>বিদ্যুৎ শক্তি $\rightarrow$ রাসায়নিক শক্তি</td>
+            <td>রাসায়নিক শক্তি $\rightarrow$ বিদ্যুৎ শক্তি</td>
+          </tr>
+          <tr>
+            <td><b>অ্যানোডের চিহ্ন</b></td>
+            <td>ধনাত্মক ($+$)</td>
+            <td>ঋণাত্মক ($-$) [ইলেকট্রন উৎপন্ন হয়]</td>
+          </tr>
+          <tr>
+            <td><b>ক্যাথোডের চিহ্ন</b></td>
+            <td>ঋণাত্মক ($-$)</td>
+            <td>ধনাত্মক ($+$) [ইলেকট্রন গৃহীত হয়]</td>
+          </tr>
+          <tr>
+            <td><b>লবণ সেতু</b></td>
+            <td>প্রয়োজন হয় না (সাধারণত একই পাত্রে থাকে)</td>
+            <td>দুটি অর্ধকোষের মধ্যে অপরিহার্য</td>
+          </tr>
+          <tr>
+            <td><b>বিক্রিয়ার প্রকৃতি</b></td>
+            <td>অস্বতঃস্ফূর্ত (বাইরে থেকে কারেন্ট দিতে হয়)</td>
+            <td>স্বতঃস্ফূর্ত রেডক্স বিক্রিয়া</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Embedded Live Simulation -->
+  <section class="lab-iframe-card" id="lab-section">
+    <div class="lab-iframe-header">
+      <div class="lab-iframe-title">
+        <span>⚡ লাইভ সিমুলেটর: ড্যানিয়েল সেলের ইলেকট্রন ও আয়ন প্রবাহ</span>
+      </div>
+      <span style="font-size:12px;color:#94a3b8">সুইচ অন/অফ করে ভোল্টমিটারের কাঁটার বিচ্যুতি ও আয়ন চলন লক্ষ্য করো</span>
+    </div>
+    <iframe class="lab-iframe" src="../../apps/api/prisma/sample-simulations/electrochemical-galvanic-cell-lab.html" title="Daniell Cell Interactive Simulator"></iframe>
+  </section>
+
+  <section class="memory">
+    <h2>🧠 মনে রাখার ছন্দ ও ট্রিক</h2>
+    <ul>
+      <li><b>ইলেকট্রন ও কারেন্টের দিক:</b> ইলেকট্রন যায় <b>জিংক থেকে কপারে</b> (Z $\rightarrow$ C alphabetically)। আর চিরাচরিত বিদ্যুৎ যায় <b>কপার থেকে জিংকে</b>।</li>
+      <li><b>লবণ সেতুর আয়ন সূত্র:</b> ক্যাটায়ন ($\text{K}^+$) যাবে <b>ক্যাথোড পাত্রে</b>, অ্যানায়ন ($\text{Cl}^-$) যাবে <b>অ্যানোড পাত্রে</b>!</li>
+      <li><b>ড্যানিয়েল ভোল্টেজ:</b> $1.10\text{ V}$ ($0.76 + 0.34 = 1.10$).</li>
+    </ul>
+  </section>
+
+  <section class="worked">
+    <h2>💡 নমুনা সমস্যা ও সমাধান</h2>
+    <div class="problem">
+      <b>প্রশ্ন:</b> একটি ড্যানিয়েল সেল কিছুক্ষণ চলার পর অ্যানোড ও ক্যাথোড দণ্ডের ভরের কী পরিবর্তন ঘটবে এবং কেন?
+    </div>
+    <div class="solution">
+      <b>উত্তর ও ব্যাখ্যা:</b><br>
+      ১. <b>জিংক অ্যানোড:</b> জিংক পরমাণু ইলেকট্রন ত্যাগ করে দ্রবণে জিংক আয়ন ($\text{Zn}^{2+}$) হিসেবে চলে যায় ($\text{Zn} \rightarrow \text{Zn}^{2+} + 2\text{e}^-$)। ফলে সময়ের সাথে জিংক দণ্ডটির ক্ষয় ঘটে এবং এর <b>ভর হ্রাস পায়</b>।<br>
+      ২. <b>কপার ক্যাথোড:</b> কপার সালফেট দ্রবণ থেকে কপার আয়ন ($\text{Cu}^{2+}$) কপার দণ্ডের উপরিভাগে এসে ইলেকট্রন গ্রহণ করে ধাতব কপারে পরিণত হয়ে দণ্ডের গায়ে জমা হয় ($\text{Cu}^{2+} + 2\text{e}^- \rightarrow \text{Cu}$)। ফলে কপার দণ্ডটির <b>ভর বৃদ্ধি পায়</b>।
+    </div>
+  </section>
+
+  <!-- Cloze -->
+  <section class="cloze">
+    <div class="deck-head">
+      <h2>✏️ সক্রিয় স্মরণ (ট্যাপ করে উত্তর মেলাও)</h2>
+      <button type="button" class="btn-sm cloze-all">সব উত্তর দেখাও</button>
+    </div>
+    <p>১. ড্যানিয়েল সেলের প্রমাণ কোষ বিভব ($E^\circ_{\text{cell}}$) হলো <span class="blank">1.10 V</span>।</p>
+    <p>২. ড্যানিয়েল সেলে অ্যানোড হিসেবে কাজ করে <span class="blank">জিংক (Zn) দণ্ড</span>।</p>
+    <p>৩. লবণ সেতুতে ব্যবহৃত সাধারণ লবণগুলো হলো <span class="blank">KCl বা KNO3</span>।</p>
+    <p>৪. বহির্বর্তনীতে ইলেকট্রন প্রবাহিত হয় জিংক অ্যানোড থেকে <span class="blank">কপার ক্যাথোডের দিকে</span>।</p>
+  </section>
+
+  <!-- Flashcards -->
+  <section class="deck" id="deck-chem-8-5">
+    <div class="deck-head">
+      <h2>🃏 ৮.৫ ফ্ল্যাশকার্ড — উল্টে মুখস্থ করো</h2>
+      <span class="deck-count">কার্ড লোড হচ্ছে...</span>
+    </div>
+    <div class="card3d" tabindex="0">
+      <div class="card3d-inner">
+        <div class="face front">ক্লিক করো</div>
+        <div class="face back">উত্তর</div>
+      </div>
+    </div>
+    <div class="deck-actions">
+      <button type="button" class="btn-sm ok">মনে আছে ✓</button>
+      <button type="button" class="btn-sm no">আবার দেখাও ↺</button>
+      <button type="button" class="btn-sm reset">রিসেট</button>
+    </div>
+    <div class="deck-bar"><i></i></div>
+    <script type="application/json" class="deck-data">
+      [
+        ["ড্যানিয়েল সেলের প্রমাণ বিভব কত?", "1.10 ভোল্ট (0.76 V + 0.34 V)।"],
+        ["লবণ সেতুর মূল কাজ কী?", "উভয় অর্ধকোষের দ্রবণের তড়িৎ নিরপেক্ষতা বজায় রাখা ও বর্তনী পূর্ণ করা।"],
+        ["গ্যালভানিক কোষে অ্যানোডের চিহ্ন ঋণাত্মক কেন?", "কারণ অ্যানোডে স্বতঃস্ফূর্ত জারণের ফলে ইলেকট্রন উৎপন্ন হয়ে তড়িৎদ্বারে জমা হয়।"],
+        ["ড্যানিয়েল সেলে কোন তড়িৎদ্বারের ভর বাড়ে?", "কপার ক্যাথোডের ভর বৃদ্ধি পায় (Cu2+ ধাতু হয়ে জমা হয়)।"]
+      ]
+    </script>
+  </section>
+
+  <!-- Quiz -->
+  <section class="quiz" id="quiz-chem-8-5">
+    <h2>🧪 তাৎক্ষণিক আত্মযাচাই কুইজ</h2>
+    <div class="quiz-body"></div>
+    <div class="score">স্কোর: ০/০</div>
+    <button type="button" class="btn-sm quiz-reset" style="margin-top:10px">পুনরায় কুইজ দাও</button>
+    <script type="application/json" class="quiz-data">
+      [
+        {
+          "q": "ড্যানিয়েল সেলে লবণ সেতু থেকে Cl- আয়ন কোন পাত্রে গমন করে?",
+          "o": ["কপার ক্যাথোড পাত্রে", "জিংক অ্যানোড পাত্রে", "কোনো পাত্রেই নয়", "উভয় পাত্রে সমানভাবে"],
+          "a": 1,
+          "e": "জিংক পাত্রে অতিরিক্ত Zn2+ আয়ন সৃষ্টি হওয়ায় Cl- অ্যানায়ন জিংক অ্যানোড পাত্রে গিয়ে চার্জ প্রশমিত করে।"
+        },
+        {
+          "q": "গ্যালভানিক কোষে বহির্বর্তনীতে বিদ্যুৎ প্রবাহের প্রকৃত দিক কোনটি?",
+          "o": ["Zn অ্যানোড থেকে Cu ক্যাথোডে", "Cu ক্যাথোড থেকে Zn অ্যানোডে", "লবণ সেতুর ভেতর দিয়ে", "অর্ধকোষের দ্রবণ দিয়ে"],
+          "a": 1,
+          "e": "ইলেকট্রন Zn থেকে Cu-তে যায়, ফলে প্রচলিত তড়িৎপ্রবাহ তার বিপরীত দিকে অর্থাৎ Cu ক্যাথোড থেকে Zn অ্যানোডে যায়।"
+        }
+      ]
+    </script>
+  </section>
+
+  <div class="nav">
+    <a class="button secondary" href="section-04.html">← ৮.৪ তড়িৎ বিশ্লেষণ ও তড়িৎ লেপন</a>
+    <a class="button" href="section-06.html">৮.৬ ড্রাই সেল ও ব্যাটারির ব্যবহার →</a>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>রসায়ন · অধ্যায় ৩: পদার্থের গঠন | পড়ি</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .hero {
+      background: linear-gradient(135deg, #0f766e 0%, #134e4a 100%);
+      color: #fff;
+      border-radius: 20px;
+      padding: 32px 28px;
+      margin: 20px 0 28px;
+      box-shadow: 0 8px 24px rgba(15, 118, 110, 0.2);
+    }
+    .hero h1 { margin: 12px 0 8px; font-size: clamp(28px, 5vw, 40px); color: #fff; }
+    .hero p { color: #ccfbf1; font-size: 16px; margin: 0 0 20px; line-height: 1.7; max-width: 680px; }
+    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin: 24px 0 36px;
+    }
+    .stat {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .stat strong { display: block; font-size: 20px; color: var(--indigo); margin-bottom: 4px; }
+    .stat span { font-size: 13px; color: var(--muted); line-height: 1.5; display: block; }
+    .roadmap { display: flex; flex-direction: column; gap: 14px; margin: 24px 0 40px; }
+    .route-card {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px 20px;
+      transition: all 0.2s ease;
+      color: inherit;
+    }
+    .route-card:hover {
+      border-color: var(--indigo);
+      box-shadow: 0 4px 14px rgba(15, 118, 110, 0.08);
+      transform: translateY(-2px);
+      text-decoration: none;
+    }
+    .route-no {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--indigo-soft);
+      color: var(--indigo);
+      font-weight: 800;
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+    .route-body h3 { margin: 0 0 4px; font-size: 17px; color: #1e293b; }
+    .route-body p { margin: 0; font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .interactive-banner {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 18px;
+      padding: 24px;
+      color: #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 30px 0;
+    }
+    .interactive-banner h3 { margin: 0 0 6px; color: #38bdf8; font-size: 20px; }
+    .interactive-banner p { margin: 0; color: #94a3b8; font-size: 14px; max-width: 540px; }
+  </style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html">পড়ি <span>•</span> Chemistry</a>
+    <span class="crumb">SSC · রসায়ন অধ্যায় ৩</span>
+  </div>
+</header>
+<main>
+
+  <section class="hero">
+    <span class="badge" style="background:rgba(255,255,255,0.2);color:#fff;border-color:rgba(255,255,255,0.4)">অধ্যায় ৩ · সম্পূর্ণ ইন্টারেক্টিভ পাঠ</span>
+    <h1>পদার্থের গঠন <small style="font-size:0.55em;opacity:.9;display:block;margin-top:4px">(Structure of Matter)</small></h1>
+    <p>মৌলিক ও যৌগিক পদার্থ থেকে পরমাণু-অণুর ক্ষুদ্রাতিক্ষুদ্র জগৎ, রাদারফোর্ড ও বোর পরমাণু মডেল, $2n^2$ ও আউফবাউ শক্তিস্তরে ইলেকট্রন বিন্যাস এবং তেজস্ক্রিয় আইসোটোপের কল্যাণমুখী ব্যবহার—শিখুন নির্ভুল গাণিতিক উদাহরণ ও অ্যানিমেটেড সিমুলেশনসহ।</p>
+    <div class="hero-actions">
+      <a class="button" href="section-01.html" style="background:#fff;color:#0f766e">৩.১ থেকে পড়া শুরু করো →</a>
+      <a class="button secondary" href="../../apps/api/prisma/sample-simulations/bohr-atom-electron-config-lab.html" style="background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.3)">⚛️ বোর মডেল ও শিখা ল্যাব</a>
+      <a class="button secondary" href="chapter-source.html" style="background:transparent;color:#ccfbf1;border-color:rgba(255,255,255,0.3)">মূল পাঠ্যবই (২৪ পৃষ্ঠা) ↗</a>
+    </div>
+  </section>
+
+  <section class="stats">
+    <div class="stat">
+      <strong>৮টি পূর্ণাঙ্গ পাঠ</strong>
+      <span>৩.১ থেকে ৩.৮ — প্রতিটি পাঠে ধারণা, সমীকরণ ও কুইজ</span>
+    </div>
+    <div class="stat">
+      <strong>৭২টি প্রশ্ন সম্ভার</strong>
+      <span>৫৪টি ব্যাখ্যাসহ MCQ ও ১৮টি পূর্ণাঙ্গ সৃজনশীল রুব্রিক</span>
+    </div>
+    <div class="stat">
+      <strong>১টি উচ্চমানের সিমুলেটর</strong>
+      <span>বোর পরমাণু মডেল, উপশক্তিস্তর ও শিখা পরীক্ষা ল্যাব</span>
+    </div>
+    <div class="stat">
+      <strong>২৪ পৃষ্ঠা পাঠ্যবই</strong>
+      <span>NCTB মূল বইয়ের পৃষ্ঠা ৩৫ থেকে ৫৮ এর সম্পূর্ণ স্ক্যান</span>
+    </div>
+  </section>
+
+  <div class="interactive-banner">
+    <div>
+      <h3>⚛️ বোর পরমাণু মডেল ও ইলেকট্রন বিন্যাস ল্যাব</h3>
+      <p>হাইড্রোজেন থেকে ক্যালসিয়াম (H to Ca) পর্যন্ত ২০টি মৌলের পারমাণবিক কক্ষপথ, $s, p, d, f$ উপশক্তিস্তরের বক্স ডায়াগ্রাম এবং ধাতব আয়নের শিখা বর্ণালী (Na, Cu, K, Ca) সরাসরি পরখ করো।</p>
+    </div>
+    <a class="button" href="../../apps/api/prisma/sample-simulations/bohr-atom-electron-config-lab.html" target="_blank" style="background:#14b8a6;color:#042f2e;font-weight:800;">ল্যাব চালু করো 🚀</a>
+  </div>
+
+  <h2>বইয়ের ক্রমানুসারে বিষয়সূচি</h2>
+  <p class="subtitle">প্রতিটি পাঠে রয়েছে শিখনফল, মূল সংজ্ঞাসমূহ, KaTeX রাসায়নিক সমীকরণ, মেমোরি এইড ছন্দ, সমাধানকৃত গাণিতিক উদাহরণ ও স্ব-মূল্যায়ন যাচাই।</p>
+
+  <section class="roadmap">
+    <a class="route-card" href="section-01.html">
+      <span class="route-no">৩.১</span>
+      <div class="route-body">
+        <h3>মৌলিক ও যৌগিক পদার্থ (Elements and Compounds)</h3>
+        <p>১১৮টি মৌল (৯৮টি প্রাকৃতিক, ২০টি কৃত্রিম), মৌলিক ও যৌগিক পদার্থের বৈশিষ্ট্য ও পার্থক্য।</p>
+      </div>
+    </a>
+
+    <a class="route-card" href="section-02.html">
+      <span class="route-no">৩.২</span>
+      <div class="route-body">
+        <h3>পরমাণু ও অণু (Atoms and Molecules)</h3>
+        <p>পদার্থের ক্ষুদ্রতম কণা, ডাল্টনের পরমাণুবাদ, মৌলিক অণু বনাম যৌগিক অণুর গঠন।</p>
+      </div>
+    </a>
+
+    <a class="route-card" href="section-03.html">
+      <span class="route-no">৩.৩</span>
+      <div class="route-body">
+        <h3>মৌলের প্রতীক ও সংকেত (Symbols and Formulas of Elements)</h3>
+        <p>প্রতীক লেখার নিয়মাবলী, ১১টি ল্যাটিন নাম (Na, Cu, Fe, Ag, Au ইত্যাদি) ও রাসায়নিক সংকেত।</p>
+      </div>
+    </a>
+
+    <a class="route-card" href="section-04.html">
+      <span class="route-no">৩.৪</span>
+      <div class="route-body">
+        <h3>পরমাণুর ভেতরের কণা: ইলেকট্রন, প্রোটন ও নিউট্রন (Subatomic Particles)</h3>
+        <p>আবিষ্কারক, প্রকৃত ভর ($g$ ও $kg$), কুলম্ব এককে আধান এবং আপেক্ষিক আধান ও ভরের ছক।</p>
+      </div>
+    </a>
+
+    <a class="route-card" href="section-05.html">
+      <span class="route-no">৩.৫</span>
+      <div class="route-body">
+        <h3>পারমাণবিক সংখ্যা, ভর সংখ্যা ও আপেক্ষিক পারমাণবিক ভর (Atomic Mass & Numbers)</h3>
+        <p>$Z$ ও $A$ সম্পর্ক, কার্বন-১২ স্কেল ($1.66 \times 10^{-24}\text{ g}$) এবং শতকরা প্রাচুর্য থেকে আপেক্ষিক ভর নির্ণয়।</p>
+      </div>
+    </a>
+
+    <a class="route-card" href="section-06.html">
+      <span class="route-no">৩.৬</span>
+      <div class="route-body">
+        <h3>আইসোটোপ ও তেজস্ক্রিয় আইসোটোপের ব্যবহার (Isotopes & Uses)</h3>
+        <p>হাইড্রোজেনের ৩টি আইসোটোপ, চিকিৎসায় $^{131}\text{I}$, $^{60}\text{Co}$, $^{99m}\text{Tc}$, কৃষিতে $^{32}\text{P}$ ও $^{14}\text{C}$ কার্বন ডেটিং।</p>
+      </div>
+    </a>
+
+    <a class="route-card" href="section-07.html">
+      <span class="route-no">৩.৭</span>
+      <div class="route-body">
+        <h3>পরমাণুর মডেল: রাদারফোর্ড ও বোর পরমাণু মডেল (Atomic Models)</h3>
+        <p>আলফা কণা বিচ্ছুরণ পরীক্ষা ($ZnS$ পর্দা), সৌর মডেল, ম্যাক্সওয়েল তত্ত্বের সীমাবদ্ধতা ও বোর প্রস্তাবনা।</p>
+      </div>
+    </a>
+
+    <a class="route-card" href="section-08.html">
+      <span class="route-no">৩.৮</span>
+      <div class="route-body">
+        <h3>শক্তিস্তরে ইলেকট্রন বিন্যাস (বোর ও আউফবাউ নীতি) (Electron Configuration)</h3>
+        <p>$2n^2$ নীতি, $s, p, d, f$ উপশক্তিস্তর, $(n+l)$ নিয়ম, পটাশিয়ামের ১৯তম ইলেকট্রন ও Cr, Cu এর ব্যতিক্রম।</p>
+      </div>
+    </a>
+  </section>
+
+</main>
+<footer class="footer" style="text-align:center;padding:24px;color:var(--muted);font-size:14px;border-top:1px solid var(--line);">
+  NCTB ২০২৬ শিক্ষাবর্ষ · নবম-দশম শ্রেণির রসায়ন (অধ্যায় ৩: পদার্থের গঠন) · <a href="chapter-source.html">পাঠ্যবইয়ের ২৪ পৃষ্ঠার স্ক্যান দেখুন ↗</a>
+</footer>
+</body>
+</html>

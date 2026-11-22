@@ -167,7 +167,7 @@ const PHASE2_TRACK_SEEDS: TrackSeedItem[] = [
     },
     chapter: {
       id: 'chap_ssc_chem_3',
-      orderIndex: 1,
+      orderIndex: 31,
       titleBangla: 'পদার্থের গঠন ও মোলের ধারণা',
     },
     topics: [

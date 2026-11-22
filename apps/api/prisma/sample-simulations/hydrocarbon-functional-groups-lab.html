@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>হাইড্রোকার্বন ও কার্যকরী মূলক ল্যাব সিমুলেটর | poRi</title>
+  <style>
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-accent: #0f766e;
+      --pori-accent-hover: #115e59;
+      --pori-accent-soft: #ecfdf5;
+      --pori-accent-border: #99f6e4;
+      --pori-accent-ink: #134e4a;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-amber-ink: #92400e;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-border: #fecdd3;
+      --pori-rose-ink: #9f1239;
+      --pori-purple-soft: #faf5ff;
+      --pori-purple-border: #e9d5ff;
+      --pori-purple-ink: #6b21a8;
+      --pori-blue-soft: #eff6ff;
+      --pori-blue-border: #bfdbfe;
+      --pori-blue-ink: #1e40af;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      padding: 16px;
+      line-height: 1.55;
+    }
+    .app-container {
+      max-width: 960px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 20px;
+      padding: 22px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .header {
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 14px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--pori-accent-ink);
+      background: var(--pori-accent-soft);
+      border: 1px solid var(--pori-accent-border);
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--pori-heading);
+      margin-bottom: 4px;
+    }
+    p.desc {
+      font-size: 0.88rem;
+      color: var(--pori-muted);
+    }
+    /* Tabs Navigation */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 2px solid var(--pori-border-soft);
+      padding-bottom: 2px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      border-radius: 10px 10px 0 0;
+      border: none;
+      background: transparent;
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--pori-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover {
+      color: var(--pori-accent);
+      background: #f1f5f9;
+    }
+    .tab-btn.active {
+      color: var(--pori-accent);
+      background: var(--pori-accent-soft);
+      border-bottom: 3px solid var(--pori-accent);
+    }
+    .tab-content {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .tab-content.active {
+      display: flex;
+    }
+
+    /* Simulation Layout Grid */
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+    @media (max-width: 768px) {
+      .sim-grid { grid-template-columns: 1fr; }
+    }
+    .view-card {
+      background: #0f172a;
+      border-radius: 16px;
+      padding: 16px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 380px;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
+      overflow: hidden;
+    }
+    .view-card svg {
+      width: 100%;
+      height: 340px;
+      display: block;
+    }
+    .controls-panel {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .section-title {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--pori-heading);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sample-selector {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .sample-btn {
+      padding: 8px 6px;
+      border-radius: 8px;
+      border: 1px solid var(--pori-border);
+      background: #fff;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--pori-heading);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .sample-btn:hover {
+      border-color: var(--pori-accent);
+      background: var(--pori-accent-soft);
+    }
+    .sample-btn.active {
+      background: var(--pori-accent);
+      border-color: var(--pori-accent);
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(15, 118, 110, 0.3);
+    }
+    .action-btn {
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: none;
+      background: var(--pori-accent);
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 750;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(15, 118, 110, 0.25);
+    }
+    .action-btn:hover:not(:disabled) {
+      background: var(--pori-accent-hover);
+      transform: translateY(-1px);
+    }
+    .action-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .reset-btn {
+      padding: 7px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--pori-border);
+      background: #fff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--pori-muted);
+      cursor: pointer;
+    }
+    .reset-btn:hover { background: #f1f5f9; }
+
+    /* Observation & Equation Box */
+    .result-box {
+      background: #fff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: 750;
+      padding: 4px 10px;
+      border-radius: 6px;
+      width: fit-content;
+    }
+    .status-badge.saturated {
+      background: var(--pori-amber-soft);
+      border: 1px solid var(--pori-amber-border);
+      color: var(--pori-amber-ink);
+    }
+    .status-badge.unsaturated {
+      background: var(--pori-accent-soft);
+      border: 1px solid var(--pori-accent-border);
+      color: var(--pori-accent-ink);
+    }
+    .status-badge.waiting {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: var(--pori-muted);
+    }
+    .eq-display {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px;
+      font-family: "Courier New", monospace, sans-serif;
+      font-size: 0.86rem;
+      color: #0f172a;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+    .exp-text {
+      font-size: 0.82rem;
+      color: var(--pori-muted);
+      line-height: 1.5;
+    }
+
+    /* Distillation Column Styling */
+    .distill-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+    @media (max-width: 820px) {
+      .distill-layout { grid-template-columns: 1fr; }
+    }
+    .column-view {
+      background: #090d16;
+      border-radius: 16px;
+      padding: 16px;
+      position: relative;
+    }
+    .column-view svg {
+      width: 100%;
+      height: 480px;
+      display: block;
+    }
+    .fraction-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 480px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .fraction-item {
+      background: #fff;
+      border: 2px solid var(--pori-border-soft);
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .fraction-item:hover {
+      border-color: #94a3b8;
+      background: #f8fafc;
+    }
+    .fraction-item.active {
+      border-color: var(--pori-accent);
+      background: var(--pori-accent-soft);
+      box-shadow: 0 4px 12px rgba(15, 118, 110, 0.12);
+    }
+    .frac-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    .frac-name {
+      font-weight: 800;
+      font-size: 0.88rem;
+      color: var(--pori-heading);
+    }
+    .frac-temp {
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: #c2410c;
+      background: #ffedd5;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+    .frac-detail {
+      font-size: 0.78rem;
+      color: var(--pori-muted);
+      display: flex;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .frac-use {
+      font-size: 0.78rem;
+      color: #334155;
+      font-weight: 600;
+    }
+
+    /* Interconversion Flow Styling */
+    .flow-container {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .flow-steps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: center;
+    }
+    .flow-node {
+      background: #fff;
+      border: 2px solid var(--pori-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      text-align: center;
+      min-width: 130px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .flow-node:hover {
+      border-color: var(--pori-accent);
+      transform: translateY(-2px);
+    }
+    .flow-node.active {
+      border-color: var(--pori-accent);
+      background: var(--pori-accent-soft);
+      box-shadow: 0 4px 12px rgba(15, 118, 110, 0.15);
+    }
+    .flow-node .title {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--pori-heading);
+    }
+    .flow-node .formula {
+      font-size: 0.8rem;
+      font-family: monospace;
+      color: var(--pori-accent-ink);
+      font-weight: 700;
+    }
+    .flow-arrow {
+      color: #94a3b8;
+      font-size: 1.4rem;
+      font-weight: 800;
+    }
+    .reagent-card {
+      background: #fff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Quiz and Active Recall Section */
+    .quiz-card {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .quiz-opt {
+      padding: 10px 14px;
+      background: #fff;
+      border: 1px solid var(--pori-border);
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+    }
+    .quiz-opt:hover { background: #f1f5f9; }
+    .quiz-opt.correct {
+      background: #dcfce7 !important;
+      border-color: #22c55e !important;
+      color: #14532d !important;
+    }
+    .quiz-opt.wrong {
+      background: #fee2e2 !important;
+      border-color: #ef4444 !important;
+      color: #7f1d1d !important;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  <!-- Header -->
+  <div class="header">
+    <div class="badge">🧪 এসএসসি রসায়ন ল্যাব · একাদশ অধ্যায়</div>
+    <h1>হাইড্রোকার্বন ও কার্যকরী মূলক ভার্চুয়াল ল্যাব</h1>
+    <p class="desc">ব্রোমিন পানি পরীক্ষা, ক্ষারীয় KMnO₄ (বেয়ার পরীক্ষা), পেট্রোলিয়ামের আংশিক পাতন এবং জৈব যৌগের আন্তঃরূপান্তর হাতে-কলমে সিমুলেশন।</p>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('br2-test')">
+      <span>🩸</span> ১. ব্রমিন পানি পরীক্ষা (Bromine Water Test)
+    </button>
+    <button class="tab-btn" onclick="switchTab('baeyer-test')">
+      <span>🟣</span> ২. বেয়ার পরীক্ষা (Baeyer's KMnO₄ Test)
+    </button>
+    <button class="tab-btn" onclick="switchTab('fractional-distill')">
+      <span>🏭</span> ৩. পেট্রোলিয়ামের আংশিক পাতন কলাম
+    </button>
+    <button class="tab-btn" onclick="switchTab('conversion-map')">
+      <span>🔄</span> ৪. জৈব যৌগের আন্তঃরূপান্তর মানচিত্র
+    </button>
+  </div>
+
+  <!-- TAB 1: BROMINE WATER TEST -->
+  <div id="br2-test" class="tab-content active">
+    <div class="sim-grid">
+      <!-- SVG Canvas View -->
+      <div class="view-card">
+        <svg id="br2-svg" viewBox="0 0 320 340">
+          <defs>
+            <linearGradient id="glassGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35"/>
+              <stop offset="20%" stop-color="#ffffff" stop-opacity="0.1"/>
+              <stop offset="80%" stop-color="#ffffff" stop-opacity="0.05"/>
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0.25"/>
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+
+          <!-- Test Tube Rack Base -->
+          <rect x="70" y="275" width="180" height="14" rx="4" fill="#334155"/>
+          <rect x="85" y="200" width="10" height="75" fill="#1e293b"/>
+          <rect x="225" y="200" width="10" height="75" fill="#1e293b"/>
+          <rect x="75" y="195" width="170" height="8" rx="2" fill="#475569"/>
+
+          <!-- Test Tube Outer -->
+          <rect x="135" y="90" width="50" height="175" rx="0" fill="url(#glassGrad)" stroke="#94a3b8" stroke-width="2"/>
+          <path d="M 135 265 A 25 25 0 0 0 185 265 Z" fill="url(#glassGrad)" stroke="#94a3b8" stroke-width="2"/>
+          <ellipse cx="160" cy="90" rx="27" ry="5" fill="#475569" stroke="#94a3b8" stroke-width="2"/>
+
+          <!-- Liquid Inside Tube -->
+          <g id="br2-liquid-group">
+            <path id="br2-liquid-body" d="M 136 170 L 136 265 A 24 24 0 0 0 184 265 L 184 170 Z" fill="#e2e8f0" opacity="0.85"/>
+            <ellipse id="br2-liquid-surface" cx="160" cy="170" rx="24" ry="4" fill="#cbd5e1" opacity="0.9"/>
+          </g>
+
+          <!-- Liquid Meniscus Highlight -->
+          <path d="M 139 175 Q 160 178 181 175" stroke="#ffffff" stroke-width="1.5" fill="none" opacity="0.6"/>
+
+          <!-- Test Tube Glare -->
+          <line x1="141" y1="100" x2="141" y2="255" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.4"/>
+          <line x1="145" y1="105" x2="145" y2="245" stroke="#ffffff" stroke-width="1" stroke-linecap="round" opacity="0.2"/>
+
+          <!-- Pipette / Dropper Group -->
+          <g id="br2-dropper" transform="translate(145, -40)" style="transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);">
+            <!-- Bulb -->
+            <ellipse cx="15" cy="20" rx="14" ry="18" fill="#e11d48"/>
+            <rect x="11" y="38" width="8" height="8" fill="#9f1239"/>
+            <!-- Glass stem -->
+            <polygon points="12,46 18,46 16,105 14,105" fill="#f8fafc" stroke="#94a3b8" stroke-width="1" opacity="0.85"/>
+            <!-- Liquid in dropper (Bromine red-brown) -->
+            <polygon points="13,55 17,55 16,102 14,102" fill="#c2410c"/>
+          </g>
+
+          <!-- Animated Dropping droplet -->
+          <circle id="br2-drop" cx="160" cy="70" r="4.5" fill="#c2410c" opacity="0"/>
+
+          <!-- Sample Name Tag on Tube -->
+          <rect x="138" y="195" width="44" height="20" rx="3" fill="#ffffff" opacity="0.9"/>
+          <text id="br2-tube-label" x="160" y="209" font-size="10" font-weight="bold" fill="#0f172a" text-anchor="middle">ইথিন</text>
+        </svg>
+
+        <div style="font-size:0.75rem; color:#94a3b8; margin-top:4px;">
+          অসম্পৃক্ততার ব্রোমিন পরীক্ষা (Reddish-brown Bromine Decolorization Test)
+        </div>
+      </div>
+
+      <!-- Controls & Explanations -->
+      <div class="controls-panel">
+        <div>
+          <div class="section-title">🧪 ১. নমুনা হাইড্রোকার্বন নির্বাচন করো</div>
+          <div class="sample-selector" style="margin-top: 8px;">
+            <button class="sample-btn" onclick="selectBr2Sample('alkane')">
+              <div>ইথেন</div>
+              <small style="color:var(--pori-muted)">অ্যালকেন</small>
+            </button>
+            <button class="sample-btn active" onclick="selectBr2Sample('alkene')">
+              <div>ইথিন</div>
+              <small style="color:var(--pori-muted)">অ্যালকিন</small>
+            </button>
+            <button class="sample-btn" onclick="selectBr2Sample('alkyne')">
+              <div>ইথাইন</div>
+              <small style="color:var(--pori-muted)">অ্যালকাইন</small>
+            </button>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button id="br2-action-btn" class="action-btn" style="flex:1;" onclick="runBr2Reaction()">
+            <span>💧</span> ব্রমিন দ্রবণ যোগ করো
+          </button>
+          <button class="reset-btn" onclick="resetBr2Sim()">রিসেট</button>
+        </div>
+
+        <!-- Result Box -->
+        <div class="result-box">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.8rem; font-weight:700; color:var(--pori-muted);">পরীক্ষার ফলাফল:</span>
+            <span id="br2-status-badge" class="status-badge waiting">অপেক্ষা করছে...</span>
+          </div>
+          <div class="eq-display" id="br2-eq-text">
+            CH₂=CH₂ + Br₂ (লালচে বাদামি) ➔ অপেক্ষা করছে...
+          </div>
+          <p class="exp-text" id="br2-exp-text">
+            ব্রমিন দ্রবণ (Br₂ পানি) লালচে বাদামি বর্ণের। ইথিনে কার্বন-কার্বন দ্বিবন্ধন থাকায় ব্রোমিনের সাথে দ্রুত যুত বিক্রিয়া ঘটে এবং বর্ণহীন ১,২-ডাইব্রোমোইথেন তৈরি হয়।
+          </p>
+        </div>
+
+        <div style="background:#fffbeb; border:1px solid #fcd34d; border-radius:10px; padding:10px; font-size:0.8rem; color:#92400e;">
+          <b>💡 পরীক্ষার টিপস:</b> অ্যালকেন অন্ধকারে ব্রোমিনের সাথে বিক্রিয়া করে না। তাই ব্রোমিনের লালচে বাদামি বর্ণ অপরিবর্তিত থাকলে তা সম্পৃক্ত হাইড্রোকার্বন নির্দেশ করে।
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: BAEYER'S KMnO4 TEST -->
+  <div id="baeyer-test" class="tab-content">
+    <div class="sim-grid">
+      <!-- SVG Canvas View -->
+      <div class="view-card">
+        <svg id="baeyer-svg" viewBox="0 0 320 340">
+          <defs>
+            <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#9333ea"/>
+              <stop offset="100%" stop-color="#581c87"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Test Tube Rack -->
+          <rect x="70" y="275" width="180" height="14" rx="4" fill="#334155"/>
+          <rect x="85" y="200" width="10" height="75" fill="#1e293b"/>
+          <rect x="225" y="200" width="10" height="75" fill="#1e293b"/>
+          <rect x="75" y="195" width="170" height="8" rx="2" fill="#475569"/>
+
+          <!-- Test Tube -->
+          <rect x="135" y="90" width="50" height="175" rx="0" fill="url(#glassGrad)" stroke="#94a3b8" stroke-width="2"/>
+          <path d="M 135 265 A 25 25 0 0 0 185 265 Z" fill="url(#glassGrad)" stroke="#94a3b8" stroke-width="2"/>
+          <ellipse cx="160" cy="90" rx="27" ry="5" fill="#475569" stroke="#94a3b8" stroke-width="2"/>
+
+          <!-- Liquid Inside Tube -->
+          <g id="baeyer-liquid-group">
+            <path id="baeyer-liquid-body" d="M 136 170 L 136 265 A 24 24 0 0 0 184 265 L 184 170 Z" fill="#e2e8f0" opacity="0.85"/>
+            <ellipse id="baeyer-liquid-surface" cx="160" cy="170" rx="24" ry="4" fill="#cbd5e1" opacity="0.9"/>
+          </g>
+
+          <!-- MnO2 Brown Precipitate particles group -->
+          <g id="baeyer-precipitate" opacity="0" style="transition: opacity 1.2s ease;">
+            <circle cx="150" cy="272" r="3.5" fill="#78350f"/>
+            <circle cx="162" cy="275" r="4" fill="#451a03"/>
+            <circle cx="171" cy="270" r="3" fill="#78350f"/>
+            <circle cx="156" cy="268" r="2.8" fill="#451a03"/>
+            <circle cx="144" cy="266" r="2.5" fill="#78350f"/>
+            <circle cx="176" cy="266" r="3" fill="#451a03"/>
+            <circle cx="164" cy="264" r="2" fill="#78350f"/>
+            <text x="160" y="258" font-size="8" font-weight="bold" fill="#fde68a" text-anchor="middle">MnO₂ ↓</text>
+          </g>
+
+          <!-- Test Tube Glare -->
+          <line x1="141" y1="100" x2="141" y2="255" stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity="0.4"/>
+
+          <!-- Dropper (Alkaline KMnO4 Purple) -->
+          <g id="baeyer-dropper" transform="translate(145, -40)" style="transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);">
+            <ellipse cx="15" cy="20" rx="14" ry="18" fill="#7e22ce"/>
+            <rect x="11" y="38" width="8" height="8" fill="#581c87"/>
+            <polygon points="12,46 18,46 16,105 14,105" fill="#f8fafc" stroke="#94a3b8" stroke-width="1" opacity="0.85"/>
+            <polygon points="13,55 17,55 16,102 14,102" fill="#9333ea"/>
+          </g>
+
+          <!-- Droplet -->
+          <circle id="baeyer-drop" cx="160" cy="70" r="4.5" fill="#9333ea" opacity="0"/>
+
+          <!-- Sample Name Tag -->
+          <rect x="138" y="195" width="44" height="20" rx="3" fill="#ffffff" opacity="0.9"/>
+          <text id="baeyer-tube-label" x="160" y="209" font-size="10" font-weight="bold" fill="#0f172a" text-anchor="middle">ইথিন</text>
+        </svg>
+
+        <div style="font-size:0.75rem; color:#94a3b8; margin-top:4px;">
+          বেয়ার পরীক্ষা: ক্ষারীয় KMnO₄ দ্রবণ দ্বারা জারণ ও বর্ণ পরিবর্তন
+        </div>
+      </div>
+
+      <!-- Controls & Explanations -->
+      <div class="controls-panel">
+        <div>
+          <div class="section-title">🧪 ১. নমুনা নির্বাচন করো</div>
+          <div class="sample-selector" style="margin-top: 8px;">
+            <button class="sample-btn" onclick="selectBaeyerSample('alkane')">
+              <div>ইথেন</div>
+              <small style="color:var(--pori-muted)">অ্যালকেন</small>
+            </button>
+            <button class="sample-btn active" onclick="selectBaeyerSample('alkene')">
+              <div>ইথিন</div>
+              <small style="color:var(--pori-muted)">অ্যালকিন</small>
+            </button>
+            <button class="sample-btn" onclick="selectBaeyerSample('alkyne')">
+              <div>ইথাইন</div>
+              <small style="color:var(--pori-muted)">অ্যালকাইন</small>
+            </button>
+          </div>
+        </div>
+
+        <div style="display:flex; gap:10px;">
+          <button id="baeyer-action-btn" class="action-btn" style="flex:1; background:#7e22ce;" onclick="runBaeyerReaction()">
+            <span>🟣</span> ক্ষারীয় KMnO₄ যোগ করো
+          </button>
+          <button class="reset-btn" onclick="resetBaeyerSim()">রিসেট</button>
+        </div>
+
+        <!-- Result Box -->
+        <div class="result-box">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.8rem; font-weight:700; color:var(--pori-muted);">পরীক্ষার ফলাফল:</span>
+            <span id="baeyer-status-badge" class="status-badge waiting">অপেক্ষা করছে...</span>
+          </div>
+          <div class="eq-display" id="baeyer-eq-text">
+            CH₂=CH₂ + [O] + H₂O ➔ অপেক্ষা করছে...
+          </div>
+          <p class="exp-text" id="baeyer-exp-text">
+            পটাসিয়াম পারম্যাঙ্গানেট (KMnO₄) ও সোডিয়াম হাইড্রোক্সাইডের (NaOH) ক্ষারীয় মিশ্রণ একটি শক্তিশালী জারক। ইথিনের সাথে বিক্রিয়ায় বেগুনী বর্ণ দূরীভূত হয়ে বর্ণহীন ইথিলিন গ্লাইকল ও বাদামি MnO₂ অধঃক্ষেপ পড়ে।
+          </p>
+        </div>
+
+        <div style="background:#fdf4ff; border:1px solid #f0abfc; border-radius:10px; padding:10px; font-size:0.8rem; color:#701a75;">
+          <b>🧠 মনে রাখার টেকনিক:</b> বেয়ার পরীক্ষায় উৎপন্ন ইথিলিন গ্লাইকল (ইথেন-১,২-ডাইঅল) একটি বর্ণহীন ডাই-অ্যালকোহল। আর নিচে জমা হওয়া বাদামি দানাগুলো হলো ম্যাঙ্গানিজ ডাইঅক্সাইড ($MnO_2$)।
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: FRACTIONAL DISTILLATION COLUMN -->
+  <div id="fractional-distill" class="tab-content">
+    <div class="distill-layout">
+      <!-- Distillation Tower Visualizer -->
+      <div class="column-view">
+        <svg id="distill-svg" viewBox="0 0 340 500">
+          <defs>
+            <linearGradient id="towerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#334155"/>
+              <stop offset="25%" stop-color="#64748b"/>
+              <stop offset="75%" stop-color="#475569"/>
+              <stop offset="100%" stop-color="#1e293b"/>
+            </linearGradient>
+            <linearGradient id="heatGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+              <stop offset="0%" stop-color="#ef4444"/>
+              <stop offset="35%" stop-color="#f97316"/>
+              <stop offset="70%" stop-color="#eab308"/>
+              <stop offset="100%" stop-color="#3b82f6"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Distillation Tower Shell -->
+          <rect x="70" y="40" width="130" height="420" rx="20" fill="url(#towerGrad)" stroke="#94a3b8" stroke-width="2"/>
+
+          <!-- Furnace / Boiler at Bottom -->
+          <rect x="10" y="410" width="70" height="50" rx="8" fill="#dc2626" stroke="#f87171" stroke-width="2"/>
+          <text x="45" y="432" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">ফার্নেস</text>
+          <text x="45" y="448" font-size="9" fill="#fef08a" text-anchor="middle">~৪০০°C</text>
+
+          <!-- Crude Oil Inlet Pipe -->
+          <path d="M 80 435 L 105 435" stroke="#f97316" stroke-width="6" stroke-linecap="round"/>
+          <text x="35" y="475" font-size="9" font-weight="bold" fill="#fdba74">অপরিশোধিত তেল</text>
+
+          <!-- Fraction Trays & Outlets -->
+          <!-- 1. Petroleum Gas: y = 60 -->
+          <line x1="75" y1="75" x2="195" y2="75" stroke="#cbd5e1" stroke-dasharray="3,3" stroke-width="1.5"/>
+          <path d="M 200 65 L 240 65" stroke="#38bdf8" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="240" cy="65" r="7" fill="#38bdf8" class="tray-clicker" onclick="selectFraction(0)"/>
+          <text x="255" y="69" font-size="11" font-weight="bold" fill="#38bdf8">&lt;২০°C গ্যাস</text>
+
+          <!-- 2. Petrol / Gasoline: y = 120 -->
+          <line x1="75" y1="130" x2="195" y2="130" stroke="#cbd5e1" stroke-dasharray="3,3" stroke-width="1.5"/>
+          <path d="M 200 120 L 240 120" stroke="#4ade80" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="240" cy="120" r="7" fill="#4ade80" class="tray-clicker" onclick="selectFraction(1)"/>
+          <text x="255" y="124" font-size="11" font-weight="bold" fill="#4ade80">২১-৭০°C পেট্রোল</text>
+
+          <!-- 3. Naphtha: y = 175 -->
+          <line x1="75" y1="185" x2="195" y2="185" stroke="#cbd5e1" stroke-dasharray="3,3" stroke-width="1.5"/>
+          <path d="M 200 175 L 240 175" stroke="#a3e635" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="240" cy="175" r="7" fill="#a3e635" class="tray-clicker" onclick="selectFraction(2)"/>
+          <text x="255" y="179" font-size="11" font-weight="bold" fill="#a3e635">৭১-১২০°C ন্যাপথা</text>
+
+          <!-- 4. Kerosene: y = 230 -->
+          <line x1="75" y1="240" x2="195" y2="240" stroke="#cbd5e1" stroke-dasharray="3,3" stroke-width="1.5"/>
+          <path d="M 200 230 L 240 230" stroke="#facc15" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="240" cy="230" r="7" fill="#facc15" class="tray-clicker" onclick="selectFraction(3)"/>
+          <text x="255" y="234" font-size="11" font-weight="bold" fill="#facc15">১২১-১৭০°C কেরোসিন</text>
+
+          <!-- 5. Diesel: y = 285 -->
+          <line x1="75" y1="295" x2="195" y2="295" stroke="#cbd5e1" stroke-dasharray="3,3" stroke-width="1.5"/>
+          <path d="M 200 285 L 240 285" stroke="#fb923c" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="240" cy="285" r="7" fill="#fb923c" class="tray-clicker" onclick="selectFraction(4)"/>
+          <text x="255" y="289" font-size="11" font-weight="bold" fill="#fb923c">১৭১-২৭০°C ডিজেল</text>
+
+          <!-- 6. Lubricating Oil / Wax: y = 345 -->
+          <line x1="75" y1="355" x2="195" y2="355" stroke="#cbd5e1" stroke-dasharray="3,3" stroke-width="1.5"/>
+          <path d="M 200 345 L 240 345" stroke="#f87171" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="240" cy="345" r="7" fill="#f87171" class="tray-clicker" onclick="selectFraction(5)"/>
+          <text x="255" y="349" font-size="11" font-weight="bold" fill="#f87171">২৭১-৩৪০°C লুব্রিকেন্ট</text>
+
+          <!-- 7. Bitumen / Residue: y = 410 -->
+          <path d="M 200 410 L 240 410" stroke="#94a3b8" stroke-width="6" stroke-linecap="round"/>
+          <circle cx="240" cy="410" r="7" fill="#94a3b8" class="tray-clicker" onclick="selectFraction(6)"/>
+          <text x="255" y="414" font-size="11" font-weight="bold" fill="#94a3b8">&gt;৩৪০°C বিটুমিন</text>
+
+          <!-- Rising Vapor Bubbles Animation -->
+          <g id="vapor-group">
+            <circle cx="100" cy="420" r="3" fill="#fdba74" opacity="0.7">
+              <animate attributeName="cy" from="420" to="60" dur="4s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="140" cy="430" r="4" fill="#fed7aa" opacity="0.6">
+              <animate attributeName="cy" from="430" to="110" dur="3.5s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="160" cy="415" r="3" fill="#fed7aa" opacity="0.8">
+              <animate attributeName="cy" from="415" to="160" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="120" cy="440" r="4" fill="#ffedd5" opacity="0.7">
+              <animate attributeName="cy" from="440" to="220" dur="2.8s" repeatCount="indefinite"/>
+            </circle>
+          </g>
+
+          <!-- Active Selection Ring -->
+          <circle id="tray-highlight-ring" cx="240" cy="65" r="12" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-dasharray="3,3"/>
+        </svg>
+      </div>
+
+      <!-- Fraction Information & Bangladesh Context -->
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div style="font-size:0.88rem; font-weight:800; color:var(--pori-heading);">
+          🎯 কলামের অংশ নির্বাচন করো (বা পাশে ট্যাপ করো):
+        </div>
+
+        <div class="fraction-list" id="fraction-container">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Detail Card for selected fraction -->
+        <div class="result-box" id="frac-detail-card" style="border-left: 4px solid var(--pori-accent);">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3 id="detail-title" style="font-size:0.96rem; color:var(--pori-heading);">পেট্রোলিয়াম গ্যাস (Petroleum Gas)</h3>
+            <span id="detail-temp" class="frac-temp">০° – ২০° সে.</span>
+          </div>
+          <div style="font-size:0.82rem; color:var(--pori-muted); display:flex; gap:14px;">
+            <span>কার্বন সংখ্যা: <b id="detail-carbon" style="color:#0f172a;">C₁ – C₄</b></span>
+            <span>শতকরা পরিমাণ: <b id="detail-pct" style="color:#0f172a;">২%</b></span>
+          </div>
+          <p id="detail-use" style="font-size:0.84rem; color:#1e293b; line-height:1.5;">
+            চাপ প্রয়োগে তরল করে সিলিন্ডারে ভর্তি করে রান্নার গ্যাস (LPG) হিসেবে বাজারজাত করা হয়।
+          </p>
+          <div style="background:#f1f5f9; border-radius:8px; padding:8px 10px; font-size:0.78rem; color:#475569;" id="detail-bd">
+            🇧🇩 <b>বাংলাদেশের প্রেক্ষাপট:</b> বাসা-বাড়ি ও রেস্তোরাঁয় ব্যবহৃত লাল/সবুজ সিলিন্ডার গ্যাসে প্রোপেন ও বিউটেন থাকে।
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: INTERCONVERSION FLOW & FUNCTIONAL GROUPS -->
+  <div id="conversion-map" class="tab-content">
+    <div class="flow-container">
+      <div>
+        <h2 style="font-size:1.05rem; font-weight:800; color:var(--pori-heading); margin-bottom:4px;">
+          জৈব যৌগের আন্তঃরূপান্তর রোডম্যাপ (Organic Interconversions)
+        </h2>
+        <p style="font-size:0.84rem; color:var(--pori-muted);">
+          অ্যালকেন থেকে ধাপে ধাপে অ্যালকাইল হ্যালাইড, অ্যালকোহল, অ্যালডিহাইড ও কার্বক্সিলিক এসিড তৈরির পরিবর্তন চেইন। নোডে ক্লিক করে বিক্রিয়ার শর্ত ও সমীকরণ দেখো।
+        </p>
+      </div>
+
+      <div class="flow-steps">
+        <div class="flow-node active" onclick="showReaction(0)">
+          <div class="title">অ্যালকেন</div>
+          <div class="formula">CH₃-CH₃</div>
+          <small style="color:#64748b">ইথেন</small>
+        </div>
+        <div class="flow-arrow">➔</div>
+
+        <div class="flow-node" onclick="showReaction(1)">
+          <div class="title">অ্যালকাইল হ্যালাইড</div>
+          <div class="formula">CH₃-CH₂-Cl</div>
+          <small style="color:#64748b">ইথাইল ক্লোরাইড</small>
+        </div>
+        <div class="flow-arrow">➔</div>
+
+        <div class="flow-node" onclick="showReaction(2)">
+          <div class="title">অ্যালকোহল</div>
+          <div class="formula">CH₃-CH₂-OH</div>
+          <small style="color:#64748b">ইথানল</small>
+        </div>
+        <div class="flow-arrow">➔</div>
+
+        <div class="flow-node" onclick="showReaction(3)">
+          <div class="title">অ্যালডিহাইড</div>
+          <div class="formula">CH₃-CHO</div>
+          <small style="color:#64748b">ইথান্যাল</small>
+        </div>
+        <div class="flow-arrow">➔</div>
+
+        <div class="flow-node" onclick="showReaction(4)">
+          <div class="title">জৈব এসিড</div>
+          <div class="formula">CH₃-COOH</div>
+          <small style="color:#64748b">ইথানয়িক এসিড</small>
+        </div>
+      </div>
+
+      <!-- Reaction Reagent & Equation Display -->
+      <div class="reagent-card" id="reagent-display">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3 id="rx-title" style="font-size:0.95rem; font-weight:800; color:var(--pori-heading);">
+            ধাপ ১: অ্যালকেন ➔ অ্যালকাইল হ্যালাইড (হ্যালোজিনেশন)
+          </h3>
+          <span id="rx-reagent-tag" style="background:#e0f2fe; color:#0369a1; font-weight:700; font-size:0.75rem; padding:3px 8px; border-radius:6px;">
+            বিকারক: Cl₂ + UV আলো
+          </span>
+        </div>
+        <div class="eq-display" id="rx-equation">
+          CH₃-CH₃ + Cl₂ ➔ [UV আলো / সূর্যালোক] ➔ CH₃-CH₂-Cl + HCl
+        </div>
+        <p style="font-size:0.83rem; color:var(--pori-muted); line-height:1.55;" id="rx-details">
+          সূর্যালোক বা অতিবেগুনি রশ্মির উপস্থিতিতে মিথেন বা ইথেনের হাইড্রোজেন পরমাণু ধাপে ধাপে ক্লোরিন পরমাণু দ্বারা প্রতিস্থাপিত হয়। এটি একটি মুক্তমূলক প্রতিস্থাপন বিক্রিয়া।
+        </p>
+      </div>
+
+      <!-- Quick Interactive Self Check -->
+      <div class="quiz-card">
+        <div style="font-size:0.86rem; font-weight:800; color:var(--pori-heading);">
+          💡 কুইক সেলফ-চেক: অ্যালকোহলকে জারিত করে অ্যালডিহাইড বানাতে কোন জারক মিশ্রণ ব্যবহৃত হয়?
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+          <button class="quiz-opt" onclick="checkMapQuiz(this, false)">সোডালাইম (NaOH + CaO)</button>
+          <button class="quiz-opt" onclick="checkMapQuiz(this, true)">K₂Cr₂O₇ + গাঢ় H₂SO₄</button>
+          <button class="quiz-opt" onclick="checkMapQuiz(this, false)">অ্যালকোহলীয় KOH দ্রবণ</button>
+          <button class="quiz-opt" onclick="checkMapQuiz(this, false)">পানি ও ফসফরিক এসিড</button>
+        </div>
+        <div id="map-quiz-feedback" style="display:none; font-size:0.82rem; font-weight:700; padding:6px 10px; border-radius:6px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  /* TAB SWITCHING */
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+  }
+
+  /* BROMINE WATER TEST LOGIC */
+  let currentBr2Sample = 'alkene';
+  const br2Data = {
+    alkane: {
+      name: 'ইথেন',
+      formula: 'CH₃-CH₃',
+      unsaturated: false,
+      color: '#c2410c', // Remains reddish-brown
+      status: 'সম্পৃক্ত — বিক্রিয়া ঘটে না',
+      eq: 'CH₃-CH₃ + Br₂ (লালচে বাদামি) ➔ [অন্ধকারে নো বিক্রিয়া, বর্ণ অপরিবর্তিত]',
+      exp: 'সম্পৃক্ত হাইড্রোকার্বনে (অ্যালকেন) কেবল একক বন্ধন (C-C) থাকে যা খুবই সুদৃঢ়। ফলে সাধারণ তাপমাত্রায় অন্ধকারে ব্রোমিন পানির সাথে কোনো বিক্রিয়া ঘটে না এবং দ্রবণের লালচে বাদামি বর্ণ স্থায়ী থাকে।'
+    },
+    alkene: {
+      name: 'ইথিন',
+      formula: 'CH₂=CH₂',
+      unsaturated: true,
+      color: '#f8fafc', // Decolorized / clear
+      status: 'অসম্পৃক্ততা নিশ্চিত — দ্বিবন্ধন',
+      eq: 'CH₂=CH₂ + Br₂ (লালচে বাদামি) ➔ CH₂Br-CH₂Br (১,২-ডাইব্রোমোইথেন, বর্ণহীন)',
+      exp: 'ইথিনে একটি পাই (π) বন্ধন থাকে যা সহজে ভেঙে যায়। ব্রোমিন অণু যুক্ত হয়ে বর্ণহীন ১,২-ডাইব্রোমোইথেন উৎপন্ন করে। ব্রোমিনের লালচে বাদামি বর্ণ তাৎক্ষণিকভাবে দূর হয়ে যায়।'
+    },
+    alkyne: {
+      name: 'ইথাইন',
+      formula: 'CH≡CH',
+      unsaturated: true,
+      color: '#f8fafc', // Decolorized / clear
+      status: 'অসম্পৃক্ততা নিশ্চিত — ত্রিবন্ধন',
+      eq: 'CH≡CH + 2Br₂ (লালচে বাদামি) ➔ CHBr₂-CHBr₂ (১,১,২,২-টেট্রাব্রোমোইথেন, বর্ণহীন)',
+      exp: 'ইথাইনে দুটি দুর্বল পাই (π) বন্ধন থাকায় এটি দুই অণু ব্রোমিনের সাথে বিক্রিয়া করে বর্ণহীন ১,১,২,২-টেট্রাব্রোমোইথেন তৈরি করে। ব্রোমিনের লালচে বাদামি বর্ণ সম্পূর্ণ বিনষ্ট হয়।'
+    }
+  };
+
+  function selectBr2Sample(type) {
+    currentBr2Sample = type;
+    document.querySelectorAll('#br2-test .sample-btn').forEach((btn, idx) => {
+      btn.classList.toggle('active', ['alkane', 'alkene', 'alkyne'][idx] === type);
+    });
+    document.getElementById('br2-tube-label').textContent = br2Data[type].name;
+    resetBr2Sim();
+  }
+
+  function runBr2Reaction() {
+    const actionBtn = document.getElementById('br2-action-btn');
+    actionBtn.disabled = true;
+
+    const dropper = document.getElementById('br2-dropper');
+    const drop = document.getElementById('br2-drop');
+    const liquidBody = document.getElementById('br2-liquid-body');
+    const liquidSurface = document.getElementById('br2-liquid-surface');
+    const statusBadge = document.getElementById('br2-status-badge');
+    const eqText = document.getElementById('br2-eq-text');
+    const expText = document.getElementById('br2-exp-text');
+
+    // Step 1: Lower Dropper
+    dropper.style.transform = 'translate(145px, 20px)';
+
+    setTimeout(() => {
+      // Step 2: Fall drop
+      drop.style.opacity = '1';
+      drop.setAttribute('cy', '100');
+      let start = null;
+      function animateDrop(time) {
+        if (!start) start = time;
+        let progress = (time - start) / 450;
+        if (progress > 1) progress = 1;
+        drop.setAttribute('cy', 100 + progress * 68);
+        if (progress < 1) {
+          requestAnimationFrame(animateDrop);
+        } else {
+          drop.style.opacity = '0';
+          // Step 3: Color Change in Liquid
+          const data = br2Data[currentBr2Sample];
+          if (data.unsaturated) {
+            // Decolorize from red-brown to crystal clear
+            liquidBody.setAttribute('fill', '#ea580c');
+            setTimeout(() => {
+              liquidBody.style.transition = 'fill 1.2s ease';
+              liquidSurface.style.transition = 'fill 1.2s ease';
+              liquidBody.setAttribute('fill', '#f8fafc');
+              liquidSurface.setAttribute('fill', '#e2e8f0');
+            }, 300);
+          } else {
+            // Stays red-brown
+            liquidBody.style.transition = 'fill 0.8s ease';
+            liquidSurface.style.transition = 'fill 0.8s ease';
+            liquidBody.setAttribute('fill', '#ea580c');
+            liquidSurface.setAttribute('fill', '#c2410c');
+          }
+
+          // Step 4: Update Texts
+          statusBadge.className = 'status-badge ' + (data.unsaturated ? 'unsaturated' : 'saturated');
+          statusBadge.textContent = data.status;
+          eqText.textContent = data.eq;
+          expText.textContent = data.exp;
+
+          // Lift dropper
+          dropper.style.transform = 'translate(145px, -40px)';
+          actionBtn.disabled = false;
+        }
+      }
+      requestAnimationFrame(animateDrop);
+    }, 600);
+  }
+
+  function resetBr2Sim() {
+    const liquidBody = document.getElementById('br2-liquid-body');
+    const liquidSurface = document.getElementById('br2-liquid-surface');
+    liquidBody.style.transition = 'none';
+    liquidSurface.style.transition = 'none';
+    liquidBody.setAttribute('fill', '#e2e8f0');
+    liquidSurface.setAttribute('fill', '#cbd5e1');
+
+    const statusBadge = document.getElementById('br2-status-badge');
+    statusBadge.className = 'status-badge waiting';
+    statusBadge.textContent = 'অপেক্ষা করছে...';
+
+    const eqText = document.getElementById('br2-eq-text');
+    eqText.textContent = br2Data[currentBr2Sample].formula + ' + Br₂ (লালচে বাদামি) ➔ অপেক্ষা করছে...';
+
+    const expText = document.getElementById('br2-exp-text');
+    expText.textContent = 'নমুনা প্রস্তুত। ব্রমিন দ্রবণ যোগ করে পর্যবেক্ষণ করো।';
+
+    document.getElementById('br2-dropper').style.transform = 'translate(145px, -40px)';
+    document.getElementById('br2-drop').style.opacity = '0';
+    document.getElementById('br2-action-btn').disabled = false;
+  }
+
+  /* BAEYER'S KMnO4 TEST LOGIC */
+  let currentBaeyerSample = 'alkene';
+  const baeyerData = {
+    alkane: {
+      name: 'ইথেন',
+      formula: 'CH₃-CH₃',
+      unsaturated: false,
+      status: 'সম্পৃক্ত — বেয়ার বিক্রিয়া দেয় না',
+      eq: 'CH₃-CH₃ + [O] (KMnO₄ + NaOH) ➔ [নো বিক্রিয়া, বেগুনী বর্ণ অপরিবর্তিত]',
+      exp: 'ইথেন সম্পৃক্ত হাইড্রোকার্বন হওয়ায় দুর্বল জারক বা ক্ষারীয় পটাশিয়াম পারম্যাঙ্গানেট দ্বারা জারিত হয় না। ফলে দ্রবণের বেগুনী বা গোলাপী বর্ণ স্থায়ী থাকে।'
+    },
+    alkene: {
+      name: 'ইথিন',
+      formula: 'CH₂=CH₂',
+      unsaturated: true,
+      status: 'অসম্পৃক্ততা নিশ্চিত — গ্লাইকল উৎপন্ন',
+      eq: 'CH₂=CH₂ + [O] + H₂O ➔ [KMnO₄+NaOH] ➔ CH₂OH-CH₂OH (ইথিলিন গ্লাইকল) + MnO₂↓',
+      exp: 'ইথিনের সাথে ক্ষারীয় KMnO₄ দ্রবণ যোগ করলে পটাশিয়াম পারম্যাঙ্গানেটের বেগুনী বর্ণ দূর হয় এবং বর্ণহীন ইথিলিন গ্লাইকল ও বাদামি বর্ণের MnO₂ অধঃক্ষেপ সৃষ্টি হয়।'
+    },
+    alkyne: {
+      name: 'ইথাইন',
+      formula: 'CH≡CH',
+      unsaturated: true,
+      status: 'অসম্পৃক্ততা নিশ্চিত — জারণ সম্পন্ন',
+      eq: 'CH≡CH + 4[O] ➔ [KMnO₄+NaOH] ➔ HOOC-COOH (অক্সালিক এসিড) + MnO₂↓',
+      exp: 'ইথাইন তীব্রভাবে জারিত হয়ে কার্বক্সিলিক এসিড (অক্সালিক এসিড) তৈরি করে এবং KMnO₄ দ্রবণের বেগুনী বর্ণ বিনষ্ট হয়ে বাদামি MnO₂ উৎপন্ন করে।'
+    }
+  };
+
+  function selectBaeyerSample(type) {
+    currentBaeyerSample = type;
+    document.querySelectorAll('#baeyer-test .sample-btn').forEach((btn, idx) => {
+      btn.classList.toggle('active', ['alkane', 'alkene', 'alkyne'][idx] === type);
+    });
+    document.getElementById('baeyer-tube-label').textContent = baeyerData[type].name;
+    resetBaeyerSim();
+  }
+
+  function runBaeyerReaction() {
+    const actionBtn = document.getElementById('baeyer-action-btn');
+    actionBtn.disabled = true;
+
+    const dropper = document.getElementById('baeyer-dropper');
+    const drop = document.getElementById('baeyer-drop');
+    const liquidBody = document.getElementById('baeyer-liquid-body');
+    const liquidSurface = document.getElementById('baeyer-liquid-surface');
+    const precipitate = document.getElementById('baeyer-precipitate');
+    const statusBadge = document.getElementById('baeyer-status-badge');
+    const eqText = document.getElementById('baeyer-eq-text');
+    const expText = document.getElementById('baeyer-exp-text');
+
+    dropper.style.transform = 'translate(145px, 20px)';
+
+    setTimeout(() => {
+      drop.style.opacity = '1';
+      drop.setAttribute('cy', '100');
+      let start = null;
+      function animateDrop(time) {
+        if (!start) start = time;
+        let progress = (time - start) / 450;
+        if (progress > 1) progress = 1;
+        drop.setAttribute('cy', 100 + progress * 68);
+        if (progress < 1) {
+          requestAnimationFrame(animateDrop);
+        } else {
+          drop.style.opacity = '0';
+          const data = baeyerData[currentBaeyerSample];
+          if (data.unsaturated) {
+            liquidBody.setAttribute('fill', '#9333ea');
+            setTimeout(() => {
+              liquidBody.style.transition = 'fill 1.4s ease';
+              liquidSurface.style.transition = 'fill 1.4s ease';
+              liquidBody.setAttribute('fill', '#f1f5f9');
+              liquidSurface.setAttribute('fill', '#cbd5e1');
+              precipitate.style.opacity = '1';
+            }, 300);
+          } else {
+            liquidBody.style.transition = 'fill 0.8s ease';
+            liquidSurface.style.transition = 'fill 0.8s ease';
+            liquidBody.setAttribute('fill', '#9333ea');
+            liquidSurface.setAttribute('fill', '#7e22ce');
+            precipitate.style.opacity = '0';
+          }
+
+          statusBadge.className = 'status-badge ' + (data.unsaturated ? 'unsaturated' : 'saturated');
+          statusBadge.textContent = data.status;
+          eqText.textContent = data.eq;
+          expText.textContent = data.exp;
+
+          dropper.style.transform = 'translate(145px, -40px)';
+          actionBtn.disabled = false;
+        }
+      }
+      requestAnimationFrame(animateDrop);
+    }, 600);
+  }
+
+  function resetBaeyerSim() {
+    const liquidBody = document.getElementById('baeyer-liquid-body');
+    const liquidSurface = document.getElementById('baeyer-liquid-surface');
+    const precipitate = document.getElementById('baeyer-precipitate');
+
+    liquidBody.style.transition = 'none';
+    liquidSurface.style.transition = 'none';
+    liquidBody.setAttribute('fill', '#e2e8f0');
+    liquidSurface.setAttribute('fill', '#cbd5e1');
+    precipitate.style.opacity = '0';
+
+    const statusBadge = document.getElementById('baeyer-status-badge');
+    statusBadge.className = 'status-badge waiting';
+    statusBadge.textContent = 'অপেক্ষা করছে...';
+
+    const eqText = document.getElementById('baeyer-eq-text');
+    eqText.textContent = baeyerData[currentBaeyerSample].formula + ' + [O] ➔ অপেক্ষা করছে...';
+
+    const expText = document.getElementById('baeyer-exp-text');
+    expText.textContent = 'নমুনা প্রস্তুত। ক্ষারীয় KMnO₄ যোগ করে পর্যবেক্ষণ করো।';
+
+    document.getElementById('baeyer-dropper').style.transform = 'translate(145px, -40px)';
+    document.getElementById('baeyer-drop').style.opacity = '0';
+    document.getElementById('baeyer-action-btn').disabled = false;
+  }
+
+  /* FRACTIONAL DISTILLATION DATA */
+  const fractions = [
+    {
+      name: 'পেট্রোলিয়াম গ্যাস (Petroleum Gas)',
+      temp: '০° – ২০° সে.',
+      carbon: 'C₁ – C₄',
+      pct: '২%',
+      use: 'চাপ প্রয়োগে তরল করে সিলিন্ডারে ভর্তি করে তরলীকৃত পেট্রোলিয়াম গ্যাস (LPG) হিসেবে রান্নার জ্বালানি রূপে ব্যবহৃত হয়।',
+      bd: '🇧🇩 বাংলাদেশে বাসাবাড়ির এলপিজি সিলিন্ডারে মূলত প্রোপেন ও বিউটেন থাকে।',
+      y: 65
+    },
+    {
+      name: 'পেট্রোল বা গ্যাসোলিন (Petrol / Gasoline)',
+      temp: '২১° – ৭০° সে.',
+      carbon: 'C₅ – C₈',
+      pct: '৫%',
+      use: 'হালকা যানবাহনের (মোটরগাড়ি, মোটরসাইকেল, প্রাইভেট কার) অভ্যন্তরীণ দহন ইঞ্জিনের প্রধান জ্বালানি।',
+      bd: '🇧🇩 আমাদের ফিলিং স্টেশনগুলোতে সরাসরি "পেট্রোল" বা "অকটেন" নামে বিক্রি হয়।',
+      y: 120
+    },
+    {
+      name: 'ন্যাপথা (Naphtha)',
+      temp: '৭১° – ১২০° সে.',
+      carbon: 'C₇ – C₁₄',
+      pct: '১০%',
+      use: 'পেট্রোকেমিক্যাল শিল্পে বিভিন্ন রাসায়নিক দ্রব্য, কৃত্রিম তন্তু, প্লাস্টিক ও দ্রাবক তৈরিতে মূল কাঁচামাল।',
+      bd: '🇧🇩 ইস্টার্ন রিফাইনারি লিমিটেড (চিটাগং) থেকে প্রাপ্ত ন্যাপথা সার ও প্লাস্টিক কারখানায় যায়।',
+      y: 175
+    },
+    {
+      name: 'কেরোসিন (Kerosene)',
+      temp: '১২১° – ১৭০° সে.',
+      carbon: 'C₁₁ – C₁₆',
+      pct: '১৩%',
+      use: 'জেট বিমানের জ্বালানি (অ্যাভিয়েশন ফুয়েল) ও গ্রামীণ গৃহস্থালিতে স্টোভ ও বাতি জ্বালাতে ব্যবহৃত হয়।',
+      bd: '🇧🇩 বিমান বাংলাদেশ এয়ারলাইন্সের জেট ফুয়েল মূলত উচ্চমানের বিশুদ্ধ কেরোসিনের অংশ।',
+      y: 230
+    },
+    {
+      name: 'ডিজেল তেল (Diesel Oil)',
+      temp: '১৭১° – ২৭০° সে.',
+      carbon: 'C₁₇ – C₂₀',
+      pct: '১৯%',
+      use: 'ভারী যানবাহন যেমন বাস, ট্রাক, রেলগাড়ির ইঞ্জিন, লঞ্চ-জাহাজ এবং সেচ পাম্প ও জেনারেটরের জ্বালানি।',
+      bd: '🇧🇩 বাংলাদেশের গণপরিবহন, পণ্যবাহী ট্রাক ও কৃষিক্ষেত্রের সেচযন্ত্রের চালিকাশক্তি ডিজেল।',
+      y: 285
+    },
+    {
+      name: 'লুব্রিকেটিং তেল ও প্যারাফিন মোম (Lubricants & Wax)',
+      temp: '২৭১° – ৩৪০° সে.',
+      carbon: 'C₂₀ – C₃₀',
+      pct: '৩৩% (লুব্রিকেন্ট ১৭% + মোম ১৬%)',
+      use: 'ইঞ্জিনের যন্ত্রাংশের ঘর্ষণ কমাতে পিচ্ছিলকারক লুব্রিকেন্ট অয়েল, মোমবাতি, ভেসলিন ও প্রসাধন সামগ্রী তৈরিতে।',
+      bd: '🇧🇩 শীতকালে ত্বকের যত্নে বহুল ব্যবহৃত পেট্রোলিয়াম জেলি বা ভেসলিন এই অংশ থেকেই তৈরি।',
+      y: 345
+    },
+    {
+      name: 'বিটুমিন বা পিচ (Bitumen / Pitch)',
+      temp: '> ৩৪০° সে.',
+      carbon: 'C₃₀+',
+      pct: '১৮%',
+      use: 'কলামের তলদেশে অবশিষ্ট ঘন কালো অবশেষ; রাস্তা পাকা করার পিচ এবং ছাদে পানি নিরোধক হিসেবে ব্যবহৃত।',
+      bd: '🇧🇩 আমাদের হাইওয়ে ও পিচঢালা সড়ক নির্মাণে এই বিটুমিন পাথরের সাথে মিশিয়ে কার্পেটিং করা হয়।',
+      y: 410
+    }
+  ];
+
+  function renderFractionList() {
+    const container = document.getElementById('fraction-container');
+    container.innerHTML = fractions.map((f, i) => `
+      <div class="fraction-item ${i === 0 ? 'active' : ''}" onclick="selectFraction(${i})">
+        <div class="frac-head">
+          <span class="frac-name">${f.name}</span>
+          <span class="frac-temp">${f.temp}</span>
+        </div>
+        <div class="frac-detail">
+          <span>কার্বন: <b>${f.carbon}</b></span>
+          <span>অনুপাত: <b>${f.pct}</b></span>
+        </div>
+        <div class="frac-use">${f.use.substring(0, 52)}...</div>
+      </div>
+    `).join('');
+  }
+
+  function selectFraction(idx) {
+    const f = fractions[idx];
+    document.querySelectorAll('.fraction-item').forEach((item, i) => {
+      item.classList.toggle('active', i === idx);
+    });
+
+    // Move SVG Ring
+    const ring = document.getElementById('tray-highlight-ring');
+    ring.setAttribute('cy', f.y);
+
+    // Update Detail Card
+    document.getElementById('detail-title').textContent = f.name;
+    document.getElementById('detail-temp').textContent = f.temp;
+    document.getElementById('detail-carbon').textContent = f.carbon;
+    document.getElementById('detail-pct').textContent = f.pct;
+    document.getElementById('detail-use').textContent = f.use;
+    document.getElementById('detail-bd').innerHTML = f.bd;
+  }
+
+  /* INTERCONVERSION MAP LOGIC */
+  const reactions = [
+    {
+      title: 'ধাপ ১: অ্যালকেন ➔ অ্যালকাইল হ্যালাইড (হ্যালোজিনেশন)',
+      tag: 'বিকারক: Cl₂ + সূর্যালোক (UV)',
+      eq: 'CH₃-CH₃ + Cl₂ ➔ [সূর্যালোক] ➔ CH₃-CH₂-Cl + HCl',
+      desc: 'সূর্যালোক বা UV আলোর উপস্থিতিতে ইথেনের হাইড্রোজেন পরমাণু ক্লোরিন দ্বারা প্রতিস্থাপিত হয়ে ইথাইল ক্লোরাইড গঠন করে।'
+    },
+    {
+      title: 'ধাপ ২: অ্যালকাইল হ্যালাইড ➔ অ্যালকোহল (আর্দ্র বিশ্লেষণ)',
+      tag: 'বিকারক: জলীয় KOH (aq)',
+      eq: 'CH₃-CH₂-Cl + KOH (জলীয়) ➔ [তাপ] ➔ CH₃-CH₂-OH + KCl',
+      desc: 'অ্যালকাইল হ্যালাইডকে জলীয় পটাশিয়াম হাইড্রোক্সাইড (KOH) সহ উত্তপ্ত করলে নিউক্লিওফিলিক প্রতিস্থাপন ঘটে এবং অ্যালকোহল তৈরি হয়। সতর্কতা: অ্যালকোহলীয় KOH দিলে কিন্তু অ্যালকিন তৈরি হতো!'
+    },
+    {
+      title: 'ধাপ ৩: অ্যালকোহল ➔ অ্যালডিহাইড (নিয়ন্ত্রিত জারণ)',
+      tag: 'বিকারক: K₂Cr₂O₇ + গাঢ় H₂SO₄',
+      eq: 'CH₃-CH₂-OH + [O] ➔ [K₂Cr₂O₇ + H₂SO₄] ➔ CH₃-CHO + H₂O',
+      desc: 'পটাশিয়াম ডাইক্রোমেট ও সালফিউরিক এসিডের বিক্রিয়ায় উৎপন্ন জায়মান অক্সিজেন [O] ইথানলকে জারিত করে ইথান্যাল (অ্যাসিটালডিহাইড) উৎপন্ন করে।'
+    },
+    {
+      title: 'ধাপ ৪: অ্যালডিহাইড ➔ জৈব এসিড (পরবর্তী জারণ)',
+      tag: 'বিকারক: জায়মান অক্সিজেন [O]',
+      eq: 'CH₃-CHO + [O] ➔ [K₂Cr₂O₇ + H₂SO₄] ➔ CH₃-COOH',
+      desc: 'ইথান্যালকে একই জারক মিশ্রণ দিয়ে পুনরায় জারিত করলে কার্বক্সিলিক এসিড অর্থাৎ ইথানয়িক এসিড (অ্যাসিটিক এসিড) পাওয়া যায়।'
+    },
+    {
+      title: 'ধাপ ৫: জৈব এসিড থেকে অ্যালকেন পুনরুদ্ধার (ডিকার্বক্সিলেশন)',
+      tag: 'বিকারক: সোডালাইম (NaOH + CaO)',
+      eq: 'CH₃-COONa + NaOH ➔ [CaO + তাপ] ➔ CH₄ + Na₂CO₃',
+      desc: 'জৈব এসিডের সোডিয়াম লবণকে সোডালাইম সহ তীব্র উত্তপ্ত করলে কার্বক্সিল গ্রুপ Na₂CO₃ হিসেবে অপসারিত হয় এবং এক কার্বন কম বিশিষ্ট অ্যালকেন উৎপন্ন হয়।'
+    }
+  ];
+
+  function showReaction(index) {
+    document.querySelectorAll('.flow-node').forEach((node, idx) => {
+      node.classList.toggle('active', idx === index);
+    });
+    const r = reactions[index];
+    document.getElementById('rx-title').textContent = r.title;
+    document.getElementById('rx-reagent-tag').textContent = r.tag;
+    document.getElementById('rx-equation').textContent = r.eq;
+    document.getElementById('rx-details').textContent = r.desc;
+  }
+
+  function checkMapQuiz(btn, isCorrect) {
+    const parent = btn.parentElement;
+    parent.querySelectorAll('.quiz-opt').forEach(b => {
+      b.disabled = true;
+      b.classList.remove('correct', 'wrong');
+    });
+    const feedback = document.getElementById('map-quiz-feedback');
+    feedback.style.display = 'block';
+
+    if (isCorrect) {
+      btn.classList.add('correct');
+      feedback.style.background = '#dcfce7';
+      feedback.style.color = '#14532d';
+      feedback.innerHTML = '🎉 সঠিক উত্তর! K₂Cr₂O₇ ও গাঢ় H₂SO₄ মিশ্রিত হয়ে জায়মান অক্সিজেন [O] তৈরি করে যা অ্যালকোহলকে অ্যালডিহাইডে জারিত করে।';
+    } else {
+      btn.classList.add('wrong');
+      parent.children[1].classList.add('correct'); // Highlight the correct one
+      feedback.style.background = '#fee2e2';
+      feedback.style.color = '#7f1d1d';
+      feedback.innerHTML = '❌ সঠিক উত্তর হলো: K₂Cr₂O₇ + গাঢ় H₂SO₄। এটি সুপরিচিত শক্তিশালী জারক মিশ্রণ।';
+    }
+  }
+
+  // Initializing
+  window.addEventListener('DOMContentLoaded', () => {
+    renderFractionList();
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ধাতুর সক্রিয়তা ও মরিচা পরীক্ষণ ল্যাব | poRi</title>
+  <style>
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #64748b;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-accent: #0f766e;
+      --pori-accent-soft: #ecfdf5;
+      --pori-accent-border: #99f6e4;
+      --pori-accent-ink: #134e4a;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-amber-ink: #92400e;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-border: #fecdd3;
+      --pori-rose-ink: #9f1239;
+      --pori-blue-soft: #f0f9ff;
+      --pori-blue-border: #bae6fd;
+      --pori-blue-ink: #0369a1;
+      --pori-radius: 16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hind Siliguri", sans-serif;
+      line-height: 1.6;
+      padding: 16px;
+    }
+
+    .lab-app {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: var(--pori-radius);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      overflow: hidden;
+    }
+
+    .lab-header {
+      background: linear-gradient(135deg, #0f766e 0%, #134e4a 100%);
+      color: #fff;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .lab-header h1 {
+      font-size: 22px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lab-header h1 .badge {
+      font-size: 11px;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+
+    .lab-header p {
+      font-size: 13px;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      background: #f1f5f9;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding: 6px 12px 0;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    .nav-tab-btn {
+      padding: 10px 18px;
+      border: 1px solid transparent;
+      border-bottom: none;
+      background: transparent;
+      border-radius: 10px 10px 0 0;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--pori-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .nav-tab-btn:hover {
+      color: var(--pori-accent);
+      background: rgba(255,255,255,0.6);
+    }
+
+    .nav-tab-btn.active {
+      background: var(--pori-surface);
+      color: var(--pori-accent);
+      border-color: var(--pori-border-soft);
+      box-shadow: 0 -2px 6px rgba(0,0,0,0.03);
+    }
+
+    .tab-content {
+      display: none;
+      padding: 24px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* GRID LAYOUT FOR SIMULATOR */
+    .sim-grid {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 860px) {
+      .sim-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* CONTROLS PANEL */
+    .panel {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 18px;
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--pori-muted);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .control-group {
+      margin-bottom: 16px;
+    }
+
+    .control-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--pori-heading);
+      margin-bottom: 6px;
+    }
+
+    .metal-selector {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .metal-btn {
+      padding: 8px 4px;
+      border: 1px solid var(--pori-border);
+      background: #fff;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--pori-heading);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .metal-btn sub { font-size: 10px; color: var(--pori-muted); }
+
+    .metal-btn:hover {
+      border-color: var(--pori-accent);
+      background: var(--pori-accent-soft);
+    }
+
+    .metal-btn.active {
+      background: var(--pori-accent);
+      color: #fff;
+      border-color: var(--pori-accent);
+      box-shadow: 0 2px 6px rgba(15, 118, 110, 0.3);
+    }
+    .metal-btn.active sub { color: rgba(255,255,255,0.8); }
+
+    .liquid-selector {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .liquid-btn {
+      padding: 8px 12px;
+      border: 1px solid var(--pori-border);
+      background: #fff;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .liquid-btn:hover {
+      border-color: var(--pori-accent);
+      background: var(--pori-accent-soft);
+    }
+
+    .liquid-btn.active {
+      background: var(--pori-accent-soft);
+      border-color: var(--pori-accent);
+      color: var(--pori-accent-ink);
+      font-weight: 700;
+    }
+
+    .action-btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s;
+    }
+
+    .btn-primary {
+      background: var(--pori-accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #115e59; }
+
+    .btn-warning {
+      background: #f59e0b;
+      color: #fff;
+    }
+    .btn-warning:hover { background: #d97706; }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: var(--pori-heading);
+    }
+    .btn-secondary:hover { background: #cbd5e1; }
+
+    /* STAGE DISPLAY */
+    .stage-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .canvas-card {
+      background: #111827;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      min-height: 380px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    #reactivityCanvas {
+      width: 100%;
+      height: 380px;
+      display: block;
+    }
+
+    .stage-overlay {
+      position: absolute;
+      top: 12px;
+      left: 14px;
+      color: #fff;
+      font-size: 12px;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(4px);
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      gap: 16px;
+    }
+
+    .stage-overlay span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .info-card {
+      background: #fff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .equation-box {
+      background: #0f172a;
+      color: #38bdf8;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 15px;
+      text-align: center;
+      margin-bottom: 12px;
+      overflow-x: auto;
+      border: 1px solid #1e293b;
+    }
+
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .metric-pill {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 10px;
+      padding: 8px 12px;
+      text-align: center;
+    }
+
+    .metric-pill small {
+      font-size: 11px;
+      color: var(--pori-muted);
+      display: block;
+    }
+
+    .metric-pill strong {
+      font-size: 16px;
+      color: var(--pori-heading);
+    }
+
+    /* RUST CHAMBER TAB STYLES */
+    .rust-chamber {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .timeline-slider-card {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 16px 20px;
+    }
+
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .timeline-header h3 {
+      font-size: 15px;
+      color: var(--pori-heading);
+    }
+
+    .slider-range {
+      width: 100%;
+      height: 8px;
+      accent-color: #d97706;
+      cursor: pointer;
+    }
+
+    .tubes-canvas-wrap {
+      background: #0f172a;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+    }
+
+    #rustCanvas {
+      width: 100%;
+      height: 380px;
+      display: block;
+    }
+
+    .tube-legend-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .legend-card {
+      background: #fff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 13px;
+    }
+
+    .legend-card.rusting {
+      border-left: 4px solid #ef4444;
+      background: #fef2f2;
+    }
+
+    .legend-card.safe {
+      border-left: 4px solid #10b981;
+      background: #f0fdf4;
+    }
+
+    .legend-card strong {
+      display: block;
+      color: var(--pori-heading);
+      margin-bottom: 2px;
+    }
+
+    .legend-card p {
+      color: var(--pori-muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    /* ALLOY TAB STYLES */
+    .alloy-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .alloy-card {
+      background: #fff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 16px;
+      transition: all 0.2s;
+    }
+
+    .alloy-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.06);
+      border-color: var(--pori-accent);
+    }
+
+    .alloy-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--pori-border-soft);
+    }
+
+    .alloy-header h3 {
+      font-size: 16px;
+      color: var(--pori-heading);
+    }
+
+    .alloy-formula-badge {
+      font-size: 11px;
+      background: var(--pori-accent-soft);
+      color: var(--pori-accent-ink);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+
+    .alloy-composition {
+      display: flex;
+      height: 14px;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .alloy-prop-list {
+      font-size: 13px;
+      color: var(--pori-muted);
+      list-style: none;
+    }
+
+    .alloy-prop-list li {
+      margin-bottom: 4px;
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .alloy-prop-list li::before {
+      content: "•";
+      color: var(--pori-accent);
+      font-weight: bold;
+    }
+
+    /* QUIZ TAB */
+    .quiz-container {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .quiz-item {
+      background: #fff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .quiz-stem {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--pori-heading);
+      margin-bottom: 12px;
+    }
+
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .quiz-opt {
+      padding: 10px 14px;
+      border: 1px solid var(--pori-border);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 13px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+    }
+
+    .quiz-opt:hover {
+      background: #f8fafc;
+      border-color: var(--pori-accent);
+    }
+
+    .quiz-opt.correct {
+      background: #ecfdf5 !important;
+      border-color: #10b981 !important;
+      color: #065f46 !important;
+      font-weight: 700;
+    }
+
+    .quiz-opt.wrong {
+      background: #fef2f2 !important;
+      border-color: #ef4444 !important;
+      color: #991b1b !important;
+    }
+
+    .quiz-feedback {
+      margin-top: 10px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      display: none;
+      line-height: 1.5;
+    }
+
+    .quiz-feedback.show { display: block; }
+    .quiz-feedback.correct-fb { background: #d1fae5; color: #065f46; }
+    .quiz-feedback.wrong-fb { background: #fee2e2; color: #991b1b; }
+  </style>
+</head>
+<body>
+
+<div class="lab-app">
+  <!-- HEADER -->
+  <header class="lab-header">
+    <div>
+      <h1>ধাতুর সক্রিয়তা ও মরিচা পরীক্ষণ ল্যাব <span class="badge">SSC রসায়ন · অধ্যায় ১০</span></h1>
+      <p>ধাতুর সক্রিয়তা ক্রম, হাইড্রোজেন গ্যাস উৎপাদন, মরিচার তড়িৎ-রাসায়নিক প্রক্রিয়া ও সংকর ধাতু সিমুলেশন</p>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="nav-tabs">
+    <button class="nav-tab-btn active" onclick="switchTab('reactivity')">
+      🧪 সক্রিয়তা ও $H_2$ গ্যাস ল্যাব
+    </button>
+    <button class="nav-tab-btn" onclick="switchTab('rusting')">
+      🔩 মরিচা ও ক্ষয়রোধ চেম্বার
+    </button>
+    <button class="nav-tab-btn" onclick="switchTab('alloys')">
+      🏆 সংকর ধাতু গ্যালারি
+    </button>
+    <button class="nav-tab-btn" onclick="switchTab('quiz')">
+      📝 ইন্টারেক্টিভ কুইজ
+    </button>
+  </nav>
+
+  <!-- TAB 1: REACTIVITY SERIES LAB -->
+  <div id="tab-reactivity" class="tab-content active">
+    <div class="sim-grid">
+      <!-- CONTROLS PANEL -->
+      <aside class="panel">
+        <div class="panel-title">🔬 ধাতু নির্বাচন (সক্রিয়তা ক্রম)</div>
+        <div class="control-group">
+          <label>ধাতুর টুকরা নির্বাচন করো:</label>
+          <div class="metal-selector" id="metalSelector">
+            <button class="metal-btn active" data-metal="K">K<sub>পটাসিয়াম</sub></button>
+            <button class="metal-btn" data-metal="Na">Na<sub>সোডিয়াম</sub></button>
+            <button class="metal-btn" data-metal="Ca">Ca<sub>ক্যালসিয়াম</sub></button>
+            <button class="metal-btn" data-metal="Mg">Mg<sub>ম্যাগনেসিয়াম</sub></button>
+            <button class="metal-btn" data-metal="Al">Al<sub>অ্যালুমিনিয়াম</sub></button>
+            <button class="metal-btn" data-metal="Zn">Zn<sub>জিংক</sub></button>
+            <button class="metal-btn" data-metal="Fe">Fe<sub>লোহা</sub></button>
+            <button class="metal-btn" data-metal="Cu">Cu<sub>কপার</sub></button>
+          </div>
+        </div>
+
+        <div class="panel-title" style="margin-top: 18px;">💧 বিকারক দ্রবণ</div>
+        <div class="control-group">
+          <label>তরল মাধ্যম পছন্দ করো:</label>
+          <div class="liquid-selector" id="liquidSelector">
+            <button class="liquid-btn active" data-liquid="cold_water">
+              <span>শীতল পানি ($H_2O$, 25°C)</span>
+              <small>Cold Water</small>
+            </button>
+            <button class="liquid-btn" data-liquid="steam">
+              <span>ফুটন্ত পানি / বাষ্প (100°C)</span>
+              <small>Steam</small>
+            </button>
+            <button class="liquid-btn" data-liquid="dil_hcl">
+              <span>লঘু হাইড্রোক্লোরিক অ্যাসিড ($2M\ HCl$)</span>
+              <small>Dil. HCl</small>
+            </button>
+            <button class="liquid-btn" data-liquid="dil_h2so4">
+              <span>লঘু সালফিউরিক অ্যাসিড ($1M\ H_2SO_4$)</span>
+              <small>Dil. H₂SO₄</small>
+            </button>
+          </div>
+        </div>
+
+        <div class="action-btn-row">
+          <button class="btn btn-primary" id="btnDropMetal" onclick="dropMetal()">
+            🔽 ধাতু যোগ করো
+          </button>
+          <button class="btn btn-secondary" onclick="resetReactivity()">
+            🔄 রিসেট
+          </button>
+        </div>
+
+        <div style="margin-top: 14px;">
+          <button class="btn btn-warning" id="btnPopTest" onclick="doPopTest()" style="width: 100%;" disabled>
+            🔥 পপ-শব্দ টেস্ট (Pop Sound Test)
+          </button>
+          <small style="display:block; text-align:center; color:var(--pori-muted); font-size:11px; margin-top:4px;">
+            গ্যাস সিরিঞ্জে পর্যাপ্ত $H_2$ জমা হলে সক্রিয় হবে
+          </small>
+        </div>
+
+        <div style="margin-top: 16px; background:#fff; border:1px solid var(--pori-border-soft); border-radius:10px; padding:10px; font-size:12px; color:var(--pori-muted);">
+          <strong style="color:var(--pori-heading);">💡 সক্রিয়তার ছন্দ:</strong><br>
+          "কে না ক্যা মেগাইভার এল যেন ফিরে পাবে হায় কুলাঙ্গার হাজি আজ পেটাবে আমায়"<br>
+          (K > Na > Ca > Mg > Al > Zn > Fe > Pb > H > Cu > Hg > Ag > Pt > Au)
+        </div>
+      </aside>
+
+      <!-- SIMULATION STAGE -->
+      <section class="stage-container">
+        <div class="canvas-card">
+          <canvas id="reactivityCanvas" width="700" height="380"></canvas>
+          <div class="stage-overlay">
+            <span>🌡️ তাপমাত্রা: <strong id="dispTemp">25.0 °C</strong></span>
+            <span>💨 $H_2$ গ্যাস: <strong id="dispGasVol">0.0 mL</strong></span>
+            <span>⚡ বিক্রিয়ার তীব্রতা: <strong id="dispRate">শান্ত</strong></span>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <div class="panel-title" style="margin-bottom:8px;">📝 রাসায়নিক সমীকরণ ও পরিলক্ষিত পরিবর্তন</div>
+          <div class="equation-box" id="dispEquation">
+            2Na(s) + 2H₂O(l) → 2NaOH(aq) + H₂(g)↑
+          </div>
+          <div class="metrics-row">
+            <div class="metric-pill">
+              <small>ধাতব পরমাণুর ইলেকট্রন ত্যাগ</small>
+              <strong id="dispOxidation">M → Mⁿ⁺ + ne⁻</strong>
+            </div>
+            <div class="metric-pill">
+              <small>হাইড্রোজেন আয়ন বিজারণ</small>
+              <strong>2H⁺ + 2e⁻ → H₂(g)</strong>
+            </div>
+            <div class="metric-pill">
+              <small>দ্রবণের প্রকৃতি</small>
+              <strong id="dispSolutionNature">ক্ষারীয় (pH > 7)</strong>
+            </div>
+          </div>
+          <p id="dispObservation" style="font-size:13px; color:var(--pori-muted); margin-top:12px; line-height:1.5;">
+            পর্যবেক্ষণ: সোডিয়াম শীতল পানির উপর রূপালি গোলকের মতো তীব্র বেগে ঘুরে বেড়ায়, হিসহিস শব্দ করে হলুদ শিখাসহ জ্বলে এবং দ্রুত হাইড্রোজেন গ্যাস উৎপন্ন করে।
+          </p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <!-- TAB 2: RUSTING CHAMBER TAB -->
+  <div id="tab-rusting" class="tab-content">
+    <div class="rust-chamber">
+      <div class="timeline-slider-card">
+        <div class="timeline-header">
+          <div>
+            <h3>🔩 মরিচা পর্যবেক্ষণ চেম্বার (দিন ভিত্তিক তুলনামূলক পরীক্ষা)</h3>
+            <p style="font-size:13px; color:var(--pori-muted);">টাইম-ল্যাপস স্লাইডার ঘুরিয়ে ১ থেকে ৩০ দিনের মরিচা পড়ার হার পর্যবেক্ষণ করো</p>
+          </div>
+          <div style="font-size:18px; font-weight:800; color:#d97706; background:#fffbeb; padding:6px 14px; border-radius:10px; border:1px solid #fcd34d;">
+            দিন: <span id="dispRustDay">0</span> / 30
+          </div>
+        </div>
+        <input type="range" min="0" max="30" value="0" class="slider-range" id="rustSlider" oninput="updateRustDay(this.value)">
+        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--pori-muted); margin-top:4px;">
+          <span>দিন ০ (শুরু)</span>
+          <span>দিন ৭ (১ সপ্তাহ)</span>
+          <span>দিন ১৫ (অর্ধেক)</span>
+          <span>দিন ৩০ (১ মাস)</span>
+        </div>
+      </div>
+
+      <div class="tubes-canvas-wrap">
+        <canvas id="rustCanvas" width="1050" height="380"></canvas>
+      </div>
+
+      <div class="tube-legend-grid">
+        <div class="legend-card rusting">
+          <strong>টিউব ১: মুক্ত বাতাস + সাধারণ পানি</strong>
+          <p>অক্সিজেন ও পানি উভয়ের উপস্থিতিতে প্রচুর লালচে বাদামি মরিচা ($Fe_2O_3 \cdot xH_2O$) জমে।</p>
+        </div>
+        <div class="legend-card safe">
+          <strong>টিউব ২: শুষ্ক বাতাস (Anhydrous CaCl₂)</strong>
+          <p>পানি বা আর্দ্রতা না থাকায় কোনো মরিচা পড়ে না। লোহা সম্পূর্ণ অক্ষত থাকে।</p>
+        </div>
+        <div class="legend-card safe">
+          <strong>টিউব ৩: ফুটানো পানি + তেলের স্তর</strong>
+          <p>ফুটানোর ফলে দ্রবীভূত অক্সিজেন দূর হয় ও তেলের স্তর বাতাস রোধ করে। মরিচা পড়ে না।</p>
+        </div>
+        <div class="legend-card safe">
+          <strong>টিউব ৪: রং করা পেরেক</strong>
+          <p>রং (Paint) লোহার উপরিভাগে অভেদ্য বাধা সৃষ্টি করায় পানি বা বাতাস লোহায় পৌঁছায় না।</p>
+        </div>
+        <div class="legend-card safe">
+          <strong>টিউব ৫: গ্যালভানাইজড লোহা (Zn প্রলেপ)</strong>
+          <p>দস্তা (Zn) লোহার চেয়ে অধিক সক্রিয় হওয়ায় নিজে ক্ষয়ে গিয়ে লোহাকে সুরক্ষিত রাখে (Sacrificial protection)।</p>
+        </div>
+        <div class="legend-card rusting">
+          <strong>টিউব ৬: লবণাক্ত পানি (3.5% NaCl)</strong>
+          <p>লবণের আয়ন তড়িৎ-পরিবাহিতা বাড়িয়ে মরিচা গঠন প্রক্রিয়াকে বহুগুণ দ্রুত ত্বরান্বিত করে!</p>
+        </div>
+      </div>
+
+      <div class="info-card" style="margin-top:14px;">
+        <div class="panel-title">⚡ মরিচার তড়িৎ-রাসায়নিক প্রক্রিয়া (Electrochemical Rusting Mechanism)</div>
+        <div class="equation-box" style="margin-bottom:8px;">
+          4Fe(s) + 3O₂(g) + 2xH₂O(l) → 2(Fe₂O₃ · xH₂O)(s) [হাইড্রেটেড ফেরিক অক্সাইড / মরিচা]
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:12px; font-size:13px; color:var(--pori-muted);">
+          <div><strong>অ্যানোড বিক্রিয়া (জারণ):</strong> $Fe(s) \to Fe^{2+}(aq) + 2e^-$</div>
+          <div><strong>ক্যাথোড বিক্রিয়া (বিজারণ):</strong> $O_2(g) + 2H_2O(l) + 4e^- \to 4OH^-(aq)$</div>
+          <div><strong>অবক্ষেপণ:</strong> $Fe^{2+} + 2OH^- \to Fe(OH)_2 \xrightarrow{O_2, H_2O} Fe_2O_3 \cdot xH_2O$</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: ALLOYS GALLERY -->
+  <div id="tab-alloys" class="tab-content">
+    <div style="margin-bottom:16px;">
+      <h2 style="font-size:18px; color:var(--pori-heading);">🏆 বহুল ব্যবহৃত সংকর ধাতু (Alloys) ও উপাদান সংযুক্তি</h2>
+      <p style="font-size:13px; color:var(--pori-muted);">দুই বা ততোধিক ধাতুর সমসত্ত্ব কঠিন দ্রবণকে সংকর ধাতু বলে। বিশুদ্ধ ধাতুর চেয়ে সংকর ধাতু অধিক মজবুত, ক্ষয়-প্রতিরোধী ও টেকসই।</p>
+    </div>
+
+    <div class="alloy-grid">
+      <!-- STEEL -->
+      <div class="alloy-card">
+        <div class="alloy-header">
+          <h3>ইস্পাত / স্টিল (Steel)</h3>
+          <span class="alloy-formula-badge">Fe + C</span>
+        </div>
+        <div class="alloy-composition">
+          <div style="width: 99%; background: #475569;" title="Fe 99%"></div>
+          <div style="width: 1%; background: #0f172a;" title="C 1%"></div>
+        </div>
+        <div style="font-size:12px; color:var(--pori-muted); display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span>লোহা (Fe): ৯৯%</span>
+          <span>কার্বন (C): ১%</span>
+        </div>
+        <ul class="alloy-prop-list">
+          <li>বিশুদ্ধ লোহার চেয়ে বহুগুণ শক্ত ও টান সহনশীল</li>
+          <li>ভবন নির্মাণ, রেললাইন, জাহাজের কাঠামো ও যন্ত্রাংশ তৈরিতে প্রধান উপকরণ</li>
+        </ul>
+      </div>
+
+      <!-- STAINLESS STEEL -->
+      <div class="alloy-card">
+        <div class="alloy-header">
+          <h3>স্টেইনলেস স্টিল (Stainless Steel)</h3>
+          <span class="alloy-formula-badge">Fe + Cr + Ni + C</span>
+        </div>
+        <div class="alloy-composition">
+          <div style="width: 74%; background: #64748b;" title="Fe 74%"></div>
+          <div style="width: 18%; background: #0284c7;" title="Cr 18%"></div>
+          <div style="width: 8%; background: #10b981;" title="Ni 8%"></div>
+        </div>
+        <div style="font-size:12px; color:var(--pori-muted); display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span>Fe: ৭৪%</span>
+          <span>Cr: ১৮%</span>
+          <span>Ni: ৮%</span>
+        </div>
+        <ul class="alloy-prop-list">
+          <li>ক্রোমিয়াম ($Cr_2O_3$) একটি অদৃশ্য স্ব-নিরাময়কারী জারণরোধী স্তর গঠন করে</li>
+          <li>কখনও মরিচা ধরে না; চকচকে ও মসৃণ থাকে</li>
+          <li>রান্নার বাসনপত্র, ছুরি-কাঁচি ও সার্জিক্যাল অপারেশনের যন্ত্রপাতি তৈরিতে ব্যবহৃত হয়</li>
+        </ul>
+      </div>
+
+      <!-- BRASS / পিতল -->
+      <div class="alloy-card">
+        <div class="alloy-header">
+          <h3>পিতল (Brass)</h3>
+          <span class="alloy-formula-badge">Cu + Zn</span>
+        </div>
+        <div class="alloy-composition">
+          <div style="width: 65%; background: #ea580c;" title="Cu 65%"></div>
+          <div style="width: 35%; background: #94a3b8;" title="Zn 35%"></div>
+        </div>
+        <div style="font-size:12px; color:var(--pori-muted); display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span>কপার (Cu): ৬৫%</span>
+          <span>জিংক (Zn): ৩৫%</span>
+        </div>
+        <ul class="alloy-prop-list">
+          <li>স্বর্ণালী উজ্জ্বল আভা ও চমৎকার শব্দ-অনুরণন ধর্ম</li>
+          <li>বাদ্যযন্ত্র (ট্রাম্পেট, স্যাক্সোফোন), দরজার হাতল, শৌখিন সামগ্রী তৈরিতে ব্যবহৃত</li>
+        </ul>
+      </div>
+
+      <!-- BRONZE / কাঁসা -->
+      <div class="alloy-card">
+        <div class="alloy-header">
+          <h3>কাঁসা বা ব্রোঞ্জ (Bronze)</h3>
+          <span class="alloy-formula-badge">Cu + Sn</span>
+        </div>
+        <div class="alloy-composition">
+          <div style="width: 90%; background: #c2410c;" title="Cu 90%"></div>
+          <div style="width: 10%; background: #cbd5e1;" title="Sn 10%"></div>
+        </div>
+        <div style="font-size:12px; color:var(--pori-muted); display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span>কপার (Cu): ৯০%</span>
+          <span>টিন (Sn): ১০%</span>
+        </div>
+        <ul class="alloy-prop-list">
+          <li>ক্ষয়-প্রতিরোধী ও ঢালাই উপযোগী শক্ত ধাতু</li>
+          <li>ভাস্কর্য, প্রাচীন ও আধুনিক মুদ্রা, মেডেল, ঘণ্টা ও থালাবাসন তৈরিতে ব্যবহৃত</li>
+        </ul>
+      </div>
+
+      <!-- DURALUMIN -->
+      <div class="alloy-card">
+        <div class="alloy-header">
+          <h3>ডুরালুমিন (Duralumin)</h3>
+          <span class="alloy-formula-badge">Al + Cu + Mg + Mn</span>
+        </div>
+        <div class="alloy-composition">
+          <div style="width: 95%; background: #38bdf8;" title="Al 95%"></div>
+          <div style="width: 4%; background: #f97316;" title="Cu 4%"></div>
+          <div style="width: 1%; background: #8b5cf6;" title="Mg+Mn 1%"></div>
+        </div>
+        <div style="font-size:12px; color:var(--pori-muted); display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span>অ্যালুমিনিয়াম: ৯৫%</span>
+          <span>কপার: ৪%</span>
+          <span>Mg ও Mn: ১%</span>
+        </div>
+        <ul class="alloy-prop-list">
+          <li>অ্যালুমিনিয়ামের মতো অত্যন্ত হালকা কিন্তু স্টিলের মতোই প্রায় শক্ত ও দৃঢ়</li>
+          <li>উড়োজাহাজ (Aeroplane) ও কৃত্রিম উপগ্রহের বডি তৈরিতে অপরিহার্য</li>
+        </ul>
+      </div>
+
+      <!-- AMALGAM -->
+      <div class="alloy-card">
+        <div class="alloy-header">
+          <h3>অ্যামালগাম (Amalgam)</h3>
+          <span class="alloy-formula-badge">Metal + Hg</span>
+        </div>
+        <div class="alloy-composition">
+          <div style="width: 50%; background: #a855f7;" title="Hg 50%"></div>
+          <div style="width: 50%; background: #cbd5e1;" title="Ag/Sn 50%"></div>
+        </div>
+        <div style="font-size:12px; color:var(--pori-muted); display:flex; justify-content:space-between; margin-bottom:8px;">
+          <span>পারদ (Hg): ৫০%</span>
+          <span>রূপা ও টিন (Ag, Sn): ৫০%</span>
+        </div>
+        <ul class="alloy-prop-list">
+          <li>পারদের সাথে গঠিত যে কোনো ধাতুর সংকরকে অ্যামালগাম বলে</li>
+          <li>ডেন্টাল অ্যামালগাম (Dental Amalgam) ক্ষয়প্রাপ্ত দাঁতের ক্যাভিটি ফিলিং করতে ব্যবহৃত হয়</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: QUIZ TAB -->
+  <div id="tab-quiz" class="tab-content">
+    <div class="quiz-container">
+      <div style="margin-bottom:20px; text-align:center;">
+        <h2 style="font-size:18px; color:var(--pori-heading);">📝 জ্ঞান যাচাই ও স্ব-মূল্যায়ন কুইজ</h2>
+        <p style="font-size:13px; color:var(--pori-muted);">নিচের প্রশ্নগুলোর সঠিক উত্তরে ক্লিক করে নিজের ধারণা পরীক্ষা করো</p>
+      </div>
+
+      <!-- Q1 -->
+      <div class="quiz-item" id="q1">
+        <div class="quiz-stem">১. কোন ধাতুটি সাধারণ তাপমাত্রায় শীতল পানির সাথে বিক্রিয়া করে আগুন ধরে যায়?</div>
+        <div class="quiz-options">
+          <button class="quiz-opt" onclick="checkQuiz('q1', 0, false)">ক. কপার (Cu)</button>
+          <button class="quiz-opt" onclick="checkQuiz('q1', 1, false)">খ. জিংক (Zn)</button>
+          <button class="quiz-opt" onclick="checkQuiz('q1', 2, true)">গ. পটাসিয়াম (K)</button>
+          <button class="quiz-opt" onclick="checkQuiz('q1', 3, false)">ঘ. ম্যাগনেসিয়াম (Mg)</button>
+        </div>
+        <div class="quiz-feedback" id="q1-fb"></div>
+      </div>
+
+      <!-- Q2 -->
+      <div class="quiz-item" id="q2">
+        <div class="quiz-stem">২. মরিচার সঠিক রাসায়নিক সংকেত কোনটি?</div>
+        <div class="quiz-options">
+          <button class="quiz-opt" onclick="checkQuiz('q2', 0, false)">ক. FeO · xH₂O</button>
+          <button class="quiz-opt" onclick="checkQuiz('q2', 1, true)">খ. Fe₂O₃ · xH₂O</button>
+          <button class="quiz-opt" onclick="checkQuiz('q2', 2, false)">গ. Fe₃O₄</button>
+          <button class="quiz-opt" onclick="checkQuiz('q2', 3, false)">ঘ. Fe(OH)₂</button>
+        </div>
+        <div class="quiz-feedback" id="q2-fb"></div>
+      </div>
+
+      <!-- Q3 -->
+      <div class="quiz-item" id="q3">
+        <div class="quiz-stem">৩. উড়োজাহাজের বডি তৈরিতে কোন সংকর ধাতু ব্যবহৃত হয়?</div>
+        <div class="quiz-options">
+          <button class="quiz-opt" onclick="checkQuiz('q3', 0, false)">ক. কাঁসা (Bronze)</button>
+          <button class="quiz-opt" onclick="checkQuiz('q3', 1, false)">খ. স্টেইনলেস স্টিল</button>
+          <button class="quiz-opt" onclick="checkQuiz('q3', 2, false)">গ. পিতল (Brass)</button>
+          <button class="quiz-opt" onclick="checkQuiz('q3', 3, true)">ঘ. ডুরালুমিন (Duralumin)</button>
+        </div>
+        <div class="quiz-feedback" id="q3-fb"></div>
+      </div>
+
+      <!-- Q4 -->
+      <div class="quiz-item" id="q4">
+        <div class="quiz-stem">৪. লোহার উপর জিংকের প্রলেপ দেওয়াকে কী বলা হয়?</div>
+        <div class="quiz-options">
+          <button class="quiz-opt" onclick="checkQuiz('q4', 0, true)">ক. গ্যালভানাইজিং (Galvanizing)</button>
+          <button class="quiz-opt" onclick="checkQuiz('q4', 1, false)">খ. টিন প্লেটিং</button>
+          <button class="quiz-opt" onclick="checkQuiz('q4', 2, false)">গ. অ্যানোডাইজিং</button>
+          <button class="quiz-opt" onclick="checkQuiz('q4', 3, false)">ঘ. ভস্মীকরণ</button>
+        </div>
+        <div class="quiz-feedback" id="q4-fb"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // AUDIO SYNTHESIZER (NO EXTERNAL FILES)
+  const AudioCtx = window.AudioContext || window.webkitAudioContext;
+  let audioCtx = null;
+
+  function initAudio() {
+    if (!audioCtx) audioCtx = new AudioCtx();
+  }
+
+  function playBubbleSound() {
+    try {
+      initAudio();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sine';
+      const startFreq = 400 + Math.random() * 400;
+      osc.frequency.setValueAtTime(startFreq, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(startFreq + 300, audioCtx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.08);
+    } catch(e) {}
+  }
+
+  function playPopSound() {
+    try {
+      initAudio();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(120, audioCtx.currentTime + 0.18);
+      gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.18);
+    } catch(e) {}
+  }
+
+  // TAB SWITCHING
+  function switchTab(tabId) {
+    document.querySelectorAll('.nav-tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    
+    event.currentTarget.classList.add('active');
+    document.getElementById('tab-' + tabId).classList.add('active');
+
+    if (tabId === 'rusting') {
+      drawRustTubes();
+    }
+  }
+
+  // REACTIVITY SIMULATOR STATE
+  const METAL_DATA = {
+    K: {
+      name: 'পটাসিয়াম',
+      rank: 1,
+      color: '#e2e8f0',
+      density: 0.86,
+      rates: { cold_water: 10, steam: 10, dil_hcl: 10, dil_h2so4: 10 },
+      flame: 'purple',
+      heat: 55,
+      eqWater: '2K(s) + 2H₂O(l) → 2KOH(aq) + H₂(g)↑',
+      eqAcid: '2K(s) + 2HCl(aq) → 2KCl(aq) + H₂(g)↑',
+      obs: 'পটাসিয়াম অত্যন্ত সক্রিয়! শীতল পানির স্পর্শে তীব্র বিস্ফোরণ ও বেগুনী শিখাসহ জ্বলে ওঠে।'
+    },
+    Na: {
+      name: 'সোডিয়াম',
+      rank: 2,
+      color: '#cbd5e1',
+      density: 0.97,
+      rates: { cold_water: 8, steam: 9, dil_hcl: 10, dil_h2so4: 10 },
+      flame: 'yellow',
+      heat: 42,
+      eqWater: '2Na(s) + 2H₂O(l) → 2NaOH(aq) + H₂(g)↑',
+      eqAcid: '2Na(s) + 2HCl(aq) → 2NaCl(aq) + H₂(g)↑',
+      obs: 'সোডিয়াম পানির উপর রূপালি গোলকের মতো দ্রুত ছুটে চলে, হলুদ শিখা তৈরি করে ও প্রচুর হাইড্রোজেন গ্যাস ছড়ায়।'
+    },
+    Ca: {
+      name: 'ক্যালসিয়াম',
+      rank: 3,
+      color: '#94a3b8',
+      density: 1.55,
+      rates: { cold_water: 5, steam: 7, dil_hcl: 9, dil_h2so4: 7 },
+      flame: null,
+      heat: 28,
+      eqWater: 'Ca(s) + 2H₂O(l) → Ca(OH)₂(aq) + H₂(g)↑',
+      eqAcid: 'Ca(s) + 2HCl(aq) → CaCl₂(aq) + H₂(g)↑',
+      obs: 'ক্যালসিয়াম পানিতে ডুবে গিয়ে দ্রুত গতিতে বুদবুদ তৈরি করে। দ্রবণটি ঘোলাটে ক্ষারীয় চুনপানিতে পরিণত হয়।'
+    },
+    Mg: {
+      name: 'ম্যাগনেসিয়াম',
+      rank: 4,
+      color: '#cbd5e1',
+      density: 1.74,
+      rates: { cold_water: 0.5, steam: 7, dil_hcl: 8, dil_h2so4: 8 },
+      flame: null,
+      heat: 22,
+      eqWater: 'Mg(s) + 2H₂O(l) → Mg(OH)₂(aq) + H₂(g)↑ (খুব ধীর)',
+      eqAcid: 'Mg(s) + 2HCl(aq) → MgCl₂(aq) + H₂(g)↑',
+      obs: 'ঠান্ডা পানিতে প্রায় বিক্রিয়া হয় না বললেই চলে; কিন্তু লঘু অ্যাসিডে তীব্র বেগে হাইড্রোজেন গ্যাসের স্রোত ছোটে!'
+    },
+    Al: {
+      name: 'অ্যালুমিনিয়াম',
+      rank: 5,
+      color: '#94a3b8',
+      density: 2.70,
+      rates: { cold_water: 0, steam: 4, dil_hcl: 6, dil_h2so4: 5 },
+      flame: null,
+      heat: 15,
+      eqWater: '2Al(s) + 3H₂O(g) → Al₂O₃(s) + 3H₂(g) (উচ্চ তাপে)',
+      eqAcid: '2Al(s) + 6HCl(aq) → 2AlCl₃(aq) + 3H₂(g)↑',
+      obs: 'পৃষ্ঠে অ্যালুমিনিয়াম অক্সাইডের নিষ্ক্রিয় আবরণ থাকায় প্রথমে প্রতিক্রিয়া ধীর, পরে আবরণ ক্ষয় হলে নিয়মিত গ্যাস বের হয়।'
+    },
+    Zn: {
+      name: 'জিংক',
+      rank: 6,
+      color: '#64748b',
+      density: 7.14,
+      rates: { cold_water: 0, steam: 3, dil_hcl: 5, dil_h2so4: 5 },
+      flame: null,
+      heat: 10,
+      eqWater: 'Zn(s) + H₂O(g) → ZnO(s) + H₂(g) (লোহিত তপ্ত)',
+      eqAcid: 'Zn(s) + H₂SO₄(aq) → ZnSO₄(aq) + H₂(g)↑',
+      obs: 'লঘু অ্যাসিডের সাথে মধ্যম গতিতে চমৎকার বুদবুদ সৃষ্টি করে জিংক সালফেট ও বিশুদ্ধ হাইড্রোজেন গ্যাস নির্গত হয়।'
+    },
+    Fe: {
+      name: 'লোহা',
+      rank: 7,
+      color: '#475569',
+      density: 7.87,
+      rates: { cold_water: 0, steam: 2, dil_hcl: 2.5, dil_h2so4: 2.5 },
+      flame: null,
+      heat: 5,
+      eqWater: '3Fe(s) + 4H₂O(g) ⇌ Fe₃O₄(s) + 4H₂(g) (বাষ্পে)',
+      eqAcid: 'Fe(s) + 2HCl(aq) → FeCl₂(aq) + H₂(g)↑',
+      obs: 'লঘু অ্যাসিডে লোহার বিক্রিয়া বেশ ধীর। ধীরে ধীরে ফেরাস লবণের হালকা সবুজ দ্রবণ ও মৃদু গ্যাসীয় বুদবুদ বের হয়।'
+    },
+    Cu: {
+      name: 'কপার',
+      rank: 8,
+      color: '#b45309',
+      density: 8.96,
+      rates: { cold_water: 0, steam: 0, dil_hcl: 0, dil_h2so4: 0 },
+      flame: null,
+      heat: 0,
+      eqWater: 'Cu + H₂O → কোনো বিক্রিয়া নেই',
+      eqAcid: 'Cu + HCl → কোনো বিক্রিয়া নেই (কপার হাইড্রোজেনের নিচে)',
+      obs: 'কপার সক্রিয়তা সিরিজে হাইড্রোজেনের নিচে অবস্থিত! তাই এটি পানি বা লঘু অ্যাসিড থেকে হাইড্রোজেন প্রতিস্থাপন করতে পারে না।'
+    }
+  };
+
+  let currentMetal = 'Na';
+  let currentLiquid = 'cold_water';
+  let isSimulating = false;
+  let metalY = 50;
+  let metalX = 350;
+  let bubbles = [];
+  let gasVolume = 0;
+  let temperature = 25.0;
+  let reactionRate = 0;
+  let animFrameId = null;
+
+  const canvas = document.getElementById('reactivityCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // Metal Selector Event Listeners
+  document.querySelectorAll('.metal-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.metal-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      currentMetal = this.getAttribute('data-metal');
+      updateInfoDisplay();
+    });
+  });
+
+  // Liquid Selector Event Listeners
+  document.querySelectorAll('.liquid-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.liquid-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      currentLiquid = this.getAttribute('data-liquid');
+      updateInfoDisplay();
+    });
+  });
+
+  function updateInfoDisplay() {
+    const metal = METAL_DATA[currentMetal];
+    const isAcid = currentLiquid.includes('hcl') || currentLiquid.includes('h2so4');
+    
+    document.getElementById('dispEquation').innerText = isAcid ? metal.eqAcid : metal.eqWater;
+    document.getElementById('dispObservation').innerText = 'পর্যবেক্ষণ: ' + metal.obs;
+    
+    const oxDisp = currentMetal === 'Al' ? 'Al → Al³⁺ + 3e⁻' : (['Na','K'].includes(currentMetal) ? `${currentMetal} → ${currentMetal}⁺ + e⁻` : `${currentMetal} → ${currentMetal}²⁺ + 2e⁻`);
+    document.getElementById('dispOxidation').innerText = oxDisp;
+    
+    document.getElementById('dispSolutionNature').innerText = isAcid ? 'অ্যাসিডিক দ্রবণ' : (metal.rates[currentLiquid] > 0 ? 'ক্ষারীয় দ্রবণ (pH > 7)' : 'নিরপেক্ষ');
+  }
+
+  function dropMetal() {
+    if (isSimulating) return;
+    initAudio();
+    isSimulating = true;
+    document.getElementById('btnDropMetal').disabled = true;
+
+    const metal = METAL_DATA[currentMetal];
+    const rate = metal.rates[currentLiquid];
+    reactionRate = rate;
+
+    // Reset piece
+    metalY = 70;
+    metalX = 350;
+    bubbles = [];
+    gasVolume = 0;
+    temperature = 25.0;
+
+    let targetY = 260;
+    if (metal.density < 1.0 && currentLiquid === 'cold_water') {
+      targetY = 175; // floats
+    }
+
+    const maxGas = rate * 8; // target volume
+
+    function animate() {
+      // Step metal
+      if (metalY < targetY) {
+        metalY += 4;
+      } else if (metal.density < 1.0 && currentLiquid === 'cold_water' && rate > 0) {
+        // Skitter around on water surface!
+        metalX += (Math.random() - 0.5) * 6;
+        metalX = Math.max(300, Math.min(400, metalX));
+      }
+
+      // Heat generation
+      if (rate > 0 && temperature < 25 + metal.heat) {
+        temperature += 0.3 * rate;
+      }
+
+      // Gas volume
+      if (rate > 0 && gasVolume < maxGas) {
+        gasVolume += 0.08 * rate;
+        if (Math.random() < 0.25) playBubbleSound();
+      }
+
+      // Generate bubbles
+      if (metalY >= 170 && rate > 0) {
+        const count = Math.ceil(rate * 0.7);
+        for (let i = 0; i < count; i++) {
+          bubbles.push({
+            x: metalX + (Math.random() - 0.5) * 20,
+            y: metalY + (Math.random() - 0.5) * 10,
+            r: 2 + Math.random() * 4,
+            speedY: 2 + Math.random() * 3,
+            wobble: Math.random() * 6
+          });
+        }
+      }
+
+      // Update bubbles
+      for (let i = bubbles.length - 1; i >= 0; i--) {
+        bubbles[i].y -= bubbles[i].speedY;
+        bubbles[i].x += Math.sin(bubbles[i].y * 0.1) * 0.5;
+        if (bubbles[i].y < 165) {
+          bubbles.splice(i, 1);
+        }
+      }
+
+      drawReactivityStage();
+
+      // UI Text updates
+      document.getElementById('dispTemp').innerText = temperature.toFixed(1) + ' °C';
+      document.getElementById('dispGasVol').innerText = gasVolume.toFixed(1) + ' mL';
+      
+      const rateText = rate === 0 ? 'বিক্রিয়া নেই' : (rate > 7 ? 'তীব্র বিস্ফোরক' : (rate > 4 ? 'দ্রুত বুদবুদ' : 'ধীর ও মৃদু'));
+      document.getElementById('dispRate').innerText = rateText;
+
+      if (gasVolume >= 8) {
+        document.getElementById('btnPopTest').disabled = false;
+      }
+
+      animFrameId = requestAnimationFrame(animate);
+    }
+
+    animate();
+  }
+
+  function resetReactivity() {
+    if (animFrameId) cancelAnimationFrame(animFrameId);
+    isSimulating = false;
+    document.getElementById('btnDropMetal').disabled = false;
+    document.getElementById('btnPopTest').disabled = true;
+    metalY = 50;
+    metalX = 350;
+    bubbles = [];
+    gasVolume = 0;
+    temperature = 25.0;
+    reactionRate = 0;
+    document.getElementById('dispTemp').innerText = '25.0 °C';
+    document.getElementById('dispGasVol').innerText = '0.0 mL';
+    document.getElementById('dispRate').innerText = 'শান্ত';
+    drawReactivityStage();
+  }
+
+  function doPopTest() {
+    playPopSound();
+    alert('💥 পপ! (POP!)\n\nজ্বলন্ত শলাকা গ্যাস মুখের কাছে ধরায় বৈশিষ্ট্যপূর্ণ "পপ" শব্দসহ নীল শিখায় জ্বলে উঠল। এটি নিশ্চিত করে যে উৎপন্ন গ্যাসটি হাইড্রোজেন (H₂)!');
+  }
+
+  function drawReactivityStage() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Bench / Table
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(0, 340, canvas.width, 40);
+    ctx.fillStyle = '#334155';
+    ctx.fillRect(0, 338, canvas.width, 2);
+
+    // Test Tube Stand
+    ctx.fillStyle = '#475569';
+    ctx.fillRect(330, 200, 40, 140);
+    ctx.fillRect(260, 330, 180, 10);
+
+    // Gas Syringe (Right side)
+    const syringeX = 490;
+    const syringeY = 90;
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 2;
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
+    ctx.strokeRect(syringeX, syringeY, 150, 30);
+    ctx.fillRect(syringeX, syringeY, 150, 30);
+
+    // Plunger
+    const plungerOffset = Math.min(100, gasVolume * 2);
+    ctx.fillStyle = '#0f766e';
+    ctx.fillRect(syringeX + 20 + plungerOffset, syringeY + 4, 12, 22);
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillRect(syringeX + 32 + plungerOffset, syringeY + 12, 80, 6);
+
+    // Syringe Label
+    ctx.fillStyle = '#38bdf8';
+    ctx.font = '11px monospace';
+    ctx.fillText('H₂ সিরিঞ্জ: ' + gasVolume.toFixed(1) + ' mL', syringeX + 20, syringeY - 6);
+
+    // Delivery Tube from Flask to Syringe
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(350, 100);
+    ctx.lineTo(350, 60);
+    ctx.lineTo(490, 60);
+    ctx.lineTo(490, 105);
+    ctx.stroke();
+
+    // Boiling Tube / Flask Outline
+    const tubeX = 310;
+    const tubeY = 100;
+    const tubeW = 80;
+    const tubeH = 220;
+
+    // Liquid in tube
+    ctx.fillStyle = currentLiquid.includes('hcl') || currentLiquid.includes('h2so4') 
+      ? 'rgba(56, 189, 248, 0.25)' 
+      : (currentLiquid === 'steam' ? 'rgba(251, 146, 60, 0.25)' : 'rgba(14, 165, 233, 0.35)');
+    ctx.fillRect(tubeX + 2, 165, tubeW - 4, 153);
+    // Rounded bottom of tube
+    ctx.beginPath();
+    ctx.arc(tubeX + tubeW/2, 318, tubeW/2 - 2, 0, Math.PI);
+    ctx.fill();
+
+    // Glass wall
+    ctx.strokeStyle = '#94a3b8';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(tubeX, tubeY);
+    ctx.lineTo(tubeX, tubeY + tubeH - 20);
+    ctx.arc(tubeX + tubeW/2, tubeY + tubeH - 20, tubeW/2, Math.PI, 0, true);
+    ctx.lineTo(tubeX + tubeW, tubeY);
+    ctx.stroke();
+
+    // Rubber stopper
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(tubeX - 2, tubeY - 6, tubeW + 4, 14);
+
+    // Draw Bubbles
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
+    bubbles.forEach(b => {
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // Draw Metal Piece
+    const metal = METAL_DATA[currentMetal];
+    ctx.fillStyle = metal.color;
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.roundRect(metalX - 10, metalY - 8, 20, 16, 4);
+    ctx.fill();
+    ctx.stroke();
+
+    // Text on metal piece
+    ctx.fillStyle = '#0f172a';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(currentMetal, metalX, metalY + 4);
+
+    // Flame for K or Na
+    if (metal.flame && reactionRate > 0 && metalY <= 185) {
+      ctx.fillStyle = metal.flame === 'purple' ? 'rgba(192, 132, 252, 0.8)' : 'rgba(250, 204, 21, 0.8)';
+      ctx.beginPath();
+      ctx.arc(metalX, metalY - 14, 10 + Math.random()*5, 0, Math.PI*2);
+      ctx.fill();
+    }
+  }
+
+  // RUST CHAMBER LOGIC & CANVAS
+  let rustDay = 0;
+  const rustCanvas = document.getElementById('rustCanvas');
+  const rCtx = rustCanvas.getContext('2d');
+
+  function updateRustDay(val) {
+    rustDay = parseInt(val, 10);
+    document.getElementById('dispRustDay').innerText = rustDay;
+    drawRustTubes();
+  }
+
+  function drawRustTubes() {
+    rCtx.clearRect(0, 0, rustCanvas.width, rustCanvas.height);
+
+    const numTubes = 6;
+    const spacing = rustCanvas.width / numTubes;
+
+    const tubeTitles = [
+      '১: বাতাস + পানি',
+      '২: শুষ্ক বাতাস',
+      '৩: অক্সিজেনহীন পানি',
+      '৪: পেইন্ট করা লোহা',
+      '৫: গ্যালভানাইজড',
+      '৬: লবণাক্ত পানি'
+    ];
+
+    for (let i = 0; i < numTubes; i++) {
+      const centerX = spacing * i + spacing / 2;
+      const topY = 60;
+      const w = 55;
+      const h = 240;
+
+      // Tube glass
+      rCtx.fillStyle = 'rgba(255,255,255,0.04)';
+      rCtx.fillRect(centerX - w/2, topY, w, h - 20);
+
+      // Contents per tube
+      if (i === 0) { // Water + Air
+        const rustIntensity = rustDay / 30;
+        rCtx.fillStyle = `rgba(180, 83, 9, ${0.15 + rustIntensity * 0.4})`;
+        rCtx.fillRect(centerX - w/2 + 2, topY + 80, w - 4, h - 100);
+      } else if (i === 1) { // Dry Air (CaCl2 at bottom)
+        rCtx.fillStyle = '#f1f5f9';
+        rCtx.fillRect(centerX - w/2 + 4, topY + h - 45, w - 8, 20);
+        rCtx.fillStyle = '#64748b';
+        rCtx.font = '10px sans-serif';
+        rCtx.fillText('CaCl₂', centerX, topY + h - 30);
+      } else if (i === 2) { // Boiled water + Oil
+        rCtx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+        rCtx.fillRect(centerX - w/2 + 2, topY + 70, w - 4, h - 90);
+        rCtx.fillStyle = 'rgba(234, 179, 8, 0.6)'; // oil layer
+        rCtx.fillRect(centerX - w/2 + 2, topY + 70, w - 4, 16);
+      } else if (i === 3) { // Painted nail in water
+        rCtx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+        rCtx.fillRect(centerX - w/2 + 2, topY + 80, w - 4, h - 100);
+      } else if (i === 4) { // Galvanized nail in water
+        rCtx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+        rCtx.fillRect(centerX - w/2 + 2, topY + 80, w - 4, h - 100);
+      } else if (i === 5) { // Salt water
+        const rustIntensity = Math.min(1.0, (rustDay / 20));
+        rCtx.fillStyle = `rgba(154, 52, 18, ${0.2 + rustIntensity * 0.6})`;
+        rCtx.fillRect(centerX - w/2 + 2, topY + 80, w - 4, h - 100);
+      }
+
+      // Tube glass outline
+      rCtx.strokeStyle = '#94a3b8';
+      rCtx.lineWidth = 2.5;
+      rCtx.beginPath();
+      rCtx.moveTo(centerX - w/2, topY);
+      rCtx.lineTo(centerX - w/2, topY + h - 20);
+      rCtx.arc(centerX, topY + h - 20, w/2, Math.PI, 0, true);
+      rCtx.lineTo(centerX + w/2, topY);
+      rCtx.stroke();
+
+      // Rubber stopper
+      rCtx.fillStyle = '#334155';
+      rCtx.fillRect(centerX - w/2 - 2, topY - 4, w + 4, 12);
+
+      // Draw the Nail inside
+      const nailX = centerX;
+      const nailY = topY + 110;
+      const nailH = 90;
+
+      // Determine nail appearance based on rusting
+      let nailColor = '#cbd5e1';
+      let rustThickness = 0;
+
+      if (i === 0) { // Air + Water -> Rusts
+        const factor = rustDay / 30;
+        rustThickness = factor * 4;
+        nailColor = factor > 0.3 ? '#b45309' : '#cbd5e1';
+      } else if (i === 3) { // Painted Nail
+        nailColor = '#3b82f6'; // blue paint
+      } else if (i === 4) { // Galvanized
+        nailColor = '#e2e8f0'; // bright zinc coating
+      } else if (i === 5) { // Salt Water -> Heavy rapid rust!
+        const factor = Math.min(1.0, (rustDay / 18));
+        rustThickness = factor * 6;
+        nailColor = factor > 0.2 ? '#78350f' : '#cbd5e1';
+      }
+
+      // Nail head
+      rCtx.fillStyle = nailColor;
+      rCtx.fillRect(nailX - 10, nailY, 20, 5);
+      // Nail body
+      rCtx.fillRect(nailX - 3 - rustThickness/2, nailY + 5, 6 + rustThickness, nailH);
+      // Nail point
+      rCtx.beginPath();
+      rCtx.moveTo(nailX - 3 - rustThickness/2, nailY + 5 + nailH);
+      rCtx.lineTo(nailX + 3 + rustThickness/2, nailY + 5 + nailH);
+      rCtx.lineTo(nailX, nailY + 5 + nailH + 10);
+      rCtx.fill();
+
+      // Flakes of rust on bottom for tube 0 and 5
+      if ((i === 0 || i === 5) && rustDay > 3) {
+        rCtx.fillStyle = '#78350f';
+        const flakeCount = (i === 5 ? rustDay * 1.5 : rustDay * 0.8);
+        for (let f = 0; f < flakeCount; f++) {
+          rCtx.fillRect(centerX - 14 + (f*5)%28, topY + h - 26 - (f%4)*2, 3, 2);
+        }
+      }
+
+      // Tube label
+      rCtx.fillStyle = '#f8fafc';
+      rCtx.font = 'bold 12px sans-serif';
+      rCtx.textAlign = 'center';
+      rCtx.fillText(tubeTitles[i], centerX, topY + h + 24);
+    }
+  }
+
+  // QUIZ FUNCTIONALITY
+  const quizFeedback = {
+    q1: {
+      correct: 'চমৎকার! পটাসিয়াম (K) সবচেয়ে সক্রিয় ক্ষার ধাতু হওয়ায় সাধারণ তাপমাত্রায় শীতল পানির সাথে দ্রুত ও তীব্র বিস্ফোরক বিক্রিয়া ঘটায় এবং বেগুনী শিখাসহ জ্বলে ওঠে।',
+      wrong: 'ভুল উত্তর। সক্রিয়তা সিরিজের শীর্ষে থাকা ক্ষার ধাতু পটাসিয়াম (K) পানির সাথে তীব্র বিস্ফোরণসহ বিক্রিয়া করে।'
+    },
+    q2: {
+      correct: 'সঠিক উত্তর! মরিচার রাসায়নিক নাম হাইড্রেটেড ফেরিক অক্সাইড, যার সংকেত Fe₂O₃ · xH₂O।',
+      wrong: 'ভুল উত্তর। মরিচা হলো হাইড্রেটেড ফেরিক অক্সাইড Fe₂O₃ · xH₂O।'
+    },
+    q3: {
+      correct: 'একদম ঠিক! ডুরালুমিন (৯৫% অ্যালুমিনিয়াম + ৪% কপার + ০.৫% ম্যাগনেসিয়াম + ০.৫% ম্যাঙ্গানিজ) অত্যন্ত হালকা ও দারুণ মজবুত হওয়ায় উড়োজাহাজের বডি তৈরিতে ব্যবহৃত হয়।',
+      wrong: 'ভুল উত্তর। উড়োজাহাজের কাঠামোতে অ্যালুমিনিয়ামের হালকা ও শক্তিশালী সংকর ডুরালুমিন (Duralumin) ব্যবহৃত হয়।'
+    },
+    q4: {
+      correct: 'সঠিক উত্তর! লোহার উপর দস্তা বা জিংকের (Zn) পাতলা প্রতিরক্ষামূলক প্রলেপ দেওয়াকে গ্যালভানাইজিং (Galvanizing) বলে।',
+      wrong: 'ভুল উত্তর। জিংকের প্রলেপকে গ্যালভানাইজিং বলা হয়।'
+    }
+  };
+
+  function checkQuiz(qId, selectedIdx, isCorrect) {
+    const parent = document.getElementById(qId);
+    const buttons = parent.querySelectorAll('.quiz-opt');
+    const fb = document.getElementById(qId + '-fb');
+
+    buttons.forEach((b, idx) => {
+      b.disabled = true;
+      if (idx === selectedIdx) {
+        b.classList.add(isCorrect ? 'correct' : 'wrong');
+      }
+    });
+
+    fb.className = 'quiz-feedback show ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
+    fb.innerText = isCorrect ? quizFeedback[qId].correct : quizFeedback[qId].wrong;
+  }
+
+  // Initialize
+  window.addEventListener('DOMContentLoaded', () => {
+    updateInfoDisplay();
+    drawReactivityStage();
+  });
+</script>
+
+</body>
+</html>

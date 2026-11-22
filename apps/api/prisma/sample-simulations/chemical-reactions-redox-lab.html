@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>রাসায়নিক বিক্রিয়া ও রেডক্স ভার্চুয়াল ল্যাব | poRi Chemistry</title>
+  <style>
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-surface: #ffffff;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-teal: #0f766e;
+      --pori-teal-soft: #ecfdf5;
+      --pori-teal-border: #99f6e4;
+      --pori-teal-ink: #134e4a;
+      --pori-cyan: #0284c7;
+      --pori-cyan-soft: #f0f9ff;
+      --pori-amber: #d97706;
+      --pori-amber-soft: #fffbeb;
+      --pori-amber-border: #fcd34d;
+      --pori-rose: #e11d48;
+      --pori-rose-soft: #fff1f2;
+      --pori-rose-border: #fecdd3;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      padding: 16px;
+      line-height: 1.55;
+    }
+    .app {
+      max-width: 980px;
+      margin: 0 auto;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--pori-teal-ink);
+      background: var(--pori-teal-soft);
+      border: 1px solid var(--pori-teal-border);
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-bottom: 6px;
+    }
+    h1 {
+      font-size: 1.35rem;
+      color: var(--pori-heading);
+      margin-bottom: 4px;
+      font-weight: 800;
+    }
+    p.sub {
+      color: var(--pori-muted);
+      font-size: 0.88rem;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--pori-border);
+      background: #fff;
+      color: #334155;
+      font-size: 0.84rem;
+      font-weight: 750;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tab-btn:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
+    .tab-btn.active {
+      background: var(--pori-teal);
+      border-color: var(--pori-teal);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(15, 118, 110, 0.25);
+    }
+    .lab-layout {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 18px;
+      align-items: start;
+    }
+    @media (max-width: 820px) {
+      .lab-layout { grid-template-columns: 1fr; }
+    }
+    .canvas-card {
+      background: #0f172a;
+      border-radius: 16px;
+      border: 1px solid #1e293b;
+      overflow: hidden;
+      position: relative;
+      box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 380px;
+      background: radial-gradient(circle at 50% 30%, #1e293b 0%, #0f172a 100%);
+    }
+    .canvas-overlay {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+    .reaction-formula-chip {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid #334155;
+      backdrop-filter: blur(4px);
+      padding: 6px 12px;
+      border-radius: 10px;
+      color: #38bdf8;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }
+    .thermo-badge {
+      background: rgba(225, 29, 72, 0.2);
+      border: 1px solid #fda4af;
+      padding: 4px 10px;
+      border-radius: 8px;
+      color: #fecdd3;
+      font-size: 0.8rem;
+      font-weight: 750;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .controls-panel {
+      background: #f8fafc;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .section-title {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--pori-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .action-row {
+      display: flex;
+      gap: 8px;
+    }
+    .btn {
+      flex: 1;
+      padding: 9px 14px;
+      border-radius: 10px;
+      font-size: 0.84rem;
+      font-weight: 750;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn-primary {
+      background: var(--pori-teal);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #115e59;
+    }
+    .btn-secondary {
+      background: #fff;
+      color: #334155;
+      border: 1px solid var(--pori-border);
+    }
+    .btn-secondary:hover {
+      background: #f1f5f9;
+    }
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #334155;
+    }
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--pori-teal);
+      cursor: pointer;
+    }
+    .metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .metric-box {
+      background: #fff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
+    .metric-box .label {
+      font-size: 0.7rem;
+      color: var(--pori-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .metric-box .val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #1e293b;
+      margin-top: 2px;
+    }
+    .expl-box {
+      background: #fff;
+      border-left: 3px solid var(--pori-teal);
+      border-radius: 0 10px 10px 0;
+      padding: 10px 12px;
+      font-size: 0.82rem;
+      color: #334155;
+      line-height: 1.6;
+    }
+    .expl-box strong {
+      color: #0f172a;
+    }
+    .redox-tracker {
+      background: #fff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 0.8rem;
+    }
+    .redox-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 0;
+      border-bottom: 1px dashed #e2e8f0;
+    }
+    .redox-row:last-child { border-bottom: none; }
+    .tag-ox {
+      background: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-weight: 750;
+      font-size: 0.72rem;
+    }
+    .tag-red {
+      background: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-weight: 750;
+      font-size: 0.72rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div>
+        <span class="badge">SSC রসায়ন · অধ্যায় ৭ ল্যাব</span>
+        <h1>রাসায়নিক বিক্রিয়া ও রেডক্স ভার্চুয়াল ল্যাব</h1>
+        <p class="sub">অধঃক্ষেপণ, প্রতিস্থাপন, তাপ পরিবর্তন ও জারণ-বিজারণের ইলেকট্রন স্থানান্তর সিমুলেশন</p>
+      </div>
+      <div class="reaction-formula-chip" id="topFormula">AgNO₃ + NaCl → AgCl↓ + NaNO₃</div>
+    </header>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchMode('precip')">🧪 ১. অধঃক্ষেপণ (Precipitation)</button>
+      <button class="tab-btn" onclick="switchMode('displace')">⚡ ২. প্রতিস্থাপন (Displacement)</button>
+      <button class="tab-btn" onclick="switchMode('exotherm')">🔥 ৩. তাপউৎপাদী বিক্রিয়া (Exothermic)</button>
+      <button class="tab-btn" onclick="switchMode('redox')">⚛️ ৪. রেডক্স ইলেকট্রন ট্র্যাকার (Redox)</button>
+    </div>
+
+    <div class="lab-layout">
+      <div class="canvas-card">
+        <canvas id="chemCanvas" width="600" height="380"></canvas>
+        <div class="canvas-overlay">
+          <div class="reaction-formula-chip" id="stateChip">অবস্থা: চলমান</div>
+          <div class="thermo-badge" id="thermoChip">🌡️ তাপমাত্রা: ২৫°C</div>
+        </div>
+      </div>
+
+      <div class="controls-panel">
+        <span class="section-title">নিয়ন্ত্রণ ও পর্যবেক্ষণ</span>
+        <div class="action-row">
+          <button class="btn btn-primary" id="btnToggle" onclick="toggleReaction()">▶️ বিক্রিয়া শুরু</button>
+          <button class="btn btn-secondary" onclick="resetReaction()">🔄 রিসেট</button>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-label">
+            <span>বিক্রিয়কের ঘনমাত্রা / গতি</span>
+            <span id="speedVal">১.০x</span>
+          </div>
+          <input type="range" id="speedSlider" min="0.5" max="2.5" step="0.1" value="1.0" oninput="updateSpeed(this.value)">
+        </div>
+
+        <div class="metric-grid">
+          <div class="metric-box">
+            <div class="label" id="m1Label">উৎপাদ পরিমাণ</div>
+            <div class="val" id="m1Val">০%</div>
+          </div>
+          <div class="metric-box">
+            <div class="label" id="m2Label">বিক্রিয়ার অগ্রগতি</div>
+            <div class="val" id="m2Val">০ সে.</div>
+          </div>
+        </div>
+
+        <div class="redox-tracker" id="trackerBox">
+          <div class="redox-row">
+            <span>Ag⁺ + Cl⁻ → AgCl (s)</span>
+            <span class="tag-red">অধঃক্ষেপ</span>
+          </div>
+          <div class="redox-row">
+            <span>Na⁺ ও NO₃⁻ আয়ন</span>
+            <span style="color:#64748b;font-weight:600">দর্শক আয়ন</span>
+          </div>
+        </div>
+
+        <div class="expl-box" id="explText">
+          <strong>অধঃক্ষেপণ বিক্রিয়া:</strong> সিলভার নাইট্রেট দ্রবণে সোডিয়াম ক্লোরাইড যোগ করলে অদ্রবণীয় সাদা সিলভার ক্লোরাইড ($AgCl$) কণা তৈরি হয়ে টেস্টটিউব বা বিকারের তলায় থিতিয়ে পড়ে।
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- Canvas & Core Lab Simulation Engine ---
+    const canvas = document.getElementById('chemCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width;
+    let height = canvas.height;
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * (window.devicePixelRatio || 1);
+      canvas.height = 380 * (window.devicePixelRatio || 1);
+      ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+      width = rect.width;
+      height = 380;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Mode state
+    let mode = 'precip'; // 'precip', 'displace', 'exotherm', 'redox'
+    let isRunning = false;
+    let progress = 0; // 0 to 1
+    let speed = 1.0;
+    let animFrame = null;
+    let lastTime = performance.now();
+
+    // Particle engines
+    let particles = [];
+    let electronPackets = [];
+
+    const modeData = {
+      precip: {
+        formula: 'AgNO₃(aq) + NaCl(aq) → AgCl(s)↓ + NaNO₃(aq)',
+        short: 'AgNO₃ + NaCl → AgCl↓ + NaNO₃',
+        tempStart: 25,
+        tempEnd: 25.5,
+        m1Label: 'AgCl অধঃক্ষেপ',
+        m2Label: 'ক্লোরাইড অধঃক্ষিপ্ত',
+        r1: 'Ag⁺ + Cl⁻ → AgCl(s)',
+        r1tag: 'অধঃক্ষেপ',
+        r2: 'Na⁺ ও NO₃⁻ দ্রবীভূত',
+        r2tag: 'দর্শক আয়ন',
+        expl: '<strong>অধঃক্ষেপণ বিক্রিয়া:</strong> তরল সিলভার নাইট্রেটে সোডিয়াম ক্লোরাইড দিলে মুহূর্তেই অদ্রবণীয় সাদা <b>AgCl</b> অধঃক্ষেপ তৈরি হয়ে নিচে জমতে শুরু করে।'
+      },
+      displace: {
+        formula: 'Zn(s) + CuSO₄(aq) → ZnSO₄(aq) + Cu(s)↓',
+        short: 'Zn + CuSO₄ → ZnSO₄ + Cu↓',
+        tempStart: 25,
+        tempEnd: 32,
+        m1Label: 'Cu অধঃক্ষেপণ',
+        m2Label: 'দ্রবণে Zn²⁺ বৃদ্ধি',
+        r1: 'Zn → Zn²⁺ + 2e⁻ (জারণ)',
+        r1tag: 'বিজারক',
+        r2: 'Cu²⁺ + 2e⁻ → Cu (বিজারণ)',
+        r2tag: 'জারক',
+        expl: '<strong>একক প্রতিস্থাপন ও রেডক্স:</strong> জিংক কপার অপেক্ষা অধিক সক্রিয় হওয়ায় $CuSO_4$ থেকে কপারকে প্রতিস্থাপিত করে। নীল দ্রবণ বর্ণহীন হয় এবং জিংকের গায়ে লালচে তামা জমা হয়।'
+      },
+      exotherm: {
+        formula: 'CaO(s) + H₂O(l) → Ca(OH)₂(aq) + তাপ (ΔH = -65.2 kJ/mol)',
+        short: 'CaO + H₂O → Ca(OH)₂ + তাপ',
+        tempStart: 25,
+        tempEnd: 78,
+        m1Label: 'তাপ শক্তি নির্গমন',
+        m2Label: 'Ca(OH)₂ উৎপাদন',
+        r1: 'চুন + পানি → কলিচুন',
+        r1tag: 'তাপউৎপাদী',
+        r2: 'ΔH = -৬৫.২ kJ/mol',
+        r2tag: 'বন্ধন ভাঙা ও গড়া',
+        expl: '<strong>তাপউৎপাদী বিক্রিয়া:</strong> পোড়া চুনে (CaO) পানি দিলে তীব্র শিস শব্দে তাপ উৎপন্ন হয় এবং দ্রবণ ফুটে ওঠার মতো উত্তপ্ত হয়। থার্মোমিটার দ্রুত ২৫°C থেকে ৭৮°C এ উঠে যায়।'
+      },
+      redox: {
+        formula: 'Zn⁰ + Cu⁺²(aq) → Zn⁺²(aq) + Cu⁰(s) [2e⁻ স্থানান্তর]',
+        short: 'Zn⁰ + Cu⁺² → Zn⁺² + Cu⁰',
+        tempStart: 25,
+        tempEnd: 29,
+        m1Label: 'স্থানান্তরিত ইলেকট্রন',
+        m2Label: 'জারণ সংখ্যা পরিবর্তন',
+        r1: 'Zn⁰ → Zn⁺² (জারণ: ০ হতে +২)',
+        r1tag: 'ইলেকট্রন বর্জন',
+        r2: 'Cu⁺² → Cu⁰ (বিজারণ: +২ হতে ০)',
+        r2tag: 'ইলেকট্রন গ্রহণ',
+        expl: '<strong>জারণ-বিজারণ ও ইলেকট্রন ট্র্যাকার:</strong> জিংক পরমাণু ২টি ইলেকট্রন বর্জন করে জারিত হয় ($Zn^{2+}$) এবং কপার আয়ন সেই ২টি ইলেকট্রন গ্রহণ করে বিজারিত হয় ($Cu^0$)। এটি একটি যুগপৎ রেডক্স প্রক্রিয়া।'
+      }
+    };
+
+    function initParticles() {
+      particles = [];
+      electronPackets = [];
+      const num = mode === 'precip' ? 120 : (mode === 'exotherm' ? 80 : 70);
+      for (let i = 0; i < num; i++) {
+        particles.push({
+          x: width * 0.35 + (Math.random() - 0.5) * 160,
+          y: height * 0.45 + Math.random() * 80,
+          vx: (Math.random() - 0.5) * 0.8,
+          vy: Math.random() * 0.5,
+          size: Math.random() * 3 + 2,
+          settled: false,
+          alpha: Math.random() * 0.8 + 0.2
+        });
+      }
+
+      if (mode === 'redox') {
+        for (let i = 0; i < 8; i++) {
+          electronPackets.push({
+            t: (i / 8),
+            speed: 0.008 + Math.random() * 0.004
+          });
+        }
+      }
+    }
+
+    function switchMode(newMode) {
+      mode = newMode;
+      document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+        const modes = ['precip', 'displace', 'exotherm', 'redox'];
+        btn.classList.toggle('active', modes[idx] === mode);
+      });
+
+      const d = modeData[mode];
+      document.getElementById('topFormula').textContent = d.short;
+      document.getElementById('m1Label').textContent = d.m1Label;
+      document.getElementById('m2Label').textContent = d.m2Label;
+      document.getElementById('explText').innerHTML = d.expl;
+
+      const tb = document.getElementById('trackerBox');
+      tb.innerHTML = `
+        <div class="redox-row">
+          <span>${d.r1}</span>
+          <span class="${mode === 'displace' || mode === 'redox' ? 'tag-ox' : 'tag-red'}">${d.r1tag}</span>
+        </div>
+        <div class="redox-row">
+          <span>${d.r2}</span>
+          <span class="${mode === 'displace' || mode === 'redox' ? 'tag-red' : 'tag-ox'}">${d.r2tag}</span>
+        </div>
+      `;
+
+      resetReaction();
+    }
+
+    function toggleReaction() {
+      isRunning = !isRunning;
+      const btn = document.getElementById('btnToggle');
+      if (isRunning) {
+        btn.textContent = '⏸️ বিরতি';
+        btn.classList.add('btn-secondary');
+        btn.classList.remove('btn-primary');
+        document.getElementById('stateChip').textContent = 'অবস্থা: বিক্রিয়া চলমান...';
+      } else {
+        btn.textContent = '▶️ বিক্রিয়া চালান';
+        btn.classList.remove('btn-secondary');
+        btn.classList.add('btn-primary');
+        document.getElementById('stateChip').textContent = 'অবস্থা: বিরতিপ্রাপ্ত';
+      }
+    }
+
+    function resetReaction() {
+      isRunning = false;
+      progress = 0;
+      const btn = document.getElementById('btnToggle');
+      btn.textContent = '▶️ বিক্রিয়া শুরু';
+      btn.classList.remove('btn-secondary');
+      btn.classList.add('btn-primary');
+      document.getElementById('stateChip').textContent = 'অবস্থা: অপেক্ষমাণ';
+      initParticles();
+      updateMetrics();
+    }
+
+    function updateSpeed(val) {
+      speed = parseFloat(val);
+      document.getElementById('speedVal').textContent = speed.toFixed(1) + 'x';
+    }
+
+    function updateMetrics() {
+      const d = modeData[mode];
+      const curTemp = Math.round(d.tempStart + (d.tempEnd - d.tempStart) * progress);
+      document.getElementById('thermoChip').textContent = `🌡️ তাপমাত্রা: ${curTemp}°C`;
+
+      const p1 = Math.round(progress * 100);
+      document.getElementById('m1Val').textContent = `${p1}%`;
+      const elapsed = (progress * 12).toFixed(1);
+      document.getElementById('m2Val').textContent = `${elapsed} সে.`;
+    }
+
+    // Drawing helpers
+    function drawBeaker(bx, by, bw, bh) {
+      ctx.save();
+      // Glass body
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(bx, by);
+      ctx.lineTo(bx, by + bh);
+      ctx.quadraticCurveTo(bx, by + bh + 14, bx + 16, by + bh + 14);
+      ctx.lineTo(bx + bw - 16, by + bh + 14);
+      ctx.quadraticCurveTo(bx + bw, by + bh + 14, bx + bw, by + bh);
+      ctx.lineTo(bx + bw, by);
+      ctx.stroke();
+
+      // Measurement tick marks
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.4)';
+      ctx.lineWidth = 1.5;
+      for (let i = 1; i <= 4; i++) {
+        const ty = by + bh - i * (bh / 5);
+        ctx.beginPath();
+        ctx.moveTo(bx + 6, ty);
+        ctx.lineTo(bx + 20, ty);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    function drawThermometer(tx, ty, th, tempRatio) {
+      ctx.save();
+      // Outer glass
+      ctx.fillStyle = '#0f172a';
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(tx - 6, ty, 12, th, 6);
+      ctx.fill();
+      ctx.stroke();
+
+      // Bulb at bottom
+      ctx.fillStyle = '#e11d48';
+      ctx.beginPath();
+      ctx.arc(tx, ty + th + 4, 10, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Mercury column
+      const filledH = (th - 10) * tempRatio;
+      ctx.fillStyle = '#e11d48';
+      ctx.beginPath();
+      ctx.roundRect(tx - 3, ty + th - filledH, 6, filledH, 3);
+      ctx.fill();
+
+      // Digital tag above
+      ctx.fillStyle = '#fecdd3';
+      ctx.font = 'bold 10px monospace';
+      ctx.textAlign = 'center';
+      const deg = Math.round(25 + tempRatio * 53);
+      ctx.fillText(`${deg}°C`, tx, ty - 6);
+      ctx.restore();
+    }
+
+    // Animation Loop
+    function loop(now) {
+      const dt = (now - lastTime) / 1000;
+      lastTime = now;
+
+      if (isRunning && progress < 1) {
+        progress = Math.min(1, progress + dt * 0.12 * speed);
+        updateMetrics();
+        if (progress >= 1) {
+          isRunning = false;
+          document.getElementById('stateChip').textContent = 'অবস্থা: বিক্রিয়া সম্পন্ন ✅';
+          document.getElementById('btnToggle').textContent = '▶️ সমাপ্ত';
+        }
+      }
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Render based on current mode
+      if (mode === 'precip') {
+        renderPrecipitation(dt);
+      } else if (mode === 'displace') {
+        renderDisplacement(dt);
+      } else if (mode === 'exotherm') {
+        renderExothermic(dt);
+      } else if (mode === 'redox') {
+        renderRedoxElectronTracker(dt);
+      }
+
+      animFrame = requestAnimationFrame(loop);
+    }
+
+    // Mode 1: Precipitation Engine
+    function renderPrecipitation(dt) {
+      const bx = width * 0.3;
+      const by = 80;
+      const bw = 240;
+      const bh = 240;
+
+      // Solution color
+      ctx.fillStyle = 'rgba(56, 189, 248, 0.12)';
+      ctx.fillRect(bx + 4, by + 40, bw - 8, bh - 30);
+
+      // Settled sludge layer at bottom
+      const sludgeH = progress * 24;
+      if (sludgeH > 0) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.88)';
+        ctx.fillRect(bx + 6, by + bh - sludgeH + 8, bw - 12, sludgeH);
+        ctx.fillStyle = '#0f172a';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'center';
+        if (progress > 0.25) {
+          ctx.fillText('AgCl (সাদা অধঃক্ষেপ স্তর)', bx + bw / 2, by + bh - sludgeH / 2 + 12);
+        }
+      }
+
+      // Render settling particles
+      particles.forEach(p => {
+        if (!p.settled) {
+          if (isRunning) {
+            p.y += p.vy * (1 + progress * 1.5) * speed;
+            p.x += Math.sin(p.y * 0.05) * 0.4;
+            if (p.y >= by + bh - sludgeH + 6) {
+              p.settled = true;
+            }
+          }
+        }
+        ctx.fillStyle = `rgba(255, 255, 255, ${p.alpha})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Dropper at top adding AgNO3
+      ctx.save();
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillRect(bx + bw / 2 - 4, by - 50, 8, 40);
+      ctx.fillStyle = '#38bdf8';
+      // Drop dripping
+      if (progress < 0.9) {
+        const dropY = by - 10 + ((performance.now() * 0.15) % 40);
+        ctx.beginPath();
+        ctx.arc(bx + bw / 2, dropY, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
+
+      drawBeaker(bx, by, bw, bh);
+
+      // Labels
+      ctx.fillStyle = '#e2e8f0';
+      ctx.font = '12px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('দ্রবণ: Na⁺(aq) + NO₃⁻(aq)', bx + bw + 16, by + 70);
+      ctx.fillStyle = '#93c5fd';
+      ctx.fillText('যোগ হচ্ছে: AgNO₃ দ্রবণ', bx + bw / 2 + 16, by - 20);
+      ctx.fillStyle = '#34d399';
+      ctx.fillText('Ag⁺ + Cl⁻ → AgCl (s)↓', bx + bw + 16, by + bh - 10);
+    }
+
+    // Mode 2: Single Displacement Engine
+    function renderDisplacement(dt) {
+      const bx = width * 0.28;
+      const by = 80;
+      const bw = 250;
+      const bh = 240;
+
+      // Solution color: Transitions from deep blue (CuSO4) to pale/clear (ZnSO4)
+      const blueAlpha = (1 - progress * 0.85) * 0.45;
+      ctx.fillStyle = `rgba(37, 99, 235, ${blueAlpha})`;
+      ctx.fillRect(bx + 4, by + 40, bw - 8, bh - 30);
+
+      // Zinc strip dipping in beaker
+      const stripX = bx + 70;
+      const stripY = by + 10;
+      const stripW = 34;
+      const stripH = 200;
+
+      // Clean zinc at top
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillRect(stripX, stripY, stripW, 60);
+
+      // Submerged portion turns reddish-brown copper deposit
+      const subH = stripH - 60;
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillRect(stripX, stripY + 60, stripW, subH);
+
+      // Copper coating
+      ctx.fillStyle = `rgba(180, 83, 9, ${progress * 0.92})`;
+      ctx.fillRect(stripX - 2, stripY + 60, stripW + 4, subH);
+
+      // Bubbles/Ions drifting
+      particles.forEach(p => {
+        if (isRunning) {
+          p.y -= Math.random() * 0.4 * speed;
+          if (p.y < by + 45) p.y = by + bh - 20;
+        }
+        ctx.fillStyle = progress > 0.5 ? 'rgba(148, 163, 184, 0.4)' : 'rgba(96, 165, 250, 0.6)';
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      drawBeaker(bx, by, bw, bh);
+
+      // Explanatory tags
+      ctx.fillStyle = '#cbd5e1';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Zn দণ্ড (জিংক)', stripX + stripW / 2, stripY - 8);
+
+      ctx.textAlign = 'left';
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillText(`তামার অধঃক্ষেপণ: ${Math.round(progress * 100)}%`, bx + bw + 16, by + 100);
+      ctx.fillStyle = '#60a5fa';
+      ctx.fillText('নীল বর্ণের তীব্রতা হ্রাস পাচ্ছে', bx + bw + 16, by + 130);
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('Zn(s) → Zn²⁺(aq) + 2e⁻', bx + bw + 16, by + 160);
+      ctx.fillStyle = '#f87171';
+      ctx.fillText('Cu²⁺(aq) + 2e⁻ → Cu(s)↓', bx + bw + 16, by + 190);
+    }
+
+    // Mode 3: Exothermic Thermometer Rise
+    function renderExothermic(dt) {
+      const bx = width * 0.25;
+      const by = 80;
+      const bw = 250;
+      const bh = 240;
+
+      // Solution with thermal gradient
+      const heatR = progress * 140;
+      const grad = ctx.createRadialGradient(bx + bw / 2, by + bh - 40, 10, bx + bw / 2, by + bh - 40, 120);
+      grad.addColorStop(0, `rgba(239, 68, 68, ${0.15 + progress * 0.45})`);
+      grad.addColorStop(1, 'rgba(56, 189, 248, 0.12)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(bx + 4, by + 40, bw - 8, bh - 30);
+
+      // Steam / effervescence bubbles rising
+      particles.forEach(p => {
+        if (isRunning) {
+          p.y -= (1 + progress * 3) * speed;
+          p.x += Math.sin(p.y * 0.1) * 0.8;
+          if (p.y < by + 30) {
+            p.y = by + bh - 30;
+            p.x = bx + bw * 0.2 + Math.random() * bw * 0.6;
+          }
+        }
+        ctx.fillStyle = `rgba(254, 205, 211, ${0.3 + progress * 0.6})`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size * (1 + progress * 0.5), 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Quicklime clumps at bottom
+      ctx.fillStyle = '#e2e8f0';
+      ctx.beginPath();
+      ctx.ellipse(bx + bw / 2, by + bh - 10, 45, 14, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      drawBeaker(bx, by, bw, bh);
+
+      // Thermometer placed inside the solution
+      const tx = bx + bw - 40;
+      const ty = by + 20;
+      const th = 200;
+      drawThermometer(tx, ty, th, progress);
+
+      // Heat wave indicators
+      if (progress > 0.1) {
+        ctx.strokeStyle = `rgba(248, 113, 113, ${progress * 0.7})`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(bx + bw / 2, by + 30, 20 + Math.sin(performance.now() * 0.005) * 6, Math.PI, 0);
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = '#fca5a5';
+      ctx.font = 'bold 12px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('তাপশক্তি নির্গমন (ΔH < 0)', bx + bw + 16, by + 80);
+      ctx.fillStyle = '#fecdd3';
+      ctx.fillText(`বর্তমান তাপমাত্রা: ${Math.round(25 + progress * 53)}°C`, bx + bw + 16, by + 110);
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('CaO + H₂O → Ca(OH)₂', bx + bw + 16, by + 140);
+    }
+
+    // Mode 4: Dynamic Redox Electron Tracker
+    function renderRedoxElectronTracker(dt) {
+      const cx1 = width * 0.28;
+      const cx2 = width * 0.68;
+      const cy = height * 0.5;
+
+      // Reducing agent atom (Zn)
+      ctx.save();
+      ctx.fillStyle = '#0284c7';
+      ctx.beginPath();
+      ctx.arc(cx1, cy, 45, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Zn', cx1, cy - 4);
+      ctx.font = '12px monospace';
+      const znOx = (progress * 2).toFixed(1);
+      ctx.fillStyle = '#fed7aa';
+      ctx.fillText(`জারণ সংখ্যা: 0 → +${znOx}`, cx1, cy + 18);
+      ctx.restore();
+
+      // Oxidizing agent ion (Cu2+)
+      ctx.save();
+      ctx.fillStyle = '#d97706';
+      ctx.beginPath();
+      ctx.arc(cx2, cy, 45, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#fbbf24';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Cu', cx2, cy - 4);
+      ctx.font = '12px monospace';
+      const cuOx = (2 - progress * 2).toFixed(1);
+      ctx.fillStyle = '#bbf7d0';
+      ctx.fillText(`জারণ সংখ্যা: +2 → +${cuOx}`, cx2, cy + 18);
+      ctx.restore();
+
+      // Electron transfer pathway
+      ctx.save();
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.4)';
+      ctx.setLineDash([6, 6]);
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cx1 + 45, cy);
+      ctx.bezierCurveTo(width * 0.45, cy - 70, width * 0.55, cy - 70, cx2 - 45, cy);
+      ctx.stroke();
+      ctx.restore();
+
+      // Animated glowing electron packets
+      electronPackets.forEach(ep => {
+        if (isRunning) {
+          ep.t = (ep.t + ep.speed * speed) % 1;
+        }
+        // Bezier interpolation
+        const p0 = { x: cx1 + 45, y: cy };
+        const p1 = { x: width * 0.45, y: cy - 70 };
+        const p2 = { x: width * 0.55, y: cy - 70 };
+        const p3 = { x: cx2 - 45, y: cy };
+
+        const u = 1 - ep.t;
+        const ex = u*u*u*p0.x + 3*u*u*ep.t*p1.x + 3*u*ep.t*ep.t*p2.x + ep.t*ep.t*ep.t*p3.x;
+        const ey = u*u*u*p0.y + 3*u*u*ep.t*p1.y + 3*u*ep.t*ep.t*p2.y + ep.t*ep.t*ep.t*p3.y;
+
+        ctx.fillStyle = '#38bdf8';
+        ctx.shadowColor = '#38bdf8';
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(ex, ey, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 9px sans-serif';
+        ctx.fillText('e⁻', ex, ey - 7);
+      });
+
+      // Directional arrow in middle
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('ইলেকট্রন স্থানান্তর প্রবাহ (2e⁻)', width * 0.5, cy - 80);
+
+      // Labels under atoms
+      ctx.font = 'bold 12px sans-serif';
+      ctx.fillStyle = '#38bdf8';
+      ctx.fillText('বিজারক পদার্থ (Oxidized)', cx1, cy + 70);
+      ctx.font = '11px sans-serif';
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('ইলেকট্রন হারায় (LEO)', cx1, cy + 88);
+
+      ctx.font = 'bold 12px sans-serif';
+      ctx.fillStyle = '#fbbf24';
+      ctx.fillText('জারক পদার্থ (Reduced)', cx2, cy + 70);
+      ctx.font = '11px sans-serif';
+      ctx.fillStyle = '#94a3b8';
+      ctx.fillText('ইলেকট্রন লাভ করে (GER)', cx2, cy + 88);
+    }
+
+    // Start initial state
+    initParticles();
+    animFrame = requestAnimationFrame(loop);
+  </script>
+</body>
+</html>

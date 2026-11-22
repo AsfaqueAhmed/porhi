@@ -1,0 +1,1920 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>রাসায়নিক বন্ধন এক্সপ্লোরার ও ব্যবহারিক ল্যাব | poRi</title>
+  <style>
+    :root {
+      --pori-bg: #090d16;
+      --pori-surface: #111827;
+      --pori-card: #1f2937;
+      --pori-border: #374151;
+      --pori-border-accent: #0d9488;
+      --pori-accent: #14b8a6;
+      --pori-accent-glow: rgba(20, 184, 166, 0.35);
+      --pori-accent-light: #2dd4bf;
+      --pori-text: #f3f4f6;
+      --pori-muted: #9ca3af;
+      --pori-na: #38bdf8;
+      --pori-cl: #a3e635;
+      --pori-h: #f43f5e;
+      --pori-o: #fb923c;
+      --pori-c: #a855f7;
+      --pori-metal: #fbbf24;
+      --pori-electron: #67e8f9;
+      --pori-bulb-on: #fef08a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--pori-bg);
+      color: var(--pori-text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Hind Siliguri", "Noto Sans Bengali", sans-serif;
+      line-height: 1.5;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      background: var(--pori-surface);
+      border: 1px solid var(--pori-border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+    }
+
+    header {
+      padding: 20px 24px;
+      background: linear-gradient(135deg, #111827 0%, #1e293b 100%);
+      border-bottom: 1px solid var(--pori-border);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-title h1 {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-title h1 span.badge {
+      font-size: 11px;
+      font-weight: 700;
+      background: rgba(20, 184, 166, 0.15);
+      border: 1px solid var(--pori-accent);
+      color: var(--pori-accent-light);
+      padding: 3px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    .header-title p {
+      font-size: 13px;
+      color: var(--pori-muted);
+      margin-top: 4px;
+    }
+
+    .mode-nav {
+      display: flex;
+      gap: 6px;
+      background: #0f172a;
+      padding: 5px;
+      border-radius: 12px;
+      border: 1px solid var(--pori-border);
+      overflow-x: auto;
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--pori-muted);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .nav-btn:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-btn.active {
+      color: #fff;
+      background: var(--pori-accent);
+      box-shadow: 0 2px 10px var(--pori-accent-glow);
+    }
+
+    .main-body {
+      padding: 20px 24px;
+      min-height: 560px;
+    }
+
+    .sim-panel {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .sim-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 20px;
+    }
+
+    @media (max-width: 860px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+
+    .canvas-card {
+      background: #0b0f19;
+      border: 1px solid var(--pori-border);
+      border-radius: 16px;
+      padding: 16px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      min-height: 420px;
+    }
+
+    .canvas-hud {
+      position: absolute;
+      top: 14px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .hud-chip {
+      background: rgba(17, 24, 39, 0.85);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--pori-border);
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--pori-accent-light);
+    }
+
+    .controls-card {
+      background: var(--pori-card);
+      border: 1px solid var(--pori-border);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .ctrl-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .ctrl-label {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ctrl-label span.value-pill {
+      color: var(--pori-accent-light);
+      background: rgba(20, 184, 166, 0.15);
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-action {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .btn-action:hover {
+      background: #1d4ed8;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+    }
+
+    .btn-secondary {
+      background: #374151;
+      color: #d1d5db;
+    }
+
+    .btn-secondary:hover {
+      background: #4b5563;
+      color: #fff;
+    }
+
+    .btn-teal {
+      background: #0f766e;
+    }
+
+    .btn-teal:hover {
+      background: #115e59;
+    }
+
+    .select-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .select-item {
+      padding: 10px;
+      background: #111827;
+      border: 1px solid var(--pori-border);
+      border-radius: 10px;
+      color: #d1d5db;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .select-item:hover {
+      border-color: var(--pori-accent);
+      color: #fff;
+    }
+
+    .select-item.active {
+      background: rgba(20, 184, 166, 0.15);
+      border-color: var(--pori-accent);
+      color: var(--pori-accent-light);
+      box-shadow: 0 0 10px var(--pori-accent-glow);
+    }
+
+    .info-pane {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 12.5px;
+      line-height: 1.6;
+    }
+
+    .info-pane h4 {
+      font-size: 13px;
+      color: var(--pori-accent-light);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .info-pane p {
+      color: #cbd5e1;
+      margin-bottom: 6px;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11.5px;
+      margin-top: 6px;
+    }
+
+    .data-table th, .data-table td {
+      padding: 5px 8px;
+      border: 1px solid #334155;
+      text-align: left;
+    }
+
+    .data-table th {
+      background: #1e293b;
+      color: #94a3b8;
+    }
+
+    .data-table td {
+      background: #0f172a;
+      color: #f1f5f9;
+    }
+
+    /* Slider styling */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      background: #374151;
+      border-radius: 5px;
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--pori-accent);
+      cursor: pointer;
+      box-shadow: 0 0 8px var(--pori-accent-glow);
+    }
+
+    /* Concept Quiz section */
+    .mini-quiz {
+      margin-top: 14px;
+      border-top: 1px dashed var(--pori-border);
+      padding-top: 14px;
+    }
+    .quiz-stem {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #f3f4f6;
+      margin-bottom: 8px;
+    }
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .quiz-opt {
+      padding: 7px 10px;
+      border-radius: 8px;
+      border: 1px solid #374151;
+      background: #111827;
+      font-size: 12px;
+      color: #d1d5db;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+    }
+    .quiz-opt:hover {
+      background: #1f2937;
+      border-color: #4b5563;
+    }
+    .quiz-opt.correct {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: #22c55e;
+      color: #86efac;
+    }
+    .quiz-opt.wrong {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: #ef4444;
+      color: #fca5a5;
+    }
+    .quiz-fb {
+      font-size: 11.5px;
+      margin-top: 6px;
+      display: none;
+      padding: 6px 8px;
+      border-radius: 6px;
+    }
+
+    svg text {
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-title">
+      <h1>
+        🧪 রাসায়নিক বন্ধন সিমুলেটর ও এক্সপ্লোরার
+        <span class="badge">SSC Chemistry Ch 5</span>
+      </h1>
+      <p>আয়নিক, সমযোজী ও ধাতব বন্ধন গঠন, মুক্তজোড়-বন্ধনজোড়, স্ফটিক জালিকা ও জলীয় দ্রবণে বিদ্যুৎ পরিবাহিতা পরীক্ষণ</p>
+    </div>
+    <nav class="mode-nav">
+      <button class="nav-btn active" onclick="switchLab('ionic')">⚡ আয়নিক বন্ধন (Na + Cl)</button>
+      <button class="nav-btn" onclick="switchLab('covalent')">🔗 সমযোজী বন্ধন (Sharing)</button>
+      <button class="nav-btn" onclick="switchLab('conduct')">💡 দ্রবণ পরিবাহিতা ল্যাব</button>
+      <button class="nav-btn" onclick="switchLab('metallic')">🌊 ধাতব বন্ধন ও ইলেকট্রন সাগর</button>
+    </nav>
+  </header>
+
+  <div class="main-body">
+
+    <!-- ========================================== -->
+    <!-- MODULE 1: IONIC BONDING                    -->
+    <!-- ========================================== -->
+    <div id="panel-ionic" class="sim-panel active">
+      <div class="two-col">
+        <div class="canvas-card" id="ionic-canvas-box">
+          <div class="canvas-hud">
+            <span class="hud-chip" id="ionic-state-hud">অবস্থা: নিরপেক্ষ সোডিয়াম ও ক্লোরিন পরমাণু</span>
+            <span class="hud-chip" id="ionic-force-hud">স্থির বৈদ্যুতিক বল: ০%</span>
+          </div>
+
+          <svg id="ionic-svg" width="600" height="380" viewBox="0 0 600 380">
+            <defs>
+              <!-- Glow filters -->
+              <filter id="glow-cyan" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="6" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+              <filter id="glow-lime" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="6" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+              <linearGradient id="attract-line" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.8"/>
+                <stop offset="50%" stop-color="#f43f5e" stop-opacity="1"/>
+                <stop offset="100%" stop-color="#a3e635" stop-opacity="0.8"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Force vector lines -->
+            <g id="ionic-force-layer" style="opacity: 0; transition: opacity 0.5s;">
+              <line x1="200" y1="180" x2="400" y2="180" stroke="url(#attract-line)" stroke-width="3" stroke-dasharray="6,4" />
+              <polygon points="295,174 305,180 295,186" fill="#f43f5e" />
+              <polygon points="305,174 295,180 305,186" fill="#f43f5e" />
+              <text x="300" y="165" fill="#f43f5e" font-size="12" font-weight="700" text-anchor="middle">স্থির বৈদ্যুতিক আকর্ষণ বল (Electrostatic Force)</text>
+            </g>
+
+            <!-- SODIUM ATOM / ION (Left) -->
+            <g id="na-group" transform="translate(180, 180)">
+              <!-- Shells -->
+              <circle class="shell shell-1" r="35" fill="none" stroke="#334155" stroke-width="1.5" stroke-dasharray="2,2"/>
+              <circle class="shell shell-2" r="65" fill="none" stroke="#334155" stroke-width="1.5" stroke-dasharray="2,2"/>
+              <circle id="na-shell-3" class="shell shell-3" r="95" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-dasharray="3,3"/>
+
+              <!-- Nucleus -->
+              <circle id="na-nucleus" r="22" fill="#0284c7" filter="url(#glow-cyan)"/>
+              <text y="5" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">Na</text>
+              <text y="17" fill="#bae6fd" font-size="9" text-anchor="middle">11p, 12n</text>
+
+              <!-- Charge Badge -->
+              <g id="na-charge-badge" style="opacity:0; transition: opacity 0.4s;">
+                <circle cx="28" cy="-28" r="14" fill="#0284c7" stroke="#fff" stroke-width="1.5"/>
+                <text x="28" y="-23" fill="#fff" font-size="13" font-weight="900" text-anchor="middle">+</text>
+              </g>
+
+              <!-- Na Electrons (11: 2, 8, 1) -->
+              <!-- K shell (2) -->
+              <circle cx="0" cy="-35" r="4.5" fill="#38bdf8"/>
+              <circle cx="0" cy="35" r="4.5" fill="#38bdf8"/>
+              <!-- L shell (8) -->
+              <circle cx="0" cy="-65" r="4.5" fill="#38bdf8"/>
+              <circle cx="0" cy="65" r="4.5" fill="#38bdf8"/>
+              <circle cx="-65" cy="0" r="4.5" fill="#38bdf8"/>
+              <circle cx="65" cy="0" r="4.5" fill="#38bdf8"/>
+              <circle cx="-46" cy="-46" r="4.5" fill="#38bdf8"/>
+              <circle cx="46" cy="-46" r="4.5" fill="#38bdf8"/>
+              <circle cx="-46" cy="46" r="4.5" fill="#38bdf8"/>
+              <circle cx="46" cy="46" r="4.5" fill="#38bdf8"/>
+
+              <!-- M shell (1 Valence Electron - Animated) -->
+              <circle id="transfer-electron" cx="95" cy="0" r="6" fill="#f43f5e" stroke="#fff" stroke-width="1.5" filter="url(#glow-cyan)"/>
+
+              <text id="na-label" y="125" fill="#bae6fd" font-size="13" font-weight="700" text-anchor="middle">সোডিয়াম পরমাণু (Na: 2, 8, 1)</text>
+              <text id="na-sub" y="142" fill="#94a3b8" font-size="11" text-anchor="middle">ব্যাসার্ধ: ১৮৬ pm (আকার বড়)</text>
+            </g>
+
+            <!-- CHLORINE ATOM / ION (Right) -->
+            <g id="cl-group" transform="translate(420, 180)">
+              <!-- Shells -->
+              <circle class="shell shell-1" r="35" fill="none" stroke="#334155" stroke-width="1.5" stroke-dasharray="2,2"/>
+              <circle class="shell shell-2" r="65" fill="none" stroke="#334155" stroke-width="1.5" stroke-dasharray="2,2"/>
+              <circle id="cl-shell-3" class="shell shell-3" r="95" fill="none" stroke="#a3e635" stroke-width="1.8" stroke-dasharray="3,3"/>
+
+              <!-- Nucleus -->
+              <circle id="cl-nucleus" r="22" fill="#65a30d" filter="url(#glow-lime)"/>
+              <text y="5" fill="#fff" font-size="13" font-weight="bold" text-anchor="middle">Cl</text>
+              <text y="17" fill="#d9f99d" font-size="9" text-anchor="middle">17p, 18n</text>
+
+              <!-- Charge Badge -->
+              <g id="cl-charge-badge" style="opacity:0; transition: opacity 0.4s;">
+                <circle cx="28" cy="-28" r="14" fill="#65a30d" stroke="#fff" stroke-width="1.5"/>
+                <text x="28" y="-23" fill="#fff" font-size="15" font-weight="900" text-anchor="middle">-</text>
+              </g>
+
+              <!-- Cl Electrons (17: 2, 8, 7) -->
+              <!-- K shell (2) -->
+              <circle cx="0" cy="-35" r="4.5" fill="#a3e635"/>
+              <circle cx="0" cy="35" r="4.5" fill="#a3e635"/>
+              <!-- L shell (8) -->
+              <circle cx="0" cy="-65" r="4.5" fill="#a3e635"/>
+              <circle cx="0" cy="65" r="4.5" fill="#a3e635"/>
+              <circle cx="-65" cy="0" r="4.5" fill="#a3e635"/>
+              <circle cx="65" cy="0" r="4.5" fill="#a3e635"/>
+              <circle cx="-46" cy="-46" r="4.5" fill="#a3e635"/>
+              <circle cx="46" cy="-46" r="4.5" fill="#a3e635"/>
+              <circle cx="-46" cy="46" r="4.5" fill="#a3e635"/>
+              <circle cx="46" cy="46" r="4.5" fill="#a3e635"/>
+
+              <!-- M shell (7 Valence Electrons) -->
+              <circle cx="0" cy="-95" r="4.5" fill="#a3e635"/>
+              <circle cx="0" cy="95" r="4.5" fill="#a3e635"/>
+              <circle cx="95" cy="0" r="4.5" fill="#a3e635"/>
+              <circle cx="67" cy="-67" r="4.5" fill="#a3e635"/>
+              <circle cx="67" cy="67" r="4.5" fill="#a3e635"/>
+              <circle cx="-67" cy="-67" r="4.5" fill="#a3e635"/>
+              <circle cx="-67" cy="67" r="4.5" fill="#a3e635"/>
+              <!-- Vacancy spot for 8th electron at (-95, 0) -->
+              <circle id="cl-vacancy" cx="-95" cy="0" r="6" fill="none" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="2,2"/>
+
+              <text id="cl-label" y="125" fill="#d9f99d" font-size="13" font-weight="700" text-anchor="middle">ক্লোরিন পরমাণু (Cl: 2, 8, 7)</text>
+              <text id="cl-sub" y="142" fill="#94a3b8" font-size="11" text-anchor="middle">ব্যাসার্ধ: ৯৯ pm (আকার ছোট)</text>
+            </g>
+
+            <!-- Crystal Lattice Overlay (Hidden by default) -->
+            <g id="lattice-view" style="display:none;">
+              <rect x="50" y="40" width="500" height="300" rx="14" fill="#090d16" fill-opacity="0.94" stroke="#1e293b" stroke-width="2"/>
+              <text x="300" y="70" fill="#f8fafc" font-size="15" font-weight="700" text-anchor="middle">সোডিয়াম ক্লোরাইড (NaCl) ত্রিমাত্রিক স্ফটিক জালিকা (Crystal Lattice)</text>
+              <g id="lattice-grid" transform="translate(160, 95)"></g>
+              <text x="300" y="325" fill="#94a3b8" font-size="12" text-anchor="middle">প্রতিটি Na+ আয়নকে ৬টি Cl- এবং প্রতিটি Cl- আয়নকে ৬টি Na+ ঘিরে অষ্টতলকীয় জালিকা গঠন করে।</text>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-card">
+          <div class="ctrl-group">
+            <div class="ctrl-label">
+              <span>ইলেকট্রন স্থানান্তর অগ্রগতি</span>
+              <span class="value-pill" id="ionic-progress-label">০%</span>
+            </div>
+            <input type="range" id="ionic-slider" min="0" max="100" value="0" oninput="updateIonicTransfer(this.value)">
+          </div>
+
+          <div class="btn-row">
+            <button class="btn-action" onclick="animateIonicTransfer()">▶ অ্যানিমেশন চালাও</button>
+            <button class="btn-action btn-secondary" onclick="resetIonic()">↺ রিসেট</button>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn-action btn-teal" id="toggle-lattice-btn" onclick="toggleLatticeView()">🧊 ক্রিস্টাল ল্যাটিস ভিউ</button>
+          </div>
+
+          <div class="info-pane">
+            <h4>💡 অষ্টক পূরণ ও বন্ধন নীতি</h4>
+            <p id="ionic-info-text">
+              Na পরমাণু তার ৩য় শক্তিস্তরের ১টি যোজ্যতা ইলেকট্রন Cl-কে প্রদান করে নিয়ন ([Ne]: 2, 8) এর মতো স্থিতিশীল অষ্টক পায় এবং Na+ ক্যাটায়নে পরিণত হয়। Cl পরমাণু ইলেকট্রনটি গ্রহণ করে আর্গন ([Ar]: 2, 8, 8) এর মতো অষ্টক পূরণ করে Cl- অ্যানায়নে পরিণত হয়। বিপরীতধর্মী আধানদ্বয় স্থির বৈদ্যুতিক বল দ্বারা আবদ্ধ হয়।
+            </p>
+            <table class="data-table">
+              <tr><th>বৈশিষ্ট্য</th><th>Na → Na+</th><th>Cl → Cl-</th></tr>
+              <tr><td>ইলেকট্রন বিন্যাস</td><td>2, 8, 1 → 2, 8</td><td>2, 8, 7 → 2, 8, 8</td></tr>
+              <tr><td>পারমাণবিক/আয়ন ব্যাসার্ধ</td><td>১৮৬ pm → ১০২ pm (হ্রাস)</td><td>৯৯ pm → ১৮১ pm (বৃদ্ধি)</td></tr>
+              <tr><td>অষ্টক স্থিতিশীলতা</td><td>নিষ্ক্রিয় Ne এর মতো</td><td>নিষ্ক্রিয় Ar এর মতো</td></tr>
+            </table>
+          </div>
+
+          <!-- Mini Quiz -->
+          <div class="mini-quiz">
+            <div class="quiz-stem">❓ কুইজ: Na+ ও Cl- এর মধ্যে কোন বল কাজ করে?</div>
+            <div class="quiz-options">
+              <button class="quiz-opt" onclick="checkQuiz(this, true, 'iq-fb', 'সঠিক! বিপরীত আধানের মধ্যে কুলম্বীয় বা স্থির বৈদ্যুতিক আকর্ষণ বল (Electrostatic force) কাজ করে।')">ক. স্থির বৈদ্যুতিক আকর্ষণ বল</button>
+              <button class="quiz-opt" onclick="checkQuiz(this, false, 'iq-fb', 'ভুল! ভ্যান ডার ওয়ালস বল সমযোজী অণুর মাঝে দুর্বল আকর্ষণ হিসেবে থাকে।')">খ. দুর্বল ভ্যান ডার ওয়ালস বল</button>
+              <button class="quiz-opt" onclick="checkQuiz(this, false, 'iq-fb', 'ভুল! মহাকর্ষ বল আণবিক স্তরে খুবই নগণ্য।')">গ. মহাকর্ষ বল</button>
+            </div>
+            <div id="iq-fb" class="quiz-fb"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- MODULE 2: COVALENT BONDING                 -->
+    <!-- ========================================== -->
+    <div id="panel-covalent" class="sim-panel">
+      <div class="two-col">
+        <div class="canvas-card">
+          <div class="canvas-hud">
+            <span class="hud-chip" id="covalent-molecule-title">অণু: পানি (H₂O) — সমযোজী একক বন্ধন</span>
+            <span class="hud-chip" id="covalent-bp-lp">bp: ২ জোড়া · lp: ২ জোড়া</span>
+          </div>
+
+          <svg id="covalent-svg" width="600" height="380" viewBox="0 0 600 380">
+            <!-- Dynamic SVG content rendered via JS -->
+          </svg>
+        </div>
+
+        <div class="controls-card">
+          <div class="ctrl-group">
+            <div class="ctrl-label"><span>সমযোজী অণু নির্বাচন করো</span></div>
+            <div class="select-grid">
+              <div class="select-item active" onclick="selectCovalentMol('H2O')">💧 পানি (H₂O)</div>
+              <div class="select-item" onclick="selectCovalentMol('CH4')">🔥 মিথেন (CH₄)</div>
+              <div class="select-item" onclick="selectCovalentMol('O2')">🫧 অক্সিজেন (O₂)</div>
+              <div class="select-item" onclick="selectCovalentMol('HCl')">🧪 হাইড্রোজেন ক্লোরাইড (HCl)</div>
+            </div>
+          </div>
+
+          <div class="ctrl-group">
+            <div class="ctrl-label">
+              <span>অরবিটাল উপরিপাতন / শেয়ারিং</span>
+              <span class="value-pill" id="covalent-share-pct">১০০%</span>
+            </div>
+            <input type="range" id="covalent-slider" min="0" max="100" value="100" oninput="updateCovalentSharing(this.value)">
+          </div>
+
+          <div class="btn-row">
+            <button class="btn-action" onclick="toggleCovalentElectrons()">⚡ ইলেকট্রন ঘূর্ণন অন/অফ</button>
+            <button class="btn-action btn-secondary" onclick="resetCovalent()">↺ পূর্ণ শেয়ারিং</button>
+          </div>
+
+          <div class="info-pane">
+            <h4 id="cov-info-title">💧 পানির সমযোজী বন্ধন</h4>
+            <p id="cov-info-desc">
+              অক্সিজেনের সর্ববহিঃস্থ স্তরে ৬টি ইলেকট্রন থাকে। ২টি হাইড্রোজেন পরমাণুর সাথে ২টি ইলেকট্রন শেয়ারের মাধ্যমে ২টি একক সমযোজী বন্ধন গঠন করে। এখানে বন্ধনজোড় (Bond Pair) ইলেকট্রন ২ জোড়া এবং অবিভাজিত মুক্তজোড় (Lone Pair) ইলেকট্রন ২ জোড়া।
+            </p>
+            <table class="data-table" id="cov-data-table">
+              <tr><th>প্যারামিটার</th><th>মান</th></tr>
+              <tr><td>বন্ধনজোড় (bp)</td><td>২ জোড়া (৪টি e-)</td></tr>
+              <tr><td>মুক্তজোড় (lp)</td><td>২ জোড়া (৪টি e-)</td></tr>
+              <tr><td>বন্ধনের ধরন</td><td>পোলার সমযোজী একক বন্ধন</td></tr>
+              <tr><td>জ্যামিতিক কোণ</td><td>১০৪.৫° (V-আকৃতি / কৌণিক)</td></tr>
+            </table>
+          </div>
+
+          <div class="mini-quiz">
+            <div class="quiz-stem" id="cq-stem">❓ কুইজ: O₂ অণুতে কয়টি সমযোজী বন্ধন ও কয় জোড়া মুক্তজোড় থাকে?</div>
+            <div class="quiz-options" id="cq-options">
+              <button class="quiz-opt" onclick="checkQuiz(this, false, 'cq-fb', 'ভুল! O₂ তে দ্বিবন্ধন থাকে।')">ক. ১টি বন্ধন, ২ জোড়া lp</button>
+              <button class="quiz-opt" onclick="checkQuiz(this, true, 'cq-fb', 'সঠিক! O₂ তে O=O দ্বিবন্ধন (২টি বন্ধনজোড়) এবং প্রতিটি অক্সিজেনে ২টি করে মোট ৪ জোড়া মুক্তজোড় থাকে।')">খ. ২টি বন্ধন (দ্বিবন্ধন), ৪ জোড়া lp</button>
+              <button class="quiz-opt" onclick="checkQuiz(this, false, 'cq-fb', 'ভুল! ত্রিবন্ধন থাকে নাইট্রোজেনে (N₂)।')">গ. ৩টি বন্ধন, ১ জোড়া lp</button>
+            </div>
+            <div id="cq-fb" class="quiz-fb"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- MODULE 3: CONDUCTIVITY LAB                 -->
+    <!-- ========================================== -->
+    <div id="panel-conduct" class="sim-panel">
+      <div class="two-col">
+        <div class="canvas-card">
+          <div class="canvas-hud">
+            <span class="hud-chip" id="conduct-status-hud">সুইচ: বন্ধ (সার্কিট খোলা)</span>
+            <span class="hud-chip" id="conduct-current-hud">তড়িৎ প্রবাহ: ০.০ mA</span>
+          </div>
+
+          <svg id="conduct-svg" width="600" height="400" viewBox="0 0 600 400">
+            <defs>
+              <linearGradient id="bulb-glow-grad" x1="50%" y1="0%" x2="50%" y2="100%">
+                <stop offset="0%" stop-color="#fef08a" stop-opacity="1"/>
+                <stop offset="100%" stop-color="#eab308" stop-opacity="0.2"/>
+              </linearGradient>
+              <radialGradient id="bulb-halo" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#fef08a" stop-opacity="0.9"/>
+                <stop offset="40%" stop-color="#facc15" stop-opacity="0.4"/>
+                <stop offset="100%" stop-color="#fef08a" stop-opacity="0"/>
+              </radialGradient>
+              <linearGradient id="beaker-liquid" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.2"/>
+                <stop offset="100%" stop-color="#0284c7" stop-opacity="0.5"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Circuit wires -->
+            <!-- Battery (Top Left) -->
+            <g transform="translate(110, 60)">
+              <!-- Battery body -->
+              <rect x="0" y="0" width="55" height="30" rx="4" fill="#334155" stroke="#64748b" stroke-width="2"/>
+              <rect x="55" y="7" width="6" height="16" rx="2" fill="#94a3b8"/>
+              <text x="12" y="20" fill="#f8fafc" font-size="12" font-weight="900">9V</text>
+              <text x="40" y="20" fill="#38bdf8" font-size="14" font-weight="900">+</text>
+              <text x="-12" y="20" fill="#f43f5e" font-size="14" font-weight="900">-</text>
+            </g>
+
+            <!-- Wire from Battery + to Switch -->
+            <path d="M 171 75 L 260 75" stroke="#f43f5e" stroke-width="3" fill="none"/>
+
+            <!-- Knife Switch (Top Middle) -->
+            <g transform="translate(260, 75)">
+              <circle cx="0" cy="0" r="5" fill="#f43f5e"/>
+              <line id="switch-lever" x1="0" y1="0" x2="35" y2="-22" stroke="#fbbf24" stroke-width="4" stroke-linecap="round"/>
+              <circle cx="40" cy="0" r="5" fill="#f43f5e"/>
+              <text x="20" y="-30" fill="#94a3b8" font-size="11" text-anchor="middle">সুইচ (Switch)</text>
+            </g>
+
+            <!-- Wire from Switch to Light Bulb -->
+            <path d="M 300 75 L 420 75" stroke="#f43f5e" stroke-width="3" fill="none"/>
+
+            <!-- Light Bulb (Top Right) -->
+            <g transform="translate(450, 75)">
+              <!-- Glow halo -->
+              <circle id="bulb-halo-circle" cx="0" cy="-25" r="50" fill="url(#bulb-halo)" style="opacity: 0; transition: opacity 0.3s;"/>
+              <!-- Bulb Glass -->
+              <path d="M -16 -8 C -22 -20 -15 -42 0 -42 C 15 -42 22 -20 16 -8 Z" fill="#334155" stroke="#94a3b8" stroke-width="2" id="bulb-glass"/>
+              <!-- Filament -->
+              <path d="M -6 -8 L -4 -25 L 0 -22 L 4 -25 L 6 -8" stroke="#facc15" stroke-width="1.8" fill="none" id="bulb-filament"/>
+              <!-- Base -->
+              <rect x="-10" y="-8" width="20" height="14" rx="2" fill="#64748b"/>
+              <text x="0" y="22" fill="#94a3b8" font-size="11" text-anchor="middle">বাল্ব</text>
+            </g>
+
+            <!-- Wire from Bulb down to Anode Electrode -->
+            <path d="M 450 67 L 450 140 L 370 140 L 370 200" stroke="#f43f5e" stroke-width="3" fill="none"/>
+
+            <!-- Wire from Battery - down to Cathode Electrode -->
+            <path d="M 110 75 L 60 75 L 60 140 L 230 140 L 230 200" stroke="#38bdf8" stroke-width="3" fill="none"/>
+
+            <!-- Current flow arrows (animated) -->
+            <g id="current-arrows" style="opacity: 0;">
+              <polygon points="210,72 220,75 210,78" fill="#fef08a"/>
+              <polygon points="360,72 370,75 360,78" fill="#fef08a"/>
+              <polygon points="370,165 373,175 367,175" fill="#fef08a"/>
+            </g>
+
+            <!-- Beaker (Center Bottom) -->
+            <g transform="translate(180, 180)">
+              <!-- Beaker rim & body -->
+              <rect x="0" y="0" width="240" height="190" rx="10" fill="none" stroke="#94a3b8" stroke-width="3"/>
+              <!-- Liquid Solution -->
+              <rect id="beaker-liquid-rect" x="3" y="45" width="234" height="142" rx="6" fill="url(#beaker-liquid)"/>
+              <line x1="3" y1="45" x2="237" y2="45" stroke="#38bdf8" stroke-width="2"/>
+
+              <!-- Cathode Electrode (-) (Left) -->
+              <rect x="40" y="15" width="18" height="140" rx="3" fill="#475569" stroke="#64748b" stroke-width="1.5"/>
+              <text x="49" y="8" fill="#38bdf8" font-size="12" font-weight="900" text-anchor="middle">ক্যাথোড (-)</text>
+
+              <!-- Anode Electrode (+) (Right) -->
+              <rect x="180" y="15" width="18" height="140" rx="3" fill="#475569" stroke="#64748b" stroke-width="1.5"/>
+              <text x="189" y="8" fill="#f43f5e" font-size="12" font-weight="900" text-anchor="middle">অ্যানোড (+)</text>
+
+              <!-- Animated Ions / Particles in solution -->
+              <g id="solution-ions-layer"></g>
+
+              <text id="beaker-liquid-name" x="120" y="180" fill="#f1f5f9" font-size="12" font-weight="bold" text-anchor="middle">সোডিয়াম ক্লোরাইড জলীয় দ্রবণ (NaCl aq)</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="controls-card">
+          <div class="ctrl-group">
+            <div class="ctrl-label"><span>পরীক্ষণীয় দ্রবণ নির্বাচন করো</span></div>
+            <div class="select-grid">
+              <div class="select-item active" onclick="selectElectrolyte('nacl-aq')">🧂 NaCl জলীয় দ্রবণ</div>
+              <div class="select-item" onclick="selectElectrolyte('nacl-solid')">🧊 শুষ্ক NaCl স্ফটিক</div>
+              <div class="select-item" onclick="selectElectrolyte('sugar-aq')">🍬 চিনির দ্রবণ (Sugar)</div>
+              <div class="select-item" onclick="selectElectrolyte('pure-water')">💧 বিশুদ্ধ পানি (H₂O)</div>
+              <div class="select-item" onclick="selectElectrolyte('hcl-aq')">⚗️ লঘু HCl দ্রবণ</div>
+              <div class="select-item" onclick="selectElectrolyte('cuso4-aq')">🔷 CuSO₄ দ্রবণ</div>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button class="btn-action" id="toggle-switch-btn" onclick="toggleCircuitSwitch()">⚡ সুইচ অন করো (Switch ON)</button>
+          </div>
+
+          <div class="info-pane">
+            <h4 id="cond-info-title">🧂 NaCl দ্রবণে বিদ্যুৎ পরিবাহিতা</h4>
+            <p id="cond-info-desc">
+              সোডিয়াম ক্লোরাইড পানিতে দ্রবীভূত হলে Na+ এবং Cl- আয়ন সম্পূর্ণ মুক্ত হয়ে বিচরণ করে। সুইচ অন করলে ধনাত্মক Na+ ক্যাটায়ন ঋণাত্মক ক্যাথোডের দিকে এবং ঋণাত্মক Cl- অ্যানায়ন ধনাত্মক অ্যানোডের দিকে ধাবিত হয়ে বিদ্যুৎ বর্তনী পূর্ণ করে। ফলে বাল্ব উজ্জ্বলভাবে জ্বলে।
+            </p>
+            <table class="data-table" id="cond-data-table">
+              <tr><th>প্যারামিটার</th><th>পর্যবেক্ষণ</th></tr>
+              <tr><td>বাল্বের অবস্থা</td><td><span style="color:#facc15;font-weight:bold;">উজ্জ্বলভাবে জ্বলছে 💡</span></td></tr>
+              <tr><td>তড়িৎ প্রবাহ</td><td>৮৫ mA (উচ্চ পরিবাহী)</td></tr>
+              <tr><td>বিদ্যুৎ পরিবাহক সত্তা</td><td>মুক্ত Na⁺ ও Cl⁻ আয়ন</td></tr>
+              <tr><td>যৌগের প্রকৃতি</td><td>আয়নিক তড়িৎ বিশ্লেষ্য</td></tr>
+            </table>
+          </div>
+
+          <div class="mini-quiz">
+            <div class="quiz-stem">❓ কুইজ: শুষ্ক কঠিন সোডিয়াম ক্লোরাইড বিদ্যুৎ পরিবহন করে না কেন?</div>
+            <div class="quiz-options">
+              <button class="quiz-opt" onclick="checkQuiz(this, true, 'cq2-fb', 'সঠিক! কঠিন অবস্থায় Na+ ও Cl- আয়নগুলো ত্রিমাত্রিক স্ফটিক জালিকায় দৃঢ়ভাবে আবদ্ধ থাকে, ফলে মুক্ত আয়নের অভাবে বিদ্যুৎ চলে না।')">ক. আয়নগুলো জালিকায় আবদ্ধ থাকে, মুক্ত আয়ন নেই</button>
+              <button class="quiz-opt" onclick="checkQuiz(this, false, 'cq2-fb', 'ভুল! NaCl একটি সম্পূর্ণ আয়নিক যৌগ, কোনো সমযোজী রূপান্তর ঘটে না।')">খ. শুষ্ক অবস্থায় এটি সমযোজী হয়ে যায়</button>
+              <button class="quiz-opt" onclick="checkQuiz(this, false, 'cq2-fb', 'ভুল! কঠিন অবস্থায় ইলেকট্রনের চেয়েও মূল কারণ হলো আয়নের সচলতাহীনতা।')">গ. ধাতুটিতে মুক্ত ইলেকট্রন থাকে না</button>
+            </div>
+            <div id="cq2-fb" class="quiz-fb"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- MODULE 4: METALLIC BONDING                 -->
+    <!-- ========================================== -->
+    <div id="panel-metallic" class="sim-panel">
+      <div class="two-col">
+        <div class="canvas-card" style="padding: 10px;">
+          <div class="canvas-hud">
+            <span class="hud-chip" id="metal-voltage-hud">তড়িৎ বিভব: ০ V · নিরপেক্ষ সঞ্চরণ</span>
+            <span class="hud-chip" id="metal-temp-hud">তাপমাত্রা: ২৫°C</span>
+          </div>
+
+          <canvas id="metal-canvas" width="580" height="380" style="border-radius: 12px; background: #070b12;"></canvas>
+        </div>
+
+        <div class="controls-card">
+          <div class="ctrl-group">
+            <div class="ctrl-label">
+              <span>তড়িৎ বিভব প্রয়োগ (Voltage Drift)</span>
+              <span class="value-pill" id="metal-volt-label">০ V</span>
+            </div>
+            <input type="range" id="metal-volt-slider" min="-10" max="10" value="0" oninput="setMetalVoltage(this.value)">
+          </div>
+
+          <div class="ctrl-group">
+            <div class="ctrl-label">
+              <span>তাপমাত্রা বৃদ্ধি (Thermal Heat Conduction)</span>
+              <span class="value-pill" id="metal-temp-label">২৫°C</span>
+            </div>
+            <input type="range" id="metal-temp-slider" min="25" max="300" value="25" oninput="setMetalTemp(this.value)">
+          </div>
+
+          <div class="btn-row">
+            <button class="btn-action btn-teal" onclick="strikeHammer()">🔨 হাতুড়ির আঘাত (ঘাতসহনীয়তা টেস্ট)</button>
+            <button class="btn-action btn-secondary" onclick="resetMetal()">↺ স্বাভাবিক অবস্থা</button>
+          </div>
+
+          <div class="info-pane">
+            <h4>🌊 ইলেকট্রন সমুদ্র মডেল (Electron Sea Model)</h4>
+            <p>
+              ধাতব পরমাণুগুলো তাদের যোজ্যতা ইলেকট্রন ত্যাগ করে পারমাণবিক শাঁস (Positive Atomic Core) এর নিয়মিত ত্রিমাত্রিক স্ফটিক গঠন করে। ত্যাজ্য ইলেকট্রনগুলো নির্দিষ্ট কোনো পরমাণুর সাথে আবদ্ধ না থেকে সম্পূর্ণ স্ফটিকে সঞ্চরণশীল ইলেকট্রনের সাগর তৈরি করে।
+            </p>
+            <table class="data-table">
+              <tr><th>ধাতব বৈশিষ্ট্য</th><th>বৈজ্ঞানিক কারণ</th></tr>
+              <tr><td>বিদ্যুৎ পরিবাহিতা</td><td>বিভব দিলে সঞ্চরণশীল ইলেকট্রন পজিটিভ প্রান্তের দিকে ধাবিত হয়</td></tr>
+              <tr><td>তাপ পরিবাহিতা</td><td>উত্তপ্ত প্রান্তের ইলেকট্রন শক্তি নিয়ে দ্রুত ঠান্ডা প্রান্তে ছোটে</td></tr>
+              <tr><td>ঘাতসহনীয়তা (Malleable)</td><td>আঘাতে আয়ন স্তর পিছলে যায় কিন্তু ইলেকট্রন আঠা নষ্ট হয় না</td></tr>
+              <tr><td>ধাতব দ্যুতি (Lustre)</td><td>মুক্ত ইলেকট্রনে আপতিত আলো প্রতিফলিত হয়ে দ্যুতি ছড়ায়</td></tr>
+            </table>
+          </div>
+
+          <div class="mini-quiz">
+            <div class="quiz-stem">❓ কুইজ: ধাতুকে পিটিয়ে পাতলা পাতে রূপান্তর করা যায় কেন?</div>
+            <div class="quiz-options">
+              <button class="quiz-opt" onclick="checkQuiz(this, true, 'mq-fb', 'সঠিক! ধাতুর স্তর স্থানান্তরিত হলেও সঞ্চরণশীল ইলেকট্রন সমুদ্র অবিলম্বে নতুন স্থানে বন্ধন বজায় রাখে, ফলে ধাতুটি ভেঙে না গিয়ে প্রসারিত হয়।')">ক. ইলেকট্রন সাগর স্তরের বিচ্যুতির পরও বন্ধন অটুট রাখে</button>
+              <button class="quiz-opt" onclick="checkQuiz(this, false, 'mq-fb', 'ভুল! আয়নিক যৌগ ভঙ্গুর হয় কারণ সমধর্মী আয়ন মুখোমুখি হয়ে বিকর্ষণ করে, ধাতুতে তা হয় না।')">খ. ধাতব আয়নগুলো একে অপরকে বিকর্ষণ করে ভেঙে যায়</button>
+              <button class="quiz-opt" onclick="checkQuiz(this, false, 'mq-fb', 'ভুল! ধাতব বন্ধন অত্যন্ত শক্তিশালী বল।')">গ. ধাতব বন্ধন খুব দুর্বল তাই সহজেই নমনীয়</button>
+            </div>
+            <div id="mq-fb" class="quiz-fb"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  /* =========================================================================
+     PORI CHEMICAL BONDING SIMULATOR - VANILLA JS ENGINE (NO EXTERNAL DEPS)
+     ========================================================================= */
+
+  function bn(n) {
+    return String(n).replace(/\d/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+  }
+
+  // --- TAB NAVIGATION ---
+  function switchLab(mode) {
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.sim-panel').forEach(p => p.classList.remove('active'));
+
+    const btnIdx = { ionic: 0, covalent: 1, conduct: 2, metallic: 3 }[mode];
+    document.querySelectorAll('.nav-btn')[btnIdx].classList.add('active');
+    document.getElementById('panel-' + mode).classList.add('active');
+
+    if (mode === 'covalent') {
+      renderCovalentMolecule();
+    } else if (mode === 'conduct') {
+      updateConductivityScene();
+    } else if (mode === 'metallic') {
+      startMetalCanvas();
+    }
+  }
+
+  // --- QUIZ HELPER ---
+  function checkQuiz(btn, isCorrect, fbId, explanation) {
+    const parent = btn.parentElement;
+    parent.querySelectorAll('.quiz-opt').forEach(b => {
+      b.classList.remove('correct', 'wrong');
+      b.disabled = true;
+    });
+
+    const fb = document.getElementById(fbId);
+    fb.style.display = 'block';
+
+    if (isCorrect) {
+      btn.classList.add('correct');
+      fb.style.background = 'rgba(34, 197, 94, 0.15)';
+      fb.style.color = '#86efac';
+      fb.innerHTML = '✅ ' + explanation;
+    } else {
+      btn.classList.add('wrong');
+      fb.style.background = 'rgba(239, 68, 68, 0.15)';
+      fb.style.color = '#fca5a5';
+      fb.innerHTML = '❌ ' + explanation;
+    }
+  }
+
+
+  /* =========================================================================
+     MODULE 1: IONIC BONDING ENGINE
+     ========================================================================= */
+  let ionicAnimId = null;
+  let isLatticeOpen = false;
+
+  function updateIonicTransfer(val) {
+    const p = val / 100;
+    document.getElementById('ionic-progress-label').textContent = bn(Math.round(val)) + '%';
+
+    // Move transferring electron from Na (x=95, y=0 relative to Na at 180 -> world x=275)
+    // to Cl vacancy at (x=-95, y=0 relative to Cl at 420 -> world x=325)
+    const startX = 95;
+    const endX = 240 - 95; // relative to Na: 240 is distance between Na(180) and Cl(420)
+    const currentX = startX + (endX - startX) * p;
+    // Arc trajectory
+    const currentY = -Math.sin(p * Math.PI) * 45;
+
+    const el = document.getElementById('transfer-electron');
+    el.setAttribute('cx', currentX);
+    el.setAttribute('cy', currentY);
+
+    // Shell 3 of Na fades as electron leaves
+    const naShell3 = document.getElementById('na-shell-3');
+    naShell3.style.opacity = Math.max(0.15, 1 - p * 0.85);
+
+    // Na radius shrinks from 186pm to 102pm
+    const naNuc = document.getElementById('na-nucleus');
+    const naR = 22 - (5 * p);
+    naNuc.setAttribute('r', naR);
+
+    // Cl radius expands from 99pm to 181pm
+    const clNuc = document.getElementById('cl-nucleus');
+    const clR = 22 + (4 * p);
+    clNuc.setAttribute('r', clR);
+
+    // Charge Badges
+    document.getElementById('na-charge-badge').style.opacity = p > 0.8 ? (p - 0.8) * 5 : 0;
+    document.getElementById('cl-charge-badge').style.opacity = p > 0.8 ? (p - 0.8) * 5 : 0;
+
+    // Force vector line
+    document.getElementById('ionic-force-layer').style.opacity = p;
+    document.getElementById('ionic-force-hud').textContent = 'স্থির বৈদ্যুতিক বল: ' + bn(Math.round(p * 100)) + '%';
+
+    // HUD & text labels
+    if (p >= 0.95) {
+      document.getElementById('ionic-state-hud').textContent = 'অবস্থা: Na⁺ ক্যাটায়ন ও Cl⁻ অ্যানায়ন (আয়নিক বন্ধন সম্পন্ন)';
+      document.getElementById('na-label').textContent = 'সোডিয়াম আয়ন (Na⁺: 2, 8)';
+      document.getElementById('na-sub').textContent = 'আয়ন ব্যাসার্ধ: ১০২ pm (সংকুচিত)';
+      document.getElementById('cl-label').textContent = 'ক্লোরাইড আয়ন (Cl⁻: 2, 8, 8)';
+      document.getElementById('cl-sub').textContent = 'আয়ন ব্যাসার্ধ: ১৮১ pm (প্রসারিত)';
+      document.getElementById('cl-vacancy').setAttribute('stroke', '#a3e635');
+    } else {
+      document.getElementById('ionic-state-hud').textContent = 'অবস্থা: নিরপেক্ষ সোডিয়াম ও ক্লোরিন পরমাণু';
+      document.getElementById('na-label').textContent = 'সোডিয়াম পরমাণু (Na: 2, 8, 1)';
+      document.getElementById('na-sub').textContent = 'পারমাণবিক ব্যাসার্ধ: ১৮৬ pm';
+      document.getElementById('cl-label').textContent = 'ক্লোরিন পরমাণু (Cl: 2, 8, 7)';
+      document.getElementById('cl-sub').textContent = 'পারমাণবিক ব্যাসার্ধ: ৯৯ pm';
+      document.getElementById('cl-vacancy').setAttribute('stroke', '#f43f5e');
+    }
+  }
+
+  function animateIonicTransfer() {
+    let p = 0;
+    cancelAnimationFrame(ionicAnimId);
+    function step() {
+      p += 1.5;
+      if (p > 100) p = 100;
+      document.getElementById('ionic-slider').value = p;
+      updateIonicTransfer(p);
+      if (p < 100) {
+        ionicAnimId = requestAnimationFrame(step);
+      }
+    }
+    step();
+  }
+
+  function resetIonic() {
+    cancelAnimationFrame(ionicAnimId);
+    document.getElementById('ionic-slider').value = 0;
+    updateIonicTransfer(0);
+    if (isLatticeOpen) toggleLatticeView();
+  }
+
+  function toggleLatticeView() {
+    isLatticeOpen = !isLatticeOpen;
+    const view = document.getElementById('lattice-view');
+    const btn = document.getElementById('toggle-lattice-btn');
+    if (isLatticeOpen) {
+      view.style.display = 'block';
+      btn.textContent = '❌ ল্যাটিস ভিউ বন্ধ করো';
+      buildLatticeGrid();
+    } else {
+      view.style.display = 'none';
+      btn.textContent = '🧊 ক্রিস্টাল ল্যাটিস ভিউ';
+    }
+  }
+
+  function buildLatticeGrid() {
+    const g = document.getElementById('lattice-grid');
+    g.innerHTML = '';
+    const rows = 4, cols = 6;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const isNa = (r + c) % 2 === 0;
+        const x = c * 50;
+        const y = r * 50;
+
+        // Connector lines
+        if (c < cols - 1) {
+          const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          l.setAttribute('x1', x); l.setAttribute('y1', y);
+          l.setAttribute('x2', x + 50); l.setAttribute('y2', y);
+          l.setAttribute('stroke', '#334155'); l.setAttribute('stroke-width', '2');
+          g.appendChild(l);
+        }
+        if (r < rows - 1) {
+          const l = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          l.setAttribute('x1', x); l.setAttribute('y1', y);
+          l.setAttribute('x2', x); l.setAttribute('y2', y + 50);
+          l.setAttribute('stroke', '#334155'); l.setAttribute('stroke-width', '2');
+          g.appendChild(l);
+        }
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', x);
+        circle.setAttribute('cy', y);
+        circle.setAttribute('r', isNa ? '12' : '17');
+        circle.setAttribute('fill', isNa ? '#0284c7' : '#65a30d');
+        circle.setAttribute('stroke', '#fff');
+        circle.setAttribute('stroke-width', '1.5');
+        g.appendChild(circle);
+
+        const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        txt.setAttribute('x', x);
+        txt.setAttribute('y', y + 4);
+        txt.setAttribute('fill', '#fff');
+        txt.setAttribute('font-size', '10');
+        txt.setAttribute('font-weight', 'bold');
+        txt.setAttribute('text-anchor', 'middle');
+        txt.textContent = isNa ? 'Na⁺' : 'Cl⁻';
+        g.appendChild(txt);
+      }
+    }
+  }
+
+
+  /* =========================================================================
+     MODULE 2: COVALENT BONDING ENGINE
+     ========================================================================= */
+  let currentMol = 'H2O';
+  let covalentSharingPct = 100;
+  let covalentRotate = true;
+  let covalentAngle = 0;
+  let covalentAnimTimer = null;
+
+  const molData = {
+    H2O: {
+      name: 'পানি (H₂O)',
+      title: 'অণু: পানি (H₂O) — সমযোজী একক বন্ধন',
+      bplp: 'bp: ২ জোড়া · lp: ২ জোড়া',
+      infoTitle: '💧 পানির সমযোজী বন্ধন',
+      infoDesc: 'অক্সিজেনের সর্ববহিঃস্থ স্তরে ৬টি ইলেকট্রন থাকে। ২টি হাইড্রোজেন পরমাণুর সাথে ২টি ইলেকট্রন শেয়ারের মাধ্যমে ২টি একক সমযোজী বন্ধন গঠন করে। এখানে বন্ধনজোড় (Bond Pair) ইলেকট্রন ২ জোড়া এবং অবিভাজিত মুক্তজোড় (Lone Pair) ইলেকট্রন ২ জোড়া।',
+      table: [
+        ['বন্ধনজোড় (bp)', '২ জোড়া (৪টি e-)'],
+        ['মুক্তজোড় (lp)', '২ জোড়া (৪টি e-)'],
+        ['বন্ধনের ধরন', 'পোলার সমযোজী একক বন্ধন (O-H)'],
+        ['বন্ধন কোণ', '১০৪.৫° (কৌণিক বিকৃতি)']
+      ]
+    },
+    CH4: {
+      name: 'মিথেন (CH₄)',
+      title: 'অণু: মিথেন (CH₄) — ৪টি সমযোজী একক বন্ধন',
+      bplp: 'bp: ৪ জোড়া · lp: ০ জোড়া',
+      infoTitle: '🔥 মিথেনের সমযোজী বন্ধন',
+      infoDesc: 'কার্বনের যোজ্যতা স্তরে ৪টি ইলেকট্রন থাকে। ৪টি হাইড্রোজেন পরমাণুর সাথে ৪টি ইলেকট্রন শেয়ার করে ৪টি সমযোজী একক বন্ধন (C-H) তৈরি করে। কোনো মুক্তজোড় থাকে না, সুষম চতুস্তলকীয় গঠন লাভ করে।',
+      table: [
+        ['বন্ধনজোড় (bp)', '৪ জোড়া (৮টি e-)'],
+        ['মুক্তজোড় (lp)', '০ জোড়া (সব বন্ধনে আবদ্ধ)'],
+        ['বন্ধনের ধরন', 'সমযোজী একক বন্ধন (C-H)'],
+        ['বন্ধন কোণ', '১০৯.৫° (চতুস্তলকীয়)']
+      ]
+    },
+    O2: {
+      name: 'অক্সিজেন গ্যাস (O₂)',
+      title: 'অণু: অক্সিজেন (O₂) — সমযোজী দ্বিবন্ধন (O=O)',
+      bplp: 'bp: ২ জোড়া (দ্বিবন্ধন) · lp: ৪ জোড়া',
+      infoTitle: '🫧 অক্সিজেনের সমযোজী দ্বিবন্ধন',
+      infoDesc: 'প্রতিটি অক্সিজেন পরমাণুর যোজ্যতা স্তরে ৬টি করে ইলেকট্রন থাকে। অষ্টক পূরণের জন্য প্রতিটি পরমাণু ২টি করে ইলেকট্রন শেয়ার করে মোট ২ জোড়া শেয়ারকৃত ইলেকট্রন দিয়ে একটি দ্বিবন্ধন (O=O) গঠন করে। প্রতিটি অক্সিজেনে ২টি করে মোট ৪ জোড়া মুক্তজোড় থাকে।',
+      table: [
+        ['বন্ধনজোড় (bp)', '২ জোড়া (৪টি e-, দ্বিবন্ধন)'],
+        ['মুক্তজোড় (lp)', '৪ জোড়া (৮টি e-)'],
+        ['বন্ধনের ধরন', 'সমযোজী দ্বিবন্ধন (O=O)'],
+        ['অষ্টক স্থিতি', 'উভয় পরমাণুতেই ৮টি e-']
+      ]
+    },
+    HCl: {
+      name: 'হাইড্রোজেন ক্লোরাইড (HCl)',
+      title: 'অণু: হাইড্রোজেন ক্লোরাইড (HCl) — পোলার সমযোজী',
+      bplp: 'bp: ১ জোড়া · lp: ৩ জোড়া',
+      infoTitle: '🧪 হাইড্রোজেন ক্লোরাইডের পোলার বন্ধন',
+      infoDesc: 'হাইড্রোজেনের ১টি ও ক্লোরিনের ১টি ইলেকট্রন শেয়ার করে ১টি সমযোজী একক বন্ধন গঠন করে। ক্লোরিনের তড়িৎ ঋণাত্মকতা (৩.০) হাইড্রোজেনের (২.১) চেয়ে বেশি হওয়ায় শেয়ারকৃত ইলেকট্রনজোড় Cl-এর দিকে বেশি ঝুঁকে থাকে। ফলে H আংশিক ধনাত্মক (δ+) এবং Cl আংশিক ঋণাত্মক (δ-) হয়।',
+      table: [
+        ['বন্ধনজোড় (bp)', '১ জোড়া (H-Cl)'],
+        ['মুক্তজোড় (lp)', '৩ জোড়া (Cl এর উপর)'],
+        ['তড়িৎ ঋণাত্মকতা পার্থক্য', '৩.০ - ২.১ = ০.৯ (পোলার)'],
+        ['পোলারিটি', 'H(δ⁺) — Cl(δ⁻) ডাইপোল']
+      ]
+    }
+  };
+
+  function selectCovalentMol(mol) {
+    currentMol = mol;
+    document.querySelectorAll('.select-grid .select-item').forEach((item, idx) => {
+      const keys = ['H2O', 'CH4', 'O2', 'HCl'];
+      item.classList.toggle('active', keys[idx] === mol);
+    });
+
+    const d = molData[mol];
+    document.getElementById('covalent-molecule-title').textContent = d.title;
+    document.getElementById('covalent-bp-lp').textContent = d.bplp;
+    document.getElementById('cov-info-title').textContent = d.infoTitle;
+    document.getElementById('cov-info-desc').textContent = d.infoDesc;
+
+    const tbl = document.getElementById('cov-data-table');
+    tbl.innerHTML = '<tr><th>প্যারামিটার</th><th>মান</th></tr>' +
+      d.table.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
+
+    renderCovalentMolecule();
+  }
+
+  function updateCovalentSharing(val) {
+    covalentSharingPct = val;
+    document.getElementById('covalent-share-pct').textContent = bn(val) + '%';
+    renderCovalentMolecule();
+  }
+
+  function toggleCovalentElectrons() {
+    covalentRotate = !covalentRotate;
+  }
+
+  function resetCovalent() {
+    covalentSharingPct = 100;
+    document.getElementById('covalent-slider').value = 100;
+    document.getElementById('covalent-share-pct').textContent = '১০০%';
+    renderCovalentMolecule();
+  }
+
+  function renderCovalentMolecule() {
+    const svg = document.getElementById('covalent-svg');
+    svg.innerHTML = '';
+    const p = covalentSharingPct / 100;
+
+    if (currentMol === 'H2O') {
+      renderWaterSVG(svg, p);
+    } else if (currentMol === 'CH4') {
+      renderMethaneSVG(svg, p);
+    } else if (currentMol === 'O2') {
+      renderOxygenSVG(svg, p);
+    } else if (currentMol === 'HCl') {
+      renderHClSVG(svg, p);
+    }
+  }
+
+  function renderWaterSVG(svg, p) {
+    // Central Oxygen at (300, 190)
+    const cx = 300, cy = 190;
+    const baseDist = 140;
+    const actualDist = baseDist - (45 * p);
+
+    // H1 at 145 deg, H2 at 35 deg (approx 104.5 deg separation)
+    const ang1 = 145 * Math.PI / 180;
+    const ang2 = 35 * Math.PI / 180;
+
+    const h1x = cx - Math.cos(ang1) * actualDist;
+    const h1y = cy + Math.sin(ang1) * actualDist;
+    const h2x = cx + Math.cos(ang2) * actualDist;
+    const h2y = cy + Math.sin(ang2) * actualDist;
+
+    // Shared overlap regions (ellipses)
+    if (p > 0.4) {
+      const o1 = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+      o1.setAttribute('cx', (cx + h1x) / 2);
+      o1.setAttribute('cy', (cy + h1y) / 2);
+      o1.setAttribute('rx', 28 * p);
+      o1.setAttribute('ry', 18 * p);
+      o1.setAttribute('fill', 'rgba(20, 184, 166, 0.25)');
+      o1.setAttribute('stroke', '#14b8a6');
+      o1.setAttribute('stroke-dasharray', '2,2');
+      svg.appendChild(o1);
+
+      const o2 = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+      o2.setAttribute('cx', (cx + h2x) / 2);
+      o2.setAttribute('cy', (cy + h2y) / 2);
+      o2.setAttribute('rx', 28 * p);
+      o2.setAttribute('ry', 18 * p);
+      o2.setAttribute('fill', 'rgba(20, 184, 166, 0.25)');
+      o2.setAttribute('stroke', '#14b8a6');
+      o2.setAttribute('stroke-dasharray', '2,2');
+      svg.appendChild(o2);
+    }
+
+    // Oxygen Valence Shell
+    const oShell = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    oShell.setAttribute('cx', cx); oShell.setAttribute('cy', cy);
+    oShell.setAttribute('r', '75');
+    oShell.setAttribute('fill', 'none'); oShell.setAttribute('stroke', '#fb923c');
+    oShell.setAttribute('stroke-width', '2');
+    svg.appendChild(oShell);
+
+    // Oxygen Nucleus
+    const oNuc = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    oNuc.setAttribute('cx', cx); oNuc.setAttribute('cy', cy);
+    oNuc.setAttribute('r', '24');
+    oNuc.setAttribute('fill', '#ea580c');
+    svg.appendChild(oNuc);
+
+    const oText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    oText.setAttribute('x', cx); oText.setAttribute('y', cy + 5);
+    oText.setAttribute('fill', '#fff'); oText.setAttribute('font-weight', 'bold');
+    oText.setAttribute('text-anchor', 'middle');
+    oText.textContent = 'O (δ⁻)';
+    svg.appendChild(oText);
+
+    // 2 Lone Pairs on Oxygen (Top-left & Top-right)
+    drawLonePair(svg, cx - 25, cy - 68);
+    drawLonePair(svg, cx + 25, cy - 68);
+
+    // Hydrogen 1
+    renderHydrogen(svg, h1x, h1y, 'H₁ (δ⁺)');
+    // Hydrogen 2
+    renderHydrogen(svg, h2x, h2y, 'H₂ (δ⁺)');
+
+    // Shared electron pairs in bond
+    drawSharedPair(svg, (cx + h1x) / 2, (cy + h1y) / 2, 8);
+    drawSharedPair(svg, (cx + h2x) / 2, (cy + h2y) / 2, -8);
+
+    // Bond angle arc
+    const arc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    arc.setAttribute('d', `M ${cx - 30} ${cy + 30} Q ${cx} ${cy + 45} ${cx + 30} ${cy + 30}`);
+    arc.setAttribute('stroke', '#94a3b8'); arc.setAttribute('stroke-width', '1.5'); arc.setAttribute('fill', 'none');
+    svg.appendChild(arc);
+
+    const angleTxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    angleTxt.setAttribute('x', cx); angleTxt.setAttribute('y', cy + 62);
+    angleTxt.setAttribute('fill', '#facc15'); angleTxt.setAttribute('font-size', '12'); angleTxt.setAttribute('font-weight', 'bold');
+    angleTxt.setAttribute('text-anchor', 'middle');
+    angleTxt.textContent = '১০৪.৫°';
+    svg.appendChild(angleTxt);
+  }
+
+  function renderMethaneSVG(svg, p) {
+    const cx = 300, cy = 190;
+    const d = 135 - (40 * p);
+
+    // Carbon Shell
+    const cShell = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    cShell.setAttribute('cx', cx); cShell.setAttribute('cy', cy);
+    cShell.setAttribute('r', '70');
+    cShell.setAttribute('fill', 'none'); cShell.setAttribute('stroke', '#a855f7');
+    cShell.setAttribute('stroke-width', '2');
+    svg.appendChild(cShell);
+
+    // Carbon Nucleus
+    const cNuc = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    cNuc.setAttribute('cx', cx); cNuc.setAttribute('cy', cy);
+    cNuc.setAttribute('r', '24');
+    cNuc.setAttribute('fill', '#7e22ce');
+    svg.appendChild(cNuc);
+
+    const cText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    cText.setAttribute('x', cx); cText.setAttribute('y', cy + 5);
+    cText.setAttribute('fill', '#fff'); cText.setAttribute('font-weight', 'bold');
+    cText.setAttribute('text-anchor', 'middle');
+    cText.textContent = 'C (6p)';
+    svg.appendChild(cText);
+
+    // 4 Hydrogens (Top, Bottom, Left, Right)
+    const coords = [
+      { x: cx, y: cy - d, label: 'H' },
+      { x: cx, y: cy + d, label: 'H' },
+      { x: cx - d, y: cy, label: 'H' },
+      { x: cx + d, y: cy, label: 'H' }
+    ];
+
+    coords.forEach(h => {
+      renderHydrogen(svg, h.x, h.y, h.label);
+      drawSharedPair(svg, (cx + h.x) / 2, (cy + h.y) / 2, 0);
+    });
+
+    const angleTxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    angleTxt.setAttribute('x', cx + 60); angleTxt.setAttribute('y', cy - 50);
+    angleTxt.setAttribute('fill', '#facc15'); angleTxt.setAttribute('font-size', '12'); angleTxt.setAttribute('font-weight', 'bold');
+    angleTxt.textContent = '১০৯.৫° (চতুস্তলকীয়)';
+    svg.appendChild(angleTxt);
+  }
+
+  function renderOxygenSVG(svg, p) {
+    const o1x = 210 + (25 * (1 - p));
+    const o2x = 390 - (25 * (1 - p));
+    const cy = 190;
+
+    // O1
+    const s1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    s1.setAttribute('cx', o1x); s1.setAttribute('cy', cy); s1.setAttribute('r', '75');
+    s1.setAttribute('fill', 'none'); s1.setAttribute('stroke', '#fb923c'); s1.setAttribute('stroke-width', '2');
+    svg.appendChild(s1);
+
+    const n1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    n1.setAttribute('cx', o1x); n1.setAttribute('cy', cy); n1.setAttribute('r', '24');
+    n1.setAttribute('fill', '#ea580c');
+    svg.appendChild(n1);
+
+    const t1 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t1.setAttribute('x', o1x); t1.setAttribute('y', cy + 5);
+    t1.setAttribute('fill', '#fff'); t1.setAttribute('font-weight', 'bold'); t1.setAttribute('text-anchor', 'middle');
+    t1.textContent = 'O₁';
+    svg.appendChild(t1);
+
+    // O2
+    const s2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    s2.setAttribute('cx', o2x); s2.setAttribute('cy', cy); s2.setAttribute('r', '75');
+    s2.setAttribute('fill', 'none'); s2.setAttribute('stroke', '#fb923c'); s2.setAttribute('stroke-width', '2');
+    svg.appendChild(s2);
+
+    const n2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    n2.setAttribute('cx', o2x); n2.setAttribute('cy', cy); n2.setAttribute('r', '24');
+    n2.setAttribute('fill', '#ea580c');
+    svg.appendChild(n2);
+
+    const t2 = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    t2.setAttribute('x', o2x); t2.setAttribute('y', cy + 5);
+    t2.setAttribute('fill', '#fff'); t2.setAttribute('font-weight', 'bold'); t2.setAttribute('text-anchor', 'middle');
+    t2.textContent = 'O₂';
+    svg.appendChild(t2);
+
+    // Lone pairs on O1 (2 pairs: left top, left bottom)
+    drawLonePair(svg, o1x - 70, cy - 25);
+    drawLonePair(svg, o1x - 70, cy + 25);
+
+    // Lone pairs on O2 (2 pairs: right top, right bottom)
+    drawLonePair(svg, o2x + 70, cy - 25);
+    drawLonePair(svg, o2x + 70, cy + 25);
+
+    // DOUBLE BOND: 2 pairs of shared electrons in the middle
+    const midX = (o1x + o2x) / 2;
+    drawSharedPair(svg, midX - 6, cy - 14, 0);
+    drawSharedPair(svg, midX + 6, cy + 14, 0);
+
+    const dubTxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    dubTxt.setAttribute('x', midX); dubTxt.setAttribute('y', cy + 65);
+    dubTxt.setAttribute('fill', '#38bdf8'); dubTxt.setAttribute('font-size', '13'); dubTxt.setAttribute('font-weight', 'bold');
+    dubTxt.setAttribute('text-anchor', 'middle');
+    dubTxt.textContent = 'O = O (দ্বিবন্ধন, ৪টি e⁻ শেয়ার)';
+    svg.appendChild(dubTxt);
+  }
+
+  function renderHClSVG(svg, p) {
+    const hx = 210 + (20 * (1 - p));
+    const clx = 380 - (20 * (1 - p));
+    const cy = 190;
+
+    // Chlorine Shells (K, L, M)
+    const clM = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    clM.setAttribute('cx', clx); clM.setAttribute('cy', cy); clM.setAttribute('r', '85');
+    clM.setAttribute('fill', 'none'); clM.setAttribute('stroke', '#a3e635'); clM.setAttribute('stroke-width', '2');
+    svg.appendChild(clM);
+
+    const clNuc = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    clNuc.setAttribute('cx', clx); clNuc.setAttribute('cy', cy); clNuc.setAttribute('r', '24');
+    clNuc.setAttribute('fill', '#65a30d');
+    svg.appendChild(clNuc);
+
+    const clTxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    clTxt.setAttribute('x', clx); clTxt.setAttribute('y', cy + 5);
+    clTxt.setAttribute('fill', '#fff'); clTxt.setAttribute('font-weight', 'bold'); clTxt.setAttribute('text-anchor', 'middle');
+    clTxt.textContent = 'Cl (δ⁻)';
+    svg.appendChild(clTxt);
+
+    // 3 Lone pairs on Cl
+    drawLonePair(svg, clx, cy - 80);
+    drawLonePair(svg, clx + 80, cy);
+    drawLonePair(svg, clx, cy + 80);
+
+    // Hydrogen
+    renderHydrogen(svg, hx, cy, 'H (δ⁺)');
+
+    // Shared pair shifted towards Cl due to electronegativity (3.0 vs 2.1)
+    const bondX = (hx + clx) / 2 + 15;
+    drawSharedPair(svg, bondX, cy, 0);
+
+    const dipTxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    dipTxt.setAttribute('x', (hx + clx) / 2); dipTxt.setAttribute('y', cy + 65);
+    dipTxt.setAttribute('fill', '#f43f5e'); dipTxt.setAttribute('font-size', '13'); dipTxt.setAttribute('font-weight', 'bold');
+    dipTxt.setAttribute('text-anchor', 'middle');
+    dipTxt.textContent = 'পোলার ডাইপোল: H(δ⁺) — Cl(δ⁻)';
+    svg.appendChild(dipTxt);
+  }
+
+  function renderHydrogen(svg, x, y, label) {
+    const hShell = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    hShell.setAttribute('cx', x); hShell.setAttribute('cy', y);
+    hShell.setAttribute('r', '38');
+    hShell.setAttribute('fill', 'none'); hShell.setAttribute('stroke', '#f43f5e');
+    hShell.setAttribute('stroke-width', '1.5');
+    svg.appendChild(hShell);
+
+    const hNuc = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    hNuc.setAttribute('cx', x); hNuc.setAttribute('cy', y);
+    hNuc.setAttribute('r', '15');
+    hNuc.setAttribute('fill', '#e11d48');
+    svg.appendChild(hNuc);
+
+    const hTxt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    hTxt.setAttribute('x', x); hTxt.setAttribute('y', y + 4);
+    hTxt.setAttribute('fill', '#fff'); hTxt.setAttribute('font-size', '11'); hTxt.setAttribute('font-weight', 'bold');
+    hTxt.setAttribute('text-anchor', 'middle');
+    hTxt.textContent = label;
+    svg.appendChild(hTxt);
+  }
+
+  function drawLonePair(svg, x, y) {
+    const e1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    e1.setAttribute('cx', x - 5); e1.setAttribute('cy', y); e1.setAttribute('r', '4');
+    e1.setAttribute('fill', '#67e8f9'); svg.appendChild(e1);
+
+    const e2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    e2.setAttribute('cx', x + 5); e2.setAttribute('cy', y); e2.setAttribute('r', '4');
+    e2.setAttribute('fill', '#67e8f9'); svg.appendChild(e2);
+  }
+
+  function drawSharedPair(svg, x, y, offset) {
+    const e1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    e1.setAttribute('cx', x + offset); e1.setAttribute('cy', y - 7); e1.setAttribute('r', '4.5');
+    e1.setAttribute('fill', '#f43f5e'); svg.appendChild(e1);
+
+    const e2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    e2.setAttribute('cx', x - offset); e2.setAttribute('cy', y + 7); e2.setAttribute('r', '4.5');
+    e2.setAttribute('fill', '#38bdf8'); svg.appendChild(e2);
+  }
+
+
+  /* =========================================================================
+     MODULE 3: ELECTRICAL CONDUCTIVITY LAB ENGINE
+     ========================================================================= */
+  let isSwitchOn = false;
+  let currentElectrolyte = 'nacl-aq';
+  let ionAnimTimer = null;
+
+  const electrolytes = {
+    'nacl-aq': {
+      name: 'সোডিয়াম ক্লোরাইড জলীয় দ্রবণ (NaCl aq)',
+      bulb: 'ON_BRIGHT',
+      current: '৮৫.০ mA',
+      color: '#38bdf8',
+      desc: 'NaCl পানিতে সম্পূর্ণ বিয়োজিত হয়ে প্রচুর মুক্ত Na⁺ এবং Cl⁻ আয়ন তৈরি করে। এরা তীব্র গতিতে ক্যাথোডে ও অ্যানোডে গমন করে সর্বোচ্চ তড়িৎ প্রবাহ সৃষ্টি করে।',
+      table: [
+        ['বাল্বের অবস্থা', 'উজ্জ্বলভাবে জ্বলছে 💡'],
+        ['তড়িৎ প্রবাহ', '৮৫ mA (উচ্চ পরিবাহী)'],
+        ['সচল আয়ন', 'Na⁺ (ক্যাথোডে) ও Cl⁻ (অ্যানোডে)'],
+        ['তড়িৎ বিশ্লেষ্য শ্রেণি', 'তীব্র তড়িৎ বিশ্লেষ্য (Strong Electrolyte)']
+      ],
+      ions: [
+        { type: '+', label: 'Na⁺', color: '#38bdf8', speed: 1.5 },
+        { type: '-', label: 'Cl⁻', color: '#a3e635', speed: -1.5 }
+      ]
+    },
+    'nacl-solid': {
+      name: 'শুষ্ক সোডিয়াম ক্লোরাইড স্ফটিক (Solid NaCl)',
+      bulb: 'OFF',
+      current: '০.০ mA',
+      color: '#94a3b8',
+      desc: 'শুষ্ক কঠিন অবস্থায় Na⁺ ও Cl⁻ আয়নগুলো ত্রিমাত্রিক স্ফটিক জালিকায় দৃঢ়ভাবে আবদ্ধ থাকে। মুক্ত আয়ন না থাকায় কোনো তড়িৎ পরিবহন সম্ভব নয়।',
+      table: [
+        ['বাল্বের অবস্থা', 'সম্পূর্ণ নিভে আছে ❌'],
+        ['তড়িৎ প্রবাহ', '০.০ mA (অপরিবাহী)'],
+        ['মুক্ত আয়ন', 'অনুপস্থিত (জালিকায় আবদ্ধ)'],
+        ['সিদ্ধান্ত', 'কঠিন আয়নিক যৌগ বিদ্যুৎ পরিবহন করে না']
+      ],
+      ions: []
+    },
+    'sugar-aq': {
+      name: 'চিনির জলীয় দ্রবণ (Sugar aq: C₁₂H₂₂O₁₁)',
+      bulb: 'OFF',
+      current: '০.০ mA',
+      color: '#cbd5e1',
+      desc: 'চিনি একটি অপোলার/অ-আয়নিত সমযোজী যৌগ। পানিতে দ্রবীভূত হলেও এটি কোনো আয়নে বিশ্লিষ্ট হয় না, কেবল নিরপেক্ষ অণু হিসেবে ভেসে থাকে। তাই তড়িৎ অপরিবাহী।',
+      table: [
+        ['বাল্বের অবস্থা', 'সম্পূর্ণ নিভে আছে ❌'],
+        ['তড়িৎ প্রবাহ', '০.০ mA (অপরিবাহী)'],
+        ['দ্রবীভূত কণা', 'নিরপেক্ষ সুক্রোজ অণু'],
+        ['তড়িৎ বিশ্লেষ্য শ্রেণি', 'তড়িৎ অবিশ্লেষ্য (Non-electrolyte)']
+      ],
+      ions: [
+        { type: '0', label: 'C₁₂H₂₂O₁₁', color: '#94a3b8', speed: 0.2 }
+      ]
+    },
+    'pure-water': {
+      name: 'বিশুদ্ধ পাতিত পানি (Pure Distilled Water)',
+      bulb: 'OFF',
+      current: '০.০২ mA',
+      color: '#38bdf8',
+      desc: 'বিশুদ্ধ পানির স্বতঃআয়নন মাত্রা অত্যন্ত নগণ্য (10⁻⁷ M H⁺ ও OH⁻)। ফলে তড়িৎ প্রবাহ এতই কম যে সাধারণ বাল্ব জ্বালাতে পারে না।',
+      table: [
+        ['বাল্বের অবস্থা', 'নিভে আছে ❌'],
+        ['তড়িৎ প্রবাহ', '০.০২ mA (অতি সামান্য)'],
+        ['মুক্ত আয়ন', 'অতিক্ষুদ্র পরিমাণ H⁺ ও OH⁻'],
+        ['সিদ্ধান্ত', 'বিশুদ্ধ পানি কার্যত কুপরিবাহী']
+      ],
+      ions: []
+    },
+    'hcl-aq': {
+      name: 'লঘু হাইড্রোক্লোরিক অ্যাসিড (Dilute HCl aq)',
+      bulb: 'ON_BRIGHT',
+      current: '৯০.০ mA',
+      color: '#f43f5e',
+      desc: 'HCl একটি পোলার সমযোজী গ্যাস। কিন্তু পানিতে যুক্ত করলেই এটি সম্পূর্ণ আয়নিত হয়ে H₃O⁺ ও Cl⁻ আয়ন দেয়, যা প্রচণ্ড দ্রুততায় বিদ্যুৎ পরিবহন করে।',
+      table: [
+        ['বাল্বের অবস্থা', 'অত্যন্ত উজ্জ্বলভাবে জ্বলছে 💡'],
+        ['তড়িৎ প্রবাহ', '৯০ mA (সর্বোচ্চ)'],
+        ['সচল আয়ন', 'H⁺ (হাইড্রোনিয়াম) ও Cl⁻'],
+        ['তড়িৎ বিশ্লেষ্য শ্রেণি', 'তীব্র অ্যাসিড / তীব্র তড়িৎ বিশ্লেষ্য']
+      ],
+      ions: [
+        { type: '+', label: 'H⁺', color: '#f43f5e', speed: 2.0 },
+        { type: '-', label: 'Cl⁻', color: '#a3e635', speed: -1.6 }
+      ]
+    },
+    'cuso4-aq': {
+      name: 'কপার সালফেট জলীয় দ্রবণ (CuSO₄ aq)',
+      bulb: 'ON_BRIGHT',
+      current: '৭৫.০ mA',
+      color: '#0284c7',
+      desc: 'CuSO₄ পানিতে দ্রবীভূত হয়ে Cu²⁺ এবং SO₄²⁻ আয়নে বিভক্ত হয়। Cu²⁺ ক্যাথোডে গিয়ে ইলেকট্রন গ্রহণ করে তামা হিসেবে জমা হতে থাকে। বাল্ব উজ্জ্বলভাবে জ্বলে।',
+      table: [
+        ['বাল্বের অবস্থা', 'উজ্জ্বলভাবে জ্বলছে 💡'],
+        ['তড়িৎ প্রবাহ', '৭৫ mA (উচ্চ পরিবাহী)'],
+        ['সচল আয়ন', 'Cu²⁺ ও SO₄²⁻'],
+        ['তড়িৎ বিশ্লেষ্য শ্রেণি', 'তীব্র লবণ তড়িৎ বিশ্লেষ্য']
+      ],
+      ions: [
+        { type: '+', label: 'Cu²⁺', color: '#38bdf8', speed: 1.3 },
+        { type: '-', label: 'SO₄²⁻', color: '#f59e0b', speed: -1.3 }
+      ]
+    }
+  };
+
+  function selectElectrolyte(key) {
+    currentElectrolyte = key;
+    document.querySelectorAll('#panel-conduct .select-grid .select-item').forEach((item, idx) => {
+      const keys = ['nacl-aq', 'nacl-solid', 'sugar-aq', 'pure-water', 'hcl-aq', 'cuso4-aq'];
+      item.classList.toggle('active', keys[idx] === key);
+    });
+
+    const el = electrolytes[key];
+    document.getElementById('cond-info-title').textContent = el.name;
+    document.getElementById('cond-info-desc').textContent = el.desc;
+    document.getElementById('beaker-liquid-name').textContent = el.name;
+
+    const tbl = document.getElementById('cond-data-table');
+    tbl.innerHTML = '<tr><th>প্যারামিটার</th><th>পর্যবেক্ষণ</th></tr>' +
+      el.table.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
+
+    updateConductivityScene();
+  }
+
+  function toggleCircuitSwitch() {
+    isSwitchOn = !isSwitchOn;
+    const btn = document.getElementById('toggle-switch-btn');
+    const lever = document.getElementById('switch-lever');
+
+    if (isSwitchOn) {
+      btn.textContent = '❌ সুইচ অফ করো (Switch OFF)';
+      btn.classList.add('btn-secondary');
+      lever.setAttribute('x2', '40');
+      lever.setAttribute('y2', '0'); // closed contact
+    } else {
+      btn.textContent = '⚡ সুইচ অন করো (Switch ON)';
+      btn.classList.remove('btn-secondary');
+      lever.setAttribute('x2', '35');
+      lever.setAttribute('y2', '-22'); // open contact
+    }
+
+    updateConductivityScene();
+  }
+
+  function updateConductivityScene() {
+    const el = electrolytes[currentElectrolyte];
+    const bulbGlass = document.getElementById('bulb-glass');
+    const bulbFilament = document.getElementById('bulb-filament');
+    const bulbHalo = document.getElementById('bulb-halo-circle');
+    const currentArrows = document.getElementById('current-arrows');
+
+    const statusHud = document.getElementById('conduct-status-hud');
+    const curHud = document.getElementById('conduct-current-hud');
+
+    if (isSwitchOn && el.bulb === 'ON_BRIGHT') {
+      bulbGlass.setAttribute('fill', '#fef08a');
+      bulbFilament.setAttribute('stroke', '#ea580c');
+      bulbHalo.style.opacity = '1';
+      currentArrows.style.opacity = '1';
+      statusHud.textContent = 'সার্কিট: পূর্ণ (তড়িৎ সঞ্চালন চলছে)';
+      curHud.textContent = 'তড়িৎ প্রবাহ: ' + el.current;
+      startIonDrift(true);
+    } else {
+      bulbGlass.setAttribute('fill', '#334155');
+      bulbFilament.setAttribute('stroke', '#facc15');
+      bulbHalo.style.opacity = '0';
+      currentArrows.style.opacity = '0';
+      statusHud.textContent = isSwitchOn ? 'সার্কিট: অসম্পূর্ণ (আয়নহীন / অপরিবাহী দ্রবণ)' : 'সার্কিট: খোলা (সুইচ বন্ধ)';
+      curHud.textContent = 'তড়িৎ প্রবাহ: ০.০ mA';
+      startIonDrift(false);
+    }
+  }
+
+  let ionParticles = [];
+  function initIonParticles() {
+    const el = electrolytes[currentElectrolyte];
+    ionParticles = [];
+    const g = document.getElementById('solution-ions-layer');
+    g.innerHTML = '';
+
+    if (currentElectrolyte === 'nacl-solid') {
+      // Draw fixed crystal lattice in beaker
+      for (let r = 0; r < 4; r++) {
+        for (let c = 0; c < 5; c++) {
+          const isNa = (r + c) % 2 === 0;
+          const x = 70 + c * 25;
+          const y = 80 + r * 22;
+          const circ = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circ.setAttribute('cx', x); circ.setAttribute('cy', y);
+          circ.setAttribute('r', isNa ? '6' : '9');
+          circ.setAttribute('fill', isNa ? '#38bdf8' : '#a3e635');
+          g.appendChild(circ);
+        }
+      }
+      return;
+    }
+
+    if (!el.ions || el.ions.length === 0) return;
+
+    for (let i = 0; i < 18; i++) {
+      const typeObj = el.ions[i % el.ions.length];
+      ionParticles.push({
+        x: 60 + Math.random() * 120,
+        y: 65 + Math.random() * 95,
+        type: typeObj.type,
+        label: typeObj.label,
+        color: typeObj.color,
+        speed: typeObj.speed
+      });
+    }
+  }
+
+  function startIonDrift(active) {
+    initIonParticles();
+    cancelAnimationFrame(ionAnimTimer);
+    if (!active || ionParticles.length === 0) return;
+
+    const g = document.getElementById('solution-ions-layer');
+
+    function animateIons() {
+      g.innerHTML = '';
+      ionParticles.forEach(p => {
+        // Cations (+) move towards Cathode at x=40
+        // Anions (-) move towards Anode at x=180
+        if (p.type === '+') {
+          p.x -= 0.6;
+          if (p.x < 55) p.x = 165;
+        } else if (p.type === '-') {
+          p.x += 0.6;
+          if (p.x > 175) p.x = 65;
+        } else {
+          p.x += (Math.random() - 0.5) * 0.8;
+          p.y += (Math.random() - 0.5) * 0.8;
+        }
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', p.x); circle.setAttribute('cy', p.y);
+        circle.setAttribute('r', '7');
+        circle.setAttribute('fill', p.color);
+        g.appendChild(circle);
+
+        const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        txt.setAttribute('x', p.x); txt.setAttribute('y', p.y + 3);
+        txt.setAttribute('fill', '#090d16');
+        txt.setAttribute('font-size', '8');
+        txt.setAttribute('font-weight', '900');
+        txt.setAttribute('text-anchor', 'middle');
+        txt.textContent = p.label;
+        g.appendChild(txt);
+      });
+
+      ionAnimTimer = requestAnimationFrame(animateIons);
+    }
+    animateIons();
+  }
+
+
+  /* =========================================================================
+     MODULE 4: METALLIC BONDING & ELECTRON SEA (CANVAS ENGINE)
+     ========================================================================= */
+  let metalCanvas, metalCtx;
+  let metalVoltage = 0;
+  let metalTemp = 25;
+  let metalCores = [];
+  let seaElectrons = [];
+  let metalAnimRunning = false;
+  let hammerDisplacement = 0;
+
+  function initMetalData() {
+    metalCanvas = document.getElementById('metal-canvas');
+    metalCtx = metalCanvas.getContext('2d');
+
+    // Create 4x8 lattice of metallic cations (Fe2+ / Cu2+ cores)
+    metalCores = [];
+    const rows = 4, cols = 8;
+    const startX = 65, startY = 70;
+    const gapX = 65, gapY = 65;
+
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        metalCores.push({
+          origX: startX + c * gapX,
+          origY: startY + r * gapY,
+          x: startX + c * gapX,
+          y: startY + r * gapY,
+          r: 18,
+          row: r
+        });
+      }
+    }
+
+    // Create 160 delocalized electrons in the sea
+    seaElectrons = [];
+    for (let i = 0; i < 160; i++) {
+      seaElectrons.push({
+        x: Math.random() * 580,
+        y: Math.random() * 380,
+        vx: (Math.random() - 0.5) * 2,
+        vy: (Math.random() - 0.5) * 2
+      });
+    }
+  }
+
+  function startMetalCanvas() {
+    if (!metalCanvas) initMetalData();
+    if (!metalAnimRunning) {
+      metalAnimRunning = true;
+      requestAnimationFrame(loopMetal);
+    }
+  }
+
+  function setMetalVoltage(val) {
+    metalVoltage = parseFloat(val);
+    document.getElementById('metal-volt-label').textContent = bn(val) + ' V';
+    const hud = document.getElementById('metal-voltage-hud');
+    if (val > 0) {
+      hud.textContent = `তড়িৎ বিভব: +${bn(val)} V · ইলেকট্রন সমুদ্র বামে/ডানে ধাবিত`;
+    } else if (val < 0) {
+      hud.textContent = `তড়িৎ বিভব: ${bn(val)} V · বিপরীত দিকে প্রবাহ`;
+    } else {
+      hud.textContent = 'তড়িৎ বিভব: ০ V · নিরপেক্ষ এলোমেলো সঞ্চরণ';
+    }
+  }
+
+  function setMetalTemp(val) {
+    metalTemp = parseInt(val);
+    document.getElementById('metal-temp-label').textContent = bn(val) + '°C';
+    document.getElementById('metal-temp-hud').textContent = 'তাপমাত্রা: ' + bn(val) + '°C';
+  }
+
+  function strikeHammer() {
+    // Shift the top 2 rows to demonstrate malleability without bond breakage
+    hammerDisplacement = 35;
+    setTimeout(() => {
+      hammerDisplacement = 0;
+    }, 2500);
+  }
+
+  function resetMetal() {
+    metalVoltage = 0;
+    metalTemp = 25;
+    hammerDisplacement = 0;
+    document.getElementById('metal-volt-slider').value = 0;
+    document.getElementById('metal-temp-slider').value = 25;
+    setMetalVoltage(0);
+    setMetalTemp(25);
+  }
+
+  function loopMetal() {
+    if (!metalAnimRunning) return;
+    metalCtx.clearRect(0, 0, metalCanvas.width, metalCanvas.height);
+
+    // Thermal agitation factor
+    const thermalSpeed = 0.8 + (metalTemp - 25) / 100 * 1.8;
+    // Voltage drift factor
+    const driftX = (metalVoltage / 10) * 2.5;
+
+    // Draw Electron Sea Glow
+    const grad = metalCtx.createRadialGradient(290, 190, 40, 290, 190, 260);
+    grad.addColorStop(0, 'rgba(14, 165, 233, 0.12)');
+    grad.addColorStop(1, 'rgba(14, 165, 233, 0.02)');
+    metalCtx.fillStyle = grad;
+    metalCtx.fillRect(0, 0, metalCanvas.width, metalCanvas.height);
+
+    // Update and draw delocalized electrons
+    metalCtx.fillStyle = '#67e8f9';
+    seaElectrons.forEach(e => {
+      e.x += e.vx * thermalSpeed + driftX;
+      e.y += e.vy * thermalSpeed;
+
+      // Wrap-around edges
+      if (e.x < 0) e.x = metalCanvas.width;
+      if (e.x > metalCanvas.width) e.x = 0;
+      if (e.y < 0) e.y = metalCanvas.height;
+      if (e.y > metalCanvas.height) e.y = 0;
+
+      metalCtx.beginPath();
+      metalCtx.arc(e.x, e.y, 2.5, 0, Math.PI * 2);
+      metalCtx.fill();
+    });
+
+    // Draw Metallic Cations (Positive cores: Cu²⁺ / Fe²⁺)
+    metalCores.forEach(core => {
+      // Displace upper rows if hammer struck
+      const targetX = (core.row < 2 && hammerDisplacement > 0) ? core.origX + hammerDisplacement : core.origX;
+      core.x += (targetX - core.x) * 0.1;
+
+      // Core Outer Glow
+      metalCtx.beginPath();
+      metalCtx.arc(core.x, core.y, core.r, 0, Math.PI * 2);
+      metalCtx.fillStyle = '#b45309';
+      metalCtx.fill();
+      metalCtx.lineWidth = 2;
+      metalCtx.strokeStyle = '#fef08a';
+      metalCtx.stroke();
+
+      // Plus symbol
+      metalCtx.fillStyle = '#fff';
+      metalCtx.font = 'bold 11px system-ui';
+      metalCtx.textAlign = 'center';
+      metalCtx.textBaseline = 'middle';
+      metalCtx.fillText('M⁺', core.x, core.y);
+    });
+
+    // Overlay Voltage Arrows if active
+    if (Math.abs(metalVoltage) > 0.5) {
+      metalCtx.fillStyle = 'rgba(254, 240, 138, 0.85)';
+      metalCtx.font = 'bold 13px system-ui';
+      metalCtx.textAlign = 'center';
+      const dir = metalVoltage > 0 ? '▶ ইলেকট্রন প্রবাহ (ডানমুখী) ▶' : '◀ ইলেকট্রন প্রবাহ (বামমুখী) ◀';
+      metalCtx.fillText(dir, 290, 25);
+    }
+
+    requestAnimationFrame(loopMetal);
+  }
+
+  // Initial load
+  updateIonicTransfer(0);
+  renderCovalentMolecule();
+</script>
+
+</body>
+</html>

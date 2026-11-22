@@ -17,6 +17,18 @@ import { seedChapter11 } from './seed-chapter-11';
 import { seedChapter12 } from './seed-chapter-12';
 import { seedBiologyChapter1 } from './seed-biology-chapter-1';
 import { seedBiologyChapter2 } from './seed-biology-chapter-2';
+import { seedChemistryChapter1 } from './seed-chemistry-chapter-1';
+import { seedChemistryChapter2 } from './seed-chemistry-chapter-2';
+import { seedChemistryChapter3 } from './seed-chemistry-chapter-3';
+import { seedChemistryChapter4 } from './seed-chemistry-chapter-4';
+import { seedChemistryChapter5 } from './seed-chemistry-chapter-5';
+import { seedChemistryChapter6 } from './seed-chemistry-chapter-6';
+import { seedChemistryChapter7 } from './seed-chemistry-chapter-7';
+import { seedChemistryChapter8 } from './seed-chemistry-chapter-8';
+import { seedChemistryChapter9 } from './seed-chemistry-chapter-9';
+import { seedChemistryChapter10 } from './seed-chemistry-chapter-10';
+import { seedChemistryChapter11 } from './seed-chemistry-chapter-11';
+import { seedChemistryChapter12 } from './seed-chemistry-chapter-12';
 import { seedPhase2 } from './seed-phase2';
 
 export const sscPhysicsSubject = {
@@ -472,7 +484,21 @@ export async function seed(prisma: PrismaClient) {
   // 19. Seed SSC Biology Chapter 2 full curriculum and question bank
   await seedBiologyChapter2(prisma);
 
-  // 20. Seed Phase 2 tracks, 2020-2025 board questions, and pilot lesson audio
+  // 20. Seed SSC Chemistry Chapters 1 to 12 full curriculum and question bank
+  await seedChemistryChapter1(prisma);
+  await seedChemistryChapter2(prisma);
+  await seedChemistryChapter3(prisma);
+  await seedChemistryChapter4(prisma);
+  await seedChemistryChapter5(prisma);
+  await seedChemistryChapter6(prisma);
+  await seedChemistryChapter7(prisma);
+  await seedChemistryChapter8(prisma);
+  await seedChemistryChapter9(prisma);
+  await seedChemistryChapter10(prisma);
+  await seedChemistryChapter11(prisma);
+  await seedChemistryChapter12(prisma);
+
+  // 24. Seed Phase 2 tracks, 2020-2025 board questions, and pilot lesson audio
   await seedPhase2(prisma);
 }
 

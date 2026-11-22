@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৭.৪ জারণ সংখ্যা নির্ণয়ের নিয়মাবলি | পড়ি Chemistry</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body, {delimiters: [{left: '$$', right: '$$', display: true}, {left: '$', right: '$', display: false}]});"></script>
+  <script defer src="chem.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html">পড়ি <span>•</span> Chemistry</a>
+    <span class="crumb">অধ্যায় ৭ / ৭.৪</span>
+  </div>
+</header>
+
+<main>
+  <span class="badge">এনসিটিবি পাঠ্যবই · section ৭.৪ · পৃষ্ঠা ১৫৪–১৫৮</span>
+  <h1 class="title">জারণ সংখ্যা নির্ণয়ের নিয়মাবলি <small>(Oxidation Number Rules)</small></h1>
+  <p class="subtitle">যোজনী ও জারণ সংখ্যার তুলনামূলক পার্থক্য, ৮টি মূল নিয়ম, ব্যতিক্রমসমূহ (পারঅক্সাইড, সুপারঅক্সাইড) এবং জটিল যৌগে জারণ সংখ্যার গাণিতিক সমাধান।</p>
+
+  <section class="goal">
+    <h2>🎯 শিখনফল</h2>
+    <ul>
+      <li>যোজনী ও জারণ সংখ্যার সংজ্ঞাগত ও প্রায়োগিক পার্থক্য স্পষ্টভাবে লিপিবদ্ধ করতে পারবে।</li>
+      <li>NCTB পাঠ্যবইয়ের ৮টি মূল নিয়ম অনুসরণ করে যেকোনো যৌগ বা মূলকের কেন্দ্রীয় পরমাণুর জারণ সংখ্যা গণনা করতে পারবে।</li>
+      <li>অক্সিজেন ($H_2O_2$, $KO_2$, $OF_2$) ও হাইড্রোজেনের ($NaH$) ব্যতিক্রমী জারণ মানসমূহ ব্যাখ্যা করতে পারবে।</li>
+      <li>$H_2SO_4$, $KMnO_4$, $K_2Cr_2O_7$ ও $Cr_2O_7^{2-}$ এর মতো জটিল নমুনায় জারণ সংখ্যার গাণিতিক সমীকরণ সমাধান করতে পারবে।</li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2>১. যোজনী বনাম জারণ সংখ্যা (Valency vs Oxidation Number)</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>তুলনার বিষয়</th>
+            <th>যোজনী (Valency)</th>
+            <th>জারণ সংখ্যা (Oxidation Number)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><b>সংজ্ঞা</b></td>
+            <td>পরমাণুর অন্য পরমাণুর সাথে যুক্ত হওয়ার ক্ষমতা বা সামর্থ্য।</td>
+            <td>যৌগ গঠনের সময় পরমাণু কর্তৃক বর্জিত বা গৃহীত ইলেকট্রন সংখ্যা (চার্জসহ)।</td>
+          </tr>
+          <tr>
+            <td><b>চিহ্ন (+ / -)</b></td>
+            <td>যোজনীতে কোনো ধনাত্মক বা ঋণাত্মক চিহ্ন থাকে না (কেবল পূর্ণসংখ্যা)।</td>
+            <td>জারণ সংখ্যায় অবশ্যই ধনাত্মক ($+$) বা ঋণাত্মক ($-$) চিহ্ন দিতে হয়।</td>
+          </tr>
+          <tr>
+            <td><b>ভগ্নাংশ বা শূন্য</b></td>
+            <td>কখনই শূন্য বা ভগ্নাংশ হতে পারে না (১, ২, ৩...)।</td>
+            <td>শূন্য, পূর্ণসংখ্যা এমনকি ভগ্নাংশও হতে পারে (যেমন $KO_2$-তে অক্সিজেনের জারণ সংখ্যা $-\frac{1}{2}$)।</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>২. জারণ সংখ্যা নির্ণয়ের সুনির্দিষ্ট ৮টি নিয়ম</h2>
+    <ol style="margin-left:20px;line-height:1.9;">
+      <li><strong>মুক্ত বা স্বাধীন মৌল:</strong> নিরপেক্ষ মুক্ত মৌলের পরমাণু বা অণুর জারণ সংখ্যা সর্বদা <strong>শূন্য ($০$)</strong>।<br>
+        যেমন: $Na^0$, $Fe^0$, $H_2^0$, $O_2^0$, $Cl_2^0$, $P_4^0$, $S_8^0 = 0$।
+      </li>
+      <li><strong>নিরপেক্ষ যৌগ:</strong> যেকোনো নিরপেক্ষ যৌগের সকল পরমাণুর মোট জারণ সংখ্যার বীজগণিতীয় যোগফল <strong>শূন্য ($০$)</strong> হয়।</li>
+      <li><strong>বহুপরমাণুক আয়ন/মূলক:</strong> আধানযুক্ত মূলক বা আয়নের সকল পরমাণুর মোট জারণ সংখ্যা তার <strong>আধানের চিহ্নের সমান</strong>।<br>
+        যেমন: $SO_4^{2-}$ এর মোট মান $-2$, $NH_4^+$ এর মোট মান $+1$।
+      </li>
+      <li><strong>ক্ষার ধাতু (গ্রুপ ১):</strong> $Li$, $Na$, $K$, $Rb$, $Cs$ এর জারণ সংখ্যা যৌগে সর্বদা <strong>$+1$</strong>।</li>
+      <li><strong>মৃৎক্ষার ধাতু (গ্রুপ ২):</strong> $Be$, $Mg$, $Ca$, $Sr$, $Ba$ এর জারণ সংখ্যা যৌগে সর্বদা <strong>$+2$</strong>।</li>
+      <li><strong>হ্যালোজেন (গ্রুপ ১৭):</strong> ধাতব হ্যালাইডে হ্যালোজেনের ($F$, $Cl$, $Br$, $I$) জারণ সংখ্যা সর্বদা <strong>$-1$</strong> (তবে ফ্লোরিন সকল যৌগে সর্বদাই $-1$)।</li>
+      <li><strong>হাইড্রোজেনের নিয়ম ও ব্যতিক্রম:</strong> অধাতুর সাথে হাইড্রোজেনের জারণ সংখ্যা <strong>$+1$</strong> (যেমন $HCl, H_2O$); কিন্তু ক্ষার বা মৃৎক্ষার ধাতুর ধাতব হাইড্রাইডে হাইড্রোজেনের জারণ সংখ্যা <strong>$-1$</strong> (যেমন $NaH, CaH_2$)।</li>
+      <li><strong>অক্সিজেনের নিয়ম ও ব্যতিক্রম:</strong>
+        <ul>
+          <li>অধিকাংশ স্বাভাবিক অক্সাইডে ($H_2O, CaO, CO_2$): <strong>$-2$</strong></li>
+          <li>পারঅক্সাইডে ($H_2O_2, Na_2O_2, BaO_2$): <strong>$-1$</strong></li>
+          <li>সুপারঅক্সাইডে ($KO_2, RbO_2$): <strong>$-\frac{1}{2}$</strong></li>
+          <li>অক্সিজেন ডাইফ্লোরাইডে ($OF_2$): <strong>$+2$</strong> (কারণ ফ্লোরিনের তড়িৎ ঋণাত্মকতা বেশি!)</li>
+        </ul>
+      </li>
+    </ol>
+  </section>
+
+  <section class="worked">
+    <h2>📝 গাণিতিক উদাহরণ ও কেন্দ্রীয় পরমাণুর জারণ সংখ্যা নির্ণয়</h2>
+
+    <div class="problem">
+      <b>উদাহরণ ১:</b> পটাশিয়াম পারম্যাঙ্গানেট ($KMnO_4$) যৌগে ম্যাঙ্গানিজ ($Mn$)-এর জারণ সংখ্যা কত?
+    </div>
+    <div class="solution">
+      ধরি, $Mn$-এর জারণ সংখ্যা $= x$।<br>
+      আমরা জানি, $K$-এর জারণ সংখ্যা $= +1$ এবং $O$-এর জারণ সংখ্যা $= -2$।<br>
+      যেহেতু $KMnO_4$ একটি নিরপেক্ষ যৌগ, তাই সকল পরমাণুর জারণ সংখ্যার সমষ্টি $= 0$।<br>
+      $$(+1) \times 1 + x \times 1 + (-2) \times 4 = 0$$
+      $$1 + x - 8 = 0 \implies x - 7 = 0 \implies x = +7$$
+      <b>উত্তর:</b> $KMnO_4$-এ $Mn$-এর জারণ সংখ্যা <b>$+7$</b>।
+    </div>
+
+    <div class="problem" style="margin-top:14px;">
+      <b>উদাহরণ ২:</b> পটাশিয়াম ডাইক্রোমেট ($K_2Cr_2O_7$) যৌগে ক্রোমিয়াম ($Cr$)-এর জারণ সংখ্যা কত?
+    </div>
+    <div class="solution">
+      ধরি, $Cr$-এর জারণ সংখ্যা $= x$।<br>
+      এখানে, $K = +1$ এবং $O = -2$।<br>
+      $$(+1) \times 2 + x \times 2 + (-2) \times 7 = 0$$
+      $$2 + 2x - 14 = 0 \implies 2x - 12 = 0 \implies 2x = +12 \implies x = +6$$
+      <b>উত্তর:</b> $K_2Cr_2O_7$-এ প্রতি ক্রোমিয়াম ($Cr$)-এর জারণ সংখ্যা <b>$+6$</b>।
+    </div>
+
+    <div class="problem" style="margin-top:14px;">
+      <b>উদাহরণ ৩:</b> ডাইক্রোমেট মূলক ($Cr_2O_7^{2-}$)-এ $Cr$-এর জারণ সংখ্যা কত?
+    </div>
+    <div class="solution">
+      ধরি, $Cr$-এর জারণ সংখ্যা $= x$।<br>
+      যেহেতু এটি একটি ডাইভ্যালেন্ট অ্যানায়ন, তাই সমষ্টি হবে $-2$।<br>
+      $$2x + (-2) \times 7 = -2 \implies 2x - 14 = -2 \implies 2x = +12 \implies x = +6$$
+      <b>উত্তর:</b> $Cr$-এর জারণ সংখ্যা <b>$+6$</b>।
+    </div>
+  </section>
+
+  <section class="memory">
+    <h2>🧠 মনে রাখার শর্টকাট সূত্র ও সতর্কতা</h2>
+    <ul>
+      <li><b>চিহ্ন ছাড়া জারণ সংখ্যা শূন্য:</b> পরীক্ষায় যদি শুধু $7$ লেখো তবে নম্বর কাটা যাবে; সবসময় <b>$+7$</b> বা <b>$-2$</b> চিহ্নসহ লিখতে হবে!</li>
+      <li><b>অক্সিজেন অ্যালার্ট:</b> $H_2O$ তে $-2$, $H_2O_2$ তে $-1$, $KO_2$ তে $-\frac{1}{2}$, আর $OF_2$ তে $+2$!</li>
+      <li><b>ধাতব হাইড্রাইড ফাঁদ:</b> $NaH$-এ হাইড্রোজেন অধাতু হলেও ধাতু আগে থাকায় হাইড্রোজেনের জারণ সংখ্যা <b>$-1$</b>।</li>
+    </ul>
+  </section>
+
+  <section class="cloze">
+    <div class="deck-head">
+      <h2>✏️ সক্রিয় স্মরণ (ট্যাপ করে উত্তর বের করো)</h2>
+      <button type="button" class="btn-sm cloze-all">সব উত্তর দেখাও</button>
+    </div>
+    <p>১. মুক্ত অবস্থায় ক্লোরিন অণু ($Cl_2$)-এর জারণ সংখ্যা হলো <span class="blank">০ (শূন্য)</span>।</p>
+    <p>২. হাইড্রোজেন পারঅক্সাইডে ($H_2O_2$) অক্সিজেনের জারণ সংখ্যা হলো <span class="blank">-১</span>।</p>
+    <p>৩. সালফিউরিক এসিডে ($H_2SO_4$) সালফারের জারণ সংখ্যা হলো <span class="blank">+৬</span>।</p>
+    <p>৪. সোডিয়াম হাইড্রাইডে ($NaH$) হাইড্রোজেনের জারণ সংখ্যা হলো <span class="blank">-১</span>।</p>
+  </section>
+
+  <section class="deck" id="deck-7-4">
+    <div class="deck-head">
+      <h2>🃏 ৭.৪ ফ্ল্যাশকার্ড — উল্টে মুখস্থ করো</h2>
+      <span class="deck-count">কার্ড লোড হচ্ছে...</span>
+    </div>
+    <div class="card3d" tabindex="0">
+      <div class="card3d-inner">
+        <div class="face front">কার্ড লোড হচ্ছে...</div>
+        <div class="face back">উত্তর</div>
+      </div>
+    </div>
+    <div class="deck-actions">
+      <button type="button" class="btn-sm no">আবার দেখাও 🔁</button>
+      <button type="button" class="btn-sm ok">মনে আছে ✅</button>
+      <button type="button" class="btn-sm reset">রিসেট 🔄</button>
+    </div>
+    <div class="deck-bar"><i></i></div>
+    <script type="application/json" class="deck-data">
+      [
+        ["OF₂ যৌগে অক্সিজেনের জারণ সংখ্যা কত এবং কেন?", "+২; কারণ ফ্লোরিনের তড়িৎ ঋণাত্মকতা অক্সিজেনের চেয়ে বেশি হওয়ায় ফ্লোরিন -১ এবং অক্সিজেন +২ হয়।"],
+        ["যোজনী ও জারণ সংখ্যার দুটি প্রধান পার্থক্য কী?", "১. যোজনীতে কোনো চিহ্ন থাকে না, জারণ সংখ্যায় + বা - চিহ্ন থাকে। ২. যোজনী ভগ্নাংশ হয় না, জারণ সংখ্যা ভগ্নাংশ হতে পারে।"],
+        ["HNO₃-এ নাইট্রোজেনের জারণ সংখ্যা কত?", "+৫; (+১ + x - ৬ = ০ → x = +৫)।"],
+        ["KO₂ যৌগে অক্সিজেনের জারণ সংখ্যা কত?", "-১/২; এটি একটি সুপারঅক্সাইড যৌগ।"]
+      ]
+    </script>
+  </section>
+
+  <section class="quiz" id="quiz-7-4">
+    <h2>🎯 ৭.৪ দ্রুত যাচাই কুইজ</h2>
+    <div class="quiz-body"></div>
+    <div class="score">স্কোর: ০/০</div>
+    <button type="button" class="btn-sm quiz-reset" style="margin-top:10px;">পুনরায় পরীক্ষা দাও</button>
+    <script type="application/json" class="quiz-data">
+      [
+        {
+          "q": "KMnO₄ যৌগে ম্যাঙ্গানিজের জারণ সংখ্যা কত?",
+          "o": ["+২", "+৪", "+৬", "+৭"],
+          "a": 3,
+          "e": "+১ + x + (-২ × ৪) = ০ ⇒ x = +৭।"
+        },
+        {
+          "q": "কোন যৌগে অক্সিজেনের জারণ সংখ্যা -১?",
+          "o": ["H₂O", "CO₂", "H₂O₂", "OF₂"],
+          "a": 2,
+          "e": "পারঅক্সাইড যৌগে (যেমন H₂O₂) অক্সিজেনের জারণ সংখ্যা -১।"
+        }
+      ]
+    </script>
+  </section>
+
+  <div class="nav">
+    <a class="button secondary" href="section-03.html">← ৭.৩ জারণ-বিজারণ ও ইলেকট্রন স্থানান্তর</a>
+    <a class="button" href="section-05.html">৭.৫ তাপ পরিবর্তনের ভিত্তিতে বিক্রিয়া →</a>
+  </div>
+</main>
+</body>
+</html>

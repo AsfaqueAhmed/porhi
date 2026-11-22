@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>বোর পরমাণু মডেল, ইলেকট্রন বিন্যাস ও শিখা পরীক্ষা ল্যাব | poRi</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --surface: #1e293b;
+      --surface-light: #334155;
+      --card: #182234;
+      --border: #334155;
+      --border-accent: #0f766e;
+      --ink: #f8fafc;
+      --ink-muted: #94a3b8;
+      --teal: #14b8a6;
+      --teal-dark: #0f766e;
+      --teal-soft: rgba(20, 184, 166, 0.15);
+      --amber: #f59e0b;
+      --amber-soft: rgba(245, 158, 11, 0.15);
+      --rose: #f43f5e;
+      --rose-soft: rgba(244, 63, 94, 0.15);
+      --blue: #38bdf8;
+      --purple: #a855f7;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 16px;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .lab-head {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--teal-soft);
+      color: var(--teal);
+      border: 1px solid var(--teal);
+      margin-bottom: 6px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: #fff;
+    }
+    .subtitle {
+      margin: 4px 0 0;
+      font-size: 0.9rem;
+      color: var(--ink-muted);
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      background: #0f172a;
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--ink-muted);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .tab-btn.active {
+      background: var(--teal-dark);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(20, 184, 166, 0.4);
+    }
+
+    /* Main Grid */
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 20px;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+
+    /* Canvas / Viewport */
+    .canvas-wrap {
+      position: relative;
+      width: 100%;
+      height: 440px;
+      background: radial-gradient(circle at center, #131d31 0%, #090d16 100%);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #24324a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Element grid selector */
+    .elements-bar {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-height: 110px;
+      overflow-y: auto;
+      padding: 4px;
+      background: #0f172a;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+    .elem-chip {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--ink);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .elem-chip:hover {
+      border-color: var(--teal);
+      background: #1e293b;
+    }
+    .elem-chip.active {
+      background: var(--teal);
+      color: #0b1120;
+      border-color: var(--teal);
+      font-weight: 800;
+    }
+    .elem-chip span.z-num {
+      font-size: 0.7rem;
+      opacity: 0.8;
+    }
+
+    /* Info cards & Stats */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .stat-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      text-align: center;
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+      margin-bottom: 2px;
+    }
+    .stat-val {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .stat-val.teal { color: var(--teal); }
+    .stat-val.amber { color: var(--amber); }
+    .stat-val.rose { color: var(--rose); }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin: 0 0 10px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .config-code {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.95rem;
+      color: #38bdf8;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+      word-break: break-all;
+    }
+
+    /* Subshell ladder visualizer */
+    .subshell-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .subshell-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #0f172a;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+    .subshell-label {
+      width: 44px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--teal);
+    }
+    .subshell-energy {
+      font-size: 0.75rem;
+      color: var(--ink-muted);
+      width: 60px;
+    }
+    .orbit-boxes {
+      display: flex;
+      gap: 4px;
+      flex: 1;
+    }
+    .orbit-box {
+      width: 22px;
+      height: 22px;
+      border: 1px solid #475569;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: #e2e8f0;
+      background: #182234;
+    }
+    .orbit-box.filled-2 {
+      background: #0d9488;
+      border-color: #14b8a6;
+      color: #fff;
+      font-weight: bold;
+    }
+    .orbit-box.filled-1 {
+      background: #0284c7;
+      border-color: #38bdf8;
+      color: #fff;
+    }
+
+    /* Flame Test Styles */
+    .flame-mode {
+      display: none;
+    }
+    .flame-mode.active-view {
+      display: block;
+    }
+    .atom-mode.active-view {
+      display: block;
+    }
+    .atom-mode {
+      display: none;
+    }
+
+    .salts-bar {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+    .salt-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .salt-btn:hover {
+      border-color: var(--teal);
+      background: #1e293b;
+    }
+    .salt-btn.active {
+      border-color: var(--teal);
+      background: rgba(20, 184, 166, 0.12);
+      box-shadow: 0 0 12px rgba(20, 184, 166, 0.25);
+    }
+    .salt-name {
+      font-weight: 700;
+      color: #fff;
+      font-size: 0.9rem;
+    }
+    .salt-flame {
+      font-size: 0.8rem;
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .color-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .spectrum-container {
+      background: #000;
+      border-radius: 10px;
+      border: 1px solid #334155;
+      padding: 12px 16px;
+      margin-top: 14px;
+    }
+    .spectrum-bar {
+      position: relative;
+      width: 100%;
+      height: 38px;
+      background: #050811;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #1e293b;
+    }
+    .spectral-line {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      box-shadow: 0 0 8px currentColor;
+      transition: opacity 0.3s ease;
+    }
+    .spectrum-ticks {
+      display: flex;
+      justify-content: space-between;
+      color: #64748b;
+      font-size: 0.72rem;
+      margin-top: 6px;
+      font-family: monospace;
+    }
+
+    .concept-box {
+      background: rgba(15, 23, 42, 0.7);
+      border-left: 4px solid var(--teal);
+      padding: 12px 14px;
+      border-radius: 0 10px 10px 0;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      margin-top: 14px;
+      line-height: 1.6;
+    }
+    .concept-box b {
+      color: #fff;
+    }
+
+    /* Controls */
+    .controls-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      background: var(--surface-light);
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    .btn:hover {
+      background: #475569;
+    }
+    .btn.primary {
+      background: var(--teal-dark);
+      border-color: var(--teal);
+    }
+    .btn.primary:hover {
+      background: #115e59;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <header class="lab-head">
+    <div>
+      <span class="badge">রসায়ন · অধ্যায় ৩: পদার্থের গঠন</span>
+      <h1>বোর পরমাণু মডেল ও ইলেকট্রন বিন্যাস ল্যাব</h1>
+      <p class="subtitle">পারমাণবিক শক্তিস্তর (K, L, M, N), আউফবাউ অরবিটাল বিন্যাস ($1s$ থেকে $4s$) ও ধাতব আয়নের শিখা পরীক্ষা</p>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn active" id="tabAtomBtn" onclick="switchTab('atom')">⚛️ পরমাণু ও বোর মডেল</button>
+      <button class="tab-btn" id="tabFlameBtn" onclick="switchTab('flame')">🔥 শিখা পরীক্ষা ও বর্ণালী</button>
+    </div>
+  </header>
+
+  <!-- TAB 1: ATOM BUILDER & BOHR SHELL FILLING -->
+  <div id="atomView" class="atom-mode active-view">
+    <div class="grid">
+      <!-- Left side: Bohr atom canvas -->
+      <div class="panel">
+        <div class="card-title">
+          <span>বোর পরমাণু মডেল কক্ষপথ ও নিউক্লিয়াস সিমুলেশন</span>
+          <span style="font-size:0.8rem;color:var(--teal);margin-left:auto;" id="orbitSpeedText">অরবিট গতি: চলনশীল</span>
+        </div>
+        <div class="canvas-wrap">
+          <canvas id="bohrCanvas" width="560" height="440"></canvas>
+        </div>
+
+        <div class="controls-row">
+          <button class="btn" id="playPauseBtn" onclick="toggleAnimation()">⏸ বিরতি / চালু</button>
+          <button class="btn" onclick="prevElement()">◀ পূর্বের মৌল</button>
+          <button class="btn" onclick="nextElement()">পরবর্তী মৌল ▶</button>
+          <span style="font-size:0.82rem;color:var(--ink-muted);margin-left:auto;">কক্ষপথে ইলেকট্রন ধারণক্ষমতা সূত্র: $2n^2$</span>
+        </div>
+
+        <div style="margin-top:14px;">
+          <div style="font-size:0.82rem;font-weight:700;color:var(--ink-muted);margin-bottom:6px;">মৌল নির্বাচন করো (H থেকে Ca - পারমাণবিক সংখ্যা ১ থেকে ২০):</div>
+          <div class="elements-bar" id="elementGrid"></div>
+        </div>
+      </div>
+
+      <!-- Right side: Config & Aufbau details -->
+      <div class="panel">
+        <div class="card-title">মৌলের পারমাণবিক তথ্য ও পরিচিতি</div>
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-label">প্রোটন সংখ্যা (Z)</div>
+            <div class="stat-val teal" id="valZ">11</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">ভর সংখ্যা (A)</div>
+            <div class="stat-val amber" id="valA">23</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">নিউট্রন (A-Z)</div>
+            <div class="stat-val rose" id="valN">12</div>
+          </div>
+        </div>
+
+        <div class="card-title">প্রধান শক্তিস্তরে ইলেকট্রন সংখ্যা ($2n^2$)</div>
+        <div class="stats-row" style="grid-template-columns: repeat(4, 1fr);">
+          <div class="stat-box">
+            <div class="stat-label">K (n=1)</div>
+            <div class="stat-val" id="shellK">2</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">L (n=2)</div>
+            <div class="stat-val" id="shellL">8</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">M (n=3)</div>
+            <div class="stat-val" id="shellM">1</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">N (n=4)</div>
+            <div class="stat-val" id="shellN">0</div>
+          </div>
+        </div>
+
+        <div class="card-title">উপশক্তিস্তর (s, p, d, f) ইলেকট্রন বিন্যাস</div>
+        <div class="config-code" id="spdfConfigText">1s² 2s² 2p⁶ 3s¹</div>
+
+        <div class="card-title" style="margin-top:12px;">আউফবাউ নীতি অনুযায়ী শক্তি ক্রম ($n + l$)</div>
+        <div class="subshell-list" id="subshellLadder">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div class="concept-box" id="aufbauNote">
+          <b>💡 আউফবাউ নীতি (Aufbau Principle):</b> জার্মান শব্দ Aufbau অর্থ 'বিল্ডিং আপ' বা ক্রমান্বয়ে উপরের দিকে তৈরি। ইলেকট্রন প্রথমে নিম্নশক্তিস্তরের অরবিটালে প্রবেশ করে এবং তা পূর্ণ করে ক্রমান্বয়ে উচ্চশক্তির অরবিটালে যায়। শক্তি নির্ভর করে $(n + l)$ এর মানের ওপর। যেমন: পটাশিয়ামে $4s$ ($4+0=4$) এর শক্তি $3d$ ($3+2=5$) অপেক্ষা কম হওয়ায় ১৯তম ইলেকট্রনটি $3d$-তে না গিয়ে $4s$-এ প্রবেশ করে।
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: FLAME TEST & EMISSION SPECTRUM -->
+  <div id="flameView" class="flame-mode">
+    <div class="grid">
+      <!-- Left side: Bunsen Burner Flame Canvas -->
+      <div class="panel">
+        <div class="card-title">
+          <span>বুনসেন বার্নার শিখা পরীক্ষা সিমুলেশন</span>
+          <span style="font-size:0.8rem;color:var(--amber);" id="flameStatus">নমুনা: সোডিয়াম আয়ন ($Na^+$)</span>
+        </div>
+        <div class="canvas-wrap" style="height:440px;">
+          <canvas id="flameCanvas" width="560" height="440"></canvas>
+        </div>
+
+        <div class="controls-row">
+          <button class="btn primary" onclick="dipWire()">🔥 তারটি শিখায় প্রবেশ করাও</button>
+          <button class="btn" onclick="cleanWire()">🧪 লঘু HCl দিয়ে তার পরিষ্কার করো</button>
+          <span style="font-size:0.82rem;color:var(--ink-muted);margin-left:auto;">প্লাটিনাম/নিক্রোম তারে লবণের পেস্ট</span>
+        </div>
+
+        <!-- Continuous vs Discrete Spectrum -->
+        <div class="spectrum-container">
+          <div style="font-size:0.82rem;color:#cbd5e1;margin-bottom:6px;display:flex;justify-content:space-between;">
+            <span>পারমাণবিক নিঃসরণ বর্ণালী (Atomic Emission Spectrum)</span>
+            <span id="spectralPeak">তরঙ্গদৈর্ঘ্য: ৫৮৯ nm (D-রেখা)</span>
+          </div>
+          <div class="spectrum-bar" id="spectrumBar">
+            <!-- Spectral lines placed dynamically -->
+          </div>
+          <div class="spectrum-ticks">
+            <span>৪০০ nm (বেগুনি)</span>
+            <span>৫০০ nm (সবুজ)</span>
+            <span>৬০০ nm (হলুদ/কমলা)</span>
+            <span>৭০০ nm (লাল)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right side: Salts & Concept -->
+      <div class="panel">
+        <div class="card-title">ধাতব আয়ন ও লবণ নির্বাচন করো</div>
+        <div class="salts-bar">
+          <div class="salt-btn active" onclick="selectSalt('Na')">
+            <div class="salt-name">সোডিয়াম ($Na^+$ / NaCl)</div>
+            <div class="salt-flame">
+              <span class="color-dot" style="background:#eab308;box-shadow:0 0 6px #eab308;"></span>
+              <span>উজ্জ্বল সোনালী হলুদ (৫৮৯ nm)</span>
+            </div>
+          </div>
+          <div class="salt-btn" onclick="selectSalt('Cu')">
+            <div class="salt-name">কপার ($Cu^{2+}$ / CuSO₄)</div>
+            <div class="salt-flame">
+              <span class="color-dot" style="background:#10b981;box-shadow:0 0 6px #10b981;"></span>
+              <span>নীলাভ সবুজ (৫১০ nm)</span>
+            </div>
+          </div>
+          <div class="salt-btn" onclick="selectSalt('K')">
+            <div class="salt-name">পটাশিয়াম ($K^+$ / KCl)</div>
+            <div class="salt-flame">
+              <span class="color-dot" style="background:#c084fc;box-shadow:0 0 6px #c084fc;"></span>
+              <span>হালকা বেগুনি / ভায়োলেট (৪০৪ nm)</span>
+            </div>
+          </div>
+          <div class="salt-btn" onclick="selectSalt('Ca')">
+            <div class="salt-name">ক্যালসিয়াম ($Ca^{2+}$ / CaCl₂)</div>
+            <div class="salt-flame">
+              <span class="color-dot" style="background:#f43f5e;box-shadow:0 0 6px #f43f5e;"></span>
+              <span>ইটের মতো লাল (৬২২ nm)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-title" style="margin-top:16px;">বোর মডেল ও শিখা পরীক্ষার বৈজ্ঞানিক ব্যাখ্যা</div>
+        <div class="concept-box" style="margin-top:6px;border-left-color:var(--amber);">
+          <b>১. তাপশক্তি শোষণ:</b> বুনসেন বার্নারের উত্তপ্ত শিখায় ধাতব লবণের বহিস্থ স্তরের ইলেকট্রন তাপশক্তি গ্রহণ করে নিম্নশক্তিস্তর ($E_1$) থেকে ক্ষণস্থায়ীভাবে উচ্চতর শক্তিস্তরে ($E_2$) লাফিয়ে ওঠে (উত্তেজিত অবস্থা)।<br><br>
+          <b>২. নির্দিষ্ট ফোটন বিকিরণ:</b> উত্তেজিত ইলেকট্রন অত্যন্ত অস্থিতিশীল ($10^{-8}\text{ s}$ থাকে)। এটি যখন পুনরায় মূল শক্তিস্তরে ফিরে আসে, তখন শোষিত শক্তিকে আলো বা তড়িৎচৌম্বকীয় তরঙ্গ রূপে নির্গমন করে:
+          <div style="font-family:monospace;font-size:0.95rem;color:#38bdf8;padding:6px 0;text-align:center;">
+            ΔE = E₂ - E₁ = hν = hc / λ
+          </div>
+          <b>৩. বৈশিষ্টসূচক বর্ণালী:</b> প্রতিটি মৌলের শক্তিস্তরের ব্যবধান ($\Delta E$) নির্দিষ্ট ও অনন্য। তাই নির্গত আলোর তরঙ্গদৈর্ঘ্য ($\lambda$) নির্দিষ্ট হওয়ায় বিভিন্ন ধাতব আয়ন শিখায় ভিন্ন ভিন্ন অনন্য বর্ণ প্রদর্শন করে। যেমন: সোডিয়াম সোনালী হলুদ, কপার নীলাভ সবুজ, পটাশিয়াম হালকা বেগুনি এবং ক্যালসিয়াম ইটের মতো লাল।
+        </div>
+
+        <div style="background:#0f172a;border:1px solid #334155;border-radius:10px;padding:12px;margin-top:14px;">
+          <div style="font-size:0.85rem;font-weight:700;color:#fff;margin-bottom:6px;">পরীক্ষার সতর্কতামূলক টিপস:</div>
+          <ul style="margin:0;padding-left:18px;font-size:0.8rem;color:var(--ink-muted);line-height:1.5;">
+            <li>প্লাটিনাম বা নিক্রোম তার ব্যবহারের পূর্বে অবশ্যই গাঢ় বা লঘু হাইড্রোক্লোরিক এসিডে ($HCl$) ডুবিয়ে শিখায় পুড়িয়ে বর্ণহীন করে নিতে হয়।</li>
+            <li>পটাশিয়ামের মৃদু বেগুনি বর্ণ অনেক সময় খালি চোখে স্পষ্ট না হলে নীল কোবাল্ট কাঁচের (Cobalt Blue Glass) ভেতর দিয়ে দেখতে হয়।</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ==========================================
+// 1. DATA: Elements 1 to 20 (H to Ca)
+// ==========================================
+const ELEMENTS = [
+  { z: 1, sym: "H", name: "হাইড্রোজেন (Hydrogen)", a: 1, shells: [1, 0, 0, 0], spdf: "1s¹", orbs: { "1s": 1 } },
+  { z: 2, sym: "He", name: "হিলিয়াম (Helium)", a: 4, shells: [2, 0, 0, 0], spdf: "1s²", orbs: { "1s": 2 } },
+  { z: 3, sym: "Li", name: "লিথিয়াম (Lithium)", a: 7, shells: [2, 1, 0, 0], spdf: "1s² 2s¹", orbs: { "1s": 2, "2s": 1 } },
+  { z: 4, sym: "Be", name: "বেরিলিয়াম (Beryllium)", a: 9, shells: [2, 2, 0, 0], spdf: "1s² 2s²", orbs: { "1s": 2, "2s": 2 } },
+  { z: 5, sym: "B", name: "বোরন (Boron)", a: 11, shells: [2, 3, 0, 0], spdf: "1s² 2s² 2p¹", orbs: { "1s": 2, "2s": 2, "2p": 1 } },
+  { z: 6, sym: "C", name: "কার্বন (Carbon)", a: 12, shells: [2, 4, 0, 0], spdf: "1s² 2s² 2p²", orbs: { "1s": 2, "2s": 2, "2p": 2 } },
+  { z: 7, sym: "N", name: "নাইট্রোজেন (Nitrogen)", a: 14, shells: [2, 5, 0, 0], spdf: "1s² 2s² 2p³", orbs: { "1s": 2, "2s": 2, "2p": 3 } },
+  { z: 8, sym: "O", name: "অক্সিজেন (Oxygen)", a: 16, shells: [2, 6, 0, 0], spdf: "1s² 2s² 2p⁴", orbs: { "1s": 2, "2s": 2, "2p": 4 } },
+  { z: 9, sym: "F", name: "ফ্লোরিন (Fluorine)", a: 19, shells: [2, 7, 0, 0], spdf: "1s² 2s² 2p⁵", orbs: { "1s": 2, "2s": 2, "2p": 5 } },
+  { z: 10, sym: "Ne", name: "নিয়ন (Neon)", a: 20, shells: [2, 8, 0, 0], spdf: "1s² 2s² 2p⁶", orbs: { "1s": 2, "2s": 2, "2p": 6 } },
+  { z: 11, sym: "Na", name: "সোডিয়াম (Sodium)", a: 23, shells: [2, 8, 1, 0], spdf: "1s² 2s² 2p⁶ 3s¹", orbs: { "1s": 2, "2s": 2, "2p": 6, "3s": 1 } },
+  { z: 12, sym: "Mg", name: "ম্যাগনেসিয়াম (Magnesium)", a: 24, shells: [2, 8, 2, 0], spdf: "1s² 2s² 2p⁶ 3s²", orbs: { "1s": 2, "2s": 2, "2p": 6, "3s": 2 } },
+  { z: 13, sym: "Al", name: "অ্যালুমিনিয়াম (Aluminium)", a: 27, shells: [2, 8, 3, 0], spdf: "1s² 2s² 2p⁶ 3s² 3p¹", orbs: { "1s": 2, "2s": 2, "2p": 6, "3s": 2, "3p": 1 } },
+  { z: 14, sym: "Si", name: "সিলিকন (Silicon)", a: 28, shells: [2, 8, 4, 0], spdf: "1s² 2s² 2p⁶ 3s² 3p²", orbs: { "1s": 2, "2s": 2, "2p": 6, "3s": 2, "3p": 2 } },
+  { z: 15, sym: "P", name: "ফসফরাস (Phosphorus)", a: 31, shells: [2, 8, 5, 0], spdf: "1s² 2s² 2p⁶ 3s² 3p³", orbs: { "1s": 2, "2s": 2, "2p": 6, "3s": 2, "3p": 3 } },
+  { z: 16, sym: "S", name: "সালফার (Sulfur)", a: 32, shells: [2, 8, 6, 0], spdf: "1s² 2s² 2p⁶ 3s² 3p⁴", orbs: { "1s": 2, "2s": 2, "2p": 6, "3s": 2, "3p": 4 } },
+  { z: 17, sym: "Cl", name: "ক্লোরিন (Chlorine)", a: 35, shells: [2, 8, 7, 0], spdf: "1s² 2s² 2p⁶ 3s² 3p⁵", orbs: { "1s": 2, "2s": 2, "2p": 6, "3s": 2, "3p": 5 } },
+  { z: 18, sym: "Ar", name: "আর্গন (Argon)", a: 40, shells: [2, 8, 8, 0], spdf: "1s² 2s² 2p⁶ 3s² 3p⁶", orbs: { "1s": 2, "2s": 2, "2p": 6, "3s": 2, "3p": 6 } },
+  { z: 19, sym: "K", name: "পটাশিয়াম (Potassium)", a: 39, shells: [2, 8, 8, 1], spdf: "1s² 2s² 2p⁶ 3s² 3p⁶ 4s¹", orbs: { "1s": 2, "2s": 2, "2p": 6, "3s": 2, "3p": 6, "4s": 1 } },
+  { z: 20, sym: "Ca", name: "ক্যালসিয়াম (Calcium)", a: 40, shells: [2, 8, 8, 2], spdf: "1s² 2s² 2p⁶ 3s² 3p⁶ 4s²", orbs: { "1s": 2, "2s": 2, "2p": 6, "3s": 2, "3p": 6, "4s": 2 } }
+];
+
+let currentIndex = 10; // Default Sodium (Na, Z=11)
+let isAnimating = true;
+let angleOffsets = [0, 0, 0, 0];
+
+// ==========================================
+// 2. ATOM BUILDER LOGIC
+// ==========================================
+const bohrCanvas = document.getElementById("bohrCanvas");
+const ctxBohr = bohrCanvas.getContext("2d");
+
+function initElementGrid() {
+  const grid = document.getElementById("elementGrid");
+  grid.innerHTML = "";
+  ELEMENTS.forEach((elem, idx) => {
+    const chip = document.createElement("button");
+    chip.className = "elem-chip" + (idx === currentIndex ? " active" : "");
+    chip.innerHTML = `<span class="z-num">${elem.z}</span> <b>${elem.sym}</b>`;
+    chip.onclick = () => selectElement(idx);
+    grid.appendChild(chip);
+  });
+}
+
+function selectElement(idx) {
+  currentIndex = idx;
+  initElementGrid();
+  updateElementUI();
+}
+
+function prevElement() {
+  if (currentIndex > 0) selectElement(currentIndex - 1);
+}
+
+function nextElement() {
+  if (currentIndex < ELEMENTS.length - 1) selectElement(currentIndex + 1);
+}
+
+function toggleAnimation() {
+  isAnimating = !isAnimating;
+  document.getElementById("playPauseBtn").textContent = isAnimating ? "⏸ বিরতি" : "▶ চালু";
+  document.getElementById("orbitSpeedText").textContent = isAnimating ? "অরবিট গতি: চলনশীল" : "অরবিট গতি: স্থির";
+}
+
+function updateElementUI() {
+  const elem = ELEMENTS[currentIndex];
+  document.getElementById("valZ").textContent = elem.z;
+  document.getElementById("valA").textContent = elem.a;
+  document.getElementById("valN").textContent = elem.a - elem.z;
+
+  document.getElementById("shellK").textContent = elem.shells[0];
+  document.getElementById("shellL").textContent = elem.shells[1];
+  document.getElementById("shellM").textContent = elem.shells[2];
+  document.getElementById("shellN").textContent = elem.shells[3];
+
+  document.getElementById("spdfConfigText").textContent = elem.spdf;
+
+  // Aufbau subshell ladder
+  const ladder = document.getElementById("subshellLadder");
+  ladder.innerHTML = "";
+  const subshellsOrder = [
+    { name: "1s", nl: "1+0=1", max: 2, boxes: 1 },
+    { name: "2s", nl: "2+0=2", max: 2, boxes: 1 },
+    { name: "2p", nl: "2+1=3", max: 6, boxes: 3 },
+    { name: "3s", nl: "3+0=3", max: 2, boxes: 1 },
+    { name: "3p", nl: "3+1=4", max: 6, boxes: 3 },
+    { name: "4s", nl: "4+0=4", max: 2, boxes: 1 },
+    { name: "3d", nl: "3+2=5", max: 10, boxes: 5 }
+  ];
+
+  subshellsOrder.forEach(sub => {
+    const row = document.createElement("div");
+    row.className = "subshell-row";
+
+    const label = document.createElement("div");
+    label.className = "subshell-label";
+    label.textContent = sub.name;
+
+    const energy = document.createElement("div");
+    energy.className = "subshell-energy";
+    energy.textContent = `n+l: ${sub.nl}`;
+
+    const boxesContainer = document.createElement("div");
+    boxesContainer.className = "orbit-boxes";
+
+    const countInSub = elem.orbs[sub.name] || 0;
+    for (let b = 0; b < sub.boxes; b++) {
+      const box = document.createElement("div");
+      box.className = "orbit-box";
+      // Each box holds up to 2 electrons
+      const boxCount = Math.max(0, Math.min(2, countInSub - b * 2));
+      if (boxCount === 2) {
+        box.className += " filled-2";
+        box.textContent = "⇅";
+      } else if (boxCount === 1) {
+        box.className += " filled-1";
+        box.textContent = "↑";
+      } else {
+        box.textContent = "";
+      }
+      boxesContainer.appendChild(box);
+    }
+
+    row.appendChild(label);
+    row.appendChild(energy);
+    row.appendChild(boxesContainer);
+    ladder.appendChild(row);
+  });
+}
+
+function drawBohrAtom() {
+  ctxBohr.clearRect(0, 0, bohrCanvas.width, bohrCanvas.height);
+  const cx = bohrCanvas.width / 2;
+  const cy = bohrCanvas.height / 2;
+  const elem = ELEMENTS[currentIndex];
+
+  const radii = [45, 80, 120, 165];
+  const shellNames = ["K (n=1)", "L (n=2)", "M (n=3)", "N (n=4)"];
+
+  // 1. Draw concentric orbits
+  for (let i = 0; i < 4; i++) {
+    const r = radii[i];
+    const hasElectrons = elem.shells[i] > 0;
+
+    ctxBohr.beginPath();
+    ctxBohr.arc(cx, cy, r, 0, Math.PI * 2);
+    ctxBohr.strokeStyle = hasElectrons ? "rgba(20, 184, 166, 0.45)" : "rgba(71, 85, 105, 0.25)";
+    ctxBohr.lineWidth = hasElectrons ? 1.5 : 1;
+    ctxBohr.setLineDash(hasElectrons ? [] : [4, 4]);
+    ctxBohr.stroke();
+    ctxBohr.setLineDash([]);
+
+    // Shell label on top
+    ctxBohr.fillStyle = hasElectrons ? "#14b8a6" : "#475569";
+    ctxBohr.font = "10px monospace";
+    ctxBohr.textAlign = "center";
+    ctxBohr.fillText(shellNames[i], cx, cy - r - 4);
+  }
+
+  // 2. Draw Nucleus
+  ctxBohr.beginPath();
+  const nucRadius = 24;
+  const nucGrad = ctxBohr.createRadialGradient(cx, cy, 2, cx, cy, nucRadius);
+  nucGrad.addColorStop(0, "#fbbf24");
+  nucGrad.addColorStop(0.7, "#f59e0b");
+  nucGrad.addColorStop(1, "#b45309");
+  ctxBohr.arc(cx, cy, nucRadius, 0, Math.PI * 2);
+  ctxBohr.fillStyle = nucGrad;
+  ctxBohr.shadowColor = "#f59e0b";
+  ctxBohr.shadowBlur = 12;
+  ctxBohr.fill();
+  ctxBohr.shadowBlur = 0;
+
+  // Nucleus Text
+  ctxBohr.fillStyle = "#0f172a";
+  ctxBohr.font = "bold 13px sans-serif";
+  ctxBohr.textAlign = "center";
+  ctxBohr.fillText(elem.sym, cx, cy - 2);
+  ctxBohr.font = "9px sans-serif";
+  ctxBohr.fillText(`+${elem.z}`, cx, cy + 9);
+
+  // 3. Draw rotating electrons
+  for (let s = 0; s < 4; s++) {
+    const count = elem.shells[s];
+    if (count === 0) continue;
+    const r = radii[s];
+    const speed = (0.015 / (s + 1)) * (s % 2 === 0 ? 1 : -1);
+
+    if (isAnimating) {
+      angleOffsets[s] += speed;
+    }
+
+    for (let e = 0; e < count; e++) {
+      const angle = angleOffsets[s] + (e * 2 * Math.PI) / count;
+      const ex = cx + r * Math.cos(angle);
+      const ey = cy + r * Math.sin(angle);
+
+      // Electron glow
+      ctxBohr.beginPath();
+      ctxBohr.arc(ex, ey, 6, 0, Math.PI * 2);
+      ctxBohr.fillStyle = "#38bdf8";
+      ctxBohr.shadowColor = "#38bdf8";
+      ctxBohr.shadowBlur = 8;
+      ctxBohr.fill();
+      ctxBohr.shadowBlur = 0;
+
+      // Minus symbol
+      ctxBohr.fillStyle = "#0f172a";
+      ctxBohr.font = "bold 9px monospace";
+      ctxBohr.fillText("-", ex, ey + 3);
+    }
+  }
+
+  requestAnimationFrame(drawBohrAtom);
+}
+
+// ==========================================
+// 3. FLAME TEST SIMULATION LOGIC
+// ==========================================
+const flameCanvas = document.getElementById("flameCanvas");
+const ctxFlame = flameCanvas.getContext("2d");
+
+const SALTS = {
+  Na: {
+    name: "সোডিয়াম আয়ন (Na⁺ / NaCl)",
+    colorName: "উজ্জ্বল সোনালী হলুদ",
+    baseColor: [245, 175, 10],
+    peakNm: 589,
+    spectralLines: [
+      { nm: 589, color: "#facc15" } // Sodium D-line
+    ]
+  },
+  Cu: {
+    name: "কপার আয়ন (Cu²⁺ / CuSO₄)",
+    colorName: "নীলাভ সবুজ",
+    baseColor: [16, 185, 129],
+    peakNm: 510,
+    spectralLines: [
+      { nm: 510, color: "#10b981" },
+      { nm: 521, color: "#34d399" },
+      { nm: 480, color: "#06b6d4" }
+    ]
+  },
+  K: {
+    name: "পটাশিয়াম আয়ন (K⁺ / KCl)",
+    colorName: "হালকা বেগুনি (Lilac)",
+    baseColor: [192, 132, 252],
+    peakNm: 404,
+    spectralLines: [
+      { nm: 404, color: "#c084fc" },
+      { nm: 766, color: "#f43f5e" }
+    ]
+  },
+  Ca: {
+    name: "ক্যালসিয়াম আয়ন (Ca²⁺ / CaCl₂)",
+    colorName: "ইটের মতো লাল (Brick Red)",
+    baseColor: [244, 63, 94],
+    peakNm: 622,
+    spectralLines: [
+      { nm: 622, color: "#f43f5e" },
+      { nm: 554, color: "#84cc16" },
+      { nm: 649, color: "#e11d48" }
+    ]
+  },
+  Blank: {
+    name: "পরিষ্কার প্লাটিনাম তার (লঘু HCl)",
+    colorName: "স্বাভাবিক বর্ণহীন নীল শিখা",
+    baseColor: [56, 189, 248],
+    peakNm: null,
+    spectralLines: []
+  }
+};
+
+let currentSaltKey = "Na";
+let wireInserted = true;
+let wirePos = 0; // 0 = fully in flame, 1 = retracted
+let flameParticles = [];
+
+function selectSalt(key) {
+  currentSaltKey = key;
+  document.querySelectorAll(".salt-btn").forEach(btn => btn.classList.remove("active"));
+  const btns = document.querySelectorAll(".salt-btn");
+  if (key === "Na") btns[0].classList.add("active");
+  if (key === "Cu") btns[1].classList.add("active");
+  if (key === "K") btns[2].classList.add("active");
+  if (key === "Ca") btns[3].classList.add("active");
+
+  wireInserted = true;
+  updateFlameUI();
+}
+
+function dipWire() {
+  wireInserted = true;
+  updateFlameUI();
+}
+
+function cleanWire() {
+  currentSaltKey = "Blank";
+  document.querySelectorAll(".salt-btn").forEach(btn => btn.classList.remove("active"));
+  wireInserted = true;
+  updateFlameUI();
+}
+
+function updateFlameUI() {
+  const salt = SALTS[currentSaltKey];
+  document.getElementById("flameStatus").textContent = `নমুনা: ${salt.name} · শিখার বর্ণ: ${salt.colorName}`;
+  document.getElementById("spectralPeak").textContent = salt.peakNm ? `শীর্ষ তরঙ্গদৈর্ঘ্য: ${salt.peakNm} nm` : "বর্ণহীন শিখা (কোনো ধাতব নিঃসরণ রেখা নেই)";
+
+  // Update spectrum bar
+  const bar = document.getElementById("spectrumBar");
+  bar.innerHTML = "";
+  if (wireInserted && salt.spectralLines.length > 0) {
+    salt.spectralLines.forEach(line => {
+      // Scale: 400nm to 700nm -> 0% to 100%
+      const pct = Math.max(0, Math.min(100, ((line.nm - 400) / 300) * 100));
+      const div = document.createElement("div");
+      div.className = "spectral-line";
+      div.style.left = `${pct}%`;
+      div.style.backgroundColor = line.color;
+      div.style.color = line.color;
+      bar.appendChild(div);
+    });
+  }
+}
+
+class FlameParticle {
+  constructor(x, y, rgb) {
+    this.x = x + (Math.random() - 0.5) * 22;
+    this.y = y;
+    this.vx = (Math.random() - 0.5) * 1.8;
+    this.vy = -Math.random() * 4 - 3;
+    this.life = 1.0;
+    this.decay = Math.random() * 0.03 + 0.02;
+    this.size = Math.random() * 18 + 10;
+    this.rgb = rgb;
+  }
+  update() {
+    this.x += this.vx;
+    this.y += this.vy;
+    this.life -= this.decay;
+    this.size = Math.max(0, this.size - 0.35);
+  }
+  draw(ctx) {
+    ctx.beginPath();
+    const grad = ctx.createRadialGradient(this.x, this.y, 1, this.x, this.y, this.size);
+    grad.addColorStop(0, `rgba(255, 255, 255, ${this.life})`);
+    grad.addColorStop(0.3, `rgba(${this.rgb[0]}, ${this.rgb[1]}, ${this.rgb[2]}, ${this.life * 0.85})`);
+    grad.addColorStop(1, `rgba(${this.rgb[0]}, ${this.rgb[1]}, ${this.rgb[2]}, 0)`);
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+}
+
+function drawFlameSimulation() {
+  ctxFlame.clearRect(0, 0, flameCanvas.width, flameCanvas.height);
+  const cx = flameCanvas.width / 2;
+  const burnerBaseY = 370;
+
+  // 1. Draw Bunsen Burner
+  ctxFlame.fillStyle = "#475569";
+  // Base
+  ctxFlame.fillRect(cx - 55, burnerBaseY + 20, 110, 16);
+  // Barrel
+  ctxFlame.fillStyle = "#64748b";
+  ctxFlame.fillRect(cx - 16, burnerBaseY - 90, 32, 110);
+  // Air hole collar
+  ctxFlame.fillStyle = "#334155";
+  ctxFlame.fillRect(cx - 18, burnerBaseY - 10, 36, 14);
+  // Nozzle tip
+  ctxFlame.fillStyle = "#94a3b8";
+  ctxFlame.fillRect(cx - 18, burnerBaseY - 94, 36, 6);
+
+  // 2. Flame physics & particles
+  const nozzleX = cx;
+  const nozzleY = burnerBaseY - 96;
+
+  const currentSalt = SALTS[currentSaltKey];
+  const targetColor = (wireInserted && currentSaltKey !== "Blank") ? currentSalt.baseColor : [56, 189, 248];
+
+  // Spawn new particles
+  for (let i = 0; i < 6; i++) {
+    flameParticles.push(new FlameParticle(nozzleX, nozzleY, targetColor));
+  }
+
+  // Inner natural flame core
+  ctxFlame.beginPath();
+  const innerGrad = ctxFlame.createRadialGradient(nozzleX, nozzleY - 30, 2, nozzleX, nozzleY - 40, 45);
+  innerGrad.addColorStop(0, "rgba(255, 255, 255, 0.9)");
+  innerGrad.addColorStop(0.5, "rgba(56, 189, 248, 0.6)");
+  innerGrad.addColorStop(1, "rgba(2, 132, 199, 0)");
+  ctxFlame.arc(nozzleX, nozzleY - 35, 40, 0, Math.PI * 2);
+  ctxFlame.fillStyle = innerGrad;
+  ctxFlame.fill();
+
+  // Update & draw flame particles with composite
+  ctxFlame.globalCompositeOperation = "lighter";
+  for (let i = flameParticles.length - 1; i >= 0; i--) {
+    const p = flameParticles[i];
+    p.update();
+    if (p.life <= 0) {
+      flameParticles.splice(i, 1);
+    } else {
+      p.draw(ctxFlame);
+    }
+  }
+  ctxFlame.globalCompositeOperation = "source-over";
+
+  // 3. Nichrome / Platinum Wire loop
+  const wireTargetX = nozzleX + (wireInserted ? 6 : 90);
+  const wireY = nozzleY - 45;
+
+  ctxFlame.beginPath();
+  ctxFlame.moveTo(wireTargetX + 130, wireY + 70);
+  ctxFlame.lineTo(wireTargetX + 35, wireY);
+  ctxFlame.strokeStyle = "#cbd5e1";
+  ctxFlame.lineWidth = 3.5;
+  ctxFlame.stroke();
+
+  // Platinum loop at tip
+  ctxFlame.beginPath();
+  ctxFlame.arc(wireTargetX + 18, wireY, 14, 0, Math.PI * 2);
+  ctxFlame.strokeStyle = wireInserted ? "#fde047" : "#94a3b8";
+  ctxFlame.lineWidth = 2.5;
+  ctxFlame.stroke();
+
+  // Salt paste in loop
+  if (wireInserted && currentSaltKey !== "Blank") {
+    ctxFlame.beginPath();
+    ctxFlame.arc(wireTargetX + 18, wireY, 8, 0, Math.PI * 2);
+    ctxFlame.fillStyle = `rgb(${targetColor[0]}, ${targetColor[1]}, ${targetColor[2]})`;
+    ctxFlame.shadowColor = `rgb(${targetColor[0]}, ${targetColor[1]}, ${targetColor[2]})`;
+    ctxFlame.shadowBlur = 15;
+    ctxFlame.fill();
+    ctxFlame.shadowBlur = 0;
+  }
+
+  requestAnimationFrame(drawFlameSimulation);
+}
+
+// ==========================================
+// 4. TAB NAVIGATION
+// ==========================================
+function switchTab(tab) {
+  if (tab === "atom") {
+    document.getElementById("tabAtomBtn").classList.add("active");
+    document.getElementById("tabFlameBtn").classList.remove("active");
+    document.getElementById("atomView").classList.add("active-view");
+    document.getElementById("flameView").classList.remove("active-view");
+  } else {
+    document.getElementById("tabFlameBtn").classList.add("active");
+    document.getElementById("tabAtomBtn").classList.remove("active");
+    document.getElementById("flameView").classList.add("active-view");
+    document.getElementById("atomView").classList.remove("active-view");
+  }
+}
+
+// Initialize on Load
+initElementGrid();
+updateElementUI();
+updateFlameUI();
+drawBohrAtom();
+drawFlameSimulation();
+</script>
+
+</body>
+</html>

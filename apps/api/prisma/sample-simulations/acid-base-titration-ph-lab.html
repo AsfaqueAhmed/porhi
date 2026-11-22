@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>এসিড-ক্ষার প্রশমন ও টাইট্রেশন ল্যাব | poRi Interactive Simulator</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --border: #334155;
+      --border-accent: #0284c7;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --cyan: #38bdf8;
+      --emerald: #10b981;
+      --rose: #f43f5e;
+      --amber: #f59e0b;
+      --indigo: #6366f1;
+      --pink-indicator: rgba(244, 114, 182, 0.7);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans Bengali", sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text-main);
+      padding: 16px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .lab-container {
+      max-width: 1100px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    header {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand-title h1 {
+      font-size: 1.25rem;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-title p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .badge-tag {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    /* Main Grid Layout */
+    .lab-grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 860px) {
+      .lab-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Glassware & Apparatus Panel */
+    .apparatus-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    .apparatus-svg-wrap {
+      width: 100%;
+      max-width: 320px;
+      height: 480px;
+      position: relative;
+    }
+
+    svg.lab-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    /* Analytics & Graph Panel */
+    .dashboard-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat-card .label {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .stat-card .value {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--cyan);
+      margin: 4px 0 2px;
+      font-feature-settings: "tnum";
+    }
+
+    .stat-card .sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    /* Interactive Graph Canvas */
+    .graph-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .graph-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .graph-header h3 {
+      font-size: 0.95rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    canvas#titrationCanvas {
+      width: 100%;
+      height: 220px;
+      background: #0b1120;
+      border-radius: 8px;
+      border: 1px solid #1e293b;
+      display: block;
+    }
+
+    /* Controls & Tooling */
+    .controls-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .control-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #334155;
+      color: #fff;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .btn:hover {
+      background: #475569;
+      border-color: #64748b;
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
+    }
+
+    .btn.primary {
+      background: #0284c7;
+      border-color: #38bdf8;
+    }
+
+    .btn.primary:hover {
+      background: #0369a1;
+    }
+
+    .btn.accent {
+      background: #059669;
+      border-color: #34d399;
+    }
+
+    .btn.accent:hover {
+      background: #047857;
+    }
+
+    .btn.danger {
+      background: #dc2626;
+      border-color: #f87171;
+    }
+
+    .btn.active-drip {
+      background: #e11d48;
+      border-color: #fb7185;
+      animation: pulseGlow 1.2s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 4px #fb7185; }
+      50% { box-shadow: 0 0 16px #fb7185; }
+    }
+
+    select.chem-select {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      color: #f8fafc;
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Universal Indicator Scale */
+    .indicator-strip-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 12px 16px;
+    }
+
+    .strip-title {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .ph-spectrum {
+      display: flex;
+      height: 24px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #475569;
+      position: relative;
+    }
+
+    .ph-color-block {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: #fff;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+      position: relative;
+    }
+
+    .ph-indicator-needle {
+      position: absolute;
+      top: -6px;
+      width: 4px;
+      height: 36px;
+      background: #ffffff;
+      border: 1px solid #000;
+      border-radius: 2px;
+      box-shadow: 0 0 8px #ffffff;
+      transform: translateX(-50%);
+      transition: left 0.15s ease-out;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* Explanatory Banner */
+    .reaction-banner {
+      background: #0c4a6e;
+      border-left: 4px solid var(--cyan);
+      border-radius: 0 10px 10px 0;
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+
+    .reaction-banner b {
+      color: #7dd3fc;
+    }
+
+    .reaction-banner code {
+      background: #082f49;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 0.9em;
+      color: #38bdf8;
+    }
+
+    /* Droplet animation */
+    @keyframes dropFall {
+      0% { transform: translateY(0) scale(1); opacity: 0.9; }
+      80% { transform: translateY(115px) scale(0.9); opacity: 1; }
+      100% { transform: translateY(125px) scale(1.4); opacity: 0; }
+    }
+
+    .falling-drop {
+      animation: dropFall 0.45s cubic-bezier(0.55, 0.085, 0.68, 0.53) infinite;
+    }
+
+    /* Swirl stirring animation */
+    @keyframes stirSwirl {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .stir-rotating {
+      animation: stirSwirl 0.8s linear infinite;
+      transform-origin: 160px 455px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="lab-container">
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="brand-title">
+      <h1>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M10 2v7.31L4.35 18.25A2 2 0 006.05 21h11.9a2 2 0 001.7-2.75L14 9.31V2"/>
+          <path d="M8.5 2h7M14 9.3h-4"/>
+        </svg>
+        এসিড-ক্ষার প্রশমন ও টাইট্রেশন ল্যাব
+      </h1>
+      <p>নবম-দশম শ্রেণি রসায়ন · অধ্যায় ৯: এসিড-ক্ষার সমতা · মিথস্ক্রিয় সিমুলেটর</p>
+    </div>
+    <div class="badge-tag">NCTB SSC রসায়ন ২০২৬</div>
+  </header>
+
+  <!-- Main Grid -->
+  <div class="lab-grid">
+    <!-- LEFT: Glassware Apparatus with SVG -->
+    <div class="apparatus-panel">
+      <div class="apparatus-svg-wrap">
+        <svg class="lab-svg" viewBox="0 0 320 490">
+          <defs>
+            <!-- Glass reflection gradient -->
+            <linearGradient id="glassGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.3"/>
+              <stop offset="30%" stop-color="#ffffff" stop-opacity="0.08"/>
+              <stop offset="85%" stop-color="#ffffff" stop-opacity="0.12"/>
+              <stop offset="100%" stop-color="#ffffff" stop-opacity="0.35"/>
+            </linearGradient>
+
+            <!-- Burette titrant fluid gradient -->
+            <linearGradient id="buretteLiquid" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#bae6fd" stop-opacity="0.7"/>
+              <stop offset="50%" stop-color="#e0f2fe" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#7dd3fc" stop-opacity="0.75"/>
+            </linearGradient>
+
+            <filter id="liquidGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" result="blur"/>
+              <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+            </filter>
+          </defs>
+
+          <!-- Stand Base & Rod -->
+          <rect x="20" y="470" width="160" height="14" rx="3" fill="#334155" stroke="#1e293b" stroke-width="1.5"/>
+          <rect x="45" y="30" width="8" height="440" fill="#64748b" stroke="#475569" stroke-width="1"/>
+          
+          <!-- Clamp 1 holding Burette -->
+          <rect x="45" y="140" width="105" height="7" fill="#475569"/>
+          <circle cx="150" cy="143" r="6" fill="#94a3b8"/>
+          <!-- Clamp 2 holding Burette lower -->
+          <rect x="45" y="230" width="105" height="7" fill="#475569"/>
+          <circle cx="150" cy="233" r="6" fill="#94a3b8"/>
+
+          <!-- Magnetic Stirrer Plate Base -->
+          <rect x="95" y="458" width="130" height="12" rx="3" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+          <circle id="stirrerIndicator" cx="110" cy="464" r="3" fill="#10b981"/>
+          <text x="120" y="467" font-size="7" fill="#94a3b8" font-weight="700">STIRRER</text>
+
+          <!-- ================= BURETTE ================= -->
+          <!-- Burette Tube Outline -->
+          <rect x="145" y="20" width="14" height="250" rx="3" fill="none" stroke="#94a3b8" stroke-width="1.8"/>
+          <rect x="145" y="20" width="14" height="250" fill="url(#glassGrad)"/>
+
+          <!-- Burette Liquid Level (dynamically adjusted) -->
+          <!-- 0 mL added = y:25, height:240. 50 mL added = y:265, height:0 -->
+          <rect id="buretteLiquidEl" x="146.5" y="25" width="11" height="240" fill="url(#buretteLiquid)"/>
+          
+          <!-- Burette graduations (ticks) -->
+          <g id="buretteTicks" stroke="#64748b" stroke-width="0.8">
+            <!-- 0 mL -->
+            <line x1="152" y1="25" x2="159" y2="25"/><text x="140" y="28" font-size="7" fill="#cbd5e1" text-anchor="end">0</text>
+            <!-- 10 mL -->
+            <line x1="154" y1="73" x2="159" y2="73"/><text x="140" y="76" font-size="7" fill="#cbd5e1" text-anchor="end">10</text>
+            <!-- 20 mL -->
+            <line x1="154" y1="121" x2="159" y2="121"/><text x="140" y="124" font-size="7" fill="#cbd5e1" text-anchor="end">20</text>
+            <!-- 25 mL (Equivalence target) -->
+            <line x1="151" y1="145" x2="159" y2="145" stroke="#f43f5e" stroke-width="1.2"/>
+            <text x="140" y="148" font-size="7.5" fill="#f43f5e" font-weight="bold" text-anchor="end">25</text>
+            <!-- 30 mL -->
+            <line x1="154" y1="169" x2="159" y2="169"/><text x="140" y="172" font-size="7" fill="#cbd5e1" text-anchor="end">30</text>
+            <!-- 40 mL -->
+            <line x1="154" y1="217" x2="159" y2="217"/><text x="140" y="220" font-size="7" fill="#cbd5e1" text-anchor="end">40</text>
+            <!-- 50 mL -->
+            <line x1="152" y1="265" x2="159" y2="265"/><text x="140" y="268" font-size="7" fill="#cbd5e1" text-anchor="end">50</text>
+          </g>
+
+          <!-- Burette Stopcock valve -->
+          <path d="M149 270 L155 270 L154 285 L150 285 Z" fill="#94a3b8"/>
+          <!-- Valve handle -->
+          <g id="stopcockValve" transform="translate(152, 278) rotate(0)">
+            <rect x="-8" y="-3" width="16" height="6" rx="2" fill="#38bdf8" stroke="#0284c7" stroke-width="1"/>
+            <circle cx="0" cy="0" r="2.5" fill="#fff"/>
+          </g>
+          <!-- Tip nozzle -->
+          <polygon points="150,285 154,285 153,302 151,302" fill="#cbd5e1"/>
+
+          <!-- Falling Droplet Animation (triggered during titration) -->
+          <g id="dropGroup" style="display: none;">
+            <circle class="falling-drop" cx="152" cy="305" r="3.2" fill="#38bdf8"/>
+          </g>
+
+          <!-- ================= ERLENMEYER CONICAL FLASK ================= -->
+          <!-- Flask Body Glass Path (250 mL flask) -->
+          <!-- Neck: x:140 to 164, y:315 to 350. Base: x:105 to 215, y:455 -->
+          <path id="flaskLiquidPath" d="M110 455 L210 455 L190 380 L130 380 Z" fill="rgba(244, 114, 182, 0.05)" filter="url(#liquidGlow)"/>
+
+          <!-- Flask Glass Outline -->
+          <path d="M138 318 L166 318 L166 350 L216 452 A8 8 0 0 1 209 458 L111 458 A8 8 0 0 1 104 452 L154 350 L154 318" 
+                fill="url(#glassGrad)" stroke="#94a3b8" stroke-width="2"/>
+          <ellipse cx="152" cy="318" rx="14" ry="3.5" fill="none" stroke="#94a3b8" stroke-width="2"/>
+
+          <!-- Magnetic Stir Bar in Flask -->
+          <g id="stirBarGroup" class="stir-rotating">
+            <rect x="146" y="451" width="28" height="6" rx="3" fill="#ffffff" stroke="#94a3b8" stroke-width="1"/>
+          </g>
+
+          <!-- ================= pH ELECTRODE SENSOR ================= -->
+          <!-- Electrode arm dipping into flask -->
+          <path d="M255 240 L255 330 L180 370 L180 435" fill="none" stroke="#1e293b" stroke-width="3.5"/>
+          <rect x="176" y="415" width="8" height="28" rx="2" fill="#334155" stroke="#38bdf8" stroke-width="1.2"/>
+          <circle cx="180" cy="442" r="3.5" fill="#38bdf8" opacity="0.8"/>
+          <!-- Cable leading to pH meter -->
+          <path d="M255 240 Q270 200 240 160" fill="none" stroke="#475569" stroke-width="2.5" stroke-dasharray="4,2"/>
+
+          <!-- ================= DIGITAL pH METER ================= -->
+          <g transform="translate(190, 80)">
+            <rect x="0" y="0" width="105" height="70" rx="8" fill="#1e293b" stroke="#475569" stroke-width="2"/>
+            <rect x="8" y="10" width="89" height="32" rx="4" fill="#090d16" stroke="#334155" stroke-width="1"/>
+            <!-- LED display value -->
+            <text id="phMeterDisplay" x="88" y="34" font-size="20" fill="#38bdf8" font-weight="900" text-anchor="end" font-family="monospace">1.00</text>
+            <text x="14" y="24" font-size="8" fill="#64748b" font-weight="bold">pH</text>
+            <text x="14" y="56" font-size="8" fill="#94a3b8">TEMP: 25.0°C</text>
+            <circle cx="92" cy="54" r="3" fill="#10b981"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- RIGHT: Data Dashboard & Graph -->
+    <div class="dashboard-panel">
+      <!-- 4 Stat Cards -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="label">যোগকৃত NaOH ($V_b$)</div>
+          <div class="value" id="dispVolume">0.00 <span style="font-size:0.8rem;color:#94a3b8">mL</span></div>
+          <div class="sub">ব্যুরেট ক্ষারক রিডিং</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">দ্রবণের বর্তমান pH</div>
+          <div class="value" id="dispPh" style="color:#38bdf8">1.00</div>
+          <div class="sub" id="dispState">তীব্র অম্লীয়</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">[$H^+$] মোলারিটি</div>
+          <div class="value" id="dispHConc" style="font-size:1.15rem">1.0×10⁻¹</div>
+          <div class="sub">mol/L</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">নির্দেশকের বর্ণ</div>
+          <div class="value" id="dispColorName" style="font-size:1.05rem;color:#cbd5e1">বর্ণহীন</div>
+          <div class="sub" id="dispIndRange">ফেনলফথ্যালিন (pH < 8.2)</div>
+        </div>
+      </div>
+
+      <!-- Graph Canvas -->
+      <div class="graph-card">
+        <div class="graph-header">
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2">
+              <path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-3 3"/>
+            </svg>
+            লাইভ টাইট্রেশন বক্ররেখা (Titration Curve: pH vs $V_{NaOH}$)
+          </h3>
+          <span style="font-size:0.75rem;color:#94a3b8">সমতুল্য বিন্দু: <b>২৫.০ mL (pH ৭.০)</b></span>
+        </div>
+        <canvas id="titrationCanvas" width="600" height="220"></canvas>
+      </div>
+
+      <!-- Universal Indicator Visual Scale Strip -->
+      <div class="indicator-strip-card">
+        <div class="strip-title">
+          <span>সার্বজনীন নির্দেশক ও pH স্কেল মানদণ্ড (pH 1–14)</span>
+          <span id="stripPhBadge" style="color:var(--cyan);font-weight:700">বর্তমান pH: ১.০০</span>
+        </div>
+        <div class="ph-spectrum">
+          <div class="ph-color-block" style="background:#dc2626">1</div>
+          <div class="ph-color-block" style="background:#ea580c">2</div>
+          <div class="ph-color-block" style="background:#f97316">3</div>
+          <div class="ph-color-block" style="background:#f59e0b">4</div>
+          <div class="ph-color-block" style="background:#eab308">5</div>
+          <div class="ph-color-block" style="background:#84cc16">6</div>
+          <div class="ph-color-block" style="background:#22c55e">7</div>
+          <div class="ph-color-block" style="background:#10b981">8</div>
+          <div class="ph-color-block" style="background:#06b6d4">9</div>
+          <div class="ph-color-block" style="background:#0284c7">10</div>
+          <div class="ph-color-block" style="background:#3b82f6">11</div>
+          <div class="ph-color-block" style="background:#6366f1">12</div>
+          <div class="ph-color-block" style="background:#8b5cf6">13</div>
+          <div class="ph-color-block" style="background:#a855f7">14</div>
+          <div id="phNeedle" class="ph-indicator-needle" style="left: 7.14%;"></div>
+        </div>
+      </div>
+
+      <!-- Interactive Controls -->
+      <div class="controls-card">
+        <div class="control-row">
+          <span style="font-size:0.8rem;color:#94a3b8;font-weight:700">দ্রবণ নির্বাচন:</span>
+          <select id="systemSelect" class="chem-select">
+            <option value="HCl_NaOH">তীব্র এসিড ও তীব্র ক্ষারক (HCl + NaOH)</option>
+            <option value="CH3COOH_NaOH">দুর্বল এসিড ও তীব্র ক্ষারক (CH₃COOH + NaOH)</option>
+          </select>
+
+          <span style="font-size:0.8rem;color:#94a3b8;font-weight:700;margin-left:8px">নির্দেশক:</span>
+          <select id="indicatorSelect" class="chem-select">
+            <option value="phenolphthalein">ফেনলফথ্যালিন (বর্ণহীন → হালকা গোলাপি)</option>
+            <option value="methylOrange">মিথাইল অরেঞ্জ (লাল → কমলা → হলুদ)</option>
+            <option value="universal">সার্বজনীন নির্দেশক (Universal Indicator)</option>
+          </select>
+        </div>
+
+        <div class="control-row">
+          <button id="btnAddDrop" class="btn primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z"/></svg>
+            + ১ ফোঁটা (+0.05 mL)
+          </button>
+          <button id="btnAddHalf" class="btn">+ ০.৫ mL</button>
+          <button id="btnAddOne" class="btn">+ ১.০ mL</button>
+          <button id="btnAddFive" class="btn">+ ৫.০ mL</button>
+          
+          <button id="btnContinuous" class="btn accent">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            একটানা ফোঁটা (Auto-Drip)
+          </button>
+          <button id="btnStirrer" class="btn">ঘূর্ণন (Stirrer): চালু</button>
+          <button id="btnReset" class="btn danger" style="margin-left:auto">ল্যাব রিসেট</button>
+        </div>
+      </div>
+
+      <!-- Scientific Principles Banner -->
+      <div class="reaction-banner" id="reactionBanner">
+        <b>প্রশমন বিক্রিয়া:</b> <code>HCl(aq) + NaOH(aq) → NaCl(aq) + H₂O(l)</code><br>
+        কনিক্যাল ফ্লাস্কে আছে <b>২৫.০ mL ০.১০ M HCl</b>। সম্পূর্ণ প্রশমিত করতে প্রয়োজন ঠিক <b>২৫.০ mL ০.১০ M NaOH</b>। 
+        সমাপ্তি বিন্দুতে (pH 8.2) ফেনলফথ্যালিনের প্রথম স্থায়ী হালকা গোলাপি আভা দেখা যায়।
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // Chemical parameters
+  const V_analyte = 25.0; // mL
+  const C_analyte = 0.10; // M (0.10 M HCl or CH3COOH)
+  const C_titrant = 0.10; // M (0.10 M NaOH)
+  const Ka_acetic = 1.8e-5; // for CH3COOH
+
+  let currentVolume = 0.0; // Added titrant mL (0 to 50 mL)
+  let system = 'HCl_NaOH'; // or 'CH3COOH_NaOH'
+  let indicator = 'phenolphthalein';
+  let isDripping = false;
+  let dripInterval = null;
+  let stirrerActive = true;
+
+  // Recorded points for live curve graph
+  let curveHistory = [];
+
+  // DOM elements
+  const buretteLiquidEl = document.getElementById('buretteLiquidEl');
+  const stopcockValve = document.getElementById('stopcockValve');
+  const dropGroup = document.getElementById('dropGroup');
+  const flaskLiquidPath = document.getElementById('flaskLiquidPath');
+  const stirBarGroup = document.getElementById('stirBarGroup');
+  const stirrerIndicator = document.getElementById('stirrerIndicator');
+  const phMeterDisplay = document.getElementById('phMeterDisplay');
+  const dispVolume = document.getElementById('dispVolume');
+  const dispPh = document.getElementById('dispPh');
+  const dispState = document.getElementById('dispState');
+  const dispHConc = document.getElementById('dispHConc');
+  const dispColorName = document.getElementById('dispColorName');
+  const dispIndRange = document.getElementById('dispIndRange');
+  const phNeedle = document.getElementById('phNeedle');
+  const stripPhBadge = document.getElementById('stripPhBadge');
+  const systemSelect = document.getElementById('systemSelect');
+  const indicatorSelect = document.getElementById('indicatorSelect');
+  const reactionBanner = document.getElementById('reactionBanner');
+  const canvas = document.getElementById('titrationCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // Bengali numerals converter
+  function toBn(num, decimals = 2) {
+    const fixed = Number(num).toFixed(decimals);
+    const bnDigits = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+    return fixed.replace(/[0-9]/g, d => bnDigits[d]);
+  }
+
+  // Calculate real stoichiometric pH
+  function computePH(Vb, sys) {
+    if (Vb <= 0) {
+      if (sys === 'HCl_NaOH') {
+        return 1.00; // -log10(0.1) = 1.00
+      } else {
+        // [H+] = sqrt(Ka * C) = sqrt(1.8e-5 * 0.1) = 1.34e-3 -> pH = 2.87
+        const h = Math.sqrt(Ka_acetic * C_analyte);
+        return -Math.log10(h);
+      }
+    }
+
+    const n_acid_initial = (V_analyte * C_analyte) / 1000.0; // moles
+    const n_base_added = (Vb * C_titrant) / 1000.0;
+    const totalV_liters = (V_analyte + Vb) / 1000.0;
+
+    if (sys === 'HCl_NaOH') {
+      if (Math.abs(Vb - 25.0) < 0.001) {
+        return 7.00; // Perfect equivalence of strong acid & strong base
+      } else if (Vb < 25.0) {
+        // Excess strong acid
+        const remaining_acid = n_acid_initial - n_base_added;
+        const h_conc = remaining_acid / totalV_liters;
+        return -Math.log10(Math.max(h_conc, 1e-7));
+      } else {
+        // Excess strong base
+        const excess_base = n_base_added - n_acid_initial;
+        const oh_conc = excess_base / totalV_liters;
+        const pOH = -Math.log10(Math.max(oh_conc, 1e-7));
+        return 14.0 - pOH;
+      }
+    } else {
+      // Weak acid CH3COOH + strong base NaOH
+      if (Vb < 24.95) {
+        // Buffer region: Henderson-Hasselbalch
+        // pH = pKa + log([A-] / [HA])
+        const pKa = -Math.log10(Ka_acetic); // 4.74
+        const salt = n_base_added;
+        const acid = n_acid_initial - n_base_added;
+        if (salt <= 0) return 2.87;
+        const ratio = salt / acid;
+        return pKa + Math.log10(ratio);
+      } else if (Math.abs(Vb - 25.0) <= 0.1) {
+        // Salt hydrolysis at equivalence point: CH3COO- + H2O <-> CH3COOH + OH-
+        // [OH-] = sqrt( (Kw / Ka) * C_salt )
+        const c_salt = n_acid_initial / totalV_liters;
+        const Kb = 1e-14 / Ka_acetic;
+        const oh = Math.sqrt(Kb * c_salt);
+        const pOH = -Math.log10(oh);
+        return 14.0 - pOH; // around 8.72
+      } else {
+        // Excess base dominates
+        const excess_base = n_base_added - n_acid_initial;
+        const oh_conc = excess_base / totalV_liters;
+        const pOH = -Math.log10(oh_conc);
+        return 14.0 - pOH;
+      }
+    }
+  }
+
+  // Get indicator color & styling based on pH and chosen indicator
+  function getIndicatorState(ph, ind) {
+    if (ind === 'phenolphthalein') {
+      if (ph < 8.2) {
+        return {
+          color: 'rgba(244, 114, 182, 0.05)',
+          name: 'বর্ণহীন',
+          desc: 'ফেনলফথ্যালিন (pH < ৮.২ বর্ণহীন)',
+          stateText: ph < 7 ? 'অম্লীয়' : (ph === 7 ? 'প্রশম' : 'ঈষৎ ক্ষারীয়')
+        };
+      } else if (ph >= 8.2 && ph <= 9.0) {
+        // Delicate light pink transition
+        const t = (ph - 8.2) / 0.8;
+        return {
+          color: `rgba(244, 114, 182, ${0.35 + t * 0.35})`,
+          name: 'হালকা গোলাপি (সমাপ্তি বিন্দু!)',
+          desc: 'ফেনলফথ্যালিন রঙ পরিবর্তন (সমাপ্তি বিন্দু)',
+          stateText: 'সমাপ্তি বিন্দু অর্জিত'
+        };
+      } else {
+        return {
+          color: 'rgba(236, 72, 153, 0.85)',
+          name: 'গাঢ় গোলাপি / ম্যাজেন্টা',
+          desc: 'ফেনলফথ্যালিন ক্ষারীয় বর্ণ (pH > ৯.০)',
+          stateText: 'তীব্র ক্ষারীয়'
+        };
+      }
+    } else if (ind === 'methylOrange') {
+      if (ph < 3.1) {
+        return {
+          color: 'rgba(239, 68, 68, 0.75)',
+          name: 'লালচে গোলাপী',
+          desc: 'মিথাইল অরেঞ্জ অম্লীয় বর্ণ (pH < ৩.১)',
+          stateText: 'তীব্র অম্লীয়'
+        };
+      } else if (ph >= 3.1 && ph <= 4.4) {
+        return {
+          color: 'rgba(249, 115, 22, 0.8)',
+          name: 'কমলা বর্ণ (সমাপ্তি বিন্দু)',
+          desc: 'মিথাইল অরেঞ্জ রূপান্তর (pH ৩.১–৪.৪)',
+          stateText: 'রূপান্তর অঞ্চল'
+        };
+      } else {
+        return {
+          color: 'rgba(234, 179, 8, 0.75)',
+          name: 'হলুদ বর্ণ',
+          desc: 'মিথাইল অরেঞ্জ ক্ষারীয় বর্ণ (pH > ৪.৪)',
+          stateText: ph > 7 ? 'ক্ষারীয়' : 'প্রশম'
+        };
+      }
+    } else {
+      // Universal indicator
+      if (ph < 3) {
+        return { color: 'rgba(220, 38, 38, 0.8)', name: 'গাঢ় লাল', desc: 'pH ১–২ (তীব্র অম্লীয়)', stateText: 'তীব্র অম্লীয়' };
+      } else if (ph < 6) {
+        return { color: 'rgba(245, 158, 11, 0.8)', name: 'কমলা/হলুদ', desc: 'pH ৩–৫ (মৃদু অম্লীয়)', stateText: 'মৃদু অম্লীয়' };
+      } else if (ph < 8) {
+        return { color: 'rgba(34, 197, 94, 0.8)', name: 'সবুজ বর্ণ', desc: 'pH ৭ (প্রশমিত/নিরপেক্ষ)', stateText: 'প্রশম (Neutral)' };
+      } else if (ph < 11) {
+        return { color: 'rgba(2, 132, 199, 0.8)', name: 'নীল বর্ণ', desc: 'pH ৮–১০ (মৃদু ক্ষারীয়)', stateText: 'মৃদু ক্ষারীয়' };
+      } else {
+        return { color: 'rgba(139, 92, 246, 0.85)', name: 'বেগুনি বর্ণ', desc: 'pH ১১–১৪ (তীব্র ক্ষারীয়)', stateText: 'তীব্র ক্ষারীয়' };
+      }
+    }
+  }
+
+  // Update simulator visual elements
+  function updateVisuals() {
+    const ph = computePH(currentVolume, system);
+    const indState = getIndicatorState(ph, indicator);
+
+    // 1. Burette fluid height: 0 mL = y:25, h:240; 50 mL = y:265, h:0
+    const buretteFillH = Math.max(0, 240 - (currentVolume / 50.0) * 240);
+    const buretteFillY = 25 + (240 - buretteFillH);
+    buretteLiquidEl.setAttribute('y', buretteFillY);
+    buretteLiquidEl.setAttribute('height', buretteFillH);
+
+    // 2. Conical flask liquid color
+    flaskLiquidPath.setAttribute('fill', indState.color);
+
+    // 3. Digital pH meter
+    phMeterDisplay.textContent = ph.toFixed(2);
+
+    // 4. Stat cards
+    dispVolume.innerHTML = `${currentVolume.toFixed(2)} <span style="font-size:0.8rem;color:#94a3b8">mL</span>`;
+    dispPh.textContent = ph.toFixed(2);
+    dispState.textContent = indState.stateText;
+
+    // [H+] concentration scientific notation
+    const hConc = Math.pow(10, -ph);
+    if (hConc >= 0.01) {
+      dispHConc.textContent = hConc.toFixed(3);
+    } else {
+      const exp = Math.floor(Math.log10(hConc));
+      const mantissa = (hConc / Math.pow(10, exp)).toFixed(1);
+      dispHConc.textContent = `${mantissa}×10${toSuperscript(exp)}`;
+    }
+
+    dispColorName.textContent = indState.name;
+    dispIndRange.textContent = indState.desc;
+
+    // 5. Universal indicator needle
+    const clampedPh = Math.max(1, Math.min(14, ph));
+    const needlePct = ((clampedPh - 1) / 13) * 100;
+    phNeedle.style.left = `${needlePct}%`;
+    stripPhBadge.textContent = `বর্তমান pH: ${ph.toFixed(2)} (${toBn(ph.toFixed(2))})`;
+
+    // Record point in curve
+    if (!curveHistory.some(p => Math.abs(p.v - currentVolume) < 0.02)) {
+      curveHistory.push({ v: currentVolume, ph: ph });
+      curveHistory.sort((a, b) => a.v - b.v);
+    }
+
+    drawGraph(ph);
+  }
+
+  function toSuperscript(num) {
+    const map = { '-': '⁻', '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹' };
+    return String(num).split('').map(c => map[c] || c).join('');
+  }
+
+  // Draw Titration Curve Graph on Canvas
+  function drawGraph(activePh) {
+    const w = canvas.width;
+    const h = canvas.height;
+    ctx.clearRect(0, 0, w, h);
+
+    const padLeft = 45;
+    const padRight = 20;
+    const padTop = 15;
+    const padBottom = 30;
+    const plotW = w - padLeft - padRight;
+    const plotH = h - padTop - padBottom;
+
+    // Coordinate helpers
+    function vx(v) { return padLeft + (v / 50.0) * plotW; }
+    function py(p) { return padTop + plotH - (p / 14.0) * plotH; }
+
+    // Grid lines
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#1e293b';
+
+    // Horizontal pH lines (0, 2, 4, 6, 7, 8, 10, 12, 14)
+    [0, 2, 4, 6, 7, 8, 10, 12, 14].forEach(p => {
+      const y = py(p);
+      ctx.beginPath();
+      ctx.moveTo(padLeft, y);
+      ctx.lineTo(w - padRight, y);
+      ctx.stroke();
+
+      ctx.fillStyle = p === 7 ? '#38bdf8' : '#64748b';
+      ctx.font = '10px system-ui';
+      ctx.textAlign = 'right';
+      ctx.fillText(p, padLeft - 6, y + 3);
+    });
+
+    // Vertical Volume lines (0, 10, 20, 25, 30, 40, 50 mL)
+    [0, 10, 20, 25, 30, 40, 50].forEach(v => {
+      const x = vx(v);
+      ctx.beginPath();
+      ctx.moveTo(x, padTop);
+      ctx.lineTo(x, h - padBottom);
+      ctx.stroke();
+
+      ctx.fillStyle = v === 25 ? '#f43f5e' : '#64748b';
+      ctx.font = v === 25 ? 'bold 10px system-ui' : '10px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText(v, x, h - padBottom + 14);
+    });
+
+    // Axis labels
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '10px system-ui';
+    ctx.textAlign = 'center';
+    ctx.fillText('যোগকৃত ক্ষারকের আয়তন (mL)', padLeft + plotW / 2, h - 4);
+
+    ctx.save();
+    ctx.translate(14, padTop + plotH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('দ্রবণের pH মান', 0, 0);
+    ctx.restore();
+
+    // Shaded Indicator Transition Band for Phenolphthalein (pH 8.2 to 10.0)
+    if (indicator === 'phenolphthalein') {
+      const yTop = py(10.0);
+      const yBot = py(8.2);
+      ctx.fillStyle = 'rgba(244, 114, 182, 0.12)';
+      ctx.fillRect(padLeft, yTop, plotW, yBot - yTop);
+      ctx.fillStyle = 'rgba(244, 114, 182, 0.7)';
+      ctx.font = '9px system-ui';
+      ctx.textAlign = 'left';
+      ctx.fillText('ফেনলফথ্যালিন রূপান্তর অঞ্চল (pH 8.2–10.0)', padLeft + 6, yBot - 4);
+    } else if (indicator === 'methylOrange') {
+      const yTop = py(4.4);
+      const yBot = py(3.1);
+      ctx.fillStyle = 'rgba(249, 115, 22, 0.12)';
+      ctx.fillRect(padLeft, yTop, plotW, yBot - yTop);
+      ctx.fillStyle = 'rgba(249, 115, 22, 0.8)';
+      ctx.font = '9px system-ui';
+      ctx.textAlign = 'left';
+      ctx.fillText('মিথাইল অরেঞ্জ রূপান্তর অঞ্চল (pH 3.1–4.4)', padLeft + 6, yBot - 4);
+    }
+
+    // Equivalence line at V = 25.0 mL
+    const eqX = vx(25.0);
+    ctx.setLineDash([3, 3]);
+    ctx.strokeStyle = '#f43f5e';
+    ctx.beginPath();
+    ctx.moveTo(eqX, padTop);
+    ctx.lineTo(eqX, h - padBottom);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Draw reference ideal curve in background
+    ctx.lineWidth = 1.5;
+    ctx.strokeStyle = '#334155';
+    ctx.beginPath();
+    for (let v = 0; v <= 50; v += 0.25) {
+      const p = computePH(v, system);
+      if (v === 0) ctx.moveTo(vx(v), py(p));
+      else ctx.lineTo(vx(v), py(p));
+    }
+    ctx.stroke();
+
+    // Draw active user progress curve (solid glowing cyan)
+    if (curveHistory.length > 0) {
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = '#38bdf8';
+      ctx.beginPath();
+      curveHistory.forEach((pt, idx) => {
+        if (idx === 0) ctx.moveTo(vx(pt.v), py(pt.ph));
+        else ctx.lineTo(vx(pt.v), py(pt.ph));
+      });
+      ctx.stroke();
+
+      // Active current cursor point
+      const curX = vx(currentVolume);
+      const curY = py(activePh);
+      ctx.fillStyle = '#ffffff';
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(curX, curY, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  // Droplet visual trigger
+  function animateDrop() {
+    dropGroup.style.display = 'block';
+    // Turn stopcock valve slightly
+    stopcockValve.setAttribute('transform', 'translate(152, 278) rotate(45)');
+    setTimeout(() => {
+      if (!isDripping) {
+        dropGroup.style.display = 'none';
+        stopcockValve.setAttribute('transform', 'translate(152, 278) rotate(0)');
+      }
+    }, 450);
+  }
+
+  // Addition handlers
+  function addTitrant(amount) {
+    if (currentVolume >= 50.0) return;
+    currentVolume = Math.min(50.0, +(currentVolume + amount).toFixed(2));
+    animateDrop();
+    updateVisuals();
+  }
+
+  // Toggle Continuous Drip
+  function toggleContinuousDrip() {
+    isDripping = !isDripping;
+    const btn = document.getElementById('btnContinuous');
+    if (isDripping) {
+      btn.classList.add('active-drip');
+      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg> বন্ধ করুন (Stop)`;
+      stopcockValve.setAttribute('transform', 'translate(152, 278) rotate(90)');
+      dropGroup.style.display = 'block';
+      dripInterval = setInterval(() => {
+        if (currentVolume >= 50.0) {
+          toggleContinuousDrip();
+          return;
+        }
+        addTitrant(0.1);
+      }, 120);
+    } else {
+      btn.classList.remove('active-drip');
+      btn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg> একটানা ফোঁটা (Auto-Drip)`;
+      stopcockValve.setAttribute('transform', 'translate(152, 278) rotate(0)');
+      dropGroup.style.display = 'none';
+      if (dripInterval) clearInterval(dripInterval);
+    }
+  }
+
+  // Reset simulation
+  function resetLab() {
+    if (isDripping) toggleContinuousDrip();
+    currentVolume = 0.0;
+    curveHistory = [];
+    updateVisuals();
+  }
+
+  // Event Listeners
+  document.getElementById('btnAddDrop').addEventListener('click', () => addTitrant(0.05));
+  document.getElementById('btnAddHalf').addEventListener('click', () => addTitrant(0.5));
+  document.getElementById('btnAddOne').addEventListener('click', () => addTitrant(1.0));
+  document.getElementById('btnAddFive').addEventListener('click', () => addTitrant(5.0));
+  document.getElementById('btnContinuous').addEventListener('click', toggleContinuousDrip);
+  document.getElementById('btnReset').addEventListener('click', resetLab);
+
+  document.getElementById('btnStirrer').addEventListener('click', function() {
+    stirrerActive = !stirrerActive;
+    if (stirrerActive) {
+      stirBarGroup.classList.add('stir-rotating');
+      stirrerIndicator.setAttribute('fill', '#10b981');
+      this.textContent = 'ঘূর্ণন (Stirrer): চালু';
+    } else {
+      stirBarGroup.classList.remove('stir-rotating');
+      stirrerIndicator.setAttribute('fill', '#64748b');
+      this.textContent = 'ঘূর্ণন (Stirrer): বন্ধ';
+    }
+  });
+
+  systemSelect.addEventListener('change', function() {
+    system = this.value;
+    if (system === 'HCl_NaOH') {
+      reactionBanner.innerHTML = `<b>প্রশমন বিক্রিয়া:</b> <code>HCl(aq) + NaOH(aq) → NaCl(aq) + H₂O(l)</code><br>কনিক্যাল ফ্লাস্কে আছে <b>২৫.০ mL ০.১০ M HCl</b>। সম্পূর্ণ প্রশমিত করতে প্রয়োজন ঠিক <b>২৫.০ mL ০.১০ M NaOH</b>। সমাপ্তি বিন্দুতে (pH 8.2) ফেনলফথ্যালিনের প্রথম স্থায়ী হালকা গোলাপি আভা দেখা যায়।`;
+    } else {
+      reactionBanner.innerHTML = `<b>প্রশমন বিক্রিয়া:</b> <code>CH₃COOH(aq) + NaOH(aq) → CH₃COONa(aq) + H₂O(l)</code><br>দুর্বল এসিড এসিটিক এসিডের শুরুতে বাফার অঞ্চলের সৃষ্টি হয়। সমতুল্য বিন্দুতে উৎপন্ন লবণ $CH_3COONa$ ক্ষারীয় আর্দ্রবিশ্লেষণ ঘটায় বলে সমাপ্তি বিন্দুর pH প্রায় <b>৮.৭২</b> হয়।`;
+    }
+    resetLab();
+  });
+
+  indicatorSelect.addEventListener('change', function() {
+    indicator = this.value;
+    updateVisuals();
+  });
+
+  // Initialize
+  updateVisuals();
+})();
+</script>
+</body>
+</html>

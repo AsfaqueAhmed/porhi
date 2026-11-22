@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>পদার্থের অবস্থা, কণার গতিতত্ত্ব ও ব্যাপন ল্যাব | SSC রসায়ন অধ্যায় ২</title>
+  <style>
+    /* === PORI UNIFIED SIMULATOR THEME === */
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-card: #ffffff;
+      --pori-panel: #f1f5f9;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #64748b;
+      --pori-teal: #0d9488;
+      --pori-teal-soft: #f0fdfa;
+      --pori-teal-border: #99f6e4;
+      --pori-teal-ink: #115e59;
+      --pori-blue: #0284c7;
+      --pori-amber: #d97706;
+      --pori-rose: #e11d48;
+      --pori-purple: #7c3aed;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Noto Sans Bengali", system-ui, -apple-system, sans-serif; }
+    body {
+      background: var(--pori-bg);
+      color: var(--pori-ink);
+      padding: 14px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      background: var(--pori-card);
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--pori-border-soft);
+      padding-bottom: 14px;
+    }
+    .header-text h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--pori-heading);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .header-text p {
+      font-size: 0.85rem;
+      color: var(--pori-muted);
+      margin-top: 2px;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 750;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--pori-teal-soft);
+      color: var(--pori-teal-ink);
+      border: 1px solid var(--pori-teal-border);
+    }
+
+    /* Tab switcher */
+    .tab-bar {
+      display: flex;
+      gap: 8px;
+      background: #f1f5f9;
+      padding: 4px;
+      border-radius: 12px;
+      border: 1px solid var(--pori-border-soft);
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 8px 14px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--pori-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tab-btn.active {
+      background: #ffffff;
+      color: var(--pori-teal-ink);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+    }
+
+    /* Simulation Viewport */
+    .sim-viewport {
+      background: #0f172a;
+      border-radius: 14px;
+      border: 1px solid #1e293b;
+      position: relative;
+      overflow: hidden;
+      min-height: 240px;
+      display: flex;
+      flex-direction: column;
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 250px;
+    }
+
+    /* Control Panel */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+      background: var(--pori-panel);
+      padding: 16px;
+      border-radius: 14px;
+      border: 1px solid var(--pori-border-soft);
+    }
+
+    .ctrl-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .ctrl-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--pori-heading);
+      display: flex;
+      justify-content: space-between;
+    }
+    .ctrl-label span.val {
+      color: var(--pori-teal);
+      font-weight: 800;
+    }
+
+    /* Buttons */
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 7px 14px;
+      border-radius: 9px;
+      font-size: 0.82rem;
+      font-weight: 750;
+      cursor: pointer;
+      border: 1px solid var(--pori-border);
+      background: #ffffff;
+      color: var(--pori-heading);
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+    }
+    .btn.primary {
+      background: var(--pori-teal);
+      color: #ffffff;
+      border-color: var(--pori-teal);
+    }
+    .btn.primary:hover {
+      background: #0f766e;
+    }
+    .btn.active {
+      background: #0284c7;
+      color: #fff;
+      border-color: #0284c7;
+    }
+
+    /* Stat Cards */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+    }
+    .stat-card {
+      background: #ffffff;
+      border: 1px solid var(--pori-border-soft);
+      border-radius: 12px;
+      padding: 10px 14px;
+      text-align: center;
+    }
+    .stat-card .label {
+      font-size: 0.72rem;
+      color: var(--pori-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .stat-card .value {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--pori-heading);
+      margin-top: 2px;
+    }
+    .stat-card.highlight {
+      background: var(--pori-teal-soft);
+      border-color: var(--pori-teal-border);
+    }
+    .stat-card.highlight .value {
+      color: var(--pori-teal-ink);
+    }
+
+    /* Explanation & Insight Box */
+    .insight-box {
+      background: #f0fdfa;
+      border-left: 4px solid var(--pori-teal);
+      padding: 12px 16px;
+      border-radius: 0 12px 12px 0;
+      font-size: 0.84rem;
+      color: #134e4a;
+      line-height: 1.6;
+    }
+    .insight-box strong {
+      color: #042f2e;
+    }
+
+    /* Range slider */
+    .range-input {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #cbd5e1;
+      outline: none;
+    }
+    .range-input::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--pori-teal);
+      border: 2px solid #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      cursor: pointer;
+    }
+
+    /* Legend */
+    .legend-row {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      font-size: 0.78rem;
+      color: var(--pori-muted);
+      align-items: center;
+    }
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    @media (max-width: 640px) {
+      .container { padding: 14px; }
+      .header-text h1 { font-size: 1.1rem; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <header>
+    <div class="header-text">
+      <h1>
+        <span>🧪</span>
+        <span>পদার্থের অবস্থা ও কণার গতিতত্ত্ব ল্যাব</span>
+      </h1>
+      <p>NCTB রসায়ন নবম-দশম শ্রেণি · অধ্যায় ২ (পদার্থের অবস্থা, ব্যাপন ও হিটিং কার্ভ)</p>
+    </div>
+    <span class="badge">ইন্টারেক্টিভ সিমুলেটর ২.০</span>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tabDiffusionBtn" onclick="switchTab('diffusion')">
+      ১. কাচনলে গ্যাসীয় ব্যাপন পরীক্ষা (NH₃ + HCl)
+    </button>
+    <button class="tab-btn" id="tabStatesBtn" onclick="switchTab('states')">
+      ২. কণার গতিতত্ত্ব ও হিটিং কার্ভ (কঠিন-তরল-গ্যাস)
+    </button>
+  </div>
+
+  <!-- TAB 1: DIFFUSION LAB -->
+  <div id="diffusionLab">
+    <!-- Viewport -->
+    <div class="sim-viewport">
+      <canvas id="diffusionCanvas" width="920" height="250"></canvas>
+    </div>
+
+    <!-- Control Area -->
+    <div class="controls-grid" style="margin-top: 12px;">
+      <div class="ctrl-group">
+        <label class="ctrl-label">গ্যাস জোড় নির্বাচন (গ্রাহামের ব্যাপন সূত্র)</label>
+        <div class="btn-row">
+          <button class="btn active" id="pair1" onclick="setGasPair('NH3_HCl')">
+            NH₃ (১৭) + HCl (৩৬.৫)
+          </button>
+          <button class="btn" id="pair2" onclick="setGasPair('CH4_SO2')">
+            CH₄ (১৬) + SO₂ (৬৪)
+          </button>
+          <button class="btn" id="pair3" onclick="setGasPair('He_O2')">
+            He (৪) + O₂ (৩২)
+          </button>
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <div class="ctrl-label">
+          <span>তাপমাত্রা (কণার গতিশক্তি বৃদ্ধি পায়)</span>
+          <span class="val" id="diffTempDisp">25 °C (298 K)</span>
+        </div>
+        <input type="range" class="range-input" id="diffTempSlider" min="0" max="80" value="25" oninput="updateDiffTemp(this.value)">
+      </div>
+
+      <div class="ctrl-group">
+        <label class="ctrl-label">পরীক্ষা নিয়ন্ত্রণ</label>
+        <div class="btn-row">
+          <button class="btn primary" id="diffPlayBtn" onclick="toggleDiffusion()">▶ শুরু করো</button>
+          <button class="btn" onclick="resetDiffusion()">🔄 রিসেট</button>
+          <button class="btn" id="trailToggleBtn" onclick="toggleTrails()">কণা ট্রেইল: চালু</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics & Results -->
+    <div class="stats-row" style="margin-top: 12px;">
+      <div class="stat-card">
+        <div class="label">গ্যাস ১ (বাম প্রান্ত)</div>
+        <div class="value" id="gas1Name">NH₃ (অ্যামোনিয়া)</div>
+        <small style="color:var(--pori-muted)">ভর M₁ = 17 g/mol</small>
+      </div>
+      <div class="stat-card">
+        <div class="label">গ্যাস ২ (ডান প্রান্ত)</div>
+        <div class="value" id="gas2Name">HCl (হাইড্রোক্লোরিক)</div>
+        <small style="color:var(--pori-muted)">ভর M₂ = 36.5 g/mol</small>
+      </div>
+      <div class="stat-card highlight">
+        <div class="label">ব্যাপন বেগের অনুপাত (r₁ : r₂)</div>
+        <div class="value" id="rateRatioDisp">1.465 : 1</div>
+        <small style="color:var(--pori-teal-ink)">r₁ / r₂ = √(M₂ / M₁)</small>
+      </div>
+      <div class="stat-card highlight">
+        <div class="label">সাদা ধোঁয়া বলয় সৃষ্টির অবস্থান</div>
+        <div class="value" id="meetPointDisp">59.4% দূরত্বে</div>
+        <small style="color:var(--pori-teal-ink)">HCl প্রান্তের নিকটবর্তী</small>
+      </div>
+    </div>
+
+    <!-- Scientific Insight -->
+    <div class="insight-box" style="margin-top: 12px;">
+      <strong>💡 গ্রাহামের ব্যাপন সূত্র ও পাঠ্যবইয়ের পরীক্ষা বিশ্লেষণ (পৃষ্ঠা ২৪-২৫):</strong><br>
+      কাচনলের এক প্রান্তে ঘন $NH_4OH$ দ্রবণে ভেজানো তুলা ($NH_3$ গ্যাস নির্গত হয়) এবং অপর প্রান্তে ঘন $HCl$ দ্রবণে ভেজানো তুলা ($HCl$ গ্যাস নির্গত হয়) দেওয়া হলে, গ্যাস দুটি কাচনলের মধ্য দিয়ে ব্যাপিত হতে থাকে। যেহেতু $NH_3$-এর মোলার ভর ($17\text{ g/mol}$) $HCl$-এর মোলার ভর ($36.5\text{ g/mol}$) অপেক্ষা অনেক কম, তাই $NH_3$ গ্যাসের ব্যাপনের হার $HCl$ অপেক্ষা প্রায় <b>১.৪৬ গুণ বেশি</b>। ফলে কাচনলের ঠিক মাঝখানে না মিলে $HCl$ প্রান্তের কাছাকাছি ($NH_3$ প্রান্ত থেকে প্রায় ৫৯.৪ সেমি দূরে) গ্যাস দুটি পরস্পরের সাথে মিলিত হয়ে <b>অ্যামোনিয়াম ক্লোরাইডের ($NH_4Cl$) ঘন সাদা ধোঁয়ার বলয়</b> তৈরি করে:
+      <div style="font-family: monospace; font-weight: bold; margin-top: 4px; color: #042f2e;">
+        NH₃(g) + HCl(g) ➔ NH₄Cl(s) [নিশাদলের সাদা ধোঁয়া]
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: STATES & HEATING CURVE LAB -->
+  <div id="statesLab" style="display: none;">
+    <!-- Viewport with Split Canvas: Microscopic Particles + Macro Heating Curve -->
+    <div class="sim-viewport">
+      <canvas id="statesCanvas" width="920" height="260"></canvas>
+    </div>
+
+    <!-- Control Area -->
+    <div class="controls-grid" style="margin-top: 12px;">
+      <div class="ctrl-group">
+        <div class="ctrl-label">
+          <span>তাপমাত্রা নিয়ন্ত্রণ (হিটিং কার্ভ ট্র্যাকার)</span>
+          <span class="val" id="tempDisp">-15 °C</span>
+        </div>
+        <input type="range" class="range-input" id="tempSlider" min="-25" max="130" value="-15" step="1" oninput="setTemperature(this.value)">
+      </div>
+
+      <div class="ctrl-group">
+        <label class="ctrl-label">দ্রুত অবস্থা রূপান্তর (প্রিসেট)</label>
+        <div class="btn-row">
+          <button class="btn" onclick="setTemperature(-15)">❄️ কঠিন (বরফ -15°C)</button>
+          <button class="btn" onclick="setTemperature(0)">🧊 গলন পর্যায় (0°C)</button>
+          <button class="btn" onclick="setTemperature(50)">💧 তরল (পানি 50°C)</button>
+          <button class="btn" onclick="setTemperature(100)">♨️ স্ফুটন পর্যায় (100°C)</button>
+          <button class="btn" onclick="setTemperature(120)">💨 গ্যাস (বাষ্প 120°C)</button>
+        </div>
+      </div>
+
+      <div class="ctrl-group">
+        <label class="ctrl-label">অটোমেটিক হিটিং অ্যানিমেশন</label>
+        <div class="btn-row">
+          <button class="btn primary" id="autoHeatBtn" onclick="toggleAutoHeat()">🔥 তাপ প্রদান শুরু করো</button>
+          <button class="btn" onclick="resetStates()">🔄 রিসেট</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Live Gauges & State Indicators -->
+    <div class="stats-row" style="margin-top: 12px;">
+      <div class="stat-card">
+        <div class="label">বর্তমান অবস্থা</div>
+        <div class="value" id="stateNameDisp" style="color: #0284c7;">কঠিন (Solid)</div>
+        <small id="substanceDisp" style="color:var(--pori-muted)">বরফ কেলাস কাঠামো</small>
+      </div>
+      <div class="stat-card">
+        <div class="label">আন্তঃআণবিক আকর্ষণ বল</div>
+        <div class="value" id="intermolecularDisp" style="color: #0d9488;">খুব প্রবল</div>
+        <small style="color:var(--pori-muted)">কণাগুলো সুনির্দিষ্ট স্থানে আবদ্ধ</small>
+      </div>
+      <div class="stat-card">
+        <div class="label">কণার গতিশক্তি (Kinetic Energy)</div>
+        <div class="value" id="kineticDisp" style="color: #d97706;">শুধু কম্পন গতি</div>
+        <small style="color:var(--pori-muted)">স্থান পরিবর্তন করে না</small>
+      </div>
+      <div class="stat-card highlight">
+        <div class="label">সুপ্ততাপ পর্যায় (Latent Heat)</div>
+        <div class="value" id="latentDisp" style="color: #475569;">নেই (তাপমাত্রা বাড়ছে)</div>
+        <small id="plateauNote" style="color:var(--pori-teal-ink)">নির্দিষ্ট তাপমাত্রায় মালভূমি তৈরি হয়</small>
+      </div>
+    </div>
+
+    <!-- Scientific Insight -->
+    <div class="insight-box" style="margin-top: 12px;">
+      <strong>🌡️ কণার গতিতত্ত্ব ও হিটিং কার্ভের মালভূমি ব্যাখ্যা (পৃষ্ঠা ২০-২১ ও ২৮-২৯):</strong><br>
+      • <b>০°C তাপমাত্রায় বরফের গলন রেখাচিত্রের মালভূমি:</b> বরফ গলনের সময় বাইরে থেকে যে তাপ সরবরাহ করা হয়, তা অণুগুলোর গতিশক্তি না বাড়িয়ে কেবল কঠিনের শক্তিশালী আন্তঃআণবিক আকর্ষণ বল ছিন্ন করতে ব্যয় হয়। তাই বরফ সম্পূর্ণ গলে পানিতে পরিণত না হওয়া পর্যন্ত তাপমাত্রা স্থির (০°C) থাকে। একে <b>গলনের সুপ্ততাপ</b> বলে।<br>
+      • <b>১০০°C তাপমাত্রায় স্ফুটন রেখাচিত্রের মালভূমি:</b> তরল পানির অণুগুলো যখন সম্পূর্ণ মুক্ত হয়ে জলীয় বাষ্পে রূপ নেয়, তখন সরবরাহকৃত তাপ তরলের অবশিষ্ট আন্তঃআণবিক আকর্ষণ বল ভেঙে দেয়। পানি সম্পূর্ণ বাষ্পে পরিণত না হওয়া পর্যন্ত তাপমাত্রা অপরিবর্তিত থাকে (<b>বাষ্পীভবনের সুপ্ততাপ</b>)।<br>
+      • <b>কঠিন $\rightarrow$ তরল $\rightarrow$ গ্যাস:</b> তাপমাত্রা বাড়ালে গতিশক্তি বৃদ্ধি পায় এবং আন্তঃআণবিক আকর্ষণ বল ক্রমান্বয়ে হ্রাস পায়।
+    </div>
+  </div>
+
+  <!-- Footer Info -->
+  <footer style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--pori-border-soft); padding-top: 12px; font-size: 0.78rem; color: var(--pori-muted);">
+    <span>পড়ি (poRi) এডুটেক প্ল্যাটফর্ম · রসায়ন ব্যবহারিক ও অ্যানিমেশন মডিউল</span>
+    <span>কপিরাইট © ২০২৬ · সর্বস্বত্ব সংরক্ষিত</span>
+  </footer>
+</div>
+
+<script>
+/* =========================================================================
+   PORI SSC CHEMISTRY CHAPTER 2 - SIMULATION ENGINE
+   Tab 1: Glass Tube Gas Diffusion (NH3 + HCl -> NH4Cl)
+   Tab 2: Kinetic Particle States & Heating Curve
+   ========================================================================= */
+
+// Tab Switching
+let currentTab = 'diffusion';
+function switchTab(tab) {
+  currentTab = tab;
+  document.getElementById('diffusionLab').style.display = (tab === 'diffusion') ? 'block' : 'none';
+  document.getElementById('statesLab').style.display = (tab === 'states') ? 'block' : 'none';
+  document.getElementById('tabDiffusionBtn').classList.toggle('active', tab === 'diffusion');
+  document.getElementById('tabStatesBtn').classList.toggle('active', tab === 'states');
+  
+  if (tab === 'states' && !statesInitialized) {
+    initStatesSimulation();
+  }
+}
+
+// -------------------------------------------------------------------------
+// TAB 1: DIFFUSION EXPERIMENT LOGIC
+// -------------------------------------------------------------------------
+const diffCanvas = document.getElementById('diffusionCanvas');
+const diffCtx = diffCanvas.getContext('2d');
+
+let diffRunning = false;
+let diffTemp = 25; // °C
+let showTrails = true;
+
+const gasData = {
+  NH3_HCl: {
+    g1: { name: 'NH₃ (অ্যামোনিয়া)', formula: 'NH₃', m: 17.03, color: '#38bdf8', glow: 'rgba(56, 189, 248, 0.4)' },
+    g2: { name: 'HCl (হাইড্রোক্লোরিক)', formula: 'HCl', m: 36.46, color: '#fb923c', glow: 'rgba(251, 146, 60, 0.4)' },
+    smokeFormula: 'NH₄Cl(s) সাদা ধোঁয়া',
+    smokeColor: '#ffffff'
+  },
+  CH4_SO2: {
+    g1: { name: 'CH₄ (মিথেন)', formula: 'CH₄', m: 16.04, color: '#4ade80', glow: 'rgba(74, 222, 128, 0.4)' },
+    g2: { name: 'SO₂ (সালফার ডাইঅক্সাইড)', formula: 'SO₂', m: 64.06, color: '#f87171', glow: 'rgba(248, 113, 113, 0.4)' },
+    smokeFormula: 'বিক্রিয়ক মিলন রেখা',
+    smokeColor: '#fef08a'
+  },
+  He_O2: {
+    g1: { name: 'He (হিলিয়াম)', formula: 'He', m: 4.00, color: '#c084fc', glow: 'rgba(192, 132, 252, 0.4)' },
+    g2: { name: 'O₂ (অক্সিজেন)', formula: 'O₂', m: 32.00, color: '#facc15', glow: 'rgba(250, 204, 21, 0.4)' },
+    smokeFormula: 'মিলন তল',
+    smokeColor: '#cbd5e1'
+  }
+};
+
+let currentPairKey = 'NH3_HCl';
+let currentPair = gasData[currentPairKey];
+
+// Particles in the tube
+let particlesG1 = [];
+let particlesG2 = [];
+let smokeParticles = [];
+let smokeFormed = false;
+
+// Tube Geometry
+const tube = {
+  x: 90,
+  y: 60,
+  w: 740,
+  h: 70,
+  r: 12
+};
+
+function initDiffusionParticles() {
+  particlesG1 = [];
+  particlesG2 = [];
+  smokeParticles = [];
+  smokeFormed = false;
+  
+  // Calculate theoretical meeting point based on Graham's law:
+  // r1 / r2 = sqrt(m2 / m1)
+  // Distance x1 / (tube.w - x1) = r1 / r2
+  const ratio = Math.sqrt(currentPair.g2.m / currentPair.g1.m);
+  const meetFraction = ratio / (1 + ratio); // fraction from left
+  
+  document.getElementById('gas1Name').textContent = currentPair.g1.name;
+  document.getElementById('gas2Name').textContent = currentPair.g2.name;
+  document.getElementById('rateRatioDisp').textContent = `${ratio.toFixed(3)} : 1`;
+  document.getElementById('meetPointDisp').textContent = `${(meetFraction * 100).toFixed(1)}% দূরত্বে (HCl এর কাছে)`;
+}
+
+function setGasPair(key) {
+  currentPairKey = key;
+  currentPair = gasData[key];
+  document.querySelectorAll('#diffusionLab .btn-row .btn').forEach(b => b.classList.remove('active'));
+  if (key === 'NH3_HCl') document.getElementById('pair1').classList.add('active');
+  if (key === 'CH4_SO2') document.getElementById('pair2').classList.add('active');
+  if (key === 'He_O2') document.getElementById('pair3').classList.add('active');
+  resetDiffusion();
+}
+
+function updateDiffTemp(val) {
+  diffTemp = parseFloat(val);
+  const k = Math.round(diffTemp + 273.15);
+  document.getElementById('diffTempDisp').textContent = `${diffTemp} °C (${k} K)`;
+}
+
+function toggleDiffusion() {
+  diffRunning = !diffRunning;
+  const btn = document.getElementById('diffPlayBtn');
+  if (diffRunning) {
+    btn.innerHTML = '⏸ থামাও';
+    btn.classList.add('active');
+  } else {
+    btn.innerHTML = '▶ শুরু করো';
+    btn.classList.remove('active');
+  }
+}
+
+function resetDiffusion() {
+  diffRunning = false;
+  document.getElementById('diffPlayBtn').innerHTML = '▶ শুরু করো';
+  document.getElementById('diffPlayBtn').classList.remove('active');
+  initDiffusionParticles();
+}
+
+function toggleTrails() {
+  showTrails = !showTrails;
+  document.getElementById('trailToggleBtn').textContent = `কণা ট্রেইল: ${showTrails ? 'চালু' : 'বন্ধ'}`;
+}
+
+// Particle generation and kinematics
+function updateDiffusionSimulation() {
+  if (!diffRunning) return;
+
+  const tempFactor = Math.sqrt((diffTemp + 273.15) / 298.15); // Maxwell-Boltzmann T dependence
+  const v1 = (2.6 / Math.sqrt(currentPair.g1.m)) * tempFactor;
+  const v2 = (2.6 / Math.sqrt(currentPair.g2.m)) * tempFactor;
+
+  // Emit new gas 1 particles from left cotton plug
+  if (Math.random() < 0.45) {
+    particlesG1.push({
+      x: tube.x + 22,
+      y: tube.y + 12 + Math.random() * (tube.h - 24),
+      vx: (v1 * 0.7) + Math.random() * (v1 * 0.6),
+      vy: (Math.random() - 0.5) * 1.2,
+      r: 3.5,
+      history: []
+    });
+  }
+
+  // Emit new gas 2 particles from right cotton plug
+  if (Math.random() < 0.45) {
+    particlesG2.push({
+      x: tube.x + tube.w - 22,
+      y: tube.y + 12 + Math.random() * (tube.h - 24),
+      vx: -((v2 * 0.7) + Math.random() * (v2 * 0.6)),
+      vy: (Math.random() - 0.5) * 1.2,
+      r: 4.5,
+      history: []
+    });
+  }
+
+  // Calculate theoretical meeting X
+  const ratio = Math.sqrt(currentPair.g2.m / currentPair.g1.m);
+  const meetFraction = ratio / (1 + ratio);
+  const theoreticalMeetX = tube.x + (tube.w * meetFraction);
+
+  // Update Gas 1 particles
+  for (let i = particlesG1.length - 1; i >= 0; i--) {
+    const p = particlesG1[i];
+    if (showTrails) {
+      p.history.push({ x: p.x, y: p.y });
+      if (p.history.length > 5) p.history.shift();
+    }
+    p.x += p.vx;
+    p.y += p.vy;
+
+    // Bounce off tube top/bottom
+    if (p.y - p.r < tube.y + 5 || p.y + p.r > tube.y + tube.h - 5) {
+      p.vy = -p.vy;
+    }
+
+    // Check collision with Gas 2 particles to create smoke
+    let reacted = false;
+    for (let j = particlesG2.length - 1; j >= 0; j--) {
+      const q = particlesG2[j];
+      const dx = p.x - q.x;
+      const dy = p.y - q.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 14) {
+        // Reaction occurs! Form smoke particle
+        const smokeX = (p.x + q.x) / 2;
+        const smokeY = (p.y + q.y) / 2;
+        for (let k = 0; k < 4; k++) {
+          smokeParticles.push({
+            x: smokeX + (Math.random() - 0.5) * 6,
+            y: smokeY + (Math.random() - 0.5) * 12,
+            vx: (Math.random() - 0.5) * 0.3,
+            vy: (Math.random() - 0.5) * 0.4,
+            r: 3 + Math.random() * 5,
+            alpha: 0.9,
+            life: 0
+          });
+        }
+        smokeFormed = true;
+        particlesG2.splice(j, 1);
+        reacted = true;
+        break;
+      }
+    }
+
+    if (reacted || p.x > tube.x + tube.w - 15) {
+      particlesG1.splice(i, 1);
+    }
+  }
+
+  // Update Gas 2 particles
+  for (let j = particlesG2.length - 1; j >= 0; j--) {
+    const q = particlesG2[j];
+    if (showTrails) {
+      q.history.push({ x: q.x, y: q.y });
+      if (q.history.length > 5) q.history.shift();
+    }
+    q.x += q.vx;
+    q.y += q.vy;
+
+    if (q.y - q.r < tube.y + 5 || q.y + q.r > tube.y + tube.h - 5) {
+      q.vy = -q.vy;
+    }
+
+    if (q.x < tube.x + 15) {
+      particlesG2.splice(j, 1);
+    }
+  }
+
+  // Update Smoke ring particles
+  for (let k = smokeParticles.length - 1; k >= 0; k--) {
+    const s = smokeParticles[k];
+    s.x += s.vx;
+    s.y += s.vy;
+    s.life += 1;
+    if (s.life > 160) {
+      s.alpha -= 0.008;
+      if (s.alpha <= 0) smokeParticles.splice(k, 1);
+    }
+  }
+}
+
+function renderDiffusion() {
+  diffCtx.clearRect(0, 0, diffCanvas.width, diffCanvas.height);
+
+  // Background grid
+  diffCtx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+  diffCtx.lineWidth = 1;
+  for (let x = 0; x < diffCanvas.width; x += 40) {
+    diffCtx.beginPath();
+    diffCtx.moveTo(x, 0);
+    diffCtx.lineTo(x, diffCanvas.height);
+    diffCtx.stroke();
+  }
+
+  // 1. Draw Glass Tube (Glossy realistic)
+  diffCtx.save();
+  // Tube background
+  diffCtx.fillStyle = 'rgba(15, 23, 42, 0.7)';
+  diffCtx.fillRect(tube.x, tube.y, tube.w, tube.h);
+
+  // Tube glass outline
+  diffCtx.strokeStyle = 'rgba(203, 213, 225, 0.4)';
+  diffCtx.lineWidth = 4;
+  diffCtx.strokeRect(tube.x, tube.y, tube.w, tube.h);
+
+  // Glass highlight line
+  diffCtx.strokeStyle = 'rgba(255, 255, 255, 0.25)';
+  diffCtx.lineWidth = 2;
+  diffCtx.beginPath();
+  diffCtx.moveTo(tube.x, tube.y + 6);
+  diffCtx.lineTo(tube.x + tube.w, tube.y + 6);
+  diffCtx.stroke();
+
+  // Glass bottom reflection
+  diffCtx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+  diffCtx.beginPath();
+  diffCtx.moveTo(tube.x, tube.y + tube.h - 6);
+  diffCtx.lineTo(tube.x + tube.w, tube.y + tube.h - 6);
+  diffCtx.stroke();
+
+  // 2. Cotton plugs
+  // Left Cotton (Ammonia)
+  diffCtx.fillStyle = '#94a3b8';
+  diffCtx.beginPath();
+  diffCtx.roundRect(tube.x - 6, tube.y + 4, 26, tube.h - 8, [6, 0, 0, 6]);
+  diffCtx.fill();
+  diffCtx.strokeStyle = '#64748b';
+  diffCtx.lineWidth = 1.5;
+  diffCtx.stroke();
+
+  // Cotton texture dots
+  diffCtx.fillStyle = '#e2e8f0';
+  for (let i = 0; i < 15; i++) {
+    diffCtx.beginPath();
+    diffCtx.arc(tube.x - 2 + (i % 3) * 6, tube.y + 12 + Math.floor(i / 3) * 10, 2, 0, Math.PI * 2);
+    diffCtx.fill();
+  }
+
+  // Right Cotton (HCl)
+  diffCtx.fillStyle = '#94a3b8';
+  diffCtx.beginPath();
+  diffCtx.roundRect(tube.x + tube.w - 20, tube.y + 4, 26, tube.h - 8, [0, 6, 6, 0]);
+  diffCtx.fill();
+  diffCtx.strokeStyle = '#64748b';
+  diffCtx.stroke();
+
+  diffCtx.fillStyle = '#e2e8f0';
+  for (let i = 0; i < 15; i++) {
+    diffCtx.beginPath();
+    diffCtx.arc(tube.x + tube.w - 14 + (i % 3) * 6, tube.y + 12 + Math.floor(i / 3) * 10, 2, 0, Math.PI * 2);
+    diffCtx.fill();
+  }
+
+  // 3. Ruler / Scale under the tube
+  const scaleY = tube.y + tube.h + 16;
+  diffCtx.strokeStyle = '#64748b';
+  diffCtx.lineWidth = 1.5;
+  diffCtx.beginPath();
+  diffCtx.moveTo(tube.x, scaleY);
+  diffCtx.lineTo(tube.x + tube.w, scaleY);
+  diffCtx.stroke();
+
+  for (let i = 0; i <= 10; i++) {
+    const markX = tube.x + (tube.w * (i / 10));
+    diffCtx.beginPath();
+    diffCtx.moveTo(markX, scaleY);
+    diffCtx.lineTo(markX, scaleY + (i % 5 === 0 ? 10 : 5));
+    diffCtx.stroke();
+
+    if (i % 2 === 0) {
+      diffCtx.fillStyle = '#94a3b8';
+      diffCtx.font = '11px system-ui';
+      diffCtx.textAlign = 'center';
+      diffCtx.fillText(`${i * 10} cm`, markX, scaleY + 22);
+    }
+  }
+
+  // Theoretical Meeting Marker
+  const ratio = Math.sqrt(currentPair.g2.m / currentPair.g1.m);
+  const meetFraction = ratio / (1 + ratio);
+  const theoreticalMeetX = tube.x + (tube.w * meetFraction);
+
+  diffCtx.setLineDash([4, 4]);
+  diffCtx.strokeStyle = 'rgba(234, 179, 8, 0.7)';
+  diffCtx.lineWidth = 1.5;
+  diffCtx.beginPath();
+  diffCtx.moveTo(theoreticalMeetX, tube.y - 12);
+  diffCtx.lineTo(theoreticalMeetX, scaleY + 12);
+  diffCtx.stroke();
+  diffCtx.setLineDash([]);
+
+  // Label above marker
+  diffCtx.fillStyle = '#facc15';
+  diffCtx.font = 'bold 11px system-ui';
+  diffCtx.textAlign = 'center';
+  diffCtx.fillText(`তাত্ত্বিক মিলন বিন্দু (${(meetFraction * 100).toFixed(1)} cm)`, theoreticalMeetX, tube.y - 18);
+
+  // 4. Draw Gas 1 Particles (NH3 - Fast & Cyan)
+  particlesG1.forEach(p => {
+    if (showTrails && p.history.length > 1) {
+      diffCtx.strokeStyle = currentPair.g1.glow;
+      diffCtx.lineWidth = 1.5;
+      diffCtx.beginPath();
+      diffCtx.moveTo(p.history[0].x, p.history[0].y);
+      for (let h = 1; h < p.history.length; h++) diffCtx.lineTo(p.history[h].x, p.history[h].y);
+      diffCtx.stroke();
+    }
+    diffCtx.fillStyle = currentPair.g1.color;
+    diffCtx.shadowColor = currentPair.g1.color;
+    diffCtx.shadowBlur = 6;
+    diffCtx.beginPath();
+    diffCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    diffCtx.fill();
+    diffCtx.shadowBlur = 0;
+  });
+
+  // 5. Draw Gas 2 Particles (HCl - Slower & Orange)
+  particlesG2.forEach(q => {
+    if (showTrails && q.history.length > 1) {
+      diffCtx.strokeStyle = currentPair.g2.glow;
+      diffCtx.lineWidth = 1.5;
+      diffCtx.beginPath();
+      diffCtx.moveTo(q.history[0].x, q.history[0].y);
+      for (let h = 1; h < q.history.length; h++) diffCtx.lineTo(q.history[h].x, q.history[h].y);
+      diffCtx.stroke();
+    }
+    diffCtx.fillStyle = currentPair.g2.color;
+    diffCtx.shadowColor = currentPair.g2.color;
+    diffCtx.shadowBlur = 6;
+    diffCtx.beginPath();
+    diffCtx.arc(q.x, q.y, q.r, 0, Math.PI * 2);
+    diffCtx.fill();
+    diffCtx.shadowBlur = 0;
+  });
+
+  // 6. Draw Smoke Ring (Ammonium Chloride NH4Cl dense white aerosol ring)
+  if (smokeParticles.length > 0) {
+    // Dense ring back-glow
+    const ringGrad = diffCtx.createRadialGradient(theoreticalMeetX, tube.y + tube.h/2, 2, theoreticalMeetX, tube.y + tube.h/2, 35);
+    ringGrad.addColorStop(0, 'rgba(255, 255, 255, 0.45)');
+    ringGrad.addColorStop(0.5, 'rgba(255, 255, 255, 0.15)');
+    ringGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    diffCtx.fillStyle = ringGrad;
+    diffCtx.fillRect(theoreticalMeetX - 40, tube.y + 2, 80, tube.h - 4);
+
+    smokeParticles.forEach(s => {
+      diffCtx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`;
+      diffCtx.shadowColor = '#ffffff';
+      diffCtx.shadowBlur = 8;
+      diffCtx.beginPath();
+      diffCtx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      diffCtx.fill();
+      diffCtx.shadowBlur = 0;
+    });
+
+    // Smoke Annotation Callout
+    diffCtx.fillStyle = '#ffffff';
+    diffCtx.font = 'bold 12px system-ui';
+    diffCtx.textAlign = 'center';
+    diffCtx.fillText(`ঘন সাদা ধোঁয়া (${currentPair.smokeFormula})`, theoreticalMeetX, tube.y + tube.h + 46);
+  }
+
+  // 7. Plug Labels
+  diffCtx.fillStyle = currentPair.g1.color;
+  diffCtx.font = 'bold 12px system-ui';
+  diffCtx.textAlign = 'left';
+  diffCtx.fillText(`← তুলা + ঘন NH₄OH (${currentPair.g1.formula})`, tube.x - 6, tube.y - 8);
+
+  diffCtx.fillStyle = currentPair.g2.color;
+  diffCtx.textAlign = 'right';
+  diffCtx.fillText(`তুলা + ঘন HCl দ্রবণ (${currentPair.g2.formula}) →`, tube.x + tube.w + 6, tube.y - 8);
+
+  diffCtx.restore();
+}
+
+// -------------------------------------------------------------------------
+// TAB 2: STATES OF MATTER & HEATING CURVE SIMULATION LOGIC
+// -------------------------------------------------------------------------
+const statesCanvas = document.getElementById('statesCanvas');
+const statesCtx = statesCanvas.getContext('2d');
+let statesInitialized = false;
+
+let substanceTemp = -15; // °C
+let autoHeating = false;
+let heatingTimer = null;
+
+// Microscopic particles
+const stateParticles = [];
+const numStateParticles = 64;
+
+function initStatesSimulation() {
+  statesInitialized = true;
+  stateParticles.length = 0;
+
+  // Particle box area on left side of Canvas
+  const boxW = 340;
+  const boxH = 210;
+  const startX = 25;
+  const startY = 25;
+
+  // 8x8 grid for solid lattice
+  const rows = 8;
+  const cols = 8;
+  const spacingX = (boxW - 40) / cols;
+  const spacingY = (boxH - 40) / rows;
+
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      stateParticles.push({
+        baseX: startX + 24 + c * spacingX,
+        baseY: startY + 24 + r * spacingY,
+        x: startX + 24 + c * spacingX,
+        y: startY + 24 + r * spacingY,
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: (Math.random() - 0.5) * 1.5,
+        r: 6.5
+      });
+    }
+  }
+  updateStateLabels();
+}
+
+function setTemperature(val) {
+  substanceTemp = parseFloat(val);
+  document.getElementById('tempSlider').value = substanceTemp;
+  document.getElementById('tempDisp').textContent = `${substanceTemp} °C`;
+  updateStateLabels();
+}
+
+function updateStateLabels() {
+  const stateElem = document.getElementById('stateNameDisp');
+  const substanceElem = document.getElementById('substanceDisp');
+  const interElem = document.getElementById('intermolecularDisp');
+  const kineticElem = document.getElementById('kineticDisp');
+  const latentElem = document.getElementById('latentDisp');
+  const plateauElem = document.getElementById('plateauNote');
+
+  if (substanceTemp < 0) {
+    stateElem.textContent = 'কঠিন (Solid)';
+    stateElem.style.color = '#38bdf8';
+    substanceElem.textContent = 'বরফ কেলাস কাঠামো';
+    interElem.textContent = 'খুব প্রবল';
+    kineticElem.textContent = 'শুধু স্থির কম্পন';
+    latentElem.textContent = 'নেই (তাপমাত্রা বাড়ছে)';
+    latentElem.style.color = '#64748b';
+    plateauElem.textContent = 'কঠিনের তাপমাত্রা বৃদ্ধি পর্যায়';
+  } else if (substanceTemp === 0) {
+    stateElem.textContent = 'কঠিন-তরল সাম্যাবস্থা';
+    stateElem.style.color = '#0284c7';
+    substanceElem.textContent = 'বরফ ও পানি সহাবস্থান';
+    interElem.textContent = 'আংশিক ভাঙছে';
+    kineticElem.textContent = 'গতিশক্তি অপরিবর্তিত';
+    latentElem.textContent = 'গলনের সুপ্ততাপ (0°C মালভূমি)';
+    latentElem.style.color = '#0d9488';
+    plateauElem.textContent = 'সম্পূর্ণ গলে পানি না হওয়া পর্যন্ত তাপমাত্রা স্থির';
+  } else if (substanceTemp > 0 && substanceTemp < 100) {
+    stateElem.textContent = 'তরল (Liquid)';
+    stateElem.style.color = '#0d9488';
+    substanceElem.textContent = 'প্রবাহী পানি (H₂O)';
+    interElem.textContent = 'মাঝারি (কঠিনের চেয়ে দুর্বল)';
+    kineticElem.textContent = 'ঘূর্ণন ও স্থান পরিবর্তন গতি';
+    latentElem.textContent = 'নেই (তাপমাত্রা বাড়ছে)';
+    latentElem.style.color = '#64748b';
+    plateauElem.textContent = 'তরলের তাপমাত্রা বৃদ্ধি পর্যায়';
+  } else if (substanceTemp === 100) {
+    stateElem.textContent = 'তরল-গ্যাস সাম্যাবস্থা';
+    stateElem.style.color = '#d97706';
+    substanceElem.textContent = 'পানি ও জলীয় বাষ্প';
+    interElem.textContent = 'সম্পূর্ণ বিচ্ছিন্ন হচ্ছে';
+    kineticElem.textContent = 'গতিশক্তি অপরিবর্তিত';
+    latentElem.textContent = 'বাষ্পীভবনের সুপ্ততাপ (100°C)';
+    latentElem.style.color = '#d97706';
+    plateauElem.textContent = 'সম্পূর্ণ বাষ্পে পরিণত না হওয়া পর্যন্ত তাপমাত্রা স্থির';
+  } else {
+    stateElem.textContent = 'গ্যাসীয় / বাষ্প (Gas)';
+    stateElem.style.color = '#ef4444';
+    substanceElem.textContent = 'জলীয় বাষ্প (Steam)';
+    interElem.textContent = 'অতি নগণ্য / নেই বললেই চলে';
+    kineticElem.textContent = 'সর্বোচ্চ দ্রুত ও বিশৃঙ্খল গতি';
+    latentElem.textContent = 'নেই (তাপমাত্রা বাড়ছে)';
+    latentElem.style.color = '#64748b';
+    plateauElem.textContent = 'গ্যাসের অণুগুলো পাত্রের দেয়ালে চাপ দেয়';
+  }
+}
+
+function toggleAutoHeat() {
+  autoHeating = !autoHeating;
+  const btn = document.getElementById('autoHeatBtn');
+  if (autoHeating) {
+    btn.innerHTML = '⏸ থামাও';
+    btn.classList.add('active');
+  } else {
+    btn.innerHTML = '🔥 তাপ প্রদান শুরু করো';
+    btn.classList.remove('active');
+  }
+}
+
+function resetStates() {
+  autoHeating = false;
+  document.getElementById('autoHeatBtn').innerHTML = '🔥 তাপ প্রদান শুরু করো';
+  document.getElementById('autoHeatBtn').classList.remove('active');
+  setTemperature(-15);
+}
+
+// Particle simulation update for states
+function updateStatesSimulation() {
+  if (autoHeating) {
+    // If at plateau (0°C or 100°C), linger for latent heat effect
+    if ((Math.abs(substanceTemp) < 0.2 || Math.abs(substanceTemp - 100) < 0.2) && Math.random() < 0.6) {
+      // linger at plateau
+    } else {
+      substanceTemp += 0.35;
+      if (substanceTemp > 125) {
+        substanceTemp = -20; // loop
+      }
+      setTemperature(substanceTemp);
+    }
+  }
+
+  const boxX = 25;
+  const boxY = 25;
+  const boxW = 340;
+  const boxH = 210;
+
+  // Particle motion based on temperature
+  if (substanceTemp < 0) {
+    // Solid: High lattice stability, vibrating near baseX, baseY
+    const vibAmp = Math.max(0.5, 3 * (substanceTemp + 25) / 25);
+    stateParticles.forEach(p => {
+      p.x = p.baseX + (Math.random() - 0.5) * vibAmp;
+      p.y = p.baseY + (Math.random() - 0.5) * vibAmp;
+    });
+  } else if (substanceTemp === 0) {
+    // Melting plateau: lattice breaks down progressively
+    stateParticles.forEach((p, idx) => {
+      if (idx % 2 === 0) {
+        p.x += (Math.random() - 0.5) * 1.5;
+        p.y += (Math.random() - 0.5) * 1.5;
+      } else {
+        p.x = p.baseX + (Math.random() - 0.5) * 3;
+        p.y = p.baseY + (Math.random() - 0.5) * 3;
+      }
+      p.x = Math.max(boxX + p.r, Math.min(boxX + boxW - p.r, p.x));
+      p.y = Math.max(boxY + p.r, Math.min(boxY + boxH - p.r, p.y));
+    });
+  } else if (substanceTemp > 0 && substanceTemp < 100) {
+    // Liquid: Fluid translation, settling mostly in lower half with sliding
+    const speed = 1.0 + (substanceTemp / 100) * 1.5;
+    stateParticles.forEach(p => {
+      p.x += p.vx * speed;
+      p.y += p.vy * speed;
+
+      // Soft gravity pull downward for liquid
+      p.vy += 0.05;
+
+      if (p.x - p.r < boxX) { p.x = boxX + p.r; p.vx = -p.vx; }
+      if (p.x + p.r > boxX + boxW) { p.x = boxX + boxW - p.r; p.vx = -p.vx; }
+      if (p.y - p.r < boxY + 25) { p.y = boxY + 25 + p.r; p.vy = -p.vy; }
+      if (p.y + p.r > boxY + boxH) { p.y = boxY + boxH - p.r; p.vy = -p.vy * 0.9; }
+    });
+  } else if (substanceTemp === 100) {
+    // Boiling: Bubbles, energetic transition to gas
+    const speed = 2.6;
+    stateParticles.forEach((p, idx) => {
+      p.x += p.vx * speed;
+      p.y += p.vy * speed;
+      if (idx % 3 === 0) p.vy -= 0.15; // escaping vapor
+
+      if (p.x - p.r < boxX) { p.x = boxX + p.r; p.vx = -p.vx; }
+      if (p.x + p.r > boxX + boxW) { p.x = boxX + boxW - p.r; p.vx = -p.vx; }
+      if (p.y - p.r < boxY) { p.y = boxY + p.r; p.vy = -p.vy; }
+      if (p.y + p.r > boxY + boxH) { p.y = boxY + boxH - p.r; p.vy = -p.vy; }
+    });
+  } else {
+    // Gas / Steam: Ultra fast, filling the whole container uniformly
+    const speed = 3.5 + (substanceTemp - 100) * 0.08;
+    stateParticles.forEach(p => {
+      p.x += p.vx * speed;
+      p.y += p.vy * speed;
+
+      if (p.x - p.r < boxX) { p.x = boxX + p.r; p.vx = -p.vx; }
+      if (p.x + p.r > boxX + boxW) { p.x = boxX + boxW - p.r; p.vx = -p.vx; }
+      if (p.y - p.r < boxY) { p.y = boxY + p.r; p.vy = -p.vy; }
+      if (p.y + p.r > boxY + boxH) { p.y = boxY + boxH - p.r; p.vy = -p.vy; }
+    });
+  }
+}
+
+function renderStates() {
+  statesCtx.clearRect(0, 0, statesCanvas.width, statesCanvas.height);
+
+  // Split canvas into two viewports:
+  // Left: Microscopic Particle Viewport (340x210)
+  // Right: Heating Curve Graph (500x210)
+  const boxX = 25;
+  const boxY = 25;
+  const boxW = 340;
+  const boxH = 210;
+
+  // 1. Draw Microscopic Container Box
+  statesCtx.save();
+  statesCtx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+  statesCtx.fillRect(boxX, boxY, boxW, boxH);
+  statesCtx.strokeStyle = '#334155';
+  statesCtx.lineWidth = 2;
+  statesCtx.strokeRect(boxX, boxY, boxW, boxH);
+
+  // Container Title
+  statesCtx.fillStyle = '#94a3b8';
+  statesCtx.font = 'bold 11px system-ui';
+  statesCtx.fillText('অণুবীক্ষণিক কণার গতি ও সজ্জা (Kinetic Model)', boxX + 12, boxY + 16);
+
+  // Draw Particles
+  let pColor = '#38bdf8';
+  if (substanceTemp >= 0 && substanceTemp < 100) pColor = '#14b8a6';
+  if (substanceTemp >= 100) pColor = '#f59e0b';
+
+  stateParticles.forEach(p => {
+    statesCtx.fillStyle = pColor;
+    statesCtx.beginPath();
+    statesCtx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    statesCtx.fill();
+
+    // Subtle 3D particle highlight
+    statesCtx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+    statesCtx.beginPath();
+    statesCtx.arc(p.x - 2, p.y - 2, p.r * 0.4, 0, Math.PI * 2);
+    statesCtx.fill();
+  });
+
+  // 2. Draw Heating Curve Graph on Right Side
+  const graphX = 420;
+  const graphY = 30;
+  const graphW = 460;
+  const graphH = 195;
+
+  // Graph backdrop
+  statesCtx.fillStyle = 'rgba(15, 23, 42, 0.5)';
+  statesCtx.fillRect(graphX, graphY, graphW, graphH);
+  statesCtx.strokeStyle = '#334155';
+  statesCtx.lineWidth = 1;
+  statesCtx.strokeRect(graphX, graphY, graphW, graphH);
+
+  // Graph axes
+  statesCtx.strokeStyle = '#64748b';
+  statesCtx.lineWidth = 1.5;
+  statesCtx.beginPath();
+  // Y Axis (Temp)
+  statesCtx.moveTo(graphX + 45, graphY + 10);
+  statesCtx.lineTo(graphX + 45, graphY + graphH - 25);
+  // X Axis (Time / Heat added)
+  statesCtx.lineTo(graphX + graphW - 15, graphY + graphH - 25);
+  statesCtx.stroke();
+
+  // Y Axis labels & grid
+  const yAxisZero = graphY + graphH - 65;   // 0°C line
+  const yAxis100 = graphY + 45;            // 100°C line
+  const yAxisMinus20 = graphY + graphH - 35; // -20°C line
+
+  // Grid lines
+  statesCtx.setLineDash([3, 3]);
+  statesCtx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+  // 100°C line
+  statesCtx.beginPath();
+  statesCtx.moveTo(graphX + 45, yAxis100);
+  statesCtx.lineTo(graphX + graphW - 15, yAxis100);
+  statesCtx.stroke();
+  // 0°C line
+  statesCtx.beginPath();
+  statesCtx.moveTo(graphX + 45, yAxisZero);
+  statesCtx.lineTo(graphX + graphW - 15, yAxisZero);
+  statesCtx.stroke();
+  statesCtx.setLineDash([]);
+
+  // Axis text
+  statesCtx.fillStyle = '#cbd5e1';
+  statesCtx.font = '10px system-ui';
+  statesCtx.textAlign = 'right';
+  statesCtx.fillText('১০০°C (স্ফুটনাঙ্ক)', graphX + 40, yAxis100 + 3);
+  statesCtx.fillText('০°C (গলনাঙ্ক)', graphX + 40, yAxisZero + 3);
+  statesCtx.fillText('-২০°C', graphX + 40, yAxisMinus20 + 3);
+
+  statesCtx.textAlign = 'center';
+  statesCtx.fillText('সময় / সরবরাহকৃত তাপ (Heat Added) →', graphX + graphW / 2, graphY + graphH - 8);
+
+  // Draw Theoretical Heating Curve Line:
+  // Segment A: Solid heating (-20°C to 0°C) [x: 50 -> 100]
+  // Segment B: Melting Plateau (0°C, solid + liquid) [x: 100 -> 180]
+  // Segment C: Liquid heating (0°C to 100°C) [x: 180 -> 280]
+  // Segment D: Boiling Plateau (100°C, liquid + gas) [x: 280 -> 380]
+  // Segment E: Gas heating (>100°C) [x: 380 -> 440]
+  const pA = { x: graphX + 55, y: yAxisMinus20 };
+  const pB1 = { x: graphX + 110, y: yAxisZero };
+  const pB2 = { x: graphX + 190, y: yAxisZero };
+  const pC = { x: graphX + 290, y: yAxis100 };
+  const pD1 = { x: graphX + 290, y: yAxis100 };
+  const pD2 = { x: graphX + 390, y: yAxis100 };
+  const pE = { x: graphX + 440, y: graphY + 15 };
+
+  statesCtx.strokeStyle = '#0284c7';
+  statesCtx.lineWidth = 3;
+  statesCtx.beginPath();
+  statesCtx.moveTo(pA.x, pA.y);
+  statesCtx.lineTo(pB1.x, pB1.y);
+  statesCtx.lineTo(pB2.x, pB2.y);
+  statesCtx.lineTo(pC.x, pC.y);
+  statesCtx.lineTo(pD2.x, pD2.y);
+  statesCtx.lineTo(pE.x, pE.y);
+  statesCtx.stroke();
+
+  // Region annotations
+  statesCtx.fillStyle = '#64748b';
+  statesCtx.font = '9px system-ui';
+  statesCtx.fillText('কঠিন (বরফ)', graphX + 80, yAxisMinus20 - 15);
+  statesCtx.fillText('গলন (সুপ্ততাপ)', graphX + 150, yAxisZero - 8);
+  statesCtx.fillText('তরল (পানি)', graphX + 235, (yAxisZero + yAxis100) / 2);
+  statesCtx.fillText('স্ফুটন (সুপ্ততাপ)', graphX + 340, yAxis100 - 8);
+  statesCtx.fillText('বাষ্প', graphX + 415, graphY + 30);
+
+  // Live Position Tracker Dot on the Curve
+  let curDotX = pA.x;
+  let curDotY = pA.y;
+
+  if (substanceTemp < 0) {
+    const f = (substanceTemp - (-25)) / 25;
+    curDotX = pA.x + f * (pB1.x - pA.x);
+    curDotY = pA.y + f * (pB1.y - pA.y);
+  } else if (substanceTemp === 0) {
+    curDotX = (pB1.x + pB2.x) / 2;
+    curDotY = yAxisZero;
+  } else if (substanceTemp > 0 && substanceTemp < 100) {
+    const f = substanceTemp / 100;
+    curDotX = pB2.x + f * (pC.x - pB2.x);
+    curDotY = pB2.y + f * (pC.y - pB2.y);
+  } else if (substanceTemp === 100) {
+    curDotX = (pD1.x + pD2.x) / 2;
+    curDotY = yAxis100;
+  } else {
+    const f = Math.min(1, (substanceTemp - 100) / 30);
+    curDotX = pD2.x + f * (pE.x - pD2.x);
+    curDotY = pD2.y + f * (pE.y - pD2.y);
+  }
+
+  // Draw Glowing Tracker Dot
+  statesCtx.fillStyle = '#ef4444';
+  statesCtx.shadowColor = '#ef4444';
+  statesCtx.shadowBlur = 10;
+  statesCtx.beginPath();
+  statesCtx.arc(curDotX, curDotY, 6, 0, Math.PI * 2);
+  statesCtx.fill();
+  statesCtx.shadowBlur = 0;
+
+  // Temperature callout flag
+  statesCtx.fillStyle = '#ffffff';
+  statesCtx.fillRect(curDotX - 25, curDotY - 24, 50, 18);
+  statesCtx.strokeStyle = '#ef4444';
+  statesCtx.lineWidth = 1;
+  statesCtx.strokeRect(curDotX - 25, curDotY - 24, 50, 18);
+  statesCtx.fillStyle = '#0f172a';
+  statesCtx.font = 'bold 10px system-ui';
+  statesCtx.textAlign = 'center';
+  statesCtx.fillText(`${Math.round(substanceTemp)} °C`, curDotX, curDotY - 11);
+
+  statesCtx.restore();
+}
+
+// -------------------------------------------------------------------------
+// MAIN ANIMATION LOOP
+// -------------------------------------------------------------------------
+function mainLoop() {
+  if (currentTab === 'diffusion') {
+    updateDiffusionSimulation();
+    renderDiffusion();
+  } else if (currentTab === 'states') {
+    updateStatesSimulation();
+    renderStates();
+  }
+  requestAnimationFrame(mainLoop);
+}
+
+// Initialization on load
+window.addEventListener('DOMContentLoaded', () => {
+  initDiffusionParticles();
+  initStatesSimulation();
+  requestAnimationFrame(mainLoop);
+});
+</script>
+
+</body>
+</html>

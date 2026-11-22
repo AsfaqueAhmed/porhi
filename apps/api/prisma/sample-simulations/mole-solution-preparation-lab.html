@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>মোলের ধারণা, মোলার দ্রবণ প্রস্তুতি ও স্টয়কিওমেট্রি ল্যাব</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --panel: #f1f5f9;
+      --border: #cbd5e1;
+      --border-soft: #e2e8f0;
+      --ink: #0f172a;
+      --heading: #1e293b;
+      --muted: #64748b;
+      --indigo: #0f766e;
+      --indigo-hover: #115e59;
+      --indigo-soft: #f0fdf4;
+      --indigo-border: #99f6e4;
+      --indigo-ink: #134e4a;
+      --amber: #b45309;
+      --amber-soft: #fffbeb;
+      --amber-border: #fde68a;
+      --rose: #be123c;
+      --rose-soft: #fff1f2;
+      --blue: #0284c7;
+      --blue-soft: #f0f9ff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      padding: 16px;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      background: var(--card);
+      border: 1px solid var(--border-soft);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    header {
+      text-align: center;
+      border-bottom: 1px solid var(--border-soft);
+      padding-bottom: 16px;
+    }
+    .badge {
+      display: inline-block;
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 750;
+      margin-bottom: 8px;
+    }
+    h1 {
+      font-size: 1.45rem;
+      color: var(--heading);
+      margin-bottom: 6px;
+    }
+    p.lead {
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      background: var(--panel);
+      padding: 6px;
+      border-radius: 12px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px 14px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .tab-btn.active {
+      background: var(--card);
+      color: var(--indigo-ink);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+    .tab-btn:hover:not(.active) {
+      color: var(--ink);
+    }
+
+    /* Tab Contents */
+    .tab-content { display: none; flex-direction: column; gap: 16px; }
+    .tab-content.active { display: flex; }
+
+    /* Lab View Area */
+    .lab-stage {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+    @media (max-width: 720px) {
+      .lab-stage { grid-template-columns: 1fr; }
+    }
+
+    .visual-box {
+      background: #0f172a;
+      border-radius: 16px;
+      border: 1px solid #1e293b;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      overflow: hidden;
+      min-height: 360px;
+    }
+    .visual-box svg {
+      width: 100%;
+      height: 300px;
+      display: block;
+    }
+
+    .controls-box {
+      background: var(--panel);
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--heading);
+      display: flex;
+      justify-content: space-between;
+    }
+    label span.val {
+      color: var(--indigo);
+      font-weight: 800;
+    }
+
+    select, input[type="range"], input[type="number"] {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fff;
+      font-size: 0.88rem;
+      color: var(--ink);
+      outline: none;
+    }
+    select:focus, input:focus {
+      border-color: var(--indigo);
+      box-shadow: 0 0 0 2px var(--indigo-border);
+    }
+
+    /* Action Buttons */
+    .action-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 0.84rem;
+      font-weight: 750;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+    }
+    .btn-primary {
+      background: var(--indigo);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--indigo-hover);
+    }
+    .btn-secondary {
+      background: #fff;
+      border-color: var(--border);
+      color: var(--ink);
+    }
+    .btn-secondary:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+    }
+
+    /* Readouts & Cards */
+    .readout-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+    }
+    .readout-card {
+      background: #fff;
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+    }
+    .readout-card .title {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      font-weight: 750;
+      margin-bottom: 2px;
+    }
+    .readout-card .value {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--indigo);
+    }
+    .readout-card .unit {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    /* Formula & Explanation Callout */
+    .callout {
+      background: var(--indigo-soft);
+      border: 1px solid var(--indigo-border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 0.85rem;
+      color: var(--indigo-ink);
+      line-height: 1.6;
+    }
+    .callout strong {
+      color: #064e3b;
+    }
+    .formula-math {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      text-align: center;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-weight: 700;
+      color: #065f46;
+      font-size: 0.95rem;
+      margin: 6px 0;
+    }
+
+    /* Limiting Reactant Badges */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 750;
+    }
+    .badge-limiting {
+      background: #ffe4e6;
+      color: #9f1239;
+      border: 1px solid #fecdd3;
+    }
+    .badge-excess {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+    .badge-complete {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+    }
+
+    .table-sm {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      margin-top: 6px;
+    }
+    .table-sm th, .table-sm td {
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      text-align: center;
+    }
+    .table-sm th {
+      background: #e2e8f0;
+      color: #334155;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <span class="badge">রসায়ন · অধ্যায় ৬ ল্যাবরেটরি</span>
+    <h1>মোলের ধারণা, মোলার দ্রবণ ও স্টয়কিওমেট্রি সিমুলেটর</h1>
+    <p class="lead">আদর্শ মাপক ফ্লাস্কে নির্দিষ্ট ঘনমাত্রার মোলার দ্রবণ তৈরি, লঘুকরণ ক্যালকুলেশন এবং লিমিটিং বিক্রিয়ক ও তাত্ত্বিক উৎপাদ নির্ণয়।</p>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('flask')">🧪 ১. মোলার দ্রবণ প্রস্তুতি</button>
+    <button class="tab-btn" onclick="switchTab('dilution')">💧 ২. দ্রবণ লঘুকরণ (Dilution)</button>
+    <button class="tab-btn" onclick="switchTab('stoich')">⚖️ ৩. স্টয়কিওমেট্রি ও লিমিটিং বিক্রিয়ক</button>
+  </div>
+
+  <!-- TAB 1: Molar Solution Preparation in Volumetric Flask -->
+  <div id="tab-flask" class="tab-content active">
+    <div class="lab-stage">
+      <div class="visual-box">
+        <!-- SVG Volumetric Flask & Digital Balance -->
+        <svg id="flaskSvg" viewBox="0 0 360 300">
+          <defs>
+            <linearGradient id="flaskGlass" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#ffffff" stop-opacity="0.35"/>
+              <stop offset="20%" stop-color="#ffffff" stop-opacity="0.1"/>
+              <stop offset="80%" stop-color="#ffffff" stop-opacity="0.05"/>
+              <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.3"/>
+            </linearGradient>
+            <linearGradient id="solGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#0284c7" stop-opacity="0.85"/>
+              <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.75"/>
+            </linearGradient>
+          </defs>
+
+          <!-- Digital Balance Table Base -->
+          <rect x="20" y="240" width="120" height="40" rx="6" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+          <rect x="35" y="248" width="90" height="24" rx="4" fill="#020617"/>
+          <text id="balanceText" x="80" y="265" fill="#38bdf8" font-size="13" font-family="monospace" font-weight="bold" text-anchor="middle">5.300 g</text>
+          <text x="80" y="235" fill="#94a3b8" font-size="10" text-anchor="middle">ডিজিটাল ব্যালান্স</text>
+          <!-- Watch glass on balance -->
+          <ellipse cx="80" cy="238" rx="28" ry="4" fill="#64748b" stroke="#94a3b8"/>
+          <!-- Powder crystals on watch glass -->
+          <ellipse id="solutePowder" cx="80" cy="236" rx="16" ry="3" fill="#e2e8f0"/>
+
+          <!-- 250 mL Volumetric Flask -->
+          <!-- Flask Body Outline -->
+          <g transform="translate(140, 20)">
+            <!-- Calibration ring mark at neck -->
+            <line x1="85" y1="80" x2="115" y2="80" stroke="#f43f5e" stroke-width="2" stroke-dasharray="2,2"/>
+            <text x="122" y="83" fill="#f43f5e" font-size="9" font-weight="bold">দাগ (Meniscus)</text>
+
+            <!-- Flask liquid fill (animated height and color) -->
+            <path id="flaskLiquid" d="M 88 120 L 112 120 L 140 215 Q 148 245 100 245 Q 52 245 60 215 Z" fill="url(#solGrad)"/>
+
+            <!-- Flask glass contour -->
+            <path d="M 88 35 L 88 120 L 60 215 Q 52 245 100 245 Q 148 245 140 215 L 112 120 L 112 35 Z"
+                  fill="url(#flaskGlass)" stroke="#94a3b8" stroke-width="2.5"/>
+            <!-- Flask rim / neck lip -->
+            <ellipse cx="100" cy="35" rx="14" ry="4" fill="#334155" stroke="#cbd5e1" stroke-width="1.5"/>
+
+            <!-- Dissolved particles animation -->
+            <g id="particlesGroup">
+              <circle cx="85" cy="180" r="2.5" fill="#ffffff" opacity="0.8"/>
+              <circle cx="115" cy="195" r="2" fill="#ffffff" opacity="0.7"/>
+              <circle cx="95" cy="220" r="3" fill="#ffffff" opacity="0.9"/>
+              <circle cx="75" cy="205" r="2" fill="#ffffff" opacity="0.6"/>
+              <circle cx="120" cy="165" r="2.5" fill="#ffffff" opacity="0.85"/>
+            </g>
+
+            <!-- Label on flask -->
+            <rect x="75" y="160" width="50" height="26" rx="3" fill="#ffffff" opacity="0.85"/>
+            <text id="flaskLabelM" x="100" y="173" fill="#0f172a" font-size="9" font-weight="bold" text-anchor="middle">0.20 M</text>
+            <text id="flaskLabelV" x="100" y="183" fill="#334155" font-size="8" text-anchor="middle">250 mL</text>
+          </g>
+        </svg>
+
+        <div style="font-size:0.75rem; color:#94a3b8; text-align:center;">
+          মাপক ফ্লাস্কের গলায় সূক্ষ্ম বৃত্তাকার দাগ (মেনিস্কাস) পর্যন্ত পাতিত পানি যোগ করে ঝাঁকিয়ে দ্রবণ প্রস্তুত করা হয়।
+        </div>
+      </div>
+
+      <div class="controls-box">
+        <div class="control-group">
+          <label>দ্রব নির্বাচন (Solute):</label>
+          <select id="soluteSelect" onchange="updateFlaskPrep()">
+            <option value="106,Na2CO3,সোডিয়াম কার্বনেট,#38bdf8">Na₂CO₃ (সোডিয়াম কার্বনেট, M = 106 g/mol)</option>
+            <option value="58.5,NaCl,সোডিয়াম ক্লোরাইড,#0284c7">NaCl (সোডিয়াম ক্লোরাইড, M = 58.5 g/mol)</option>
+            <option value="40,NaOH,সোডিয়াম হাইড্রোক্সাইড,#3b82f6">NaOH (সোডিয়াম হাইড্রোক্সাইড, M = 40.0 g/mol)</option>
+            <option value="249.5,CuSO4.5H2O,তুঁতে (কপার সালফেট),#0284c7">CuSO₄·5H₂O (তুঁতে, M = 249.5 g/mol)</option>
+            <option value="158,KMnO4,পটাশিয়াম পারম্যাঙ্গানেট,#a855f7">KMnO₄ (পটাশিয়াম পারম্যাঙ্গানেট, M = 158 g/mol)</option>
+            <option value="180,C6H12O6,গ্লুকোজ,#10b981">C₆H₁₂O₆ (গ্লুকোজ, M = 180 g/mol)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>ফ্লাস্কের আয়তন (V): <span id="volVal" class="val">250 mL</span></label>
+          <select id="volSelect" onchange="updateFlaskPrep()">
+            <option value="100">100 mL মাপক ফ্লাস্ক</option>
+            <option value="250" selected>250 mL মাপক ফ্লাস্ক</option>
+            <option value="500">500 mL মাপক ফ্লাস্ক</option>
+            <option value="1000">1000 mL (1 L) মাপক ফ্লাস্ক</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label>কাঙ্ক্ষিত ঘনমাত্রা (Molarity, S): <span id="molarVal" class="val">0.20 M</span></label>
+          <input type="range" id="molarSlider" min="0.05" max="2.0" step="0.05" value="0.2" oninput="updateFlaskPrep()">
+          <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--muted)">
+            <span>0.05 M</span>
+            <span>0.1 M (ডেসি)</span>
+            <span>0.5 M (সেমি)</span>
+            <span>1.0 M (মোলার)</span>
+            <span>2.0 M</span>
+          </div>
+        </div>
+
+        <div class="action-row">
+          <button class="btn btn-secondary" onclick="setPresetMolarity(0.1)">0.1 M (ডেসি)</button>
+          <button class="btn btn-secondary" onclick="setPresetMolarity(0.5)">0.5 M (সেমি)</button>
+          <button class="btn btn-secondary" onclick="setPresetMolarity(1.0)">1.0 M (মোলার)</button>
+          <button class="btn btn-primary" onclick="animateDissolve()">✨ ঝাঁকিয়ে দ্রবীভূত করো</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Readouts & Calculations -->
+    <div class="readout-grid">
+      <div class="readout-card">
+        <div class="title">প্রয়োজনীয় ভর (W)</div>
+        <div class="value" id="massNeeded">5.300</div>
+        <div class="unit">গ্রাম (g)</div>
+      </div>
+      <div class="readout-card">
+        <div class="title">মোল সংখ্যা (n)</div>
+        <div class="value" id="moleCount">0.050</div>
+        <div class="unit">mol</div>
+      </div>
+      <div class="readout-card">
+        <div class="title">দ্রবণের প্রকৃতি</div>
+        <div class="value" id="solType" style="font-size:0.95rem;">সেমিমোলার অপেক্ষা লঘু</div>
+        <div class="unit" id="solStatus">সুনির্দিষ্ট ঘনমাত্রা</div>
+      </div>
+      <div class="readout-card">
+        <div class="title">মোট অণু সংখ্যা (N)</div>
+        <div class="value" id="moleculeCount" style="font-size:0.95rem;">3.011×10²²</div>
+        <div class="unit">টি অণু</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>মোলার দ্রবণ প্রস্তুতির মূল সূত্র:</strong>
+      <div class="formula-math">W = (S × M × V) / 1000</div>
+      এখানে, <strong>W</strong> = প্রয়োজনীয় দ্রবের ভর (g), <strong>S</strong> = মোলার ঘনমাত্রা (mol/L বা M), <strong>M</strong> = দ্রবের আণবিক/মোলার ভর (g/mol), এবং <strong>V</strong> = মাপক ফ্লাস্কের আয়তন (mL)।<br>
+      ডিজিটাল ব্যালান্সে ঠিক <strong><span id="calloutW">5.300</span> g</strong> মেপে ফ্লাস্কে নিয়ে অল্প পাতিত পানিতে গুলে দাগ পর্যন্ত পানি দিলে প্রস্তুত হবে <strong><span id="calloutS">0.20</span> M</strong> দ্রবণ।
+    </div>
+  </div>
+
+  <!-- TAB 2: Dilution Calculator & Lab -->
+  <div id="tab-dilution" class="tab-content">
+    <div class="lab-stage">
+      <div class="visual-box">
+        <svg viewBox="0 0 360 280">
+          <!-- Stock Beaker 1 -->
+          <g transform="translate(40, 60)">
+            <rect x="10" y="40" width="100" height="130" rx="4" fill="none" stroke="#64748b" stroke-width="2.5"/>
+            <!-- Liquid -->
+            <rect id="beaker1Liquid" x="12" y="70" width="96" height="98" rx="2" fill="#0284c7" opacity="0.9"/>
+            <text x="60" y="30" fill="#94a3b8" font-size="11" font-weight="bold" text-anchor="middle">স্টক দ্রবণ (১)</text>
+            <text id="stockText1" x="60" y="120" fill="#ffffff" font-size="12" font-weight="bold" text-anchor="middle">S₁ = 2.0 M</text>
+            <text id="stockTextV1" x="60" y="140" fill="#e2e8f0" font-size="10" text-anchor="middle">V₁ = 25 mL</text>
+          </g>
+
+          <!-- Arrow + Water drop -->
+          <g transform="translate(150, 110)">
+            <path d="M 10 20 L 50 20 M 40 10 L 50 20 L 40 30" stroke="#38bdf8" stroke-width="3" fill="none"/>
+            <text x="30" y="8" fill="#38bdf8" font-size="10" font-weight="bold" text-anchor="middle">+ পানি যোগ</text>
+          </g>
+
+          <!-- Diluted Beaker 2 -->
+          <g transform="translate(210, 40)">
+            <rect x="10" y="20" width="115" height="150" rx="4" fill="none" stroke="#64748b" stroke-width="2.5"/>
+            <!-- Liquid lighter color -->
+            <rect id="beaker2Liquid" x="12" y="50" width="111" height="118" rx="2" fill="#38bdf8" opacity="0.45"/>
+            <text x="67" y="10" fill="#94a3b8" font-size="11" font-weight="bold" text-anchor="middle">লঘুকৃত দ্রবণ (২)</text>
+            <text id="dilTextS2" x="67" y="110" fill="#0369a1" font-size="13" font-weight="bold" text-anchor="middle">S₂ = 0.50 M</text>
+            <text id="dilTextV2" x="67" y="130" fill="#334155" font-size="11" text-anchor="middle">V₂ = 100 mL</text>
+          </g>
+        </svg>
+        <div style="font-size:0.75rem; color:#94a3b8; text-align:center;">
+          লঘুকরণে দ্রবের মোট মোল সংখ্যা অপরিবর্তিত থাকে: n₁ = n₂ → S₁V₁ = S₂V₂।
+        </div>
+      </div>
+
+      <div class="controls-box">
+        <div class="control-group">
+          <label>স্টক দ্রবণের আদি ঘনমাত্রা (S₁): <span id="s1Val" class="val">2.0 M</span></label>
+          <input type="range" id="s1Slider" min="0.5" max="5.0" step="0.1" value="2.0" oninput="updateDilution()">
+        </div>
+
+        <div class="control-group">
+          <label>প্রয়োজনীয় স্টক আয়তন (V₁): <span id="v1Val" class="val">25 mL</span></label>
+          <input type="range" id="v1Slider" min="5" max="100" step="5" value="25" oninput="updateDilution()">
+        </div>
+
+        <div class="control-group">
+          <label>কাঙ্ক্ষিত শেষ আয়তন (V₂): <span id="v2Val" class="val">100 mL</span></label>
+          <input type="range" id="v2Slider" min="50" max="500" step="10" value="100" oninput="updateDilution()">
+        </div>
+
+        <div class="readout-card" style="margin-top:4px;">
+          <div class="title">লঘুকৃত শেষ ঘনমাত্রা (S₂)</div>
+          <div class="value" id="s2Result">0.50 M</div>
+          <div class="unit">S₂ = (S₁ × V₁) / V₂</div>
+        </div>
+
+        <div class="readout-card">
+          <div class="title">যোগ করতে হবে অতিরিক্ত পানি (ΔV)</div>
+          <div class="value" id="waterAdded">75 mL</div>
+          <div class="unit">V₂ - V₁</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>লঘুকরণ সূত্র (Dilution Formula):</strong>
+      <div class="formula-math">S₁ × V₁ = S₂ × V₂</div>
+      স্টক দ্রবণ থেকে পিপেট দিয়ে ঠিক <strong><span id="calloutV1">25</span> mL</strong> নিয়ে তাতে <strong><span id="calloutAddW">75</span> mL</strong> পাতিত পানি মেশালে মোট আয়তন <strong><span id="calloutV2">100</span> mL</strong> হবে এবং ঘনমাত্রা কমে দাঁড়াবে <strong><span id="calloutS2">0.50</span> M</strong>।
+    </div>
+  </div>
+
+  <!-- TAB 3: Stoichiometric Reaction & Limiting Reactant -->
+  <div id="tab-stoich" class="tab-content">
+    <div class="lab-stage">
+      <div class="visual-box">
+        <svg viewBox="0 0 360 280">
+          <!-- Reaction Beaker -->
+          <rect x="80" y="50" width="200" height="180" rx="6" fill="#1e293b" stroke="#475569" stroke-width="2.5"/>
+          <!-- Reaction mixture -->
+          <rect id="reactMix" x="83" y="100" width="194" height="126" rx="4" fill="#0f766e" opacity="0.6"/>
+
+          <!-- Bubbles or Precipitate based on reaction -->
+          <g id="bubbleGroup">
+            <circle cx="140" cy="190" r="5" fill="#ffffff" opacity="0.7"/>
+            <circle cx="160" cy="150" r="4" fill="#ffffff" opacity="0.8"/>
+            <circle cx="210" cy="170" r="6" fill="#ffffff" opacity="0.6"/>
+            <circle cx="180" cy="120" r="4.5" fill="#ffffff" opacity="0.85"/>
+          </g>
+
+          <text id="rxnEquationSvg" x="180" y="35" fill="#38bdf8" font-size="12" font-weight="bold" text-anchor="middle">
+            Mg(s) + 2HCl(aq) → MgCl₂(aq) + H₂(g)
+          </text>
+          <text id="limitingIndicatorSvg" x="180" y="140" fill="#ffffff" font-size="13" font-weight="bold" text-anchor="middle">
+            বিক্রিয়া সম্পন্ন
+          </text>
+        </svg>
+
+        <div style="font-size:0.78rem; text-align:center; margin-top:6px;">
+          <span id="badgeReactantStatus" class="status-badge badge-limiting">লিমিটিং বিক্রিয়ক: Mg</span>
+          <span id="badgeExcessStatus" class="status-badge badge-excess" style="margin-left:6px;">উদ্বৃত্ত: HCl (অতিরিক্ত)</span>
+        </div>
+      </div>
+
+      <div class="controls-box">
+        <div class="control-group">
+          <label>বিক্রিয়া নির্বাচন:</label>
+          <select id="rxnSelect" onchange="changeReaction()">
+            <option value="mg_hcl">Mg(s) + 2HCl(aq) → MgCl₂(aq) + H₂(g)</option>
+            <option value="h2_o2">2H₂(g) + O₂(g) → 2H₂O(l)</option>
+            <option value="n2_h2">N₂(g) + 3H₂(g) → 2NH₃(g)</option>
+            <option value="caco3_hcl">CaCO₃(s) + 2HCl(aq) → CaCl₂(aq) + H₂O(l) + CO₂(g)</option>
+          </select>
+        </div>
+
+        <div class="control-group">
+          <label><span id="labelReactantA">Mg-এর ভর (g):</span> <span id="valReactantA" class="val">4.80 g</span></label>
+          <input type="range" id="sliderReactantA" min="0.5" max="24.0" step="0.1" value="4.8" oninput="updateStoichiometry()">
+        </div>
+
+        <div class="control-group">
+          <label><span id="labelReactantB">HCl-এর ভর (g):</span> <span id="valReactantB" class="val">21.90 g</span></label>
+          <input type="range" id="sliderReactantB" min="1.0" max="40.0" step="0.5" value="21.9" oninput="updateStoichiometry()">
+        </div>
+
+        <div class="control-group">
+          <label>পরীক্ষাগারে উৎপাদের শতকরা হার (% Yield): <span id="valYieldPct" class="val">100%</span></label>
+          <input type="range" id="sliderYieldPct" min="50" max="100" step="1" value="100" oninput="updateStoichiometry()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Stoichiometric Summary Table -->
+    <div style="overflow-x:auto;">
+      <table class="table-sm">
+        <thead>
+          <tr>
+            <th>উপাদান</th>
+            <th>প্রদত্ত পরিমাণ (g)</th>
+            <th>মোল সংখ্যা (mol)</th>
+            <th>বিক্রিয়ায় প্রয়োজন</th>
+            <th>অবশিষ্ট পরিমাণ</th>
+            <th>স্ট্যাটাস</th>
+          </tr>
+        </thead>
+        <tbody id="stoichTableBody">
+          <!-- Filled dynamically by JS -->
+        </tbody>
+      </table>
+    </div>
+
+    <div class="readout-grid">
+      <div class="readout-card">
+        <div class="title">তাত্ত্বিক উৎপাদ (Theoretical)</div>
+        <div class="value" id="theoYieldVal">19.04 g</div>
+        <div class="unit" id="theoProductLabel">MgCl₂</div>
+      </div>
+      <div class="readout-card">
+        <div class="title">প্রকৃত উৎপাদ (Actual Yield)</div>
+        <div class="value" id="actualYieldVal">19.04 g</div>
+        <div class="unit">শতকরা <span id="actualYieldPct">100</span>%</div>
+      </div>
+      <div class="readout-card">
+        <div class="title">গ্যাসীয় উৎপাদের আয়তন (STP)</div>
+        <div class="value" id="gasVolumeVal">4.48 L</div>
+        <div class="unit">H₂ গ্যাস (STP-তে)</div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <strong>লিমিটিং বিক্রিয়ক নিয়ম:</strong> যে বিক্রিয়ক বিক্রিয়ায় আগে নিঃশেষ হয়ে যায় তাকে <strong>লিমিটিং বিক্রিয়ক</strong> বলে। উৎপাদের পরিমাণ সবসময় লিমিটিং বিক্রিয়কের পরিমাণের ওপর নির্ভর করে নির্ধারিত হয়।
+    </div>
+  </div>
+</div>
+
+<script>
+  // Tab Switching
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    if (tabId === 'flask') {
+      document.querySelectorAll('.tab-btn')[0].classList.add('active');
+      document.getElementById('tab-flask').classList.add('active');
+      updateFlaskPrep();
+    } else if (tabId === 'dilution') {
+      document.querySelectorAll('.tab-btn')[1].classList.add('active');
+      document.getElementById('tab-dilution').classList.add('active');
+      updateDilution();
+    } else if (tabId === 'stoich') {
+      document.querySelectorAll('.tab-btn')[2].classList.add('active');
+      document.getElementById('tab-stoich').classList.add('active');
+      updateStoichiometry();
+    }
+  }
+
+  // TAB 1: Volumetric Flask Logic
+  function updateFlaskPrep() {
+    const soluteData = document.getElementById('soluteSelect').value.split(',');
+    const M = parseFloat(soluteData[0]);
+    const formula = soluteData[1];
+    const nameBangla = soluteData[2];
+    const color = soluteData[3];
+
+    const V = parseFloat(document.getElementById('volSelect').value);
+    const S = parseFloat(document.getElementById('molarSlider').value);
+
+    document.getElementById('volVal').textContent = V + ' mL';
+    document.getElementById('molarVal').textContent = S.toFixed(2) + ' M';
+
+    // W = (S * M * V) / 1000
+    const W = (S * M * V) / 1000;
+    const n = W / M;
+    const NA = 6.023e23;
+    const molecules = n * NA;
+
+    document.getElementById('massNeeded').textContent = W.toFixed(3);
+    document.getElementById('moleCount').textContent = n.toFixed(3);
+    document.getElementById('balanceText').textContent = W.toFixed(3) + ' g';
+
+    // Formatting molecule count in scientific notation
+    const exp = Math.floor(Math.log10(molecules));
+    const coeff = (molecules / Math.pow(10, exp)).toFixed(2);
+    document.getElementById('moleculeCount').textContent = coeff + '×10²' + (exp - 20 >= 0 ? ['⁰','¹','²','³','⁴','⁵','⁶','⁷','⁸','⁹'][exp-20] : exp);
+
+    // Classification of solution
+    let typeStr = 'লঘু দ্রবণ';
+    if (Math.abs(S - 1.0) < 0.01) typeStr = '১ মোলার দ্রবণ (1 M)';
+    else if (Math.abs(S - 0.5) < 0.01) typeStr = 'সেমিমোলার দ্রবণ (0.5 M)';
+    else if (Math.abs(S - 0.1) < 0.01) typeStr = 'ডেসিমোলার দ্রবণ (0.1 M)';
+    else if (Math.abs(S - 0.01) < 0.005) typeStr = 'সেন্টিমোলার দ্রবণ (0.01 M)';
+    else if (S > 1.0) typeStr = 'গাঢ় দ্রবণ (> 1 M)';
+    else if (S > 0.5) typeStr = 'সেমিমোলারের চেয়ে গাঢ়';
+    else if (S > 0.1) typeStr = 'ডেসিমোলারের চেয়ে গাঢ়';
+    document.getElementById('solType').textContent = typeStr;
+
+    // Visual Updates
+    document.getElementById('flaskLabelM').textContent = S.toFixed(2) + ' M ' + formula;
+    document.getElementById('flaskLabelV').textContent = V + ' mL';
+    document.getElementById('solutePowder').setAttribute('fill', color);
+
+    // Callout text
+    document.getElementById('calloutW').textContent = W.toFixed(3);
+    document.getElementById('calloutS').textContent = S.toFixed(2);
+  }
+
+  function setPresetMolarity(val) {
+    document.getElementById('molarSlider').value = val;
+    updateFlaskPrep();
+  }
+
+  function animateDissolve() {
+    const liquid = document.getElementById('flaskLiquid');
+    liquid.style.transition = 'opacity 0.5s ease';
+    liquid.style.opacity = '0.3';
+    setTimeout(() => {
+      liquid.style.opacity = '0.9';
+    }, 400);
+  }
+
+  // TAB 2: Dilution Logic
+  function updateDilution() {
+    const S1 = parseFloat(document.getElementById('s1Slider').value);
+    const V1 = parseFloat(document.getElementById('v1Slider').value);
+    let V2 = parseFloat(document.getElementById('v2Slider').value);
+
+    // Ensure V2 >= V1
+    if (V2 < V1) {
+      V2 = V1;
+      document.getElementById('v2Slider').value = V2;
+    }
+
+    document.getElementById('s1Val').textContent = S1.toFixed(1) + ' M';
+    document.getElementById('v1Val').textContent = V1 + ' mL';
+    document.getElementById('v2Val').textContent = V2 + ' mL';
+
+    // S1 * V1 = S2 * V2 -> S2 = (S1 * V1) / V2
+    const S2 = (S1 * V1) / V2;
+    const addW = V2 - V1;
+
+    document.getElementById('s2Result').textContent = S2.toFixed(3) + ' M';
+    document.getElementById('waterAdded').textContent = addW + ' mL';
+
+    document.getElementById('stockText1').textContent = 'S₁ = ' + S1.toFixed(1) + ' M';
+    document.getElementById('stockTextV1').textContent = 'V₁ = ' + V1 + ' mL';
+    document.getElementById('dilTextS2').textContent = 'S₂ = ' + S2.toFixed(3) + ' M';
+    document.getElementById('dilTextV2').textContent = 'V₂ = ' + V2 + ' mL';
+
+    // Callout text
+    document.getElementById('calloutV1').textContent = V1;
+    document.getElementById('calloutAddW').textContent = addW;
+    document.getElementById('calloutV2').textContent = V2;
+    document.getElementById('calloutS2').textContent = S2.toFixed(3);
+  }
+
+  // TAB 3: Stoichiometry & Limiting Reactant Logic
+  const reactions = {
+    mg_hcl: {
+      eq: 'Mg(s) + 2HCl(aq) → MgCl₂(aq) + H₂(g)',
+      nameA: 'Mg', massA: 24.3, coeffA: 1, maxA: 24.0, defaultA: 4.8,
+      nameB: 'HCl', massB: 36.5, coeffB: 2, maxB: 40.0, defaultB: 21.9,
+      prodName: 'MgCl₂', prodMass: 95.3, prodCoeff: 1,
+      gasName: 'H₂', gasCoeff: 1
+    },
+    h2_o2: {
+      eq: '2H₂(g) + O₂(g) → 2H₂O(l)',
+      nameA: 'H₂', massA: 2.0, coeffA: 2, maxA: 10.0, defaultA: 4.0,
+      nameB: 'O₂', massB: 32.0, coeffB: 1, maxB: 64.0, defaultB: 32.0,
+      prodName: 'H₂O', prodMass: 18.0, prodCoeff: 2,
+      gasName: null, gasCoeff: 0
+    },
+    n2_h2: {
+      eq: 'N₂(g) + 3H₂(g) → 2NH₃(g)',
+      nameA: 'N₂', massA: 28.0, coeffA: 1, maxA: 56.0, defaultA: 28.0,
+      nameB: 'H₂', massB: 2.0, coeffB: 3, maxB: 12.0, defaultB: 6.0,
+      prodName: 'NH₃', prodMass: 17.0, prodCoeff: 2,
+      gasName: 'NH₃', gasCoeff: 2
+    },
+    caco3_hcl: {
+      eq: 'CaCO₃(s) + 2HCl(aq) → CaCl₂(aq) + H₂O(l) + CO₂(g)',
+      nameA: 'CaCO₃', massA: 100.0, coeffA: 1, maxA: 50.0, defaultA: 20.0,
+      nameB: 'HCl', massB: 36.5, coeffB: 2, maxB: 40.0, defaultB: 14.6,
+      prodName: 'CaCl₂', prodMass: 111.0, prodCoeff: 1,
+      gasName: 'CO₂', gasCoeff: 1
+    }
+  };
+
+  function changeReaction() {
+    const rxnKey = document.getElementById('rxnSelect').value;
+    const r = reactions[rxnKey];
+
+    document.getElementById('rxnEquationSvg').textContent = r.eq;
+    document.getElementById('labelReactantA').textContent = r.nameA + '-এর ভর (g):';
+    document.getElementById('labelReactantB').textContent = r.nameB + '-এর ভর (g):';
+
+    const sA = document.getElementById('sliderReactantA');
+    sA.max = r.maxA;
+    sA.value = r.defaultA;
+
+    const sB = document.getElementById('sliderReactantB');
+    sB.max = r.maxB;
+    sB.value = r.defaultB;
+
+    updateStoichiometry();
+  }
+
+  function updateStoichiometry() {
+    const rxnKey = document.getElementById('rxnSelect').value;
+    const r = reactions[rxnKey];
+
+    const wA = parseFloat(document.getElementById('sliderReactantA').value);
+    const wB = parseFloat(document.getElementById('sliderReactantB').value);
+    const yieldPct = parseFloat(document.getElementById('sliderYieldPct').value);
+
+    document.getElementById('valReactantA').textContent = wA.toFixed(1) + ' g';
+    document.getElementById('valReactantB').textContent = wB.toFixed(1) + ' g';
+    document.getElementById('valYieldPct').textContent = yieldPct + '%';
+    document.getElementById('actualYieldPct').textContent = yieldPct;
+
+    const nA = wA / r.massA;
+    const nB = wB / r.massB;
+
+    // Stoichiometric capacity to produce product
+    // Moles of reaction batches:
+    const batchesA = nA / r.coeffA;
+    const batchesB = nB / r.coeffB;
+
+    let limiting = '';
+    let excess = '';
+    let completedBatches = 0;
+    let excessRemainingGrams = 0;
+
+    if (Math.abs(batchesA - batchesB) < 0.0001) {
+      limiting = 'উভয়ই সুষম (Equimolar)';
+      completedBatches = batchesA;
+    } else if (batchesA < batchesB) {
+      limiting = r.nameA;
+      excess = r.nameB;
+      completedBatches = batchesA;
+      const consumedB = completedBatches * r.coeffB;
+      const remB = nB - consumedB;
+      excessRemainingGrams = remB * r.massB;
+    } else {
+      limiting = r.nameB;
+      excess = r.nameA;
+      completedBatches = batchesB;
+      const consumedA = completedBatches * r.coeffA;
+      const remA = nA - consumedA;
+      excessRemainingGrams = remA * r.massA;
+    }
+
+    // Theoretical yield of main product
+    const prodMoles = completedBatches * r.prodCoeff;
+    const theoMass = prodMoles * r.prodMass;
+    const actualMass = theoMass * (yieldPct / 100);
+
+    document.getElementById('theoYieldVal').textContent = theoMass.toFixed(2) + ' g';
+    document.getElementById('theoProductLabel').textContent = r.prodName + ' (' + prodMoles.toFixed(3) + ' mol)';
+    document.getElementById('actualYieldVal').textContent = actualMass.toFixed(2) + ' g';
+
+    // Gas volume (STP: 22.4 L/mol)
+    if (r.gasName) {
+      const gasMoles = completedBatches * r.gasCoeff;
+      const gasVol = gasMoles * 22.4;
+      document.getElementById('gasVolumeVal').textContent = gasVol.toFixed(2) + ' L';
+    } else {
+      document.getElementById('gasVolumeVal').textContent = 'N/A';
+    }
+
+    // Badges update
+    const bLimit = document.getElementById('badgeReactantStatus');
+    const bExcess = document.getElementById('badgeExcessStatus');
+
+    if (limiting.includes('সুষম')) {
+      bLimit.className = 'status-badge badge-complete';
+      bLimit.textContent = 'সুষম অনুপাত: কোনোটি অবশিষ্ট থাকবে না';
+      bExcess.style.display = 'none';
+    } else {
+      bLimit.className = 'status-badge badge-limiting';
+      bLimit.textContent = 'লিমিটিং বিক্রিয়ক: ' + limiting;
+      bExcess.style.display = 'inline-block';
+      bExcess.textContent = 'উদ্বৃত্ত: ' + excess + ' (' + excessRemainingGrams.toFixed(2) + ' g অবশিষ্ট)';
+    }
+
+    // Table rows
+    const tbody = document.getElementById('stoichTableBody');
+    tbody.innerHTML = `
+      <tr>
+        <td><strong>${r.nameA}</strong></td>
+        <td>${wA.toFixed(1)} g</td>
+        <td>${nA.toFixed(3)} mol</td>
+        <td>${(completedBatches * r.coeffA).toFixed(3)} mol</td>
+        <td>${limiting === r.nameA ? '০ g (নিঃশেষ)' : excessRemainingGrams.toFixed(2) + ' g'}</td>
+        <td>${limiting === r.nameA ? '<span class="status-badge badge-limiting">লিমিটিং</span>' : '<span class="status-badge badge-excess">অতিরিক্ত</span>'}</td>
+      </tr>
+      <tr>
+        <td><strong>${r.nameB}</strong></td>
+        <td>${wB.toFixed(1)} g</td>
+        <td>${nB.toFixed(3)} mol</td>
+        <td>${(completedBatches * r.coeffB).toFixed(3)} mol</td>
+        <td>${limiting === r.nameB ? '০ g (নিঃশেষ)' : excessRemainingGrams.toFixed(2) + ' g'}</td>
+        <td>${limiting === r.nameB ? '<span class="status-badge badge-limiting">লিমিটিং</span>' : '<span class="status-badge badge-excess">অতিরিক্ত</span>'}</td>
+      </tr>
+      <tr style="background:#f8fafc;">
+        <td><strong>${r.prodName} (উৎপাদ)</strong></td>
+        <td>-</td>
+        <td>${prodMoles.toFixed(3)} mol</td>
+        <td>উৎপাদিত</td>
+        <td>${theoMass.toFixed(2)} g (তাত্ত্বিক)</td>
+        <td><span class="status-badge badge-complete">উৎপাদ</span></td>
+      </tr>
+    `;
+  }
+
+  // Initialize
+  window.onload = function() {
+    updateFlaskPrep();
+  };
+</script>
+
+</body>
+</html>

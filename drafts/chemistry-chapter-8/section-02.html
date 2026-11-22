@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>৮.২ বন্ধন শক্তি ও বিক্রিয়া তাপ হিসাব (ΔH) | পড়ি রসায়ন</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}]});"></script>
+  <script defer src="chem.js"></script>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="index.html">পড়ি <span>•</span> Chemistry</a>
+    <span class="crumb">অধ্যায় ৮ · পাঠ ৮.২</span>
+  </div>
+</header>
+<main>
+
+  <span class="badge">অধ্যায় ৮ · পাঠ ২</span>
+  <h1 class="title">৮.২ বন্ধন শক্তি ও বিক্রিয়া তাপ হিসাব (ΔH)</h1>
+  <p class="subtitle">Bond Energy and Calculation of Reaction Heat · পাঠ্যবই পৃষ্ঠা ১৭৪–১৮০</p>
+
+  <section class="goal">
+    <h2>🎯 এই পাঠের মূল শিখনফল</h2>
+    <ul>
+      <li><b>তাপোৎপাদী</b> ও <b>তাপহারী</b> বিক্রিয়ার আণবিক স্তরের পার্থক্য ও $\Delta H$-এর চিহ্নের তাৎপর্য ব্যাখ্যা করতে পারবে।</li>
+      <li>প্রমাণ বন্ধন শক্তির মান ব্যবহার করে বিক্রিয়া তাপ $(\Delta H = B_1 - B_2)$ নির্ভুলভাবে নির্ণয় করতে পারবে।</li>
+      <li>মিথেনের ক্লোরিনেশন, মিথেন ও অ্যালকোহলের দহন ইত্যাদি বিক্রিয়ার বন্ধন ভাঙা-গড়ার নিখুঁত ব্যালেন্স হিসাব করতে পারবে।</li>
+    </ul>
+  </section>
+
+  <section class="section">
+    <h2>১. তাপোৎপাদী বনাম তাপহারী বিক্রিয়া</h2>
+    <p>যেকোনো রাসায়নিক বিক্রিয়ায় পুরোনো বন্ধন ভাঙে এবং নতুন বন্ধন গড়ে ওঠে। এর ওপর ভিত্তি করে বিক্রিয়া দুই প্রকার:</p>
+
+    <div class="grid">
+      <div class="term">
+        <strong>তাপোৎপাদী বিক্রিয়া (Exothermic)</strong>
+        <small>যে বিক্রিয়ায় তাপ উৎপন্ন হয় এবং পাত্রের তাপমাত্রা বৃদ্ধি পায়। এখানে উৎপাদের এনথালপি বিক্রিয়কের চেয়ে কম হওয়ায় $\Delta H$ এর মান ঋণাত্মক $(-)$ হয়।</small>
+      </div>
+      <div class="term">
+        <strong>তাপহারী বিক্রিয়া (Endothermic)</strong>
+        <small>যে বিক্রিয়ায় তাপ শোষিত হয় এবং পারিপার্শ্বিকের তাপমাত্রা হ্রাস পায়। এখানে উৎপাদের এনথালপি বেশি হওয়ায় $\Delta H$ এর মান ধনাত্মক $(+)$ হয়।</small>
+      </div>
+    </div>
+
+    <div class="formula">
+      $$\Delta H = H_{\text{উৎপাদ}} - H_{\text{বিক্রিয়ক}}$$
+      $$\text{তাপোৎপাদী: } \Delta H < 0 \quad (\text{যেমন: } \text{N}_2 + 3\text{H}_2 \rightleftharpoons 2\text{NH}_3; \; \Delta H = -92\text{ kJ})$$
+      $$\text{তাপহারী: } \Delta H > 0 \quad (\text{যেমন: } \text{N}_2 + \text{O}_2 \rightarrow 2\text{NO}; \; \Delta H = +180\text{ kJ})$$
+    </div>
+
+    <h3>২. বন্ধন শক্তি থেকে $\Delta H$ নির্ণয়ের মূল সূত্র</h3>
+    <p>রাসায়নিক বিক্রিয়ায় বিক্রিয়ক অণুগুলোর বন্ধন ভাঙতে যে পরিমাণ শক্তি দিতে হয় তাকে $B_1$ এবং উৎপাদের নতুন বন্ধন গঠিত হওয়ার সময় যে শক্তি নির্গত হয় তাকে $B_2$ ধরলে:</p>
+
+    <div class="formula">
+      $$\Delta H = B_1 - B_2$$
+      $$\Delta H = \Sigma (\text{বিক্রিয়কের মোট বন্ধন ভাঙার শক্তি}) - \Sigma (\text{উৎপাদের মোট বন্ধন গড়ার শক্তি})$$
+    </div>
+
+    <h3>৩. পাঠ্যবইয়ের প্রমাণ বন্ধন শক্তি ছক (NCTB)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>রাসায়নিক বন্ধন</th>
+            <th>বন্ধন শক্তি ($\text{kJ/mol}$)</th>
+            <th>রাসায়নিক বন্ধন</th>
+            <th>বন্ধন শক্তি ($\text{kJ/mol}$)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>$\text{C}-\text{H}$</td><td>$414$</td><td>$\text{C}-\text{Cl}$</td><td>$326$</td></tr>
+          <tr><td>$\text{Cl}-\text{Cl}$</td><td>$244$</td><td>$\text{H}-\text{Cl}$</td><td>$431$</td></tr>
+          <tr><td>$\text{O}-\text{H}$</td><td>$464$</td><td>$\text{O}=\text{O}$</td><td>$498$</td></tr>
+          <tr><td>$\text{C}-\text{C}$</td><td>$344$</td><td>$\text{C}=\text{O}$</td><td>$745$ (বা $814$ $\text{CO}_2$-তে)</td></tr>
+          <tr><td>$\text{H}-\text{H}$</td><td>$436$</td><td>$\text{N}\equiv\text{N}$</td><td>$946$</td></tr>
+          <tr><td>$\text{N}-\text{H}$</td><td>$391$</td><td>$\text{Br}-\text{Br}$</td><td>$193$</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="worked">
+    <h2>💡 আদর্শ গাণিতিক সমস্যা ও সমাধান</h2>
+    <div class="problem">
+      <b>সমস্যা ১:</b> সূর্যের আলোর উপস্থিতিতে মিথেনের সাথে ক্লোরিনের প্রতিস্থাপন বিক্রিয়ায় বিক্রিয়া তাপ ($\Delta H$) হিসাব করো।<br>
+      $$\text{CH}_4(\text{g}) + \text{Cl}_2(\text{g}) \rightarrow \text{CH}_3\text{Cl}(\text{g}) + \text{HCl}(\text{g})$$
+    </div>
+    <div class="solution">
+      <b>ধাপ ১: গাঠনিক সমীকরণ বিশ্লেষণ:</b><br>
+      বিক্রিয়কে ১টি $\text{C}-\text{H}$ বন্ধন এবং ১টি $\text{Cl}-\text{Cl}$ বন্ধন ভাঙে।<br>
+      উৎপাদে ১টি নতুন $\text{C}-\text{Cl}$ বন্ধন এবং ১টি $\text{H}-\text{Cl}$ বন্ধন গড়ে ওঠে।<br>
+      (উভয় পাশে ৩টি $\text{C}-\text{H}$ বন্ধন অপরিবর্তিত থাকে)<br><br>
+      <b>ধাপ ২: বন্ধন ভাঙার প্রয়োজনীয় শক্তি ($B_1$):</b><br>
+      $$B_1 = (\text{C}-\text{H}) + (\text{Cl}-\text{Cl}) = 414 + 244 = 658\text{ kJ}$$
+      <b>ধাপ ৩: বন্ধন গড়ার নির্গত শক্তি ($B_2$):</b><br>
+      $$B_2 = (\text{C}-\text{Cl}) + (\text{H}-\text{Cl}) = 326 + 431 = 757\text{ kJ}$$
+      <b>ধাপ ৪: $\Delta H$ নির্ণয়:</b><br>
+      $$\Delta H = B_1 - B_2 = 658 - 757 = -99\text{ kJ/mol}$$
+      <b>মন্তব্য:</b> $\Delta H$ ঋণাত্মক হওয়ায় বিক্রিয়াটি <b>তাপোৎপাদী</b>।
+    </div>
+  </section>
+
+  <section class="memory">
+    <h2>🧠 মনে রাখার টেকনিক ও সতর্কতা</h2>
+    <ul>
+      <li><b>সূত্রের সতর্কতা:</b> $\Delta H = B_{\text{Reactants}} - B_{\text{Products}}$ (বিক্রিয়ক বিয়োগ উৎপাদ)। কিন্তু এনথালপির বেলায় $\Delta H = H_{\text{Products}} - H_{\text{Reactants}}$ (উৎপাদ বিয়োগ বিক্রিয়ক)!</li>
+      <li><b>অক্সিজেন দ্বিবন্ধন:</b> $O_2$ অণুতে কিন্তু <b>দ্বিবন্ধন ($O=O$)</b> থাকে, একক বন্ধন নয়! তাই মান বসাবে $498\text{ kJ/mol}$।</li>
+      <li><b>পানির অণু:</b> প্রতিটি $H_2O$ অণুতে <b>২টি $O-H$ বন্ধন</b> থাকে। $2H_2O$ থাকলে মোট $2 \times 2 = 4$টি $O-H$ বন্ধন হিসাব করতে হবে।</li>
+    </ul>
+  </section>
+
+  <!-- Cloze -->
+  <section class="cloze">
+    <div class="deck-head">
+      <h2>✏️ সক্রিয় স্মরণ (ট্যাপ করে উত্তর মেলাও)</h2>
+      <button type="button" class="btn-sm cloze-all">সব উত্তর দেখাও</button>
+    </div>
+    <p>১. বিক্রিয়া তাপ $\Delta H$ এর মান ঋণাত্মক হলে বিক্রিয়াটি <span class="blank">তাপোৎপাদী</span> হয়।</p>
+    <p>২. বন্ধন শক্তির সাহায্যে বিক্রিয়া তাপের সূত্রটি হলো: $\Delta H =$ <span class="blank">B1 - B2</span>।</p>
+    <p>৩. মিথেনের ক্লোরিনেশন বিক্রিয়ায় $\Delta H$ এর মান হলো <span class="blank">-99 kJ/mol</span>।</p>
+    <p>৪. নাইট্রোজেন অণুর ($N_2$) পরমাণুদ্বয় পরস্পরের সাথে <span class="blank">ত্রিবন্ধন</span> দ্বারা যুক্ত থাকে।</p>
+  </section>
+
+  <!-- Flashcards -->
+  <section class="deck" id="deck-chem-8-2">
+    <div class="deck-head">
+      <h2>🃏 ৮.২ ফ্ল্যাশকার্ড — উল্টে মুখস্থ করো</h2>
+      <span class="deck-count">কার্ড লোড হচ্ছে...</span>
+    </div>
+    <div class="card3d" tabindex="0">
+      <div class="card3d-inner">
+        <div class="face front">ক্লিক করো</div>
+        <div class="face back">উত্তর</div>
+      </div>
+    </div>
+    <div class="deck-actions">
+      <button type="button" class="btn-sm ok">মনে আছে ✓</button>
+      <button type="button" class="btn-sm no">আবার দেখাও ↺</button>
+      <button type="button" class="btn-sm reset">রিসেট</button>
+    </div>
+    <div class="deck-bar"><i></i></div>
+    <script type="application/json" class="deck-data">
+      [
+        ["C-H বন্ধনের প্রমাণ বন্ধন শক্তি কত?", "414 kJ/mol"],
+        ["Cl-Cl বন্ধনের বন্ধন শক্তি কত?", "244 kJ/mol"],
+        ["H-Cl বন্ধনের বন্ধন শক্তি কত?", "431 kJ/mol"],
+        ["ΔH = B1 - B2 সমীকরণে B1 ও B2 কী?", "B1 = বিক্রিয়কের বন্ধন ভাঙার শক্তি; B2 = উৎপাদের বন্ধন গড়ার শক্তি।"],
+        ["চুন ও পানির বিক্রিয়া তাপোৎপাদী কেন?", "নতুন বন্ধন সৃষ্টিতে নির্গত শক্তি বিক্রিয়কের বন্ধন ভাঙার শক্তির চেয়ে বেশি।"]
+      ]
+    </script>
+  </section>
+
+  <!-- Quiz -->
+  <section class="quiz" id="quiz-chem-8-2">
+    <h2>🧪 তাৎক্ষণিক আত্মযাচাই কুইজ</h2>
+    <div class="quiz-body"></div>
+    <div class="score">স্কোর: ০/০</div>
+    <button type="button" class="btn-sm quiz-reset" style="margin-top:10px">পুনরায় কুইজ দাও</button>
+    <script type="application/json" class="quiz-data">
+      [
+        {
+          "q": "একটি রাসায়নিক বিক্রিয়ায় B1 = 850 kJ এবং B2 = 980 kJ হলে ΔH এর মান কত এবং বিক্রিয়াটি কেমন?",
+          "o": ["+130 kJ, তাপহারী", "-130 kJ, তাপোৎপাদী", "-130 kJ, তাপহারী", "+130 kJ, তাপোৎপাদী"],
+          "a": 1,
+          "e": "ΔH = B1 - B2 = 850 - 980 = -130 kJ। ঋণাত্মক চিহ্নের কারণে এটি তাপোৎপাদী।"
+        },
+        {
+          "q": "CH4 + Cl2 → CH3Cl + HCl বিক্রিয়ায় ΔH এর মান কত?",
+          "o": ["-99 kJ/mol", "+99 kJ/mol", "-132 kJ/mol", "-414 kJ/mol"],
+          "a": 0,
+          "e": "B1 = 414 + 244 = 658 kJ; B2 = 326 + 431 = 757 kJ; ΔH = 658 - 757 = -99 kJ/mol।"
+        }
+      ]
+    </script>
+  </section>
+
+  <div class="nav">
+    <a class="button secondary" href="section-01.html">← ৮.১ রাসায়নিক শক্তি</a>
+    <a class="button" href="section-03.html">৮.৩ তড়িৎ রাসায়নিক কোষ ও তড়িৎ বিশ্লেষ্য →</a>
+  </div>
+</main>
+</body>
+</html>

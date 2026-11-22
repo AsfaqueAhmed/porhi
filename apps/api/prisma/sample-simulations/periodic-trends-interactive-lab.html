@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>পর্যায় সারণি ও পর্যায়বৃত্ত ধর্ম ইন্টারঅ্যাক্টিভ ল্যাব | poRi</title>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card-bg: #1e293b;
+      --surface: #111827;
+      --surface-light: #1f2937;
+      --border: #334155;
+      --border-accent: #0f766e;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --teal: #14b8a6;
+      --teal-dark: #0f766e;
+      --teal-light: #ccfbf1;
+      --amber: #f59e0b;
+      --rose: #f43f5e;
+      --purple: #a855f7;
+      --blue: #38bdf8;
+      --green: #22c55e;
+      --gold: #fbbf24;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Hind Siliguri", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 14px;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #0f766e, #14b8a6);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 900;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(20,184,166,0.3);
+    }
+    .brand-title h1 {
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.01em;
+    }
+    .brand-title p {
+      font-size: 13px;
+      color: var(--teal-light);
+      opacity: 0.85;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(15, 118, 110, 0.25);
+      border: 1px solid var(--teal-dark);
+      border-radius: 999px;
+      font-size: 12px;
+      color: var(--teal);
+      font-weight: 700;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+      background: var(--surface-light);
+      padding: 6px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+    }
+    .tab-btn {
+      flex: 1;
+      min-width: 160px;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .tab-btn:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.05);
+    }
+    .tab-btn.active {
+      background: var(--teal-dark);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(15, 118, 110, 0.4);
+    }
+
+    /* Tab Panes */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Heatmap Controls */
+    .controls-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: var(--card-bg);
+      padding: 14px 18px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .trend-selector {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .trend-selector label {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--teal);
+    }
+    .select-input, .btn {
+      background: var(--surface);
+      color: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      outline: none;
+      cursor: pointer;
+      transition: border 0.15s;
+    }
+    .select-input:hover, .btn:hover { border-color: var(--teal); }
+    .legend-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .legend-bar {
+      width: 180px;
+      height: 12px;
+      border-radius: 6px;
+      background: linear-gradient(to right, #38bdf8, #22c55e, #fbbf24, #f43f5e);
+      border: 1px solid var(--border);
+    }
+    .legend-labels {
+      display: flex;
+      justify-content: space-between;
+      width: 180px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Periodic Table Grid */
+    .table-scroll-container {
+      overflow-x: auto;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .periodic-table {
+      display: grid;
+      grid-template-columns: repeat(18, minmax(64px, 1fr));
+      grid-template-rows: repeat(10, 68px);
+      gap: 4px;
+      min-width: 1180px;
+    }
+    .element-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px 6px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      position: relative;
+      user-select: none;
+    }
+    .element-card:hover {
+      transform: translateY(-2px) scale(1.05);
+      z-index: 10;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+      border-color: #fff;
+    }
+    .element-card.active {
+      border: 2px solid #fff !important;
+      box-shadow: 0 0 12px var(--teal) !important;
+    }
+    .el-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--text-muted);
+      line-height: 1;
+    }
+    .el-symbol {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.1;
+      text-align: center;
+      color: #fff;
+    }
+    .el-name {
+      font-size: 9px;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text-muted);
+    }
+    .el-val {
+      font-size: 10px;
+      text-align: center;
+      font-weight: 700;
+      color: #cbd5e1;
+      background: rgba(0,0,0,0.25);
+      border-radius: 4px;
+      padding: 1px 2px;
+    }
+
+    /* Category colors */
+    .cat-alkali { border-left: 3px solid #f43f5e; }
+    .cat-alkaline-earth { border-left: 3px solid #f59e0b; }
+    .cat-transition { border-left: 3px solid #38bdf8; }
+    .cat-lanthanide { border-left: 3px solid #a855f7; }
+    .cat-actinide { border-left: 3px solid #ec4899; }
+    .cat-post-transition { border-left: 3px solid #14b8a6; }
+    .cat-metalloid { border-left: 3px solid #22c55e; }
+    .cat-nonmetal { border-left: 3px solid #eab308; }
+    .cat-halogen { border-left: 3px solid #06b6d4; }
+    .cat-noble { border-left: 3px solid #8b5cf6; }
+
+    /* Gap spacers */
+    .table-gap-row {
+      grid-column: 1 / span 18;
+      height: 14px;
+    }
+
+    /* Details Panel / Inspector */
+    .inspector-panel {
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 20px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-top: 16px;
+    }
+    @media (max-width: 900px) {
+      .inspector-panel { grid-template-columns: 1fr; }
+    }
+    .atom-visualizer-box {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    .atom-canvas {
+      width: 260px;
+      height: 260px;
+    }
+    .atom-meta {
+      width: 100%;
+      margin-top: 12px;
+      text-align: center;
+    }
+    .atom-meta .shells-count {
+      font-size: 12px;
+      color: var(--teal);
+      font-weight: 700;
+    }
+    .inspector-details {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .details-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+    .details-title {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+    .details-title h2 {
+      font-size: 26px;
+      color: #fff;
+      font-weight: 800;
+    }
+    .details-title span {
+      font-size: 18px;
+      color: var(--teal);
+    }
+    .prop-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .prop-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+    }
+    .prop-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+    .prop-val {
+      font-size: 17px;
+      font-weight: 800;
+      color: #fff;
+    }
+    .rule-box {
+      background: rgba(15, 118, 110, 0.15);
+      border: 1px solid var(--teal-dark);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .rule-box strong { color: var(--teal); }
+
+    /* Comparative Graph View */
+    .graph-controls {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      background: var(--card-bg);
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .graph-canvas-wrap {
+      background: #0f172a;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      position: relative;
+    }
+    #trendGraph {
+      width: 100%;
+      height: 380px;
+      display: block;
+    }
+    .graph-insight {
+      margin-top: 16px;
+      background: var(--card-bg);
+      border-left: 4px solid var(--teal);
+      border-radius: 0 12px 12px 0;
+      padding: 14px 18px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* Water Reaction Lab */
+    .reaction-lab-layout {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 20px;
+    }
+    @media (max-width: 950px) {
+      .reaction-lab-layout { grid-template-columns: 1fr; }
+    }
+    .lab-stage {
+      background: #090d16;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+    #reactionCanvas {
+      width: 100%;
+      max-width: 650px;
+      height: 400px;
+      background: radial-gradient(circle at center, #1e293b 0%, #090d16 80%);
+      border-radius: 14px;
+      border: 1px solid #1e293b;
+    }
+    .lab-controls-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .el-btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .react-el-btn {
+      flex: 1;
+      min-width: 65px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .react-el-btn:hover { border-color: var(--teal); }
+    .react-el-btn.active {
+      background: var(--teal-dark);
+      border-color: var(--teal);
+      box-shadow: 0 0 10px rgba(20,184,166,0.4);
+    }
+    .action-btn {
+      width: 100%;
+      background: linear-gradient(135deg, #0f766e, #14b8a6);
+      border: none;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 800;
+      padding: 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.2s;
+    }
+    .action-btn:hover {
+      box-shadow: 0 4px 16px rgba(20,184,166,0.5);
+    }
+    .action-btn:active { transform: scale(0.98); }
+    .toggle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #475569;
+      transition: .3s;
+      border-radius: 24px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+    input:checked + .slider { background-color: var(--teal); }
+    input:checked + .slider:before { transform: translateX(20px); }
+
+    .equation-card {
+      background: #090d16;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+    }
+    .equation-card h4 {
+      font-size: 12px;
+      color: var(--teal);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .equation-card .eq-text {
+      font-size: 15px;
+      font-weight: 800;
+      color: #fff;
+      font-family: monospace;
+    }
+    .danger-alert {
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid var(--rose);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 12px;
+      color: #fda4af;
+      line-height: 1.5;
+    }
+
+    /* Quiz Tab */
+    .quiz-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+    .quiz-q {
+      margin-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+    }
+    .quiz-q:last-child { border-bottom: none; margin-bottom: 0; }
+    .quiz-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .quiz-opt {
+      display: block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.15s;
+    }
+    .quiz-opt:hover { border-color: var(--teal); }
+    .quiz-opt.correct { background: rgba(34, 197, 94, 0.2); border-color: #22c55e; color: #86efac; }
+    .quiz-opt.incorrect { background: rgba(244, 63, 94, 0.2); border-color: #f43f5e; color: #fca5a5; }
+    .quiz-feedback {
+      margin-top: 8px;
+      font-size: 13px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <div class="brand">
+      <div class="brand-icon">⚛</div>
+      <div class="brand-title">
+        <h1>পর্যায় সারণি ও পর্যায়বৃত্ত ধর্ম ইন্টারঅ্যাক্টিভ ল্যাব</h1>
+        <p>SSC রসায়ন · অধ্যায় ৪ (পর্যায় সারণি) · সম্পূর্ণ ১১৮ মৌলের গতিশীল হিটম্যাপ ও বিক্রিয়া সিমুলেটর</p>
+      </div>
+    </div>
+    <div>
+      <span class="badge">NCTB 2026 মানসম্মত</span>
+    </div>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('table-tab')">⚛️ পর্যায় সারণি ও হিটম্যাপ</button>
+    <button class="tab-btn" onclick="switchTab('graph-tab')">📈 তুলনামূলক ধর্ম গ্রাফ</button>
+    <button class="tab-btn" onclick="switchTab('reaction-tab')">💧 পানিগ্রাহী বিক্রিয়া ল্যাব</button>
+    <button class="tab-btn" onclick="switchTab('quiz-tab')">🎯 কুইজ ও দক্ষতা যাচাই</button>
+  </div>
+
+  <!-- TAB 1: PERIODIC TABLE & HEATMAP -->
+  <div id="table-tab" class="tab-content active">
+    <div class="controls-row">
+      <div class="trend-selector">
+        <label for="trendSelect">হিটম্যাপ ধর্ম নির্বাচন:</label>
+        <select id="trendSelect" class="select-input" onchange="updateHeatmap()">
+          <option value="cat">মৌলের শ্রেণিভিত্তিক বিভাজন (Classification)</option>
+          <option value="r" selected>পারমাণবিক আকার / ব্যাসার্ধ (Atomic Radius, pm)</option>
+          <option value="ie">প্রথম আয়নীকরণ শক্তি (1st Ionization Energy, kJ/mol)</option>
+          <option value="en">তড়িৎ ঋণাত্মকতা (Electronegativity, Pauling)</option>
+          <option value="ea">ইলেকট্রন আসক্তি (Electron Affinity, kJ/mol)</option>
+          <option value="met">ধাতব ধর্ম সূচক (Metallic Character)</option>
+          <option value="blk">ব্লক বিভাজন (s, p, d, f Block)</option>
+        </select>
+      </div>
+
+      <div class="legend-bar-wrap" id="legendWrap">
+        <div style="font-size:12px; color:var(--text-muted); font-weight:600;" id="legendMinLabel">কম (31 pm)</div>
+        <div class="legend-bar" id="legendGradient"></div>
+        <div style="font-size:12px; color:var(--text-muted); font-weight:600;" id="legendMaxLabel">বেশি (280 pm)</div>
+      </div>
+    </div>
+
+    <!-- 118-Element Grid -->
+    <div class="table-scroll-container">
+      <div class="periodic-table" id="periodicGrid">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- Inspector Panel -->
+    <div class="inspector-panel" id="inspectorPanel">
+      <div class="atom-visualizer-box">
+        <canvas id="bohrCanvas" class="atom-canvas" width="260" height="260"></canvas>
+        <div class="atom-meta">
+          <div style="font-size:15px; font-weight:800; color:#fff;" id="inspBohrName">সোডিয়াম (Na)</div>
+          <div class="shells-count" id="inspBohrShells">শক্তিস্তর সংখ্যা: ৩ (K=2, L=8, M=1)</div>
+        </div>
+      </div>
+
+      <div class="inspector-details">
+        <div class="details-header">
+          <div class="details-title">
+            <h2 id="inspSymbol">Na</h2>
+            <span id="inspName">সোডিয়াম (Sodium) · পারমাণবিক সংখ্যা: ১১</span>
+          </div>
+          <span class="badge" id="inspCategory">ক্ষার ধাতু (Group 1)</span>
+        </div>
+
+        <div class="prop-grid">
+          <div class="prop-card">
+            <div class="prop-label">ইলেকট্রন বিন্যাস</div>
+            <div class="prop-val" style="font-size:15px; color:var(--teal);" id="inspConfig">1s² 2s² 2p⁶ 3s¹</div>
+          </div>
+          <div class="prop-card">
+            <div class="prop-label">পর্যায় ও গ্রুপ</div>
+            <div class="prop-val" id="inspPosition">পর্যায় ৩ · গ্রুপ ১</div>
+          </div>
+          <div class="prop-card">
+            <div class="prop-label">পারমাণবিক ব্যাসার্ধ</div>
+            <div class="prop-val" id="inspRadius">১৮৬ pm</div>
+          </div>
+          <div class="prop-card">
+            <div class="prop-label">১ম আয়নীকরণ শক্তি</div>
+            <div class="prop-val" id="inspIE">৪৯৬ kJ/mol</div>
+          </div>
+          <div class="prop-card">
+            <div class="prop-label">তড়িৎ ঋণাত্মকতা</div>
+            <div class="prop-val" id="inspEN">০.৯৩</div>
+          </div>
+          <div class="prop-card">
+            <div class="prop-label">ইলেকট্রন আসক্তি</div>
+            <div class="prop-val" id="inspEA">৫৩ kJ/mol</div>
+          </div>
+        </div>
+
+        <div class="rule-box" id="inspRule">
+          <strong>পর্যায় ও গ্রুপ নির্ণয়ের সূত্র:</strong> সর্ববহিঃস্থ প্রধান শক্তিস্তর $n=3$, তাই এটি <strong>পর্যায় ৩</strong>-এর মৌল। সর্বশেষ স্তরে কেবল $s$-অরবিটালে ১টি ইলেকট্রন থাকায় এটি <strong>গ্রুপ ১</strong> (ক্ষার ধাতু)।
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: COMPARATIVE TREND GRAPHS -->
+  <div id="graph-tab" class="tab-content">
+    <div class="graph-controls">
+      <div>
+        <label style="font-size:13px; font-weight:700; color:var(--teal); margin-right:8px;">তুলনার পরিসর:</label>
+        <select id="graphSeriesSelect" class="select-input" onchange="renderGraph()">
+          <option value="p2">পর্যায় ২ (Li → Ne)</option>
+          <option value="p3" selected>পর্যায় ৩ (Na → Ar)</option>
+          <option value="p4">পর্যায় ৪ (K → Kr)</option>
+          <option value="g1">গ্রুপ ১: ক্ষার ধাতু (Li → Cs)</option>
+          <option value="g2">গ্রুপ ২: মৃৎক্ষার ধাতু (Be → Ba)</option>
+          <option value="g17">গ্রুপ ১৭: হ্যালোজেন (F → I)</option>
+          <option value="g18">গ্রুপ ১৮: নিষ্ক্রিয় গ্যাস (He → Xe)</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:13px; font-weight:700; color:var(--teal); margin-right:8px;">ধর্ম:</label>
+        <select id="graphPropSelect" class="select-input" onchange="renderGraph()">
+          <option value="r" selected>পারমাণবিক ব্যাসার্ধ (Atomic Radius - pm)</option>
+          <option value="ie">১ম আয়নীকরণ শক্তি (Ionization Energy - kJ/mol)</option>
+          <option value="en">তড়িৎ ঋণাত্মকতা (Electronegativity - Pauling)</option>
+          <option value="ea">ইলেকট্রন আসক্তি (Electron Affinity - kJ/mol)</option>
+          <option value="met">ধাতব ধর্ম সূচক (Metallic Index)</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="graph-canvas-wrap">
+      <canvas id="trendGraph" width="1000" height="380"></canvas>
+    </div>
+
+    <div class="graph-insight" id="graphInsight">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+
+  <!-- TAB 3: WATER REACTION LAB -->
+  <div id="reaction-tab" class="tab-content">
+    <div class="reaction-lab-layout">
+      <div class="lab-stage">
+        <canvas id="reactionCanvas" width="600" height="380"></canvas>
+      </div>
+
+      <div class="lab-controls-panel">
+        <div>
+          <label style="font-size:13px; font-weight:700; color:var(--teal); margin-bottom:8px; display:block;">পরীক্ষণ মৌল নির্বাচন:</label>
+          <div class="el-btn-group">
+            <button class="react-el-btn active" onclick="selectReactionElement('Na')">Na (সোডিয়াম)</button>
+            <button class="react-el-btn" onclick="selectReactionElement('Li')">Li (লিথিয়াম)</button>
+            <button class="react-el-btn" onclick="selectReactionElement('K')">K (পটাশিয়াম)</button>
+            <button class="react-el-btn" onclick="selectReactionElement('Rb')">Rb (রুবিডিয়াম)</button>
+            <button class="react-el-btn" onclick="selectReactionElement('Cs')">Cs (সিজিয়াম)</button>
+            <button class="react-el-btn" onclick="selectReactionElement('Mg')">Mg (ম্যাগনেসিয়াম)</button>
+            <button class="react-el-btn" onclick="selectReactionElement('Ca')">Ca (ক্যালসিয়াম)</button>
+            <button class="react-el-btn" onclick="selectReactionElement('Cl2')">Cl₂ (ক্লোরিন)</button>
+          </div>
+        </div>
+
+        <div class="toggle-row">
+          <span>ফেনলফথ্যালিন নির্দেশক (Phenolphthalein):</span>
+          <label class="switch">
+            <input type="checkbox" id="indicatorToggle" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <button class="action-btn" onclick="triggerReaction()">🧪 পানিতে মৌল যোগ করো (Drop & React)</button>
+
+        <div class="equation-card">
+          <h4>বিক্রিয়ার সমতাকৃত সমীকরণ</h4>
+          <div class="eq-text" id="reactionEquation">2Na + 2H₂O → 2NaOH + H₂↑</div>
+        </div>
+
+        <div class="danger-alert" id="reactionObservation">
+          <strong>পর্যবেক্ষণ:</strong> সোডিয়াম পানিতে ফেলার সাথে সাথে গলে চকচকে গোলকে পরিণত হয়ে দ্রুত পানির উপর ছোটাছুটি করে এবং সোনালি-হলুদ শিখা সহ তীব্রভাবে জ্বলে ওঠে। ফেনলফথ্যালিন থাকায় ক্ষার (NaOH) তৈরির সাথে সাথে পানি উজ্জ্বল গোলাপী বর্ণ ধারণ করে!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 4: QUIZ -->
+  <div id="quiz-tab" class="tab-content">
+    <div class="quiz-container" id="quizContainer">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+</div>
+
+<script>
+const elements = [{"z": 1, "s": "H", "nameEn": "Hydrogen", "nameBn": "হাইড্রোজেন", "p": 1, "g": 1, "cat": "nonmetal", "blk": "s", "m": 1.008, "r": 53, "ie": 1312, "en": 2.2, "ea": 73, "met": 10, "cfg": "1s¹", "sh": [1]}, {"z": 2, "s": "He", "nameEn": "Helium", "nameBn": "হিলিয়াম", "p": 1, "g": 18, "cat": "noble", "blk": "s", "m": 4.003, "r": 31, "ie": 2372, "en": 0.0, "ea": 0, "met": 0, "cfg": "1s²", "sh": [2]}, {"z": 3, "s": "Li", "nameEn": "Lithium", "nameBn": "লিথিয়াম", "p": 2, "g": 1, "cat": "alkali", "blk": "s", "m": 6.94, "r": 152, "ie": 520, "en": 0.98, "ea": 60, "met": 85, "cfg": "[He] 2s¹", "sh": [2, 1]}, {"z": 4, "s": "Be", "nameEn": "Beryllium", "nameBn": "বেরিলিয়াম", "p": 2, "g": 2, "cat": "alkaline-earth", "blk": "s", "m": 9.012, "r": 112, "ie": 899, "en": 1.57, "ea": 0, "met": 70, "cfg": "[He] 2s²", "sh": [2, 2]}, {"z": 5, "s": "B", "nameEn": "Boron", "nameBn": "বোরন", "p": 2, "g": 13, "cat": "metalloid", "blk": "p", "m": 10.81, "r": 85, "ie": 801, "en": 2.04, "ea": 27, "met": 45, "cfg": "[He] 2s² 2p¹", "sh": [2, 3]}, {"z": 6, "s": "C", "nameEn": "Carbon", "nameBn": "কার্বন", "p": 2, "g": 14, "cat": "nonmetal", "blk": "p", "m": 12.011, "r": 77, "ie": 1086, "en": 2.55, "ea": 122, "met": 20, "cfg": "[He] 2s² 2p²", "sh": [2, 4]}, {"z": 7, "s": "N", "nameEn": "Nitrogen", "nameBn": "নাইট্রোজেন", "p": 2, "g": 15, "cat": "nonmetal", "blk": "p", "m": 14.007, "r": 70, "ie": 1402, "en": 3.04, "ea": 7, "met": 15, "cfg": "[He] 2s² 2p³", "sh": [2, 5]}, {"z": 8, "s": "O", "nameEn": "Oxygen", "nameBn": "অক্সিজেন", "p": 2, "g": 16, "cat": "nonmetal", "blk": "p", "m": 15.999, "r": 66, "ie": 1314, "en": 3.44, "ea": 141, "met": 10, "cfg": "[He] 2s² 2p⁴", "sh": [2, 6]}, {"z": 9, "s": "F", "nameEn": "Fluorine", "nameBn": "ফ্লোরিন", "p": 2, "g": 17, "cat": "halogen", "blk": "p", "m": 18.998, "r": 64, "ie": 1681, "en": 3.98, "ea": 328, "met": 5, "cfg": "[He] 2s² 2p⁵", "sh": [2, 7]}, {"z": 10, "s": "Ne", "nameEn": "Neon", "nameBn": "নিয়ন", "p": 2, "g": 18, "cat": "noble", "blk": "p", "m": 20.18, "r": 58, "ie": 2081, "en": 0.0, "ea": 0, "met": 0, "cfg": "[He] 2s² 2p⁶", "sh": [2, 8]}, {"z": 11, "s": "Na", "nameEn": "Sodium", "nameBn": "সোডিয়াম", "p": 3, "g": 1, "cat": "alkali", "blk": "s", "m": 22.99, "r": 186, "ie": 496, "en": 0.93, "ea": 53, "met": 90, "cfg": "[Ne] 3s¹", "sh": [2, 8, 1]}, {"z": 12, "s": "Mg", "nameEn": "Magnesium", "nameBn": "ম্যাগনেসিয়াম", "p": 3, "g": 2, "cat": "alkaline-earth", "blk": "s", "m": 24.305, "r": 160, "ie": 738, "en": 1.31, "ea": 0, "met": 80, "cfg": "[Ne] 3s²", "sh": [2, 8, 2]}, {"z": 13, "s": "Al", "nameEn": "Aluminium", "nameBn": "অ্যালুমিনিয়াম", "p": 3, "g": 13, "cat": "post-transition", "blk": "p", "m": 26.982, "r": 143, "ie": 578, "en": 1.61, "ea": 43, "met": 75, "cfg": "[Ne] 3s² 3p¹", "sh": [2, 8, 3]}, {"z": 14, "s": "Si", "nameEn": "Silicon", "nameBn": "সিলিকন", "p": 3, "g": 14, "cat": "metalloid", "blk": "p", "m": 28.085, "r": 118, "ie": 786, "en": 1.9, "ea": 134, "met": 50, "cfg": "[Ne] 3s² 3p²", "sh": [2, 8, 4]}, {"z": 15, "s": "P", "nameEn": "Phosphorus", "nameBn": "ফসফরাস", "p": 3, "g": 15, "cat": "nonmetal", "blk": "p", "m": 30.974, "r": 110, "ie": 1012, "en": 2.19, "ea": 72, "met": 25, "cfg": "[Ne] 3s² 3p³", "sh": [2, 8, 5]}, {"z": 16, "s": "S", "nameEn": "Sulfur", "nameBn": "সালফার", "p": 3, "g": 16, "cat": "nonmetal", "blk": "p", "m": 32.06, "r": 103, "ie": 1000, "en": 2.58, "ea": 200, "met": 15, "cfg": "[Ne] 3s² 3p⁴", "sh": [2, 8, 6]}, {"z": 17, "s": "Cl", "nameEn": "Chlorine", "nameBn": "ক্লোরিন", "p": 3, "g": 17, "cat": "halogen", "blk": "p", "m": 35.45, "r": 99, "ie": 1251, "en": 3.16, "ea": 349, "met": 5, "cfg": "[Ne] 3s² 3p⁵", "sh": [2, 8, 7]}, {"z": 18, "s": "Ar", "nameEn": "Argon", "nameBn": "আর্গন", "p": 3, "g": 18, "cat": "noble", "blk": "p", "m": 39.948, "r": 98, "ie": 1521, "en": 0.0, "ea": 0, "met": 0, "cfg": "[Ne] 3s² 3p⁶", "sh": [2, 8, 8]}, {"z": 19, "s": "K", "nameEn": "Potassium", "nameBn": "পটাশিয়াম", "p": 4, "g": 1, "cat": "alkali", "blk": "s", "m": 39.098, "r": 227, "ie": 419, "en": 0.82, "ea": 48, "met": 95, "cfg": "[Ar] 4s¹", "sh": [2, 8, 8, 1]}, {"z": 20, "s": "Ca", "nameEn": "Calcium", "nameBn": "ক্যালসিয়াম", "p": 4, "g": 2, "cat": "alkaline-earth", "blk": "s", "m": 40.078, "r": 197, "ie": 590, "en": 1.0, "ea": 2, "met": 85, "cfg": "[Ar] 4s²", "sh": [2, 8, 8, 2]}, {"z": 21, "s": "Sc", "nameEn": "Scandium", "nameBn": "স্ক্যান্ডিয়াম", "p": 4, "g": 3, "cat": "transition", "blk": "d", "m": 44.956, "r": 162, "ie": 633, "en": 1.36, "ea": 18, "met": 80, "cfg": "[Ar] 3d¹ 4s²", "sh": [2, 8, 9, 2]}, {"z": 22, "s": "Ti", "nameEn": "Titanium", "nameBn": "টাইটানিয়াম", "p": 4, "g": 4, "cat": "transition", "blk": "d", "m": 47.867, "r": 147, "ie": 659, "en": 1.54, "ea": 8, "met": 80, "cfg": "[Ar] 3d² 4s²", "sh": [2, 8, 10, 2]}, {"z": 23, "s": "V", "nameEn": "Vanadium", "nameBn": "ভ্যানাডিয়াম", "p": 4, "g": 5, "cat": "transition", "blk": "d", "m": 50.942, "r": 134, "ie": 651, "en": 1.63, "ea": 51, "met": 80, "cfg": "[Ar] 3d³ 4s²", "sh": [2, 8, 11, 2]}, {"z": 24, "s": "Cr", "nameEn": "Chromium", "nameBn": "ক্রোমিয়াম", "p": 4, "g": 6, "cat": "transition", "blk": "d", "m": 51.996, "r": 128, "ie": 653, "en": 1.66, "ea": 65, "met": 80, "cfg": "[Ar] 3d⁵ 4s¹", "sh": [2, 8, 13, 1]}, {"z": 25, "s": "Mn", "nameEn": "Manganese", "nameBn": "ম্যাঙ্গানিজ", "p": 4, "g": 7, "cat": "transition", "blk": "d", "m": 54.938, "r": 127, "ie": 717, "en": 1.55, "ea": 0, "met": 78, "cfg": "[Ar] 3d⁵ 4s²", "sh": [2, 8, 13, 2]}, {"z": 26, "s": "Fe", "nameEn": "Iron", "nameBn": "আয়রন (লোহা)", "p": 4, "g": 8, "cat": "transition", "blk": "d", "m": 55.845, "r": 126, "ie": 762, "en": 1.83, "ea": 16, "met": 78, "cfg": "[Ar] 3d⁶ 4s²", "sh": [2, 8, 14, 2]}, {"z": 27, "s": "Co", "nameEn": "Cobalt", "nameBn": "কোবাল্ট", "p": 4, "g": 9, "cat": "transition", "blk": "d", "m": 58.933, "r": 125, "ie": 760, "en": 1.88, "ea": 64, "met": 78, "cfg": "[Ar] 3d⁷ 4s²", "sh": [2, 8, 15, 2]}, {"z": 28, "s": "Ni", "nameEn": "Nickel", "nameBn": "নিকেল", "p": 4, "g": 10, "cat": "transition", "blk": "d", "m": 58.693, "r": 124, "ie": 737, "en": 1.91, "ea": 112, "met": 78, "cfg": "[Ar] 3d⁸ 4s²", "sh": [2, 8, 16, 2]}, {"z": 29, "s": "Cu", "nameEn": "Copper", "nameBn": "কপার (তামা)", "p": 4, "g": 11, "cat": "transition", "blk": "d", "m": 63.546, "r": 128, "ie": 745, "en": 1.9, "ea": 119, "met": 80, "cfg": "[Ar] 3d¹⁰ 4s¹", "sh": [2, 8, 18, 1]}, {"z": 30, "s": "Zn", "nameEn": "Zinc", "nameBn": "জিংক (দস্তা)", "p": 4, "g": 12, "cat": "transition", "blk": "d", "m": 65.38, "r": 134, "ie": 906, "en": 1.65, "ea": 0, "met": 75, "cfg": "[Ar] 3d¹⁰ 4s²", "sh": [2, 8, 18, 2]}, {"z": 31, "s": "Ga", "nameEn": "Gallium", "nameBn": "গ্যালিয়াম", "p": 4, "g": 13, "cat": "post-transition", "blk": "p", "m": 69.723, "r": 135, "ie": 579, "en": 1.81, "ea": 29, "met": 70, "cfg": "[Ar] 3d¹⁰ 4s² 4p¹", "sh": [2, 8, 18, 3]}, {"z": 32, "s": "Ge", "nameEn": "Germanium", "nameBn": "জার্মেনিয়াম", "p": 4, "g": 14, "cat": "metalloid", "blk": "p", "m": 72.63, "r": 122, "ie": 762, "en": 2.01, "ea": 119, "met": 50, "cfg": "[Ar] 3d¹⁰ 4s² 4p²", "sh": [2, 8, 18, 4]}, {"z": 33, "s": "As", "nameEn": "Arsenic", "nameBn": "আর্সেনিক", "p": 4, "g": 15, "cat": "metalloid", "blk": "p", "m": 74.922, "r": 120, "ie": 947, "en": 2.18, "ea": 78, "met": 45, "cfg": "[Ar] 3d¹⁰ 4s² 4p³", "sh": [2, 8, 18, 5]}, {"z": 34, "s": "Se", "nameEn": "Selenium", "nameBn": "সেলেনিয়াম", "p": 4, "g": 16, "cat": "nonmetal", "blk": "p", "m": 78.971, "r": 119, "ie": 941, "en": 2.55, "ea": 195, "met": 20, "cfg": "[Ar] 3d¹⁰ 4s² 4p⁴", "sh": [2, 8, 18, 6]}, {"z": 35, "s": "Br", "nameEn": "Bromine", "nameBn": "ব্রোমিন", "p": 4, "g": 17, "cat": "halogen", "blk": "p", "m": 79.904, "r": 114, "ie": 1140, "en": 2.96, "ea": 325, "met": 10, "cfg": "[Ar] 3d¹⁰ 4s² 4p⁵", "sh": [2, 8, 18, 7]}, {"z": 36, "s": "Kr", "nameEn": "Krypton", "nameBn": "ক্রিপ্টন", "p": 4, "g": 18, "cat": "noble", "blk": "p", "m": 83.798, "r": 112, "ie": 1351, "en": 3.0, "ea": 0, "met": 0, "cfg": "[Ar] 3d¹⁰ 4s² 4p⁶", "sh": [2, 8, 18, 8]}, {"z": 37, "s": "Rb", "nameEn": "Rubidium", "nameBn": "রুবিডিয়াম", "p": 5, "g": 1, "cat": "alkali", "blk": "s", "m": 85.468, "r": 248, "ie": 403, "en": 0.82, "ea": 47, "met": 96, "cfg": "[Kr] 5s¹", "sh": [2, 8, 18, 8, 1]}, {"z": 38, "s": "Sr", "nameEn": "Strontium", "nameBn": "স্ট্রনশিয়াম", "p": 5, "g": 2, "cat": "alkaline-earth", "blk": "s", "m": 87.62, "r": 215, "ie": 549, "en": 0.95, "ea": 5, "met": 88, "cfg": "[Kr] 5s²", "sh": [2, 8, 18, 8, 2]}, {"z": 39, "s": "Y", "nameEn": "Yttrium", "nameBn": "ইট্রিয়াম", "p": 5, "g": 3, "cat": "transition", "blk": "d", "m": 88.906, "r": 180, "ie": 600, "en": 1.22, "ea": 30, "met": 80, "cfg": "[Kr] 4d¹ 5s²", "sh": [2, 8, 18, 9, 2]}, {"z": 40, "s": "Zr", "nameEn": "Zirconium", "nameBn": "জিরকোনিয়াম", "p": 5, "g": 4, "cat": "transition", "blk": "d", "m": 91.224, "r": 160, "ie": 640, "en": 1.33, "ea": 41, "met": 80, "cfg": "[Kr] 4d² 5s²", "sh": [2, 8, 18, 10, 2]}, {"z": 41, "s": "Nb", "nameEn": "Niobium", "nameBn": "নায়োবিয়াম", "p": 5, "g": 5, "cat": "transition", "blk": "d", "m": 92.906, "r": 146, "ie": 652, "en": 1.6, "ea": 86, "met": 80, "cfg": "[Kr] 4d⁴ 5s¹", "sh": [2, 8, 18, 12, 1]}, {"z": 42, "s": "Mo", "nameEn": "Molybdenum", "nameBn": "মলিবডেনাম", "p": 5, "g": 6, "cat": "transition", "blk": "d", "m": 95.95, "r": 139, "ie": 684, "en": 2.16, "ea": 72, "met": 80, "cfg": "[Kr] 4d⁵ 5s¹", "sh": [2, 8, 18, 13, 1]}, {"z": 43, "s": "Tc", "nameEn": "Technetium", "nameBn": "টেকনেশিয়াম", "p": 5, "g": 7, "cat": "transition", "blk": "d", "m": 98, "r": 136, "ie": 702, "en": 1.9, "ea": 53, "met": 78, "cfg": "[Kr] 4d⁵ 5s²", "sh": [2, 8, 18, 13, 2]}, {"z": 44, "s": "Ru", "nameEn": "Ruthenium", "nameBn": "রুথেনিয়াম", "p": 5, "g": 8, "cat": "transition", "blk": "d", "m": 101.07, "r": 134, "ie": 710, "en": 2.2, "ea": 101, "met": 78, "cfg": "[Kr] 4d⁷ 5s¹", "sh": [2, 8, 18, 15, 1]}, {"z": 45, "s": "Rh", "nameEn": "Rhodium", "nameBn": "রোডিয়াম", "p": 5, "g": 9, "cat": "transition", "blk": "d", "m": 102.91, "r": 134, "ie": 720, "en": 2.28, "ea": 110, "met": 78, "cfg": "[Kr] 4d⁸ 5s¹", "sh": [2, 8, 18, 16, 1]}, {"z": 46, "s": "Pd", "nameEn": "Palladium", "nameBn": "প্যালাডিয়াম", "p": 5, "g": 10, "cat": "transition", "blk": "d", "m": 106.42, "r": 137, "ie": 804, "en": 2.2, "ea": 54, "met": 78, "cfg": "[Kr] 4d¹⁰", "sh": [2, 8, 18, 18]}, {"z": 47, "s": "Ag", "nameEn": "Silver", "nameBn": "সিলভার (রুপা)", "p": 5, "g": 11, "cat": "transition", "blk": "d", "m": 107.87, "r": 144, "ie": 731, "en": 1.93, "ea": 126, "met": 85, "cfg": "[Kr] 4d¹⁰ 5s¹", "sh": [2, 8, 18, 18, 1]}, {"z": 48, "s": "Cd", "nameEn": "Cadmium", "nameBn": "ক্যাডমিয়াম", "p": 5, "g": 12, "cat": "transition", "blk": "d", "m": 112.41, "r": 151, "ie": 868, "en": 1.69, "ea": 0, "met": 75, "cfg": "[Kr] 4d¹⁰ 5s²", "sh": [2, 8, 18, 18, 2]}, {"z": 49, "s": "In", "nameEn": "Indium", "nameBn": "ইন্ডিয়াম", "p": 5, "g": 13, "cat": "post-transition", "blk": "p", "m": 114.82, "r": 167, "ie": 558, "en": 1.78, "ea": 29, "met": 72, "cfg": "[Kr] 4d¹⁰ 5s² 5p¹", "sh": [2, 8, 18, 18, 3]}, {"z": 50, "s": "Sn", "nameEn": "Tin", "nameBn": "টিন (রাং)", "p": 5, "g": 14, "cat": "post-transition", "blk": "p", "m": 118.71, "r": 140, "ie": 709, "en": 1.96, "ea": 107, "met": 65, "cfg": "[Kr] 4d¹⁰ 5s² 5p²", "sh": [2, 8, 18, 18, 4]}, {"z": 51, "s": "Sb", "nameEn": "Antimony", "nameBn": "অ্যান্টিমনি", "p": 5, "g": 15, "cat": "metalloid", "blk": "p", "m": 121.76, "r": 140, "ie": 834, "en": 2.05, "ea": 103, "met": 50, "cfg": "[Kr] 4d¹⁰ 5s² 5p³", "sh": [2, 8, 18, 18, 5]}, {"z": 52, "s": "Te", "nameEn": "Tellurium", "nameBn": "টেলুরিয়াম", "p": 5, "g": 16, "cat": "metalloid", "blk": "p", "m": 127.6, "r": 142, "ie": 869, "en": 2.1, "ea": 190, "met": 40, "cfg": "[Kr] 4d¹⁰ 5s² 5p⁴", "sh": [2, 8, 18, 18, 6]}, {"z": 53, "s": "I", "nameEn": "Iodine", "nameBn": "আয়োডিন", "p": 5, "g": 17, "cat": "halogen", "blk": "p", "m": 126.9, "r": 133, "ie": 1008, "en": 2.66, "ea": 295, "met": 15, "cfg": "[Kr] 4d¹⁰ 5s² 5p⁵", "sh": [2, 8, 18, 18, 7]}, {"z": 54, "s": "Xe", "nameEn": "Xenon", "nameBn": "জেনন", "p": 5, "g": 18, "cat": "noble", "blk": "p", "m": 131.29, "r": 130, "ie": 1170, "en": 2.6, "ea": 0, "met": 0, "cfg": "[Kr] 4d¹⁰ 5s² 5p⁶", "sh": [2, 8, 18, 18, 8]}, {"z": 55, "s": "Cs", "nameEn": "Caesium", "nameBn": "সিজিয়াম", "p": 6, "g": 1, "cat": "alkali", "blk": "s", "m": 132.91, "r": 265, "ie": 376, "en": 0.79, "ea": 46, "met": 98, "cfg": "[Xe] 6s¹", "sh": [2, 8, 18, 18, 8, 1]}, {"z": 56, "s": "Ba", "nameEn": "Barium", "nameBn": "বেরিয়াম", "p": 6, "g": 2, "cat": "alkaline-earth", "blk": "s", "m": 137.33, "r": 222, "ie": 503, "en": 0.89, "ea": 14, "met": 90, "cfg": "[Xe] 6s²", "sh": [2, 8, 18, 18, 8, 2]}, {"z": 57, "s": "La", "nameEn": "Lanthanum", "nameBn": "ল্যান্থানাম", "p": 6, "g": 3, "cat": "lanthanide", "blk": "f", "m": 138.91, "r": 187, "ie": 538, "en": 1.1, "ea": 53, "met": 85, "cfg": "[Xe] 5d¹ 6s²", "sh": [2, 8, 18, 18, 9, 2]}, {"z": 58, "s": "Ce", "nameEn": "Cerium", "nameBn": "সিরিয়াম", "p": 6, "g": 3, "cat": "lanthanide", "blk": "f", "m": 140.12, "r": 182, "ie": 534, "en": 1.12, "ea": 50, "met": 85, "cfg": "[Xe] 4f¹ 5d¹ 6s²", "sh": [2, 8, 18, 19, 9, 2]}, {"z": 59, "s": "Pr", "nameEn": "Praseodymium", "nameBn": "প্রাসিওডিমিয়াম", "p": 6, "g": 3, "cat": "lanthanide", "blk": "f", "m": 140.91, "r": 182, "ie": 527, "en": 1.13, "ea": 50, "met": 85, "cfg": "[Xe] 4f³ 6s²", "sh": [2, 8, 18, 21, 8, 2]}, {"z": 60, "s": "Nd", "nameEn": "Neodymium", "nameBn": "নিওডিমিয়াম", "p": 6, "g": 3, "cat": "lanthanide", "blk": "f", "m": 144.24, "r": 181, "ie": 533, "en": 1.14, "ea": 50, "met": 85, "cfg": "[Xe] 4f⁴ 6s²", "sh": [2, 8, 18, 22, 8, 2]}, {"z": 61, "s": "Pm", "nameEn": "Promethium", "nameBn": "প্রমিথিয়াম", "p": 6, "g": 3, "cat": "lanthanide", "blk": "f", "m": 145, "r": 180, "ie": 540, "en": 1.13, "ea": 50, "met": 85, "cfg": "[Xe] 4f⁵ 6s²", "sh": [2, 8, 18, 23, 8, 2]}, {"z": 62, "s": "Sm", "nameEn": "Samarium", "nameBn": "সামারিয়াম", "p": 6, "g": 3, "cat": "lanthanide", "blk": "f", "m": 150.36, "r": 180, "ie": 545, "en": 1.17, "ea": 50, "met": 85, "cfg": "[Xe] 4f⁶ 6s²", "sh": [2, 8, 18, 24, 8, 2]}, {"z": 63, "s": "Eu", "nameEn": "Europium", "nameBn": "ইউরোপিয়াম", "p": 6, "g": 3, "cat": "lanthanide", "blk": "f", "m": 151.96, "r": 199, "ie": 547, "en": 1.2, "ea": 50, "met": 85, "cfg": "[Xe] 4f⁷ 6s²", "sh": [2, 8, 18, 25, 8, 2]}, {"z": 64, "s": "Gd", "nameEn": "Gadolinium", "nameBn": "গ্যাডোলিনিয়াম", "p": 6, "g": 3, "cat": "lanthanide", "blk": "f", "m": 157.25, "r": 179, "ie": 593, "en": 1.2, "ea": 50, "met": 85, "cfg": "[Xe] 4f⁷ 5d¹ 6s²", "sh": [2, 8, 18, 25, 9, 2]}, {"z": 65, "s": "Tb", "nameEn": "Terbium", "nameBn": "টার্বিয়াম", "p": 6, "g": 3, "cat": "lanthanide", "blk": "f", "m": 158.93, "r": 176, "ie": 566, "en": 1.2, "ea": 50, "met": 85, "cfg": "[Xe] 4f⁹ 6s²", "sh": [2, 8, 18, 27, 8, 2]}, {"z": 66, "s": "Dy", "nameEn": "Dysprosium", "nameBn": "ডিসপ্রোসিয়াম", "p": 6, "g": 3, "cat": "lanthanide", "blk": "f", "m": 162.5, "r": 175, "ie": 573, "en": 1.22, "ea": 50, "met": 85, "cfg": "[Xe] 4f¹⁰ 6s²", "sh": [2, 8, 18, 28, 8, 2]}, {"z": 67, "s": "Ho", "nameEn": "Holmium", "nameBn": "হোলমিয়াম", "p": 6, "g": 3, "cat": "lanthanide", "blk": "f", "m": 164.93, "r": 174, "ie": 581, "en": 1.23, "ea": 50, "met": 85, "cfg": "[Xe] 4f¹¹ 6s²", "sh": [2, 8, 18, 29, 8, 2]}, {"z": 68, "s": "Er", "nameEn": "Erbium", "nameBn": "আরবিয়াম", "p": 6, "g": 3, "cat": "lanthanide", "blk": "f", "m": 167.26, "r": 173, "ie": 589, "en": 1.24, "ea": 50, "met": 85, "cfg": "[Xe] 4f¹² 6s²", "sh": [2, 8, 18, 30, 8, 2]}, {"z": 69, "s": "Tm", "nameEn": "Thulium", "nameBn": "থুলিয়াম", "p": 6, "g": 3, "cat": "lanthanide", "blk": "f", "m": 168.93, "r": 172, "ie": 597, "en": 1.25, "ea": 50, "met": 85, "cfg": "[Xe] 4f¹³ 6s²", "sh": [2, 8, 18, 31, 8, 2]}, {"z": 70, "s": "Yb", "nameEn": "Ytterbium", "nameBn": "ইটারবিয়াম", "p": 6, "g": 3, "cat": "lanthanide", "blk": "f", "m": 173.05, "r": 194, "ie": 603, "en": 1.1, "ea": 50, "met": 85, "cfg": "[Xe] 4f¹⁴ 6s²", "sh": [2, 8, 18, 32, 8, 2]}, {"z": 71, "s": "Lu", "nameEn": "Lutetium", "nameBn": "লুটেসিয়াম", "p": 6, "g": 3, "cat": "lanthanide", "blk": "d", "m": 174.97, "r": 172, "ie": 524, "en": 1.27, "ea": 50, "met": 85, "cfg": "[Xe] 4f¹⁴ 5d¹ 6s²", "sh": [2, 8, 18, 32, 9, 2]}, {"z": 72, "s": "Hf", "nameEn": "Hafnium", "nameBn": "হাফনিয়াম", "p": 6, "g": 4, "cat": "transition", "blk": "d", "m": 178.49, "r": 159, "ie": 659, "en": 1.3, "ea": 0, "met": 80, "cfg": "[Xe] 4f¹⁴ 5d² 6s²", "sh": [2, 8, 18, 32, 10, 2]}, {"z": 73, "s": "Ta", "nameEn": "Tantalum", "nameBn": "ট্যানটালাম", "p": 6, "g": 5, "cat": "transition", "blk": "d", "m": 180.95, "r": 146, "ie": 761, "en": 1.5, "ea": 31, "met": 80, "cfg": "[Xe] 4f¹⁴ 5d³ 6s²", "sh": [2, 8, 18, 32, 11, 2]}, {"z": 74, "s": "W", "nameEn": "Tungsten", "nameBn": "টাংস্টেন", "p": 6, "g": 6, "cat": "transition", "blk": "d", "m": 183.84, "r": 139, "ie": 770, "en": 2.36, "ea": 79, "met": 80, "cfg": "[Xe] 4f¹⁴ 5d⁴ 6s²", "sh": [2, 8, 18, 32, 12, 2]}, {"z": 75, "s": "Re", "nameEn": "Rhenium", "nameBn": "রেনিয়াম", "p": 6, "g": 7, "cat": "transition", "blk": "d", "m": 186.21, "r": 137, "ie": 760, "en": 1.9, "ea": 14, "met": 78, "cfg": "[Xe] 4f¹⁴ 5d⁵ 6s²", "sh": [2, 8, 18, 32, 13, 2]}, {"z": 76, "s": "Os", "nameEn": "Osmium", "nameBn": "অসমিয়াম", "p": 6, "g": 8, "cat": "transition", "blk": "d", "m": 190.23, "r": 135, "ie": 840, "en": 2.2, "ea": 106, "met": 78, "cfg": "[Xe] 4f¹⁴ 5d⁶ 6s²", "sh": [2, 8, 18, 32, 14, 2]}, {"z": 77, "s": "Ir", "nameEn": "Iridium", "nameBn": "ইরিডিয়াম", "p": 6, "g": 9, "cat": "transition", "blk": "d", "m": 192.22, "r": 136, "ie": 880, "en": 2.2, "ea": 151, "met": 78, "cfg": "[Xe] 4f¹⁴ 5d⁷ 6s²", "sh": [2, 8, 18, 32, 15, 2]}, {"z": 78, "s": "Pt", "nameEn": "Platinum", "nameBn": "প্লাটিনাম", "p": 6, "g": 10, "cat": "transition", "blk": "d", "m": 195.08, "r": 139, "ie": 870, "en": 2.28, "ea": 205, "met": 82, "cfg": "[Xe] 4f¹⁴ 5d⁹ 6s¹", "sh": [2, 8, 18, 32, 17, 1]}, {"z": 79, "s": "Au", "nameEn": "Gold", "nameBn": "গোল্ড (সোনা)", "p": 6, "g": 11, "cat": "transition", "blk": "d", "m": 196.97, "r": 144, "ie": 890, "en": 2.54, "ea": 223, "met": 85, "cfg": "[Xe] 4f¹⁴ 5d¹⁰ 6s¹", "sh": [2, 8, 18, 32, 18, 1]}, {"z": 80, "s": "Hg", "nameEn": "Mercury", "nameBn": "মার্কারি (পারদ)", "p": 6, "g": 12, "cat": "transition", "blk": "d", "m": 200.59, "r": 151, "ie": 1007, "en": 2.0, "ea": 0, "met": 75, "cfg": "[Xe] 4f¹⁴ 5d¹⁰ 6s²", "sh": [2, 8, 18, 32, 18, 2]}, {"z": 81, "s": "Tl", "nameEn": "Thallium", "nameBn": "থ্যালিয়াম", "p": 6, "g": 13, "cat": "post-transition", "blk": "p", "m": 204.38, "r": 170, "ie": 589, "en": 1.62, "ea": 19, "met": 75, "cfg": "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p¹", "sh": [2, 8, 18, 32, 18, 3]}, {"z": 82, "s": "Pb", "nameEn": "Lead", "nameBn": "লেড (সীসা)", "p": 6, "g": 14, "cat": "post-transition", "blk": "p", "m": 207.2, "r": 175, "ie": 716, "en": 2.33, "ea": 35, "met": 70, "cfg": "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p²", "sh": [2, 8, 18, 32, 18, 4]}, {"z": 83, "s": "Bi", "nameEn": "Bismuth", "nameBn": "বিসমাথ", "p": 6, "g": 15, "cat": "post-transition", "blk": "p", "m": 208.98, "r": 150, "ie": 703, "en": 2.02, "ea": 91, "met": 65, "cfg": "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p³", "sh": [2, 8, 18, 32, 18, 5]}, {"z": 84, "s": "Po", "nameEn": "Polonium", "nameBn": "পোলোনিয়াম", "p": 6, "g": 16, "cat": "post-transition", "blk": "p", "m": 209, "r": 168, "ie": 812, "en": 2.0, "ea": 183, "met": 55, "cfg": "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁴", "sh": [2, 8, 18, 32, 18, 6]}, {"z": 85, "s": "At", "nameEn": "Astatine", "nameBn": "অ্যাস্টাটিন", "p": 6, "g": 17, "cat": "halogen", "blk": "p", "m": 210, "r": 150, "ie": 920, "en": 2.2, "ea": 270, "met": 30, "cfg": "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁵", "sh": [2, 8, 18, 32, 18, 7]}, {"z": 86, "s": "Rn", "nameEn": "Radon", "nameBn": "রেডন", "p": 6, "g": 18, "cat": "noble", "blk": "p", "m": 222, "r": 140, "ie": 1037, "en": 2.2, "ea": 0, "met": 0, "cfg": "[Xe] 4f¹⁴ 5d¹⁰ 6s² 6p⁶", "sh": [2, 8, 18, 32, 18, 8]}, {"z": 87, "s": "Fr", "nameEn": "Francium", "nameBn": "ফ্রান্সিয়াম", "p": 7, "g": 1, "cat": "alkali", "blk": "s", "m": 223, "r": 280, "ie": 380, "en": 0.7, "ea": 47, "met": 99, "cfg": "[Rn] 7s¹", "sh": [2, 8, 18, 32, 18, 8, 1]}, {"z": 88, "s": "Ra", "nameEn": "Radium", "nameBn": "রেডিয়াম", "p": 7, "g": 2, "cat": "alkaline-earth", "blk": "s", "m": 226, "r": 223, "ie": 509, "en": 0.9, "ea": 10, "met": 92, "cfg": "[Rn] 7s²", "sh": [2, 8, 18, 32, 18, 8, 2]}, {"z": 89, "s": "Ac", "nameEn": "Actinium", "nameBn": "অ্যাকটিনিয়াম", "p": 7, "g": 3, "cat": "actinide", "blk": "f", "m": 227, "r": 195, "ie": 499, "en": 1.1, "ea": 35, "met": 85, "cfg": "[Rn] 6d¹ 7s²", "sh": [2, 8, 18, 32, 18, 9, 2]}, {"z": 90, "s": "Th", "nameEn": "Thorium", "nameBn": "থোরিয়াম", "p": 7, "g": 3, "cat": "actinide", "blk": "f", "m": 232.04, "r": 180, "ie": 587, "en": 1.3, "ea": 50, "met": 85, "cfg": "[Rn] 6d² 7s²", "sh": [2, 8, 18, 32, 18, 10, 2]}, {"z": 91, "s": "Pa", "nameEn": "Protactinium", "nameBn": "প্রোটেক্টিনিয়াম", "p": 7, "g": 3, "cat": "actinide", "blk": "f", "m": 231.04, "r": 160, "ie": 568, "en": 1.5, "ea": 50, "met": 85, "cfg": "[Rn] 5f² 6d¹ 7s²", "sh": [2, 8, 18, 32, 20, 9, 2]}, {"z": 92, "s": "U", "nameEn": "Uranium", "nameBn": "ইউরেনিয়াম", "p": 7, "g": 3, "cat": "actinide", "blk": "f", "m": 238.03, "r": 156, "ie": 598, "en": 1.38, "ea": 50, "met": 85, "cfg": "[Rn] 5f³ 6d¹ 7s²", "sh": [2, 8, 18, 32, 21, 9, 2]}, {"z": 93, "s": "Np", "nameEn": "Neptunium", "nameBn": "নেপচুনিয়াম", "p": 7, "g": 3, "cat": "actinide", "blk": "f", "m": 237, "r": 155, "ie": 604, "en": 1.36, "ea": 50, "met": 85, "cfg": "[Rn] 5f⁴ 6d¹ 7s²", "sh": [2, 8, 18, 32, 22, 9, 2]}, {"z": 94, "s": "Pu", "nameEn": "Plutonium", "nameBn": "প্লুটোনিয়াম", "p": 7, "g": 3, "cat": "actinide", "blk": "f", "m": 244, "r": 159, "ie": 585, "en": 1.28, "ea": 50, "met": 85, "cfg": "[Rn] 5f⁶ 7s²", "sh": [2, 8, 18, 32, 24, 8, 2]}, {"z": 95, "s": "Am", "nameEn": "Americium", "nameBn": "আমেরিসিয়াম", "p": 7, "g": 3, "cat": "actinide", "blk": "f", "m": 243, "r": 173, "ie": 578, "en": 1.3, "ea": 50, "met": 85, "cfg": "[Rn] 5f⁷ 7s²", "sh": [2, 8, 18, 32, 25, 8, 2]}, {"z": 96, "s": "Cm", "nameEn": "Curium", "nameBn": "কুরিয়াম", "p": 7, "g": 3, "cat": "actinide", "blk": "f", "m": 247, "r": 174, "ie": 581, "en": 1.3, "ea": 50, "met": 85, "cfg": "[Rn] 5f⁷ 6d¹ 7s²", "sh": [2, 8, 18, 32, 25, 9, 2]}, {"z": 97, "s": "Bk", "nameEn": "Berkelium", "nameBn": "বার্কেলিয়াম", "p": 7, "g": 3, "cat": "actinide", "blk": "f", "m": 247, "r": 170, "ie": 601, "en": 1.3, "ea": 50, "met": 85, "cfg": "[Rn] 5f⁹ 7s²", "sh": [2, 8, 18, 32, 27, 8, 2]}, {"z": 98, "s": "Cf", "nameEn": "Californium", "nameBn": "ক্যালিফোর্নিয়াম", "p": 7, "g": 3, "cat": "actinide", "blk": "f", "m": 251, "r": 169, "ie": 608, "en": 1.3, "ea": 50, "met": 85, "cfg": "[Rn] 5f¹⁰ 7s²", "sh": [2, 8, 18, 32, 28, 8, 2]}, {"z": 99, "s": "Es", "nameEn": "Einsteinium", "nameBn": "আইনস্টাইনিয়াম", "p": 7, "g": 3, "cat": "actinide", "blk": "f", "m": 252, "r": 168, "ie": 619, "en": 1.3, "ea": 50, "met": 85, "cfg": "[Rn] 5f¹¹ 7s²", "sh": [2, 8, 18, 32, 29, 8, 2]}, {"z": 100, "s": "Fm", "nameEn": "Fermium", "nameBn": "ফার্মিয়াম", "p": 7, "g": 3, "cat": "actinide", "blk": "f", "m": 257, "r": 167, "ie": 627, "en": 1.3, "ea": 50, "met": 85, "cfg": "[Rn] 5f¹² 7s²", "sh": [2, 8, 18, 32, 30, 8, 2]}, {"z": 101, "s": "Md", "nameEn": "Mendelevium", "nameBn": "মেন্ডেলিভিয়াম", "p": 7, "g": 3, "cat": "actinide", "blk": "f", "m": 258, "r": 166, "ie": 635, "en": 1.3, "ea": 50, "met": 85, "cfg": "[Rn] 5f¹³ 7s²", "sh": [2, 8, 18, 32, 31, 8, 2]}, {"z": 102, "s": "No", "nameEn": "Nobelium", "nameBn": "নোবেলিয়াম", "p": 7, "g": 3, "cat": "actinide", "blk": "f", "m": 259, "r": 165, "ie": 642, "en": 1.3, "ea": 50, "met": 85, "cfg": "[Rn] 5f¹⁴ 7s²", "sh": [2, 8, 18, 32, 32, 8, 2]}, {"z": 103, "s": "Lr", "nameEn": "Lawrencium", "nameBn": "লরেনসিয়াম", "p": 7, "g": 3, "cat": "actinide", "blk": "d", "m": 262, "r": 164, "ie": 470, "en": 1.3, "ea": 50, "met": 85, "cfg": "[Rn] 5f¹⁴ 7s² 7p¹", "sh": [2, 8, 18, 32, 32, 8, 3]}, {"z": 104, "s": "Rf", "nameEn": "Rutherfordium", "nameBn": "রাদারফোর্ডিয়াম", "p": 7, "g": 4, "cat": "transition", "blk": "d", "m": 267, "r": 150, "ie": 580, "en": 1.3, "ea": 0, "met": 80, "cfg": "[Rn] 5f¹⁴ 6d² 7s²", "sh": [2, 8, 18, 32, 32, 10, 2]}, {"z": 105, "s": "Db", "nameEn": "Dubnium", "nameBn": "ডুবনিয়াম", "p": 7, "g": 5, "cat": "transition", "blk": "d", "m": 268, "r": 140, "ie": 600, "en": 1.3, "ea": 0, "met": 80, "cfg": "[Rn] 5f¹⁴ 6d³ 7s²", "sh": [2, 8, 18, 32, 32, 11, 2]}, {"z": 106, "s": "Sg", "nameEn": "Seaborgium", "nameBn": "সিবর্জিয়াম", "p": 7, "g": 6, "cat": "transition", "blk": "d", "m": 271, "r": 135, "ie": 620, "en": 1.3, "ea": 0, "met": 80, "cfg": "[Rn] 5f¹⁴ 6d⁴ 7s²", "sh": [2, 8, 18, 32, 32, 12, 2]}, {"z": 107, "s": "Bh", "nameEn": "Bohrium", "nameBn": "বোরিয়াম", "p": 7, "g": 7, "cat": "transition", "blk": "d", "m": 272, "r": 130, "ie": 640, "en": 1.3, "ea": 0, "met": 78, "cfg": "[Rn] 5f¹⁴ 6d⁵ 7s²", "sh": [2, 8, 18, 32, 32, 13, 2]}, {"z": 108, "s": "Hs", "nameEn": "Hassium", "nameBn": "হ্যাসিয়াম", "p": 7, "g": 8, "cat": "transition", "blk": "d", "m": 270, "r": 128, "ie": 660, "en": 1.3, "ea": 0, "met": 78, "cfg": "[Rn] 5f¹⁴ 6d⁶ 7s²", "sh": [2, 8, 18, 32, 32, 14, 2]}, {"z": 109, "s": "Mt", "nameEn": "Meitnerium", "nameBn": "মাইটনেরিয়াম", "p": 7, "g": 9, "cat": "transition", "blk": "d", "m": 276, "r": 125, "ie": 680, "en": 1.3, "ea": 0, "met": 78, "cfg": "[Rn] 5f¹⁴ 6d⁷ 7s²", "sh": [2, 8, 18, 32, 32, 15, 2]}, {"z": 110, "s": "Ds", "nameEn": "Darmstadtium", "nameBn": "ডার্মস্টাটিয়াম", "p": 7, "g": 10, "cat": "transition", "blk": "d", "m": 281, "r": 128, "ie": 700, "en": 1.3, "ea": 0, "met": 78, "cfg": "[Rn] 5f¹⁴ 6d⁸ 7s²", "sh": [2, 8, 18, 32, 32, 16, 2]}, {"z": 111, "s": "Rg", "nameEn": "Roentgenium", "nameBn": "রন্টজেনিয়াম", "p": 7, "g": 11, "cat": "transition", "blk": "d", "m": 280, "r": 130, "ie": 720, "en": 1.3, "ea": 0, "met": 80, "cfg": "[Rn] 5f¹⁴ 6d⁹ 7s²", "sh": [2, 8, 18, 32, 32, 17, 2]}, {"z": 112, "s": "Cn", "nameEn": "Copernicium", "nameBn": "কোপার্নিসিয়াম", "p": 7, "g": 12, "cat": "transition", "blk": "d", "m": 285, "r": 135, "ie": 800, "en": 1.3, "ea": 0, "met": 75, "cfg": "[Rn] 5f¹⁴ 6d¹⁰ 7s²", "sh": [2, 8, 18, 32, 32, 18, 2]}, {"z": 113, "s": "Nh", "nameEn": "Nihonium", "nameBn": "নিহোনিয়াম", "p": 7, "g": 13, "cat": "post-transition", "blk": "p", "m": 284, "r": 140, "ie": 710, "en": 1.4, "ea": 20, "met": 70, "cfg": "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p¹", "sh": [2, 8, 18, 32, 32, 18, 3]}, {"z": 114, "s": "Fl", "nameEn": "Flerovium", "nameBn": "ফ্লেরোভিয়াম", "p": 7, "g": 14, "cat": "post-transition", "blk": "p", "m": 289, "r": 145, "ie": 820, "en": 1.5, "ea": 0, "met": 65, "cfg": "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p²", "sh": [2, 8, 18, 32, 32, 18, 4]}, {"z": 115, "s": "Mc", "nameEn": "Moscovium", "nameBn": "মস্কোভিয়াম", "p": 7, "g": 15, "cat": "post-transition", "blk": "p", "m": 288, "r": 150, "ie": 540, "en": 1.6, "ea": 35, "met": 60, "cfg": "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p³", "sh": [2, 8, 18, 32, 32, 18, 5]}, {"z": 116, "s": "Lv", "nameEn": "Livermorium", "nameBn": "লিভারমোরিয়াম", "p": 7, "g": 16, "cat": "post-transition", "blk": "p", "m": 293, "r": 155, "ie": 730, "en": 1.7, "ea": 75, "met": 50, "cfg": "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁴", "sh": [2, 8, 18, 32, 32, 18, 6]}, {"z": 117, "s": "Ts", "nameEn": "Tennessine", "nameBn": "টেনেসিন", "p": 7, "g": 17, "cat": "halogen", "blk": "p", "m": 294, "r": 150, "ie": 740, "en": 2.0, "ea": 165, "met": 25, "cfg": "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁵", "sh": [2, 8, 18, 32, 32, 18, 7]}, {"z": 118, "s": "Og", "nameEn": "Oganesson", "nameBn": "ওগানেসন", "p": 7, "g": 18, "cat": "noble", "blk": "p", "m": 294, "r": 145, "ie": 860, "en": 2.2, "ea": 0, "met": 10, "cfg": "[Rn] 5f¹⁴ 6d¹⁰ 7s² 7p⁶", "sh": [2, 8, 18, 32, 32, 18, 8]}];
+
+let currentHeatmap = 'r';
+let selectedElement = elements[10]; // Na
+let bohrAngle = 0;
+let bohrAnimId = null;
+
+// Tab switcher
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+
+  if (tabId === 'graph-tab') renderGraph();
+  if (tabId === 'reaction-tab') initReactionLab();
+  if (tabId === 'quiz-tab') initQuiz();
+}
+
+// Color interpolators
+function getHeatmapColor(val, min, max, property) {
+  if (val === null || val === undefined) return '#1e293b';
+  if (property === 'cat') return null;
+
+  const ratio = Math.max(0, Math.min(1, (val - min) / (max - min || 1)));
+
+  if (property === 'r' || property === 'met') {
+    // High = Teal/Cyan (big), Low = Dark Slate/Purple (small)
+    const r = Math.round(30 + 190 * ratio);
+    const g = Math.round(50 + 150 * ratio);
+    const b = Math.round(180 - 80 * ratio);
+    return `rgb(${r}, ${g}, ${b})`;
+  } else if (property === 'ie' || property === 'en' || property === 'ea') {
+    // High = Crimson/Red, Low = Yellow/Green
+    const r = Math.round(40 + 215 * ratio);
+    const g = Math.round(180 * (1 - ratio * 0.7));
+    const b = Math.round(70 * (1 - ratio));
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+  return '#334155';
+}
+
+function renderPeriodicTable() {
+  const grid = document.getElementById('periodicGrid');
+  grid.innerHTML = '';
+
+  const minMax = getMinMax(currentHeatmap);
+
+  elements.forEach(el => {
+    const card = document.createElement('div');
+    card.className = `element-card cat-${el.cat} ${el.z === selectedElement.z ? 'active' : ''}`;
+
+    let col = el.g;
+    let row = el.p;
+
+    // Lanthanides & Actinides positioning
+    if (el.z >= 57 && el.z <= 71) {
+      row = 9;
+      col = el.z - 57 + 4;
+    } else if (el.z >= 89 && el.z <= 103) {
+      row = 10;
+      col = el.z - 89 + 4;
+    }
+
+    card.style.gridColumn = col;
+    card.style.gridRow = row;
+
+    if (currentHeatmap !== 'cat' && currentHeatmap !== 'blk') {
+      const val = el[currentHeatmap];
+      card.style.background = getHeatmapColor(val, minMax.min, minMax.max, currentHeatmap);
+    } else if (currentHeatmap === 'blk') {
+      const blkColors = { s: '#f43f5e', p: '#eab308', d: '#38bdf8', f: '#a855f7' };
+      card.style.border = `2px solid ${blkColors[el.blk] || '#cbd5e1'}`;
+    }
+
+    let valDisplay = '';
+    if (currentHeatmap === 'r') valDisplay = `${el.r} pm`;
+    else if (currentHeatmap === 'ie') valDisplay = `${el.ie} kJ`;
+    else if (currentHeatmap === 'en') valDisplay = el.en ? `${el.en}` : '-';
+    else if (currentHeatmap === 'ea') valDisplay = `${el.ea} kJ`;
+    else if (currentHeatmap === 'met') valDisplay = `${el.met}%`;
+    else if (currentHeatmap === 'blk') valDisplay = `${el.blk}-block`;
+    else valDisplay = el.s;
+
+    card.innerHTML = `
+      <div class="el-top">
+        <span>${el.z}</span>
+        <span>${el.m.toFixed(1)}</span>
+      </div>
+      <div class="el-symbol">${el.s}</div>
+      <div class="el-name">${el.nameBn}</div>
+      <div class="el-val">${valDisplay}</div>
+    `;
+
+    card.onclick = () => selectElement(el);
+    grid.appendChild(card);
+  });
+}
+
+function getMinMax(prop) {
+  let min = Infinity, max = -Infinity;
+  elements.forEach(e => {
+    const v = e[prop];
+    if (typeof v === 'number' && v > 0) {
+      if (v < min) min = v;
+      if (v > max) max = v;
+    }
+  });
+  return { min: min === Infinity ? 0 : min, max: max === -Infinity ? 100 : max };
+}
+
+function updateHeatmap() {
+  currentHeatmap = document.getElementById('trendSelect').value;
+  const legendWrap = document.getElementById('legendWrap');
+  const minLabel = document.getElementById('legendMinLabel');
+  const maxLabel = document.getElementById('legendMaxLabel');
+  const legendGradient = document.getElementById('legendGradient');
+
+  if (currentHeatmap === 'cat' || currentHeatmap === 'blk') {
+    legendWrap.style.display = 'none';
+  } else {
+    legendWrap.style.display = 'flex';
+    const mm = getMinMax(currentHeatmap);
+    const units = { r: 'pm', ie: 'kJ/mol', en: 'Pauling', ea: 'kJ/mol', met: '%' };
+    minLabel.textContent = `কম (${mm.min} ${units[currentHeatmap] || ''})`;
+    maxLabel.textContent = `বেশি (${mm.max} ${units[currentHeatmap] || ''})`;
+
+    if (currentHeatmap === 'r' || currentHeatmap === 'met') {
+      legendGradient.style.background = 'linear-gradient(to right, rgb(30,50,180), rgb(125,125,140), rgb(220,200,100))';
+    } else {
+      legendGradient.style.background = 'linear-gradient(to right, rgb(40,180,70), rgb(150,150,30), rgb(255,50,0))';
+    }
+  }
+
+  renderPeriodicTable();
+}
+
+function selectElement(el) {
+  selectedElement = el;
+  document.querySelectorAll('.element-card').forEach(c => c.classList.remove('active'));
+  renderPeriodicTable();
+
+  // Update Inspector
+  document.getElementById('inspSymbol').textContent = el.s;
+  document.getElementById('inspName').textContent = `${el.nameBn} (${el.nameEn}) · পারমাণবিক সংখ্যা: ${el.z}`;
+  
+  const catNames = {
+    'alkali': 'ক্ষার ধাতু (Group 1)',
+    'alkaline-earth': 'মৃৎক্ষার ধাতু (Group 2)',
+    'transition': 'অবস্থান্তর ধাতু (Transition)',
+    'lanthanide': 'ল্যান্থানাইড সারি (Lanthanide)',
+    'actinide': 'অ্যাকটিনাইড সারি (Actinide)',
+    'post-transition': 'মৃদু ধাতু (Post-transition)',
+    'metalloid': 'অপধাতু বা অর্ধধাতু (Metalloid)',
+    'nonmetal': 'অধাতু (Reactive Nonmetal)',
+    'halogen': 'হ্যালোজেন গ্রুপ (Group 17)',
+    'noble': 'নিষ্ক্রিয় গ্যাস (Group 18)'
+  };
+  document.getElementById('inspCategory').textContent = catNames[el.cat] || el.cat;
+  document.getElementById('inspConfig').textContent = el.cfg;
+  document.getElementById('inspPosition').textContent = `পর্যায় ${el.p} · গ্রুপ ${el.g}`;
+  document.getElementById('inspRadius').textContent = `${el.r} pm`;
+  document.getElementById('inspIE').textContent = `${el.ie} kJ/mol`;
+  document.getElementById('inspEN').textContent = el.en ? `${el.en}` : 'নেই (নিষ্ক্রিয়)';
+  document.getElementById('inspEA').textContent = `${el.ea} kJ/mol`;
+
+  // Rule explanation
+  let ruleText = `<strong>পর্যায় ও গ্রুপ নির্ণয়ের সূত্র:</strong> সর্ববহিঃস্থ প্রধান শক্তিস্তর $n=${el.p}$, তাই এটি <strong>পর্যায় ${el.p}</strong>-এর মৌল। `;
+  if (el.g <= 2) {
+    ruleText += `সর্বশেষ শক্তিস্তরে কেবল $s$-অরবিটাল থাকায় $s$-এর ইলেকট্রন সংখ্যাই হলো এর গ্রুপ। গ্রুপ = <strong>${el.g}</strong>।`;
+  } else if (el.g >= 13 && el.g <= 18) {
+    ruleText += `সর্ববহিঃস্থ স্তরে $s$ ও $p$ অরবিটাল থাকায় $(s + p + 10)$ নিয়মে গ্রুপ নির্ধারিত হয়। গ্রুপ = <strong>${el.g}</strong>।`;
+  } else {
+    ruleText += `সর্বশেষ $s$ অরবিটাল এবং ঠিক পূর্ববর্তী $(n-1)d$ অরবিটালের ইলেকট্রন সংখ্যার যোগফল $((n-1)d + ns)$ দিয়ে গ্রুপ নির্ধারিত হয়। গ্রুপ = <strong>${el.g}</strong>।`;
+  }
+  document.getElementById('inspRule').innerHTML = ruleText;
+
+  // Bohr Canvas Update
+  document.getElementById('inspBohrName').textContent = `${el.nameBn} (${el.s})`;
+  const shellStr = el.sh.map((n, i) => `${String.fromCharCode(75+i)}=${n}`).join(', ');
+  document.getElementById('inspBohrShells').textContent = `শক্তিস্তর সংখ্যা: ${el.sh.length} (${shellStr})`;
+  drawBohrAtom();
+}
+
+// Animated Concentric Bohr Orbitals
+function drawBohrAtom() {
+  const canvas = document.getElementById('bohrCanvas');
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+  const cx = w / 2;
+  const cy = h / 2;
+
+  ctx.clearRect(0, 0, w, cy * 2);
+
+  // Nucleus glow
+  const grad = ctx.createRadialGradient(cx, cy, 2, cx, cy, 16);
+  grad.addColorStop(0, '#f59e0b');
+  grad.addColorStop(1, '#dc2626');
+  ctx.beginPath();
+  ctx.arc(cx, cy, 14, 0, Math.PI * 2);
+  ctx.fillStyle = grad;
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 11px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(selectedElement.s, cx, cy);
+
+  // Draw shells and rotating electrons
+  const shells = selectedElement.sh || [2];
+  const maxRadius = 110;
+  const step = maxRadius / (shells.length + 0.8);
+
+  shells.forEach((count, sIdx) => {
+    const r = (sIdx + 1) * step + 12;
+
+    // Orbit path
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(20, 184, 166, 0.35)';
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([3, 3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Electrons
+    const speed = (sIdx % 2 === 0 ? 1 : -1) * (0.02 / (sIdx + 1));
+    for (let i = 0; i < count; i++) {
+      const angle = bohrAngle * (sIdx + 1) * 0.5 + (i * 2 * Math.PI / count);
+      const ex = cx + r * Math.cos(angle);
+      const ey = cy + r * Math.sin(angle);
+
+      ctx.beginPath();
+      ctx.arc(ex, ey, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#38bdf8';
+      ctx.shadowColor = '#38bdf8';
+      ctx.shadowBlur = 6;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  });
+
+  bohrAngle += 0.03;
+  if (!bohrAnimId) {
+    bohrAnimId = requestAnimationFrame(animateBohr);
+  }
+}
+
+function animateBohr() {
+  drawBohrAtom();
+  bohrAnimId = requestAnimationFrame(animateBohr);
+}
+
+// -------------------------------------------------------------
+// TAB 2: COMPARATIVE TREND GRAPHS
+// -------------------------------------------------------------
+function renderGraph() {
+  const canvas = document.getElementById('trendGraph');
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+
+  ctx.clearRect(0, 0, w, h);
+
+  const seriesKey = document.getElementById('graphSeriesSelect').value;
+  const propKey = document.getElementById('graphPropSelect').value;
+
+  let series = [];
+  let seriesTitle = '';
+
+  if (seriesKey === 'p2') {
+    series = elements.filter(e => e.p === 2 && e.g <= 18).sort((a,b) => a.g - b.g);
+    seriesTitle = 'পর্যায় ২ (Li থেকে Ne)';
+  } else if (seriesKey === 'p3') {
+    series = elements.filter(e => e.p === 3 && e.g <= 18).sort((a,b) => a.g - b.g);
+    seriesTitle = 'পর্যায় ৩ (Na থেকে Ar)';
+  } else if (seriesKey === 'p4') {
+    series = elements.filter(e => e.p === 4 && e.g <= 18).sort((a,b) => a.g - b.g);
+    seriesTitle = 'পর্যায় ৪ (K থেকে Kr)';
+  } else if (seriesKey === 'g1') {
+    series = elements.filter(e => e.g === 1 && e.p <= 6).sort((a,b) => a.p - b.p);
+    seriesTitle = 'গ্রুপ ১: ক্ষার ধাতু (Li থেকে Cs)';
+  } else if (seriesKey === 'g2') {
+    series = elements.filter(e => e.g === 2 && e.p <= 6).sort((a,b) => a.p - b.p);
+    seriesTitle = 'গ্রুপ ২: মৃৎক্ষার ধাতু (Be থেকে Ba)';
+  } else if (seriesKey === 'g17') {
+    series = elements.filter(e => e.g === 17 && e.p <= 5).sort((a,b) => a.p - b.p);
+    seriesTitle = 'গ্রুপ ১৭: হ্যালোজেন (F থেকে I)';
+  } else if (seriesKey === 'g18') {
+    series = elements.filter(e => e.g === 18 && e.p <= 5).sort((a,b) => a.p - b.p);
+    seriesTitle = 'গ্রুপ ১৮: নিষ্ক্রিয় গ্যাস (He থেকে Xe)';
+  }
+
+  const values = series.map(e => e[propKey]);
+  const minV = Math.min(...values);
+  const maxV = Math.max(...values);
+  const range = (maxV - minV) || 1;
+
+  const padLeft = 80;
+  const padRight = 40;
+  const padTop = 40;
+  const padBottom = 60;
+  const plotW = w - padLeft - padRight;
+  const plotH = h - padTop - padBottom;
+
+  // Grid & Axes
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 1;
+
+  // Y Axis lines & labels
+  const steps = 4;
+  for (let i = 0; i <= steps; i++) {
+    const yVal = minV + (range * i) / steps;
+    const py = padTop + plotH - (plotH * i) / steps;
+
+    ctx.beginPath();
+    ctx.moveTo(padLeft, py);
+    ctx.lineTo(w - padRight, py);
+    ctx.stroke();
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '11px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText(Math.round(yVal), padLeft - 10, py + 4);
+  }
+
+  // Draw Line and Points
+  const pts = series.map((e, i) => {
+    const px = padLeft + (i * plotW) / (series.length - 1);
+    const py = padTop + plotH - ((e[propKey] - minV) / range) * plotH;
+    return { x: px, y: py, el: e, val: e[propKey] };
+  });
+
+  // Line fill gradient
+  const fillGrad = ctx.createLinearGradient(0, padTop, 0, padTop + plotH);
+  fillGrad.addColorStop(0, 'rgba(20, 184, 166, 0.35)');
+  fillGrad.addColorStop(1, 'rgba(20, 184, 166, 0.0)');
+
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, padTop + plotH);
+  pts.forEach(p => ctx.lineTo(p.x, p.y));
+  ctx.lineTo(pts[pts.length - 1].x, padTop + plotH);
+  ctx.closePath();
+  ctx.fillStyle = fillGrad;
+  ctx.fill();
+
+  // Line stroke
+  ctx.beginPath();
+  pts.forEach((p, i) => {
+    if (i === 0) ctx.moveTo(p.x, p.y);
+    else ctx.lineTo(p.x, p.y);
+  });
+  ctx.strokeStyle = '#14b8a6';
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  // Points & Labels
+  pts.forEach(p => {
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 6, 0, Math.PI * 2);
+    ctx.fillStyle = '#f59e0b';
+    ctx.fill();
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Value label
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 11px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(p.val, p.x, p.y - 12);
+
+    // X Axis Element Symbol
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillText(p.el.s, p.x, h - padBottom + 20);
+    ctx.fillStyle = '#64748b';
+    ctx.font = '10px sans-serif';
+    ctx.fillText(p.el.z, p.x, h - padBottom + 34);
+  });
+
+  // Pedagogical Insight injection
+  updateGraphInsight(seriesKey, propKey, seriesTitle);
+}
+
+function updateGraphInsight(seriesKey, propKey, seriesTitle) {
+  const box = document.getElementById('graphInsight');
+  let insight = '';
+
+  if (seriesKey.startsWith('p') && propKey === 'r') {
+    insight = `<strong>বিজ্ঞানসম্মত ব্যাখ্যা (${seriesTitle}):</strong> একই পর্যায়ে বাম থেকে ডানে পারমাণবিক সংখ্যা বৃদ্ধি পায়। কিন্তু নতুন কোনো ইলেকট্রন শক্তিস্তর যুক্ত হয় না। ফলে নিউক্লিয়াসে ধনাত্মক চার্জ বাড়ায় সর্ববহিঃস্থ স্তরের ইলেকট্রনের প্রতি আকর্ষণ তীব্র হয় এবং পরমাণুর আকার ক্রমাগত <strong>হ্রাস পায়</strong> (যেমন: সোডিয়ামের আকার ১৮৬ pm থেকে কমে ক্লোরিনের ৯৯ pm হয়)।`;
+  } else if (seriesKey.startsWith('p') && propKey === 'ie') {
+    insight = `<strong>বিজ্ঞানসম্মত ব্যাখ্যা (${seriesTitle}):</strong> পর্যায়ে বাম থেকে ডানে পারমাণবিক ব্যাসার্ধ হ্রাস পাওয়ায় নিউক্লিয়াস থেকে বহিঃস্থ ইলেকট্রনের দূরত্ব কমে এবং বন্ধন দৃঢ় হয়। ফলে ইলেকট্রন অপসারণে বেশি শক্তির প্রয়োজন হয় এবং আয়নীকরণ শক্তি ক্রমাগত <strong>বৃদ্ধি পায়</strong>। (লক্ষণীয়: Be ও N এর স্থিতিশীল পূর্ণ ও অর্ধপূর্ণ অরবিটালের কারণে গ্রাফে সামান্য ব্যতিক্রমী চূড়া দেখা যায়!)`;
+  } else if (seriesKey.startsWith('g') && propKey === 'r') {
+    insight = `<strong>বিজ্ঞানসম্মত ব্যাখ্যা (${seriesTitle}):</strong> একই গ্রুপে উপর থেকে নিচে নামলে প্রতিটি ধাপে একটি করে <strong>নতুন প্রধান শক্তিস্তর যুক্ত হয়</strong>। যদিও নিউক্লিয়ার চার্জ বাড়ে, নতুন শক্তিস্তর যুক্ত হওয়ার প্রভাব অনেক বেশি প্রবল হওয়ায় পরমাণুর ব্যাসার্ধ স্পষ্টভাবে <strong>বৃদ্ধি পায়</strong> (Li = 152 pm → Cs = 265 pm)।`;
+  } else if (seriesKey === 'g17' && propKey === 'ea') {
+    insight = `<strong>বিজ্ঞানসম্মত ব্যাখ্যা (${seriesTitle}):</strong> হ্যালোজেন গ্রুপের উপর থেকে নিচে নামলে সাধারণত ইলেকট্রন আসক্তি কমার কথা। কিন্তু <strong>ফ্লোরিনের (328 kJ/mol) চেয়ে ক্লোরিনের ইলেকট্রন আসক্তি (349 kJ/mol) বেশি</strong>! কারণ ফ্লোরিনের ২য় শক্তিস্তর অত্যন্ত ক্ষুদ্র হওয়ায় সেখানে ৭টি ইলেকট্রনের ঘনত্ব অনেক বেশি এবং আগত ইলেকট্রন তীব্র বিকর্ষণের শিকার হয়। ক্লোরিনের ৩য় শক্তিস্তর প্রশস্ত হওয়ায় অনায়াসে ইলেকট্রন প্রবেশ করতে পারে।`;
+  } else {
+    insight = `<strong>সাধারণ পর্যায়বৃত্ত নীতি:</strong> একই পর্যায়ে বাম থেকে ডানে আকার ও ধাতব ধর্ম হ্রাস পায়; কিন্তু আয়নীকরণ শক্তি, তড়িৎ ঋণাত্মকতা ও ইলেকট্রন আসক্তি বৃদ্ধি পায়। একই গ্রুপে উপর থেকে নিচে আকার ও ধাতব ধর্ম বৃদ্ধি পায়; কিন্তু আয়নীকরণ শক্তি ও তড়িৎ ঋণাত্মকতা হ্রাস পায়।`;
+  }
+
+  box.innerHTML = insight;
+}
+
+// -------------------------------------------------------------
+// TAB 3: WATER REACTION LAB
+// -------------------------------------------------------------
+let labActiveElement = 'Na';
+let labReacting = false;
+let labParticles = [];
+let labSolutionColor = 'rgba(255, 255, 255, 0.05)';
+let labTargetColor = 'rgba(255, 255, 255, 0.05)';
+let labColorProgress = 0;
+let labAnimId = null;
+
+const reactionData = {
+  'Na': {
+    name: 'সোডিয়াম (Na)',
+    eq: '2Na + 2H₂O → 2NaOH + H₂↑ (তীব্র তাপোৎপাদী)',
+    obs: 'সোডিয়াম পানিতে পড়ার সাথে সাথে গলে চকচকে গোলকের মতো ভাসে, দ্রুত পানির উপর ছোটাছুটি করে এবং সোনালি-হলুদ শিখা সহ জ্বলে ওঠে। ফেনলফথ্যালিন থাকায় ক্ষার তৈরি হওয়ায় দ্রবণটি উজ্জ্বল গোলাপী হয়!',
+    flameColor: '#fbbf24',
+    vigour: 5,
+    floats: true,
+    alkaline: true
+  },
+  'Li': {
+    name: 'লিথিয়াম (Li)',
+    eq: '2Li + 2H₂O → 2LiOH + H₂↑',
+    obs: 'লিথিয়াম পানির চেয়ে হালকা হওয়ায় ভাসে এবং মৃদু হিসহিস শব্দে বুদবুদ তৈরি করে ধীরে ধীরে বিক্রিয়া করে ক্ষার LiOH তৈরি করে।',
+    flameColor: '#f43f5e',
+    vigour: 2,
+    floats: true,
+    alkaline: true
+  },
+  'K': {
+    name: 'পটাশিয়াম (K)',
+    eq: '2K + 2H₂O → 2KOH + H₂↑ (বিস্ফোরক শিখা)',
+    obs: 'পটাশিয়াম পানিতে পড়ার সাথে সাথেই উৎপন্ন হাইড্রোজেন গ্যাস প্রজ্বলিত হয়ে মনোরম লীলাক/বেগুনী শিখা সহ সশব্দে ফেটে ওঠে!',
+    flameColor: '#c084fc',
+    vigour: 8,
+    floats: true,
+    alkaline: true
+  },
+  'Rb': {
+    name: 'রুবিডিয়াম (Rb)',
+    eq: '2Rb + 2H₂O → 2RbOH + H₂↑ (তাত্ক্ষণিক বিস্ফোরণ)',
+    obs: 'রুবিডিয়াম পানিতে পানির নিচে ডুবে যায় এবং এক মুহূর্তের মধ্যে তীব্র শকওয়েভ ও বিস্ফোরণ ঘটিয়ে কাচের বিকার ভেঙে ফেলার মতো শক্তি নির্গত করে!',
+    flameColor: '#a855f7',
+    vigour: 12,
+    floats: false,
+    alkaline: true
+  },
+  'Cs': {
+    name: 'সিজিয়াম (Cs)',
+    eq: '2Cs + 2H₂O → 2CsOH + H₂↑ (ধ্বংসাত্মক বিস্ফোরণ)',
+    obs: 'সিজিয়াম পানির সংস্পর্শে আসা মাত্র চরম হিংস্র বিস্ফোরণ ঘটায় এবং পাত্র ছিন্নভিন্ন করে দেয়!',
+    flameColor: '#38bdf8',
+    vigour: 15,
+    floats: false,
+    alkaline: true
+  },
+  'Mg': {
+    name: 'ম্যাগনেসিয়াম (Mg)',
+    eq: 'Mg + 2H₂O (hot) → Mg(OH)₂ + H₂↑',
+    obs: 'ম্যাগনেসিয়াম ঠান্ডা পানিতে অত্যন্ত ধীর গতিতে বিক্রিয়া করে সামান্য বুদবুদ দেয়; তবে ফুটন্ত পানিতে বা বাষ্পে এটি দ্রুত বিক্রিয়া করে ক্ষার তৈরি করে।',
+    flameColor: '#ffffff',
+    vigour: 1,
+    floats: false,
+    alkaline: true
+  },
+  'Ca': {
+    name: 'ক্যালসিয়াম (Ca)',
+    eq: 'Ca + 2H₂O → Ca(OH)₂ + H₂↑',
+    obs: 'ক্যালসিয়াম পানির নিচে ডুবে যায় এবং নিয়মিত গতিতে সাদা ঘোলাটে চুনপানি [Ca(OH)₂] ও প্রচুর হাইড্রোজেন গ্যাসের বুদবুদ ছড়ায়।',
+    flameColor: '#fdba74',
+    vigour: 3,
+    floats: false,
+    alkaline: true
+  },
+  'Cl2': {
+    name: 'ক্লোরিন (Cl₂)',
+    eq: 'Cl₂ + H₂O ⇌ HCl + HOCl (অম্লীয় দ্রবণ)',
+    obs: 'সবুজাভ হলুদ ক্লোরিন গ্যাস দ্রবীভূত হয়ে হাইড্রোক্লোরিক ও হাইপোক্লোরাস এসিড উৎপন্ন করে। দ্রবণটি অম্লীয় হওয়ায় ফেনলফথ্যালিন বর্ণহীন থাকে।',
+    flameColor: '#a3e635',
+    vigour: 2,
+    floats: false,
+    alkaline: false
+  }
+};
+
+function selectReactionElement(symbol) {
+  labActiveElement = symbol;
+  document.querySelectorAll('.react-el-btn').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+  const data = reactionData[symbol];
+  document.getElementById('reactionEquation').textContent = data.eq;
+  document.getElementById('reactionObservation').innerHTML = `<strong>পর্যবেক্ষণ:</strong> ${data.obs}`;
+  initReactionLab();
+}
+
+function initReactionLab() {
+  const canvas = document.getElementById('reactionCanvas');
+  const ctx = canvas.getContext('2d');
+  labParticles = [];
+  labSolutionColor = 'rgba(255, 255, 255, 0.05)';
+  labColorProgress = 0;
+  labReacting = false;
+  drawBeaker(ctx, canvas.width, canvas.height);
+}
+
+function triggerReaction() {
+  initReactionLab();
+  labReacting = true;
+  const isIndicator = document.getElementById('indicatorToggle').checked;
+  const data = reactionData[labActiveElement];
+
+  if (isIndicator && data.alkaline) {
+    labTargetColor = 'rgba(236, 72, 153, 0.45)'; // Vivid Pink / Magenta for Phenolphthalein + base
+  } else if (!data.alkaline) {
+    labTargetColor = 'rgba(202, 138, 4, 0.2)'; // Pale yellow-green for Cl2
+  } else {
+    labTargetColor = 'rgba(255, 255, 255, 0.1)';
+  }
+
+  // Spawn reactive particle
+  const canvas = document.getElementById('reactionCanvas');
+  const bx = canvas.width / 2;
+  const by = data.floats ? 160 : 310;
+
+  labMetal = {
+    x: bx,
+    y: by,
+    vx: data.floats ? (Math.random() - 0.5) * 4 : 0,
+    r: 12,
+    life: 200,
+    data: data
+  };
+
+  if (!labAnimId) {
+    labAnimId = requestAnimationFrame(animateReaction);
+  }
+}
+
+let labMetal = null;
+
+function animateReaction() {
+  const canvas = document.getElementById('reactionCanvas');
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width;
+  const h = canvas.height;
+
+  ctx.clearRect(0, 0, w, h);
+  drawBeaker(ctx, w, h);
+
+  if (labReacting && labMetal && labMetal.life > 0) {
+    labMetal.life--;
+
+    // Move on surface if floats
+    if (labMetal.data.floats) {
+      labMetal.x += labMetal.vx;
+      if (labMetal.x < 190 || labMetal.x > 410) labMetal.vx *= -1;
+      labMetal.y = 160 + Math.sin(Date.now() * 0.01) * 3;
+    }
+
+    // Spawn bubbles
+    for (let i = 0; i < labMetal.data.vigour; i++) {
+      labParticles.push({
+        x: labMetal.x + (Math.random() - 0.5) * 14,
+        y: labMetal.y,
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: -Math.random() * 3 - 2,
+        r: Math.random() * 4 + 2,
+        life: 50,
+        type: 'bubble'
+      });
+    }
+
+    // Spawn flame sparks
+    if (labMetal.data.vigour >= 4) {
+      for (let i = 0; i < 3; i++) {
+        labParticles.push({
+          x: labMetal.x + (Math.random() - 0.5) * 8,
+          y: labMetal.y - 4,
+          vx: (Math.random() - 0.5) * 3,
+          vy: -Math.random() * 4 - 2,
+          r: Math.random() * 5 + 3,
+          color: labMetal.data.flameColor,
+          life: 20,
+          type: 'spark'
+        });
+      }
+    }
+
+    // Draw metal chunk
+    ctx.beginPath();
+    ctx.arc(labMetal.x, labMetal.y, labMetal.r * (labMetal.life / 200), 0, Math.PI * 2);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.fill();
+    ctx.strokeStyle = '#94a3b8';
+    ctx.stroke();
+
+    // Transition color
+    if (labColorProgress < 1) labColorProgress += 0.01;
+  }
+
+  // Draw and update bubbles/sparks
+  for (let i = labParticles.length - 1; i >= 0; i--) {
+    const p = labParticles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life--;
+
+    if (p.type === 'bubble') {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+      ctx.fill();
+    } else if (p.type === 'spark') {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color;
+      ctx.shadowColor = p.color;
+      ctx.shadowBlur = 8;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    if (p.life <= 0 || p.y < 120) {
+      labParticles.splice(i, 1);
+    }
+  }
+
+  if (labReacting) {
+    labAnimId = requestAnimationFrame(animateReaction);
+  }
+}
+
+function drawBeaker(ctx, w, h) {
+  // Beaker glass
+  const bx = 160;
+  const by = 130;
+  const bw = 280;
+  const bh = 210;
+
+  // Water level
+  const wy = by + 30;
+  const wh = bh - 30;
+
+  // Water fill with current indicator color
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(bx + 4, wy, bw - 8, wh);
+  ctx.fillStyle = labColorProgress > 0 ? labTargetColor : 'rgba(56, 189, 248, 0.15)';
+  ctx.fill();
+  ctx.restore();
+
+  // Glass outline
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(bx - 10, by);
+  ctx.lineTo(bx, by);
+  ctx.lineTo(bx, by + bh);
+  ctx.arcTo(bx, by + bh + 14, bx + 14, by + bh + 14, 14);
+  ctx.lineTo(bx + bw - 14, by + bh + 14);
+  ctx.arcTo(bx + bw, by + bh + 14, bx + bw, by + bh, 14);
+  ctx.lineTo(bx + bw, by);
+  ctx.lineTo(bx + bw + 10, by);
+  ctx.stroke();
+
+  // Water surface curve
+  ctx.strokeStyle = 'rgba(56, 189, 248, 0.5)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(bx + 4, wy);
+  ctx.lineTo(bx + bw - 4, wy);
+  ctx.stroke();
+
+  // Beaker scale marks
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+  ctx.lineWidth = 1.5;
+  for (let i = 1; i <= 4; i++) {
+    const my = by + bh - i * 36;
+    ctx.beginPath();
+    ctx.moveTo(bx + 6, my);
+    ctx.lineTo(bx + 26, my);
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+    ctx.font = '10px sans-serif';
+    ctx.fillText(`${i * 100} mL`, bx + 32, my + 3);
+  }
+}
+
+// -------------------------------------------------------------
+// TAB 4: QUIZ DATA & LOGIC
+// -------------------------------------------------------------
+const quizQuestions = [
+  {
+    q: '১. পর্যায় সারণির একই পর্যায়ে বাম থেকে ডানে গেলে পারমাণবিক ব্যাসার্ধ হ্রাস পায় কেন?',
+    opts: [
+      { text: 'নতুন প্রধান শক্তিস্তর যুক্ত হয় বলে', correct: false },
+      { text: 'শক্তিস্তর স্থির থেকে নিউক্লিয়াসে প্রোটন সংখ্যা ও আকর্ষণ বাড়ে বলে', correct: true },
+      { text: 'ইলেকট্রন সংখ্যা কমে যায় বলে', correct: false },
+      { text: 'নিউক্লিয়াসের ভর হ্রাস পায় বলে', correct: false }
+    ],
+    exp: 'একই পর্যায়ে পারমাণবিক সংখ্যা বৃদ্ধির সাথে সাথে নতুন স্তর যুক্ত না হয়ে একই শক্তিস্তরে ইলেকট্রন যুক্ত হয়। ফলে নিউক্লিয়াসের আকর্ষণ বৃদ্ধির কারণে আকার সংকুচিত হয়।'
+  },
+  {
+    q: '২. ক্লোরিনের ইলেকট্রন আসক্তি ফ্লোরিনের চেয়ে বেশি হওয়ার মূল বৈজ্ঞানিক কারণ কোনটি?',
+    opts: [
+      { text: 'ক্লোরিনের আকার ছোট', correct: false },
+      { text: 'ফ্লোরিনের ২য় শক্তিস্তরে ইলেকট্রন মেঘের উচ্চ ঘনত্ব ও বিকর্ষণ', correct: true },
+      { text: 'ক্লোরিনের পারমাণবিক ভর বেশি', correct: false },
+      { text: 'ফ্লোরিন তীব্র ক্ষার ধাতু', correct: false }
+    ],
+    exp: 'ফ্লোরিনের আকার খুব ছোট হওয়ায় ২য় শক্তিস্তরের ৭টি ইলেকট্রনের ঘনত্ব খুব বেশি। তাই নতুন ইলেকট্রন প্রবেশকালে তীব্র বিকর্ষণ পায়, যা ক্লোরিনের প্রশস্ত ৩য় স্তরে ঘটে না।'
+  },
+  {
+    q: '৩. কোনো মৌলের ইলেকট্রন বিন্যাস [Ar] 3d⁵ 4s¹ হলে পর্যায় সারণিতে এর পর্যায় ও গ্রুপ কত?',
+    opts: [
+      { text: 'পর্যায় ৩, গ্রুপ ৫', correct: false },
+      { text: 'পর্যায় ৪, গ্রুপ ১', correct: false },
+      { text: 'পর্যায় ৪, গ্রুপ ৬', correct: true },
+      { text: 'পর্যায় ৪, গ্রুপ ১৬', correct: false }
+    ],
+    exp: 'সর্বোচ্চ প্রধান কোয়ান্টাম সংখ্যা n=4 তাই পর্যায় ৪। এবং (n-1)d ও ns অরবিটালের ইলেকট্রন যোগ করলে (5 + 1 = 6) পাওয়া যায়, তাই গ্রুপ ৬।'
+  },
+  {
+    q: '৪. ক্ষার ধাতুসমূহ (Group 1) পানির সাথে বিক্রিয়া করে কোন গ্যাস ও কী প্রকৃতির দ্রবণ উৎপন্ন করে?',
+    opts: [
+      { text: 'অক্সিজেন গ্যাস ও অম্লীয় দ্রবণ', correct: false },
+      { text: 'হাইড্রোজেন গ্যাস ও তীব্র ক্ষারীয় দ্রবণ', correct: true },
+      { text: 'ক্লোরিন গ্যাস ও নিরপেক্ষ দ্রবণ', correct: false },
+      { text: 'নাইট্রোজেন গ্যাস ও লবণ', correct: false }
+    ],
+    exp: '2M + 2H₂O → 2MOH + H₂↑। তীব্র ক্ষার (যেমন NaOH, KOH) উৎপন্ন হয় এবং হাইড্রোজেন গ্যাস নির্গত হয়।'
+  },
+  {
+    q: '৫. মেন্ডেলিফের মূল পর্যায় সারণিতে কয়টি অনাবিষ্কৃত মৌলের স্থান ফাঁকা রাখা হয়েছিল?',
+    opts: [
+      { text: '২টি', correct: false },
+      { text: '৪টি', correct: true },
+      { text: '৬টি', correct: false },
+      { text: '৮টি', correct: false }
+    ],
+    exp: 'মেন্ডেলিফ ৬৩টি মৌল নিয়ে কাজ শুরু করে সারণিতে ৪টি অনাবিষ্কৃত মৌলের জন্য ফাঁকা ঘর রাখেন এবং তাদের ধর্ম অত্যন্ত নিখুঁতভাবে ভবিষ্যৎবাণী করেন (যেমন: একা-বোরন, একা-অ্যালুমিনিয়াম, একা-সিলিকন)।'
+  }
+];
+
+function initQuiz() {
+  const container = document.getElementById('quizContainer');
+  container.innerHTML = '<h2 style="font-size:20px; font-weight:800; color:#fff; margin-bottom:16px;">অধ্যায় ৪: পর্যায় সারণি যাচাই কুইজ</h2>';
+
+  quizQuestions.forEach((q, qIdx) => {
+    const qDiv = document.createElement('div');
+    qDiv.className = 'quiz-q';
+    qDiv.innerHTML = `<div class="quiz-title">${q.q}</div>`;
+
+    q.opts.forEach((opt, oIdx) => {
+      const optDiv = document.createElement('div');
+      optDiv.className = 'quiz-opt';
+      optDiv.textContent = opt.text;
+      optDiv.onclick = () => checkQuiz(qIdx, oIdx, optDiv, q.exp);
+      qDiv.appendChild(optDiv);
+    });
+
+    const feedDiv = document.createElement('div');
+    feedDiv.id = `qfeed_${qIdx}`;
+    feedDiv.className = 'quiz-feedback';
+    qDiv.appendChild(feedDiv);
+
+    container.appendChild(qDiv);
+  });
+}
+
+function checkQuiz(qIdx, oIdx, optEl, expText) {
+  const parent = optEl.parentElement;
+  if (parent.dataset.answered) return;
+  parent.dataset.answered = 'true';
+
+  const q = quizQuestions[qIdx];
+  const isCorrect = q.opts[oIdx].correct;
+
+  if (isCorrect) {
+    optEl.classList.add('correct');
+  } else {
+    optEl.classList.add('incorrect');
+    // Highlight correct
+    Array.from(parent.querySelectorAll('.quiz-opt')).forEach((el, idx) => {
+      if (q.opts[idx].correct) el.classList.add('correct');
+    });
+  }
+
+  const feed = document.getElementById(`qfeed_${qIdx}`);
+  feed.style.display = 'block';
+  feed.style.background = isCorrect ? 'rgba(34, 197, 94, 0.2)' : 'rgba(244, 63, 94, 0.2)';
+  feed.style.color = isCorrect ? '#86efac' : '#fca5a5';
+  feed.innerHTML = `<strong>${isCorrect ? '✓ সঠিক উত্তর!' : '✕ ভুল হয়েছে।'}</strong> ${expText}`;
+}
+
+// Initial boot
+window.onload = () => {
+  updateHeatmap();
+  selectElement(elements[10]); // Sodium
+};
+</script>
+</body>
+</html>

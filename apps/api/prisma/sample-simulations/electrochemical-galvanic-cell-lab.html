@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>তড়িৎ রাসায়নিক কোষ ও ড্যানিয়েল সেল ল্যাব (Galvanic & Daniell Cell Simulator)</title>
+  <style>
+    /* === PORI UNIFIED SIMULATOR THEME === */
+    :root {
+      --pori-bg: #f8fafc;
+      --pori-card: #ffffff;
+      --pori-panel: #f8fafc;
+      --pori-border: #cbd5e1;
+      --pori-border-soft: #e2e8f0;
+      --pori-ink: #0f172a;
+      --pori-heading: #1e293b;
+      --pori-muted: #475569;
+      --pori-indigo: #0284c7;
+      --pori-indigo-hover: #0369a1;
+      --pori-indigo-soft: #f0f9ff;
+      --pori-indigo-border: #bae6fd;
+      --pori-indigo-ink: #0369a1;
+      --pori-green: #059669;
+      --pori-green-soft: #ecfdf5;
+      --pori-copper: #c2410c;
+      --pori-copper-soft: #ffedd5;
+      --pori-zinc: #475569;
+      --pori-zinc-soft: #f1f5f9;
+      --pori-danger: #dc2626;
+      --pori-danger-soft: #fef2f2;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Noto Sans Bengali", "Hind Siliguri", system-ui, -apple-system, "Segoe UI", sans-serif; }
+    body { background: var(--pori-bg); color: var(--pori-ink); padding: 14px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    .container { max-width: 860px; width: 100%; display: flex; flex-direction: column; gap: 14px; }
+    
+    header { text-align: center; }
+    h1 { font-size: 1.25rem; color: var(--pori-heading); margin-bottom: 4px; font-weight: 800; }
+    p.desc { font-size: 0.85rem; color: var(--pori-muted); }
+
+    /* Mode selector tabs */
+    .tab-bar { display: flex; gap: 8px; justify-content: center; background: #e2e8f0; padding: 4px; border-radius: 12px; }
+    .tab-btn { flex: 1; max-width: 260px; padding: 8px 14px; border-radius: 9px; border: none; font-size: 0.88rem; font-weight: 750; color: var(--pori-muted); background: transparent; cursor: pointer; transition: all 0.2s ease; }
+    .tab-btn.active { background: #fff; color: var(--pori-indigo); box-shadow: 0 2px 6px rgba(0,0,0,0.06); }
+
+    /* Canvas / SVG Visualizer Area */
+    .canvas-wrap {
+      background: #0f172a;
+      border-radius: 16px;
+      border: 1px solid #334155;
+      overflow: hidden;
+      width: 100%;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    }
+    svg.sim-svg { display: block; width: 100%; height: 380px; }
+
+    /* Control Panel */
+    .controls {
+      background: var(--pori-card);
+      border: 1px solid var(--pori-border);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .ctrl-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; align-items: center; }
+    .ctrl-group { display: flex; flex-direction: column; gap: 6px; }
+    .ctrl-group label { font-size: 0.8rem; font-weight: 700; color: var(--pori-heading); display: flex; justify-content: space-between; }
+    .ctrl-group label span.val { color: var(--pori-indigo); font-family: monospace; font-size: 0.88rem; }
+
+    /* Range slider with stepper style */
+    .range-wrap { display: flex; align-items: center; gap: 8px; }
+    .custom-range {
+      flex: 1; -webkit-appearance: none; appearance: none; height: 8px; border-radius: 999px;
+      background: #e2e8f0; outline: none; cursor: pointer;
+    }
+    .custom-range::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+      background: var(--pori-indigo); border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.3); cursor: pointer;
+    }
+
+    /* Buttons */
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      padding: 8px 16px; border-radius: 10px; border: 1px solid #cbd5e1;
+      background: #fff; color: var(--pori-heading); font-size: 0.85rem; font-weight: 750;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .btn:hover { background: #f1f5f9; border-color: #94a3b8; }
+    .btn.primary { background: var(--pori-indigo); color: #fff; border-color: var(--pori-indigo); }
+    .btn.primary:hover { background: var(--pori-indigo-hover); }
+    .btn.active-switch { background: #10b981; color: #fff; border-color: #059669; }
+    .btn.off-switch { background: #ef4444; color: #fff; border-color: #dc2626; }
+
+    /* Metrics Grid */
+    .grid-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    @media (max-width: 680px) {
+      .grid-metrics { grid-template-columns: repeat(2, 1fr); }
+      svg.sim-svg { height: 320px; }
+    }
+    .metric-card {
+      background: var(--pori-card);
+      border: 1px solid var(--pori-border);
+      border-radius: 12px;
+      padding: 10px 12px;
+      text-align: center;
+      transition: transform 0.15s ease;
+    }
+    .metric-card .title { font-size: 0.72rem; color: var(--pori-muted); font-weight: 750; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.02em; }
+    .metric-card .val { font-size: 1.15rem; font-weight: 850; color: var(--pori-indigo); font-family: system-ui, -apple-system, monospace; }
+    .metric-card .unit { font-size: 0.75rem; color: var(--pori-muted); margin-left: 2px; }
+
+    /* Educational Info Box */
+    .info-box {
+      background: var(--pori-indigo-soft);
+      border: 1px solid var(--pori-indigo-border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 0.84rem;
+      line-height: 1.6;
+      color: #0c4a6e;
+    }
+    .info-box h3 { font-size: 0.95rem; margin-bottom: 6px; color: #0369a1; font-weight: 800; display: flex; align-items: center; gap: 6px; }
+    .reaction-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
+    @media (max-width: 600px) { .reaction-grid { grid-template-columns: 1fr; } }
+    .reaction-card { background: #fff; padding: 8px 12px; border-radius: 8px; border: 1px solid #bae6fd; font-size: 0.82rem; }
+    .reaction-card b { color: #0284c7; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>⚡ তড়িৎ রাসায়নিক কোষ ও ড্যানিয়েল সেল ল্যাব</h1>
+    <p class="desc">ইলেকট্রন প্রবাহ, আয়ন বিনিময়, ইলেক্ট্রোড ক্ষয়/জমা এবং তড়িৎ লেপন প্রত্যক্ষ করো</p>
+  </header>
+
+  <!-- Mode Switcher -->
+  <div class="tab-bar">
+    <button type="button" class="tab-btn active" id="tab-daniell" onclick="setMode('daniell')">ড্যানিয়েল সেল (Daniell Cell)</button>
+    <button type="button" class="tab-btn" id="tab-plating" onclick="setMode('plating')">তড়িৎ লেপন (Electroplating)</button>
+  </div>
+
+  <!-- Interactive SVG Visualizer -->
+  <div class="canvas-wrap">
+    <svg class="sim-svg" id="simSvg" viewBox="0 0 860 380">
+      <!-- Background & Grid -->
+      <defs>
+        <!-- Gradients -->
+        <linearGradient id="znGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#94a3b8"/>
+          <stop offset="50%" stop-color="#cbd5e1"/>
+          <stop offset="100%" stop-color="#64748b"/>
+        </linearGradient>
+        <linearGradient id="cuGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#ea580c"/>
+          <stop offset="50%" stop-color="#fb923c"/>
+          <stop offset="100%" stop-color="#9a3412"/>
+        </linearGradient>
+        <linearGradient id="niGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#64748b"/>
+          <stop offset="50%" stop-color="#e2e8f0"/>
+          <stop offset="100%" stop-color="#475569"/>
+        </linearGradient>
+        <linearGradient id="agGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#cbd5e1"/>
+          <stop offset="50%" stop-color="#ffffff"/>
+          <stop offset="100%" stop-color="#94a3b8"/>
+        </linearGradient>
+        <linearGradient id="znSolGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(148, 163, 184, 0.25)"/>
+          <stop offset="100%" stop-color="rgba(148, 163, 184, 0.45)"/>
+        </linearGradient>
+        <linearGradient id="cuSolGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(14, 165, 233, 0.4)"/>
+          <stop offset="100%" stop-color="rgba(2, 132, 199, 0.8)"/>
+        </linearGradient>
+        <linearGradient id="niSolGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="rgba(34, 197, 94, 0.3)"/>
+          <stop offset="100%" stop-color="rgba(21, 128, 61, 0.6)"/>
+        </linearGradient>
+        <linearGradient id="bridgeGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="rgba(254, 240, 138, 0.6)"/>
+          <stop offset="50%" stop-color="rgba(253, 224, 71, 0.85)"/>
+          <stop offset="100%" stop-color="rgba(254, 240, 138, 0.6)"/>
+        </linearGradient>
+        <!-- Glow filter for electrons -->
+        <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" result="blur"/>
+          <feMerge>
+            <feMergeNode in="blur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+
+      <!-- LAB BENCH SURFACE -->
+      <rect x="20" y="340" width="820" height="30" rx="6" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+
+      <!-- DANIELL CELL LAYER -->
+      <g id="daniellGroup">
+        <!-- LEFT BEAKER (ZnSO4) -->
+        <g id="leftBeaker">
+          <!-- Glass Body -->
+          <rect x="140" y="160" width="200" height="180" rx="12" fill="none" stroke="#64748b" stroke-width="3"/>
+          <path d="M 136 160 L 344 160" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/>
+          <!-- Solution -->
+          <rect id="znSolution" x="144" y="195" width="192" height="142" rx="8" fill="url(#znSolGrad)"/>
+          <!-- Meniscus -->
+          <ellipse cx="240" cy="195" rx="96" ry="6" fill="#94a3b8" opacity="0.3"/>
+          <!-- Solution Label -->
+          <text x="240" y="325" fill="#cbd5e1" font-size="12" font-weight="700" text-anchor="middle">1.0 M ZnSO₄ দ্রবণ</text>
+          
+          <!-- Zinc Electrode (Anode) -->
+          <rect id="znBar" x="215" y="120" width="30" height="180" rx="4" fill="url(#znGrad)" stroke="#475569" stroke-width="2"/>
+          <text x="230" y="110" fill="#cbd5e1" font-size="12" font-weight="800" text-anchor="middle">Zn অ্যানোড (−)</text>
+          <text x="230" y="145" fill="#1e293b" font-size="10" font-weight="800" text-anchor="middle">Zn → Zn²⁺</text>
+        </g>
+
+        <!-- RIGHT BEAKER (CuSO4) -->
+        <g id="rightBeaker">
+          <!-- Glass Body -->
+          <rect x="520" y="160" width="200" height="180" rx="12" fill="none" stroke="#64748b" stroke-width="3"/>
+          <path d="M 516 160 L 724 160" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/>
+          <!-- Solution -->
+          <rect id="cuSolution" x="524" y="195" width="192" height="142" rx="8" fill="url(#cuSolGrad)"/>
+          <!-- Meniscus -->
+          <ellipse cx="620" cy="195" rx="96" ry="6" fill="#38bdf8" opacity="0.4"/>
+          <!-- Solution Label -->
+          <text x="620" y="325" fill="#bae6fd" font-size="12" font-weight="700" text-anchor="middle">1.0 M CuSO₄ দ্রবণ</text>
+
+          <!-- Copper Electrode (Cathode) -->
+          <rect id="cuBar" x="605" y="120" width="30" height="180" rx="4" fill="url(#cuGrad)" stroke="#7c2d12" stroke-width="2"/>
+          <!-- Deposited layer overlay -->
+          <rect id="cuDeposit" x="603" y="195" width="34" height="105" rx="4" fill="#fb923c" opacity="0.3"/>
+          <text x="620" y="110" fill="#fdba74" font-size="12" font-weight="800" text-anchor="middle">Cu ক্যাথোড (+)</text>
+          <text x="620" y="145" fill="#431407" font-size="10" font-weight="800" text-anchor="middle">Cu²⁺ → Cu</text>
+        </g>
+
+        <!-- SALT BRIDGE (U-TUBE) -->
+        <g id="saltBridge">
+          <!-- Outer Glass U-tube -->
+          <path d="M 290 270 L 290 140 C 290 120 570 120 570 140 L 570 270" fill="none" stroke="#64748b" stroke-width="26" stroke-linecap="round"/>
+          <!-- Gel core (KCl) -->
+          <path d="M 290 268 L 290 140 C 290 124 570 124 570 140 L 570 268" fill="none" stroke="url(#bridgeGrad)" stroke-width="18" stroke-linecap="round"/>
+          <!-- Porous Cotton Plugs -->
+          <ellipse cx="290" cy="265" rx="10" ry="5" fill="#f8fafc" opacity="0.8"/>
+          <ellipse cx="570" cy="265" rx="10" ry="5" fill="#f8fafc" opacity="0.8"/>
+          <!-- Bridge Label -->
+          <rect x="380" y="112" width="100" height="24" rx="6" fill="#1e293b" stroke="#fef08a" stroke-width="1.5"/>
+          <text x="430" y="128" fill="#fef08a" font-size="11" font-weight="800" text-anchor="middle">লবণ সেতু (KCl)</text>
+        </g>
+
+        <!-- Ions in bridge and solutions (dynamic) -->
+        <g id="bridgeIons"></g>
+        <g id="solutionIons"></g>
+      </g>
+
+      <!-- ELECTROPLATING LAYER (Initially hidden) -->
+      <g id="platingGroup" style="display: none;">
+        <!-- Single Beaker -->
+        <rect x="260" y="150" width="340" height="190" rx="14" fill="none" stroke="#64748b" stroke-width="3"/>
+        <path d="M 256 150 L 604 150" stroke="#94a3b8" stroke-width="4" stroke-linecap="round"/>
+        <!-- Plating Solution (NiSO4 / AgNO3 / CuSO4) -->
+        <rect id="platingSolution" x="264" y="185" width="332" height="152" rx="10" fill="url(#niSolGrad)"/>
+        <ellipse cx="430" cy="185" rx="166" ry="7" fill="#86efac" opacity="0.4"/>
+        <text id="platingSolLabel" x="430" y="325" fill="#cbd5e1" font-size="13" font-weight="700" text-anchor="middle">তড়িৎবিশ্লেষ্য দ্রবণ: NiSO₄</text>
+
+        <!-- Left Anode Bar (e.g. Nickel/Silver/Copper) -->
+        <rect id="plateAnodeBar" x="320" y="110" width="32" height="180" rx="4" fill="url(#niGrad)" stroke="#475569" stroke-width="2"/>
+        <text id="plateAnodeText" x="336" y="100" fill="#e2e8f0" font-size="12" font-weight="800" text-anchor="middle">Ni অ্যানোড (+)</text>
+
+        <!-- Right Cathode Object (Iron Spoon / Key) -->
+        <g id="spoonGraphic" transform="translate(485, 120)">
+          <!-- Handle -->
+          <rect x="18" y="0" width="10" height="90" rx="3" fill="#94a3b8" stroke="#475569" stroke-width="1.5"/>
+          <!-- Bowl of spoon -->
+          <ellipse cx="23" cy="120" rx="26" ry="40" fill="#94a3b8" stroke="#475569" stroke-width="2"/>
+          <!-- Plating shiny deposit layer -->
+          <ellipse id="spoonPlatingLayer" cx="23" cy="120" rx="26" ry="40" fill="#f8fafc" opacity="0"/>
+        </g>
+        <text id="plateCathodeText" x="510" y="100" fill="#e2e8f0" font-size="12" font-weight="800" text-anchor="middle">লোহার চামচ (− ক্যাথোড)</text>
+
+        <!-- Battery DC icon -->
+        <g transform="translate(405, 30)">
+          <rect x="0" y="0" width="50" height="30" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+          <text x="25" y="16" fill="#fbbf24" font-size="10" font-weight="800" text-anchor="middle">DC BATTERY</text>
+          <text id="batteryVoltageText" x="25" y="26" fill="#fff" font-size="9" text-anchor="middle">4.5 V</text>
+        </g>
+      </g>
+
+      <!-- EXTERNAL CIRCUIT (Wires, Switch, Meter) -->
+      <!-- Voltmeter Box at center top -->
+      <g id="voltmeterWrap" transform="translate(365, 15)">
+        <!-- Outer Box -->
+        <rect x="0" y="0" width="130" height="85" rx="10" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+        <text x="65" y="18" fill="#38bdf8" font-size="11" font-weight="800" text-anchor="middle" letter-spacing="1">VOLTMETER</text>
+        <!-- Arched Scale -->
+        <path d="M 25 58 A 45 45 0 0 1 105 58" fill="none" stroke="#64748b" stroke-width="2"/>
+        <!-- Scale Ticks -->
+        <line x1="25" y1="58" x2="29" y2="54" stroke="#e2e8f0" stroke-width="1.5"/>
+        <line x1="65" y1="45" x2="65" y2="40" stroke="#e2e8f0" stroke-width="1.5"/>
+        <line x1="105" y1="58" x2="101" y2="54" stroke="#e2e8f0" stroke-width="1.5"/>
+        <!-- Needle -->
+        <line id="meterNeedle" x1="65" y1="62" x2="65" y2="40" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="65" cy="62" r="4" fill="#ef4444"/>
+        <!-- Digital Display inside meter -->
+        <rect x="25" y="65" width="80" height="16" rx="4" fill="#020617"/>
+        <text id="digitalVolts" x="65" y="77" fill="#38bdf8" font-family="monospace" font-size="12" font-weight="900" text-anchor="middle">+1.10 V</text>
+      </g>
+
+      <!-- Switch at (280, 50) -->
+      <g id="switchGraphic" transform="translate(275, 45)">
+        <circle cx="0" cy="15" r="5" fill="#f8fafc"/>
+        <circle cx="40" cy="15" r="5" fill="#f8fafc"/>
+        <!-- Switch arm -->
+        <line id="switchArm" x1="0" y1="15" x2="38" y2="15" stroke="#22c55e" stroke-width="4" stroke-linecap="round"/>
+        <text x="20" y="4" fill="#94a3b8" font-size="10" font-weight="700" text-anchor="middle">SWITCH</text>
+      </g>
+
+      <!-- External Wires -->
+      <!-- Left Wire: from Zn bar (230, 120) up to (230, 60), across to Switch (275, 60) -->
+      <path id="wireLeft" d="M 230 120 L 230 60 L 275 60" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+      <!-- Mid Wire: from Switch (315, 60) to Voltmeter left terminal (365, 60) -->
+      <path id="wireMid" d="M 315 60 L 365 60" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+      <!-- Right Wire: from Voltmeter right terminal (495, 60) across to (620, 60), down to Cu bar (620, 120) -->
+      <path id="wireRight" d="M 495 60 L 620 60 L 620 120" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+
+      <!-- Conventional Current / Electron Flow Arrows -->
+      <g id="flowIndicators">
+        <!-- Electron Flow: Zn -> Cu (yellow glowing particle markers) -->
+        <g id="electronParticles"></g>
+        <!-- Direction Labels -->
+        <text x="270" y="24" fill="#fef08a" font-size="10" font-weight="700">ইলেকট্রন প্রবাহ (e⁻) →</text>
+        <text x="500" y="24" fill="#fdba74" font-size="10" font-weight="700">← বিদ্যুৎ প্রবাহ (I)</text>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Realtime Metrics Grid -->
+  <div class="grid-metrics">
+    <div class="metric-card">
+      <div class="title">কোষ ভোল্টেজ (E_cell)</div>
+      <div class="val" id="metricVolt">1.10 <span class="unit">V</span></div>
+    </div>
+    <div class="metric-card">
+      <div class="title" id="anodeMetricTitle">Zn অ্যানোড ভর</div>
+      <div class="val" id="metricZnMass">50.000 <span class="unit">g</span></div>
+    </div>
+    <div class="metric-card">
+      <div class="title" id="cathodeMetricTitle">Cu ক্যাথোড ভর</div>
+      <div class="val" id="metricCuMass">50.000 <span class="unit">g</span></div>
+    </div>
+    <div class="metric-card">
+      <div class="title">তড়িৎপ্রবাহ (I)</div>
+      <div class="val" id="metricCurrent">0.45 <span class="unit">A</span></div>
+    </div>
+  </div>
+
+  <!-- Interactive Controls Section -->
+  <div class="controls">
+    <div class="btn-row" style="justify-content: space-between; align-items: center;">
+      <div style="display: flex; gap: 8px;">
+        <button type="button" class="btn active-switch" id="btnToggleCircuit" onclick="toggleCircuit()">সার্কিট: চালু (ON)</button>
+        <button type="button" class="btn" id="btnReset" onclick="resetSim()">পুনরায় শুরু (Reset)</button>
+      </div>
+      <div style="display: flex; gap: 8px; align-items: center;">
+        <span style="font-size: 0.8rem; font-weight: 700; color: var(--pori-muted);">সিমুলেশন গতি:</span>
+        <button type="button" class="btn" id="spd1" onclick="setSpeed(1)">1x</button>
+        <button type="button" class="btn" id="spd2" onclick="setSpeed(2)">2x</button>
+        <button type="button" class="btn" id="spd5" onclick="setSpeed(5)">5x</button>
+      </div>
+    </div>
+
+    <!-- Daniell Cell Controls -->
+    <div id="daniellControls" class="ctrl-row">
+      <div class="ctrl-group">
+        <label>[Zn²⁺] আয়ন ঘনমাত্রা: <span class="val" id="znConcVal">1.00 M</span></label>
+        <div class="range-wrap">
+          <input type="range" class="custom-range" id="znConcSlider" min="0.01" max="2.00" step="0.05" value="1.00" oninput="updateConcentrations()">
+        </div>
+      </div>
+      <div class="ctrl-group">
+        <label>[Cu²⁺] আয়ন ঘনমাত্রা: <span class="val" id="cuConcVal">1.00 M</span></label>
+        <div class="range-wrap">
+          <input type="range" class="custom-range" id="cuConcSlider" min="0.01" max="2.00" step="0.05" value="1.00" oninput="updateConcentrations()">
+        </div>
+      </div>
+    </div>
+
+    <!-- Electroplating Controls -->
+    <div id="platingControls" class="ctrl-row" style="display: none;">
+      <div class="ctrl-group">
+        <label>প্রলেপ ধাতু (Anode Metal):</label>
+        <div class="btn-row">
+          <button type="button" class="btn primary" id="plateMetalNi" onclick="setPlatingMetal('Ni')">নিকেল (Ni)</button>
+          <button type="button" class="btn" id="plateMetalAg" onclick="setPlatingMetal('Ag')">রূপা (Ag)</button>
+          <button type="button" class="btn" id="plateMetalCu" onclick="setPlatingMetal('Cu')">তামা (Cu)</button>
+        </div>
+      </div>
+      <div class="ctrl-group">
+        <label>বাহ্যিক ভোল্টেজ: <span class="val" id="extVoltVal">4.5 V</span></label>
+        <div class="range-wrap">
+          <input type="range" class="custom-range" id="extVoltSlider" min="1.5" max="12.0" step="0.5" value="4.5" oninput="updatePlatingVoltage()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chemical Education Explanations -->
+  <div class="info-box" id="eduInfoBox">
+    <h3 id="eduHeading">💡 ড্যানিয়েল সেলের মূল বিক্রিয়া ও নীতি</h3>
+    <p id="eduOverview">
+      ড্যানিয়েল কোষে জিংক ($Zn$) অ্যানোড হিসেবে ইলেকট্রন ত্যাগ করে জারিত হয় এবং দ্রবণে $Zn^{2+}$ হিসেবে চলে আসে। নির্গত ইলেকট্রন বহির্বর্তনী দিয়ে প্রবাহিত হয়ে কপার ক্যাথোডের পৃষ্ঠে পৌঁছায়। সেখানে দ্রবণের $Cu^{2+}$ আয়ন ইলেকট্রন গ্রহণ করে ধাতব কপার ($Cu$) হিসেবে ক্যাথোডের গায়ে জমা হয়।
+    </p>
+    <div class="reaction-grid" id="eduReactions">
+      <div class="reaction-card">
+        <b>অ্যানোড জারণ অর্ধ-বিক্রিয়া (−):</b><br>
+        <code>Zn(s) → Zn²⁺(aq) + 2e⁻</code> <small>(ইলেকট্রন ত্যাগ, ভর হ্রাস)</small>
+      </div>
+      <div class="reaction-card">
+        <b>ক্যাথোড বিজারণ অর্ধ-বিক্রিয়া (+):</b><br>
+        <code>Cu²⁺(aq) + 2e⁻ → Cu(s)</code> <small>(ইলেকট্রন গ্রহণ, ভর বৃদ্ধি)</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // State variables
+  var mode = 'daniell'; // 'daniell' or 'plating'
+  var isCircuitOn = true;
+  var speed = 1;
+  var znMass = 50.000;
+  var cuMass = 50.000;
+  var znConc = 1.00;
+  var cuConc = 1.00;
+  var platingMetal = 'Ni';
+  var extVoltage = 4.5;
+  var platingThickness = 0;
+
+  // DOM Elements
+  var meterNeedle = document.getElementById('meterNeedle');
+  var digitalVolts = document.getElementById('digitalVolts');
+  var switchArm = document.getElementById('switchArm');
+  var metricVolt = document.getElementById('metricVolt');
+  var metricZnMass = document.getElementById('metricZnMass');
+  var metricCuMass = document.getElementById('metricCuMass');
+  var metricCurrent = document.getElementById('metricCurrent');
+  var electronParticles = document.getElementById('electronParticles');
+  var bridgeIons = document.getElementById('bridgeIons');
+  var solutionIons = document.getElementById('solutionIons');
+  var btnToggleCircuit = document.getElementById('btnToggleCircuit');
+  var cuDeposit = document.getElementById('cuDeposit');
+  var spoonPlatingLayer = document.getElementById('spoonPlatingLayer');
+
+  // Electron Animation Wire Paths
+  // Path: [230, 120] -> [230, 60] -> [365, 60] -> [495, 60] -> [620, 60] -> [620, 120]
+  var electrons = [];
+  var ionList = [];
+  var totalDistance = (120 - 60) + (620 - 230) + (120 - 60); // 60 + 390 + 60 = 510 px
+  for (var i = 0; i < 18; i++) {
+    electrons.push({ dist: (i / 18) * totalDistance });
+  }
+
+  // Salt Bridge Ion Particles (K+ to Cu, Cl- to Zn)
+  var bridgeParticles = [];
+  for (var k = 0; k < 12; k++) {
+    bridgeParticles.push({
+      type: k % 2 === 0 ? 'K+' : 'Cl-',
+      progress: Math.random(),
+      speed: (0.002 + Math.random() * 0.002)
+    });
+  }
+
+  // Solution floating ions
+  var solIons = [];
+  for (var s = 0; s < 14; s++) {
+    solIons.push({
+      side: s % 2 === 0 ? 'left' : 'right',
+      x: s % 2 === 0 ? (160 + Math.random() * 160) : (540 + Math.random() * 160),
+      y: 210 + Math.random() * 100,
+      vy: (Math.random() - 0.5) * 0.4,
+      vx: (Math.random() - 0.5) * 0.4
+    });
+  }
+
+  function getWirePoint(d) {
+    if (d < 60) {
+      // Going up from Zn rod (230, 120) to (230, 60)
+      return { x: 230, y: 120 - d };
+    } else if (d < 450) {
+      // Going horizontally across: 230 -> 620
+      return { x: 230 + (d - 60), y: 60 };
+    } else {
+      // Going down into Cu rod: 620, 60 -> 620, 120
+      return { x: 620, y: 60 + (d - 450) };
+    }
+  }
+
+  // Compute cell voltage (Nernst equation for Daniell cell: E = 1.10 - 0.0296 * log10([Zn2+]/[Cu2+]))
+  function calculateVoltage() {
+    if (!isCircuitOn) return 0.0;
+    if (mode === 'daniell') {
+      var ratio = znConc / cuConc;
+      var v = 1.10 - 0.0296 * Math.log10(ratio);
+      return Math.max(0.70, Math.min(1.40, v));
+    } else {
+      return extVoltage;
+    }
+  }
+
+  window.setMode = function(newMode) {
+    mode = newMode;
+    document.getElementById('tab-daniell').classList.toggle('active', mode === 'daniell');
+    document.getElementById('tab-plating').classList.toggle('active', mode === 'plating');
+    document.getElementById('daniellGroup').style.display = mode === 'daniell' ? 'inline' : 'none';
+    document.getElementById('platingGroup').style.display = mode === 'plating' ? 'inline' : 'none';
+    document.getElementById('daniellControls').style.display = mode === 'daniell' ? 'grid' : 'none';
+    document.getElementById('platingControls').style.display = mode === 'plating' ? 'grid' : 'none';
+
+    if (mode === 'daniell') {
+      document.getElementById('anodeMetricTitle').textContent = 'Zn অ্যানোড ভর';
+      document.getElementById('cathodeMetricTitle').textContent = 'Cu ক্যাথোড ভর';
+      document.getElementById('eduHeading').textContent = '💡 ড্যানিয়েল সেলের মূল বিক্রিয়া ও নীতি';
+      document.getElementById('eduOverview').innerHTML = 'ড্যানিয়েল কোষে জিংক ($Zn$) অ্যানোড হিসেবে ইলেকট্রন ত্যাগ করে জারিত হয় এবং দ্রবণে $Zn^{2+}$ হিসেবে চলে আসে। নির্গত ইলেকট্রন বহির্বর্তনী দিয়ে প্রবাহিত হয়ে কপার ক্যাথোডের পৃষ্ঠে পৌঁছায়। সেখানে দ্রবণের $Cu^{2+}$ আয়ন ইলেকট্রন গ্রহণ করে ধাতব কপার ($Cu$) হিসেবে ক্যাথোডের গায়ে জমা হয়।';
+      document.getElementById('eduReactions').innerHTML = 
+        '<div class="reaction-card"><b>অ্যানোড জারণ অর্ধ-বিক্রিয়া (−):</b><br><code>Zn(s) → Zn²⁺(aq) + 2e⁻</code> <small>(ইলেকট্রন ত্যাগ, ভর হ্রাস)</small></div>' +
+        '<div class="reaction-card"><b>ক্যাথোড বিজারণ অর্ধ-বিক্রিয়া (+):</b><br><code>Cu²⁺(aq) + 2e⁻ → Cu(s)</code> <small>(ইলেকট্রন গ্রহণ, ভর বৃদ্ধি)</small></div>';
+    } else {
+      document.getElementById('anodeMetricTitle').textContent = platingMetal + ' অ্যানোড ভর';
+      document.getElementById('cathodeMetricTitle').textContent = 'চামচ ক্যাথোড ভর';
+      document.getElementById('eduHeading').textContent = '💡 তড়িৎ লেপন (ইলেক্ট্রোপ্লেটিং) এর মূলনীতি';
+      document.getElementById('eduOverview').innerHTML = 'তড়িৎ বিশ্লেষণের মাধ্যমে অধিক সক্রিয় বা ক্ষয়প্রবণ ধাতুর (যেমন: লোহা) উপর কম সক্রিয় অপর কোনো ধাতুর (যেমন: নিকেল, কপার, রূপা, সোনা বা ক্রোমিয়াম) সুরক্ষামূলক প্রলেপ দেওয়াকে <b>তড়িৎ লেপন</b> বা <b>Electroplating</b> বলে। যে বস্তুর ওপর প্রলেপ দিতে হয় তাকে ক্যাথোডে এবং প্রলেপকারী ধাতুকে অ্যানোডে রাখা হয়।';
+      updatePlatingEdu();
+    }
+    updateDisplay();
+  };
+
+  window.toggleCircuit = function() {
+    isCircuitOn = !isCircuitOn;
+    if (isCircuitOn) {
+      btnToggleCircuit.className = 'btn active-switch';
+      btnToggleCircuit.textContent = 'সার্কিট: চালু (ON)';
+      switchArm.setAttribute('x2', '38');
+      switchArm.setAttribute('y2', '15');
+      switchArm.setAttribute('stroke', '#22c55e');
+    } else {
+      btnToggleCircuit.className = 'btn off-switch';
+      btnToggleCircuit.textContent = 'সার্কিট: বন্ধ (OFF)';
+      switchArm.setAttribute('x2', '30');
+      switchArm.setAttribute('y2', '-8');
+      switchArm.setAttribute('stroke', '#ef4444');
+    }
+    updateDisplay();
+  };
+
+  window.resetSim = function() {
+    znMass = 50.000;
+    cuMass = 50.000;
+    platingThickness = 0;
+    if (cuDeposit) cuDeposit.setAttribute('opacity', '0.3');
+    if (spoonPlatingLayer) spoonPlatingLayer.setAttribute('opacity', '0');
+    updateDisplay();
+  };
+
+  window.setSpeed = function(s) {
+    speed = s;
+    document.getElementById('spd1').classList.toggle('primary', s === 1);
+    document.getElementById('spd2').classList.toggle('primary', s === 2);
+    document.getElementById('spd5').classList.toggle('primary', s === 5);
+  };
+
+  window.updateConcentrations = function() {
+    znConc = parseFloat(document.getElementById('znConcSlider').value);
+    cuConc = parseFloat(document.getElementById('cuConcSlider').value);
+    document.getElementById('znConcVal').textContent = znConc.toFixed(2) + ' M';
+    document.getElementById('cuConcVal').textContent = cuConc.toFixed(2) + ' M';
+    updateDisplay();
+  };
+
+  window.setPlatingMetal = function(m) {
+    platingMetal = m;
+    ['Ni', 'Ag', 'Cu'].forEach(function(item) {
+      document.getElementById('plateMetal' + item).classList.toggle('primary', item === m);
+    });
+    var solEl = document.getElementById('platingSolution');
+    var labelEl = document.getElementById('platingSolLabel');
+    var barEl = document.getElementById('plateAnodeBar');
+    var textEl = document.getElementById('plateAnodeText');
+    if (m === 'Ni') {
+      solEl.setAttribute('fill', 'url(#niSolGrad)');
+      labelEl.textContent = 'তড়িৎবিশ্লেষ্য দ্রবণ: 1.0 M NiSO₄';
+      barEl.setAttribute('fill', 'url(#niGrad)');
+      textEl.textContent = 'Ni অ্যানোড (+)';
+    } else if (m === 'Ag') {
+      solEl.setAttribute('fill', 'rgba(226, 232, 240, 0.4)');
+      labelEl.textContent = 'তড়িৎবিশ্লেষ্য দ্রবণ: 1.0 M AgNO₃';
+      barEl.setAttribute('fill', 'url(#agGrad)');
+      textEl.textContent = 'Ag অ্যানোড (+)';
+    } else {
+      solEl.setAttribute('fill', 'url(#cuSolGrad)');
+      labelEl.textContent = 'তড়িৎবিশ্লেষ্য দ্রবণ: 1.0 M CuSO₄';
+      barEl.setAttribute('fill', 'url(#cuGrad)');
+      textEl.textContent = 'Cu অ্যানোড (+)';
+    }
+    updatePlatingEdu();
+    updateDisplay();
+  };
+
+  function updatePlatingEdu() {
+    var rxAnode = platingMetal + '(s) → ' + platingMetal + '²⁺(aq) + 2e⁻';
+    var rxCathode = platingMetal + '²⁺(aq) + 2e⁻ → ' + platingMetal + '(s)';
+    if (platingMetal === 'Ag') {
+      rxAnode = 'Ag(s) → Ag⁺(aq) + e⁻';
+      rxCathode = 'Ag⁺(aq) + e⁻ → Ag(s)';
+    }
+    document.getElementById('eduReactions').innerHTML = 
+      '<div class="reaction-card"><b>অ্যানোড দ্রবীভূতকরণ (+):</b><br><code>' + rxAnode + '</code> <small>(ধাতু ক্ষয় হয়ে দ্রবণে আয়ন দেয়)</small></div>' +
+      '<div class="reaction-card"><b>ক্যাথোডে বস্তুর উপর প্রলেপ (−):</b><br><code>' + rxCathode + '</code> <small>(আয়ন জমা হয়ে মসৃণ আস্তরণ তৈরি করে)</small></div>';
+  }
+
+  window.updatePlatingVoltage = function() {
+    extVoltage = parseFloat(document.getElementById('extVoltSlider').value);
+    document.getElementById('extVoltVal').textContent = extVoltage.toFixed(1) + ' V';
+    document.getElementById('batteryVoltageText').textContent = extVoltage.toFixed(1) + ' V';
+    updateDisplay();
+  };
+
+  function updateDisplay() {
+    var v = calculateVoltage();
+    metricVolt.innerHTML = v.toFixed(2) + ' <span class="unit">V</span>';
+    digitalVolts.textContent = (isCircuitOn ? '+' : '') + v.toFixed(2) + ' V';
+
+    // Voltmeter needle rotation angle
+    // -0.2V = -45 deg, 0V = -30 deg, 1.10V = +30 deg, 2.0V = +60 deg
+    var angle = -30 + (v * 55);
+    if (!isCircuitOn) angle = -35;
+    meterNeedle.setAttribute('transform', 'rotate(' + angle + ' 65 62)');
+
+    // Current calculation
+    var current = isCircuitOn ? (mode === 'daniell' ? (v / 2.4) : (v / 3.0)) : 0.00;
+    metricCurrent.innerHTML = current.toFixed(2) + ' <span class="unit">A</span>';
+    metricZnMass.innerHTML = znMass.toFixed(3) + ' <span class="unit">g</span>';
+    metricCuMass.innerHTML = cuMass.toFixed(3) + ' <span class="unit">g</span>';
+  }
+
+  // Animation Loop (requestAnimationFrame)
+  var lastTimestamp = 0;
+  function animate(timestamp) {
+    if (!lastTimestamp) lastTimestamp = timestamp;
+    var dt = (timestamp - lastTimestamp) / 1000;
+    lastTimestamp = timestamp;
+
+    if (isCircuitOn) {
+      var v = calculateVoltage();
+      var rateFactor = (v / 1.10) * speed * dt;
+
+      if (mode === 'daniell') {
+        // Zn dissolves: Zn -> Zn2+ + 2e- (65.38 g/mol)
+        // Cu deposits: Cu2+ + 2e- -> Cu (63.55 g/mol)
+        var dm = 0.005 * rateFactor;
+        znMass = Math.max(10.0, znMass - dm);
+        cuMass = Math.min(90.0, cuMass + dm * (63.55 / 65.38));
+
+        // Adjust cuDeposit visual thickness
+        var depOpacity = Math.min(0.85, 0.3 + (50.0 - znMass) * 0.04);
+        if (cuDeposit) cuDeposit.setAttribute('opacity', depOpacity);
+
+        // Move Salt bridge ions
+        bridgeParticles.forEach(function(bp) {
+          bp.progress += bp.speed * speed;
+          if (bp.progress > 1) bp.progress = 0;
+        });
+      } else {
+        // Electroplating
+        var dmPlate = 0.008 * (extVoltage / 4.5) * speed * dt;
+        znMass = Math.max(10.0, znMass - dmPlate); // Anode loss
+        cuMass = Math.min(90.0, cuMass + dmPlate);  // Spoon gain
+        platingThickness = Math.min(1.0, platingThickness + dmPlate * 0.02);
+        if (spoonPlatingLayer) spoonPlatingLayer.setAttribute('opacity', platingThickness * 0.75);
+      }
+
+      // Move electrons along wire
+      var eSpeed = 120 * speed * dt * (v / 1.10);
+      electrons.forEach(function(e) {
+        e.dist = (e.dist + eSpeed) % totalDistance;
+      });
+
+      // Update metrics in UI
+      metricZnMass.innerHTML = znMass.toFixed(3) + ' <span class="unit">g</span>';
+      metricCuMass.innerHTML = cuMass.toFixed(3) + ' <span class="unit">g</span>';
+    }
+
+    // Render animated electrons SVG circles
+    var eSvg = '';
+    if (isCircuitOn) {
+      electrons.forEach(function(e) {
+        var pt = getWirePoint(e.dist);
+        eSvg += '<circle cx="' + pt.x.toFixed(1) + '" cy="' + pt.y.toFixed(1) + '" r="3" fill="#fef08a" filter="url(#glow)"/>';
+      });
+    }
+    electronParticles.innerHTML = eSvg;
+
+    // Render Salt Bridge Ions
+    if (mode === 'daniell' && isCircuitOn) {
+      var bSvg = '';
+      bridgeParticles.forEach(function(bp) {
+        // U-tube path: (290, 260) -> (290, 140) -> (430, 126) -> (570, 140) -> (570, 260)
+        var p = bp.type === 'K+' ? bp.progress : (1 - bp.progress);
+        var bx, by;
+        if (p < 0.25) {
+          bx = 290;
+          by = 260 - (p / 0.25) * 120;
+        } else if (p < 0.75) {
+          var hp = (p - 0.25) / 0.50;
+          bx = 290 + hp * 280;
+          by = 140 - Math.sin(hp * Math.PI) * 14;
+        } else {
+          bx = 570;
+          by = 140 + ((p - 0.75) / 0.25) * 120;
+        }
+        var color = bp.type === 'K+' ? '#fb923c' : '#38bdf8';
+        bSvg += '<circle cx="' + bx.toFixed(1) + '" cy="' + by.toFixed(1) + '" r="3.5" fill="' + color + '"/>' +
+                '<text x="' + bx.toFixed(1) + '" y="' + (by - 5).toFixed(1) + '" fill="' + color + '" font-size="8" font-weight="800" text-anchor="middle">' + bp.type + '</text>';
+      });
+      bridgeIons.innerHTML = bSvg;
+    } else {
+      bridgeIons.innerHTML = '';
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  // Initialize
+  setSpeed(1);
+  updateDisplay();
+  requestAnimationFrame(animate);
+})();
+</script>
+</body>
+</html>
