@@ -96,7 +96,7 @@ export const chapter5Batch3Questions: QuestionData[] = [
         chapterName: 'পঞ্চম অধ্যায়: পদার্থের অবস্থা ও চাপ',
         pageNumber: 142,
       },
-      proTipShortcut: 'চাপ, পীড়ন এবং ইয়ংয়ের গুণাঙ্ক ($Y$) — এই তিনটিরই একক $\\text{Pa}$ ($\text{N/m}^2$)!',
+      proTipShortcut: 'চাপ, পীড়ন এবং ইয়ংয়ের গুণাঙ্ক ($Y$) — এই তিনটিরই একক $\\text{Pa}$ ($\\text{N/m}^2$)!',
     },
     difficulty: 'EASY',
     boardSource: 'Cumilla Board 2024',

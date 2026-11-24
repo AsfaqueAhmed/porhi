@@ -261,7 +261,7 @@ export const chapter5Batch2Questions: QuestionData[] = [
         chapterName: 'পঞ্চম অধ্যায়: পদার্থের অবস্থা ও চাপ',
         pageNumber: 137,
       },
-      proTipShortcut: 'পানিতে ভাসমান বস্তুর নিমজ্জিত ভগ্নাংশ $\\times 1000 =$ বস্তুর ঘনত্ব ($\text{kg/m}^3$)!',
+      proTipShortcut: 'পানিতে ভাসমান বস্তুর নিমজ্জিত ভগ্নাংশ $\\times 1000 =$ বস্তুর ঘনত্ব ($\\text{kg/m}^3$)!',
     },
     difficulty: 'MEDIUM',
     boardSource: 'Barishal Board 2022',

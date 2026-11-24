@@ -134,7 +134,7 @@ export async function seedBiologyChapter8(prisma: PrismaClient) {
 ### ৩. মল বনাম মূত্র (বোর্ড পরীক্ষার চরম বিভ্রান্তি)
 - **মল (Faeces):** পাচনতন্ত্রে খাদ্য পরিপাকের পর অপাচ্য খাদ্যাবশেষ পায়ুপথ দিয়ে বের হয়। এটি কোষীয় বিপাকের বর্জ্য নয়; একে **বহিষ্করণ (Egestion / Defecation)** বলে।
 - **মূত্র (Urine):** কোষের অভ্যন্তরে রাসায়নিক বিপাকীয় বিক্রিয়ায় সৃষ্ট নাইট্রোজেন বর্জ্য যা রক্ত থেকে বৃক্ক ছেঁকে বের করে। এটিই প্রকৃত **রেচন (Excretion)**।`,
-      interactiveWidgetUrl: '/interactive/nephron-kidney-dialysis-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/nephron-kidney-dialysis-lab.html',
       importantTerms: [
         {
           termBangla: 'রেচন (Excretion)',
@@ -204,7 +204,7 @@ export async function seedBiologyChapter8(prisma: PrismaClient) {
 1. **কর্টেক্স (Cortex):** ক্যাপসুলের ঠিক নিচের দানাদার গাড় লালচে-বাদামি বহিরাঞ্চল। এখানে নেফ্রনের ছাঁকন কেন্দ্র ম্যালপিজিয়ান বডি থাকে।
 2. **মেডুলা (Medulla):** কর্টেক্সের ভেতরের হালকা বর্ণের অঞ্চল। মেডুলায় সাধারণত **৮ থেকে ১৮টি** কোণাকৃতির **রেনাল পিরামিড** থাকে। পিরামিডের সরু অভিক্ষিপ্ত অগ্রভাগকে **রেনাল প্যাপিলা (Renal papilla)** বলে।
 3. **রেনাল পেলভিস (Renal Pelvis):** হাইলামের ভেতরে অবস্থিত চওড়া ফানেল আকৃতির ফাঁপা গহ্বর। সকল প্যাপিলা থেকে ফোঁটায় ফোঁটায় মূত্র পেলভিসে এসে জমা হয় এবং পেলভিস নিচের দিকে সংকুচিত হয়ে ইউরেটার গঠন করে।`,
-      interactiveWidgetUrl: '/interactive/nephron-kidney-dialysis-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/nephron-kidney-dialysis-lab.html',
       importantTerms: [
         {
           termBangla: 'হাইলাম (Hilum)',
@@ -278,7 +278,7 @@ export async function seedBiologyChapter8(prisma: PrismaClient) {
 রক্ত ও দেহরসে পানি এবং খনিজ লবণের ঘনত্বের সমতা বজায় রাখার জৈবিক নিয়ন্ত্রণকে **অসমোরেগুলেশন** বলে।
 - পানি কম পান করলে বা বেশি ঘামলে পিটুইটারি গ্রন্থি থেকে **এডিএইচ (ADH)** হরমোন নিঃসৃত হয়ে রেনাল টিউবিউলে পানির পুনঃশোষণ বাড়িয়ে দিয়ে গাঢ় ঘন মূত্র তৈরি করে পানি সংরক্ষণ করে।
 - অতিরিক্ত পানি পান করলে এডিএইচ ক্ষরণ কমে গিয়ে পাতলা লঘু মূত্র তৈরির মাধ্যমে অতিরিক্ত পানি দেহ থেকে বের করে দেয়।`,
-      interactiveWidgetUrl: '/interactive/nephron-kidney-dialysis-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/nephron-kidney-dialysis-lab.html',
       importantTerms: [
         {
           termBangla: 'ম্যালপিজিয়ান বডি',
@@ -351,7 +351,7 @@ export async function seedBiologyChapter8(prisma: PrismaClient) {
 - **ইডিমা বা শোথ (Edema):** পানি বের হতে না পেরে মুখ, চোখ ও পায়ে পানি জমে অস্বাভাবিক ফুলে যাওয়া।
 - **রক্তস্বল্পতা (Anemia):** কিডনি থেকে রক্তকণিকা উদ্দীপক হরমোন **এরিথ্রোপয়েটিন** নিঃসরণ বন্ধ হয়ে যাওয়া।
 - **মূত্রস্বল্পতা:** দৈনিক প্রস্রাবের পরিমাণ আশঙ্কাজনকভাবে কমে যাওয়া।`,
-      interactiveWidgetUrl: '/interactive/nephron-kidney-dialysis-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/nephron-kidney-dialysis-lab.html',
       importantTerms: [
         {
           termBangla: 'ক্যালসিয়াম অক্সালেট',
@@ -421,7 +421,7 @@ export async function seedBiologyChapter8(prisma: PrismaClient) {
   2. **মৃত বা ব্রেন-ডেথ দাতা:** মস্তিষ্ক স্থায়ীভাবে অকেজো কিন্তু কৃত্রিমভাবে অঙ্গ সচল থাকা ব্যক্তি; পরিবারের সম্মতিক্রমে কিডনি সংগ্রহ করা হয়।
 - **টিস্যু ম্যাচিং (HLA Typing):** দাতা ও গ্রহীতার রক্তের গ্রুপ ও টিস্যু প্রোটিন নিখুঁতভাবে মিলতে হয়; নতুবা গ্রহীতার ইমিউন সিস্টেম নতুন কিডনি ধ্বংস করে ফেলে (রিজেকশন)।
 - **ইমিউনোসাপ্রেস্যান্ট:** প্রতিস্থাপনের পর রোগীকে আজীবন শরীরের প্রতিরোধ ক্ষমতা নিয়ন্ত্রিত রাখতে ইমিউনোসাপ্রেস্যান্ট ওষুধ সেবন করতে হয়।`,
-      interactiveWidgetUrl: '/interactive/nephron-kidney-dialysis-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/nephron-kidney-dialysis-lab.html',
       importantTerms: [
         {
           termBangla: 'হেমোডায়ালাইসিস',

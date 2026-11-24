@@ -113,7 +113,7 @@ export async function seedBiologyChapter3(prisma: PrismaClient) {
 
 ### ৩. অ্যামাইটোসিস বা দ্বি-ভাজন (Binary Fission)
 আদিকোষী জীবে সুগঠিত নিউক্লিয়ার পর্দা বা জটিল ক্রোমোসোম থাকে না। তাই এদের কোষের কেন্দ্রস্থিত বৃত্তাকার DNA প্রতিলিপিত হওয়ার পর কোষটি মাঝ বরাবর সংকুচিত হয়ে সরাসরি দুটি কোষে বিভক্ত হয়ে যায়।`,
-      interactiveWidgetUrl: '/interactive/mitosis-cell-division-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/mitosis-cell-division-lab.html',
       importantTerms: [
         {
           termBangla: 'অ্যামাইটোসিস',
@@ -202,7 +202,7 @@ export async function seedBiologyChapter3(prisma: PrismaClient) {
 2. নিউক্লিওলাসের পুনর্গঠন বা পুনরাবির্ভাব ঘটে।
 3. ক্রোমোজোমের চারদিকে নতুন নিউক্লিয়ার মেমব্রেন গঠিত হয়।
 4. স্পিন্ডল যন্ত্রের কাঠামো ধীরে ধীরে ভেঙে অদৃশ্য হয়ে যায়। ফলে দুই মেরুতে ২টি পূর্ণাঙ্গ অপত্য নিউক্লিয়াস তৈরি হয়।`,
-      interactiveWidgetUrl: '/interactive/mitosis-cell-division-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/mitosis-cell-division-lab.html',
       importantTerms: [
         {
           termBangla: 'ক্যারিওকাইনেসিস',
@@ -271,7 +271,7 @@ export async function seedBiologyChapter3(prisma: PrismaClient) {
 4. **ক্ষত নিরাময় (Wound Healing):** আঘাতপ্রাপ্ত বা কেটে যাওয়া স্থানে দ্রুত নতুন কোষ সৃষ্টির মাধ্যমে ক্ষতস্থান ভরাট করে।
 5. **নির্দিষ্ট আয়ুষ্কালের কোষ প্রতিস্থাপন:** যেমন মানুষের লোহিত রক্তকণিকার গড় আয়ু ১২০ দিন। বিনষ্ট হওয়া কোষের শূন্যতা পূরণ করতে অবিরাম নতুন কোষ জন্ম নেয়।
 6. **অঙ্গজ প্রজনন:** উদ্ভিদের কলম, শাখা ও নিম্নশ্রেণির জীবের অযৌন বংশবৃদ্ধিতে মাইটোসিস মুখ্য নিয়ামক।`,
-      interactiveWidgetUrl: '/interactive/mitosis-cell-division-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/mitosis-cell-division-lab.html',
       importantTerms: [
         {
           termBangla: 'সাইটোকাইনেসিস',
@@ -337,7 +337,7 @@ export async function seedBiologyChapter3(prisma: PrismaClient) {
 - **তেজস্ক্রিয় বিকিরণ:** তীব্র এক্স-রে, গামা রশ্মি এবং সূর্যের অতিবেগুনি রশ্মি (UV rays)।
 - **রাসায়নিক বিষাক্ত দ্রব্য:** তামাক, জর্দা ও সিগারেটের নিকোটিন ও টার, আর্সেনিক, বিভিন্ন ক্ষতিকর শিল্পবর্জ্য ও কীটনাশক।
 - **অনকোজেনিক ভাইরাস:** হিউম্যান প্যাপিলোমা ভাইরাস (HPV) জরায়ুমুখের ক্যান্সার সৃষ্টি করে, হেপাটাইটিস ভাইরাস যকৃতের ক্যান্সার ঝুঁকি বাড়ায়।`,
-      interactiveWidgetUrl: '/interactive/mitosis-cell-division-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/mitosis-cell-division-lab.html',
       importantTerms: [
         {
           termBangla: 'অনিয়ন্ত্রিত মাইটোসিস',
@@ -410,7 +410,7 @@ $$\\text{শুক্রাণু (2n)} + \\text{ডিম্বাণু (2n)} 
 - **জিনের পুনর্বিন্যাস:** মিয়োসিসের সময় ক্রসিং ওভার ও জিনের নতুন সমাহার তৈরি হয়। ফলে একই পিতা-মাতার সন্তান হওয়া সত্ত্বেও ভাইবোনদের মাঝে চারিত্রিক ভিন্নতা দেখা যায়।
 - **অভিযোজন ও টিকে থাকা:** পরিবর্তিত প্রতিকূল পরিবেশে প্রজাতির টিকে থাকা নির্ভর করে সদস্যদের জিনগত বৈচিত্র্যের ওপর। বৈচিত্র্য বেশি থাকলে কোনো মহামারী বা জলবায়ু পরিবর্তনেও কিছু সদস্য বেঁচে থাকে।
 - **পলিপ্লয়েডি ও জেনোপাস ব্যাঙের প্রমাণ (পৃষ্ঠা ৬১):** মাঝে মাঝে ক্রোমোজোম সেট দ্বিগুণ হয়ে নতুন প্রজাতির উদ্ভব ঘটে। যেমন: আফ্রিকান নখরযুক্ত ব্যাঙের আদি প্রজাতি *Xenopus tropicalis* থেকে ক্রোমোজোম সেট দ্বিগুণ হয়ে বৃহৎ আকারের নতুন প্রজাতি *Xenopus laevis* উৎপন্ন হয়েছে। মানুষের অন্যতম প্রধান খাদ্য আলু (Potato)-র কন্দের আকার বৃদ্ধিতেও এই পলিপ্লয়েডি গুরুত্বপূর্ণ ভূমিকা পালন করে।`,
-      interactiveWidgetUrl: '/interactive/mitosis-cell-division-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/mitosis-cell-division-lab.html',
       importantTerms: [
         {
           termBangla: 'মিয়োসিস',

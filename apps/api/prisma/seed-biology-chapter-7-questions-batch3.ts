@@ -186,7 +186,7 @@ export const biologyChapter7QuestionsBatch3: QuestionData[] = [
         chapterName: "সপ্তম অধ্যায়: গ্যাসীয় বিনিময় · ৭.১",
         pageNumber: 161
       },
-      proTipShortcut: "ব্যাপনের দিক = উচ্চ ঘনত্ব $\\rightarrow$ নিম্ন ঘনত্ব।"
+      proTipShortcut: "ব্যাপনের দিক = উচ্চ ঘনত্ব → নিম্ন ঘনত্ব।"
     },
     difficulty: "MEDIUM",
     boardSource: "চট্টগ্রাম বোর্ড",
@@ -378,7 +378,7 @@ export const biologyChapter7QuestionsBatch3: QuestionData[] = [
         chapterName: "সপ্তম অধ্যায়: গ্যাসীয় বিনিময় · ৭.২",
         pageNumber: 164
       },
-      proTipShortcut: "ডান ফুসফুসে ৩ লোব $\\rightarrow$ ৩টি শাখা ব্রঙ্কাস।"
+      proTipShortcut: "ডান ফুসফুসে ৩ লোব → ৩টি শাখা ব্রঙ্কাস।"
     },
     difficulty: "HARD",
     boardSource: "বরিশাল বোর্ড",
@@ -570,7 +570,7 @@ export const biologyChapter7QuestionsBatch3: QuestionData[] = [
         chapterName: "সপ্তম অধ্যায়: গ্যাসীয় বিনিময় · ৭.৩",
         pageNumber: 166
       },
-      proTipShortcut: "উচ্চতা বৃদ্ধি $\\rightarrow$ বায়ুর চাপ হ্রাস $\\rightarrow$ $pO_2$ হ্রাস $\\rightarrow$ শ্বাসকষ্ট।"
+      proTipShortcut: "উচ্চতা বৃদ্ধি → বায়ুর চাপ হ্রাস → $pO_2$ হ্রাস → শ্বাসকষ্ট।"
     },
     difficulty: "MEDIUM",
     boardSource: "রাজশাহী বোর্ড",
@@ -906,7 +906,7 @@ export const biologyChapter7QuestionsBatch3: QuestionData[] = [
         chapterName: "সপ্তম অধ্যায়: গ্যাসীয় বিনিময় · ৭.৪",
         pageNumber: 169
       },
-      proTipShortcut: "কোষে কম $pO_2$ $\\rightarrow$ অক্সিহিমোগ্লোবিন বিয়োজন $\\rightarrow$ অক্সিজেন সরবরাহ।"
+      proTipShortcut: "কোষে কম $pO_2$ → অক্সিহিমোগ্লোবিন বিয়োজন → অক্সিজেন সরবরাহ।"
     },
     difficulty: "MEDIUM",
     boardSource: "ময়মনসিংহ বোর্ড",
@@ -954,7 +954,7 @@ export const biologyChapter7QuestionsBatch3: QuestionData[] = [
         chapterName: "সপ্তম অধ্যায়: গ্যাসীয় বিনিময় · ৭.৪",
         pageNumber: 169
       },
-      proTipShortcut: "ফুসফুসে: বাইকার্বনেট $\\rightarrow$ $H_2CO_3$ $\\rightarrow$ $CO_2$ (নিঃশ্বাসে ত্যাগ)।"
+      proTipShortcut: "ফুসফুসে: বাইকার্বনেট → $H_2CO_3$ → $CO_2$ (নিঃশ্বাসে ত্যাগ)।"
     },
     difficulty: "HARD",
     boardSource: "ক্যাডেট কলেজ",

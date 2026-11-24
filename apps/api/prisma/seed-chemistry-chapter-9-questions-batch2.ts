@@ -343,7 +343,7 @@ export const chemistryChapter9QuestionsBatch2: QuestionData[] = [
     id: 'q_chem_9_28',
     topicId: 'top_ssc_chemistry_ch9_4',
     type: 'MCQ',
-    stem: '$0.01\text{ M } HCl$ দ্রবণের pH মান কত?',
+    stem: '$0.01\\text{ M } HCl$ দ্রবণের pH মান কত?',
     options: [
       { id: 'opt_chem_9_28_a', text: '১.০০', isCorrect: false },
       { id: 'opt_chem_9_28_b', text: '২.০০', isCorrect: true },
@@ -372,7 +372,7 @@ export const chemistryChapter9QuestionsBatch2: QuestionData[] = [
     id: 'q_chem_9_29',
     topicId: 'top_ssc_chemistry_ch9_4',
     type: 'MCQ',
-    stem: '$0.005\text{ M } H_2SO_4$ দ্রবণের pH মান কত?',
+    stem: '$0.005\\text{ M } H_2SO_4$ দ্রবণের pH মান কত?',
     options: [
       { id: 'opt_chem_9_29_a', text: '১.০০', isCorrect: false },
       { id: 'opt_chem_9_29_b', text: '২.০০', isCorrect: true },
@@ -544,7 +544,7 @@ export const chemistryChapter9QuestionsBatch2: QuestionData[] = [
     id: 'q_chem_9_35',
     topicId: 'top_ssc_chemistry_ch9_4',
     type: 'MCQ',
-    stem: '$0.001\text{ M } NaOH$ দ্রবণের pH মান কত?',
+    stem: '$0.001\\text{ M } NaOH$ দ্রবণের pH মান কত?',
     options: [
       { id: 'opt_chem_9_35_a', text: '৩.০০', isCorrect: false },
       { id: 'opt_chem_9_35_b', text: '৭.০০', isCorrect: false },
@@ -627,7 +627,7 @@ export const chemistryChapter9QuestionsBatch2: QuestionData[] = [
     id: 'q_chem_9_cq11',
     topicId: 'top_ssc_chemistry_ch9_4',
     type: 'CQ_CREATIVE',
-    stem: 'ল্যাবরেটরিতে শিক্ষক দুটি বোতলে যথাক্রমে $0.005\text{ M } H_2SO_4$ দ্রবণ (পাত্র-ক) এবং $0.01\text{ M } NaOH$ দ্রবণ (পাত্র-খ) প্রস্তুত করলেন। ক্লাসের এক শিক্ষার্থী মনে করল যে যেহেতু দুটি যৌগের ঘনমাত্রা আলাদা, তাই এদের হাইড্রোজেন বা হাইড্রোক্সাইড আয়নের শক্তিমত্তা সরাসরি মোলারিটি দিয়েই বোঝা সম্ভব। শিক্ষক বললেন pH স্কেল ব্যবহারের মাধ্যমে এদের প্রকৃত শক্তিমত্তা নির্ধারণ করতে হয়।',
+    stem: 'ল্যাবরেটরিতে শিক্ষক দুটি বোতলে যথাক্রমে $0.005\\text{ M } H_2SO_4$ দ্রবণ (পাত্র-ক) এবং $0.01\\text{ M } NaOH$ দ্রবণ (পাত্র-খ) প্রস্তুত করলেন। ক্লাসের এক শিক্ষার্থী মনে করল যে যেহেতু দুটি যৌগের ঘনমাত্রা আলাদা, তাই এদের হাইড্রোজেন বা হাইড্রোক্সাইড আয়নের শক্তিমত্তা সরাসরি মোলারিটি দিয়েই বোঝা সম্ভব। শিক্ষক বললেন pH স্কেল ব্যবহারের মাধ্যমে এদের প্রকৃত শক্তিমত্তা নির্ধারণ করতে হয়।',
     options: null,
     explanation: {
       directAnswer: 'পাত্র-ক এর pH = ২.০০ এবং পাত্র-খ এর pH = ১২.০০; গাণিতিক হিসাব দ্বারা দেখা যায় দুটি দ্রবণই যথাক্রমে তীব্র অম্ল ও তীব্র ক্ষারক।',

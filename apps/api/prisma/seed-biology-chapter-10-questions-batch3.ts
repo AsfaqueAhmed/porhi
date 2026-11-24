@@ -11,9 +11,9 @@ export const biologyChapter10QuestionsBatch3: QuestionData[] = [
     type: "MCQ",
     stem: "অগ্ন্যাশয়ের আইলেটস অব ল্যাঙ্গারহ্যানসের কোন কোষ থেকে রক্তে গ্লুকোজ হ্রাসকারী হরমোন 'ইনসুলিন' নিঃসৃত হয়?",
     options: [
-      { id: "opt_bio_10_61_a", text: "আলফা কোষ ($\alpha$-cell)", isCorrect: false },
-      { id: "opt_bio_10_61_b", text: "বিটা কোষ ($\beta$-cell)", isCorrect: true },
-      { id: "opt_bio_10_61_c", text: "ডেল্টা কোষ ($\delta$-cell)", isCorrect: false },
+      { id: "opt_bio_10_61_a", text: "আলফা কোষ (α-cell)", isCorrect: false },
+      { id: "opt_bio_10_61_b", text: "বিটা কোষ (β-cell)", isCorrect: true },
+      { id: "opt_bio_10_61_c", text: "ডেল্টা কোষ (δ-cell)", isCorrect: false },
       { id: "opt_bio_10_61_d", text: "অ্যাসিনাস কোষ", isCorrect: false }
     ],
     explanation: {

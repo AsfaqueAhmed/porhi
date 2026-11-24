@@ -13,13 +13,13 @@ export const chemistryChapter9QuestionsBatch3: QuestionData[] = [
     type: 'MCQ',
     stem: 'যেকোনো তীব্র এসিড ও তীব্র ক্ষারকের ১ মোল প্রশমন বিক্রিয়ায় উৎপন্ন প্রশমন তাপের মান কত?',
     options: [
-      { id: 'opt_chem_9_37_a', text: '$-45.20\text{ kJ/mol}$', isCorrect: false },
-      { id: 'opt_chem_9_37_b', text: '$-57.34\text{ kJ/mol}$', isCorrect: true },
-      { id: 'opt_chem_9_37_c', text: '$-68.50\text{ kJ/mol}$', isCorrect: false },
-      { id: 'opt_chem_9_37_d', text: '$+57.34\text{ kJ/mol}$', isCorrect: false },
+      { id: 'opt_chem_9_37_a', text: '$-45.20\\text{ kJ/mol}$', isCorrect: false },
+      { id: 'opt_chem_9_37_b', text: '$-57.34\\text{ kJ/mol}$', isCorrect: true },
+      { id: 'opt_chem_9_37_c', text: '$-68.50\\text{ kJ/mol}$', isCorrect: false },
+      { id: 'opt_chem_9_37_d', text: '$+57.34\\text{ kJ/mol}$', isCorrect: false },
     ],
     explanation: {
-      directAnswer: 'সঠিক উত্তর খ: $-57.34\text{ kJ/mol}$।',
+      directAnswer: 'সঠিক উত্তর খ: $-57.34\\text{ kJ/mol}$।',
       coreConcept: 'তীব্র এসিড ও তীব্র ক্ষারকের প্রশমন মূলত H⁺ ও OH⁻ যুক্ত হয়ে ১ মোল পানি তৈরির বিক্রিয়া, যার তাপ সর্বদা স্থির।',
       stepDerivation: 'H⁺(aq) + OH⁻(aq) → H₂O(l); এই বিক্রিয়ায় সর্বদা নির্দিষ্ট পরিমাণ তাপ নির্গত হয়। তাপোৎপাদী হওয়ায় ΔH ঋণাত্মক এবং এর মান -৫৭.৩৪ কিলোজুল/মোল।',
       distractorAnalysis: {
@@ -155,15 +155,15 @@ export const chemistryChapter9QuestionsBatch3: QuestionData[] = [
     id: 'q_chem_9_42',
     topicId: 'top_ssc_chemistry_ch9_5',
     type: 'MCQ',
-    stem: '$25\text{ mL } 0.1\text{ M } HCl$ দ্রবণকে সম্পূর্ণরূপে প্রশমিত করতে কত আয়তন $0.1\text{ M } NaOH$ প্রয়োজন?',
+    stem: '$25\\text{ mL } 0.1\\text{ M } HCl$ দ্রবণকে সম্পূর্ণরূপে প্রশমিত করতে কত আয়তন $0.1\\text{ M } NaOH$ প্রয়োজন?',
     options: [
-      { id: 'opt_chem_9_42_a', text: '$12.5\text{ mL}$', isCorrect: false },
-      { id: 'opt_chem_9_42_b', text: '$25.0\text{ mL}$', isCorrect: true },
-      { id: 'opt_chem_9_42_c', text: '$50.0\text{ mL}$', isCorrect: false },
-      { id: 'opt_chem_9_42_d', text: '$100.0\text{ mL}$', isCorrect: false },
+      { id: 'opt_chem_9_42_a', text: '$12.5\\text{ mL}$', isCorrect: false },
+      { id: 'opt_chem_9_42_b', text: '$25.0\\text{ mL}$', isCorrect: true },
+      { id: 'opt_chem_9_42_c', text: '$50.0\\text{ mL}$', isCorrect: false },
+      { id: 'opt_chem_9_42_d', text: '$100.0\\text{ mL}$', isCorrect: false },
     ],
     explanation: {
-      directAnswer: 'সঠিক উত্তর খ: $25.0\text{ mL}$।',
+      directAnswer: 'সঠিক উত্তর খ: $25.0\\text{ mL}$।',
       coreConcept: 'টাইট্রেশন সূত্র: $V_A S_A = V_B S_B$ (যেহেতু মোলার অনুপাত ১:১)।',
       stepDerivation: 'HCl + NaOH → NaCl + H₂O। সূত্রে মান বসিয়ে: 25 mL × 0.1 M = V_B × 0.1 M ⇒ V_B = 25.0 mL।',
       distractorAnalysis: {
@@ -271,7 +271,7 @@ export const chemistryChapter9QuestionsBatch3: QuestionData[] = [
     id: 'q_chem_9_cq13',
     topicId: 'top_ssc_chemistry_ch9_5',
     type: 'CQ_CREATIVE',
-    stem: 'একটি রাসায়নিক কারখানার পাশে একদল শিক্ষার্থী ফিল্ড ট্রিপে গেল। তারা দেখল কারখানার ইটিপি (ETP) প্ল্যান্টে বিশাল ট্যাংকে তীব্র এসিডিক বর্জ্য পানির মধ্যে চুন ($CaO$) মিশ্রিত করা হচ্ছে। অন্যদিকে কারখানার ল্যাবে এক রসায়নবিদ ব্যুরেট ও পিপেট ব্যবহার করে $20\text{ mL } HCl$ দ্রবণকে $0.1\text{ M } NaOH$ প্রমাণ দ্রবণ দ্বারা টাইট্রেশন করে দেখলেন ঠিক $16\text{ mL } NaOH$ লেগেছে।',
+    stem: 'একটি রাসায়নিক কারখানার পাশে একদল শিক্ষার্থী ফিল্ড ট্রিপে গেল। তারা দেখল কারখানার ইটিপি (ETP) প্ল্যান্টে বিশাল ট্যাংকে তীব্র এসিডিক বর্জ্য পানির মধ্যে চুন ($CaO$) মিশ্রিত করা হচ্ছে। অন্যদিকে কারখানার ল্যাবে এক রসায়নবিদ ব্যুরেট ও পিপেট ব্যবহার করে $20\\text{ mL } HCl$ দ্রবণকে $0.1\\text{ M } NaOH$ প্রমাণ দ্রবণ দ্বারা টাইট্রেশন করে দেখলেন ঠিক $16\\text{ mL } NaOH$ লেগেছে।',
     options: null,
     explanation: {
       directAnswer: 'ETP প্ল্যান্টে চুন অম্লীয় বর্জ্যকে প্রশমিত করে এবং টাইট্রেশনে ব্যবহৃত HCl এর ঘনমাত্রা ছিল ০.০৮ M।',
@@ -281,7 +281,7 @@ export const chemistryChapter9QuestionsBatch3: QuestionData[] = [
     cqRubric: {
       ka: { mark: 1, criteria: 'প্রমাণ দ্রবণের সংজ্ঞা সঠিকভাবে লেখা।' },
       kha: { mark: 2, criteria: 'তীব্র এসিড ও তীব্র ক্ষারকের প্রশমন তাপ কেন ধ্রুবক থাকে তা ব্যাখ্যা করা।' },
-      ga: { mark: 3, criteria: 'রসায়নবিদের টাইট্রেশন পরীক্ষার তথ্যের আলোকে $V_A S_A = V_B S_B$ সূত্র ব্যবহার করে $HCl$ এর ঘনমাত্রা নির্ণয় করা ($0.08\text{ M}$)।' },
+      ga: { mark: 3, criteria: 'রসায়নবিদের টাইট্রেশন পরীক্ষার তথ্যের আলোকে $V_A S_A = V_B S_B$ সূত্র ব্যবহার করে $HCl$ এর ঘনমাত্রা নির্ণয় করা ($0.08\\text{ M}$)।' },
       gha: { mark: 4, criteria: 'কারখানায় ETP ব্যবহার না করে বর্জ্য নদীতে ফেললে জলজ পরিবেশে কী বিপর্যয় ঘটত তা সমীকরণসহ মূল্যায়ন করা।' },
     },
     difficulty: 'MEDIUM',
@@ -317,7 +317,7 @@ export const chemistryChapter9QuestionsBatch3: QuestionData[] = [
     id: 'q_chem_9_cq15',
     topicId: 'top_ssc_chemistry_ch9_5',
     type: 'CQ_CREATIVE',
-    stem: 'ল্যাবরেটরিতে শিক্ষক দুটি টেস্টটিউবে বিক্রিয়া পরিচালনা করলেন:\nবিক্রিয়া-১: $HCl(aq) + NaOH(aq) \longrightarrow NaCl(aq) + H_2O(l) \quad \Delta H_1 = -57.34\text{ kJ}$\nবিক্রিয়া-২: $CH_3COOH(aq) + NaOH(aq) \longrightarrow CH_3COONa(aq) + H_2O(l) \quad \Delta H_2 = -55.14\text{ kJ}$\nশিক্ষক শিক্ষার্থীদের বললেন, উভয়ই এসিড-ক্ষার প্রশমন বিক্রিয়া হওয়া সত্ত্বেও প্রশমন তাপের মান এক নয়।',
+    stem: 'ল্যাবরেটরিতে শিক্ষক দুটি টেস্টটিউবে বিক্রিয়া পরিচালনা করলেন:\nবিক্রিয়া-১: $HCl(aq) + NaOH(aq) \\longrightarrow NaCl(aq) + H_2O(l) \quad \Delta H_1 = -57.34\\text{ kJ}$\nবিক্রিয়া-২: $CH_3COOH(aq) + NaOH(aq) \\longrightarrow CH_3COONa(aq) + H_2O(l) \quad \Delta H_2 = -55.14\\text{ kJ}$\nশিক্ষক শিক্ষার্থীদের বললেন, উভয়ই এসিড-ক্ষার প্রশমন বিক্রিয়া হওয়া সত্ত্বেও প্রশমন তাপের মান এক নয়।',
     options: null,
     explanation: {
       directAnswer: 'দুর্বল এসিড CH₃COOH-কে সম্পূর্ণ বিয়োজিত করতে কিছু শক্তি ব্যয় হওয়ায় বিক্রিয়া-২ এর প্রশমন তাপের মান -৫৭.৩৪ এর চেয়ে কিছুটা কম হয়।',

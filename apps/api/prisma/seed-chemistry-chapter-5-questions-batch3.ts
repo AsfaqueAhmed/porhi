@@ -50,7 +50,7 @@ export const chemistryChapter5QuestionsBatch3: QuestionData[] = [
     explanation: {
       directAnswer: 'সঠিক উত্তর খ: দ্বিবন্ধন।',
       coreConcept: 'প্রতিটি অক্সিজেন পরমাণুর যোজ্যতা স্তরে ৬টি ইলেকট্রন থাকায় অষ্টক পূরণে এরা ২টি করে ইলেকট্রন শেয়ার করে ২ জোড়া শেয়ারকৃত ইলেকট্রনের মাধ্যমে দ্বিবন্ধন (O=O) গঠন করে।',
-      stepDerivation: 'O(8) = 2, 6। অষ্টক পূরণে ২টি ইলেকট্রন প্রয়োজন। দুটি O পরমাণু ২টি করে মোট ৪টি ইলেকট্রন (২ জোড়া) শেয়ার করে $\\rightarrow$ O=O দ্বিবন্ধন।',
+      stepDerivation: 'O(8) = 2, 6। অষ্টক পূরণে ২টি ইলেকট্রন প্রয়োজন। দুটি O পরমাণু ২টি করে মোট ৪টি ইলেকট্রন (২ জোড়া) শেয়ার করে → O=O দ্বিবন্ধন।',
       distractorAnalysis: {
         opt_chem_5_50_a: 'একক বন্ধন থাকে H2 বা Cl2 অণুতে।',
         opt_chem_5_50_c: 'ত্রিবন্ধন থাকে N2 অণুতে।',
@@ -108,7 +108,7 @@ export const chemistryChapter5QuestionsBatch3: QuestionData[] = [
     explanation: {
       directAnswer: 'সঠিক উত্তর খ: ২ ও ২।',
       coreConcept: 'অক্সিজেনের ৬টি যোজ্যতা ইলেকট্রনের মধ্যে ২টি হাইড্রোজেনের সাথে ২টি একক বন্ধন গঠন করে (২ জোড়া bp) এবং বাকি ৪টি ইলেকট্রন ২ জোড়া মুক্তজোড় (lp) হিসেবে থাকে।',
-      stepDerivation: 'O(8) = 2, 6। H2O তে O-H বন্ধন ২টি $\\rightarrow$ বন্ধনজোড় = ২। অবিক্রীত ইলেকট্রন = $6 - 2 = 4$ টি $\\rightarrow$ মুক্তজোড় = $4 / 2 = 2$ জোড়া।',
+      stepDerivation: 'O(8) = 2, 6। H2O তে O-H বন্ধন ২টি → বন্ধনজোড় = ২। অবিক্রীত ইলেকট্রন = $6 - 2 = 4$ টি → মুক্তজোড় = $4 / 2 = 2$ জোড়া।',
       distractorAnalysis: {
         opt_chem_5_52_a: '১ ও ৩ থাকে HCl অণুতে (১টি bp ও ৩টি lp)।',
         opt_chem_5_52_c: '৩ ও ১ থাকে NH3 অণুতে (৩টি bp ও ১টি lp)।',
@@ -144,7 +144,7 @@ export const chemistryChapter5QuestionsBatch3: QuestionData[] = [
         opt_chem_5_53_d: '৪ জোড়া হলো এর বন্ধনজোড় (bp), মুক্তজোড় নয়।',
       },
       textbookCitation: { bookTitle: BOOK, chapterName: 'পঞ্চম অধ্যায়: রাসায়নিক বন্ধন · ৫.৫', pageNumber: 96 },
-      proTipShortcut: 'মিথেনে কোনো নিঃসঙ্গ ইলেকট্রন নেই $\\rightarrow$ lp = 0!',
+      proTipShortcut: 'মিথেনে কোনো নিঃসঙ্গ ইলেকট্রন নেই → lp = 0!',
     },
     difficulty: 'EASY',
     boardSource: 'বরিশাল বোর্ড',
@@ -480,7 +480,7 @@ export const chemistryChapter5QuestionsBatch3: QuestionData[] = [
         opt_chem_5_65_d: 'আয়োডিন স্বতঃস্ফূর্তভাবেই কঠিন, জলীয় বাষ্পের জন্য নয়।',
       },
       textbookCitation: { bookTitle: BOOK, chapterName: 'পঞ্চম অধ্যায়: রাসায়নিক বন্ধন · ৫.৬', pageNumber: 106 },
-      proTipShortcut: 'আণবিক ভর বৃদ্ধি $\\rightarrow$ ভ্যান ডার ওয়ালস বল বৃদ্ধি $\\rightarrow$ গ্যাস $\\rightarrow$ তরল $\\rightarrow$ কঠিন!',
+      proTipShortcut: 'আণবিক ভর বৃদ্ধি → ভ্যান ডার ওয়ালস বল বৃদ্ধি → গ্যাস → তরল → কঠিন!',
     },
     difficulty: 'HARD',
     boardSource: 'বরিশাল বোর্ড',
@@ -509,7 +509,7 @@ export const chemistryChapter5QuestionsBatch3: QuestionData[] = [
         opt_chem_5_66_d: 'গলনাঙ্কের নিচেও তাপমাত্রা বাড়ার সাথে পরিবাহিতা হ্রাস পায়।',
       },
       textbookCitation: { bookTitle: BOOK, chapterName: 'পঞ্চম অধ্যায়: রাসায়নিক বন্ধন · ৫.৬', pageNumber: 104 },
-      proTipShortcut: 'তাপ বাড়লে শাঁসের নাচানাচি বাড়ে $\\rightarrow$ ইলেকট্রন আটকে যায় $\\rightarrow$ রোধ বাড়ে!',
+      proTipShortcut: 'তাপ বাড়লে শাঁসের নাচানাচি বাড়ে → ইলেকট্রন আটকে যায় → রোধ বাড়ে!',
     },
     difficulty: 'HARD',
     boardSource: 'যশোর বোর্ড',
@@ -589,7 +589,7 @@ export const chemistryChapter5QuestionsBatch3: QuestionData[] = [
     explanation: {
       directAnswer: 'সঠিক উত্তর খ: $\\text{F}_2$ (গ্যাস), $\\text{Cl}_2$ (গ্যাস), $\\text{Br}_2$ (তরল), $\\text{I}_2$ (কঠিন)।',
       coreConcept: 'গ্রুপে উপর থেকে নিচে আণবিক ভর ও আকার বৃদ্ধির সাথে আন্তঃআণবিক ভ্যান ডার ওয়ালস বল বৃদ্ধির কারণে ভৌত অবস্থার এই ধারাবাহিক পরিবর্তন ঘটে।',
-      stepDerivation: 'F2 ও Cl2 হালকা হওয়ায় দুর্বল আকর্ষণ $\\rightarrow$ গ্যাস; Br2 মাঝারি হওয়ায় $\\rightarrow$ তরল; I2 ভারী হওয়ায় প্রবল আকর্ষণ $\\rightarrow$ কঠিন।',
+      stepDerivation: 'F2 ও Cl2 হালকা হওয়ায় দুর্বল আকর্ষণ → গ্যাস; Br2 মাঝারি হওয়ায় → তরল; I2 ভারী হওয়ায় প্রবল আকর্ষণ → কঠিন।',
       distractorAnalysis: {
         opt_chem_5_69_a: 'ভৌত অবস্থার ক্রম সম্পূর্ণ উল্টো দেওয়া হয়েছে।',
         opt_chem_5_69_c: 'হ্যালোজেনগুলো তিনটি ভিন্ন ভৌত অবস্থায় থাকে (গ্যাস, তরল, কঠিন)।',

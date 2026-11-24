@@ -384,7 +384,7 @@ export const chemistryChapter8QuestionsBatch1: QuestionData[] = [
     ],
     explanation: {
       directAnswer: 'সঠিক উত্তর গ: 414 kJ/mol।',
-      coreConcept: 'কার্বন ও হাইড্রোজেনের মধ্যকার সমযোজী সিগমা বন্ধনের প্রমাণ বন্ধন শক্তি হলো $414\text{ kJ/mol}$।',
+      coreConcept: 'কার্বন ও হাইড্রোজেনের মধ্যকার সমযোজী সিগমা বন্ধনের প্রমাণ বন্ধন শক্তি হলো $414\\text{ kJ/mol}$।',
       stepDerivation: 'NCTB রসায়ন পাঠ্যবইয়ের পৃষ্ঠা ১৭৬-এর ছক অনুযায়ী C-H বন্ধন শক্তি = 414 kJ/mol।',
       distractorAnalysis: {
         opt_chem_8_14_a: '244 kJ/mol হলো Cl-Cl বন্ধনের মান।',
@@ -412,7 +412,7 @@ export const chemistryChapter8QuestionsBatch1: QuestionData[] = [
     ],
     explanation: {
       directAnswer: 'সঠিক উত্তর খ: 244 kJ।',
-      coreConcept: 'এক মোল গ্যাসীয় ক্লোরিন অণুর বন্ধন ভেঙে ক্লোরিন পরমাণুতে পরিণত করতে $244\text{ kJ}$ শক্তির প্রয়োজন হয়।',
+      coreConcept: 'এক মোল গ্যাসীয় ক্লোরিন অণুর বন্ধন ভেঙে ক্লোরিন পরমাণুতে পরিণত করতে $244\\text{ kJ}$ শক্তির প্রয়োজন হয়।',
       stepDerivation: 'Cl₂(g) → 2Cl(g); ΔH = +244 kJ/mol।',
       distractorAnalysis: {
         opt_chem_8_15_a: '193 kJ/mol হলো Br-Br বন্ধনের মান।',
@@ -527,7 +527,7 @@ export const chemistryChapter8QuestionsBatch1: QuestionData[] = [
     ],
     explanation: {
       directAnswer: 'সঠিক উত্তর গ: 946 kJ।',
-      coreConcept: 'নাইট্রোজেন অণুতে দুটি নাইট্রোজেন পরমাণু অত্যন্ত শক্তিশালী সমযোজী ত্রিবন্ধন ($N\\equiv N$) দ্বারা আবদ্ধ থাকায় এর বন্ধন শক্তি অত্যন্ত উচ্চ ($946\text{ kJ/mol}$), যে কারণে নাইট্রোজেন সাধারণ তাপমাত্রায় প্রায় নিষ্ক্রিয়।',
+      coreConcept: 'নাইট্রোজেন অণুতে দুটি নাইট্রোজেন পরমাণু অত্যন্ত শক্তিশালী সমযোজী ত্রিবন্ধন ($N\\equiv N$) দ্বারা আবদ্ধ থাকায় এর বন্ধন শক্তি অত্যন্ত উচ্চ ($946\\text{ kJ/mol}$), যে কারণে নাইট্রোজেন সাধারণ তাপমাত্রায় প্রায় নিষ্ক্রিয়।',
       stepDerivation: 'N≡N বন্ধন শক্তি = 946 kJ/mol (পাঠ্যবই ছক ৮.১)।',
       distractorAnalysis: {
         opt_chem_8_19_a: '436 kJ/mol হলো H-H একক বন্ধনের শক্তি।',
@@ -631,7 +631,7 @@ export const chemistryChapter8QuestionsBatch1: QuestionData[] = [
     id: 'q_chem_8_23',
     topicId: 'top_ssc_chemistry_ch8_2',
     type: 'CQ_CREATIVE',
-    stem: 'রান্নার সিলিন্ডারে প্রধান জ্বালানি হিসেবে মিথেন গ্যাস ($\text{CH}_4$) ব্যবহৃত হয়। মিথেনের সম্পূর্ণ দহন সমীকরণ নিম্নরূপ:\n$$\\text{CH}_4(\\text{g}) + 2\\text{O}_2(\\text{g}) \\rightarrow \\text{CO}_2(\\text{g}) + 2\\text{H}_2\\text{O}(\\text{g})$$\nপ্রয়োজনীয় বন্ধন শক্তি: $\\text{C}-\\text{H} = 414\\text{ kJ/mol}$, $\\text{O}=\\text{O} = 498\\text{ kJ/mol}$, $\\text{C}=\\text{O} = 745\\text{ kJ/mol}$ (বা $CO_2$-তে $814$), $\\text{O}-\\text{H} = 464\\text{ kJ/mol}$।',
+    stem: 'রান্নার সিলিন্ডারে প্রধান জ্বালানি হিসেবে মিথেন গ্যাস ($\\text{CH}_4$) ব্যবহৃত হয়। মিথেনের সম্পূর্ণ দহন সমীকরণ নিম্নরূপ:\n$$\\text{CH}_4(\\text{g}) + 2\\text{O}_2(\\text{g}) \\rightarrow \\text{CO}_2(\\text{g}) + 2\\text{H}_2\\text{O}(\\text{g})$$\nপ্রয়োজনীয় বন্ধন শক্তি: $\\text{C}-\\text{H} = 414\\text{ kJ/mol}$, $\\text{O}=\\text{O} = 498\\text{ kJ/mol}$, $\\text{C}=\\text{O} = 745\\text{ kJ/mol}$ (বা $CO_2$-তে $814$), $\\text{O}-\\text{H} = 464\\text{ kJ/mol}$।',
     options: null,
     explanation: {
       directAnswer: 'মিথেনের দহনে বিক্রিয়কে ৪টি C-H ও ২টি O=O বন্ধন ভাঙে এবং উৎপাদে ২টি C=O ও ৪টি O-H বন্ধন গঠিত হয়, যার ফলে প্রচুর তাপ নির্গত হয়।',

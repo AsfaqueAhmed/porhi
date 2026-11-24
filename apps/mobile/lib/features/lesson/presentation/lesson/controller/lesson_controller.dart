@@ -87,6 +87,21 @@ class LessonController extends GetxController {
   final RxnString selectedOptionId = RxnString();
   final Rxn<QuickCheckSubmitResultEntity> quickCheckResult =
       Rxn<QuickCheckSubmitResultEntity>();
+  final RxMap<String, QuickCheckSubmitResultEntity> quickCheckAnswers =
+      <String, QuickCheckSubmitResultEntity>{}.obs;
+  final RxMap<String, String> quickCheckSelectedOptions =
+      <String, String>{}.obs;
+  final RxBool isQuickCheckCompleted = false.obs;
+
+  int get quickCheckCorrectCount =>
+      quickCheckAnswers.values.where((r) => r.isCorrect).length;
+
+  int get quickCheckTotalQuestions => quickQuestions.length;
+
+  int get quickCheckAccuracyPercent {
+    if (quickQuestions.isEmpty) return 0;
+    return ((quickCheckCorrectCount / quickQuestions.length) * 100).round();
+  }
 
   final RxList<LessonSiblingTopicEntity> _siblingTopics =
       <LessonSiblingTopicEntity>[].obs;
@@ -184,6 +199,9 @@ class LessonController extends GetxController {
     currentQuestionIndex.value = 0;
     selectedOptionId.value = null;
     quickCheckResult.value = null;
+    quickCheckAnswers.clear();
+    quickCheckSelectedOptions.clear();
+    isQuickCheckCompleted.value = false;
     isCompleted.value = false;
     isBookmarked.value = false;
     savedNote.value = '';
@@ -754,6 +772,8 @@ class LessonController extends GetxController {
         },
         (outcome) {
           quickCheckResult.value = outcome;
+          quickCheckAnswers[question.id] = outcome;
+          quickCheckSelectedOptions[question.id] = optionId;
         },
       );
     } finally {
@@ -764,11 +784,29 @@ class LessonController extends GetxController {
   }
 
   void nextQuickQuestion() {
-    if (quickQuestions.length <= 1) return;
-    currentQuestionIndex.value =
-        (currentQuestionIndex.value + 1) % quickQuestions.length;
+    if (quickQuestions.isEmpty) return;
+    if (currentQuestionIndex.value >= quickQuestions.length - 1) {
+      completeQuickCheck();
+      return;
+    }
+    final nextIdx = currentQuestionIndex.value + 1;
+    currentQuestionIndex.value = nextIdx;
+    final nextQ = quickQuestions[nextIdx];
+    selectedOptionId.value = quickCheckSelectedOptions[nextQ.id];
+    quickCheckResult.value = quickCheckAnswers[nextQ.id];
+  }
+
+  void completeQuickCheck() {
+    isQuickCheckCompleted.value = true;
+  }
+
+  void restartQuickCheck() {
+    currentQuestionIndex.value = 0;
     selectedOptionId.value = null;
     quickCheckResult.value = null;
+    quickCheckAnswers.clear();
+    quickCheckSelectedOptions.clear();
+    isQuickCheckCompleted.value = false;
   }
 
   String _resolveErrorMessage(

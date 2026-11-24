@@ -42,10 +42,10 @@ export const biologyChapter4QuestionsBatch3: QuestionData[] = [
     type: "MCQ",
     stem: "একটি সজীব কোষে শক্তি সঞ্চয়ের সময় কোন রূপান্তরটি সঠিক?",
     options: [
-      { id: "opt_bio_4_62_a", text: "$ATP + H_2O \rightarrow ADP + P_i$", isCorrect: false },
-      { id: "opt_bio_4_62_b", text: "$ADP + P_i + \text{শক্তি} \rightarrow ATP$", isCorrect: true },
-      { id: "opt_bio_4_62_c", text: "$AMP \rightarrow \text{এডিনিন} + \text{রাইবোজ}$", isCorrect: false },
-      { id: "opt_bio_4_62_d", text: "$ATP \rightarrow AMP + \text{শক্তি}$", isCorrect: false }
+      { id: "opt_bio_4_62_a", text: "ATP + H₂O → ADP + Pi", isCorrect: false },
+      { id: "opt_bio_4_62_b", text: "ADP + Pi + শক্তি → ATP", isCorrect: true },
+      { id: "opt_bio_4_62_c", text: "AMP → এডিনিন + রাইবোজ", isCorrect: false },
+      { id: "opt_bio_4_62_d", text: "ATP → AMP + শক্তি", isCorrect: false }
     ],
     explanation: {
       directAnswer: "সঠিক উত্তর খ: ADP + Pi + শক্তি → ATP।",

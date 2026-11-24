@@ -227,7 +227,7 @@ const batch1Questions: QuestionData[] = [
         chapterName: 'পঞ্চম অধ্যায়: পদার্থের অবস্থা ও চাপ',
         pageNumber: 128,
       },
-      proTipShortcut: 'পেরেক, আলপিন ও ছুরির ধার = ক্ষেত্রফল হ্রাস $\\rightarrow$ চাপ বৃদ্ধি।',
+      proTipShortcut: 'পেরেক, আলপিন ও ছুরির ধার = ক্ষেত্রফল হ্রাস → চাপ বৃদ্ধি।',
     },
     difficulty: 'EASY',
     boardSource: 'Chattogram Board 2024',

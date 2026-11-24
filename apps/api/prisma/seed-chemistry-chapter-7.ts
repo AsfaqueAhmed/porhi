@@ -196,7 +196,7 @@ export async function seedChemistryChapter7(prisma: PrismaClient) {
   - বিজারণ অর্ধ-বিক্রিয়া: $Cu^{2+} + 2e^- \\longrightarrow Cu$ (জারক $Cu^{2+}$)
 
 ### ৩. নন-রেডক্স বিক্রিয়াসমূহ
-- **প্রশমন বিক্রিয়া:** এসিড + ক্ষার $\\rightarrow$ লবণ + পানি ($H^+ + OH^- \\rightarrow H_2O$)
+- **প্রশমন বিক্রিয়া:** এসিড + ক্ষার → লবণ + পানি ($H^+ + OH^- \\rightarrow H_2O$)
 - **অধঃক্ষেপণ বিক্রিয়া:** $AgNO_3 + NaCl \\rightarrow AgCl(s)\\downarrow + NaNO_3$
 - **আর্দ্রবিশ্লেষণ (Hydrolysis):** $SiCl_4 + 4H_2O \\rightarrow Si(OH)_4 + 4HCl$
 - **পানিযোজন (Hydration):** $CuSO_4 + 5H_2O \\rightarrow CuSO_4\\cdot 5H_2O$`,
@@ -329,7 +329,7 @@ $$\\Delta H = \\Sigma B_1 - \\Sigma B_2$$
 - **ঘনমাত্রা ও প্রভাবক:** বিক্রিয়ক যোগ করলে সাম্য ডানে সরে। প্রভাবক সাম্যের অবস্থান পরিবর্তন করতে পারে না, কেবল দ্রুত সাম্যাবস্থা অর্জনে সাহায্য করে।
 
 ### ৩. হেবার-বস পদ্ধতিতে অ্যামোনিয়া উৎপাদনের অনুকূল শর্ত
-- **উচ্চ চাপ:** ২০০ atm (যেহেতু ৪ মোল গ্যাস $\\rightarrow$ ২ মোল গ্যাস)
+- **উচ্চ চাপ:** ২০০ atm (যেহেতু ৪ মোল গ্যাস → ২ মোল গ্যাস)
 - **অনুকূল তাপমাত্রা:** $450^\\circ\\text{C}-550^\\circ\\text{C}$
 - **প্রভাবক:** $Fe$ চূর্ণ এবং $Mo$ প্রমোটর`,
       interactiveWidgetUrl: widgetUrl,

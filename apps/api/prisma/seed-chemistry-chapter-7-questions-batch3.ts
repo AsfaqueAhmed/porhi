@@ -78,7 +78,7 @@ export const chemistryChapter7QuestionsBatch3: QuestionData[] = [
     ],
     explanation: {
       directAnswer: 'সঠিক উত্তর খ: তীব্র তাপ উৎপন্ন হয়ে পানি ফুটতে থাকে।',
-      coreConcept: 'ক্যালসিয়াম অক্সাইডের সাথে পানির বিক্রিয়া একটি অত্যন্ত শক্তিশালী তাপউৎপাদী বিক্রিয়া ($\Delta H = -65.2 \text{ kJ/mol}$)।',
+      coreConcept: 'ক্যালসিয়াম অক্সাইডের সাথে পানির বিক্রিয়া একটি অত্যন্ত শক্তিশালী তাপউৎপাদী বিক্রিয়া ($\Delta H = -65.2 \\text{ kJ/mol}$)।',
       stepDerivation: 'সমীকরণ: $CaO(s) + H_2O(l) \\rightarrow Ca(OH)_2(aq); \\Delta H = -65.2 \\text{ kJ/mol}$। ক্যালসিয়াম হাইড্রোক্সাইডের শক্তিশালী বন্ধন গঠিত হওয়ার সময় বিপুল পরিমাণ তাপশক্তি বিমুক্ত হয়। ফলে বিক্রিয়া মিশ্রণের তাপমাত্রা ১০০°C এর কাছাকাছি পৌঁছে পানি বাষ্পীভূত হতে থাকে ও ফুটন্ত অবস্থার সৃষ্টি হয়।',
       distractorAnalysis: {
         opt_chem_7_51_a: 'এটি তাপহারী নয়, তাই ঠান্ডা হওয়ার সুযোগ নেই।',
@@ -86,7 +86,7 @@ export const chemistryChapter7QuestionsBatch3: QuestionData[] = [
         opt_chem_7_51_d: 'এখানে কোনো দাহ্য গ্যাস তৈরি হয় না, তাই আগুন ধরে না।',
       },
       textbookCitation: { bookTitle: BOOK, chapterName: 'সপ্তম অধ্যায়: রাসায়নিক বিক্রিয়া · ৭.৫', pageNumber: 159 },
-      proTipShortcut: 'চুন + পানি $\\rightarrow$ কলিচুন + প্রচণ্ড তাপ ($\Delta H = -65.2$ kJ)।',
+      proTipShortcut: 'চুন + পানি → কলিচুন + প্রচণ্ড তাপ ($\Delta H = -65.2$ kJ)।',
     },
     difficulty: 'EASY',
     boardSource: 'যশোর বোর্ড ২০২১',
@@ -108,7 +108,7 @@ export const chemistryChapter7QuestionsBatch3: QuestionData[] = [
     explanation: {
       directAnswer: 'সঠিক উত্তর গ: বিক্রিয়াটিতে পরিবেশ থেকে তাপ শোষিত হয়।',
       coreConcept: '$\Delta H$ ধনাত্মক ($+$) মান নির্দেশ করে এটি একটি তাপহারী বিক্রিয়া, যেখানে পরিবেশ থেকে তাপশক্তি গ্রহণ করা হয়।',
-      stepDerivation: 'যেহেতু $\Delta H = +180 \text{ kJ}$ ধনাত্মক, তাই ১ মোল $N_2$ ও ১ মোল $O_2$ বিক্রিয়া করে ২ মোল $NO$ তৈরি করার সময় মোট ১৮০ kJ তাপ শোষিত হয়। প্রতি মোল $NO$-এর জন্য শোষিত তাপ $= 90 \text{ kJ}$। তাপ শোষিত হওয়ার কারণে পারিপার্শ্বিক তাপমাত্রা হ্রাস পায়।',
+      stepDerivation: 'যেহেতু $\Delta H = +180 \\text{ kJ}$ ধনাত্মক, তাই ১ মোল $N_2$ ও ১ মোল $O_2$ বিক্রিয়া করে ২ মোল $NO$ তৈরি করার সময় মোট ১৮০ kJ তাপ শোষিত হয়। প্রতি মোল $NO$-এর জন্য শোষিত তাপ $= 90 \\text{ kJ}$। তাপ শোষিত হওয়ার কারণে পারিপার্শ্বিক তাপমাত্রা হ্রাস পায়।',
       distractorAnalysis: {
         opt_chem_7_52_a: '$\Delta H$ ধনাত্মক হওয়ায় এটি তাপহারী, তাপউৎপাদী নয়।',
         opt_chem_7_52_b: '১৮০ kJ তাপ লাগে ২ মোল NO তৈরিতে; ১ মোলে লাগে ৯০ kJ।',
@@ -173,7 +173,7 @@ export const chemistryChapter7QuestionsBatch3: QuestionData[] = [
         opt_chem_7_54_d: 'ভর বা আয়তনের সাথে বন্ধন শক্তির সরাসরি সম্পর্ক নেই।',
       },
       textbookCitation: { bookTitle: BOOK, chapterName: 'সপ্তম অধ্যায়: রাসায়নিক বিক্রিয়া · ৭.৫', pageNumber: 161 },
-      proTipShortcut: '$\Delta H = \text{ভাঙন (শোষণ)} - \text{গঠন (নির্গমন)}$।',
+      proTipShortcut: '$\Delta H = \\text{ভাঙন (শোষণ)} - \\text{গঠন (নির্গমন)}$।',
     },
     difficulty: 'EASY',
     boardSource: 'চট্টগ্রাম বোর্ড ২০২০',
@@ -195,7 +195,7 @@ export const chemistryChapter7QuestionsBatch3: QuestionData[] = [
     explanation: {
       directAnswer: 'সঠিক উত্তর খ: তাপউৎপাদী, ΔH = -৪৩০ kJ।',
       coreConcept: 'গড়ার শক্তি ($B_2$) ভাঙার শক্তি ($B_1$) অপেক্ষা বেশি হলে $\Delta H$ ঋণাত্মক হয় এবং তাপশক্তি বিমুক্ত হয়।',
-      stepDerivation: 'দেওয়া আছে, $B_1 = 2050 \text{ kJ}$ এবং $B_2 = 2480 \text{ kJ}$। আমরা জানি, $\Delta H = B_1 - B_2 = 2050 - 2480 = -430 \text{ kJ}$। যেহেতু $\Delta H$ এর মান ঋণাত্মক ($-430 \text{ kJ}$), তাই বিক্রিয়াটি স্পষ্টতই তাপউৎপাদী।',
+      stepDerivation: 'দেওয়া আছে, $B_1 = 2050 \\text{ kJ}$ এবং $B_2 = 2480 \\text{ kJ}$। আমরা জানি, $\Delta H = B_1 - B_2 = 2050 - 2480 = -430 \\text{ kJ}$। যেহেতু $\Delta H$ এর মান ঋণাত্মক ($-430 \\text{ kJ}$), তাই বিক্রিয়াটি স্পষ্টতই তাপউৎপাদী।',
       distractorAnalysis: {
         opt_chem_7_55_a: 'মান ধনাত্মক নয়, কারণ বিয়োগফল ঋণাত্মক এসেছে।',
         opt_chem_7_55_c: 'মানগুলো যোগ হবে না, বিয়োগ হবে।',
@@ -223,7 +223,7 @@ export const chemistryChapter7QuestionsBatch3: QuestionData[] = [
     ],
     explanation: {
       directAnswer: 'সঠিক উত্তর খ: ১৭৬ kJ।',
-      coreConcept: 'চুনাপাথরের তাপীয় বিয়োজন একটি শক্তিশালী তাপহারী প্রক্রিয়া ($\Delta H = +176 \text{ kJ/mol}$)।',
+      coreConcept: 'চুনাপাথরের তাপীয় বিয়োজন একটি শক্তিশালী তাপহারী প্রক্রিয়া ($\Delta H = +176 \\text{ kJ/mol}$)।',
       stepDerivation: 'সমীকরণ: $CaCO_3(s) \\xrightarrow{\\Delta} CaO(s) + CO_2(g); \\Delta H = +176 \\text{ kJ/mol}$। ১ মোল কঠিন ক্যালসিয়াম কার্বনেটকে বিশ্লিষ্ট করতে বাইরের উৎস থেকে ১৭৬ কিলোজুল তাপশক্তি সরবরাহ করতে হয়।',
       distractorAnalysis: {
         opt_chem_7_56_a: '৯২ kJ হলো হেবার পদ্ধতিতে নির্গত তাপ।',
@@ -272,7 +272,7 @@ export const chemistryChapter7QuestionsBatch3: QuestionData[] = [
     id: 'q_chem_7_58',
     topicId: 'top_ssc_chemistry_ch7_5',
     type: 'CQ_CREATIVE',
-    stem: 'ল্যাবে রাজীব দুটি ভিন্ন বিক্রিয়া সম্পন্ন করল:\nবিক্রিয়া-১: একটি বিকারে ৫০ মিলি পানিতে ১০ গ্রাম চুন ($CaO$) যোগ করল। সাথে সাথে বিকারের তাপমাত্রা ২৫°C থেকে বেড়ে ৮২°C এ পৌঁছে গেল।\nবিক্রিয়া-২: অপর একটি টেস্টটিউবে নাইট্রোজেন ও অক্সিজেন গ্যাসের মিশ্রণে উচ্চ তাপ ও চাপ প্রয়োগ করায় নাইট্রিক অক্সাইড গ্যাস উৎপন্ন হলো এবং বিক্রিয়া সমীকরণে $\Delta H = +180 \text{ kJ}$ দেখা গেল।',
+    stem: 'ল্যাবে রাজীব দুটি ভিন্ন বিক্রিয়া সম্পন্ন করল:\nবিক্রিয়া-১: একটি বিকারে ৫০ মিলি পানিতে ১০ গ্রাম চুন ($CaO$) যোগ করল। সাথে সাথে বিকারের তাপমাত্রা ২৫°C থেকে বেড়ে ৮২°C এ পৌঁছে গেল।\nবিক্রিয়া-২: অপর একটি টেস্টটিউবে নাইট্রোজেন ও অক্সিজেন গ্যাসের মিশ্রণে উচ্চ তাপ ও চাপ প্রয়োগ করায় নাইট্রিক অক্সাইড গ্যাস উৎপন্ন হলো এবং বিক্রিয়া সমীকরণে $\Delta H = +180 \\text{ kJ}$ দেখা গেল।',
     options: null,
     explanation: {
       directAnswer: 'বিক্রিয়া-১ তাপউৎপাদী হওয়ায় তাপমাত্রা বৃদ্ধি পেয়েছে এবং বিক্রিয়া-২ তাপহারী হওয়ায় পরিবেশ থেকে তাপ শোষিত হয়েছে।',
@@ -282,7 +282,7 @@ export const chemistryChapter7QuestionsBatch3: QuestionData[] = [
     cqRubric: {
       ka: { mark: 1, criteria: 'তাপউৎপাদী বিক্রিয়ার সংজ্ঞা নির্ভুলভাবে লেখা।' },
       kha: { mark: 2, criteria: 'রাসায়নিক বন্ধন ভাঙার প্রক্রিয়াটি সর্বদা কেন তাপহারী তা ব্যাখ্যা করা।' },
-      ga: { mark: 3, criteria: 'বিক্রিয়া-১ এর জন্য সমীকরণ ($\text{CaO} + \text{H}_2\text{O} \rightarrow \text{Ca(OH)}_2$) লিখে তাপমাত্রা বৃদ্ধির কারণ বিশ্লেষণ করা।' },
+      ga: { mark: 3, criteria: 'বিক্রিয়া-১ এর জন্য সমীকরণ ($\\text{CaO} + \\text{H}_2\\text{O} \\rightarrow \\text{Ca(OH)}_2$) লিখে তাপমাত্রা বৃদ্ধির কারণ বিশ্লেষণ করা।' },
       gha: { mark: 4, criteria: 'উভয় বিক্রিয়ায় বন্ধন ভাঙা ও বন্ধন গড়ার শক্তির তুলনামূলক হিসাবের ভিত্তিতে $\Delta H$ এর চিহ্নের যথার্থতা মূল্যায়ন করা।' },
     },
     difficulty: 'MEDIUM',
@@ -295,7 +295,7 @@ export const chemistryChapter7QuestionsBatch3: QuestionData[] = [
     id: 'q_chem_7_59',
     topicId: 'top_ssc_chemistry_ch7_5',
     type: 'CQ_CREATIVE',
-    stem: 'হেবার-বস পদ্ধতিতে অ্যামোনিয়া উৎপাদনের সমীকরণটি হলো:\n$$\text{N}_2\text{(g)} + 3\text{H}_2\text{(g)} \rightleftharpoons 2\text{NH}_3\text{(g)}; \quad \Delta H = -92 \text{ kJ}$$\nএকজন রাসায়নিক প্রকৌশলী কারখানা পরিদর্শনে গিয়ে দেখলেন, বিক্রিয়া চেম্বারে তাপ অপসারিত না হলে উৎপাদের পরিমাণ আশঙ্কাজনকভাবে হ্রাস পাচ্ছে।',
+    stem: 'হেবার-বস পদ্ধতিতে অ্যামোনিয়া উৎপাদনের সমীকরণটি হলো:\n$$\\text{N}_2\\text{(g)} + 3\\text{H}_2\\text{(g)} \rightleftharpoons 2\\text{NH}_3\\text{(g)}; \quad \Delta H = -92 \\text{ kJ}$$\nএকজন রাসায়নিক প্রকৌশলী কারখানা পরিদর্শনে গিয়ে দেখলেন, বিক্রিয়া চেম্বারে তাপ অপসারিত না হলে উৎপাদের পরিমাণ আশঙ্কাজনকভাবে হ্রাস পাচ্ছে।',
     options: null,
     explanation: {
       directAnswer: 'বিক্রিয়াটি তাপউৎপাদী হওয়ায় উৎপন্ন তাপ জমা থাকলে পশ্চাৎমুখী বিক্রিয়া বেগবান হয়ে উৎপাদ হ্রাস পায়।',
@@ -305,7 +305,7 @@ export const chemistryChapter7QuestionsBatch3: QuestionData[] = [
     cqRubric: {
       ka: { mark: 1, criteria: 'এনথালপি কাকে বলে তা লেখা।' },
       kha: { mark: 2, criteria: '১ মোল অ্যামোনিয়া উৎপাদনে কত তাপ উৎপন্ন হয় তা গাণিতিকভাবে দেখানো।' },
-      ga: { mark: 3, criteria: 'উদ্দীপকের বিক্রিয়ায় বিক্রিয়ক ও উৎপাদের বন্ধন শক্তির তুলনামূলক মান কীভাবে $\Delta H = -92 \text{ kJ}$ নির্দেশ করে তা ব্যাখ্যা করা।' },
+      ga: { mark: 3, criteria: 'উদ্দীপকের বিক্রিয়ায় বিক্রিয়ক ও উৎপাদের বন্ধন শক্তির তুলনামূলক মান কীভাবে $\Delta H = -92 \\text{ kJ}$ নির্দেশ করে তা ব্যাখ্যা করা।' },
       gha: { mark: 4, criteria: 'প্রকৌশলীর পর্যবেক্ষণের পেছনের তাপীয় বৈজ্ঞানিক কারণ লা-শাতেলিয়ার নীতি ও তাপ পরিবর্তনের আলোকে বিশ্লেষণ করা।' },
     },
     difficulty: 'HARD',
@@ -318,10 +318,10 @@ export const chemistryChapter7QuestionsBatch3: QuestionData[] = [
     id: 'q_chem_7_60',
     topicId: 'top_ssc_chemistry_ch7_5',
     type: 'CQ_CREATIVE',
-    stem: 'একটি হাইড্রোকার্বনের দহন বিক্রিয়ায় বিক্রিয়কের বন্ধন ভাঙার জন্য প্রয়োজনীয় মোট শক্তি হলো $B_1 = 3250 \text{ kJ}$ এবং উৎপাদসমূহের নতুন বন্ধন গঠিত হওয়ার সময় বিমুক্ত মোট শক্তি হলো $B_2 = 4140 \text{ kJ}$। শিক্ষার্থী রিফাত বলল, “যেহেতু শক্তি বিমুক্ত হয়েছে, তাই এটি একটি তাপউৎপাদী পরিবর্তন।”',
+    stem: 'একটি হাইড্রোকার্বনের দহন বিক্রিয়ায় বিক্রিয়কের বন্ধন ভাঙার জন্য প্রয়োজনীয় মোট শক্তি হলো $B_1 = 3250 \\text{ kJ}$ এবং উৎপাদসমূহের নতুন বন্ধন গঠিত হওয়ার সময় বিমুক্ত মোট শক্তি হলো $B_2 = 4140 \\text{ kJ}$। শিক্ষার্থী রিফাত বলল, “যেহেতু শক্তি বিমুক্ত হয়েছে, তাই এটি একটি তাপউৎপাদী পরিবর্তন।”',
     options: null,
     explanation: {
-      directAnswer: '$\Delta H = B_1 - B_2 = 3250 - 4140 = -890 \text{ kJ}$, যা ঋণাত্মক হওয়ায় বিক্রিয়াটি তাপউৎপাদী।',
+      directAnswer: '$\Delta H = B_1 - B_2 = 3250 - 4140 = -890 \\text{ kJ}$, যা ঋণাত্মক হওয়ায় বিক্রিয়াটি তাপউৎপাদী।',
       coreConcept: 'বন্ধন শক্তির পার্থক্য দ্বারা $\Delta H$ গণনা এবং দহন বিক্রিয়ার তাপউৎপাদী চরিত্র।',
       textbookCitation: { bookTitle: BOOK, chapterName: 'সপ্তম অধ্যায়: রাসায়নিক বিক্রিয়া · ৭.৫', pageNumber: 161 },
     },
@@ -500,7 +500,7 @@ export const chemistryChapter7QuestionsBatch3: QuestionData[] = [
     explanation: {
       directAnswer: 'সঠিক উত্তর খ: ৪৫০°C – ৫৫০°C।',
       coreConcept: 'তাপউৎপাদী বিক্রিয়ায় কম তাপে সাম্য ডানে গেলেও গতিবেগ বজায় রাখতে কাম্য তাপমাত্রা নির্বাচন করা হয়।',
-      stepDerivation: 'যেহেতু বিক্রিয়াটি তাপউৎপাদী ($\Delta H = -92 \text{ kJ}$), তাত্ত্বিকভাবে কম তাপমাত্রায় বেশি অ্যামোনিয়া পাওয়া যায়। কিন্তু তাপমাত্রা অতিরিক্ত কম হলে বিক্রিয়ার বেগ অত্যন্ত মন্থর হয়ে যায়। আবার খুব বেশি তাপে অ্যামোনিয়া বিশ্লিষ্ট হয়ে যায়। তাই একটি সন্তোষজনক দ্রুতি ও পরিমাণের জন্য ৪৫০°C – ৫৫০°C হলো অনুকূল তাপমাত্রা (Optimum temperature)।',
+      stepDerivation: 'যেহেতু বিক্রিয়াটি তাপউৎপাদী ($\Delta H = -92 \\text{ kJ}$), তাত্ত্বিকভাবে কম তাপমাত্রায় বেশি অ্যামোনিয়া পাওয়া যায়। কিন্তু তাপমাত্রা অতিরিক্ত কম হলে বিক্রিয়ার বেগ অত্যন্ত মন্থর হয়ে যায়। আবার খুব বেশি তাপে অ্যামোনিয়া বিশ্লিষ্ট হয়ে যায়। তাই একটি সন্তোষজনক দ্রুতি ও পরিমাণের জন্য ৪৫০°C – ৫৫০°C হলো অনুকূল তাপমাত্রা (Optimum temperature)।',
       distractorAnalysis: {
         opt_chem_7_66_a: '১০০°C তাপমাত্রায় বিক্রিয়ার গতিবেগ অসম্ভব ধীর থাকে।',
         opt_chem_7_66_c: '৮০০°C এর বেশি তাপে সাম্য বামে সরে অ্যামোনিয়া ভেঙে যায়।',
@@ -606,7 +606,7 @@ export const chemistryChapter7QuestionsBatch3: QuestionData[] = [
     id: 'q_chem_7_70',
     topicId: 'top_ssc_chemistry_ch7_6',
     type: 'CQ_CREATIVE',
-    stem: 'একটি রাসায়নিক কারখানায় অ্যামোনিয়া উৎপাদনের জন্য নিচের উভমুখী বিক্রিয়াটি পরিচালিত হয়:\n$$\text{N}_2\text{(g)} + 3\text{H}_2\text{(g)} \rightleftharpoons 2\text{NH}_3\text{(g)}; \quad \Delta H = -92 \text{ kJ/mol}$$\nকারখানার প্রকৌশলী দেখলেন, সাধারণ কক্ষ তাপমাত্রা ও বায়ুমণ্ডলীয় চাপে খুব সামান্য পরিমাণ অ্যামোনিয়া উৎপন্ন হচ্ছে। তিনি লা-শাতেলিয়ার নীতি প্রয়োগ করে কারখানাটির উৎপাদন সর্বোচ্চ করার পরিকল্পনা গ্রহণ করলেন।',
+    stem: 'একটি রাসায়নিক কারখানায় অ্যামোনিয়া উৎপাদনের জন্য নিচের উভমুখী বিক্রিয়াটি পরিচালিত হয়:\n$$\\text{N}_2\\text{(g)} + 3\\text{H}_2\\text{(g)} \rightleftharpoons 2\\text{NH}_3\\text{(g)}; \quad \Delta H = -92 \\text{ kJ/mol}$$\nকারখানার প্রকৌশলী দেখলেন, সাধারণ কক্ষ তাপমাত্রা ও বায়ুমণ্ডলীয় চাপে খুব সামান্য পরিমাণ অ্যামোনিয়া উৎপন্ন হচ্ছে। তিনি লা-শাতেলিয়ার নীতি প্রয়োগ করে কারখানাটির উৎপাদন সর্বোচ্চ করার পরিকল্পনা গ্রহণ করলেন।',
     options: null,
     explanation: {
       directAnswer: 'লা-শাতেলিয়ার নীতি অনুযায়ী উচ্চ চাপ (২০০ atm), অনুকূল তাপমাত্রা (৪৫০°-৫৫০°C) এবং আয়রন প্রভাবক ব্যবহার করে উৎপাদন সর্বোচ্চ করা যায়।',
@@ -629,7 +629,7 @@ export const chemistryChapter7QuestionsBatch3: QuestionData[] = [
     id: 'q_chem_7_71',
     topicId: 'top_ssc_chemistry_ch7_6',
     type: 'CQ_CREATIVE',
-    stem: 'দুটি ভিন্ন উভমুখী গ্যাসীয় বিক্রিয়া নিচে দেওয়া হলো:\nবিক্রিয়া-P: $2\text{SO}_2\text{(g)} + \text{O}_2\text{(g)} \rightleftharpoons 2\text{SO}_3\text{(g)}; \quad \Delta H = -198 \text{ kJ}$\nবিক্রিয়া-Q: $\text{H}_2\text{(g)} + \text{I}_2\text{(g)} \rightleftharpoons 2\text{HI(g)}; \quad \Delta H = -11 \text{ kJ}$\nশিক্ষার্থী ফাহিম দাবি করল, “উভয় বিক্রিয়ায় চাপ বৃদ্ধি করলে উৎপাদের পরিমাণ একইভাবে বৃদ্ধি পাবে।”',
+    stem: 'দুটি ভিন্ন উভমুখী গ্যাসীয় বিক্রিয়া নিচে দেওয়া হলো:\nবিক্রিয়া-P: $2\\text{SO}_2\\text{(g)} + \\text{O}_2\\text{(g)} \rightleftharpoons 2\\text{SO}_3\\text{(g)}; \quad \Delta H = -198 \\text{ kJ}$\nবিক্রিয়া-Q: $\\text{H}_2\\text{(g)} + \\text{I}_2\\text{(g)} \rightleftharpoons 2\\text{HI(g)}; \quad \Delta H = -11 \\text{ kJ}$\nশিক্ষার্থী ফাহিম দাবি করল, “উভয় বিক্রিয়ায় চাপ বৃদ্ধি করলে উৎপাদের পরিমাণ একইভাবে বৃদ্ধি পাবে।”',
     options: null,
     explanation: {
       directAnswer: 'বিক্রিয়া-P তে মোল সংখ্যা কমায় চাপ বাড়ালে উৎপাদ বাড়ে, কিন্তু বিক্রিয়া-Q তে উভয় পাশে মোল সংখ্যা সমান হওয়ায় চাপের কোনো প্রভাব নেই।',
@@ -652,7 +652,7 @@ export const chemistryChapter7QuestionsBatch3: QuestionData[] = [
     id: 'q_chem_7_72',
     topicId: 'top_ssc_chemistry_ch7_6',
     type: 'CQ_CREATIVE',
-    stem: 'একটি বন্ধ কাচের ফ্লাস্কে ফসফরাস পেন্টাক্লোরাইডের বিয়োজন সাম্যাবস্থা নিম্নরূপ:\n$$\text{PCl}_5\text{(g)} \rightleftharpoons \text{PCl}_3\text{(g)} + \text{Cl}_2\text{(g)}; \quad \Delta H = +90 \text{ kJ}$$\nএকজন শিক্ষার্থী ফ্লাস্কটিকে প্রথমে উত্তপ্ত করল এবং পরবর্তীতে পিস্টন দিয়ে ভেতরের আয়তন অর্ধেক করে চাপ বাড়িয়ে দিল।',
+    stem: 'একটি বন্ধ কাচের ফ্লাস্কে ফসফরাস পেন্টাক্লোরাইডের বিয়োজন সাম্যাবস্থা নিম্নরূপ:\n$$\\text{PCl}_5\\text{(g)} \rightleftharpoons \\text{PCl}_3\\text{(g)} + \\text{Cl}_2\\text{(g)}; \quad \Delta H = +90 \\text{ kJ}$$\nএকজন শিক্ষার্থী ফ্লাস্কটিকে প্রথমে উত্তপ্ত করল এবং পরবর্তীতে পিস্টন দিয়ে ভেতরের আয়তন অর্ধেক করে চাপ বাড়িয়ে দিল।',
     options: null,
     explanation: {
       directAnswer: 'তাপহারী বিক্রিয়ায় তাপমাত্রা বাড়ালে সাম্য ডানে সরবে (উৎপাদ বাড়বে) এবং চাপ বাড়ালে সাম্য বামে সরবে (বিয়োজন হ্রাস পাবে)।',

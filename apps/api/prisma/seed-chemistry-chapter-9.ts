@@ -170,7 +170,7 @@ $$CO_2(g) + Ca(OH)_2(aq) \\longrightarrow CaCO_3(s)\\downarrow + H_2O(l)$$
 $$\\alpha = \\frac{\\text{বিয়োজিত অণুর সংখ্যা}}{\\text{মোট দ্রবীভূত অণুর সংখ্যা}}$$
 
 ### তীব্র এসিড (Strong Acids)
-যেসব এসিড জলীয় দ্রবণে প্রায় ১০০% আয়নিত হয় ($\\alpha \\approx 1$), তাদের তীব্র এসিড বলে। এদের সমীকরণে একমুখী তীর ($\\rightarrow$) ব্যবহৃত হয়:
+যেসব এসিড জলীয় দ্রবণে প্রায় ১০০% আয়নিত হয় ($\\alpha \\approx 1$), তাদের তীব্র এসিড বলে। এদের সমীকরণে একমুখী তীর ( → ) ব্যবহৃত হয়:
 $$HCl(aq) \\longrightarrow H^+(aq) + Cl^-(aq)$$
 $$H_2SO_4(aq) \\longrightarrow 2H^+(aq) + SO_4^{2-}(aq)$$
 $$HNO_3(aq) \\longrightarrow H^+(aq) + NO_3^-(aq)$$

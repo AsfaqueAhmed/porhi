@@ -109,7 +109,7 @@ export async function seedBiologyChapter10(prisma: PrismaClient) {
 | **অ্যাবসিসিক অ্যাসিড (ABA)** | বৃদ্ধিরোধক স্ট্রেস হরমোন | পানির অপচয় রোধে স্টোমাটা বন্ধ করে; কুঁড়ি ও বীজের সুপ্তাবস্থা বজায় রাখে | খরার হাত থেকে উদ্ভিদকে রক্ষা করা |
 | **ইথিলিন (Ethylene)** | একমাত্র গ্যাসীয় ফাইটোহরমোন ($C_2H_4$) | ফল পাকা ত্বরান্বিত করে; পাতা ও ফুলের মোচন ঘটায় | বাণিজ্যিকভাবে কাঁচা ফল কৃত্রিমভাবে পাকানো |
 | **ফ্লোরিজেন (Florigen)** | পাতায় তৈরি অনুমিত হরমোন | শীর্ষমুকুলে পুষ্পমুকুল প্রস্ফুটিত করে ফুল ফোটায় | উদ্ভিদের সঠিক ঋতুতে পুষ্পায়ন নিশ্চিত করা |`,
-      interactiveWidgetUrl: '/interactive/neuron-endocrine-hormone-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/neuron-endocrine-hormone-lab.html',
       importantTerms: [
         { termBangla: 'ফাইটোহরমোন', termEnglish: 'Phytohormone', definition: 'উদ্ভিদদেহে উৎপন্ন জৈব রাসায়নিক নিয়ন্ত্রক পদার্থ যা বৃদ্ধি ও সমন্বয় সাধন করে।' },
         { termBangla: 'অক্সিন', termEnglish: 'Auxin', definition: 'কান্ডের শীর্ষভাগে উৎপন্ন বৃদ্ধিবর্ধক হরমোন যা কোষ প্রসারণ ঘটায়।' },
@@ -163,7 +163,7 @@ export async function seedBiologyChapter10(prisma: PrismaClient) {
 - **ছোট দিনের উদ্ভিদ (Short-day plants):** দৈনিক ৮–১২ ঘণ্টা আলো লাগে (যেমন চন্দ্রমল্লিকা, ডালিয়া, আমন ধান)।
 - **দীর্ঘ দিনের উদ্ভিদ (Long-day plants):** দৈনিক ১২ ঘণ্টার বেশি আলো লাগে (যেমন লেটুস, পালং শাক, মূলা)।
 - **দিবস-নিরপেক্ষ উদ্ভিদ (Day-neutral plants):** আলোর দৈর্ঘ্যের প্রভাব নেই (যেমন শসা, টমেটো, সূর্যমুখী)।`,
-      interactiveWidgetUrl: '/interactive/neuron-endocrine-hormone-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/neuron-endocrine-hormone-lab.html',
       importantTerms: [
         { termBangla: 'ফটোট্রপিজম', termEnglish: 'Phototropism', definition: 'সূর্যালোকের উৎসের দিক অনুসারে উদ্ভিদের অঙ্গের বক্র বৃদ্ধি।' },
         { termBangla: 'গ্র্যাভিট্রপিজম', termEnglish: 'Gravitropism', definition: 'পৃথিবীর অভিকর্ষ বলের প্রভাবে মূলের মাটির গভীরে বৃদ্ধি পাওয়া।' },
@@ -218,7 +218,7 @@ export async function seedBiologyChapter10(prisma: PrismaClient) {
 - **কেন্দ্রীয় স্নায়ুতন্ত্র (CNS):** মস্তিষ্ক ও সুষুম্নাকাণ্ড।
 - **প্রান্তীয় স্নায়ুতন্ত্র (PNS):** ১২ জোড়া করোটি স্নায়ু ও ৩১ জোড়া সুষুম্না স্নায়ু।
 - **স্বয়ংক্রিয় স্নায়ুতন্ত্র (ANS):** অনৈচ্ছিক অঙ্গসমূহ নিয়ন্ত্রণকারী সমবেদী ও পরা-সমবেদী শাখা।`,
-      interactiveWidgetUrl: '/interactive/neuron-endocrine-hormone-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/neuron-endocrine-hormone-lab.html',
       importantTerms: [
         { termBangla: 'নিউরন', termEnglish: 'Neuron', definition: 'স্নায়ুতন্ত্রের গঠনগত ও কার্যকরী মৌলিক একক।' },
         { termBangla: 'ডেনড্রাইট', termEnglish: 'Dendrite', definition: 'কোষদেহের চারপাশ থেকে বের হওয়া শাখাতন্তু যা সংকেত ভেতরে আনে।' },
@@ -271,7 +271,7 @@ export async function seedBiologyChapter10(prisma: PrismaClient) {
 
 ### ৩. সুষুম্নাকাণ্ড (Spinal Cord)
 মেডুলা থেকে শুরু হয়ে প্রথম লাম্বার কশেরুকা পর্যন্ত বিস্তৃত। মস্তিষ্কের উল্টো—এর **ভেতরে H-আকৃতির গ্রে ম্যাটার** এবং **বাইরে হোয়াইট ম্যাটার** থাকে। এটি প্রতিবর্ত ক্রিয়ার মূল সমন্বয় কেন্দ্র।`,
-      interactiveWidgetUrl: '/interactive/neuron-endocrine-hormone-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/neuron-endocrine-hormone-lab.html',
       importantTerms: [
         { termBangla: 'সেরিব্রাম', termEnglish: 'Cerebrum', definition: 'মস্তিষ্কের বৃহত্তম অংশ যা জ্ঞান, চিন্তা ও স্মৃতি নিয়ন্ত্রণ করে।' },
         { termBangla: 'কর্পাস ক্যালোসাম', termEnglish: 'Corpus Callosum', definition: 'গুরুমস্তিষ্কের ডান ও বাম হেমিস্ফিয়ার সংযোগকারী স্নায়ুতন্তুর সেতু।' },
@@ -323,7 +323,7 @@ export async function seedBiologyChapter10(prisma: PrismaClient) {
 
 ### ৩. মস্তিষ্কের ভূমিকা ও বিলম্বিত ব্যথা
 সুষুম্নাকাণ্ড কয়েক মিলিসেকেন্ডে হাত সরিয়ে অঙ্গহানি বাঁচিয়ে দেয়। একই সংবেদী সংকেতের একটি শাখা উর্ধ্বমুখী ট্র্যাক্ট দিয়ে মস্তিষ্কের সেরিব্রামে পৌঁছায়। মস্তিষ্ক সংকেত বিশ্লেষণ করার পর মানুষ ব্যথা অনুভব করে ও বুঝতে পারে কী ঘটেছিল।`,
-      interactiveWidgetUrl: '/interactive/neuron-endocrine-hormone-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/neuron-endocrine-hormone-lab.html',
       importantTerms: [
         { termBangla: 'প্রতিবর্ত ক্রিয়া', termEnglish: 'Reflex Action', definition: 'মস্তিষ্কের চিন্তা ছাড়া সুষুম্নাকাণ্ড দ্বারা পরিচালিত তাৎক্ষণিক অনৈচ্ছিক প্রতিক্রিয়া।' },
         { termBangla: 'প্রতিবর্ত চাপ', termEnglish: 'Reflex Arc', definition: 'প্রতিবর্ত উদ্দীপনা পরিবহনের নির্দিষ্ট স্নায়বিক পথ (৫টি অংশযুক্ত)।' },
@@ -375,7 +375,7 @@ export async function seedBiologyChapter10(prisma: PrismaClient) {
 সুস্থ মানুষের খালি পেটে রক্তের গ্লুকোজ **৪.০ থেকে ৬.০ mmol/L** থাকে।
 - **খাওয়ার পর গ্লুকোজ বাড়লে:** অগ্ন্যাশয়ের বিটা কোষ ইনসুলিন ছাড়ে → কোষে গ্লুকোজ শোষণ বাড়ে ও যকৃতে গ্লাইকোজেন জমা হয় → গ্লুকোজ স্বাভাবিক হয়।
 - **অনাহারে গ্লুকোজ কমলে:** অগ্ন্যাশয়ের আলফা কোষ গ্লুকাগন ছাড়ে → যকৃতের গ্লাইকোজেন ভেঙে গ্লুকোজে পরিণত হয় → গ্লুকোজ স্বাভাবিক হয়।`,
-      interactiveWidgetUrl: '/interactive/neuron-endocrine-hormone-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/neuron-endocrine-hormone-lab.html',
       importantTerms: [
         { termBangla: 'অন্তঃক্ষরা গ্রন্থি', termEnglish: 'Endocrine Gland', definition: 'নালীবিহীন গ্রন্থি যা সরাসরি রক্তে হরমোন নিঃসরণ করে।' },
         { termBangla: 'পিটুইটারি গ্রন্থি', termEnglish: 'Pituitary Gland', definition: 'মস্তিষ্কের প্রভু গ্রন্থি যা অন্যান্য অধিকাংশ অন্তঃক্ষরা গ্রন্থিকে নিয়ন্ত্রণ করে।' },
@@ -436,7 +436,7 @@ export async function seedBiologyChapter10(prisma: PrismaClient) {
   1. **ডায়েট (Diet):** চিনি ও মিষ্টি সম্পূর্ণ পরিহার, নিয়ন্ত্রিত সুষম আঁশযুক্ত খাবার।
   2. **ডিসিপ্লিন (Discipline):** প্রতিদিন ৩০-৪০ মিনিট হাঁটা ও নিয়মিত জীবনযাপন।
   3. **ডোজ (Dose):** চিকিৎসকের পরামর্শে সঠিক মাত্রায় ওষুধ বা ইনসুলিন ইনজেকশন নেওয়া।`,
-      interactiveWidgetUrl: '/interactive/neuron-endocrine-hormone-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/neuron-endocrine-hormone-lab.html',
       importantTerms: [
         { termBangla: 'পারকিনসন্স রোগ', termEnglish: 'Parkinson’s Disease', definition: 'মস্তিষ্কে ডোপামিন উৎপাদনকারী নিউরন ক্ষয়জনিত হাত কাঁপুনি ও পেশির আড়ষ্টতা রোগ।' },
         { termBangla: 'এপিলেপসি', termEnglish: 'Epilepsy', definition: 'মস্তিষ্কের নিউরনে অস্বাভাবিক বৈদ্যুতিক তরঙ্গে খিঁচুনি সৃষ্টিকারী স্নায়বিক ব্যাধি।' },

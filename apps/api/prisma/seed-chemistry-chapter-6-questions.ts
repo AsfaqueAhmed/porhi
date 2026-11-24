@@ -245,7 +245,7 @@ export const chemistryChapter6QuestionsBatch1: QuestionData[] = [
     id: 'q_chem_6_1_08',
     topicId: 'top_ssc_chemistry_ch6_1',
     type: 'MCQ',
-    stem: '$3.01 \\times 10^{23}$ টি নাইট্রোজেন অণু ($\text{N}_2$) সমান কত মোল?',
+    stem: '$3.01 \\times 10^{23}$ টি নাইট্রোজেন অণু ($\\text{N}_2$) সমান কত মোল?',
     options: [
       { id: 'opt_chem_6_1_08_a', text: '$0.5\\text{ mol}$', isCorrect: true },
       { id: 'opt_chem_6_1_08_b', text: '$1.0\\text{ mol}$', isCorrect: false },
@@ -381,7 +381,7 @@ export const chemistryChapter6QuestionsBatch1: QuestionData[] = [
     id: 'q_chem_6_2_01',
     topicId: 'top_ssc_chemistry_ch6_2',
     type: 'MCQ',
-    stem: 'সালফিউরিক অ্যাসিড ($\text{H}_2\text{SO}_4$)-এর আণবিক ভর কত?',
+    stem: 'সালফিউরিক অ্যাসিড ($\\text{H}_2\\text{SO}_4$)-এর আণবিক ভর কত?',
     options: [
       { id: 'opt_chem_6_2_01_a', text: '49', isCorrect: false },
       { id: 'opt_chem_6_2_01_b', text: '98', isCorrect: true },
@@ -410,7 +410,7 @@ export const chemistryChapter6QuestionsBatch1: QuestionData[] = [
     id: 'q_chem_6_2_02',
     topicId: 'top_ssc_chemistry_ch6_2',
     type: 'MCQ',
-    stem: 'তুঁতে বা কপার সালফেট পেন্টাহাইড্রেট ($\text{CuSO}_4 \cdot 5\text{H}_2\text{O}$)-এর আণবিক ভর কত? (Cu = 63.5, S = 32, O = 16, H = 1)',
+    stem: 'তুঁতে বা কপার সালফেট পেন্টাহাইড্রেট ($\\text{CuSO}_4 \cdot 5\\text{H}_2\\text{O}$)-এর আণবিক ভর কত? (Cu = 63.5, S = 32, O = 16, H = 1)',
     options: [
       { id: 'opt_chem_6_2_02_a', text: '159.5', isCorrect: false },
       { id: 'opt_chem_6_2_02_b', text: '249.5', isCorrect: true },
@@ -468,7 +468,7 @@ export const chemistryChapter6QuestionsBatch1: QuestionData[] = [
     id: 'q_chem_6_2_04',
     topicId: 'top_ssc_chemistry_ch6_2',
     type: 'MCQ',
-    stem: 'গ্লুকোজের ($\text{C}_6\text{H}_{12}\text{O}_6$) ১টি অণুর ভর কত গ্রাম?',
+    stem: 'গ্লুকোজের ($\\text{C}_6\\text{H}_{12}\\text{O}_6$) ১টি অণুর ভর কত গ্রাম?',
     options: [
       { id: 'opt_chem_6_2_04_a', text: '$180\\text{ g}$', isCorrect: false },
       { id: 'opt_chem_6_2_04_b', text: '$2.99 \\times 10^{-22}\\text{ g}$', isCorrect: true },
@@ -497,7 +497,7 @@ export const chemistryChapter6QuestionsBatch1: QuestionData[] = [
     id: 'q_chem_6_2_05',
     topicId: 'top_ssc_chemistry_ch6_2',
     type: 'MCQ',
-    stem: 'অ্যালুমিনিয়াম সালফেট [$\text{Al}_2(\text{SO}_4)_3$]-এর আণবিক ভর কত? (Al = 27, S = 32, O = 16)',
+    stem: 'অ্যালুমিনিয়াম সালফেট [$\\text{Al}_2(\\text{SO}_4)_3$]-এর আণবিক ভর কত? (Al = 27, S = 32, O = 16)',
     options: [
       { id: 'opt_chem_6_2_05_a', text: '150', isCorrect: false },
       { id: 'opt_chem_6_2_05_b', text: '342', isCorrect: true },
@@ -567,12 +567,12 @@ export const chemistryChapter6QuestionsBatch1: QuestionData[] = [
       coreConcept: 'মৌলিক পদার্থের পারমাণবিক ভরকে গ্রামে প্রকাশ করলে তাকে ১ গ্রাম-পরমাণু বলে।',
       stepDerivation: 'সালফারের পারমাণবিক ভর ৩২, তাই সালফারের ১ গ্রাম-পরমাণু $= 32\\text{ g}$।',
       distractorAnalysis: {
-        opt_chem_6_2_07_a: 'অক্সিজেনের ১ গ্রাম-পরমাণু ১৬ গ্রাম; তবে ১ গ্রাম-অণু ($\text{O}_2$) ৩২ গ্রাম। প্রশ্নে গ্রাম-পরমাণু বলা হয়েছে।',
+        opt_chem_6_2_07_a: 'অক্সিজেনের ১ গ্রাম-পরমাণু ১৬ গ্রাম; তবে ১ গ্রাম-অণু ($\\text{O}_2$) ৩২ গ্রাম। প্রশ্নে গ্রাম-পরমাণু বলা হয়েছে।',
         opt_chem_6_2_07_c: 'ফসফরাসের পারমাণবিক ভর ৩১।',
         opt_chem_6_2_07_d: 'ক্লোরিনের পারমাণবিক ভর ৩৫.৫।',
       },
       textbookCitation: { bookTitle: BOOK, chapterName: 'ষষ্ঠ অধ্যায়: মোলের ধারণা ও রাসায়নিক গণনা · ৬.২', pageNumber: 114 },
-      proTipShortcut: 'ফাঁদ সতর্কতা: গ্রাম-পরমাণু বললে পারমাণবিক ভর (S = 32), আর গ্রাম-অণু বললে আণবিক ভর ($\text{O}_2 = 32$)।',
+      proTipShortcut: 'ফাঁদ সতর্কতা: গ্রাম-পরমাণু বললে পারমাণবিক ভর (S = 32), আর গ্রাম-অণু বললে আণবিক ভর ($\\text{O}_2 = 32$)।',
     },
     difficulty: 'MEDIUM',
     boardSource: 'সিলেট বোর্ড ২০২১',
@@ -584,7 +584,7 @@ export const chemistryChapter6QuestionsBatch1: QuestionData[] = [
     id: 'q_chem_6_2_08',
     topicId: 'top_ssc_chemistry_ch6_2',
     type: 'MCQ',
-    stem: 'নাইট্রিক অ্যাসিডের ($\text{HNO}_3$) মোলার ভর কত?',
+    stem: 'নাইট্রিক অ্যাসিডের ($\\text{HNO}_3$) মোলার ভর কত?',
     options: [
       { id: 'opt_chem_6_2_08_a', text: '$63\\text{ g/mol}$', isCorrect: true },
       { id: 'opt_chem_6_2_08_b', text: '$47\\text{ g/mol}$', isCorrect: false },

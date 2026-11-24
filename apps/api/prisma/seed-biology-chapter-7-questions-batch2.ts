@@ -42,7 +42,7 @@ export const biologyChapter7QuestionsBatch2: QuestionData[] = [
         chapterName: "সপ্তম অধ্যায়: গ্যাসীয় বিনিময় · ৭.১",
         pageNumber: 161
       },
-      proTipShortcut: "রাতে: আলো নেই $\\rightarrow$ সালোকসংশ্লেষণ নেই $\\rightarrow$ শুধু শ্বসন ($O_2$ শোষণ, $CO_2$ নির্গমন)।"
+      proTipShortcut: "রাতে: আলো নেই → সালোকসংশ্লেষণ নেই → শুধু শ্বসন ($O_2$ শোষণ, $CO_2$ নির্গমন)।"
     },
     difficulty: "EASY",
     boardSource: "ঢাকা বোর্ড",
@@ -378,7 +378,7 @@ export const biologyChapter7QuestionsBatch2: QuestionData[] = [
         chapterName: "সপ্তম অধ্যায়: গ্যাসীয় বিনিময় · ৭.২",
         pageNumber: 163
       },
-      proTipShortcut: "ট্রাকিয়ার পেছনে অন্ননালি $\\rightarrow$ প্রসারণের জন্য C-রিং।"
+      proTipShortcut: "ট্রাকিয়ার পেছনে অন্ননালি → প্রসারণের জন্য C-রিং।"
     },
     difficulty: "MEDIUM",
     boardSource: "বরিশাল বোর্ড",
@@ -522,7 +522,7 @@ export const biologyChapter7QuestionsBatch2: QuestionData[] = [
         chapterName: "সপ্তম অধ্যায়: গ্যাসীয় বিনিময় · ৭.৩",
         pageNumber: 166
       },
-      proTipShortcut: "প্রশ্বাস: পাঁজর উপরে ও বাইরে $\\rightarrow$ বুক ফুলে ওঠে।"
+      proTipShortcut: "প্রশ্বাস: পাঁজর উপরে ও বাইরে → বুক ফুলে ওঠে।"
     },
     difficulty: "MEDIUM",
     boardSource: "ঢাকা বোর্ড",
@@ -618,7 +618,7 @@ export const biologyChapter7QuestionsBatch2: QuestionData[] = [
         chapterName: "সপ্তম অধ্যায়: গ্যাসীয় বিনিময় · ৭.৩",
         pageNumber: 167
       },
-      proTipShortcut: "রক্তে $CO_2$ বৃদ্ধি $\\rightarrow$ মেডুলা উদ্দীপনা $\\rightarrow$ দ্রুত শ্বাস।"
+      proTipShortcut: "রক্তে $CO_2$ বৃদ্ধি → মেডুলা উদ্দীপনা → দ্রুত শ্বাস।"
     },
     difficulty: "MEDIUM",
     boardSource: "কুমিল্লা বোর্ড",
@@ -714,7 +714,7 @@ export const biologyChapter7QuestionsBatch2: QuestionData[] = [
         chapterName: "সপ্তম অধ্যায়: গ্যাসীয় বিনিময় · ৭.৩",
         pageNumber: 166
       },
-      proTipShortcut: "আয়তন বাড়ে $\\rightarrow$ চাপ কমে $\\rightarrow$ বাতাস ঢোকে (প্রশ্বাস)।"
+      proTipShortcut: "আয়তন বাড়ে → চাপ কমে → বাতাস ঢোকে (প্রশ্বাস)।"
     },
     difficulty: "MEDIUM",
     boardSource: "চট্টগ্রাম বোর্ড",
@@ -906,7 +906,7 @@ export const biologyChapter7QuestionsBatch2: QuestionData[] = [
         chapterName: "সপ্তম অধ্যায়: গ্যাসীয় বিনিময় · ৭.৪",
         pageNumber: 169
       },
-      proTipShortcut: "লোহিত কণিকায় K বেশি $\\rightarrow$ $KHCO_3$।"
+      proTipShortcut: "লোহিত কণিকায় K বেশি → $KHCO_3$।"
     },
     difficulty: "MEDIUM",
     boardSource: "ময়মনসিংহ বোর্ড",
@@ -1146,7 +1146,7 @@ export const biologyChapter7QuestionsBatch2: QuestionData[] = [
         chapterName: "সপ্তম অধ্যায়: গ্যাসীয় বিনিময় · ৭.৫",
         pageNumber: 174
       },
-      proTipShortcut: "তামাকের ধোঁয়া = মারাত্মক কার্সিনোজেন $\\rightarrow$ ফুসফুসের ক্যান্সার।"
+      proTipShortcut: "তামাকের ধোঁয়া = মারাত্মক কার্সিনোজেন → ফুসফুসের ক্যান্সার।"
     },
     difficulty: "EASY",
     boardSource: "কুমিল্লা বোর্ড",

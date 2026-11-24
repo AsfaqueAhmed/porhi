@@ -191,17 +191,17 @@ $$2\\text{H}_2\\text{O(l)} \\xrightarrow{\\text{তড়িৎ বিশ্লে�
 3. **নিয়ম ৩ (ল্যাটিন নাম থেকে প্রতীক):** কিছু মৌলের প্রতীক তাদের প্রাচীন ল্যাটিন বা জার্মান নাম থেকে গ্রহণ করা হয়েছে।
 
 ### ২. পাঠ্যবইয়ের ১১টি গুরুত্বপূর্ণ ল্যাটিন নাম ও প্রতীক
-- সোডিয়াম (Sodium) $\\rightarrow$ **Natrium (Na)**
-- কপার (Copper) $\\rightarrow$ **Cuprum (Cu)**
-- পটাশিয়াম (Potassium) $\\rightarrow$ **Kalium (K)**
-- আয়রন (Iron) $\\rightarrow$ **Ferrum (Fe)**
-- সিলভার (Silver) $\\rightarrow$ **Argentum (Ag)**
-- গোল্ড (Gold) $\\rightarrow$ **Aurum (Au)**
-- লেড (Lead) $\\rightarrow$ **Plumbum (Pb)**
-- টিন (Tin) $\\rightarrow$ **Stannum (Sn)**
-- অ্যান্টিমনি (Antimony) $\\rightarrow$ **Stibium (Sb)**
-- মার্কারি (Mercury) $\\rightarrow$ **Hydrargyrum (Hg)**
-- টাংস্টেন (Tungsten) $\\rightarrow$ **Wolfram (W)**`,
+- সোডিয়াম (Sodium) → **Natrium (Na)**
+- কপার (Copper) → **Cuprum (Cu)**
+- পটাশিয়াম (Potassium) → **Kalium (K)**
+- আয়রন (Iron) → **Ferrum (Fe)**
+- সিলভার (Silver) → **Argentum (Ag)**
+- গোল্ড (Gold) → **Aurum (Au)**
+- লেড (Lead) → **Plumbum (Pb)**
+- টিন (Tin) → **Stannum (Sn)**
+- অ্যান্টিমনি (Antimony) → **Stibium (Sb)**
+- মার্কারি (Mercury) → **Hydrargyrum (Hg)**
+- টাংস্টেন (Tungsten) → **Wolfram (W)**`,
       interactiveWidgetUrl: INTERACTIVE_WIDGET_URL,
       importantTerms: [
         { termBangla: 'প্রতীক', termEnglish: 'Symbol', definition: 'মৌলের ইংরেজি বা ল্যাটিন পুরো নামের আন্তর্জাতিক সংক্ষিপ্ত প্রকাশ।' },
@@ -421,7 +421,7 @@ $$\\text{অরবিটাল শক্তিক্রম: } 1s < 2s < 2p < 3s 
 যেহেতু $4s$ এর শক্তি $3d$ অপেক্ষা কম, তাই ১৯তম ইলেকট্রন $3d$-তে না গিয়ে $4s$-এ যায়:
 $$\\text{K}(19): 1s^2 2s^2 2p^6 3s^2 3p^6 4s^1$$
 
-### ৪. ক্রোমিয়াম ($\text{Cr}$) ও কপার ($\text{Cu}$) এর ব্যতিক্রমী সুস্থিতি
+### ৪. ক্রোমিয়াম ($\\text{Cr}$) ও কপার ($\\text{Cu}$) এর ব্যতিক্রমী সুস্থিতি
 সমশক্তি সম্পন্ন অরবিটালসমূহ অর্ধপূর্ণ ($d^5$) অথবা সম্পূর্ণ পূর্ণ ($d^{10}$) অবস্থায় সর্বাধিক প্রতিসম ও অধিক সুস্থিত (Stable) হয়:
 - **ক্রোমিয়াম (Cr-24):** $1s^2 2s^2 2p^6 3s^2 3p^6 \\mathbf{3d^5 4s^1}$ (অর্ধপূর্ণ $d^5$ স্থিতিশীলতা)
 - **কপার (Cu-29):** $1s^2 2s^2 2p^6 3s^2 3p^6 \\mathbf{3d^{10} 4s^1}$ (সম্পূর্ণ পূর্ণ $d^{10}$ স্থিতিশীলতা)`,

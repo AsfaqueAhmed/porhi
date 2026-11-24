@@ -570,7 +570,7 @@ export const biologyChapter7QuestionsBatch1: QuestionData[] = [
         chapterName: "সপ্তম অধ্যায়: গ্যাসীয় বিনিময় · ৭.৩",
         pageNumber: 166
       },
-      proTipShortcut: "আয়তন বৃদ্ধি $\\rightarrow$ চাপ হ্রাস $\\rightarrow$ বাতাস প্রবেশ।"
+      proTipShortcut: "আয়তন বৃদ্ধি → চাপ হ্রাস → বাতাস প্রবেশ।"
     },
     difficulty: "MEDIUM",
     boardSource: "রাজশাহী বোর্ড",

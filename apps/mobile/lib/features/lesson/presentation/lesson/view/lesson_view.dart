@@ -193,18 +193,22 @@ class LessonView extends GetView<LessonController> {
                   envConfig: envConfig,
                 ),
               ],
-              if (quickQuestion != null) ...<Widget>[
+              if (quickQuestion != null ||
+                  controller.isQuickCheckCompleted.value) ...<Widget>[
                 const SizedBox(height: 16),
                 LessonQuickCheckCard(
                   language: lang,
-                  question: quickQuestion,
+                  question: quickQuestion ?? controller.quickQuestions.first,
                   questionIndex: controller.currentQuestionIndex.value,
                   totalQuestions: controller.quickQuestions.length,
                   selectedOptionId: controller.selectedOptionId.value,
                   submitResult: controller.quickCheckResult.value,
                   isSubmitting: controller.isSubmittingQuickCheck.value,
+                  isCompleted: controller.isQuickCheckCompleted.value,
+                  correctCount: controller.quickCheckCorrectCount,
                   onSelectOption: controller.submitQuickCheckAnswer,
                   onNextQuestion: controller.nextQuickQuestion,
+                  onRestart: controller.restartQuickCheck,
                   envConfig: envConfig,
                 ),
               ],

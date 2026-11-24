@@ -18,6 +18,11 @@ import { LatexRenderer } from '@/components/math/latex-renderer';
 
 export function resolveMediaUrl(url: string): string {
   if (!url) return '';
+  if (url.startsWith('/interactive/')) {
+    url = `/uploads${url}`;
+  } else if (url.startsWith('interactive/')) {
+    url = `/uploads/${url}`;
+  }
   if (url.startsWith('http://') || url.startsWith('https://')) {
     if (typeof window !== 'undefined' && window.location?.hostname) {
       try {

@@ -144,7 +144,7 @@ export const chemistryChapter1QuestionsBatch2: QuestionData[] = [
         opt_chem_1_29_d: 'তাপ থেকে চৌম্বক শক্তিতে সরাসরি সাধারণ রূপান্তর কোষে ঘটে না।',
       },
       textbookCitation: { bookTitle: BOOK, chapterName: 'প্রথম অধ্যায়: রসায়নের ধারণা · ১.৩', pageNumber: 7 },
-      proTipShortcut: 'ব্যাটারি বা গ্যালভানিক সেল = রাসায়নিক শক্তি $\\rightarrow$ বিদ্যুৎ শক্তি।',
+      proTipShortcut: 'ব্যাটারি বা গ্যালভানিক সেল = রাসায়নিক শক্তি → বিদ্যুৎ শক্তি।',
     },
     difficulty: 'EASY',
     boardSource: 'রাজশাহী বোর্ড ২০২৪',
@@ -303,7 +303,7 @@ export const chemistryChapter1QuestionsBatch2: QuestionData[] = [
       textbookCitation: { bookTitle: BOOK, chapterName: 'প্রথম অধ্যায়: রসায়নের ধারণা · ১.৩', pageNumber: 7 },
     },
     cqRubric: {
-      ka: { mark: 1, criteria: 'বিদ্যুৎ কোষে কোন শক্তি কোন শক্তিতে রূপান্তরিত হয় তা লেখা (রাসায়নিক $\\rightarrow$ বিদ্যুৎ শক্তি)।' },
+      ka: { mark: 1, criteria: 'বিদ্যুৎ কোষে কোন শক্তি কোন শক্তিতে রূপান্তরিত হয় তা লেখা (রাসায়নিক → বিদ্যুৎ শক্তি)।' },
       kha: { mark: 2, criteria: 'ব্যাটারির ইলেকট্রন প্রবাহ কেন রাসায়নিক বিক্রিয়ার ওপর নির্ভরশীল তা ব্যাখ্যা করা।' },
       ga: { mark: 3, criteria: 'উদ্দীপকের ফ্যান চলার প্রক্রিয়ায় শক্তির ধারাবাহিক রূপান্তর ব্যাখ্যা করা।' },
       gha: { mark: 4, criteria: '“পদার্থবিজ্ঞানের তড়িৎ শক্তি রসায়নের রাসায়নিক সামর্থ্যের বাস্তব বহিঃপ্রকাশ”—রিয়াদের বক্তব্যের যথার্থতা মূল্যায়ন করা।' },
@@ -442,7 +442,7 @@ export const chemistryChapter1QuestionsBatch2: QuestionData[] = [
     explanation: {
       directAnswer: 'সঠিক উত্তর খ: জৈব বিবর্ধন (Biomagnification)।',
       coreConcept: 'চর্বিতে দ্রবণীয় অপচনশীল বিষাক্ত কীটনাশক খাদ্যশৃঙ্খলের উচ্চ স্তরের খাদকদেহে হাজার গুণ বেশি ঘনত্বে সঞ্চিত হওয়াকে জৈব বিবর্ধন বলে।',
-      stepDerivation: 'খাদ্যশৃঙ্খল বিশ্লেষণ: পানিতে ডিডিটি দ্রবীভূত হলে তা ক্ষুদ্র প্লাংকটনে জমা হয় ($0.04\\text{ ppm}$) $\\rightarrow$ ছোট মাছ প্লাংকটন খেয়ে আরও বেশি সঞ্চয় করে ($0.5\\text{ ppm}$) $\\rightarrow$ বড় মাছ তা খায় ($2\\text{ ppm}$) $\\rightarrow$ পাখি বা মানুষ শীর্ষে থেকে সর্বোচ্চ ঘনত্বে ($25\\text{ ppm}$) বিষ গ্রহণ করে।',
+      stepDerivation: 'খাদ্যশৃঙ্খল বিশ্লেষণ: পানিতে ডিডিটি দ্রবীভূত হলে তা ক্ষুদ্র প্লাংকটনে জমা হয় ($0.04\\text{ ppm}$) → ছোট মাছ প্লাংকটন খেয়ে আরও বেশি সঞ্চয় করে ($0.5\\text{ ppm}$) → বড় মাছ তা খায় ($2\\text{ ppm}$) → পাখি বা মানুষ শীর্ষে থেকে সর্বোচ্চ ঘনত্বে ($25\\text{ ppm}$) বিষ গ্রহণ করে।',
       distractorAnalysis: {
         opt_chem_1_40_a: 'ইউট্রোফিকেশন হলো সারের কারণে জলাশয়ে শৈবালের অতিবৃদ্ধি ও অক্সিজেনের অভাব।',
         opt_chem_1_40_c: 'বায়োডিগ্রেডেশন হলো ব্যাকটেরিয়া দ্বারা জৈব পদার্থের স্বাভাবিক পচন ও ধ্বংস।',
@@ -610,7 +610,7 @@ export const chemistryChapter1QuestionsBatch2: QuestionData[] = [
     options: null,
     explanation: {
       directAnswer: 'কৃষিজমির অতিরিক্ত রাসায়নিক সার বিলে পড়ে ইউট্রোফিকেশন ঘটায়, যার ফলে শৈবাল পচনে দ্রবীভূত অক্সিজেন ($DO$) শেষ হয়ে মাছের মড়ক সৃষ্টি হয়।',
-      coreConcept: 'জলাশয়ে পুষ্টি উপাদান বৃদ্ধি $\\rightarrow$ অ্যালগাল ব্লুম $\\rightarrow$ অক্সিজেনের ঘাটতি $\\rightarrow$ জলজ প্রাণী ও মাছের মৃত্যু।',
+      coreConcept: 'জলাশয়ে পুষ্টি উপাদান বৃদ্ধি → অ্যালগাল ব্লুম → অক্সিজেনের ঘাটতি → জলজ প্রাণী ও মাছের মৃত্যু।',
       textbookCitation: { bookTitle: BOOK, chapterName: 'প্রথম অধ্যায়: রসায়নের ধারণা · ১.৪', pageNumber: 10 },
     },
     cqRubric: {

@@ -50,7 +50,7 @@ export const chemistryChapter1QuestionsBatch3: QuestionData[] = [
     explanation: {
       directAnswer: 'সঠিক উত্তর খ: কাজের পরিকল্পনা প্রণয়ন ও পদ্ধতি নির্ধারণ।',
       coreConcept: 'দ্বিতীয় ধাপে পর্যাপ্ত তথ্য জানার পর তৃতীয় ধাপে ল্যাবরেটরি পরীক্ষণ কীভাবে করা হবে তার সুনির্দিষ্ট পরিকল্পনা তৈরি করতে হয়।',
-      stepDerivation: 'ক্রমিক ধাপ বিন্যাস: ১. বিষয় নির্ধারণ $\\rightarrow$ ২. বিষয় সম্পর্কে জ্ঞান অর্জন $\\rightarrow$ ৩. কাজের পরিকল্পনা প্রণয়ন $\\rightarrow$ ৪. পরীক্ষণ $\\rightarrow$ ৫. বিশ্লেষণ $\\rightarrow$ ৬. ফলাফল। সুতরাং ২-এর ঠিক পর ৩য় ধাপ কাজের পরিকল্পনা।',
+      stepDerivation: 'ক্রমিক ধাপ বিন্যাস: ১. বিষয় নির্ধারণ → ২. বিষয় সম্পর্কে জ্ঞান অর্জন → ৩. কাজের পরিকল্পনা প্রণয়ন → ৪. পরীক্ষণ → ৫. বিশ্লেষণ → ৬. ফলাফল। সুতরাং ২-এর ঠিক পর ৩য় ধাপ কাজের পরিকল্পনা।',
       distractorAnalysis: {
         opt_chem_1_50_a: 'ফলাফল বিশ্লেষণ পঞ্চম ধাপ, যা পরীক্ষণ শেষে আসে।',
         opt_chem_1_50_c: 'সিদ্ধান্ত গ্রহণ ষষ্ঠ ধাপের অন্তর্ভুক্ত।',
@@ -115,7 +115,7 @@ export const chemistryChapter1QuestionsBatch3: QuestionData[] = [
         opt_chem_1_52_d: 'অক্সিজেন গ্যাস পটাশিয়াম ক্লোরেট বা হাইড্রোজেন পারক্সাইডের বিয়োজনে তৈরি হয়।',
       },
       textbookCitation: { bookTitle: BOOK, chapterName: 'প্রথম অধ্যায়: রসায়নের ধারণা · ১.৫', pageNumber: 12 },
-      proTipShortcut: 'কার্বনেট লবণ + অ্যাসিড $\\rightarrow$ লবণ + পানি + $CO_2\\uparrow$।',
+      proTipShortcut: 'কার্বনেট লবণ + অ্যাসিড → লবণ + পানি + $CO_2\\uparrow$।',
     },
     difficulty: 'EASY',
     boardSource: 'চট্টগ্রাম বোর্ড ২০২৪',

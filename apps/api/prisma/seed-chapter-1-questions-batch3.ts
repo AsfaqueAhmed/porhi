@@ -630,7 +630,7 @@ export const chapter1Batch3Questions: QuestionData[] = [
     id: 'q_ch1_5_mcq_9',
     topicId: 'top_ssc_physics_ch1_5',
     type: 'MCQ',
-    stem: 'কম্পিউটারের প্রসেসরের গতি নির্দেশক $3.2\\text{ GHz}$ (গিগাহার্টজ) ফ্রিকোয়েন্সিকে হার্টজ ($\text{Hz}$) এককে প্রকাশ করলে কত হবে?',
+    stem: 'কম্পিউটারের প্রসেসরের গতি নির্দেশক $3.2\\text{ GHz}$ (গিগাহার্টজ) ফ্রিকোয়েন্সিকে হার্টজ ($\\text{Hz}$) এককে প্রকাশ করলে কত হবে?',
     options: [
       { id: 'opt_1_5_9a', text: '$3.2 \\times 10^9\\text{ Hz}$', isCorrect: true },
       { id: 'opt_1_5_9b', text: '$3.2 \\times 10^6\\text{ Hz}$', isCorrect: false },

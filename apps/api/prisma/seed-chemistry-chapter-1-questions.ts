@@ -536,7 +536,7 @@ export const chemistryChapter1QuestionsBatch1: QuestionData[] = [
         opt_chem_1_19_d: 'পাকা আম রসালো হয়, পানি শুকিয়ে যাওয়া এর মিষ্টি হওয়ার কারণ নয়।',
       },
       textbookCitation: { bookTitle: BOOK, chapterName: 'প্রথম অধ্যায়: রসায়নের ধারণা · ১.২', pageNumber: 4 },
-      proTipShortcut: 'কাঁচা আমের অ্যাসিড $\\rightarrow$ পাকা আমের গ্লুকোজ ও ফ্রুক্টোজ।',
+      proTipShortcut: 'কাঁচা আমের অ্যাসিড → পাকা আমের গ্লুকোজ ও ফ্রুক্টোজ।',
     },
     difficulty: 'MEDIUM',
     boardSource: 'সিলেট বোর্ড ২০২৩',

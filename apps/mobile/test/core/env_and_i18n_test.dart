@@ -52,6 +52,14 @@ void main() {
         env.resolveMediaUrl('/uploads/interactive/motion.html'),
         'http://10.0.2.2:3001/uploads/interactive/motion.html',
       );
+      expect(
+        env.resolveMediaUrl('/interactive/mitosis-cell-division-lab.html'),
+        'http://10.0.2.2:3001/uploads/interactive/mitosis-cell-division-lab.html',
+      );
+      expect(
+        env.resolveMediaUrl('interactive/mitosis-cell-division-lab.html'),
+        'http://10.0.2.2:3001/uploads/interactive/mitosis-cell-division-lab.html',
+      );
     });
 
     test('resolveMediaUrl normalizes trailing slash and preserves full URLs', () {
@@ -111,7 +119,7 @@ void main() {
   group('PorhiTheme & Routes', () {
     test('PorhiTheme exposes brand colors and Common styles', () {
       expect(PorhiTheme.light.colorScheme.primary, PorhiTheme.indigo600);
-      expect(PorhiTheme.light.scaffoldBackgroundColor, PorhiTheme.slate50);
+      expect(PorhiTheme.light.scaffoldBackgroundColor, PorhiTheme.canvas);
       expect(PorhiTheme.primaryButtonStyle.bgColor, PorhiTheme.indigo600);
       expect(PorhiTheme.confirmationDialogStyle.bgColor, Colors.white);
     });

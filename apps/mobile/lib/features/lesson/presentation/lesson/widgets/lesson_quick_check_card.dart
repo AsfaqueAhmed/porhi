@@ -13,8 +13,11 @@ class LessonQuickCheckCard extends StatelessWidget {
   final String? selectedOptionId;
   final QuickCheckSubmitResultEntity? submitResult;
   final bool isSubmitting;
+  final bool isCompleted;
+  final int correctCount;
   final ValueChanged<String> onSelectOption;
   final VoidCallback onNextQuestion;
+  final VoidCallback? onRestart;
   final EnvConfig? envConfig;
 
   const LessonQuickCheckCard({
@@ -26,13 +29,20 @@ class LessonQuickCheckCard extends StatelessWidget {
     required this.selectedOptionId,
     required this.submitResult,
     required this.isSubmitting,
+    this.isCompleted = false,
+    this.correctCount = 0,
     required this.onSelectOption,
     required this.onNextQuestion,
+    this.onRestart,
     this.envConfig,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (isCompleted) {
+      return _buildCompletedSummary(context);
+    }
+
     final isAnswered = submitResult != null;
     final letters = language == AppLanguage.bn
         ? const <String>['ক', 'খ', 'গ', 'ঘ']
@@ -241,25 +251,215 @@ class LessonQuickCheckCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (totalQuestions > 1) ...<Widget>[
-                const SizedBox(height: 10),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: OutlinedButton.icon(
-                    key: const Key('quick_check_next_question_btn'),
-                    onPressed: onNextQuestion,
-                    icon: const Icon(Icons.refresh_rounded, size: 16),
-                    label: Text(
-                      AppStrings.tr(
-                        'পরবর্তী কুইজ দেখো',
-                        'Try Another Question',
-                        language,
+              const SizedBox(height: 10),
+              Align(
+                alignment: Alignment.centerRight,
+                child: OutlinedButton.icon(
+                  key: const Key('quick_check_next_question_btn'),
+                  onPressed: onNextQuestion,
+                  icon: Icon(
+                    questionIndex >= totalQuestions - 1
+                        ? Icons.check_circle_outline_rounded
+                        : Icons.arrow_forward_rounded,
+                    size: 16,
+                  ),
+                  label: Text(
+                    questionIndex >= totalQuestions - 1
+                        ? AppStrings.tr(
+                            'ফলাফল দেখো',
+                            'See Results',
+                            language,
+                          )
+                        : AppStrings.tr(
+                            'পরবর্তী প্রশ্ন',
+                            'Next Question',
+                            language,
+                          ),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCompletedSummary(BuildContext context) {
+    final accuracyPercent = totalQuestions > 0
+        ? ((correctCount / totalQuestions) * 100).round()
+        : 0;
+    final isPerfect = totalQuestions > 0 && correctCount == totalQuestions;
+
+    return Card(
+      key: const Key('lesson_quick_check_card'),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: Color(0xFFC7D2FE)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color:
+                        isPerfect ? PorhiTheme.emerald50 : PorhiTheme.indigo50,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    isPerfect
+                        ? Icons.emoji_events_rounded
+                        : Icons.check_circle_outline_rounded,
+                    size: 20,
+                    color: isPerfect
+                        ? PorhiTheme.emerald600
+                        : PorhiTheme.indigo600,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        AppStrings.tr(
+                          'পাঠের শিখন যাচাই • ফলাফল',
+                          'Lesson Quick Check • Results',
+                          language,
+                        ),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w800,
+                          color: PorhiTheme.slate900,
+                        ),
                       ),
-                    ),
+                      Text(
+                        AppStrings.tr(
+                          'সবগুলো বহুনির্বাচনি (MCQ) প্রশ্ন সম্পন্ন হয়েছে',
+                          'All multiple-choice (MCQ) questions completed',
+                          language,
+                        ),
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          color: PorhiTheme.slate600,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
-            ],
+            ),
+            const Divider(height: 22),
+            Container(
+              key: const Key('quick_check_summary_container'),
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: isPerfect ? PorhiTheme.emerald50 : PorhiTheme.indigo50,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: isPerfect
+                      ? const Color(0xFFA7F3D0)
+                      : const Color(0xFFC7D2FE),
+                ),
+              ),
+              child: Column(
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(
+                        isPerfect
+                            ? Icons.verified_rounded
+                            : Icons.assessment_outlined,
+                        size: 22,
+                        color: isPerfect
+                            ? PorhiTheme.emerald600
+                            : PorhiTheme.indigo600,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        AppStrings.tr(
+                          'সঠিক উত্তর: ${AppStrings.formatNumber(correctCount, language)} / ${AppStrings.formatNumber(totalQuestions, language)}',
+                          'Correct Answers: ${AppStrings.formatNumber(correctCount, language)} / ${AppStrings.formatNumber(totalQuestions, language)}',
+                          language,
+                        ),
+                        style: TextStyle(
+                          fontSize: 15.5,
+                          fontWeight: FontWeight.w800,
+                          color: isPerfect
+                              ? PorhiTheme.emerald600
+                              : PorhiTheme.indigo900,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    AppStrings.tr(
+                      'তুমি ${AppStrings.formatNumber(totalQuestions, language)} টির মধ্যে ${AppStrings.formatNumber(correctCount, language)} টি প্রশ্নের সঠিক উত্তর দিয়েছো (${AppStrings.formatNumber(accuracyPercent, language)}% নির্ভুলতা)।',
+                      'You answered ${AppStrings.formatNumber(correctCount, language)} out of ${AppStrings.formatNumber(totalQuestions, language)} questions correctly (${AppStrings.formatNumber(accuracyPercent, language)}% accuracy).',
+                      language,
+                    ),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                      color: PorhiTheme.slate700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              AppStrings.tr(
+                'তুমি কি আবার পরীক্ষাটি শুরু করতে চাও?',
+                'Would you like to start over the test?',
+                language,
+              ),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: PorhiTheme.slate800,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Center(
+              child: FilledButton.icon(
+                key: const Key('quick_check_restart_btn'),
+                onPressed: onRestart,
+                style: FilledButton.styleFrom(
+                  backgroundColor: PorhiTheme.indigo600,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                icon: const Icon(Icons.replay_rounded, size: 16),
+                label: Text(
+                  AppStrings.tr(
+                    'আবার শুরু করো',
+                    'Start Over',
+                    language,
+                  ),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

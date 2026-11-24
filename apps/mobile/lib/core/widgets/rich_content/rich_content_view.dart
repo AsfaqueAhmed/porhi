@@ -818,6 +818,13 @@ class _SafeMathView extends StatelessWidget {
       return Text(raw, style: style);
     }
 
+    if (RegExp(r'^\\?(?:x?r?ightarrow|longrightarrow|to|ightarrow|rightarrow)$').hasMatch(trimmed)) {
+      return Text('→', style: style);
+    }
+    if (RegExp(r'^\\?(?:leftarrow|longleftarrow)$').hasMatch(trimmed)) {
+      return Text('←', style: style);
+    }
+
     // flutter_math_fork paints text-mode symbols one code point at a time.
     // That breaks Bengali reordering marks and conjuncts inside \text{}.
     // Render Bengali text with Flutter's shaping engine and keep the fraction
@@ -932,6 +939,21 @@ String _cleanMathText(String value) {
       .replaceAll(r'\approx', '≈')
       .replaceAll(r'\leq', '≤')
       .replaceAll(r'\geq', '≥')
+      .replaceAll(r'\longrightarrow', '→')
+      .replaceAll(r'\rightarrow', '→')
+      .replaceAll(r'\to', '→')
+      .replaceAll(r'\leftarrow', '←')
+      .replaceAll(r'\longleftarrow', '←')
+      .replaceAll(r'\leftrightarrow', '↔')
+      .replaceAll(r'\Rightarrow', '⇒')
+      .replaceAll(r'\Leftarrow', '⇐')
+      .replaceAll(r'\uparrow', '↑')
+      .replaceAll(r'\downarrow', '↓')
+      .replaceAll(r'\pm', '±')
+      .replaceAll(r'\neq', '≠')
+      .replaceAll(r'\Delta', 'Δ')
+      .replaceAll(RegExp(r'\\?x?r?ightarrow'), '→')
+      .replaceAll('ightarrow', '→')
       .replaceAll(r'\left', '')
       .replaceAll(r'\right', '')
       .replaceAll(

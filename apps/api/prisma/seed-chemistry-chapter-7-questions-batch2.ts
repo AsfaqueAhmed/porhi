@@ -507,7 +507,7 @@ export const chemistryChapter7QuestionsBatch2: QuestionData[] = [
         opt_chem_7_42_d: '-২ হাইড্রোজেনের ক্ষেত্রে কখনোই সম্ভব নয়।',
       },
       textbookCitation: { bookTitle: BOOK, chapterName: 'সপ্তম অধ্যায়: রাসায়নিক বিক্রিয়া · ৭.৪', pageNumber: 155 },
-      proTipShortcut: 'ধাতব হাইড্রাইড ($NaH, CaH_2$) $\\rightarrow$ হাইড্রোজেন $= -1$।',
+      proTipShortcut: 'ধাতব হাইড্রাইড ($NaH, CaH_2$) → হাইড্রোজেন $= -1$।',
     },
     difficulty: 'HARD',
     boardSource: 'বরিশাল বোর্ড ২০২১',

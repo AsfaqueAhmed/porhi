@@ -43,11 +43,17 @@ class EnvConfig {
     return base.isEmpty ? 'http://localhost:3000' : base;
   }
 
-  /// Resolves relative `/uploads/...` or `/audio/...` paths against [apiBaseUrl].
+  /// Resolves relative `/uploads/...`, `/interactive/...`, or `/audio/...` paths against [apiBaseUrl].
   String resolveMediaUrl(String path) {
-    final trimmed = path.trim();
+    var trimmed = path.trim();
     if (trimmed.isEmpty) return '';
     if (_isAbsoluteUrl(trimmed)) return trimmed;
+
+    if (trimmed.startsWith('/interactive/')) {
+      trimmed = '/uploads$trimmed';
+    } else if (trimmed.startsWith('interactive/')) {
+      trimmed = '/uploads/$trimmed';
+    }
 
     final base = normalizedApiBaseUrl;
     final cleanPath = trimmed.startsWith('/') ? trimmed : '/$trimmed';

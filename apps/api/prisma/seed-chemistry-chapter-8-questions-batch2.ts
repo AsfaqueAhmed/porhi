@@ -78,7 +78,7 @@ export const chemistryChapter8QuestionsBatch2: QuestionData[] = [
     ],
     explanation: {
       directAnswer: 'সঠিক উত্তর গ: সোডিয়াম ক্লোরাইড (NaCl)।',
-      coreConcept: 'সোডিয়াম ক্লোরাইড পানিতে দ্রবীভূত হলে প্রায় শতভাগ বিয়োজিত হয়ে প্রচুর $\text{Na}^+$ ও $\text{Cl}^-$ আয়ন দেয়, তাই এটি একটি তীব্র তড়িৎ বিশ্লেষ্য।',
+      coreConcept: 'সোডিয়াম ক্লোরাইড পানিতে দ্রবীভূত হলে প্রায় শতভাগ বিয়োজিত হয়ে প্রচুর $\\text{Na}^+$ ও $\\text{Cl}^-$ আয়ন দেয়, তাই এটি একটি তীব্র তড়িৎ বিশ্লেষ্য।',
       stepDerivation: 'NaCl(s) + aq → Na⁺(aq) + Cl⁻(aq) (১০০% আয়নিত) → উচ্চ তড়িৎ পরিবাহিতা → তীব্র তড়িৎ বিশ্লেষ্য।',
       distractorAnalysis: {
         opt_chem_8_27_a: 'CH3COOH মৃদু জৈব এসিড, পানিতে সামান্য আয়নিত হয় (মৃদু তড়িৎ বিশ্লেষ্য)।',
@@ -250,7 +250,7 @@ export const chemistryChapter8QuestionsBatch2: QuestionData[] = [
     ],
     explanation: {
       directAnswer: 'সঠিক উত্তর খ: ক্লোরিন গ্যাস (Cl2)।',
-      coreConcept: 'গলিত সোডিয়াম ক্লোরাইডে কেবল $\text{Na}^+$ ও $\text{Cl}^-$ আয়ন থাকে। অ্যানোড ধনাত্মক হওয়ায় $\text{Cl}^-$ আয়ন অ্যানোডে গিয়ে ইলেকট্রন ত্যাগ করে ক্লোরিন গ্যাসে ($Cl_2$) পরিণত হয়।',
+      coreConcept: 'গলিত সোডিয়াম ক্লোরাইডে কেবল $\\text{Na}^+$ ও $\\text{Cl}^-$ আয়ন থাকে। অ্যানোড ধনাত্মক হওয়ায় $\\text{Cl}^-$ আয়ন অ্যানোডে গিয়ে ইলেকট্রন ত্যাগ করে ক্লোরিন গ্যাসে ($Cl_2$) পরিণত হয়।',
       stepDerivation: 'অ্যানোড বিক্রিয়া: 2Cl⁻(l) → Cl₂(g) + 2e⁻ (জারণ)। গ্যাস বুদবুদ আকারে নির্গত হয়।',
       distractorAnalysis: {
         opt_chem_8_33_a: 'ধাতব সোডিয়াম জমা হয় ঋণাত্মক ক্যাথোডে: 2Na+ + 2e- → 2Na।',
@@ -414,7 +414,7 @@ export const chemistryChapter8QuestionsBatch2: QuestionData[] = [
     ],
     explanation: {
       directAnswer: 'সঠিক উত্তর খ: হাইড্রোজেন গ্যাস (H2)।',
-      coreConcept: 'ব্রাইনে $\text{Na}^+$ ও $\text{H}^+$ উভয় ক্যাটায়ন উপস্থিত থাকলেও সক্রিয়তা সিরিজে $\text{H}^+$ নিচে থাকায় এটি সহজে ইলেকট্রন গ্রহণ করে হাইড্রোজেন গ্যাসে পরিণত হয়।',
+      coreConcept: 'ব্রাইনে $\\text{Na}^+$ ও $\\text{H}^+$ উভয় ক্যাটায়ন উপস্থিত থাকলেও সক্রিয়তা সিরিজে $\\text{H}^+$ নিচে থাকায় এটি সহজে ইলেকট্রন গ্রহণ করে হাইড্রোজেন গ্যাসে পরিণত হয়।',
       stepDerivation: 'ক্যাথোড বিক্রিয়া: 2H⁺(aq) + 2e⁻ → H₂(g) ↑। Na⁺ দ্রবণে রয়ে যায়।',
       distractorAnalysis: {
         opt_chem_8_39_a: 'Cl2 গ্যাস উৎপন্ন হয় অ্যানোড তড়িৎদ্বারে, ক্যাথোডে নয়।',

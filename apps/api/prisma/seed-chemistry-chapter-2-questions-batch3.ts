@@ -381,7 +381,7 @@ export const chemistryChapter2QuestionsBatch3: QuestionData[] = [
     explanation: {
       directAnswer: 'সঠিক উত্তর গ: ঊর্ধ্বপাতন।',
       coreConcept: 'কঠিন থেকে তরলে না গিয়ে সরাসরি বাষ্প এবং বাষ্পকে ঠান্ডা করলে সরাসরি কঠিনে রূপান্তর হলো ঊর্ধ্বপাতন (Sublimation)।',
-      stepDerivation: 'সাধারণ পদার্থ: কঠিন $\\rightarrow$ তরল $\\rightarrow$ বাষ্প।\nঊর্ধ্বপাতিত পদার্থ: কঠিন $\\rightleftharpoons$ বাষ্প (তরল অবস্থা অনুপস্থিত)।',
+      stepDerivation: 'সাধারণ পদার্থ: কঠিন → তরল → বাষ্প।\nঊর্ধ্বপাতিত পদার্থ: কঠিন $\\rightleftharpoons$ বাষ্প (তরল অবস্থা অনুপস্থিত)।',
       distractorAnalysis: {
         opt_chem_2_62_a: 'স্ফুটন ঘটে তরল থেকে বাষ্পে রূপান্তরে।',
         opt_chem_2_62_b: 'পাতন হলো তরল বাষ্প করে তরল করা।',

@@ -127,7 +127,7 @@ export async function seedBiologyChapter9(prisma: PrismaClient) {
 3. **নড়াচড়া ও চলাচল (চলন):** হাত, পা, স্কন্ধচক্র ও শ্রোণিচক্র নড়াচড়ায় প্রত্যক্ষ সাহায্য করে। অস্থির সাথে পেশি আটকে থাকায় পেশির টানে মানুষ চলাচল করতে পারে।
 4. **লোহিত রক্তকণিকা উৎপাদন:** দীর্ঘ অস্থির অভ্যন্তরে লাল **অস্থিমজ্জা (Bone Marrow)** থেকে প্রতিনিয়ত লোহিত রক্তকণিকা (RBC) উৎপন্ন হয়।
 5. **খনিজ লবণ সঞ্চয়:** দেহে প্রয়োজনীয় ক্যালসিয়াম (Ca), পটাসিয়াম (K), সোডিয়াম (Na) ও ফসফরাস (P) অস্থিতে জমা থাকে, যা অস্থিকে শক্ত রাখে এবং রক্তে খনিজের সমতা বজায় রাখে।`,
-      interactiveWidgetUrl: '/interactive/skeletal-joint-muscle-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/skeletal-joint-muscle-lab.html',
       importantTerms: [
         {
           termBangla: 'কঙ্কালতন্ত্র',
@@ -197,7 +197,7 @@ export async function seedBiologyChapter9(prisma: PrismaClient) {
 | **রক্ত সংবহন** | হেভারসিয়ান তন্ত্রের মাধ্যমে সরাসরি রক্তনালি প্রবেশ করে | কোনো রক্তনালি প্রবেশ করে না; ব্যাপনে পুষ্টি পায় |
 | **ক্যালসিয়ামের মাত্রা** | প্রচুর ক্যালসিয়াম ফসফেট স্ফটিক থাকে | সাধারণত ক্যালসিয়াম থাকে না বা নগণ্য |
 | **মানবদেহে উদাহরণ** | ফিমার, হিউমেরাস, কশেরুকা, করোটি | কানের পিনা, নাসাগ্র, শ্বাসনালি, সন্ধিমুখ |`,
-      interactiveWidgetUrl: '/interactive/skeletal-joint-muscle-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/skeletal-joint-muscle-lab.html',
       importantTerms: [
         {
           termBangla: 'কনড্রিন',
@@ -267,7 +267,7 @@ export async function seedBiologyChapter9(prisma: PrismaClient) {
    - **গঠন:** দরজার পাল্লা যেমন কবজার সাহায্যে আটকানো থাকে এবং কেবল এক দিকে খোলা যায়, ঠিক তেমনি একটি নির্দিষ্ট অক্ষ বরাবর নড়ে।
    - **চলন:** শুধুমাত্র একদিকে (একটি নির্দিষ্ট সমতলে) ভাঁজ ও সোজা করা যায়।
    - **উদাহরণ:** হাতের কনুই (Elbow), জানু বা হাঁটু (Knee) এবং আঙুলগুলোর মধ্যকার সন্ধি।`,
-      interactiveWidgetUrl: '/interactive/skeletal-joint-muscle-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/skeletal-joint-muscle-lab.html',
       importantTerms: [
         {
           termBangla: 'সাইনোভিয়াল রস',
@@ -331,7 +331,7 @@ export async function seedBiologyChapter9(prisma: PrismaClient) {
 | **স্থিতিস্থাপকতা** | স্থিতিস্থাপকতা বেশ কম (দৃঢ় ও অস্থিতিস্থাপক) | স্থিতিস্থাপকতা তুলনামূলকভাবে বেশ বেশি |
 | **তন্তুর বিন্যাস** | সমান্তরাল আঁটি বা বান্ডিল আকারে সুবিন্যস্ত | শাখান্বিত ও জালকের মতো ছড়ানো |
 | **মূল শারীরবৃত্তীয় কাজ** | পেশির সংকোচন বলকে সরাসরি অস্থিতে সঞ্চালিত করে | সন্ধির অস্থিকে স্থানচ্যুত না হয়ে নমনীয় সঞ্চালনে ধরে রাখে |`,
-      interactiveWidgetUrl: '/interactive/skeletal-joint-muscle-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/skeletal-joint-muscle-lab.html',
       importantTerms: [
         {
           termBangla: 'টেনডন',
@@ -405,7 +405,7 @@ export async function seedBiologyChapter9(prisma: PrismaClient) {
   - যন্ত্রণাদায়ক গিঁটের ওপর সহনীয় **কুসুম গরম সেঁক** নেওয়া।
   - অস্থিসন্ধির স্বাভাবিক সচলতা বজায় রাখতে চিকিৎসকের নির্দেশিত হালকা ব্যায়াম করা।
   - চিকিৎসকের পরামর্শে নিয়মমাফিক প্রদাহনাশক ও বেদনানাশক ওষুধ সেবন করা।`,
-      interactiveWidgetUrl: '/interactive/skeletal-joint-muscle-lab.html',
+      interactiveWidgetUrl: '/uploads/interactive/skeletal-joint-muscle-lab.html',
       importantTerms: [
         {
           termBangla: 'অস্টিওপোরোসিস',

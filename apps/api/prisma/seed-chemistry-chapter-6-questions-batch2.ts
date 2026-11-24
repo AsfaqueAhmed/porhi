@@ -215,7 +215,7 @@ export const chemistryChapter6QuestionsBatch2: QuestionData[] = [
     id: 'q_chem_6_3_08',
     topicId: 'top_ssc_chemistry_ch6_3',
     type: 'MCQ',
-    stem: 'একটি বেলুনে STP-তে $3.01 \\times 10^{22}$ টি হিলিয়াম ($\text{He}$) পরমাণু আছে। বেলুনটির আয়তন কত?',
+    stem: 'একটি বেলুনে STP-তে $3.01 \\times 10^{22}$ টি হিলিয়াম ($\\text{He}$) পরমাণু আছে। বেলুনটির আয়তন কত?',
     options: [
       { id: 'opt_chem_6_3_08_a', text: '$22.4\\text{ L}$', isCorrect: false },
       { id: 'opt_chem_6_3_08_b', text: '$1.12\\text{ L}$', isCorrect: true },
@@ -300,10 +300,10 @@ export const chemistryChapter6QuestionsBatch2: QuestionData[] = [
     id: 'q_chem_6_3_11',
     topicId: 'top_ssc_chemistry_ch6_3',
     type: 'CQ_CREATIVE',
-    stem: 'রসায়ন ক্লাসে শিক্ষক বললেন, “STP-তে সমআয়তনের দুটি গ্যাস জারে যথাক্রমে নাইট্রোজেন ($\text{N}_2$) এবং মিথেন ($\text{CH}_4$) রাখা আছে। উভয়ের আয়তন $5.6\\text{ L}$।” একজন শিক্ষার্থী প্রশ্ন করল, “উভয় জারে কি গ্যাসের ভর সমান হবে?”',
+    stem: 'রসায়ন ক্লাসে শিক্ষক বললেন, “STP-তে সমআয়তনের দুটি গ্যাস জারে যথাক্রমে নাইট্রোজেন ($\\text{N}_2$) এবং মিথেন ($\\text{CH}_4$) রাখা আছে। উভয়ের আয়তন $5.6\\text{ L}$।” একজন শিক্ষার্থী প্রশ্ন করল, “উভয় জারে কি গ্যাসের ভর সমান হবে?”',
     options: null,
     explanation: {
-      directAnswer: 'উভয় জারের আয়তন ও মোল সমান হলেও আণবিক ভর ভিন্ন হওয়ায় গ্যাসের ভর সমান হবে না ($\text{N}_2 = 7\\text{ g}$, $\text{CH}_4 = 4\\text{ g}$)।',
+      directAnswer: 'উভয় জারের আয়তন ও মোল সমান হলেও আণবিক ভর ভিন্ন হওয়ায় গ্যাসের ভর সমান হবে না ($\\text{N}_2 = 7\\text{ g}$, $\\text{CH}_4 = 4\\text{ g}$)।',
       coreConcept: 'অ্যাভোগেড্রোর প্রকল্প অনুসারে সমআয়তনে মোল সমান হলেও ভর ভিন্ন হয়।',
       textbookCitation: { bookTitle: BOOK, chapterName: 'ষষ্ঠ অধ্যায়: মোলের ধারণা ও রাসায়নিক গণনা · ৬.৩', pageNumber: 118 },
     },

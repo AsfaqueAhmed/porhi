@@ -190,7 +190,7 @@ export const chapter12QuestionsBatch2: QuestionData[] = [
     id: 'q_12_37',
     topicId: 'top_ssc_physics_ch12_2',
     type: 'MCQ',
-    stem: 'সুষম চৌম্বক ক্ষেত্রের ($B$) সমান্তরালে ($\theta = 0^\circ$) একটি বিদ্যুৎবাহী তার রাখলে তারটির ওপর কত বল ক্রিয়া করবে?',
+    stem: 'সুষম চৌম্বক ক্ষেত্রের ($B$) সমান্তরালে ($\\theta = 0^\circ$) একটি বিদ্যুৎবাহী তার রাখলে তারটির ওপর কত বল ক্রিয়া করবে?',
     options: [
       { id: 'opt_12_37_a', text: 'সর্বোচ্চ বল $BIL$', isCorrect: false },
       { id: 'opt_12_37_b', text: 'শূন্য ($0\\,\\text{N}$)', isCorrect: true },

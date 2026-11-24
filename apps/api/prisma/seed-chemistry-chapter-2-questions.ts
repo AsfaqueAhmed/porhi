@@ -520,7 +520,7 @@ export const chemistryChapter2QuestionsBatch1: QuestionData[] = [
     explanation: {
       directAnswer: 'সঠিক উত্তর গ: -২৭৩.১৫°C বা ০ K।',
       coreConcept: 'যে তাপমাত্রায় তাত্ত্বিকভাবে সকল পদার্থের কণার গতিশক্তি ও তাপীয় কম্পন সম্পূর্ণ থেমে যায় তাকে পরম শূন্য তাপমাত্রা বলে।',
-      stepDerivation: 'কেলভিন স্কেলের শূন্য বিন্দু $0\text{ K} = -273.15^\circ\text{C}$। এই তাপমাত্রায় কণার গতিশক্তি $E_k = \frac{3}{2}kT = 0$ হয়।',
+      stepDerivation: 'কেলভিন স্কেলের শূন্য বিন্দু $0\\text{ K} = -273.15^\circ\\text{C}$। এই তাপমাত্রায় কণার গতিশক্তি $E_k = \\frac{3}{2}kT = 0$ হয়।',
       distractorAnalysis: {
         opt_chem_2_18_a: '০°C হলো বরফের গলনাঙ্ক (২৭৩.১৫ K)।',
         opt_chem_2_18_b: '-১০০°C পরম শূন্য নয়।',
@@ -574,7 +574,7 @@ export const chemistryChapter2QuestionsBatch1: QuestionData[] = [
     explanation: {
       directAnswer: 'সঠিক উত্তর খ: দ্বিগুণ হবে।',
       coreConcept: 'কণার গতিতত্ত্ব অনুসারে কণার গড় গতিশক্তি কেলভিন তাপমাত্রার সরাসরি সমানুপাতিক ($E_k \propto T$)।',
-      stepDerivation: 'যেহেতু $\overline{E_k} = \frac{3}{2}kT$, তাই কেলভিন তাপমাত্রা $T$ দ্বিগুণ ($2T$) হলে গড় গতিশক্তিও ঠিক দ্বিগুণ হবে।',
+      stepDerivation: 'যেহেতু $\overline{E_k} = \\frac{3}{2}kT$, তাই কেলভিন তাপমাত্রা $T$ দ্বিগুণ ($2T$) হলে গড় গতিশক্তিও ঠিক দ্বিগুণ হবে।',
       distractorAnalysis: {
         opt_chem_2_20_a: 'তাপমাত্রা দ্বিগুণ করলে গতিশক্তি কমে না, বাড়ে।',
         opt_chem_2_20_c: 'গতিশক্তি বেগের বর্গের সমানুপাতিক কিন্তু তাপমাত্রার প্রথম ঘাতের সমানুপাতিক।',

@@ -378,7 +378,7 @@ export const chemistryChapter4QuestionsBatch2: QuestionData[] = [
     explanation: {
       directAnswer: 'সঠিক উত্তর ঘ: সিজিয়াম (Cs)।',
       coreConcept: 'একই গ্রুপে উপর থেকে নিচে নামলে নতুন শক্তিস্তর যুক্ত হওয়ায় পারমাণবিক ব্যাসার্ধ বৃদ্ধি পায়।',
-      stepDerivation: 'গ্রুপ ১-এর মৌলসমূহ: $Li (152\text{ pm}) < Na (186\text{ pm}) < K (227\text{ pm}) < Cs (265\text{ pm})$। সিজিয়ামের শক্তিস্তর সংখ্যা ৬টি হওয়ায় এর ব্যাসার্ধ প্রদত্ত মৌলগুলোর মধ্যে বৃহত্তম।',
+      stepDerivation: 'গ্রুপ ১-এর মৌলসমূহ: $Li (152\\text{ pm}) < Na (186\\text{ pm}) < K (227\\text{ pm}) < Cs (265\\text{ pm})$। সিজিয়ামের শক্তিস্তর সংখ্যা ৬টি হওয়ায় এর ব্যাসার্ধ প্রদত্ত মৌলগুলোর মধ্যে বৃহত্তম।',
       distractorAnalysis: {
         opt_chem_4_38_a: 'লিথিয়ামের মাত্র ২টি শক্তিস্তর থাকায় আকার সবচেয়ে ছোট।',
         opt_chem_4_38_b: 'সোডিয়ামের ৩টি শক্তিস্তর।',
@@ -437,7 +437,7 @@ export const chemistryChapter4QuestionsBatch2: QuestionData[] = [
       coreConcept: 'নাইট্রোজেনের বিন্যাস $1s^2 2s^2 2p_x^1 2p_y^1 2p_z^1$। অর্ধপূর্ণ $p^3$ উপস্তর অত্যন্ত সুস্থিত হওয়ায় $IE(N) > IE(O)$।',
       stepDerivation: '$IE(N) = 1402\\text{ kJ/mol}$ এবং $IE(O) = 1314\\text{ kJ/mol}$। অক্সিজেনের $2p^4$ বিন্যাসে ৪র্থ ইলেকট্রন জোড়বদ্ধ হয়ে আন্তঃইলেকট্রন বিকর্ষণ সৃষ্টি করে, তাই তা সহজে অপসারিত হয়।',
       distractorAnalysis: {
-        opt_chem_4_40_a: 'নাইট্রোজেনের আকার অক্সিজেনের চেয়ে বড় ($N=70\text{ pm}, O=66\text{ pm}$)।',
+        opt_chem_4_40_a: 'নাইট্রোজেনের আকার অক্সিজেনের চেয়ে বড় ($N=70\\text{ pm}, O=66\\text{ pm}$)।',
         opt_chem_4_40_c: 'উভয়ই দ্বিপরমাণুক গ্যাস, এটি আয়নীকরণ শক্তির কারণ নয়।',
         opt_chem_4_40_d: 'অক্সিজেনের তড়িৎ ঋণাত্মকতা (৩.৪৪) নাইট্রোজেনের (৩.০৪) চেয়ে বেশি।',
       },
@@ -547,7 +547,7 @@ export const chemistryChapter4QuestionsBatch2: QuestionData[] = [
     ],
     explanation: {
       directAnswer: 'সঠিক উত্তর ক: Na > Mg > Al।',
-      coreConcept: '৩য় পর্যায়ে বাম থেকে ডানে পারমাণবিক ব্যাসার্ধ ক্রমান্বয়ে হ্রাস পায়: $Na (186) > Mg (160) > Al (143\text{ pm})$।',
+      coreConcept: '৩য় পর্যায়ে বাম থেকে ডানে পারমাণবিক ব্যাসার্ধ ক্রমান্বয়ে হ্রাস পায়: $Na (186) > Mg (160) > Al (143\\text{ pm})$।',
       stepDerivation: 'ডানে গেলে একই স্তরে নিউক্লিয়ার চার্জ বৃদ্ধি পায়, ফলে ইলেকট্রনগুলো অধিক সংকুচিত হয়। তাই $Na > Mg > Al$ সঠিক।',
       distractorAnalysis: {
         opt_chem_4_44_b: 'এটি বিপরীত ক্রম লেখা হয়েছে।',

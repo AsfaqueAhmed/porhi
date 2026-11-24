@@ -12,7 +12,7 @@ export const chemistryChapter6QuestionsBatch3: QuestionData[] = [
     id: 'q_chem_6_5_01',
     topicId: 'top_ssc_chemistry_ch6_5',
     type: 'MCQ',
-    stem: 'পানিতে ($\text{H}_2\text{O}$) হাইড্রোজেনের শতকরা সংযুতি কত? (H = 1, O = 16)',
+    stem: 'পানিতে ($\\text{H}_2\\text{O}$) হাইড্রোজেনের শতকরা সংযুতি কত? (H = 1, O = 16)',
     options: [
       { id: 'opt_chem_6_5_01_a', text: '$5.55\\%$', isCorrect: false },
       { id: 'opt_chem_6_5_01_b', text: '$11.11\\%$', isCorrect: true },
@@ -41,7 +41,7 @@ export const chemistryChapter6QuestionsBatch3: QuestionData[] = [
     id: 'q_chem_6_5_02',
     topicId: 'top_ssc_chemistry_ch6_5',
     type: 'MCQ',
-    stem: 'গ্লুকোজের ($\text{C}_6\text{H}_{12}\text{O}_6$) স্থূল সংকেত কোনটি?',
+    stem: 'গ্লুকোজের ($\\text{C}_6\\text{H}_{12}\\text{O}_6$) স্থূল সংকেত কোনটি?',
     options: [
       { id: 'opt_chem_6_5_02_a', text: '$\\text{CHO}$', isCorrect: false },
       { id: 'opt_chem_6_5_02_b', text: '$\\text{CH}_2\\text{O}$', isCorrect: true },
@@ -70,7 +70,7 @@ export const chemistryChapter6QuestionsBatch3: QuestionData[] = [
     id: 'q_chem_6_5_03',
     topicId: 'top_ssc_chemistry_ch6_5',
     type: 'MCQ',
-    stem: 'একটি যৌগের স্থূল সংকেত $\text{CH}_2$ এবং আণবিক ভর ৫৬ হলে যৌগটির আণবিক সংকেত কোনটি?',
+    stem: 'একটি যৌগের স্থূল সংকেত $\\text{CH}_2$ এবং আণবিক ভর ৫৬ হলে যৌগটির আণবিক সংকেত কোনটি?',
     options: [
       { id: 'opt_chem_6_5_03_a', text: '$\\text{C}_2\\text{H}_4$', isCorrect: false },
       { id: 'opt_chem_6_5_03_b', text: '$\\text{C}_3\\text{H}_6$', isCorrect: false },
@@ -157,7 +157,7 @@ export const chemistryChapter6QuestionsBatch3: QuestionData[] = [
     id: 'q_chem_6_5_06',
     topicId: 'top_ssc_chemistry_ch6_5',
     type: 'MCQ',
-    stem: 'সালফিউরিক অ্যাসিডে ($\text{H}_2\text{SO}_4$) অক্সিজেনের শতকরা সংযুতি কত? (H = 1, S = 32, O = 16)',
+    stem: 'সালফিউরিক অ্যাসিডে ($\\text{H}_2\\text{SO}_4$) অক্সিজেনের শতকরা সংযুতি কত? (H = 1, S = 32, O = 16)',
     options: [
       { id: 'opt_chem_6_5_06_a', text: '$32.65\\%$', isCorrect: false },
       { id: 'opt_chem_6_5_06_b', text: '$2.04\\%$', isCorrect: false },
@@ -261,7 +261,7 @@ export const chemistryChapter6QuestionsBatch3: QuestionData[] = [
         opt_chem_6_5_09_d: 'এটি কেবল স্থূল সংকেত, আণবিক সংকেত নয়।',
       },
       textbookCitation: { bookTitle: BOOK, chapterName: 'ষষ্ঠ অধ্যায়: মোলের ধারণা ও রাসায়নিক গণনা · ৬.৫', pageNumber: 130 },
-      proTipShortcut: 'বাষ্প ঘনত্ব ৩৯ মানে আণবিক ভর ৭৮, যা বেনজিনের ($\text{C}_6\text{H}_6$) সুপরিচিত ভর।',
+      proTipShortcut: 'বাষ্প ঘনত্ব ৩৯ মানে আণবিক ভর ৭৮, যা বেনজিনের ($\\text{C}_6\\text{H}_6$) সুপরিচিত ভর।',
     },
     difficulty: 'HARD',
     boardSource: 'ঢাকা বোর্ড ২০২০',
@@ -380,7 +380,7 @@ export const chemistryChapter6QuestionsBatch3: QuestionData[] = [
     id: 'q_chem_6_6_02',
     topicId: 'top_ssc_chemistry_ch6_6',
     type: 'MCQ',
-    stem: '$2\text{H}_2(g) + \text{O}_2(g) \rightarrow 2\text{H}_2\text{O}(l)$ বিক্রিয়ায় $4\text{ g } \text{H}_2$ এবং $16\text{ g } \text{O}_2$ নিলে কোনটি লিমিটিং বিক্রিয়ক হবে?',
+    stem: '$2\\text{H}_2(g) + \\text{O}_2(g) \\rightarrow 2\\text{H}_2\\text{O}(l)$ বিক্রিয়ায় $4\\text{ g } \\text{H}_2$ এবং $16\\text{ g } \\text{O}_2$ নিলে কোনটি লিমিটিং বিক্রিয়ক হবে?',
     options: [
       { id: 'opt_chem_6_6_02_a', text: '$\\text{H}_2$', isCorrect: false },
       { id: 'opt_chem_6_6_02_b', text: '$\\text{O}_2$', isCorrect: true },
@@ -438,7 +438,7 @@ export const chemistryChapter6QuestionsBatch3: QuestionData[] = [
     id: 'q_chem_6_6_04',
     topicId: 'top_ssc_chemistry_ch6_6',
     type: 'MCQ',
-    stem: '$10\\text{ g } \\text{CaCO}_3$ উত্তপ্ত করলে তাত্ত্বিকভাবে কত গ্রাম $\text{CaO}$ পাওয়া যাবে? (Ca = 40, C = 12, O = 16)',
+    stem: '$10\\text{ g } \\text{CaCO}_3$ উত্তপ্ত করলে তাত্ত্বিকভাবে কত গ্রাম $\\text{CaO}$ পাওয়া যাবে? (Ca = 40, C = 12, O = 16)',
     options: [
       { id: 'opt_chem_6_6_04_a', text: '$10.0\\text{ g}$', isCorrect: false },
       { id: 'opt_chem_6_6_04_b', text: '$5.6\\text{ g}$', isCorrect: true },
@@ -496,7 +496,7 @@ export const chemistryChapter6QuestionsBatch3: QuestionData[] = [
     id: 'q_chem_6_6_06',
     topicId: 'top_ssc_chemistry_ch6_6',
     type: 'MCQ',
-    stem: '$\text{N}_2(g) + 3\text{H}_2(g) \rightarrow 2\text{NH}_3(g)$ বিক্রিয়ায় $1\\text{ mol } \text{N}_2$ এবং $2\\text{ mol } \text{H}_2$ মিশ্রিত করলে কত মোল $\text{NH}_3$ উৎপন্ন হবে?',
+    stem: '$\\text{N}_2(g) + 3\\text{H}_2(g) \\rightarrow 2\\text{NH}_3(g)$ বিক্রিয়ায় $1\\text{ mol } \\text{N}_2$ এবং $2\\text{ mol } \\text{H}_2$ মিশ্রিত করলে কত মোল $\\text{NH}_3$ উৎপন্ন হবে?',
     options: [
       { id: 'opt_chem_6_6_06_a', text: '$2.0\\text{ mol}$', isCorrect: false },
       { id: 'opt_chem_6_6_06_b', text: '$1.33\\text{ mol}$', isCorrect: true },
@@ -554,7 +554,7 @@ export const chemistryChapter6QuestionsBatch3: QuestionData[] = [
     id: 'q_chem_6_6_08',
     topicId: 'top_ssc_chemistry_ch6_6',
     type: 'MCQ',
-    stem: '$24\\text{ g } \\text{Mg}$ ধাতুকে অতিরিক্ত অক্সিজেনে দহন করলে কত গ্রাম ম্যাগনেসিয়াম অক্সাইড ($\text{MgO}$) উৎপন্ন হবে? (Mg = 24, O = 16)',
+    stem: '$24\\text{ g } \\text{Mg}$ ধাতুকে অতিরিক্ত অক্সিজেনে দহন করলে কত গ্রাম ম্যাগনেসিয়াম অক্সাইড ($\\text{MgO}$) উৎপন্ন হবে? (Mg = 24, O = 16)',
     options: [
       { id: 'opt_chem_6_6_08_a', text: '$24\\text{ g}$', isCorrect: false },
       { id: 'opt_chem_6_6_08_b', text: '$32\\text{ g}$', isCorrect: false },
